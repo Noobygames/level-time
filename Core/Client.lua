@@ -18,7 +18,7 @@ function Client.IsForever()
   return version >= FOREVER_FIRST and version <= FOREVER_LAST
 end
 
--- Retail (Mainline, 10.x und neuer): z.B. 120100
+-- Retail (Mainline, 10.x und neuer): z.B. 120105
 local RETAIL_FIRST = 100000
 
 function Client.IsRetail()

@@ -52,7 +52,7 @@ wow = {
     resting = false,
     buffs = {},              -- aktive Buffs: Name oder { name, spellId } (C_UnitAuras.GetAuraDataByIndex)
     spellNames = { [433] = "Essen", [19705] = "Satt", [1229741] = "Lagervorteile" },  -- C_Spell.GetSpellName
-    interface = (SCENARIO or ""):match("^forever_") and 16001 or 120100,  -- Interface-Version (GetBuildInfo); Szenarien forever_* laden als WoW Forever (16001)
+    interface = (SCENARIO or ""):match("^forever_") and 16001 or 120105,  -- Interface-Version (GetBuildInfo); Szenarien forever_* laden als WoW Forever (16001)
     health = 1000,
     healthMax = 1000,
     powerMax = 0,
@@ -371,7 +371,7 @@ function UnitClass() return state.class, state.class end
 function UnitIsDeadOrGhost() return state.dead end
 function UnitHealth() return state.health end
 function IsInGuild() return state.inGuild end
-function GetBuildInfo() return "12.1.0", "1", "2026-01-01", state.interface end
+function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
 function UnitAffectingCombat() return state.inCombat end
 function UnitOnTaxi() return state.onTaxi end
 function GetInventoryItemCount(_, slot) return state.inventoryCounts[slot] or 0 end

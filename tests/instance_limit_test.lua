@@ -116,5 +116,5 @@ wow.fire("CHAT_MSG_SYSTEM", TRANSFER_ABORT_TOO_MANY_INSTANCES)
 expectTrue("Abweisung mit Stand", wow.printed[printed + 1]:find("2/5", 1, true) ~= nil)
 
 -- Retail erlaubt 10
-wow.state.interface = 120100
+wow.state.interface = 120105
 expect("Retail: 10 pro Stunde", InstanceLimit.GetLimit(), 10)
