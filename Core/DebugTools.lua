@@ -69,6 +69,8 @@ function actions.remind()
   out("reminder", "food missing %s (on %s), camp missing %s (on %s, camp system %s)",
     BuffReminder.IsFoodMissing(), ns.db.remindFood, BuffReminder.IsCampMissing(), ns.db.remindCamp,
     BuffReminder.HasCampSystem())
+  out("reminder", "charged missing %s (on %s, skyborne %s)",
+    BuffReminder.IsChargedMissing(), ns.db.remindCharged, BuffReminder.IsSkyborne())
   out("reminder", "worth reminding now %s (leveling, no combat, alive, not resting)",
     BuffReminder.WorthReminding())
 end
