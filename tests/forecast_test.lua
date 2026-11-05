@@ -36,7 +36,7 @@ expect("TBC: Level 58-69", XpTable.XpBetween(58, 70),
   165800 + 172000 + 494000 + 574700 + 614400 + 650300 + 682300 + 710200 + 734100 + 753700 + 768900 + 779700)
 
 -- Retail oder Werte, die nicht zu UnitXPMax passen: Durchschnitt der Level-Zeiten (1 h je Level)
-wow.state.interface = 120100
+wow.state.interface = 120105
 wow.state.xpMax = 202300
 expect("Retail: keine Tabelle", XpTable.XpBetween(58, 60), nil)
 expectNear("Prognose aus Level-Zeiten", Forecast.SecondsToMaxLevel(), 1800 + 3600, 1)

@@ -15,7 +15,7 @@ local function hasToggle(labelKey)
   end) ~= nil
 end
 
--- Stub-Client ist Retail (Interface 120100): kein Camp-System
+-- Stub-Client ist Retail (Interface 120105): kein Camp-System
 expect("Retail ist nicht Forever", addon.Client.IsForever(), false)
 expectTrue("Food-Hinweis überall", hasToggle("REMIND_FOOD_TOGGLE"))
 expect("Camp-Hinweis nur in Forever", hasToggle("REMIND_CAMP_TOGGLE"), false)

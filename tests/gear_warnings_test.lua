@@ -82,7 +82,7 @@ expect("Forever: verfügbar", addon.TrainerReminder.IsAvailable(), true)
 ---------------------------------------------------------------------------
 addon.Set("warnAmmo", true)
 wow.state.inventoryCounts = { [0] = 150 }
-wow.state.interface = 120100
+wow.state.interface = 120105
 GearWarnings.Check()
 expect("Retail: still", count(L.WARN_AMMO), 0)
 
@@ -119,7 +119,7 @@ wow.state.class = "WARRIOR"
 expect("Krieger: keine Munitions-Optionen", GearWarnings.ShowsAmmoOptions(), false)
 wow.state.class = "HUNTER"
 expect("Jäger: Munitions-Optionen", GearWarnings.ShowsAmmoOptions(), true)
-wow.state.interface = 120100
+wow.state.interface = 120105
 expect("Retail: keine Munitions-Optionen", GearWarnings.ShowsAmmoOptions(), false)
 wow.state.interface = 11509
 

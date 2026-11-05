@@ -19,5 +19,5 @@ expect("Level", entry.level, 12)
 expect("Symbol", entry.icon, "Interface\Icons\Ability_Rogue_Ambush")
 
 -- Retail: keine Lehrerliste
-wow.state.interface = 120100
+wow.state.interface = 120105
 expect("Retail: nicht verfügbar", Cache.IsAvailable(), false)

@@ -95,7 +95,7 @@ expect("ohne Camp-Zauber unbekannt", BuffReminder.IsCampMissing(), nil)
 ---------------------------------------------------------------------------
 -- Abstand einstellbar: wiederholt, solange der Buff fehlt
 ---------------------------------------------------------------------------
-wow.state.interface = 120100
+wow.state.interface = 120105
 wow.state.spellNames = { [19705] = "Satt" }
 wow.state.buffs = {}
 addon.Set("remindCamp", false)
