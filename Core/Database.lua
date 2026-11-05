@@ -61,6 +61,7 @@ local SETTINGS_DEFAULTS = {
   foodScale = 1,
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
+  remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
   reminderInterval = 5,  -- Minuten zwischen zwei Hinweisen auf denselben fehlenden Buff
   warnBagsFull = false,  -- Hinweis bei fast vollen Taschen (siehe GearWarnings.lua)
   warnDurability = false,  -- Hinweis bei niedriger Haltbarkeit

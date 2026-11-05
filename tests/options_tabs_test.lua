@@ -19,6 +19,7 @@ end
 expect("Retail ist nicht Forever", addon.Client.IsForever(), false)
 expectTrue("Food-Hinweis überall", hasToggle("REMIND_FOOD_TOGGLE"))
 expect("Camp-Hinweis nur in Forever", hasToggle("REMIND_CAMP_TOGGLE"), false)
+expect("Aufgeladen-Hinweis nur in Forever", hasToggle("REMIND_CHARGED_TOGGLE"), false)
 
 wow.state.interface = 16001
 expect("16001 ist Forever", addon.Client.IsForever(), true)

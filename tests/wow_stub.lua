@@ -21,6 +21,7 @@ wow = {
     name = "Testchar",
     realm = "Testrealm",
     class = "WARRIOR",
+    race = { "Orc", "Orc", 2 },  -- UnitRace: Name, Kürzel, Rassen-ID
     level = 10,
     xp = 0,
     xpMax = 1000,
@@ -368,6 +369,7 @@ function UnitIsPlayer(unit) return unit == "player" or (state.units[unit] and st
 function UnitClassification(unit) return state.units[unit] and state.units[unit].classification or "normal" end
 function GetRealmName() return state.realm end
 function UnitClass() return state.class, state.class end
+function UnitRace() return state.race[1], state.race[2], state.race[3] end
 function UnitIsDeadOrGhost() return state.dead end
 function UnitHealth() return state.health end
 function IsInGuild() return state.inGuild end

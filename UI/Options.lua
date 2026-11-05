@@ -273,6 +273,7 @@ addSection("SECTION_REMINDERS")
 addToggles({
   toggle("REMIND_FOOD_TOGGLE", "remindFood"),
   toggle("REMIND_CAMP_TOGGLE", "remindCamp", ns.BuffReminder.HasCampSystem),
+  toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
 })
 addSlider({
   label = "REMINDER_INTERVAL",

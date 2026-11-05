@@ -64,6 +64,7 @@ end
 Alerts.ICONS = {
   food = 19705,   -- Satt
   camp = 1229741, -- Lagervorteile (WoW Forever)
+  charged = 1270893, -- Aufgeladen (Himmelsgeborene, WoW Forever)
   bags = iconPath("INV_Misc_Bag_08"),
   durability = iconPath("INV_Misc_Gear_01"),
   ammo = iconPath("INV_Ammo_Arrow_02"),

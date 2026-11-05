@@ -120,3 +120,28 @@ expect("gesperrt: unbekannt", addon.BuffReminder.IsFoodMissing(), nil)
 wow.update(60)
 expect("keine Fehler", #wow.errors, 0)
 wow.state.aurasSecret = false
+
+---------------------------------------------------------------------------
+-- "Aufgeladen" der Himmelsgeborenen (Spell 1270893, Rassen-ID 96, nur WoW Forever)
+---------------------------------------------------------------------------
+addon.Set("remindFood", false)
+addon.Set("remindCharged", true)
+wow.state.buffs = {}
+expect("Retail: kein Aufgeladen", BuffReminder.IsChargedMissing(), nil)
+wow.state.interface = 16001
+wow.state.spellNames = { [19705] = "Satt", [1270893] = "Aufgeladen" }
+expect("andere Rasse: nichts", BuffReminder.IsChargedMissing(), nil)
+
+wow.state.race = { "Himmelsgeborene der Windformer", "Skyborne", 96 }
+expect("Aufgeladen fehlt", BuffReminder.IsChargedMissing(), true)
+wow.advance(1000)
+addon.Alerts.Clear()
+BuffReminder.Check()
+expect("Aufgeladen-Hinweis mit Buff-Namen", LevelTimerNotice.body:GetText(), string.format(L.REMIND_CHARGED, "Aufgeladen"))
+
+wow.state.buffs = { { name = "Aufgeladen", spellId = 1270893 } }
+expect("Aufgeladen erkannt", BuffReminder.IsChargedMissing(), false)
+
+-- Forever ohne den Zauber: nichts behaupten
+wow.state.spellNames = { [19705] = "Satt" }
+expect("ohne Aufgeladen-Zauber unbekannt", BuffReminder.IsChargedMissing(), nil)
