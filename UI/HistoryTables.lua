@@ -106,6 +106,7 @@ local TIME_COLUMNS = {
   timePartColumn("HISTORY_COMBAT", Stats.COMBAT_SECONDS, 62),
   timePartColumn("HISTORY_TAXI", Stats.TAXI_SECONDS, 62),
   timePartColumn("HISTORY_AFK", Stats.AFK_SECONDS, 62),
+  timePartColumn("HISTORY_IDLE", Stats.IDLE_SECONDS, 62),
   timePartColumn("HISTORY_DEAD", Stats.DEAD_SECONDS, 62),
   { header = "HISTORY_REST", width = 62, value = function(r)
     local rest = restSeconds(r)

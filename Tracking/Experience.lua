@@ -32,24 +32,39 @@ function Experience.CalculateRate(xp, seconds)
   return xp / seconds * SECONDS_PER_HOUR
 end
 
--- Spielzeit, auf die sich Raten und Prognosen beziehen: ohne AFK-Zeit, wenn eingestellt
--- (xpRateWithoutAfk, AFK-Zeit aus TimeBreakdown.lua). Auch für Historie-Einträge.
-function Experience.RateSeconds(seconds, afkSeconds)
-  if not seconds or not ns.db or not ns.db.xpRateWithoutAfk then return seconds end
-  return math.max(0, seconds - (afkSeconds or 0))
+-- Spielzeit, auf die sich Raten und Prognosen beziehen: ohne AFK-Zeit (xpRateWithoutAfk) und ohne Leerlauf
+-- (idleMinutes > 0), wenn eingestellt; beide Zeiten aus TimeBreakdown.lua. Auch für Historie-Einträge.
+function Experience.RateSeconds(seconds, afkSeconds, idleSeconds)
+  if not seconds or not ns.db then return seconds end
+  local rated = seconds
+  if ns.db.xpRateWithoutAfk then rated = rated - (afkSeconds or 0) end
+  if (ns.db.idleMinutes or 0) > 0 then rated = rated - (idleSeconds or 0) end
+  return math.max(0, rated)
+end
+
+-- Spielzeit eines Eintrags ({ seconds, counters }) für Raten, siehe RateSeconds
+function Experience.RecordRateSeconds(record)
+  local counters = record.counters or {}
+  return Experience.RateSeconds(record.seconds, record.ratedAfkSeconds or counters[Stats.AFK_SECONDS],
+    record.ratedIdleSeconds or counters[Stats.IDLE_SECONDS])
 end
 
 -- XP/h eines gespeicherten Eintrags ({ xp, seconds, counters }: Level, Session, Instanz-Lauf, Summe),
 -- nach denselben Regeln wie die Live-Werte. Einträge ohne AFK-Zähler (Zonen) zählen die volle Zeit.
--- Summen (History.Summarize) bringen ratedXp/ratedAfkSeconds mit: nur Einträge mit bekannter Dauer.
+-- Summen (History.Summarize) bringen ratedXp/ratedAfkSeconds/ratedIdleSeconds mit: nur Einträge mit bekannter Dauer.
 function Experience.RecordRate(record)
-  local afkSeconds = record.ratedAfkSeconds or (record.counters and record.counters[Stats.AFK_SECONDS])
-  return Experience.CalculateRate(record.ratedXp or record.xp, Experience.RateSeconds(record.seconds, afkSeconds))
+  return Experience.CalculateRate(record.ratedXp or record.xp, Experience.RecordRateSeconds(record))
+end
+
+-- Spielzeit des Bereichs für Raten (ohne AFK/Leerlauf, wenn eingestellt)
+function Experience.ScopeRateSeconds(scope)
+  local TimeBreakdown = ns.TimeBreakdown
+  return Experience.RateSeconds(Stats.GetSeconds(scope), TimeBreakdown.GetSeconds(scope, Stats.AFK_SECONDS),
+    TimeBreakdown.GetSeconds(scope, Stats.IDLE_SECONDS))
 end
 
 function Experience.GetRatePerHour(scope)
-  local afkSeconds = ns.TimeBreakdown.GetSeconds(scope, Stats.AFK_SECONDS)
-  return Experience.CalculateRate(Stats.GetXp(scope), Experience.RateSeconds(Stats.GetSeconds(scope), afkSeconds))
+  return Experience.CalculateRate(Stats.GetXp(scope), Experience.ScopeRateSeconds(scope))
 end
 
 -- Geschätzte Spielzeit bis zum Level-Up bei der Rate des Bereichs

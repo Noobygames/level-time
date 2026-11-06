@@ -235,9 +235,10 @@ function History.DeathCauseText(entry)
 end
 
 -- Auswertung: Summe über Einträge (Zeit, XP und alle Zähler). Für XP/h zählen nur Einträge mit
--- bekannter Dauer (ratedXp, ratedAfkSeconds; siehe Experience.RecordRate), sonst wäre die Rate zu hoch.
+-- bekannter Dauer (ratedXp, ratedAfkSeconds, ratedIdleSeconds; siehe Experience.RecordRate), sonst wäre die Rate zu hoch.
 function History.Summarize(records)
-  local summary = { seconds = 0, xp = 0, counters = {}, count = #records, ratedXp = 0, ratedAfkSeconds = 0 }
+  local summary = { seconds = 0, xp = 0, counters = {}, count = #records, ratedXp = 0, ratedAfkSeconds = 0,
+    ratedIdleSeconds = 0 }
   for _, record in ipairs(records) do
     summary.seconds = summary.seconds + (record.seconds or 0)
     summary.xp = summary.xp + (record.xp or 0)
@@ -247,6 +248,7 @@ function History.Summarize(records)
     if record.seconds then
       summary.ratedXp = summary.ratedXp + (record.xp or 0)
       summary.ratedAfkSeconds = summary.ratedAfkSeconds + (record.counters[ns.Stats.AFK_SECONDS] or 0)
+      summary.ratedIdleSeconds = summary.ratedIdleSeconds + (record.counters[ns.Stats.IDLE_SECONDS] or 0)
     end
   end
   return summary

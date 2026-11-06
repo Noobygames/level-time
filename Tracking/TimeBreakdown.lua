@@ -1,7 +1,10 @@
--- Wohin die Spielzeit geht: Kampf, Flugroute und AFK als Zähler (Sekunden) je Level und Session.
+-- Wohin die Spielzeit geht: Kampf, Flugroute, AFK und Leerlauf als Zähler (Sekunden) je Level und Session.
 -- Tot zählt DeathCounter (deadSeconds); der Rest (Laufen, Questen, Handeln) ergibt sich aus der
 -- Spielzeit des Bereichs minus dieser Anteile (TimeBreakdown.RestOf).
--- Jede TICK Sekunden wird die Tätigkeit bestimmt (Vorrang: tot > Kampf > Flug > AFK) und ihre Zeit
+-- Leerlauf (Roadmap 283, Einstellung idleMinutes > 0, nur beim Leveln): länger als die Grenze kein XP-Gewinn und kein
+-- Kampf, auch ohne AFK-Flag; die Zeit nach der Grenze zählt als idleSeconds (aktive Zeit = Abstand zum letzten Gewinn,
+-- gekappt bei der Grenze).
+-- Jede TICK Sekunden wird die Tätigkeit bestimmt (Vorrang: tot > Kampf > Flug > AFK > Leerlauf) und ihre Zeit
 -- gesammelt; gebucht wird beim Wechsel, alle FLUSH_INTERVAL Sekunden, beim Level-Up (diese Datei
 -- lädt vor History.lua, damit der Historie-Eintrag alles enthält) und beim Logout. Getter rechnen
 -- die noch nicht gebuchte Zeit mit ein.
@@ -16,11 +19,16 @@ local TICK = 1             -- Sekunden zwischen zwei Prüfungen
 local FLUSH_INTERVAL = 10  -- Sekunden, nach denen gesammelte Zeit spätestens gebucht wird
 
 -- Zähler, aus denen sich die Aufteilung zusammensetzt (ohne Rest)
-TimeBreakdown.PARTS = { Stats.COMBAT_SECONDS, Stats.TAXI_SECONDS, Stats.AFK_SECONDS, Stats.DEAD_SECONDS }
+TimeBreakdown.PARTS = { Stats.COMBAT_SECONDS, Stats.TAXI_SECONDS, Stats.AFK_SECONDS, Stats.IDLE_SECONDS,
+  Stats.DEAD_SECONDS }
+TimeBreakdown.MIN_IDLE_MINUTES = 0   -- 0 = kein Leerlauf
+TimeBreakdown.MAX_IDLE_MINUTES = 30
+local SECONDS_PER_MINUTE = 60
 
 local activity       -- Zähler der laufenden Tätigkeit, nil = Rest oder tot
 local pending = 0    -- Sekunden der laufenden Tätigkeit, noch nicht gebucht
 local sinceFlush = 0
+local lastActiveAt   -- GetTime() des letzten XP-Gewinns oder Kampfs (Leerlauf)
 
 -- Geheime Werte (Retail/Forever, z.B. UnitIsAFK während der Chat-Sperre) zuerst ausschließen:
 -- schon ein Wahrheitstest auf einen geheimen Wert ist für Addons ein Fehler. Danach nur auf
@@ -30,11 +38,25 @@ local function isTrue(value)
   return value and true or false
 end
 
+local function markActive()
+  lastActiveAt = GetTime()
+end
+
+local function isIdle()
+  local minutes = ns.db.idleMinutes or 0
+  if minutes <= 0 or not lastActiveAt or not ns.Experience.IsLeveling() then return false end
+  return GetTime() - lastActiveAt > minutes * SECONDS_PER_MINUTE
+end
+
 local function currentActivity()
   if isTrue(UnitIsDeadOrGhost("player")) then return nil end
-  if isTrue(UnitAffectingCombat("player")) then return Stats.COMBAT_SECONDS end
+  if isTrue(UnitAffectingCombat("player")) then
+    markActive()
+    return Stats.COMBAT_SECONDS
+  end
   if isTrue(UnitOnTaxi("player")) then return Stats.TAXI_SECONDS end
   if isTrue(UnitIsAFK("player")) then return Stats.AFK_SECONDS end
+  if isIdle() then return Stats.IDLE_SECONDS end
   return nil
 end
 
@@ -99,9 +121,11 @@ function TimeBreakdown.GetRestSeconds(scope)
 end
 
 ns.Every(TICK, TimeBreakdown.Update)
+ns.Experience.OnGain(markActive)
 
 ns.OnLogin(function()
   activity, pending, sinceFlush = nil, 0, 0
+  markActive()
 end)
 ns.OnLevelCompleted(flush)
 ns.OnLogout(flush)

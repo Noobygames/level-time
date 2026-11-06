@@ -265,6 +265,15 @@ end
 addSection("SECTION_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
 addSlider({
+  label = "IDLE_LIMIT",
+  min = ns.TimeBreakdown.MIN_IDLE_MINUTES,
+  max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
+  step = 1,
+  get = function(db) return db.idleMinutes end,
+  set = function(value) ns.Set("idleMinutes", value) end,
+  format = function(value) return value == 0 and L.IDLE_LIMIT_OFF or string.format(L.MINUTES, value) end,
+})
+addSlider({
   label = "TO_LEVEL_SAMPLES",
   min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,

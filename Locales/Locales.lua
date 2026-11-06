@@ -911,6 +911,11 @@ ns.locales = {
     SESSION_COMPARE_RATE = "(%s XP/h zur vorherigen)",
     SESSION_COMPARE_TOGGLE = "Letzte Session beim Login",
     SESSION_COMPARE_TOGGLE_TIP = "Beim Login nach einer echten Pause eine Chatzeile mit Dauer und XP der letzten Session und wie sich ihre XP/h zur Session davor verändert hat.",
+    IDLE_LIMIT = "Leerlauf ohne XP nach",
+    IDLE_LIMIT_TIP = "Zeit ohne XP-Gewinn und ohne Kampf, die länger als diese Grenze dauert, zählt als Leerlauf (auch ohne AFK-Markierung) und nicht für XP/h, Zeit bis Level-Up und Prognosen. Ganz links: aus.",
+    IDLE_LIMIT_OFF = "aus",
+    ROW_TIME_IDLE = "Leerlauf",
+    HISTORY_IDLE = "Leerlauf",
   },
   enUS = {
     -- General and commands
@@ -1815,6 +1820,11 @@ ns.locales = {
     SESSION_COMPARE_RATE = "(%s XP/h vs. the one before)",
     SESSION_COMPARE_TOGGLE = "Last session at login",
     SESSION_COMPARE_TOGGLE_TIP = "After a real break, a chat line at login with the duration and XP of your last session and how its XP/h changed compared to the session before.",
+    IDLE_LIMIT = "Idle without XP after",
+    IDLE_LIMIT_TIP = "Time without XP gain and without combat beyond this limit counts as idle (even without the AFK flag) and is left out of XP/h, time to level and forecasts. Far left: off.",
+    IDLE_LIMIT_OFF = "off",
+    ROW_TIME_IDLE = "Idle",
+    HISTORY_IDLE = "Idle",
   },
   frFR = {
     -- Général et commandes
@@ -2719,6 +2729,11 @@ ns.locales = {
     SESSION_COMPARE_RATE = "(%s PX/h par rapport à la précédente)",
     SESSION_COMPARE_TOGGLE = "Dernière session à la connexion",
     SESSION_COMPARE_TOGGLE_TIP = "Après une vraie pause, une ligne de discussion à la connexion avec la durée et les PX de votre dernière session et l'évolution de sa PX/h par rapport à la précédente.",
+    IDLE_LIMIT = "Inactif sans PX après",
+    IDLE_LIMIT_TIP = "Le temps sans gain de PX ni combat au-delà de cette limite compte comme inactif (même sans le statut ABS) et n'entre pas dans la PX/h, le temps avant le niveau et les prévisions. Tout à gauche : désactivé.",
+    IDLE_LIMIT_OFF = "désactivé",
+    ROW_TIME_IDLE = "Inactif",
+    HISTORY_IDLE = "Inactif",
   },
   esES = {
     -- General y comandos
@@ -3623,6 +3638,11 @@ ns.locales = {
     SESSION_COMPARE_RATE = "(%s PX/h respecto a la anterior)",
     SESSION_COMPARE_TOGGLE = "Última sesión al conectar",
     SESSION_COMPARE_TOGGLE_TIP = "Tras una pausa real, una línea de chat al conectar con la duración y los PX de tu última sesión y cómo cambió su PX/h respecto a la anterior.",
+    IDLE_LIMIT = "Inactivo sin PX tras",
+    IDLE_LIMIT_TIP = "El tiempo sin ganar PX ni combatir más allá de este límite cuenta como inactivo (aunque no estés AUS) y no entra en PX/h, tiempo hasta subir ni previsiones. Totalmente a la izquierda: desactivado.",
+    IDLE_LIMIT_OFF = "desactivado",
+    ROW_TIME_IDLE = "Inactivo",
+    HISTORY_IDLE = "Inactivo",
   },
 }
 

@@ -1823,3 +1823,21 @@ Werte passen zur Historie > Sessions (ja/nein):
 Keine Zeile nach /reload (ja/nein):
 Fehler:
 ```
+
+### 87. Leerlauf ohne AFK-Flag (Roadmap 283)
+
+- [ ] geprüft
+
+Statistiken „Zeitaufteilung“ an, Berechnung „Leerlauf ohne XP nach“ auf 2 min. XP holen, dann 5 Minuten stehen bleiben ohne AFK zu werden (Maus bewegen, nicht kämpfen). Danach einen Gegner töten. Zum Vergleich einmal mit Kampf ohne Kill über 2 Minuten.
+
+**Erwartet:** „Leerlauf“ in der Zeitaufteilung steigt erst nach 2 min ohne XP, etwa 3 min für den Test; der Kill beendet ihn. Kampf zählt nicht als Leerlauf. XP/h steigt etwas, die Spielzeit bleibt gleich. Historie > Level > Zeitaufteilung hat die Spalte „Leerlauf“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Leerlauf beginnt nach der Grenze (ja/nein):
+Kill/Kampf beendet ihn (ja/nein):
+XP/h ohne Leerlauf plausibel (ja/nein):
+Fehler:
+```

@@ -242,6 +242,7 @@ ns.STAT_LINES = {
     { label = "ROW_TIME_COMBAT", value = timePart(Stats.COMBAT_SECONDS) },
     { label = "ROW_TIME_TAXI", value = timePart(Stats.TAXI_SECONDS) },
     { label = "ROW_TIME_AFK", value = timePart(Stats.AFK_SECONDS) },
+    { label = "ROW_TIME_IDLE", value = timePart(Stats.IDLE_SECONDS) },
     { label = "ROW_TIME_REST", value = timeShare(function(scope) return ns.TimeBreakdown.GetRestSeconds(scope) end) },
   } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
