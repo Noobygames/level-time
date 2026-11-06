@@ -12,6 +12,7 @@
 -- Als Geist zurück zur Leiche ist es sicher dieselbe Kopie (die Leiche liegt dort): wer die Instanz als Geist
 -- verlassen hat und als Geist wieder betritt, kommt zurück in den gemerkten Besuch, auch wenn Schwierigkeit oder
 -- Zeit etwas anderes nahelegen. In WoW Forever sind die GUIDs in Instanzen geheim, dort gibt es keine Bestätigung.
+-- Ebenso nach /reload (Logout in der Instanz, Wiedereintritt innerhalb RELOAD_SECONDS): dieselbe Kopie.
 -- Reset: INSTANCE_RESET_SUCCESS oder INSTANCE_RESET_FAILED im Systemchat. Beide bekommt nur der
 -- Gruppenleiter; FAILED ("noch Spieler drin") setzt die Instanz für alle draußen trotzdem zurück.
 -- Je Charakter gemerkt: character.instanceVisits[Schlüssel] = { zoneUID, leftAt, pending }. Schlüssel =
@@ -31,7 +32,8 @@ local InstanceCopy = {}
 ns.InstanceCopy = InstanceCopy
 
 local TRACKED_TYPES = { party = true, raid = true, scenario = true }
-local REUSE_SECONDS = 30 * 60  -- so lange nach dem Verlassen gilt die Instanz als dieselbe Kopie
+local REUSE_SECONDS = 30 * 60
+local RELOAD_SECONDS = 5 * 60   -- so lange nach einem Logout in der Instanz gilt der Wiedereintritt als /reload  -- so lange nach dem Verlassen gilt die Instanz als dieselbe Kopie
 local CONFIRM_SIGHTINGS = 2    -- so viele verschiedene Gegner müssen dieselbe zoneUID zeigen
 
 local resetPatterns = ChatPatterns.CompileGlobals({ "INSTANCE_RESET_SUCCESS", "INSTANCE_RESET_FAILED" })
@@ -95,17 +97,33 @@ local function stay(key, name, instanceType, enteredAt, guessNew, expectedZoneUI
     expectedZoneUID = expectedZoneUID, sightings = 0 }
 end
 
--- Als Geist zurück in die Instanz, die man als Geist verlassen hat: Besuch unter dem neuen Schlüssel weiterführen
+-- Besuch unter einem neuen Schlüssel weiterführen (der Client meldet eine andere Schwierigkeit als beim Verlassen)
+local function moveVisit(fromKey, toKey)
+  local visit = visits()[fromKey]
+  if fromKey ~= toKey then
+    visits()[fromKey], visits()[toKey] = nil, visit
+  end
+  if visit then visit.leftAt = nil end
+end
+
+-- Als Geist zurück in die Instanz, die man als Geist verlassen hat
 local function ghostReturn(key, name)
   local ghost = leftAsGhost
   leftAsGhost = nil
   if not ghost or ghost.name ~= name or not UnitIsDeadOrGhost("player") then return false end
-  local visit = visits()[ghost.key]
-  if ghost.key ~= key then
-    visits()[ghost.key], visits()[key] = nil, visit
-  end
+  moveVisit(ghost.key, key)
   ns.Debug("instances", "ghost back in %s (left as %s)", key, ghost.key)
-  if visit then visit.leftAt = nil end
+  return true
+end
+
+-- Nach /reload oder kurzem Logout zurück in dieselbe Instanz (character.instanceLogout, gespeichert beim Logout):
+-- sicher dieselbe Kopie, auch wenn der Client nach dem Laden eine andere Schwierigkeit meldet
+local function reloadReturn(key, name)
+  local last = ns.character.instanceLogout
+  ns.character.instanceLogout = nil
+  if not last or last.name ~= name or time() - last.at > RELOAD_SECONDS then return false end
+  moveVisit(last.key, key)
+  ns.Debug("instances", "back after reload in %s (left as %s)", key, last.key)
   return true
 end
 
@@ -114,9 +132,10 @@ end
 local function enter(key, name, instanceType)
   local now = time()
   local ghost = ghostReturn(key, name)
+  local reloaded = reloadReturn(key, name)
   local visit = visitOf(key, name)
   local pending = visit and visit.pending
-  local guessNew = not ghost and isNewCopy(visit, now)
+  local guessNew = not ghost and not reloaded and isNewCopy(visit, now)
   ns.Debug("instances", "enter %s: visit %s, left %s s ago, zoneUID %s, pending %s, ghost %s", key, visit ~= nil,
     visit and visit.leftAt and (now - visit.leftAt), visit and visit.zoneUID, pending ~= nil, UnitIsDeadOrGhost("player"))
   if pending and not guessNew then
@@ -233,7 +252,9 @@ end)
 
 -- Logout in der Instanz gilt als Verlassen, damit der nächste Login die Pause sieht
 ns.OnLogout(function()
-  if inside then leave() end
+  if not inside then return end
+  ns.character.instanceLogout = { key = inside.key, name = inside.name, at = time() }
+  leave()
 end)
 
 ns.RegisterEvent("PLAYER_ENTERING_WORLD", onWorldChanged)
