@@ -638,11 +638,18 @@ C_QuestLog = {
     end
   end,
 }
--- Questlog wie in Classic Era/TBC (GetQuestLogTitle, 8. Rückgabe questID); C_QuestLog.GetInfo fehlt im Stub
+-- Questlog wie in Classic Era/TBC (GetQuestLogTitle: 2. Level, 3. suggestedGroup, 8. questID); C_QuestLog.GetInfo
+-- fehlt im Stub. Beobachtete Quests (Tracker): state.questWatches = { Log-Index, ... }
 function GetNumQuestLogEntries() return #(state.questLog or {}) end
 function GetQuestLogTitle(index)
   local quest = state.questLog[index]
-  return quest.title, 1, nil, quest.isHeader or false, false, false, 0, quest.questID
+  return quest.title, quest.level or 1, quest.suggestedGroup or 0, quest.isHeader or false, false, false, 0, quest.questID
+end
+function GetNumQuestWatches() return #(state.questWatches or {}) end
+function GetQuestIndexForWatch(index) return (state.questWatches or {})[index] end
+function GetNumQuestLeaderBoards(index)
+  local quest = (state.questLog or {})[index]
+  return quest and #(quest.objectives or {}) or 0
 end
 function GetQuestID() return state.questID or 0 end
 function strtrim(text) return (text:gsub("^%s+", ""):gsub("%s+$", "")) end

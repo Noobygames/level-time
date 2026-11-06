@@ -129,6 +129,7 @@ local SETTINGS_DEFAULTS = {
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,

@@ -117,6 +117,7 @@ Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\QuestLevels.lua
 Assist\ActionBars.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua

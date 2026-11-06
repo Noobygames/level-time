@@ -547,6 +547,8 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
+addSection("SECTION_QUEST_DISPLAY")
+addToggles({ toggle("QUEST_LEVELS_TOGGLE", "questLevels") })
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({

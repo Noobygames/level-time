@@ -1634,3 +1634,24 @@ Freund/Gilde markiert (ja/nein):
 Popup unverändert, keine Fehler (ja/nein):
 Fehler:
 ```
+
+### 77. Quest-Level in Questlog, Gesprächen und Tracker (Roadmap 259)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Quests „Quest-Level anzeigen“ an. Questlog öffnen und blättern, einen NPC mit mehreren Quests ansprechen (Gesprächsliste), einen NPC mit der alten Quest-Grußliste (z.B. Anschlagbrett oder NPC ohne Gesprächsoptionen), eine Gruppenquest im Log, in Classic eine Quest beobachten (Tracker). Danach ausschalten und das Questlog neu öffnen.
+
+**Erwartet:** „[12] Titel“ vor jeder Quest, Gruppenquests „[12+]“, Überschriften im Questlog ohne Level. Kein „Aktion blockiert“, keine Lua-Fehler (auch nicht beim Öffnen der Weltkarte in Retail/Forever). Ausgeschaltet verschwindet das Level beim nächsten Öffnen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Questlog (ja/nein):
+Gesprächsliste (ja/nein):
+Grußliste (ja/nein/nicht getestet):
+Tracker (Classic) (ja/nein/nicht getestet):
+„+“ bei Gruppenquest (ja/nein):
+Lange Titel umbrechen/überlappen (ja/nein):
+Fehler:
+```

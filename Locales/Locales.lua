@@ -852,6 +852,9 @@ ns.locales = {
     INVITE_INFO_LEVEL = "Level %d",
     INVITE_INFO_UNKNOWN = "Rasse und Klasse unbekannt",
     INVITE_INFO_TRUSTED = "(Freund oder Gilde)",
+    SECTION_QUEST_DISPLAY = "Quests",
+    QUEST_LEVELS_TOGGLE = "Quest-Level anzeigen",
+    QUEST_LEVELS_TOGGLE_TIP = "Schreibt das Level vor Questnamen im Questlog, in Gesprächs- und Grußlisten und im Quest-Tracker (Classic): „[12]“, bei Gruppenquests „[12+]“. Ausgeschaltet verschwindet es, sobald die Liste neu aufgebaut wird.",
   },
   enUS = {
     -- General and commands
@@ -1697,6 +1700,9 @@ ns.locales = {
     INVITE_INFO_LEVEL = "level %d",
     INVITE_INFO_UNKNOWN = "race and class unknown",
     INVITE_INFO_TRUSTED = "(friend or guild)",
+    SECTION_QUEST_DISPLAY = "Quests",
+    QUEST_LEVELS_TOGGLE = "Show quest levels",
+    QUEST_LEVELS_TOGGLE_TIP = "Puts the level in front of quest names in the quest log, gossip and greeting lists and the quest tracker (Classic): \"[12]\", group quests \"[12+]\". When turned off it disappears as soon as the list is rebuilt.",
   },
   frFR = {
     -- Général et commandes
@@ -2542,6 +2548,9 @@ ns.locales = {
     INVITE_INFO_LEVEL = "niveau %d",
     INVITE_INFO_UNKNOWN = "race et classe inconnues",
     INVITE_INFO_TRUSTED = "(ami ou guilde)",
+    SECTION_QUEST_DISPLAY = "Quêtes",
+    QUEST_LEVELS_TOGGLE = "Afficher le niveau des quêtes",
+    QUEST_LEVELS_TOGGLE_TIP = "Ajoute le niveau devant le nom des quêtes dans le journal, les listes de dialogue et d'accueil et le suivi des quêtes (Classic) : « [12] », quêtes de groupe « [12+] ». Désactivé, il disparaît dès que la liste est reconstruite.",
   },
   esES = {
     -- General y comandos
@@ -3387,6 +3396,9 @@ ns.locales = {
     INVITE_INFO_LEVEL = "nivel %d",
     INVITE_INFO_UNKNOWN = "raza y clase desconocidas",
     INVITE_INFO_TRUSTED = "(amigo o hermandad)",
+    SECTION_QUEST_DISPLAY = "Misiones",
+    QUEST_LEVELS_TOGGLE = "Mostrar nivel de misiones",
+    QUEST_LEVELS_TOGGLE_TIP = "Pone el nivel delante del nombre de las misiones en el registro, en las listas de diálogo y saludo y en el seguimiento (Classic): «[12]», misiones de grupo «[12+]». Al desactivarlo desaparece en cuanto la lista se reconstruye.",
   },
 }
 
