@@ -1,7 +1,8 @@
 -- Journal: einzelne Kills, Tode, Quests, Beute, Instanz-Läufe und Beinahe-Tode des eingeloggten Charakters mit Zeitpunkt und Umständen.
 --
--- Kill-Eintrag: { time, kind = "pve"|"pvp", name, classification, level, zone, xp, rested }
+-- Kill-Eintrag: { time, kind = "pve"|"pvp", name, classification, level, zone, xp, rested, mobLevel }
 --   xp: XP des Kills samt Erholungsbonus, rested: Bonus darin (beide nil bei PvP und älteren Einträgen)
+--   mobLevel: zuletzt gesehene Stufe des Gegners (Classification.lua), nil wenn unbekannt
 -- Tod-Eintrag:  { time, level, zone, killer, spell, environment }
 --   killer/spell: Verursacher und Zauber des letzten Treffers, environment: Umgebungsschaden
 --   (z.B. "FALLING"); alle drei nil, wenn die Ursache nicht bekannt ist.
@@ -38,7 +39,7 @@ Journal.LOGS = {
   killLog = { max = Journal.MAX_KILLS, fields = {
     { path = "time" }, { path = "kind", kind = VALUE }, { path = "name", kind = VALUE },
     { path = "classification", kind = VALUE }, { path = "level" }, { path = "zone", kind = VALUE },
-    { path = "xp" }, { path = "rested" } } },
+    { path = "xp" }, { path = "rested" }, { path = "mobLevel" } } },
   deathLog = { max = Journal.MAX_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "killer", kind = VALUE },
     { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
@@ -89,14 +90,15 @@ local function baseEntry()
   return { time = time(), level = ns.level, zone = GetZoneText and GetZoneText() or nil }
 end
 
--- name darf nil sein (z.B. wenn das Spiel den Namen verbirgt), classification, xp und rested ebenso
-function Journal.AddKill(kind, name, classification, xp, rested)
+-- name darf nil sein (z.B. wenn das Spiel den Namen verbirgt), classification, xp, rested und mobLevel ebenso
+function Journal.AddKill(kind, name, classification, xp, rested, mobLevel)
   local entry = baseEntry()
   entry.kind = kind
   entry.name = name
   entry.classification = classification
   entry.xp = xp
   entry.rested = rested
+  entry.mobLevel = mobLevel
   append("killLog", entry)
 end
 

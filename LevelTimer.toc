@@ -51,6 +51,7 @@ Tracking\Experience.lua
 Tracking\LevelGains.lua
 Tracking\TrainerCache.lua
 Tracking\KillCounter.lua
+Tracking\MobXp.lua
 Tracking\DeathRecap.lua
 Tracking\DeathCounter.lua
 Tracking\NearDeath.lua

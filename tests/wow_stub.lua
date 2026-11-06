@@ -409,7 +409,12 @@ function print(...)
 end
 
 function GetLocale() return "deDE" end
-function UnitLevel() return state.level end
+-- Andere Einheiten: units[unit].level, sonst die Stufe des Spielers
+function UnitLevel(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  if other and other.level then return other.level end
+  return state.level
+end
 function UnitXP() return state.xp end
 function UnitXPMax() return state.xpMax end
 function GetMaxPlayerLevel() return state.maxLevel end

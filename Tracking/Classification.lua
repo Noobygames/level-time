@@ -11,6 +11,7 @@ ns.Classification = Classification
 local MAX_NAMES = 5000  -- danach wird neu begonnen, damit die Tabelle nicht endlos wächst
 
 local byName = {}
+local levelByName = {}  -- Stufe des Gegners (UnitLevel), für die XP je Gegner (MobXp.lua)
 local nameCount = 0
 
 -- Geheime Werte (Retail/Forever in eingeschränkten Instanzen) zuerst ausschließen: schon ein Wahrheitstest
@@ -24,15 +25,22 @@ local function remember(unit)
   if not byName[name] then
     nameCount = nameCount + 1
     if nameCount > MAX_NAMES then
-      byName, nameCount = {}, 1
+      byName, levelByName, nameCount = {}, {}, 1
     end
   end
   byName[name] = classification
+  local level = UnitLevel(unit)
+  if not ns.IsSecret(level) and type(level) == "number" and level > 0 then levelByName[name] = level end
 end
 
 -- Zuletzt gesehene Einstufung eines Gegners oder nil
 function Classification.Of(name)
   return name and byName[name]
+end
+
+-- Zuletzt gesehene Stufe eines Gegners oder nil (unbekannt oder "??")
+function Classification.LevelOf(name)
+  return name and levelByName[name]
 end
 
 function Classification.IsElite(classification)

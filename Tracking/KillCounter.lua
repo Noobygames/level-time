@@ -18,7 +18,7 @@ local function countKill(name, xp, restedBonus)
   Stats.Increment(Stats.XP_KILLS, xp or 0)
   if Classification.IsElite(classification) then Stats.Increment(Stats.ELITE_KILLS) end
   if Classification.IsRare(classification) then Stats.Increment(Stats.RARE_KILLS) end
-  Journal.AddKill(Journal.PVE, name, classification, xp, restedBonus)
+  Journal.AddKill(Journal.PVE, name, classification, xp, restedBonus, name and Classification.LevelOf(name) or nil)
 end
 
 ---------------------------------------------------------------------------

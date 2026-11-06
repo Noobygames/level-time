@@ -143,7 +143,7 @@ local SETTINGS_DEFAULTS = {
   hideRestAnimation = false, hidePortraitNumbers = false,
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
-  tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false,  -- Tooltip.lua
+  tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
   minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)

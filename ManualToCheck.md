@@ -1859,3 +1859,21 @@ Tabelle stimmt (ja/nein):
 Zu viele Meldungen (ja/nein):
 Fehler:
 ```
+
+### 89. Kills bis Level im Tooltip (Roadmap 274)
+
+- [ ] geprüft
+
+Komfort > Fenster > Tooltip „Kills bis Level-Up zeigen“ an. Mit der Maus über einen Gegner fahren, den du noch nicht getötet hast, dann einen davon töten und wieder darüberfahren. Auch einen grauen, einen Elite- und einen deutlich höheren Gegner prüfen, einmal mit Erholung.
+
+**Erwartet:** Ungetötete Gegner zeigen „Kills bis Level-Up: ~N“ (Classic-Clients; Retail ohne Zeile), nach dem ersten Kill ohne „~“ und mit dem Wert aus der echten XP. Farbe wie die Stufenfarbe des Gegners. Graue Gegner, Spieler und freundliche NPCs haben keine Zeile. Mit Erholung ist die Zahl kleiner. Im Kampf in Instanzen (geheime Werte) keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Schätzung vor dem ersten Kill (Zahl, echte Kills bis Level-Up):
+Gelernter Wert nach dem Kill stimmt (ja/nein):
+Farbe passt (ja/nein):
+Fehler:
+```

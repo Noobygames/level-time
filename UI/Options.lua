@@ -595,6 +595,7 @@ addToggles({
   toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
   toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
+  toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
 })
 -- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
 local MinimapTweaks = ns.MinimapTweaks

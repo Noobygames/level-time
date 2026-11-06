@@ -3,6 +3,9 @@
 --   tooltipTarget        Zusatzzeile mit dem Ziel der Einheit ("Ziel: Name", Spieler in Klassenfarbe, du selbst
 --                        als "Du").
 --   tooltipHideInCombat  Einheiten-Tooltips im Kampf nicht zeigen; Umschalt gedrückt zeigt sie trotzdem.
+--   tooltipKillsToLevel  Zeile "Kills bis Level-Up: 12" an angreifbaren Gegnern (MobXp.lua, Roadmap 274), gefärbt nach
+--                        Stufenabstand wie Blizzards Gegnerfarben (GetCreatureDifficultyColor, alle Clients), "~" =
+--                        nach der Formel geschätzt.
 -- Anschluss: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit) in allen Clients mit dem Tooltip-
 -- Datensystem (Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua: Post-Calls laufen vor tooltip:Show(), auch in
 -- Classic Era); sonst OnTooltipSetUnit. Verstecken im Kampf über HookScript("OnShow"), weil der Post-Call vor
@@ -48,6 +51,19 @@ function Tooltip.TargetLine(unit)
   return string.format(L.TOOLTIP_TARGET, name), color and { color.r, color.g, color.b } or NEUTRAL_COLOR
 end
 
+-- Text und Farbe der Kills-Zeile, nil ohne Wert
+function Tooltip.KillsLine(unit)
+  local count, estimated, mobLevel = ns.MobXp.KillsToLevel(unit)
+  if not count then return nil end
+  local color = NEUTRAL_COLOR
+  if mobLevel and GetCreatureDifficultyColor then
+    local difficulty = GetCreatureDifficultyColor(mobLevel)
+    if type(difficulty) == "table" and difficulty.r then color = { difficulty.r, difficulty.g, difficulty.b } end
+  end
+  local value = (estimated and "~" or "") .. ns.Format.Number(count)
+  return string.format(L.TOOLTIP_KILLS_TO_LEVEL, value), color
+end
+
 local function onUnitTooltip(tooltip)
   if tooltip ~= GameTooltip or not ns.db then return end
   local unit = unitOf(tooltip)
@@ -58,6 +74,10 @@ local function onUnitTooltip(tooltip)
   end
   if ns.db.tooltipTarget then
     local text, color = Tooltip.TargetLine(unit)
+    if text then tooltip:AddLine(text, unpack(color)) end
+  end
+  if ns.db.tooltipKillsToLevel then
+    local text, color = Tooltip.KillsLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
   end
 end
@@ -91,5 +111,5 @@ local function hook()
 end
 
 ns.RegisterApply(function(db)
-  if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat then hook() end
+  if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat or db.tooltipKillsToLevel then hook() end
 end)
