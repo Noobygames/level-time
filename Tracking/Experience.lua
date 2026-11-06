@@ -90,6 +90,18 @@ end
 -- kam die XP zuerst, gilt das nächste Level schon als erreicht und der Level-Up bucht nichts doppelt.
 ---------------------------------------------------------------------------
 local lastXp, lastXpMax, lastLevel
+local gainListeners = {}
+
+-- listener(amount) bei jedem XP-Gewinn (z.B. um geheime Kill-Meldungen ihrer XP zuzuordnen)
+function Experience.OnGain(listener)
+  gainListeners[#gainListeners + 1] = listener
+end
+
+local function notifyGain(amount)
+  for _, listener in ipairs(gainListeners) do
+    ns.SafeCall(listener, amount)
+  end
+end
 
 local function skippedLevelsXp(fromLevel, toLevel)
   if toLevel <= fromLevel then return 0 end
@@ -109,6 +121,7 @@ local function trackXpGained()
     end
     if gained > 0 then
       Stats.Increment(Stats.XP_GAINED, gained)
+      notifyGain(gained)
     end
   end
   lastXp, lastXpMax = xp, xpMax
