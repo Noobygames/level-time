@@ -1,10 +1,10 @@
--- Dauerhaftes Debug-Log: sammelt über Sitzungen hinweg Daten für die Fehlersuche, ohne dass das Chat-Logging an sein
--- muss. Jeder Eintrag ist eine JSON-Zeile (JSON Lines) mit Zeit ("t" Uhrzeit, "gt" GetTime) und Bereich ("area"):
+-- Dauerhaftes Debug-Log: sammelt über Sitzungen hinweg Daten für die Fehlersuche und für geplante Funktionen, ohne
+-- dass das Chat-Logging an sein muss. Diese Datei ist Speicher, JSON und Befehle; was gesammelt wird (Ereignis-Proben,
+-- Zustand, Schnappschüsse, API-Proben, Prüfungen), steht in DebugProbes.lua.
+-- Jeder Eintrag ist eine JSON-Zeile (JSON Lines) mit Zeit ("t" Uhrzeit, "gt" GetTime) und Bereich ("area"):
 --   - laufendes Log (/lt debug log, bleibt über /reload an): jede ns.Debug-Zeile aller Module ("msg"), von
---     ns.SafeCall abgefangene Lua-Fehler mit Aufrufstapel, Ereignis-Proben (EVENT_PROBES: Argumente und Zustand im
---     Moment des Ereignisses), jede SNAPSHOT_SECONDS ein Zustand (Zone, Level, XP, Geld, Kampf) und beim Login
---     Client, Charakter und API-Proben;
---   - einmalige Prüfung (/lt debug check, auch bei ausgeschaltetem Log): alle CHECKS mit Ergebnis oder Fehler.
+--     ns.SafeCall abgefangene Lua-Fehler mit Aufrufstapel und alles aus DebugProbes.lua;
+--   - einmalige Prüfung (/lt debug check, auch bei ausgeschaltetem Log): alle mit DebugLog.AddCheck gemeldeten.
 -- Addons können keine Dateien schreiben: die Zeilen liegen in der SavedVariable LevelTimerDebugLog, die der Client
 -- bei /reload und Logout nach WTF\Account\<Konto>\SavedVariables\LevelTimer.lua schreibt (`make debuglog` liest sie).
 -- Höchstens MAX_LINES Zeilen, die ältesten fallen weg. Zeilen vor dem Login werden gepuffert, bis feststeht, ob das
@@ -19,11 +19,9 @@ ns.DebugLog = DebugLog
 DebugLog.MAX_LINES = 4000
 local TRIM_SLACK = 300         -- erst ab MAX_LINES + TRIM_SLACK kürzen, dann auf MAX_LINES (nicht bei jeder Zeile)
 local PENDING_MAX = 200        -- Zeilen vor dem Login
-local MAX_EVENT_ARGS = 10      -- mehr Argumente einer Ereignis-Probe werden nicht geschrieben
 local MAX_STRING_LENGTH = 300  -- lange Texte (Chatzeilen, Aufrufstapel) werden gekürzt
 local MAX_TABLE_DEPTH = 3      -- tiefer verschachtelte Tabellen (API-Rückgaben) werden nicht ausgeschrieben
 local MAX_TABLE_ITEMS = 40
-local SNAPSHOT_SECONDS = 60
 local SECRET = "<secret>"
 local NULL = {}                -- Platzhalter für nil in Listen (JSON null), damit Lücken die Liste nicht abschneiden
 
@@ -141,128 +139,26 @@ function DebugLog.Lines()
 end
 
 ---------------------------------------------------------------------------
--- Zustand: was bei Ereignissen und im Schnappschuss mitgeschrieben wird
+-- Schnittstelle für die Proben (DebugProbes.lua): was gesammelt wird, steht dort
 ---------------------------------------------------------------------------
-local function safe(fn, ...)
-  if not fn then return nil end
-  local ok, value = pcall(fn, ...)
-  if ok then return value end
-  return "error: " .. tostring(value)
+DebugLog.Write = write
+DebugLog.Pack = pack
+DebugLog.PackCount = packCount
+
+local headerWriters = {}
+-- writer(reason) schreibt nach der Kopfzeile weitere Einträge (Proben, Zustand); reason = login/enabled/check
+function DebugLog.OnHeader(writer)
+  headerWriters[#headerWriters + 1] = writer
 end
 
-local function playerState()
-  return {
-    level = safe(UnitLevel, "player"),
-    xp = safe(UnitXP, "player"),
-    xpMax = safe(UnitXPMax, "player"),
-    rested = safe(GetXPExhaustion),
-    resting = safe(IsResting),
-    combat = safe(UnitAffectingCombat, "player"),
-    money = safe(GetMoney),
-    zone = safe(GetRealZoneText),
-    subzone = safe(GetSubZoneText),
-    instance = pack(safe(IsInInstance)),
-  }
+local checks = {}
+-- run() liefert die Werte, die ins Log sollen; ein Fehler wird mitgeschrieben, die übrigen Prüfungen laufen weiter
+function DebugLog.AddCheck(name, run)
+  checks[#checks + 1] = { name = name, run = run }
 end
 
----------------------------------------------------------------------------
--- Ereignis-Proben: Ereignisse, deren Argumente, Reihenfolge oder Inhalt je Client für offene Punkte im Spiel geprüft
--- werden müssen (z.B. geheime XP-Meldungen 251, UnitXPMax beim Level-Up 175, Boss-Kills 302/322, Beschwörung 256,
--- Atem 255, Beruf 297, Ruf 278/303, Einladung mit GUID 265). state = Zustand zum Zeitpunkt mitschreiben.
----------------------------------------------------------------------------
-local EVENT_PROBES = {
-  { event = "CHAT_MSG_COMBAT_XP_GAIN", state = true },
-  { event = "PLAYER_XP_UPDATE", state = true },
-  { event = "PLAYER_LEVEL_UP", state = true },
-  { event = "QUEST_TURNED_IN", state = true },
-  { event = "PLAYER_REGEN_DISABLED" },
-  { event = "PLAYER_REGEN_ENABLED" },
-  { event = "PLAYER_DEAD", state = true },
-  { event = "PLAYER_ALIVE" },
-  { event = "PLAYER_UNGHOST" },
-  { event = "ZONE_CHANGED_NEW_AREA", state = true },
-  { event = "PLAYER_ENTERING_WORLD", state = true },
-  { event = "CHAT_MSG_LOOT" },
-  { event = "CHAT_MSG_SKILL" },
-  { event = "CHAT_MSG_COMBAT_FACTION_CHANGE" },
-  { event = "CHAT_MSG_COMBAT_HONOR_GAIN" },
-  { event = "CHAT_MSG_SYSTEM" },
-  { event = "CHAT_MSG_MONEY" },
-  { event = "PLAYER_MONEY", state = true },
-  { event = "TIME_PLAYED_MSG" },
-  { event = "ENCOUNTER_START" },
-  { event = "ENCOUNTER_END", state = true },
-  { event = "BOSS_KILL" },
-  { event = "CONFIRM_SUMMON" },
-  { event = "RESURRECT_REQUEST" },
-  { event = "MIRROR_TIMER_START" },
-  { event = "MIRROR_TIMER_STOP" },
-  { event = "CINEMATIC_START" },
-  { event = "PLAY_MOVIE" },
-  { event = "ACHIEVEMENT_EARNED" },
-  { event = "PARTY_INVITE_REQUEST" },
-  { event = "TRAINER_SHOW" },
-  { event = "PLAYER_CONTROL_LOST", state = true },
-  { event = "PLAYER_CONTROL_GAINED", state = true },
-  { event = "LOOT_READY" },
-  { event = "UPDATE_FACTION" },
-}
-
-local function probeEvent(probe, ...)
-  if not DebugLog.IsEnabled() then return end
-  local count = math.min(select("#", ...), MAX_EVENT_ARGS)
-  while count > 0 and select(count, ...) == nil do count = count - 1 end
-  write({ area = "event", event = probe.event, args = packCount(count, ...),
-    state = probe.state and playerState() or nil })
-end
-
-local unknownEvents = {}
-for _, probe in ipairs(EVENT_PROBES) do
-  if not ns.RegisterEvent(probe.event, function(...) probeEvent(probe, ...) end) then
-    unknownEvents[#unknownEvents + 1] = probe.event
-  end
-end
-
----------------------------------------------------------------------------
--- API- und Text-Proben (beim Login und in /lt debug check): gibt es die Funktion, wie lautet der globale Text
----------------------------------------------------------------------------
-local API_PROBES = {
-  "C_SummonInfo.ConfirmSummon", "C_SummonInfo.GetSummonConfirmSummoner", "ConfirmSummon", "GetSummonConfirmSummoner",
-  "AcceptResurrect", "GetMirrorTimerProgress", "GetMirrorTimerInfo", "StopCinematic", "FlashClientIcon",
-  "Screenshot", "C_QuestLog.GetInfo", "GetQuestLogTitle", "GetQuestLogRewardXP", "C_QuestLog.ReadyForTurnIn",
-  "C_QuestLog.IsQuestFlaggedCompleted", "IsQuestFlaggedCompleted", "C_QuestLog.UnitIsRelatedToActiveQuest",
-  "C_GossipInfo.SelectAvailableQuest", "C_Reputation.GetFactionDataByID", "C_Reputation.GetFactionDataByIndex",
-  "GetFactionInfo", "C_MapExplorationInfo.GetExploredMapTextures", "C_Map.GetPlayerMapPosition",
-  "C_Map.GetBestMapForUnit", "C_Item.GetItemCount", "GetItemCount", "C_PartyInfo.InviteUnit", "GetPlayerInfoByGUID",
-  "BuyTrainerService", "GetTrainerServiceInfo", "C_TaxiMap.GetAllTaxiNodes", "TaxiNodePosition",
-  "GetAchievementInfo", "C_CurrencyInfo.GetCurrencyInfo", "C_ChatInfo.SendAddonMessage",
-  "C_ChatInfo.InChatMessagingLockdown", "C_DeathRecap.GetRecapEvents", "GetGuildBankWithdrawMoney",
-  "CanGuildBankRepair", "GetProfessions", "GetSkillLineInfo", "TooltipDataProcessor", "C_Secrets",
-  "C_Secrets.GetPowerTypeSecrecy", "C_Secrets.ShouldAurasBeSecret", "issecretvalue",
-}
-
-local GLOBAL_STRING_PROBES = {
-  "COMBATLOG_XPGAIN_FIRSTPERSON", "COMBATLOG_XPGAIN_FIRSTPERSON_UNNAMED", "ERR_ZONE_EXPLORED", "ERR_ZONE_EXPLORED_XP",
-  "SKILL_RANK_UP", "FACTION_STANDING_INCREASED", "FACTION_STANDING_DECREASED", "LOOT_ITEM_SELF",
-  "LOOT_ITEM_SELF_MULTIPLE", "LOOT_ITEM_CREATED_SELF", "LOOT_ITEM_CREATED_SELF_MULTIPLE", "LOOT_ITEM_PUSHED_SELF",
-  "COMBATLOG_HONORGAIN", "INSTANCE_RESET_SUCCESS", "ERR_INV_FULL",
-}
-
-local function lookup(path)
-  local value = _G
-  for part in path:gmatch("[^%.]+") do
-    if type(value) ~= "table" then return nil end
-    value = value[part]
-  end
-  return value
-end
-
-local function writeApiProbes()
-  local apis = {}
-  for _, path in ipairs(API_PROBES) do apis[path] = type(lookup(path)) end
-  local strings = {}
-  for _, name in ipairs(GLOBAL_STRING_PROBES) do strings[name] = _G[name] or false end
-  write({ area = "probe", apis = apis, strings = strings, unknownEvents = unknownEvents })
+function DebugLog.CheckCount()
+  return #checks
 end
 
 local function addonVersion()
@@ -274,75 +170,16 @@ local function writeHeader(reason)
   write({
     area = "session", reason = reason, character = ns.characterKey, version = addonVersion(),
     build = pack(GetBuildInfo()), interface = Client.GetInterfaceVersion(), forever = Client.IsForever(),
-    locale = GetLocale(), state = playerState(),
+    locale = GetLocale(),
   })
-  writeApiProbes()
+  for _, writer in ipairs(headerWriters) do ns.SafeCall(writer, reason) end
 end
-
----------------------------------------------------------------------------
--- Einmalige Prüfung (/lt debug check): je Eintrag ein Aufruf mit seinen Rückgabewerten, Fehler werden mitgeschrieben.
--- Für offene "im Spiel prüfen"-Punkte der Roadmap; neue Fragen ans Spiel kommen als weiterer Eintrag dazu.
----------------------------------------------------------------------------
-local function firstQuestId()
-  if C_QuestLog and C_QuestLog.GetInfo then
-    for index = 1, (C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetNumQuestLogEntries() or 0) do
-      local info = C_QuestLog.GetInfo(index)
-      if info and not info.isHeader then return info.questID, info end
-    end
-  end
-  return nil
-end
-
-local function mapPosition()
-  local mapId = C_Map.GetBestMapForUnit("player")
-  local position = mapId and C_Map.GetPlayerMapPosition(mapId, "player")
-  return mapId, position and pack(position:GetXY()) or nil
-end
-
-local CHECKS = {
-  { name = "secret.powerSecrecy", run = function() return C_Secrets.GetPowerTypeSecrecy(0) end },
-  { name = "secret.aurasSecret", run = function() return C_Secrets.ShouldAurasBeSecret() end },
-  { name = "unit.power", run = function() return UnitPower("player"), UnitPowerMax("player") end },
-  { name = "unit.health", run = function() return UnitHealth("player"), UnitHealthMax("player") end },
-  { name = "unit.stats", run = function() return pack(UnitStat("player", 1)), pack(UnitStat("player", 3)) end },
-  { name = "unit.race", run = function() return UnitRace("player") end },
-  { name = "unit.class", run = function() return UnitClass("player") end },
-  { name = "unit.targetQuest", run = function()
-    return UnitExists("target"), C_QuestLog.UnitIsRelatedToActiveQuest("target")
-  end },
-  { name = "xp.state", run = function() return UnitXP("player"), UnitXPMax("player"), GetXPExhaustion() end },
-  { name = "deathRecap.withoutId", run = function() return C_DeathRecap.GetRecapEvents() end },  -- Roadmap 180
-  { name = "deathRecap.hasEvents", run = function() return C_DeathRecap.HasRecapEvents() end },
-  { name = "guild.repair", run = function() return CanGuildBankRepair(), GetGuildBankWithdrawMoney() end },  -- 179
-  { name = "chat.lockdown", run = function() return C_ChatInfo.InChatMessagingLockdown() end },
-  { name = "quest.count", run = function() return C_QuestLog.GetNumQuestLogEntries() end },
-  { name = "quest.firstInfo", run = function() return select(2, firstQuestId()) end },  -- Felder für 259/270
-  { name = "quest.firstRewardXp", run = function() return GetQuestLogRewardXP((firstQuestId())) end },
-  { name = "quest.classicTitle", run = function() return GetQuestLogTitle(1) end },
-  { name = "reputation.first", run = function() return C_Reputation.GetFactionDataByIndex(1) end },
-  { name = "reputation.classic", run = function() return GetFactionInfo(1) end },
-  { name = "map.position", run = mapPosition },
-  { name = "map.exploredTextures", run = function()
-    local textures = C_MapExplorationInfo.GetExploredMapTextures(C_Map.GetBestMapForUnit("player"))
-    return textures and #textures
-  end },
-  { name = "instance.info", run = function() return GetInstanceInfo() end },
-  { name = "item.hearthstoneCount", run = function() return C_Item.GetItemCount(6948) end },
-  { name = "skill.professions", run = function() return GetProfessions() end },
-  { name = "skill.classicFirst", run = function() return GetSkillLineInfo(1) end },
-  { name = "mirror.timer1", run = function() return GetMirrorTimerInfo(1) end },
-  { name = "summon.pending", run = function() return C_SummonInfo.GetSummonConfirmSummoner() end },
-  { name = "achievement.points", run = function() return GetTotalAchievementPoints() end },
-  { name = "trainer.services", run = function() return GetNumTrainerServices() end },  -- nur bei offenem Lehrer
-  { name = "frame.levelUpDisplay", run = function() return LevelUpDisplay ~= nil, EventToastManagerFrame ~= nil end },
-}
-DebugLog.CHECKS = CHECKS
 
 -- Alle Prüfungen ausführen und ins Log schreiben; Rückgabe: Anzahl, davon mit Fehler
 function DebugLog.RunChecks()
   writeHeader("check")
   local failed = 0
-  for _, check in ipairs(CHECKS) do
+  for _, check in ipairs(checks) do
     local results = pack(pcall(check.run))
     local entry = { area = "check", name = check.name }
     if results[1] then
@@ -354,7 +191,7 @@ function DebugLog.RunChecks()
     end
     write(entry)
   end
-  return #CHECKS, failed
+  return #checks, failed
 end
 
 ---------------------------------------------------------------------------
@@ -397,11 +234,7 @@ ns.OnLogin(function()
 end)
 
 ns.OnLogout(function()
-  if DebugLog.IsEnabled() then write({ area = "session", reason = "logout", state = playerState() }) end
-end)
-
-ns.Every(SNAPSHOT_SECONDS, function()
-  if DebugLog.IsEnabled() then write({ area = "snapshot", state = playerState() }) end
+  if DebugLog.IsEnabled() then write({ area = "session", reason = "logout" }) end
 end)
 
 -- /lt debug log [clear|status]

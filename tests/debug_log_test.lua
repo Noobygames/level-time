@@ -51,9 +51,16 @@ expect("Ereignis-Probe", hasLine('"args":["Eure Fertigkeit in Kochkunst hat sich
 wow.fire("PLAYER_XP_UPDATE", "player")
 expect("Ereignis mit Zustand", hasLine('"event":"PLAYER_XP_UPDATE","gt":') and hasLine('"state":{"combat":false'), true)
 
--- Schnappschuss jede Minute
+-- Zusatzdaten zu Ereignissen (Ziel beim Zielwechsel)
+wow.fire("PLAYER_TARGET_CHANGED")
+expect("Ereignis mit Zusatzdaten", hasLine('"event":"PLAYER_TARGET_CHANGED","extra":{'), true)
+
+-- Schnappschuss jede Minute, mit gezählten Zaubern des Spielers (fremde Einheiten zählen nicht)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-1", 19705)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-2", 19705)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "target", "cast-3", 133)
 wow.update(61)
-expect("Schnappschuss", hasLine('"area":"snapshot"'), true)
+expect("Schnappschuss", hasLine('"area":"snapshot","casts":{"19705":2}'), true)
 
 -- Abgefangener Fehler landet im Log (und beim Fehler-Handler des Clients)
 addon.SafeCall(function() error("kaputt") end)

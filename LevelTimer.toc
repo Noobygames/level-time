@@ -20,6 +20,7 @@ Core\Database.lua
 Core\LevelTimer.lua
 Core\Client.lua
 Core\DebugLog.lua
+Core\DebugProbes.lua
 Lib\Format.lua
 Lib\Serializer.lua
 Core\Profiles.lua
