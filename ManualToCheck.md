@@ -1805,3 +1805,21 @@ Sammeln erkannt (ja/nein/keine Sammel-XP im Client):
 XP nach Ort stimmt (ja/nein):
 Fehler:
 ```
+
+### 86. Session-Vergleich beim Login (Roadmap 281)
+
+- [ ] geprüft
+
+Hinweise > Level-Up „Letzte Session beim Login“ an (Standard). Eine Session spielen (einige Minuten mit XP), ausloggen, mehr als 5 Minuten warten, wieder einloggen. Danach `/reload`.
+
+**Erwartet:** Beim Login „Letzte Session: 25m 10s, 3.2k XP (+12% XP/h zur vorherigen)“; der Vergleich fehlt, wenn es keine Session davor mit XP gab. Nach `/reload` keine Zeile.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zeile beim Login (Text kopieren):
+Werte passen zur Historie > Sessions (ja/nein):
+Keine Zeile nach /reload (ja/nein):
+Fehler:
+```

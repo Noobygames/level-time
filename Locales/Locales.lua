@@ -907,6 +907,10 @@ ns.locales = {
     HISTORY_XP_DUNGEON = "Dungeon",
     HISTORY_XP_RAID = "Raid",
     HISTORY_XP_BATTLEGROUND = "Schlachtf.",
+    SESSION_COMPARE = "Letzte Session: %s, %s XP",
+    SESSION_COMPARE_RATE = "(%s XP/h zur vorherigen)",
+    SESSION_COMPARE_TOGGLE = "Letzte Session beim Login",
+    SESSION_COMPARE_TOGGLE_TIP = "Beim Login nach einer echten Pause eine Chatzeile mit Dauer und XP der letzten Session und wie sich ihre XP/h zur Session davor verändert hat.",
   },
   enUS = {
     -- General and commands
@@ -1807,6 +1811,10 @@ ns.locales = {
     HISTORY_XP_DUNGEON = "Dungeon",
     HISTORY_XP_RAID = "Raid",
     HISTORY_XP_BATTLEGROUND = "BG",
+    SESSION_COMPARE = "Last session: %s, %s XP",
+    SESSION_COMPARE_RATE = "(%s XP/h vs. the one before)",
+    SESSION_COMPARE_TOGGLE = "Last session at login",
+    SESSION_COMPARE_TOGGLE_TIP = "After a real break, a chat line at login with the duration and XP of your last session and how its XP/h changed compared to the session before.",
   },
   frFR = {
     -- Général et commandes
@@ -2707,6 +2715,10 @@ ns.locales = {
     HISTORY_XP_DUNGEON = "Donjon",
     HISTORY_XP_RAID = "Raid",
     HISTORY_XP_BATTLEGROUND = "CdB",
+    SESSION_COMPARE = "Dernière session : %s, %s PX",
+    SESSION_COMPARE_RATE = "(%s PX/h par rapport à la précédente)",
+    SESSION_COMPARE_TOGGLE = "Dernière session à la connexion",
+    SESSION_COMPARE_TOGGLE_TIP = "Après une vraie pause, une ligne de discussion à la connexion avec la durée et les PX de votre dernière session et l'évolution de sa PX/h par rapport à la précédente.",
   },
   esES = {
     -- General y comandos
@@ -3607,6 +3619,10 @@ ns.locales = {
     HISTORY_XP_DUNGEON = "Mazmorra",
     HISTORY_XP_RAID = "Banda",
     HISTORY_XP_BATTLEGROUND = "CdB",
+    SESSION_COMPARE = "Última sesión: %s, %s PX",
+    SESSION_COMPARE_RATE = "(%s PX/h respecto a la anterior)",
+    SESSION_COMPARE_TOGGLE = "Última sesión al conectar",
+    SESSION_COMPARE_TOGGLE_TIP = "Tras una pausa real, una línea de chat al conectar con la duración y los PX de tu última sesión y cómo cambió su PX/h respecto a la anterior.",
   },
 }
 

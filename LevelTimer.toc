@@ -83,6 +83,7 @@ Speedrun\WorldRecords.lua
 # Oberfläche (UI), Leveling-Hilfe (Assist), Speedrun-Fenster, Befehle
 UI\StatLines.lua
 UI\LevelUpSummary.lua
+UI\SessionCompare.lua
 UI\Alerts.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua

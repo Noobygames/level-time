@@ -281,7 +281,7 @@ finishPage()
 addPage("OPTIONS_TAB_NOTIFICATIONS")
 addSection("SECTION_LEVEL_UP")
 addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains"),
-  toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice") })
+  toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"), toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addAnnounceChooser()
 addSection("SECTION_REMINDERS")
 addToggles({
