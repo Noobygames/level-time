@@ -22,6 +22,10 @@ const (
 // Zeilen der Tabelle "lines" im SavedVariables-Format des Clients: "\t\t\"text\", -- [n]"
 var debugLogLinePattern = regexp.MustCompile(`^\s*("(?:[^"\\]|\\.)*"),?\s*(?:--\s*\[\d+\])?\s*$`)
 
+// Beginn einer globalen Variable ("Name = ..."). WoW Forever schreibt die Tabellen ohne Einrückung, das Ende der
+// Variable ist darum die nächste Zuweisung, nicht die erste nicht eingerückte Zeile.
+var globalAssignmentPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]* = `)
+
 // DebugLogFile ist das Log eines Kontos in einem Flavor.
 type DebugLogFile struct {
 	Flavor  string
@@ -41,8 +45,8 @@ func ParseDebugLog(r io.Reader) ([]string, error) {
 		switch {
 		case strings.HasPrefix(text, debugLogVariable+" = "):
 			inVariable = true
-		case inVariable && text != "" && !strings.HasPrefix(text, "\t") && !strings.HasPrefix(text, "}"):
-			inVariable = false // nächste globale Variable
+		case inVariable && globalAssignmentPattern.MatchString(text):
+			inVariable, inLines = false, false // nächste globale Variable
 		case inVariable && strings.HasPrefix(strings.TrimSpace(text), `["lines"] = {`):
 			inLines = true
 		case inLines && strings.HasPrefix(strings.TrimSpace(text), "}"):

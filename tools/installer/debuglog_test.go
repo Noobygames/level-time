@@ -42,6 +42,19 @@ func TestParseDebugLog(t *testing.T) {
 	}
 }
 
+// WoW Forever schreibt die SavedVariables ohne Einrückung und ohne Indexkommentare
+func TestParseDebugLogUnindented(t *testing.T) {
+	sample := "LevelTimerDebugLog = {\n[\"enabled\"] = true,\n[\"lines\"] = {\n\"{\\\"area\\\":\\\"check\\\"}\",\n\"zwei\",\n},\n}\nLevelTimerStatsDB = {\n[\"lines\"] = {\n\"not mine\",\n},\n}\n"
+	lines, err := ParseDebugLog(strings.NewReader(sample))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{`{"area":"check"}`, "zwei"}
+	if !reflect.DeepEqual(lines, want) {
+		t.Fatalf("lines = %q, want %q", lines, want)
+	}
+}
+
 func TestParseDebugLogMissing(t *testing.T) {
 	lines, err := ParseDebugLog(strings.NewReader("LevelTimerDB = {\n}\n"))
 	if err != nil || len(lines) != 0 {

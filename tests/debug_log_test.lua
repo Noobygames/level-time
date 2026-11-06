@@ -23,6 +23,9 @@ expect("JSON Objekt", DebugLog.Encode({ b = 1, a = true }), '{"a":true,"b":1}')
 expect("JSON Liste", DebugLog.Encode({ 1, 2.5, "x" }), '[1,2.5,"x"]')
 expect("JSON geheim", DebugLog.Encode(wow.SECRET), '"<secret>"')
 expect("JSON unendlich", DebugLog.Encode(math.huge), "null")
+-- Check-Ergebnisse (Eintrag > result > Liste > Struktur > Felder) kommen vollständig an
+expect("JSON tief", DebugLog.Encode({ result = { { reminder = { spells = { { id = 1 } } } } } }),
+  '{"result":[{"reminder":{"spells":[{"id":1}]}}]}')
 
 -- Prüfung schreibt auch bei ausgeschaltetem Log, Fehler einer Prüfung halten die anderen nicht auf
 SlashCmdList.LEVELTIMER("debug check")
