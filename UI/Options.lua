@@ -308,6 +308,15 @@ addToggles({
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
 })
+addSlider({
+  label = "LOW_MANA_BELOW",
+  min = ns.ManaCallout.MIN_PERCENT,
+  max = ns.ManaCallout.MAX_PERCENT,
+  step = 5,
+  get = function(db) return db.lowManaPercent end,
+  set = function(value) ns.Set("lowManaPercent", value) end,
+  format = percent,
+})
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then
   addSlider({

@@ -1,6 +1,7 @@
 -- Mana-Ansage für Heiler (Einstellung announceLowMana, Standard aus): in Dungeons und Schlachtzügen, mit der Rolle
--- Heiler (UnitGroupRolesAssigned), eine Nachricht an die Gruppe, wenn das Mana unter LOW_PERCENT fällt. Wieder
--- scharf erst ab REARM_PERCENT (sonst bei jedem Schwanken eine Nachricht). Sperrt Blizzard gerade den Chat
+-- Heiler (UnitGroupRolesAssigned), eine Nachricht an die Gruppe, wenn das Mana unter die Grenze lowManaPercent
+-- (Einstellung, Prozent) fällt. Wieder scharf erst REARM_MARGIN Prozentpunkte darüber (sonst bei jedem Schwanken
+-- eine Nachricht). Sperrt Blizzard gerade den Chat
 -- (Bosskampf, GroupChat.Locked), wartet die Ansage, bis er wieder offen ist, solange das Mana noch niedrig ist.
 -- WoW Forever sperrt das Mana des Spielers immer, auch außerhalb des Kampfs (Debug-Log 1.60.1: UnitPower und
 -- UnitPowerPercent geheim, nur das Maximum lesbar). Dort gibt es keine Prozent-Ansage, nur die Notlösung: kommt
@@ -13,8 +14,9 @@ local GroupChat = ns.GroupChat
 local ManaCallout = {}
 ns.ManaCallout = ManaCallout
 
-ManaCallout.LOW_PERCENT = 25
-local REARM_PERCENT = 40
+ManaCallout.MIN_PERCENT = 5    -- Grenzen des Reglers in den Einstellungen
+ManaCallout.MAX_PERCENT = 60
+local REARM_MARGIN = 15
 local CHECK_SECONDS = 1
 local OUT_OF_MANA_REPEAT = 30
 local MANA = (Enum and Enum.PowerType and Enum.PowerType.Mana) or 0
@@ -55,15 +57,16 @@ function ManaCallout.Check()
   end
   local percent = ManaCallout.ManaPercent()
   if not percent then return end
-  if percent >= REARM_PERCENT then
+  local low = ns.db.lowManaPercent
+  if percent >= low + REARM_MARGIN then
     armed, pending = true, nil
     return
   end
-  if percent < ManaCallout.LOW_PERCENT and armed then
+  if percent < low and armed then
     armed, pending = false, math.floor(percent)
   end
   -- Wartende Ansage mit dem aktuellen Wert, solange das Mana niedrig bleibt
-  if pending and percent < ManaCallout.LOW_PERCENT then
+  if pending and percent < low then
     if send(string.format(L.LOW_MANA_ANNOUNCE, math.floor(percent))) then pending = nil end
   end
 end

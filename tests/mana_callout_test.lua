@@ -62,4 +62,15 @@ expect("gleich danach nicht nochmal", sent(L.OUT_OF_MANA_ANNOUNCE), 1)
 wow.advance(31)
 wow.fire("UI_ERROR_MESSAGE", 52, ERR_OUT_OF_MANA)
 expect("später wieder", sent(L.OUT_OF_MANA_ANNOUNCE), 2)
+
+-- Grenze einstellbar: 40 % statt 25 %, wieder scharf ab 55 %
+wow.state.power = 0
+addon.Set("lowManaPercent", 40)
+mana(60)
+local before = #wow.sentChat
+mana(38)
+expect("eigene Grenze: Ansage", sent(string.format(L.LOW_MANA_ANNOUNCE, 38)), 1)
+mana(50)
+mana(35)
+expect("unter Grenze + 15: keine zweite", #wow.sentChat, before + 1)
 expect("keine Fehler", #wow.errors, 0)

@@ -80,6 +80,7 @@ local SETTINGS_DEFAULTS = {
   ammoCritical = 50,       -- Schuss, ab denen "fast leer" kommt (0 = aus)
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
   announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
+  lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus
@@ -359,6 +360,7 @@ local SETTING_RANGES = {
   splitListRows = { 3, 15 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
+  lowManaPercent = { 5, 60 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
   alertScale = { 0.5, 2 },
