@@ -320,6 +320,7 @@ local function lossOfControl()
 end
 
 local function harmfulAuras()
+  if call("C_Secrets.ShouldAurasBeSecret") == true then return "secret" end
   local auras = {}
   for index = 1, MAX_HARMFUL_AURAS do
     local aura = call("C_UnitAuras.GetAuraDataByIndex", "player", index, "HARMFUL")

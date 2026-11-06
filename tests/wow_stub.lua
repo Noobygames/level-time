@@ -568,7 +568,13 @@ function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
 -- Mana: state.power (aktuell), state.powerMax
 function UnitPower() return state.power or 0 end
-ERR_OUT_OF_MANA = "Nicht genug Mana" 
+ERR_OUT_OF_MANA = "Nicht genug Mana"
+-- Kontrollverlust: state.lossOfControl = { { locType, displayText, timeRemaining, displayType }, ... }
+C_LossOfControl = {
+  GetActiveLossOfControlDataCount = function() return #(state.lossOfControl or {}) end,
+  GetActiveLossOfControlData = function(index) return (state.lossOfControl or {})[index] end,
+}
+
 -- UnitStat: Basiswert, Gesamtwert, positive und negative Buffs
 function UnitStat(_, index)
   local value = state.stats[index] or 0

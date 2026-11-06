@@ -20,20 +20,12 @@ local REARM_MARGIN = 15
 local CHECK_SECONDS = 1
 local OUT_OF_MANA_REPEAT = 30
 local MANA = (Enum and Enum.PowerType and Enum.PowerType.Mana) or 0
-local HEALER = "HEALER"
-local GROUP_INSTANCES = { party = true, raid = true }
 
 local armed = true          -- nächste Unterschreitung wird angesagt
 local pending               -- angesagter Prozentwert, der auf einen offenen Chat wartet
 local lastOutOfMana
 
-local function isHealerInDungeon()
-  if not UnitGroupRolesAssigned then return false end
-  local role = UnitGroupRolesAssigned("player")
-  if ns.IsSecret(role) or role ~= HEALER then return false end
-  local inInstance, instanceType = IsInInstance()
-  return inInstance and GROUP_INSTANCES[instanceType] == true and GroupChat.PartyChannel() ~= nil
-end
+local isHealerInDungeon = ns.GroupRole.IsHealerInGroupInstance
 
 -- Mana in Prozent; nil, wenn der Client es sperrt (WoW Forever immer) oder kein Mana da ist
 function ManaCallout.ManaPercent()

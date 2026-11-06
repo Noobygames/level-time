@@ -6,6 +6,9 @@
 -- UnitDetailedThreatSituation von ihm "getankt" wird; ist das Ziel geheim, genügt "getankt" (siehe attacksPlayer).
 -- Gewarnt wird erst, wenn das AGGRO_CONFIRM_SECONDS anhält (kurze Zielwechsel beim Pull), und höchstens alle
 -- REPEAT_SECONDS. Geprüft wird alle CHECK_SECONDS, nur im Kampf in einer Gruppe.
+-- Heiler-Ansage (eigene Einstellung announceHealerAggro): mit der Rolle Heiler in Dungeon oder Schlachtzug geht nach
+-- HEALER_ANNOUNCE_SECONDS Aggro "Heiler hat Aggro!" an die Gruppe, einmal je Aggro, höchstens alle
+-- HEALER_REPEAT_SECONDS; nicht bei gesperrtem Chat (GroupChat.Locked).
 local _, ns = ...
 local L = ns.L
 
@@ -15,6 +18,8 @@ ns.AggroWarning = AggroWarning
 local CHECK_SECONDS = 0.5
 local AGGRO_CONFIRM_SECONDS = 1.5
 local REPEAT_SECONDS = 5
+local HEALER_ANNOUNCE_SECONDS = 2
+local HEALER_REPEAT_SECONDS = 10
 local TANK_ROLE = "TANK"
 local NAMEPLATE_UNITS = 40
 local FIXED_UNITS = { "target", "focus", "mouseover" }
@@ -22,6 +27,8 @@ local FIXED_UNITS = { "target", "focus", "mouseover" }
 local aggroSince   -- GetTime(), seit dem ein Gegner den Spieler angreift
 local warned       -- für diese Aggro schon gewarnt
 local lastShown
+local announced    -- für diese Aggro schon an die Gruppe gemeldet
+local lastAnnounced
 
 -- Wert nur, wenn er lesbar ist
 local function readable(value)
@@ -60,18 +67,14 @@ local function isTank()
   return not ns.IsSecret(role) and role == TANK_ROLE
 end
 
-local function active()
-  return ns.db.warnAggro and IsInGroup() and not isTank() and UnitAffectingCombat("player")
+local function wanted()
+  return (ns.db.warnAggro or ns.db.announceHealerAggro) and IsInGroup() and not isTank()
+    and UnitAffectingCombat("player")
 end
 
-function AggroWarning.Check()
-  if not active() or not AggroWarning.HasAggro() then
-    aggroSince, warned = nil, false
-    return
-  end
-  local now = GetTime()
-  aggroSince = aggroSince or now
-  if warned or now - aggroSince < AGGRO_CONFIRM_SECONDS then return end
+-- Eigene Einblendung nach AGGRO_CONFIRM_SECONDS
+local function warnSelf(now)
+  if not ns.db.warnAggro or warned or now - aggroSince < AGGRO_CONFIRM_SECONDS then return end
   if lastShown and now - lastShown < REPEAT_SECONDS then return end
   warned, lastShown = true, now
   ns.Debug("warnings", "aggro")
@@ -79,8 +82,31 @@ function AggroWarning.Check()
     ns.Alerts.WARNING_COLOR)
 end
 
+-- Heiler: nach HEALER_ANNOUNCE_SECONDS an die Gruppe
+local function announceHealer(now)
+  if not ns.db.announceHealerAggro or announced or now - aggroSince < HEALER_ANNOUNCE_SECONDS then return end
+  if lastAnnounced and now - lastAnnounced < HEALER_REPEAT_SECONDS then return end
+  if not ns.GroupRole.IsHealerInGroupInstance() or ns.GroupChat.Locked() then return end
+  local chatType = ns.GroupChat.PartyChannel()
+  if not chatType then return end
+  announced, lastAnnounced = true, now
+  ns.Debug("announce", "healer aggro")
+  ns.GroupChat.Send(L.HEALER_AGGRO_ANNOUNCE, chatType)
+end
+
+function AggroWarning.Check()
+  if not wanted() or not AggroWarning.HasAggro() then
+    aggroSince, warned, announced = nil, false, false
+    return
+  end
+  local now = GetTime()
+  aggroSince = aggroSince or now
+  warnSelf(now)
+  announceHealer(now)
+end
+
 ns.Every(CHECK_SECONDS, AggroWarning.Check)
 
 ns.OnLogin(function()
-  aggroSince, warned, lastShown = nil, false, nil
+  aggroSince, warned, lastShown, announced, lastAnnounced = nil, false, nil, false, nil
 end)

@@ -307,6 +307,9 @@ addToggles({
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
+  toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
+  toggle("CC_OVER_TOGGLE", "announceControlOver"),
+  toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
 })
 addSlider({
   label = "LOW_MANA_BELOW",

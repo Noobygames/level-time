@@ -79,6 +79,9 @@ local SETTINGS_DEFAULTS = {
   ammoLow = 200,           -- Schuss, ab denen die Munitionswarnung kommt
   ammoCritical = 50,       -- Schuss, ab denen "fast leer" kommt (0 = aus)
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
+  announceControlLoss = false,  -- Heiler: Kontrollverlust an die Gruppe (ControlCallout.lua)
+  announceControlOver = false,  -- Heiler: Entwarnung, wenn der Kontrollverlust vorbei ist
+  announceHealerAggro = false,  -- Heiler: Aggro über 2 s an die Gruppe (AggroWarning.lua)
   announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
   lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)

@@ -84,12 +84,38 @@ tick(6); tick(2)
 expect("Ziel geheim, nicht getankt: still", shown(), 4)
 UnitIsUnit = isUnit
 
+-- Heiler: nach 2 s an die Gruppe (eigene Einstellung), nur im Dungeon
+local function groupMessages()
+  local count = 0
+  for _, message in ipairs(wow.sentChat) do
+    if message.message:find(L.HEALER_AGGRO_ANNOUNCE, 1, true) then count = count + 1 end
+  end
+  return count
+end
+addon.Set("announceHealerAggro", true)
+wow.state.role = "HEALER"
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+enemy(false, true); tick(12)
+enemy(true, true)
+tick(0.5); tick(1.5)
+expect("Heiler: nach 1,5 s noch nichts an die Gruppe", groupMessages(), 0)
+tick(1)
+expect("Heiler: nach 2 s an die Gruppe", groupMessages(), 1)
+tick(3)
+expect("Heiler: einmal je Aggro", groupMessages(), 1)
+wow.state.instance = nil
+enemy(false, true); tick(12); enemy(true, true); tick(0.5); tick(3)
+expect("Heiler offene Welt: nichts", groupMessages(), 1)
+addon.Set("announceHealerAggro", false)
+wow.state.role = nil
+local shownBefore = shown()
+
 wow.state.role = "TANK"
 enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
-expect("Tank: still", shown(), 4)
+expect("Tank: still", shown(), shownBefore)
 wow.state.role = nil
 
 wow.state.inGroup = false
 enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
-expect("allein: still", shown(), 4)
+expect("allein: still", shown(), shownBefore)
 expect("keine Fehler", #wow.errors, 0)

@@ -27,6 +27,7 @@ Lib\RecordCodec.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\GroupChat.lua
+Lib\GroupRole.lua
 Lib\Bags.lua
 Lib\Items.lua
 Lib\Overrides.lua
@@ -90,6 +91,7 @@ Assist\FlightTimer.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\ManaCallout.lua
+Assist\ControlCallout.lua
 Assist\TrainerReminder.lua
 Assist\TrainAll.lua
 Assist\Comfort.lua
