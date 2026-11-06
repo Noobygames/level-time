@@ -69,6 +69,7 @@ History\Zones.lua
 History\Daily.lua
 History\Instances.lua
 History\InstanceLimit.lua
+History\PersonalRecords.lua
 History\Analysis.lua
 History\XpTable.lua
 History\Forecast.lua

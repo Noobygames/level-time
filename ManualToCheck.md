@@ -1841,3 +1841,21 @@ Kill/Kampf beendet ihn (ja/nein):
 XP/h ohne Leerlauf plausibel (ja/nein):
 Fehler:
 ```
+
+### 88. Persönliche Rekorde (Roadmap 272)
+
+- [ ] geprüft
+
+Hinweise > Persönliche Rekorde „Neue Rekorde melden“ an. Einige Minuten leveln (Kills, eine Quest mit viel XP), danach Historie > Level > „Persönliche Rekorde“ öffnen. Eine zweite, größere Quest abgeben. Einen Dungeon über 5 Minuten laufen und verlassen. Ein Level schneller schaffen als jeder andere Charakter.
+
+**Erwartet:** Beim ersten Wert jeder Art keine Meldung, danach Karte „Persönlicher Rekord!“ mit „Größter XP-Gewinn: 1.2k (vorher 800)“ und Chatzeile. „Meiste XP in 60 Minuten“ und „Beste Session-XP/h“ höchstens einmal je Session. Die Tabelle zeigt Wert, Charakter, Level und Datum.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Meldungen kamen (welche):
+Tabelle stimmt (ja/nein):
+Zu viele Meldungen (ja/nein):
+Fehler:
+```

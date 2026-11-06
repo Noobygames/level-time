@@ -153,6 +153,7 @@ local SETTINGS_DEFAULTS = {
   levelUpSound = true,
   levelUpScale = 1,
   levelUpDuration = 8,
+  announceRecords = false,  -- Einblendung und Chatzeile bei einem neuen persönlichen Rekord (PersonalRecords.lua)
   sessionCompareLogin = true,  -- Chatzeile zur letzten Session beim Login (siehe SessionCompare.lua)
   restedAltNotice = true,  -- Chatzeile beim Login, wenn ein Twink voll ausgeruht ist (siehe RestedEstimate.lua)
   levelUpGains = true,  -- Zuwachs (Leben, Mana, Werte) in Chat und Level-Up-Karte (siehe LevelGains.lua)

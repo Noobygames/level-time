@@ -263,6 +263,21 @@ local COMPARE_COLUMNS = {
     sort = function(r) return ns.RestedEstimate.Get(r.key) end },
 }
 
+-- Persönliche Rekorde (PersonalRecords.lua), über alle Charaktere; gelöschte Charaktere als "?"
+local function recordHolder(r)
+  if not r.characterKey or not History.GetCharacter(r.characterKey) then return r.characterKey and "?" or "" end
+  return History.DisplayName(r.characterKey)
+end
+
+local PERSONAL_RECORD_COLUMNS = {
+  { header = "HISTORY_RECORD", width = 170, align = LEFT, value = function(r) return r.label end },
+  { header = "HISTORY_VALUE", width = 90, value = function(r) return r.value end, sort = function(r) return r.sortValue end },
+  { header = "HISTORY_CHARACTER_NAME", width = 120, value = recordHolder },
+  { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.level or "" end },
+  { header = "HISTORY_WHEN", width = 100, value = function(r) return dateTime(L.DATE_TIME_FORMAT, r.at) end,
+    sort = function(r) return r.at end },
+}
+
 -- Vergleich: Zeilen in Klassenfarbe
 local function classColor(record)
   local color = RAID_CLASS_COLORS and record.class and RAID_CLASS_COLORS[record.class]
@@ -315,6 +330,15 @@ addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords
   "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells, false,
   "LEVELS_PARTIAL_HINT")
+-- Rekorde gelten für alle Charaktere, die Charakter-Auswahl spielt keine Rolle
+ns.HistoryWindow.AddView(TableView.Create({
+  tab = "HISTORY_TAB_PERSONAL_RECORDS",
+  group = LEVELS,
+  columns = PERSONAL_RECORD_COLUMNS,
+  records = function() return ns.PersonalRecords.GetRows() end,
+  footer = countCells,
+  hint = "PERSONAL_RECORDS_HINT",
+}))
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
 addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)
 addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells, true)
