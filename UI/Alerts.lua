@@ -116,12 +116,12 @@ local function isShowing()
   return frame:IsShown() or notice.frame:IsShown()
 end
 
--- spec = { icon, title, body }: als Karte statt als Banner
+-- spec = { icon, texture, title, body }: als Karte statt als Banner (texture siehe Card.Set)
 local function display(message, color, sound, spec)
   local shown
   if spec then
     frame:Hide()
-    notice.Set({ color = color, icon = spec.icon, title = spec.title, body = spec.body })
+    notice.Set({ color = color, icon = spec.icon, texture = spec.texture, title = spec.title, body = spec.body })
     shown = notice.frame
   else
     notice.frame:Hide()

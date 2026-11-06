@@ -1,7 +1,7 @@
 -- Erfassung: macht aus Spielereignissen Fortschritt der Ziele.
 --   level  Level Time meldet jedes Level (OnLevelStarted) und beim Login den Stand
 --   kills  neue Kill-Einträge im Journal von Level Time (PvE: Gegner mit XP, PvP: ehrenhafte Siege)
---   item   eigene Beute im Chat (alle Qualitäten), gezählt wird die Anzahl
+--   item   eigene Beute und selbst hergestellte Items im Chat (alle Qualitäten), gezählt wird die Anzahl
 --   bgwin  Ende eines Schlachtfelds: GetBattlefieldWinner() gegen die eigene Fraktion
 local _, ns = ...
 local LT = ns.LT
@@ -40,12 +40,15 @@ LT.Journal.OnAdd(function(logName, entry)
 end)
 
 ---------------------------------------------------------------------------
--- Items: eigene Beute (wie Loot.lua von Level Time, aber jede Qualität); LOOT_ITEM_PUSHED_SELF (Kauf, Post, Quest) zählt nicht
+-- Items: eigene Beute (wie Loot.lua von Level Time, aber jede Qualität) und Hergestelltes ("Ihr stellt her: ...");
+-- LOOT_ITEM_PUSHED_SELF (Kauf, Post, Quest) zählt nicht
 ---------------------------------------------------------------------------
 -- Speziellere Formate (mit Anzahl) zuerst, sonst passt das einfache Format auch auf sie
 local lootFormats = ChatPatterns.CompileGlobals({
   "LOOT_ITEM_SELF_MULTIPLE",
+  "LOOT_ITEM_CREATED_SELF_MULTIPLE",
   "LOOT_ITEM_SELF",
+  "LOOT_ITEM_CREATED_SELF",
 }, ChatPatterns.LINK)
 
 if #lootFormats > 0 then

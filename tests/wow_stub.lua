@@ -69,6 +69,7 @@ wow = {
     durability = {},         -- je Ausrüstungsplatz { aktuell, max } (GetInventoryItemDurability)
     inventoryCounts = {},    -- Anzahl je Ausrüstungsplatz (GetInventoryItemCount), 0 = Munition
     sellPrices = {},         -- Verkaufspreis je itemID (C_Item.GetItemInfo)
+    itemIcons = {},          -- Symbol (Datei-ID) je itemID (C_Item.GetItemInfoInstant); fehlt = unbekanntes Item
     -- Quest-NPC: Listen im Gespräch (GossipQuestUIInfo) und in der alten Quest-Liste (QUEST_GREETING)
     gossip = { available = {}, active = {}, options = {} },
     greeting = { available = {}, active = {} },  -- { title, isTrivial } bzw. { title, isComplete }
@@ -168,6 +169,7 @@ local frameMethods = {
   AddLine = function(self, text) self._lines = self._lines or {}; table.insert(self._lines, text) end,
   ClearLines = function(self) self._lines = {} end,
   SetOwner = function(self) self._lines = {} end,
+  SetHyperlink = function(self, link) self._hyperlink = link end,
   RegisterEvent = function(self, event)
     if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
     self._events[event] = true
@@ -305,6 +307,8 @@ TRANSFER_ABORT_TOO_MANY_INSTANCES = "Ihr habt in letzter Zeit zu viele Instanzen
 LOOT_ITEM_SELF = "Ihr erhaltet Beute: %s."
 LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
+LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
+LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
 -- Timer laufen nicht von selbst; Tests starten sie mit wow.runTimers()
 wow.timers = {}
 C_Timer = { After = function(_, callback) table.insert(wow.timers, callback) end }
@@ -555,6 +559,12 @@ C_Item = {
   -- itemID oder Link; Verkaufspreis aus state.sellPrices
   GetItemInfo = function(itemID)
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
+  end,
+  -- Wie im Client: nichts für unbekannte IDs, sonst itemID, Typ, Untertyp, Platz, Symbol, Klasse, Unterklasse
+  GetItemInfoInstant = function(itemID)
+    local icon = state.itemIcons[itemID]
+    if not icon then return nil end
+    return itemID, "Rüstung", "Leder", "INVTYPE_FEET", icon, 4, 2
   end,
 }
 

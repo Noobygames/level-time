@@ -5,6 +5,7 @@
 --   character = Schlüssel "Name-Realm" von Level Time; ein Ziel läuft nur, solange dieser Charakter eingeloggt ist.
 --   start/progress: Zählerstand beim Anlegen und jetzt (Level: das Level, sonst 0 und gezählte Stücke).
 --   status: "active", "done" oder "cancelled"; finishedAt = Zeitpunkt des Abschlusses (Historie).
+-- Zielarten mit manual = true zählt der Spieler selbst (Klick auf die Karte, Fenster, /sg count), siehe Goals.Step.
 local _, ns = ...
 local LT = ns.LT
 
@@ -44,6 +45,7 @@ function Goals.Create(kind, params, target)
   local def = kinds[kind]
   if not def then return nil, string.format(ns.L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
   params = params or {}
+  if def.prepare then target = def.prepare(params, target) end
   local err = def.validate(params, target)
   if err then return nil, err end
   if #Goals.Active() >= Goals.MAX_ACTIVE then return nil, string.format(ns.L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
@@ -104,6 +106,17 @@ function Goals.Title(goal)
   return kinds[goal.kind].title(goal)
 end
 
+-- Zeigt das Ziel einen Zählerstand "4 / 5"? Nein bei Arten, die nur erledigt oder offen sind (eigenes Ziel ohne Zähler)
+function Goals.HasCount(goal)
+  local def = kinds[goal.kind]
+  return not def.hasCount or def.hasCount(goal)
+end
+
+-- Darf der Spieler den Stand selbst ändern?
+function Goals.IsManual(goal)
+  return kinds[goal.kind].manual == true
+end
+
 -- Älteste abgeschlossene Ziele verwerfen, wenn es mehr als MAX_HISTORY gibt
 local function trimHistory()
   local excess = #Goals.History() - Goals.MAX_HISTORY
@@ -142,6 +155,18 @@ local function advance(goal, progress)
   else
     notify("progress", goal)
   end
+end
+
+-- Stand eines selbst gezählten Ziels um delta ändern (nie unter den Startstand). Rückgabe: Ziel oder nil und
+-- Fehlertext (unbekannte Nummer, Ziel zählt automatisch)
+function Goals.Step(id, delta)
+  local goal = Goals.Get(id)
+  if not goal or goal.status ~= Goals.ACTIVE or goal.character ~= LT.characterKey then
+    return nil, string.format(ns.L.SG_ERR_NO_GOAL, tostring(id or "?"))
+  end
+  if not Goals.IsManual(goal) then return nil, string.format(ns.L.SG_ERR_NOT_MANUAL, goal.id) end
+  advance(goal, math.max(goal.start, goal.progress + delta))
+  return goal
 end
 
 -- amount dazuzählen bei allen laufenden Zielen dieser Art, für die matches(goal) stimmt
