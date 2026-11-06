@@ -9,6 +9,9 @@
 --                man nicht gesehen hat, oder Kopie eines anderen Gruppenleiters).
 -- In Retail und WoW Forever kann UnitGUID geheim sein (SecretWhenUnitIdentityRestricted); dann bleibt
 -- es bei der Schätzung.
+-- Als Geist zurück zur Leiche ist es sicher dieselbe Kopie (die Leiche liegt dort): wer die Instanz als Geist
+-- verlassen hat und als Geist wieder betritt, kommt zurück in den gemerkten Besuch, auch wenn Schwierigkeit oder
+-- Zeit etwas anderes nahelegen. In WoW Forever sind die GUIDs in Instanzen geheim, dort gibt es keine Bestätigung.
 -- Reset: INSTANCE_RESET_SUCCESS oder INSTANCE_RESET_FAILED im Systemchat. Beide bekommt nur der
 -- Gruppenleiter; FAILED ("noch Spieler drin") setzt die Instanz für alle draußen trotzdem zurück.
 -- Je Charakter gemerkt: character.instanceVisits[Schlüssel] = { zoneUID, leftAt, pending }. Schlüssel =
@@ -36,6 +39,8 @@ local resetPatterns = ChatPatterns.CompileGlobals({ "INSTANCE_RESET_SUCCESS", "I
 -- Aktueller Aufenthalt: { name, instanceType, enteredAt, guessNew, expectedZoneUID,
 -- candidate, sightings, lastGuid, confirmed }; nil draußen
 local inside
+-- Zuletzt als Geist verlassene Instanz: { key, name }; nil, sobald man sie lebend verlassen hat
+local leftAsGhost
 
 local listeners = { enter = {}, leave = {}, corrected = {}, confirmed = {}, reset = {} }
 
@@ -90,13 +95,28 @@ local function stay(key, name, instanceType, enteredAt, guessNew, expectedZoneUI
     expectedZoneUID = expectedZoneUID, sightings = 0 }
 end
 
+-- Als Geist zurück in die Instanz, die man als Geist verlassen hat: Besuch unter dem neuen Schlüssel weiterführen
+local function ghostReturn(key, name)
+  local ghost = leftAsGhost
+  leftAsGhost = nil
+  if not ghost or ghost.name ~= name or not UnitIsDeadOrGhost("player") then return false end
+  local visit = visits()[ghost.key]
+  if ghost.key ~= key then
+    visits()[ghost.key], visits()[key] = nil, visit
+  end
+  ns.Debug("instances", "ghost back in %s (left as %s)", key, ghost.key)
+  if visit then visit.leftAt = nil end
+  return true
+end
+
 -- Bis zur Bestätigung merkt sich der Besuch die Schätzung (pending = { guessNew, expected, enteredAt }),
 -- damit /reload oder kurzes Rausgehen sie nicht verlieren: sonst fehlte später der Vergleichswert.
 local function enter(key, name, instanceType)
   local now = time()
+  local ghost = ghostReturn(key, name)
   local visit = visitOf(key, name)
   local pending = visit and visit.pending
-  local guessNew = isNewCopy(visit, now)
+  local guessNew = not ghost and isNewCopy(visit, now)
   ns.Debug("instances", "enter %s: visit %s, left %s s ago, zoneUID %s, pending %s, ghost %s", key, visit ~= nil,
     visit and visit.leftAt and (now - visit.leftAt), visit and visit.zoneUID, pending ~= nil, UnitIsDeadOrGhost("player"))
   if pending and not guessNew then
@@ -122,7 +142,9 @@ local function leave()
   local name = inside.name
   local visit = visits()[inside.key]
   if visit then visit.leftAt = time() end
-  ns.Debug("instances", "leave %s, ghost %s", inside.key, UnitIsDeadOrGhost("player"))
+  local ghost = UnitIsDeadOrGhost("player")
+  leftAsGhost = ghost and { key = inside.key, name = name } or nil
+  ns.Debug("instances", "leave %s, ghost %s", inside.key, ghost)
   inside = nil
   notify("leave", name)
 end
@@ -205,7 +227,7 @@ end
 -- nötig ist es beim Neustart nach dem Löschen des eingeloggten Charakters mitten in einer Instanz.
 -- Verzögert, damit alle Login-Callbacks (z.B. Instances) vorher gelaufen sind.
 ns.OnLogin(function()
-  inside = nil
+  inside, leftAsGhost = nil, nil
   C_Timer.After(0, onWorldChanged)
 end)
 
