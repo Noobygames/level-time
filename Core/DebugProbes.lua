@@ -299,6 +299,23 @@ end
 local COMBAT_SAMPLE_SECONDS = 5
 local MANA, RAGE, ENERGY = 0, 1, 3
 local MAX_HARMFUL_AURAS = 5
+local RESTRICTION_CHAT, RESTRICTION_MAP = 5, 4  -- Enum.AddOnRestrictionType (Recherche, im Spiel prüfen)
+local CC_FILTER = "HARMFUL|CROWD_CONTROL"
+
+-- Anzahl der CC-Auren: die Liste der IDs ist nicht geheim, nur ihr Inhalt
+local function crowdControlCount()
+  local ids = call("C_UnitAuras.GetUnitAuraInstanceIDs", "player", CC_FILTER)
+  if type(ids) == "table" then return #ids end
+  return ids
+end
+
+-- Kontrollverlust: priority und displayType sind laut Doku nie geheim, locType/spellID in Forever schon
+local function lossOfControl()
+  local data = call("C_LossOfControl.GetActiveLossOfControlData", 1)
+  if type(data) ~= "table" then return data end
+  return { locType = data.locType, spellID = data.spellID, displayText = data.displayText, priority = data.priority,
+    displayType = data.displayType, timeRemaining = data.timeRemaining }
+end
 
 local function harmfulAuras()
   local auras = {}
@@ -318,17 +335,21 @@ local function combatSample()
     combat = call("UnitAffectingCombat", "player"),
     instance = (call("IsInInstance")),
     lockdown = call("C_ChatInfo.InChatMessagingLockdown"),
+    restriction = { chat = call("C_RestrictedActions.GetAddOnRestrictionState", RESTRICTION_CHAT),
+      map = call("C_RestrictedActions.GetAddOnRestrictionState", RESTRICTION_MAP) },
     mana = { value = call("UnitPower", "player", MANA), max = call("UnitPowerMax", "player", MANA),
       percent = call("UnitPowerPercent", "player", MANA),
+      shouldBeSecret = call("C_Secrets.ShouldUnitPowerBeSecret", "player", MANA),
       secrecy = { mana = call("C_Secrets.GetPowerTypeSecrecy", MANA), rage = call("C_Secrets.GetPowerTypeSecrecy", RAGE),
         energy = call("C_Secrets.GetPowerTypeSecrecy", ENERGY) } },
     health = { value = call("UnitHealth", "player"), percent = call("UnitHealthPercent", "player") },
     threat = { situation = call("UnitThreatSituation", "player"),
       onTarget = call("UnitThreatSituation", "player", "target"),
       detailed = call("UnitDetailedThreatSituation", "player", "target"),
-      targetsMe = call("UnitIsUnit", "targettarget", "player"), targetTargetGuid = call("UnitGUID", "targettarget") },
+      targetsMe = call("UnitIsUnit", "targettarget", "player"), targetTargetGuid = call("UnitGUID", "targettarget"),
+      shouldBeSecret = call("C_Secrets.ShouldUnitThreatStateBeSecret", "player") },
     control = { fullControl = call("HasFullControl"), count = call("C_LossOfControl.GetActiveLossOfControlDataCount"),
-      first = call("C_LossOfControl.GetActiveLossOfControlData", 1), speed = call("GetUnitSpeed", "player") },
+      first = lossOfControl(), crowdControlAuras = crowdControlCount(), speed = call("GetUnitSpeed", "player") },
     auras = { secret = call("C_Secrets.ShouldAurasBeSecret"), harmful = harmfulAuras() },
   }
 end
@@ -399,7 +420,9 @@ local API_PROBES = {
   "C_Spell.GetSpellInfo", "GetSpellInfo", "C_Secrets", "C_Secrets.GetPowerTypeSecrecy", "C_Secrets.ShouldAurasBeSecret",
   "issecretvalue", "UnitPowerPercent", "UnitHealthPercent", "C_CurveUtil.CreateCurve", "C_LossOfControl",
   "C_LossOfControl.GetActiveLossOfControlData", "C_LossOfControl.GetActiveLossOfControlDataCount",
-  "UnitThreatSituation", "UnitDetailedThreatSituation", "HasFullControl",
+  "UnitThreatSituation", "UnitDetailedThreatSituation", "HasFullControl", "C_UnitAuras.GetUnitAuraInstanceIDs",
+  "C_RestrictedActions.GetAddOnRestrictionState", "C_Secrets.ShouldUnitPowerBeSecret",
+  "C_Secrets.ShouldUnitThreatStateBeSecret", "Enum.AddOnRestrictionType",
 }
 
 local GLOBAL_STRING_PROBES = {
@@ -536,6 +559,7 @@ check("frames", function()
 end)
 check("group", groupInfo)
 check("combat.sample", combatSample)  -- außerhalb des Kampfs; im Kampf schreibt das Log alle 5 s
+check("enum.restrictionTypes", function() return Enum.AddOnRestrictionType end)
 check("secret.functions", function()
   local names = {}
   for name in pairs(C_Secrets) do names[#names + 1] = name end
