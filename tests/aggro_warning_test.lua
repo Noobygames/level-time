@@ -71,12 +71,25 @@ tick(6)
 tick(2)
 expect("Bedrohung geheim, Ziel lesbar: zählt", shown(), 3)
 
+-- Forever-Instanz: Ziel des Gegners geheim, "getankt" entscheidet
+enemy(false, true); tick(6)
+wow.state.units.target.tanking = true
+wow.state.units.targettarget = nil
+local isUnit = UnitIsUnit
+UnitIsUnit = function(a, b) if a == "targettarget" then return wow.SECRET end return isUnit(a, b) end
+tick(0.5); tick(2)
+expect("Ziel geheim, getankt: Hinweis", shown(), 4)
+wow.state.units.target.tanking = false
+tick(6); tick(2)
+expect("Ziel geheim, nicht getankt: still", shown(), 4)
+UnitIsUnit = isUnit
+
 wow.state.role = "TANK"
 enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
-expect("Tank: still", shown(), 3)
+expect("Tank: still", shown(), 4)
 wow.state.role = nil
 
 wow.state.inGroup = false
 enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
-expect("allein: still", shown(), 3)
+expect("allein: still", shown(), 4)
 expect("keine Fehler", #wow.errors, 0)

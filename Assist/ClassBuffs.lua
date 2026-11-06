@@ -117,23 +117,50 @@ local function spellIdsWithRanks(spellIds, names)
   return ids
 end
 
-local function hasAnyBuff(spellIds)
+-- Ablauf merken, solange die Buffs lesbar sind (memory = { expiresAt, duration } je Hinweis, GetTime-Zeit). Im Kampf
+-- sperrt WoW Forever auch die Abfrage per Spell-ID (Debug-Log: ShouldSpellAuraBeSecret true); dann gilt der Buff
+-- als weg, sobald die gemerkte Ablaufzeit vorbei ist. Neu gewirkt im Kampf frischt sie auf (UNIT_SPELLCAST_SUCCEEDED).
+-- Verbrauchte Ladungen (Wasserschild) sieht man im Kampf nicht; das meldet der Hinweis direkt nach dem Kampf.
+local function remember(memory, aura)
+  if not memory then return end
+  local remaining, duration = nil, nil
+  if aura then remaining, duration = ns.Auras.RemainingSeconds(aura) end
+  memory.expiresAt = remaining and GetTime() + remaining or nil
+  if duration and duration > 0 then memory.duration = duration end
+end
+
+local function logMissing(names)
+  -- Fehlt laut Prüfung: gesuchte Namen und vorhandene Buffs, um falsche Zauber-IDs oder Namen zu erkennen
+  local present = {}
+  ns.Auras.ForEachBuff(function(aura) if aura.name then present[aura.name] = true end end)
+  local wanted, buffs = joinNames(names), joinNames(present)
+  if lastLogged[wanted] ~= buffs then  -- nur bei Änderung, die Prüfung läuft alle paar Sekunden
+    lastLogged[wanted] = buffs
+    ns.Debug("reminder", "missing: looking for %s, buffs %s", wanted, buffs)
+  end
+end
+
+-- true = einer der Buffs aktiv, false = keiner, nil = nicht feststellbar
+local function hasAnyBuff(spellIds, memory)
   local names = buffNames(spellIds)
   if not next(names) then return false end
-  local active = ns.Auras.Has(function(aura) return names[aura.name] == true end)
-  -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
-  if active == nil then return ns.Auras.HasPlayerSpell(spellIdsWithRanks(spellIds, names)) end
-  if active == false then
-    -- Fehlt laut Prüfung: gesuchte Namen und vorhandene Buffs, um falsche Zauber-IDs oder Namen zu erkennen
-    local present = {}
-    ns.Auras.ForEachBuff(function(aura) if aura.name then present[aura.name] = true end end)
-    local wanted, buffs = joinNames(names), joinNames(present)
-    if lastLogged[wanted] ~= buffs then  -- nur bei Änderung, die Prüfung läuft alle paar Sekunden
-      lastLogged[wanted] = buffs
-      ns.Debug("reminder", "missing: looking for %s, buffs %s", wanted, buffs)
+  local found
+  local read = ns.Auras.ForEachBuff(function(aura)
+    if names[aura.name] then
+      found = aura
+      return true
     end
+  end)
+  if read ~= nil then
+    remember(memory, found)
+    if not found then logMissing(names) end
+    return found ~= nil
   end
-  return active
+  -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
+  local byId = ns.Auras.HasPlayerSpell(spellIdsWithRanks(spellIds, names))
+  if byId ~= nil then return byId end
+  if memory and memory.expiresAt and GetTime() >= memory.expiresAt then return false end
+  return nil
 end
 
 local function hasLivingPet()
@@ -149,7 +176,8 @@ end
 
 local CHECKS = {
   [BUFF] = function(reminder)
-    local active = hasAnyBuff(reminder.spells)
+    reminder.memory = reminder.memory or {}
+    local active = hasAnyBuff(reminder.spells, reminder.memory)
     if active == nil then return nil end
     return not active
   end,
@@ -249,3 +277,16 @@ for _, reminder in ipairs(ClassBuffs.REMINDERS) do
     icon = function() return ClassBuffs.Icon(reminder) end,
   })
 end
+
+-- Im Kampf neu gewirkt: gemerkte Ablaufzeit auffrischen (Dauer vom letzten lesbaren Buff)
+ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
+  if unit ~= "player" or ns.IsSecret(spellId) then return end
+  local name = spellName(spellId)
+  if not name then return end
+  for _, reminder in ipairs(ClassBuffs.REMINDERS) do
+    local memory = reminder.memory
+    if reminder.kind == BUFF and memory and memory.duration and buffNames(reminder.spells)[name] then
+      memory.expiresAt = GetTime() + memory.duration
+    end
+  end
+end)

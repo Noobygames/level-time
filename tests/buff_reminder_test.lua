@@ -103,7 +103,19 @@ addon.Alerts.Clear()
 BuffReminder.Check()
 expect("Dungeon: Essen erinnert", reminders(), foodBefore + 1)
 expect("Dungeon: kein Camp", printedCount(L.REMIND_CAMP), campBefore)
+
+-- Maximallevel: im Dungeon trotzdem Essen, draußen nicht
+local isLeveling = addon.Experience.IsLeveling
+addon.Experience.IsLeveling = function() return false end
+wow.advance(301)
+addon.Alerts.Clear()
+BuffReminder.Check()
+expect("Maximallevel im Dungeon: Essen", reminders(), foodBefore + 2)
 wow.state.instance = nil
+wow.advance(301)
+BuffReminder.Check()
+expect("Maximallevel draußen: nichts", reminders(), foodBefore + 2)
+addon.Experience.IsLeveling = isLeveling
 
 -- Forever ohne den Zauber (älterer Build): nichts behaupten
 wow.state.spellNames = { [19705] = "Satt" }

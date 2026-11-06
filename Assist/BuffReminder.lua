@@ -73,7 +73,9 @@ end
 -- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol (Schlüssel aus Alerts.ICONS oder
 -- Funktion, die eine Spell-ID oder einen Pfad liefert) und Zeitpunkt des letzten Hinweises
 local REMINDERS = {
-  { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food" },
+  -- Essen auch auf Maximallevel in Dungeons und Raids (Buff-Essen gehört dort dazu)
+  { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food",
+    anyLevelInInstance = true },
   { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp",
     outdoorsOnly = true },
   {
@@ -86,7 +88,8 @@ local REMINDERS = {
 }
 
 -- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
--- optional: outdoorsOnly, inCombat (auch im Kampf), anyLevel (auch ohne Leveln), remindOnLoss (sofort, sobald der
+-- optional: outdoorsOnly, inCombat (auch im Kampf), anyLevel (auch ohne Leveln), anyLevelInInstance (in Instanzen
+-- auch ohne Leveln), remindOnLoss (sofort, sobald der
 -- Buff wegfällt, ohne die Pause abzuwarten) }
 function BuffReminder.Register(reminder)
   table.insert(REMINDERS, reminder)
@@ -114,7 +117,8 @@ end
 local function allowedNow(reminder)
   if UnitIsDeadOrGhost("player") or IsResting() then return false end
   if UnitAffectingCombat("player") and not reminder.inCombat then return false end
-  if not reminder.anyLevel and not ns.Experience.IsLeveling() then return false end
+  local anyLevel = reminder.anyLevel or (reminder.anyLevelInInstance and IsInInstance())
+  if not anyLevel and not ns.Experience.IsLeveling() then return false end
   return not (reminder.outdoorsOnly and IsInInstance())
 end
 

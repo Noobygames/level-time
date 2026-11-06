@@ -3,7 +3,7 @@
 -- Nicht über UnitThreatSituation("player") allein: das Debug-Log (WoW Forever 1.60.1) zeigte dort oft Stufe 3, obwohl
 -- kein Gegner den Spieler als Ziel hatte. Gezählt wird deshalb nur ein Gegner unter Ziel, Fokus, Maus und
 -- Namensplaketten, der im Kampf ist, den Spieler als Ziel hat (UnitIsUnit(<einheit>target, "player")) und laut
--- UnitDetailedThreatSituation von ihm "getankt" wird. Geheime Werte (Instanzen in Forever/Retail) zählen nicht.
+-- UnitDetailedThreatSituation von ihm "getankt" wird; ist das Ziel geheim, genügt "getankt" (siehe attacksPlayer).
 -- Gewarnt wird erst, wenn das AGGRO_CONFIRM_SECONDS anhält (kurze Zielwechsel beim Pull), und höchstens alle
 -- REPEAT_SECONDS. Geprüft wird alle CHECK_SECONDS, nur im Kampf in einer Gruppe.
 local _, ns = ...
@@ -29,14 +29,18 @@ local function readable(value)
   return value
 end
 
--- Greift diese Einheit den Spieler an? Nur feindlich, im Kampf, Spieler als Ziel und von ihm getankt
+-- Greift diese Einheit den Spieler an? Feindlich, nicht außer Kampf, und: Spieler als Ziel (wenn lesbar) und laut
+-- Bedrohung von ihm getankt. In Forever-Instanzen ist das Ziel des Gegners geheim (Debug-Log), "getankt"
+-- (1. Wert von UnitDetailedThreatSituation) aber lesbar: dann entscheidet das allein.
 local function attacksPlayer(unit)
-  if not UnitExists(unit) or not UnitCanAttack("player", unit) or not readable(UnitAffectingCombat(unit)) then
+  if not UnitExists(unit) or not UnitCanAttack("player", unit) or readable(UnitAffectingCombat(unit)) == false then
     return false
   end
-  if readable(UnitIsUnit(unit .. "target", "player")) ~= true then return false end
-  if not UnitDetailedThreatSituation then return true end
-  return readable((UnitDetailedThreatSituation("player", unit))) ~= false
+  local targetsPlayer = readable(UnitIsUnit(unit .. "target", "player"))
+  if targetsPlayer == false then return false end
+  local tanking = UnitDetailedThreatSituation and readable((UnitDetailedThreatSituation("player", unit)))
+  if targetsPlayer == true then return tanking ~= false end
+  return tanking == true
 end
 
 -- true, wenn ein sichtbarer Gegner den Spieler angreift

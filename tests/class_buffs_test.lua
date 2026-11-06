@@ -124,5 +124,25 @@ wow.state.buffs = {}
 BuffReminder.Check()
 expect("erneut weggefallen: wieder sofort", shown(armorText), 2)
 wow.state.inCombat, wow.state.aurasSecret, wow.state.instance = false, false, nil
+
+-- Forever: im Kampf auch per Spell-ID gesperrt; gemerkte Ablaufzeit entscheidet, neu wirken frischt sie auf
+wow.advance(600)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR, expirationTime = GetTime() + 60, duration = 1800 } }
+BuffReminder.Check()
+local before = shown(armorText)
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+wow.advance(30)
+BuffReminder.Check()
+expect("vor Ablauf: still", shown(armorText), before)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-1", FROST_ARMOR)
+wow.advance(60)
+BuffReminder.Check()
+expect("neu gewirkt: noch nicht abgelaufen", shown(armorText), before)
+wow.advance(1800)
+BuffReminder.Check()
+expect("abgelaufen im Kampf: Hinweis", shown(armorText), before + 1)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.secretSpellAuras = false, false, {}
+wow.state.buffs = {}
 addon.Set("remindMageArmor", false)
 expect("keine Fehler", #wow.errors, 0)
