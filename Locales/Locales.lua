@@ -839,6 +839,12 @@ ns.locales = {
     BREAK_MINUTES_TIP = "So viele Minuten Spielzeit ohne Pause, bis die Pausen-Erinnerung kommt.",
     NOTICE_BREAK = "Kurze Pause?",
     BREAK_REMINDER = "Du spielst seit %s ohne Pause. Kurz aufstehen, trinken, Augen entspannen.",
+    -- Questfortschritt an die Gruppe (QuestProgress.lua)
+    QUEST_PROGRESS_TOGGLE = "Questfortschritt an die Gruppe",
+    QUEST_PROGRESS_TOGGLE_TIP = "Schreibt in einer Gruppe in den Gruppenchat, wenn du eine Quest annimmst, ein Ziel erfüllst (z.B. „Wolf getötet: 8/8“) und alle Ziele einer Quest fertig sind. Je Ziel einmal; nicht während Blizzard den Chat sperrt.",
+    QUEST_PROGRESS_OBJECTIVE = "%s: %s",
+    QUEST_PROGRESS_ACCEPTED = "Quest angenommen: %s",
+    QUEST_PROGRESS_COMPLETE = "Quest fertig: %s",
   },
   enUS = {
     -- General and commands
@@ -1671,6 +1677,12 @@ ns.locales = {
     BREAK_MINUTES_TIP = "Minutes of play without a break before the break reminder appears.",
     NOTICE_BREAK = "Short break?",
     BREAK_REMINDER = "You have been playing for %s without a break. Stand up, have a drink, rest your eyes.",
+    -- Questfortschritt an die Gruppe (QuestProgress.lua)
+    QUEST_PROGRESS_TOGGLE = "Quest progress to group",
+    QUEST_PROGRESS_TOGGLE_TIP = "In a group, posts to group chat when you accept a quest, finish an objective (e.g. \"Wolf slain: 8/8\") and finish all objectives of a quest. Once per objective; not while Blizzard locks the chat.",
+    QUEST_PROGRESS_OBJECTIVE = "%s: %s",
+    QUEST_PROGRESS_ACCEPTED = "Quest accepted: %s",
+    QUEST_PROGRESS_COMPLETE = "Quest complete: %s",
   },
   frFR = {
     -- Général et commandes
@@ -2503,6 +2515,12 @@ ns.locales = {
     BREAK_MINUTES_TIP = "Minutes de jeu sans pause avant que le rappel de pause apparaisse.",
     NOTICE_BREAK = "Petite pause ?",
     BREAK_REMINDER = "Vous jouez depuis %s sans pause. Levez-vous, buvez un coup, reposez vos yeux.",
+    -- Questfortschritt an die Gruppe (QuestProgress.lua)
+    QUEST_PROGRESS_TOGGLE = "Progression des quêtes au groupe",
+    QUEST_PROGRESS_TOGGLE_TIP = "En groupe, écrit dans la discussion de groupe quand vous acceptez une quête, remplissez un objectif (par ex. « Loup tué : 8/8 ») et terminez tous les objectifs d'une quête. Une fois par objectif ; pas pendant que Blizzard verrouille la discussion.",
+    QUEST_PROGRESS_OBJECTIVE = "%s : %s",
+    QUEST_PROGRESS_ACCEPTED = "Quête acceptée : %s",
+    QUEST_PROGRESS_COMPLETE = "Quête terminée : %s",
   },
   esES = {
     -- General y comandos
@@ -3335,6 +3353,12 @@ ns.locales = {
     BREAK_MINUTES_TIP = "Minutos de juego sin pausa antes de que aparezca el recordatorio.",
     NOTICE_BREAK = "¿Un descanso?",
     BREAK_REMINDER = "Llevas %s jugando sin pausa. Levántate, bebe algo, descansa la vista.",
+    -- Questfortschritt an die Gruppe (QuestProgress.lua)
+    QUEST_PROGRESS_TOGGLE = "Progreso de misiones al grupo",
+    QUEST_PROGRESS_TOGGLE_TIP = "En grupo, escribe en el chat de grupo cuando aceptas una misión, cumples un objetivo (p. ej. «Lobo asesinado: 8/8») y terminas todos los objetivos de una misión. Una vez por objetivo; no mientras Blizzard bloquea el chat.",
+    QUEST_PROGRESS_OBJECTIVE = "%s: %s",
+    QUEST_PROGRESS_ACCEPTED = "Misión aceptada: %s",
+    QUEST_PROGRESS_COMPLETE = "Misión completada: %s",
   },
 }
 

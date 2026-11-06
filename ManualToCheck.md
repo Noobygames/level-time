@@ -1596,3 +1596,22 @@ Wartet im Kampf/in Instanzen (ja/nein):
 AFK setzt zurück (ja/nein):
 Fehler:
 ```
+
+### 75. Questfortschritt an die Gruppe (Roadmap 264)
+
+- [ ] geprüft
+
+Hinweise > Warnungen „Questfortschritt an die Gruppe“ an. In einer Gruppe eine Quest annehmen, ein Ziel fertig machen (Kills und Gegenstände), bis die Quest fertig ist. Einmal `/reload` mit einem halb erfüllten Ziel. In Classic eine Überschrift im Questlog einklappen und weitermachen.
+
+**Erwartet:** Im Gruppenchat „Level Time: Quest angenommen: ...“, je Ziel einmal „Titel: Wolf getötet: 8/8“ (Text des Clients), dann „Quest fertig: ...“. Nach `/reload` keine Wiederholung. Allein nichts.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Angenommen/Ziel/Fertig im Gruppenchat (ja/nein je):
+Keine Wiederholung nach /reload (ja/nein):
+Eingeklappte Überschrift (Classic): Meldung trotzdem (ja/nein/nicht getestet):
+Im Dungeon/Bosskampf (gesperrt?) (ja/nein/nicht getestet):
+Fehler:
+```

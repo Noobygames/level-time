@@ -631,7 +631,19 @@ C_QuestLog = {
   GetTitleForQuestID = function(questID) return state.questTitles[questID] end,
   IsQuestTrivial = function(questID) return state.trivialQuests[questID] or false end,
   IsRepeatableQuest = function(questID) return (state.repeatableQuests or {})[questID] == true end,
+  -- Ziele je Quest: state.questLog[i] = { questID, title, isHeader, objectives = { { text, finished } } }
+  GetQuestObjectives = function(questID)
+    for _, quest in ipairs(state.questLog or {}) do
+      if quest.questID == questID then return quest.objectives end
+    end
+  end,
 }
+-- Questlog wie in Classic Era/TBC (GetQuestLogTitle, 8. Rückgabe questID); C_QuestLog.GetInfo fehlt im Stub
+function GetNumQuestLogEntries() return #(state.questLog or {}) end
+function GetQuestLogTitle(index)
+  local quest = state.questLog[index]
+  return quest.title, 1, nil, quest.isHeader or false, false, false, 0, quest.questID
+end
 function GetQuestID() return state.questID or 0 end
 function strtrim(text) return (text:gsub("^%s+", ""):gsub("%s+$", "")) end
 -- Wie im Client: Funktion ersetzen, Original zuerst, dann der Hook

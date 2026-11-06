@@ -83,6 +83,7 @@ local SETTINGS_DEFAULTS = {
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
   announceControlLoss = false,  -- Heiler: Kontrollverlust an die Gruppe (ControlCallout.lua)
   announceControlOver = false,  -- Heiler: Entwarnung, wenn der Kontrollverlust vorbei ist
+  announceQuestProgress = false,  -- Questfortschritt an die Gruppe (QuestProgress.lua)
   announceHealerAggro = false,  -- Heiler: Aggro über 2 s an die Gruppe (AggroWarning.lua)
   announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
   lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt

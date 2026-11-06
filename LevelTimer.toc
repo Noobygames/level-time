@@ -94,6 +94,7 @@ Assist\AggroWarning.lua
 Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
+Assist\QuestProgress.lua
 Assist\TrainerReminder.lua
 Assist\BreakReminder.lua
 Assist\TrainAll.lua
