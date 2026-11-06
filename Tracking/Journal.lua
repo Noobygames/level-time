@@ -3,9 +3,10 @@
 -- Kill-Eintrag: { time, kind = "pve"|"pvp", name, classification, level, zone, xp, rested, mobLevel }
 --   xp: XP des Kills samt Erholungsbonus, rested: Bonus darin (beide nil bei PvP und älteren Einträgen)
 --   mobLevel: zuletzt gesehene Stufe des Gegners (Classification.lua), nil wenn unbekannt
--- Tod-Eintrag:  { time, level, zone, killer, spell, environment }
+-- Tod-Eintrag:  { time, level, zone, killer, spell, environment, mapID, x, y, lastWords }
 --   killer/spell: Verursacher und Zauber des letzten Treffers, environment: Umgebungsschaden
 --   (z.B. "FALLING"); alle drei nil, wenn die Ursache nicht bekannt ist.
+--   mapID/x/y: Ort auf der Karte (nil in Instanzen), lastWords: letzte eigene Chatzeile (DeathPlace.lua)
 -- Quest-Eintrag: { time, level, zone, questID, name, xp, money }
 -- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID }
 -- Beute:        { time, level, zone, link, name, quality, quantity, source }
@@ -42,7 +43,8 @@ Journal.LOGS = {
     { path = "xp" }, { path = "rested" }, { path = "mobLevel" } } },
   deathLog = { max = Journal.MAX_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "killer", kind = VALUE },
-    { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
+    { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE }, { path = "mapID" }, { path = "x" },
+    { path = "y" }, { path = "lastWords", kind = VALUE } } },
   questLog = { max = Journal.MAX_QUESTS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "questID" },
     { path = "name", kind = VALUE }, { path = "xp" }, { path = "money" } } },

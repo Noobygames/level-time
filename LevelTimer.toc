@@ -54,6 +54,7 @@ Tracking\KillCounter.lua
 Tracking\MobXp.lua
 Tracking\DeathRecap.lua
 Tracking\DeathCounter.lua
+Tracking\DeathPlace.lua
 Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
@@ -138,6 +139,7 @@ Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
 Assist\MapCoordinates.lua
+Assist\DeathMap.lua
 Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua

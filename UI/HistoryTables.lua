@@ -186,9 +186,11 @@ local KILL_COLUMNS = {
 
 local DEATH_COLUMNS = {
   whenColumn(100),
-  { header = "HISTORY_CAUSE", width = 180, align = LEFT, value = History.DeathCauseText },
+  { header = "HISTORY_CAUSE", width = 130, align = LEFT, value = History.DeathCauseText },
   levelColumn(40),
-  zoneColumn(126),
+  zoneColumn(100),
+  { header = "HISTORY_PLACE", width = 60, value = function(r) return ns.DeathPlace.CoordinatesText(r) or "-" end },
+  { header = "HISTORY_LAST_WORDS", width = 110, align = LEFT, value = function(r) return r.lastWords or "" end },
 }
 
 local QUEST_COLUMNS = {

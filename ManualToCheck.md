@@ -1947,3 +1947,21 @@ Achsen und Legende lesbar (ja/nein):
 Werte plausibel (ja/nein):
 Fehler:
 ```
+
+### 94. Todeskarte und letzte Worte (Roadmap 280)
+
+- [ ] geprüft
+
+Komfort > Fenster > Weltkarte „Tode auf der Karte“ an. Etwas in /s oder die Gruppe schreiben, draußen sterben (z.B. Fallschaden), einmal auch in einem Dungeon. Weltkarte öffnen, hinein- und herauszoomen, eine andere Zone anzeigen. Historie > Journal > Tode ansehen.
+
+**Erwartet:** Roter Punkt an der Todesstelle, der beim Zoomen an der Stelle bleibt; Tooltip mit Ursache, Level, Zeit und „Letzte Worte: …“. Auf anderen Karten keine Punkte, Dungeon-Tode ohne Punkt. Die Tabelle zeigt „Ort“ (Koordinaten) und „Letzte Worte“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Punkt an der richtigen Stelle (ja/nein):
+Zoomen/Kartenwechsel richtig (ja/nein):
+Letzte Worte stimmen (ja/nein):
+Fehler:
+```

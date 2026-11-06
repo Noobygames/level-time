@@ -606,7 +606,7 @@ addToggles({
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
 })
 addSection("SECTION_WORLD_MAP")
-addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates") })
+addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap") })
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
