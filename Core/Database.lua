@@ -79,6 +79,7 @@ local SETTINGS_DEFAULTS = {
   ammoLow = 200,           -- Schuss, ab denen die Munitionswarnung kommt
   ammoCritical = 50,       -- Schuss, ab denen "fast leer" kommt (0 = aus)
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
+  announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus

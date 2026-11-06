@@ -566,6 +566,9 @@ function GetTrainerServiceCost(index) return state.trainer.services[index].cost 
 function BuyTrainerService(index) table.insert(wow.trained, index) end
 function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
+-- Mana: state.power (aktuell), state.powerMax
+function UnitPower() return state.power or 0 end
+ERR_OUT_OF_MANA = "Nicht genug Mana" 
 -- UnitStat: Basiswert, Gesamtwert, positive und negative Buffs
 function UnitStat(_, index)
   local value = state.stats[index] or 0
