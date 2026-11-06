@@ -59,6 +59,9 @@ local SETTINGS_DEFAULTS = {
   foodTimer = true,      -- Essen-Timer (FoodTimer.lua): Restzeit beim Essen, danach "Satt aktiv"
   foodSound = false,     -- Ton, wenn "Satt" da ist
   foodScale = 1,
+  flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
+  flightSound = false,   -- Ton bei der Landung
+  flightScale = 1,
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
@@ -82,6 +85,7 @@ local SETTINGS_DEFAULTS = {
   -- Komfort wie Leatrix Plus (Roadmap 329): AutoAccept.lua, Looting.lua, ScreenText.lua, Camera.lua
   autoAcceptSummon = false, autoAcceptResurrect = false, autoReleasePvP = false,
   fasterLoot = false, skipLootConfirm = false, hideErrors = false, hideZoneText = false, maxCameraZoom = false,
+  easyDelete = false, fasterMovieSkip = false,  -- SkipDialogs.lua
   autoRepair = false,       -- beim Händler reparieren (Merchant.lua)
   autoRepairGuild = false,  -- zuerst aus der Gildenbank
   autoSellJunk = false,     -- graue Gegenstände verkaufen
@@ -340,6 +344,7 @@ local SETTING_RANGES = {
   campHintPause = { 1, 30 },
   campScale = { 0.5, 2 },
   foodScale = { 0.5, 2 },
+  flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
 }
 
@@ -350,6 +355,7 @@ local OPTIONAL_SETTINGS = {
   alertPos = isPosition,      -- Einblendungen (Alerts.lua); fehlt = oben in der Mitte
   campPos = isPosition,       -- Lagerfeuer-Anzeige (CampDisplay.lua)
   foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
+  flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
   levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end

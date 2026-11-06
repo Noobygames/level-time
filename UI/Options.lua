@@ -339,8 +339,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
 end
 finishPage()
 
--- Timer: Lagerfeuer (nur WoW Forever) und Essen
-if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
+-- Timer: Lagerfeuer (nur WoW Forever), Essen und Flüge (überall, daher gibt es den Reiter immer)
+do
   addPage("OPTIONS_TAB_TIMERS")
   -- Größe, Vorschau, Verschieben und Zurücksetzen einer Zeit-Anzeige (Lib/TimerDisplay.lua); Texte <PREFIX>_SCALE, _PREVIEW, _MOVE, _RESET_POSITION
   local function addTimerDisplayControls(prefix, display, scaleSetting)
@@ -390,6 +390,14 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
     })
     addTimerDisplayControls("FOOD", ns.FoodDisplay, "foodScale")
   end
+
+  -- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times", ohne mitgelieferte Daten)
+  addSection("SECTION_FLIGHT")
+  addToggles({
+    toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
+    toggle("FLIGHT_SOUND", "flightSound"),
+  })
+  addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flightScale")
   finishPage()
 end
 
@@ -456,6 +464,11 @@ addSection("SECTION_LOOT")
 addToggles({
   toggle("FASTER_LOOT", "fasterLoot"),
   toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
+})
+addSection("SECTION_DIALOGS")
+addToggles({
+  toggle("EASY_DELETE", "easyDelete"),
+  toggle("FASTER_MOVIE_SKIP", "fasterMovieSkip"),
 })
 addSection("SECTION_CAMERA")
 addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })

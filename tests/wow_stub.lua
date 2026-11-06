@@ -298,6 +298,14 @@ UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), ne
 UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
 UIErrorsFrame._events.UI_ERROR_MESSAGE = true
 UIErrorsFrame._messages = {}
+-- Lösch-Dialog und Filme: StaticPopup1 (.which, Eingabefeld), CinematicFrame mit Bestätigung
+StaticPopup1, StaticPopup1EditBox = newFrame(), newFrame()
+StaticPopup1.GetName = function() return "StaticPopup1" end
+StaticPopup1._shown = false
+CinematicFrame, CinematicFrameCloseDialogConfirmButton = newFrame(), newFrame()
+CinematicFrameCloseDialogConfirmButton.Click = function(self) self._clicks = (rawget(self, "_clicks") or 0) + 1 end
+DELETE_ITEM_CONFIRM_STRING = "LÖSCHEN"
+
 UIErrorsFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
 ERR_INV_FULL = "Inventar ist voll."
 
@@ -501,6 +509,11 @@ function AcceptResurrect() comfortAction("acceptResurrect") end
 function RepopMe() comfortAction("repop") end
 C_DeathInfo = { GetSelfResurrectOptions = function() return state.selfResurrect or {} end }
 -- Beute: state.lootSlots = Anzahl; LootSlot merkt den Platz
+-- Flugkarte: state.taxiNodes = { { name, type } } (type "CURRENT", "REACHABLE", ...)
+function NumTaxiNodes() return #(state.taxiNodes or {}) end
+function TaxiNodeName(index) return state.taxiNodes[index].name end
+function TaxiNodeGetType(index) return state.taxiNodes[index].type end
+function TakeTaxiNode() end
 function GetNumLootItems() return state.lootSlots or 0 end
 function LootSlot(slot) comfortAction("loot", slot) end
 function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end

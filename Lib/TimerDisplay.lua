@@ -4,7 +4,9 @@
 --   hint       Hinweis ohne Zeit, pulsiert leicht (config.pulseKind)
 --   done       steht kurz mit "fertig" und verschwindet (endsAt)
 -- config: { name, default (Position), scaleKey, posKey, soundKey, minScale, maxScale, colors[kind],
---   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber für den Verschiebemodus), pulseKind }
+--   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber für den Verschiebemodus), pulseKind,
+--   formatTime(remaining) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen.
+-- spellId darf auch ein Texturpfad sein (Card nimmt beides).
 -- Einstellungen: db[scaleKey], db[posKey] (verschiebbar, Vorschau), db[soundKey] (bei "done").
 local _, ns = ...
 local Widgets = ns.Widgets
@@ -41,7 +43,8 @@ function TimerDisplay.Create(config)
     local now = GetTime()
     if current.kind == "countdown" then
       local remaining = remainingOf(current)
-      card.SetTime(string.format(ns.L.SECONDS_SHORT, math.ceil(remaining)))
+      local seconds = math.ceil(remaining)
+      card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
     local alpha = math.min(1, (now - shownAt) / FADE_IN_SECONDS)
@@ -58,7 +61,7 @@ function TimerDisplay.Create(config)
     card.Set({
       color = config.colors[state.kind],
       icon = state.spellId,
-      title = config.titleFor(state.kind),
+      title = state.title or config.titleFor(state.kind),
       time = state.kind == "countdown",
     })
   end
@@ -94,7 +97,7 @@ function TimerDisplay.Create(config)
       if not (current and current.kind == "done") then hide() end
       return
     end
-    if current and current.kind == state.kind then
+    if current and current.kind == state.kind and current.title == state.title then
       if state.kind == "countdown" then  -- nur nachführen, ohne Neuaufbau
         current.expiration = GetTime() + state.remaining
         current.duration = state.duration
@@ -104,14 +107,15 @@ function TimerDisplay.Create(config)
     display({
       kind = state.kind,
       spellId = state.spellId,
+      title = state.title,
       expiration = state.remaining and GetTime() + state.remaining or nil,
       duration = state.duration,
     })
   end
 
-  function Display.ShowDone(spellId)
+  function Display.ShowDone(spellId, title)
     if override then return end
-    display({ kind = "done", spellId = spellId, endsAt = GetTime() + DONE_SECONDS })
+    display({ kind = "done", spellId = spellId, title = title, endsAt = GetTime() + DONE_SECONDS })
     if ns.db and ns.db[config.soundKey] then ns.Alerts.PlaySound() end
   end
 

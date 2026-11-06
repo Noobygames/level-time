@@ -78,10 +78,12 @@ UI\Alerts.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
+UI\FlightDisplay.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
+Assist\FlightTimer.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\TrainerReminder.lua
@@ -92,6 +94,7 @@ Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua
 Assist\Camera.lua
+Assist\SkipDialogs.lua
 Assist\Declines.lua
 Assist\ChatCopy.lua
 Assist\MoveFrames.lua
