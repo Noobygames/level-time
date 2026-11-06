@@ -21,18 +21,41 @@ end
 -- ns.Debug("stats", "%s +%s", counter, amount)
 local DEBUG_PREFIX = "|cff888888[debug] %s:|r "
 
--- Technische Zeile immer ausgeben (Ergebnisse der /lt debug-Befehle)
-function ns.DebugPrint(area, format, ...)
+-- Werte zu Text (geheime als "<secret>") und in format einsetzen
+function ns.FormatDebug(format, ...)
+  local count = select("#", ...)
   local args = { ... }
-  for i = 1, select("#", ...) do
+  for i = 1, count do
     args[i] = ns.IsSecret(args[i]) and "<secret>" or tostring(args[i])
   end
-  print(PREFIX .. string.format(DEBUG_PREFIX, area) .. string.format(format, unpack(args, 1, select("#", ...))))
+  return string.format(format, unpack(args, 1, count))
 end
 
--- Nur bei eingeschaltetem Logging
+local function printDebug(area, text)
+  print(PREFIX .. string.format(DEBUG_PREFIX, area) .. text)
+end
+
+-- Technische Zeile immer ausgeben (Ergebnisse der /lt debug-Befehle)
+function ns.DebugPrint(area, format, ...)
+  printDebug(area, ns.FormatDebug(format, ...))
+end
+
+-- Empfänger der Debug-Zeilen neben dem Chat: recorder(area, text), z.B. das dauerhafte Log (DebugLog.lua); nil = keiner
+local debugRecorder
+function ns.SetDebugRecorder(recorder)
+  debugRecorder = recorder
+end
+
+local function record(area, text)
+  if debugRecorder then pcall(debugRecorder, area, text) end  -- ein defektes Log darf nichts aufhalten
+end
+
+-- Nur bei eingeschaltetem Logging (Chat mit /lt debug, dauerhaftes Log mit /lt debug log)
 function ns.Debug(area, format, ...)
-  if ns.debug then ns.DebugPrint(area, format, ...) end
+  if not ns.debug and not debugRecorder then return end
+  local text = ns.FormatDebug(format, ...)
+  if ns.debug then printDebug(area, text) end
+  record(area, text)
 end
 
 -- Retail kann Werte als "secret" markieren; die dürfen Addons nicht auswerten
@@ -61,9 +84,17 @@ end
 
 -- Ruft fn geschützt auf: ein Fehler landet beim Fehler-Handler des Clients (BugSack, Fehlerfenster),
 -- der Aufrufer läuft weiter. xpcall reicht in Lua 5.1 keine Argumente durch, daher die Closure.
+-- Mit dauerhaftem Log steht der Fehler samt Aufrufstapel auch dort.
+local function onError(message)
+  if debugRecorder then
+    record("error", tostring(message) .. (debugstack and ("\n" .. debugstack(2)) or ""))
+  end
+  return geterrorhandler()(message)
+end
+
 function ns.SafeCall(fn, ...)
   local args, count = { ... }, select("#", ...)
-  return xpcall(function() return fn(unpack(args, 1, count)) end, geterrorhandler())
+  return xpcall(function() return fn(unpack(args, 1, count)) end, onError)
 end
 
 -- Alle Callbacks einer Liste, jeder für sich geschützt: ein fehlerhaftes Modul hält die anderen

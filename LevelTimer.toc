@@ -10,7 +10,7 @@
 ## Notes-esMX: Estadísticas por nivel y por sesión (tiempo de juego, PX/h, abatidos, muertes y más) con historial para todos los personajes
 ## IconTexture: Interface\AddOns\LevelTimer\Media\Icon
 ## AddonCompartmentFunc: LevelTimer_OnAddonCompartmentClick
-## SavedVariables: LevelTimerDB, LevelTimerStatsDB
+## SavedVariables: LevelTimerDB, LevelTimerStatsDB, LevelTimerDebugLog
 # LevelTimerCharDB: veraltet, nur noch geladen, um alte Daten in LevelTimerStatsDB zu übernehmen
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
@@ -19,6 +19,7 @@ Locales\Locales.lua
 Core\Database.lua
 Core\LevelTimer.lua
 Core\Client.lua
+Core\DebugLog.lua
 Lib\Format.lua
 Lib\Serializer.lua
 Core\Profiles.lua

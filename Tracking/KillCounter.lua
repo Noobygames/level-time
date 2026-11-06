@@ -1,20 +1,9 @@
 -- Zählt Kills (PvE, PvP, Elite, Rare) und schreibt jeden Kill mit Namen und Einstufung ins Journal.
 local _, ns = ...
-local L = ns.L
 local Stats = ns.Stats
 local Journal = ns.Journal
 local ChatPatterns = ns.ChatPatterns
 local Classification = ns.Classification
-
--- Fehlersuche (/lt debug): jede XP-Meldung mit ihrer Wertung in den Chat schreiben
-local function debugXpMessage(verdictKey, message)
-  if not ns.debug then return end
-  if message then
-    ns.Print(L[verdictKey] .. ": " .. message)
-  else
-    ns.Print(L[verdictKey])
-  end
-end
 
 ---------------------------------------------------------------------------
 -- PvE: Kills, die Erfahrung gegeben haben (Chatmeldung "X stirbt, Ihr bekommt Y Erfahrung").
@@ -108,16 +97,16 @@ if COMBATLOG_XPGAIN_FIRSTPERSON then
 
   ns.RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN", function(message)
     if ns.IsSecret(message) then
-      debugXpMessage("DEBUG_XP_SECRET")  -- Inhalt nicht lesbar, daher auch nicht ausgeben
+      ns.Debug("xp", "secret XP message")  -- Inhalt nicht lesbar, daher auch nicht ausgeben
       onSecretMessage()
       return
     end
     local args = ChatPatterns.Match(message, killFormat)
     if args then
       countKill(args[1], tonumber(args[2]))
-      debugXpMessage("DEBUG_XP_KILL", message)
+      ns.Debug("xp", "kill: %s", message)
     else
-      debugXpMessage("DEBUG_XP_OTHER", message)
+      ns.Debug("xp", "no kill: %s", message)
     end
   end)
 end
