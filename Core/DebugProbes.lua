@@ -291,6 +291,67 @@ if hooksecurefunc and TakeTaxiNode then
   end)
 end
 
+---------------------------------------------------------------------------
+-- Kampf-Proben: sind Mana, Bedrohung, Kontrollverlust und Debuffs auf dem Spieler lesbar oder geheim (Ansagen
+-- "wenig Mana", "Aggro auf mir", "CC auf mir")? Geheime Werte erscheinen als "<secret>", Fehler (z.B. gesperrte
+-- Auren) als Text. Im Kampf alle COMBAT_SAMPLE_SECONDS und bei den Ereignissen unten, außerhalb in /lt debug check.
+---------------------------------------------------------------------------
+local COMBAT_SAMPLE_SECONDS = 5
+local MANA, RAGE, ENERGY = 0, 1, 3
+local MAX_HARMFUL_AURAS = 5
+
+local function harmfulAuras()
+  local auras = {}
+  for index = 1, MAX_HARMFUL_AURAS do
+    local aura = call("C_UnitAuras.GetAuraDataByIndex", "player", index, "HARMFUL")
+    if aura == nil then break end
+    if type(aura) == "table" then
+      aura = { spellId = aura.spellId, name = aura.name, dispelName = aura.dispelName, duration = aura.duration }
+    end
+    auras[index] = aura
+  end
+  return auras
+end
+
+local function combatSample()
+  return {
+    combat = call("UnitAffectingCombat", "player"),
+    instance = (call("IsInInstance")),
+    lockdown = call("C_ChatInfo.InChatMessagingLockdown"),
+    mana = { value = call("UnitPower", "player", MANA), max = call("UnitPowerMax", "player", MANA),
+      percent = call("UnitPowerPercent", "player", MANA),
+      secrecy = { mana = call("C_Secrets.GetPowerTypeSecrecy", MANA), rage = call("C_Secrets.GetPowerTypeSecrecy", RAGE),
+        energy = call("C_Secrets.GetPowerTypeSecrecy", ENERGY) } },
+    health = { value = call("UnitHealth", "player"), percent = call("UnitHealthPercent", "player") },
+    threat = { situation = call("UnitThreatSituation", "player"),
+      onTarget = call("UnitThreatSituation", "player", "target"),
+      detailed = call("UnitDetailedThreatSituation", "player", "target"),
+      targetsMe = call("UnitIsUnit", "targettarget", "player"), targetTargetGuid = call("UnitGUID", "targettarget") },
+    control = { fullControl = call("HasFullControl"), count = call("C_LossOfControl.GetActiveLossOfControlDataCount"),
+      first = call("C_LossOfControl.GetActiveLossOfControlData", 1), speed = call("GetUnitSpeed", "player") },
+    auras = { secret = call("C_Secrets.ShouldAurasBeSecret"), harmful = harmfulAuras() },
+  }
+end
+
+local function writeCombatSample(reason, ...)
+  if not DebugLog.IsEnabled() then return end
+  write({ area = "combat", reason = reason, args = packCount(math.min(select("#", ...), MAX_EVENT_ARGS), ...),
+    sample = combatSample() })
+end
+
+ns.Every(COMBAT_SAMPLE_SECONDS, function()
+  if ns.InCombat() then writeCombatSample("tick") end
+end)
+
+for _, event in ipairs({ "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE", "PLAYER_REGEN_DISABLED" }) do
+  if not ns.RegisterEvent(event, function(...) writeCombatSample(event, ...) end) then
+    unknownEvents[#unknownEvents + 1] = event
+  end
+end
+ns.RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", function(unit, ...)
+  if unit == "player" then writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", unit, ...) end
+end)
+
 -- 300/316: gewirkte Zauber des Spielers, als Zählung je Spell-ID im Schnappschuss (einzeln wären es zu viele Zeilen)
 local castCounts = {}
 ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
@@ -336,7 +397,9 @@ local API_PROBES = {
   -- Austausch und Sonstiges
   "C_ChatInfo.SendAddonMessage", "C_ChatInfo.RegisterAddonMessagePrefix", "C_ChatInfo.InChatMessagingLockdown",
   "C_Spell.GetSpellInfo", "GetSpellInfo", "C_Secrets", "C_Secrets.GetPowerTypeSecrecy", "C_Secrets.ShouldAurasBeSecret",
-  "issecretvalue",
+  "issecretvalue", "UnitPowerPercent", "UnitHealthPercent", "C_CurveUtil.CreateCurve", "C_LossOfControl",
+  "C_LossOfControl.GetActiveLossOfControlData", "C_LossOfControl.GetActiveLossOfControlDataCount",
+  "UnitThreatSituation", "UnitDetailedThreatSituation", "HasFullControl",
 }
 
 local GLOBAL_STRING_PROBES = {
@@ -472,3 +535,10 @@ check("frames", function()
     movieFrame = MovieFrame ~= nil, cinematicFrame = CinematicFrame ~= nil }
 end)
 check("group", groupInfo)
+check("combat.sample", combatSample)  -- außerhalb des Kampfs; im Kampf schreibt das Log alle 5 s
+check("secret.functions", function()
+  local names = {}
+  for name in pairs(C_Secrets) do names[#names + 1] = name end
+  table.sort(names)
+  return names
+end)

@@ -62,6 +62,14 @@ wow.fire("UNIT_SPELLCAST_SUCCEEDED", "target", "cast-3", 133)
 wow.update(61)
 expect("Schnappschuss", hasLine('"area":"snapshot","casts":{"19705":2}'), true)
 
+-- Kampf-Probe: beim Kampfbeginn und alle 5 s im Kampf, geheime Werte als Platzhalter
+wow.state.inCombat = true
+wow.fire("PLAYER_REGEN_DISABLED")
+expect("Kampf-Probe", hasLine('"area":"combat"') and hasLine('"reason":"PLAYER_REGEN_DISABLED"'), true)
+wow.update(5)
+expect("Kampf-Probe im Takt", hasLine('"reason":"tick"'), true)
+wow.state.inCombat = false
+
 -- Abgefangener Fehler landet im Log (und beim Fehler-Handler des Clients)
 addon.SafeCall(function() error("kaputt") end)
 expect("Fehler im Log", hasLine('"area":"error"') and hasLine("kaputt"), true)
