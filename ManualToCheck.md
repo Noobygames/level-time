@@ -1467,3 +1467,22 @@ Position gut, nichts überlappt (ja/nein):
 Lautstärke ändert sich (ja/nein):
 Fehler:
 ```
+
+### 69. Fenster: Klassenfarben bei Ziel und Fokus, Tooltip, Minimap (Roadmap 329, Schritt 4)
+
+- [ ] geprüft
+
+Komfort > Fenster: „Klassenfarben bei Ziel und Fokus“ an, Spieler verschiedener Klassen und NPCs anvisieren und fokussieren (auch in einer Instanz). Tooltip: „Namen in Klassenfarbe“ und „Ziel der Einheit zeigen“ an, über Spieler und kämpfende Gegner fahren; „Im Kampf ausblenden“ an, im Kampf über Gegner fahren, dann mit Umschalt. Minimap (Classic): Mausrad, Zoom-Knöpfe, Kalender-Knopf. Alles wieder aus.
+
+**Erwartet:** Namenshintergrund bei Spielern in Klassenfarbe, bei NPCs wie gewohnt (rot/gelb/grün); aus = sofort wieder Reaktionsfarbe. Tooltip-Name von Spielern in Klassenfarbe, Zeile „Ziel: Name“ (bei dir „Ziel: Du“), Tooltip passt seine Größe an. Im Kampf keine Einheiten-Tooltips, mit Umschalt doch; Tooltips von Knöpfen und Gegenständen bleiben. Classic: Mausrad zoomt die Minimap, Zoom-Knöpfe und Kalender-Knopf weg und nicht klickbar; aus = zurück. Retail/Forever: Mausrad- und Zoom-Knopf-Schalter fehlen (dort schon Standard). Keine Fehler, kein „Aktion blockiert“, auch in Instanzen (Forever: geheime Werte).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Klassenfarbe Ziel/Fokus, aus = zurück (ja/nein):
+Tooltip Klassenfarbe und Zielzeile (ja/nein):
+Im Kampf versteckt, Umschalt zeigt (ja/nein):
+Minimap Mausrad/Knöpfe (ja/nein/fehlt):
+Fehler (auch in Instanzen):
+```

@@ -149,6 +149,8 @@ local frameMethods = {
   SetParent = function(self, parent) self._parent = parent end,
   EnableMouse = function(self, enabled) self._mouse = enabled and true or false end,
   IsMouseEnabled = function(self) return rawget(self, "_mouse") == true end,
+  EnableMouseWheel = function(self, enabled) self._mouseWheel = enabled and true or false end,
+  IsMouseWheelEnabled = function(self) return rawget(self, "_mouseWheel") == true end,
   -- Chatfenster und Eingabezeilen: Standard wie im Client an (Verblassen, Alt für Pfeiltasten)
   GetFading = function(self) return rawget(self, "_fading") ~= false end,
   SetFading = function(self, fading) self._fading = fading and true or false end,
@@ -432,7 +434,19 @@ function UnitExists(unit) return unit == "player" or state.units[unit] ~= nil en
 function UnitIsPlayer(unit) return unit == "player" or (state.units[unit] and state.units[unit].isPlayer) or false end
 function UnitClassification(unit) return state.units[unit] and state.units[unit].classification or "normal" end
 function GetRealmName() return state.realm end
-function UnitClass() return state.class, state.class end
+-- Andere Einheiten: units[unit].class, sonst die Klasse des Spielers
+function UnitClass(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  local class = other and other.class or state.class
+  return class, class
+end
+function UnitIsUnit(a, b) return a == b or (state.units[a] ~= nil and state.units[a] == state.units[b]) end
+-- Reaktionsfarbe (UnitSelectionColor): units[unit].selection oder gelb
+function UnitSelectionColor(unit)
+  local color = state.units[unit] and state.units[unit].selection or { 1, 1, 0 }
+  return color[1], color[2], color[3]
+end
+RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 }, MAGE = { r = 0.25, g = 0.78, b = 0.92 } }
 function UnitRace() return state.race[1], state.race[2], state.race[3] end
 function UnitIsDeadOrGhost() return state.dead end
 function UnitHealth() return state.health end

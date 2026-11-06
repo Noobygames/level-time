@@ -109,6 +109,9 @@ Assist\QuestMarks.lua
 Assist\ActionBars.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
+Assist\ClassColors.lua
+Assist\Tooltip.lua
+Assist\MinimapTweaks.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua

@@ -509,6 +509,22 @@ addToggles({
   toggle("CHARACTER_DURABILITY", "characterDurability", ns.CharacterFrameExtras.IsAvailable),
   toggle("CHARACTER_VOLUME", "characterVolume", ns.CharacterFrameExtras.IsAvailable),
 })
+addSection("SECTION_UNIT_FRAMES")
+addToggles({ toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable) })
+addSection("SECTION_TOOLTIP")
+addToggles({
+  toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
+  toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
+  toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
+})
+-- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
+local MinimapTweaks = ns.MinimapTweaks
+addSection("SECTION_MINIMAP")
+addToggles({
+  toggle("MINIMAP_WHEEL_ZOOM", "minimapWheelZoom", MinimapTweaks.CanWheelZoom),
+  toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
+  toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
+})
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
