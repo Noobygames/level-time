@@ -24,7 +24,7 @@ dry-run:
 
 # ZIPs für CurseForge oder manuelle Installation: dist/LevelTimer-<version>.zip und dist/StreamGoal-<version>.zip
 package:
-	$(RUN) -package "$(CURDIR)/dist/LevelTimer-$(VERSION).zip"
+	$(RUN) -addons LevelTimer,LevelTimer_Archive -package "$(CURDIR)/dist/LevelTimer-$(VERSION).zip"
 	$(RUN) -addons StreamGoal -package "$(CURDIR)/dist/StreamGoal-$(VERSION).zip"
 
 # Debug-Log von Level Time (/lt debug log, /lt debug check) aus den SavedVariables als JSON Lines ausgeben (nur lesen)

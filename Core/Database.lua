@@ -410,7 +410,8 @@ function Database.CharacterKey(name, realm)
 end
 
 -- Neu erstellter Charakter mit dem Namen eines gelöschten: gespeichertes Level höher als das aktuelle
--- (Level sinken nie). Zuhörer (Runs.lua) sichern den alten Versuch, dann beginnen die Daten neu.
+-- (Level sinken nie). Zuhörer (Runs.lua, JournalArchive.lua) bekommen Daten und Schlüssel: sichern den alten
+-- Versuch bzw. löschen sein Archiv, dann beginnen die Daten neu.
 local replacedListeners = {}
 
 function Database.OnCharacterReplaced(listener)
@@ -431,7 +432,7 @@ local function loadCharacter(stats)
   local data = stats.characters[key]
   if data and isReplacedCharacter(data) then
     for _, listener in ipairs(replacedListeners) do
-      ns.SafeCall(listener, data)
+      ns.SafeCall(listener, data, key)
     end
     data = nil
   end
@@ -474,6 +475,16 @@ function Database.GetCharacters()
 end
 
 -- Entfernt alle Statistiken eines Charakters (Einstellungen bleiben unberührt)
+-- Zuhörer (JournalArchive.lua) löschen, was sie zu dem Charakter außerhalb von LevelTimerStatsDB speichern
+local deletedListeners = {}
+
+function Database.OnCharacterDeleted(listener)
+  table.insert(deletedListeners, listener)
+end
+
 function Database.DeleteCharacter(characterKey)
   LevelTimerStatsDB.characters[characterKey] = nil
+  for _, listener in ipairs(deletedListeners) do
+    ns.SafeCall(listener, characterKey)
+  end
 end

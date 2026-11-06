@@ -407,6 +407,34 @@ C_UnitAuras = {
 function IsInGroup() return state.inGroup end
 -- Gesendete Chat-Nachrichten landen in wow.sentChat als { message, chatType }
 wow.sentChat = {}
+-- Load-on-Demand-Addons (LevelTimer_Archive): LoadAddOn führt die Dateien der .toc aus und meldet ADDON_LOADED.
+-- state.addOnsUnavailable[name] = true wie ein fehlendes oder ausgeschaltetes Addon; wow.addOnLoads zählt Ladevorgänge.
+wow.addOnLoads = {}
+local loadedAddOns = {}
+C_AddOns = {
+  IsAddOnLoaded = function(name) return loadedAddOns[name] == true end,
+  LoadAddOn = function(name)
+    if loadedAddOns[name] then return true end
+    if (state.addOnsUnavailable or {})[name] then return false, "DISABLED" end
+    local toc = io.open(ADDON_DIR .. "/" .. name .. "/" .. name .. ".toc")
+    if not toc then return false, "MISSING" end
+    local namespace = {}
+    for line in toc:lines() do
+      line = line:gsub("\r", ""):gsub("\\", "/")
+      if line ~= "" and not line:match("^#") then
+        local chunk, err = loadfile(ADDON_DIR .. "/" .. name .. "/" .. line)
+        if not chunk then error(err, 0) end
+        chunk(name, namespace)
+      end
+    end
+    toc:close()
+    loadedAddOns[name] = true
+    wow.addOnLoads[name] = (wow.addOnLoads[name] or 0) + 1
+    wow.fire("ADDON_LOADED", name)
+    return true
+  end,
+}
+
 C_ChatInfo = {
   SendChatMessage = function(message, chatType) table.insert(wow.sentChat, { message = message, chatType = chatType }) end,
   InChatMessagingLockdown = function() return state.chatLockdown end,

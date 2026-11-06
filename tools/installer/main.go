@@ -61,7 +61,7 @@ func runPackage(o options) error {
 	if err != nil {
 		return err
 	}
-	// Pro ZIP ein Addon: ohne -addons das Hauptaddon
+	// Ohne -addons das Hauptaddon; mehrere Addons (z.B. LevelTimer,LevelTimer_Archive) landen in einer ZIP
 	names := o.addons
 	if names == "" {
 		names = addons[0].Name
@@ -70,10 +70,7 @@ func runPackage(o options) error {
 	if err != nil {
 		return err
 	}
-	if len(selected) != 1 {
-		return errors.New("-package packt genau ein Addon, bitte mit -addons wählen")
-	}
-	if err := WritePackage(selected[0], o.pkgPath); err != nil {
+	if err := WritePackage(selected, o.pkgPath); err != nil {
 		return err
 	}
 	fmt.Printf("Paket erstellt: %s\n", o.pkgPath)

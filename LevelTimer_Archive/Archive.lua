@@ -1,0 +1,3 @@
+-- Level Time (Archive): Load-on-Demand-Addon, das nur die SavedVariable LevelTimerArchiveDB mitbringt. WoW lädt sie
+-- erst, wenn Level Time das Addon per LoadAddOn holt, und schreibt sie nur in Sitzungen, in denen es geladen war.
+-- Die Logik steht in LevelTimer (Tracking\JournalArchive.lua); hier ist absichtlich nichts weiter.

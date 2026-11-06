@@ -142,7 +142,9 @@ end
 --   rowColor(record) optional (Standard: laufender Eintrag hervorgehoben, sonst weiß),
 --   onRowClick(record, mouseButton) optional,
 --   hint = Locale-Key oder function() -> Text optional,
---   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button) }
+--   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
+--   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
+--   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS }
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
 function TableView.Create(definition)
   local columns = definition.columns
@@ -221,7 +223,7 @@ function TableView.Create(definition)
     end
 
     local scrollBar
-    local lastSignature  -- siehe Render
+    local lastSignature, lastCharacterKey, lastApplyAt = nil, nil, 0  -- siehe Render
     local function scrollTo(offset)
       frame.offset = math.max(0, math.min(offset, #records - visibleRows))
       scrollBar:SetOffsetSilently(frame.offset)
@@ -330,11 +332,15 @@ function TableView.Create(definition)
       -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren (bis 5000 Einträge) nur, wenn sich etwas
       -- geändert hat: Charakter, Sprache, Anzahl, der jüngste (laufende) Eintrag, spätestens alle 5 s
       local newest = allRecords[1]
+      local freshness = definition.revision and definition.revision() or math.floor(GetTime() / REFRESH_SECONDS)
       local signature = table.concat({ characterKey or "", ns.db and ns.db.language or "", #allRecords,
         newest and (newest.time or newest.startedAt or 0) or 0, newest and newest.seconds or 0,
-        newest and newest.xp or 0, math.floor(GetTime() / REFRESH_SECONDS) }, ":")
-      if signature == lastSignature and not selectionChanged and not force then return end
-      lastSignature = signature
+        newest and newest.xp or 0, freshness }, ":")
+      local urgent = selectionChanged or force or characterKey ~= lastCharacterKey
+      if signature == lastSignature and not urgent then return end
+      -- Große Journale: neue Einträge höchstens alle REFRESH_SECONDS einsortieren (Charakterwechsel sofort)
+      if definition.revision and not urgent and GetTime() - lastApplyAt < REFRESH_SECONDS then return end
+      lastSignature, lastApplyAt, lastCharacterKey = signature, GetTime(), characterKey
       apply()
     end
 

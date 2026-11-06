@@ -1,0 +1,15 @@
+## Interface: 120105, 11509, 20506, 16001
+## Title: Level Time (Archive)
+## Version: @project-version@
+## Author: Nerzal
+## Notes: Journal archive of Level Time, loaded on demand
+## Notes-deDE: Journal-Archiv von Level Time, wird nur bei Bedarf geladen
+## Notes-frFR: Archive du journal de Level Time, chargée seulement si nécessaire
+## Notes-esES: Archivo del diario de Level Time, se carga solo cuando hace falta
+## Notes-esMX: Archivo del diario de Level Time, se carga solo cuando hace falta
+## Dependencies: LevelTimer
+## LoadOnDemand: 1
+## SavedVariables: LevelTimerArchiveDB
+
+# Nur Speicher: die Logik liegt in LevelTimer (Tracking\JournalArchive.lua), die dieses Addon per LoadAddOn lädt
+Archive.lua

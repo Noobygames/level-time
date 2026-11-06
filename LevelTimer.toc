@@ -23,6 +23,7 @@ Core\DebugLog.lua
 Core\DebugProbes.lua
 Lib\Format.lua
 Lib\Serializer.lua
+Lib\RecordCodec.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\Bags.lua
@@ -35,6 +36,7 @@ Lib\TimerDisplay.lua
 # Erfassung: Zähler und Ereignisse (Tracking)
 Tracking\Stats.lua
 Tracking\Journal.lua
+Tracking\JournalArchive.lua
 Tracking\Classification.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua

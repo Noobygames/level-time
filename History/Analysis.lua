@@ -199,11 +199,11 @@ function Analysis.XpRatePerZone(characterKey)
 end
 
 function Analysis.TopKills(characterKey)
-  return topCounts(History.GetCharacter(characterKey).killLog, function(kill)
+  return topCounts(ns.Journal.GetEntries(characterKey, "killLog"), function(kill)
     return kill.name or L.UNKNOWN_NAME
   end)
 end
 
 function Analysis.DeathCauses(characterKey)
-  return topCounts(History.GetCharacter(characterKey).deathLog, History.DeathCauseText)
+  return topCounts(ns.Journal.GetEntries(characterKey, "deathLog"), History.DeathCauseText)
 end
