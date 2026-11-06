@@ -380,6 +380,11 @@ function IsInGuild() return state.inGuild end
 function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
 function UnitAffectingCombat() return state.inCombat end
 function UnitOnTaxi() return state.onTaxi end
+-- Bekannte Zauber (IsPlayerSpell): state.knownSpells[spellId] = true
+function IsPlayerSpell(spellId) return (state.knownSpells or {})[spellId] == true end
+function UnitIsDead(unit) return state.units[unit] ~= nil and state.units[unit].dead == true end
+-- Temporäre Waffen-Verzauberung der Haupthand: state.mainHandEnchant = true
+function GetWeaponEnchantInfo() return state.mainHandEnchant == true end
 function GetInventoryItemCount(_, slot) return state.inventoryCounts[slot] or 0 end
 function GetInventoryItemDurability(slot)
   local entry = state.durability[slot]

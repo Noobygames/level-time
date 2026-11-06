@@ -275,6 +275,19 @@ addToggles({
   toggle("REMIND_CAMP_TOGGLE", "remindCamp", ns.BuffReminder.HasCampSystem),
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
 })
+-- Klassen-Hinweise: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
+local classReminders = ns.ClassBuffs.ForPlayerClass()
+if #classReminders > 0 then
+  addSection("SECTION_CLASS_REMINDERS")
+  local classToggles = {}
+  for _, reminder in ipairs(classReminders) do
+    local classToggle = toggle("REMIND_CLASS_TOGGLE", reminder.setting)
+    classToggle.text = function() return ns.ClassBuffs.Label(reminder) end
+    classToggle.tip = ns.ClassBuffs.TipKey(reminder)
+    table.insert(classToggles, classToggle)
+  end
+  addToggles(classToggles)
+end
 addSlider({
   label = "REMINDER_INTERVAL",
   min = ns.BuffReminder.MIN_INTERVAL,

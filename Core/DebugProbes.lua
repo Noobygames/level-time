@@ -558,6 +558,18 @@ check("frames", function()
     movieFrame = MovieFrame ~= nil, cinematicFrame = CinematicFrame ~= nil }
 end)
 check("group", groupInfo)
+-- Klassen-Hinweise (ClassBuffs.lua): je Zauber-ID der eigenen Klasse Name im Client, bekannt, Ergebnis der Prüfung
+check("class.reminders", function()
+  local result = {}
+  for _, reminder in ipairs(ns.ClassBuffs.ForPlayerClass()) do
+    local spells = {}
+    for _, spellId in ipairs(reminder.known or reminder.spells) do
+      spells[#spells + 1] = { id = spellId, name = call("C_Spell.GetSpellName", spellId), known = call("IsPlayerSpell", spellId) }
+    end
+    result[reminder.setting] = { spells = spells, missing = safe(ns.ClassBuffs.IsMissing, reminder) }
+  end
+  return result
+end)
 check("combat.sample", combatSample)  -- außerhalb des Kampfs; im Kampf schreibt das Log alle 5 s
 check("enum.restrictionTypes", function() return Enum.AddOnRestrictionType end)
 check("secret.functions", function()

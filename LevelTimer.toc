@@ -79,6 +79,7 @@ UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
 Assist\BuffReminder.lua
+Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\GearWarnings.lua

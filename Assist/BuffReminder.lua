@@ -68,7 +68,8 @@ function BuffReminder.IsChargedMissing()
   return missing(function(aura) return aura.spellId == CHARGED_SPELL_ID end)
 end
 
--- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol und Zeitpunkt des letzten Hinweises
+-- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol (Schlüssel aus Alerts.ICONS oder
+-- Funktion, die eine Spell-ID oder einen Pfad liefert) und Zeitpunkt des letzten Hinweises
 local REMINDERS = {
   { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food" },
   { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp" },
@@ -79,6 +80,16 @@ local REMINDERS = {
     icon = "charged",
   },
 }
+
+-- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon }
+function BuffReminder.Register(reminder)
+  table.insert(REMINDERS, reminder)
+end
+
+local function iconOf(reminder)
+  if type(reminder.icon) == "function" then return reminder.icon() end
+  return ns.Alerts.ICONS[reminder.icon]
+end
 
 local function messageText(reminder)
   if type(reminder.message) == "function" then return reminder.message() end
@@ -106,7 +117,7 @@ function BuffReminder.Check()
     if isDue(reminder) then
       ns.Debug("reminder", "%s missing, reminding", reminder.setting)
       reminder.lastShown = GetTime()
-      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = ns.Alerts.ICONS[reminder.icon] })
+      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder) })
     end
   end
   if #messages > 0 then

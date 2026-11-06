@@ -62,6 +62,12 @@ local SETTINGS_DEFAULTS = {
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
+  -- Klassen-Hinweise (ClassBuffs.lua), je einer; nur für die eigene Klasse in den Einstellungen
+  remindMageArmor = false, remindArcaneIntellect = false, remindFortitude = false, remindInnerFire = false,
+  remindShadowform = false, remindDemonArmor = false, remindWarlockPet = false, remindMarkOfTheWild = false,
+  remindThorns = false, remindOmenOfClarity = false, remindShamanShield = false, remindShamanWeapon = false,
+  remindBlessing = false, remindPaladinAura = false, remindRighteousFury = false, remindAspect = false,
+  remindHunterPet = false, remindPoisons = false, remindBattleShout = false, remindBronzeBlessing = false,
   reminderInterval = 5,  -- Minuten zwischen zwei Hinweisen auf denselben fehlenden Buff
   warnBagsFull = false,  -- Hinweis bei fast vollen Taschen (siehe GearWarnings.lua)
   warnDurability = false,  -- Hinweis bei niedriger Haltbarkeit
