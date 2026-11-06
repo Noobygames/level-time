@@ -1787,3 +1787,21 @@ Kill-Meldung im Erholungsbonus (Text kopieren):
 Zahl plausibel mit/ohne Erholung (ja/nein):
 Fehler:
 ```
+
+### 85. XP aus Entdecken, Sammeln und nach Ort (Roadmap 275)
+
+- [ ] geprüft
+
+Statistiken „XP-Quellen“ und „XP nach Ort“ an, `/lt debug` an. Ein neues Gebiet entdecken (gelbe Meldung „… entdeckt: N Erfahrung erhalten.“). In Retail/Forever ein Kraut oder Erz sammeln, das XP gibt. Einen Dungeon betreten und dort XP bekommen. Danach Historie > Level > „XP-Quellen“.
+
+**Erwartet:** Debug-Zeilen `xp exploration XP N (Gebiet)` und `xp gathering XP N`; „XP aus Entdecken“/„XP aus Sammeln“ steigen, „XP sonstige“ nicht. „XP in Dungeons“ steigt nur in der Instanz. Die Unteransicht zeigt die Anteile je Level.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Entdecken erkannt (ja/nein; sonst: in welchem Chatfenster/Ereignis kam die Meldung):
+Sammeln erkannt (ja/nein/keine Sammel-XP im Client):
+XP nach Ort stimmt (ja/nein):
+Fehler:
+```

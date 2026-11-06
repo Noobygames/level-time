@@ -113,6 +113,27 @@ local TIME_COLUMNS = {
   end, sort = restSeconds },
 }
 
+-- XP-Quellen und Ort je Level (XpSources.lua): Anteile an der XP des Levels
+local function xpPartColumn(header, name, width)
+  return { header = header, width = width, value = function(r)
+    return Format.Percent(counter(r, name), r.xp or 0)
+  end, sort = function(r) return counter(r, name) end }
+end
+
+local XP_SOURCE_COLUMNS = {
+  levelColumn(44),
+  { header = "HISTORY_XP", width = 56, value = function(r) return Format.Number(r.xp or 0) end,
+    sort = function(r) return r.xp end },
+  xpPartColumn("HISTORY_XP_KILLS", Stats.XP_KILLS, 48),
+  xpPartColumn("HISTORY_XP_QUESTS", Stats.XP_QUESTS, 48),
+  xpPartColumn("HISTORY_XP_EXPLORE", Stats.XP_EXPLORE, 48),
+  xpPartColumn("HISTORY_XP_GATHER", Stats.XP_GATHER, 48),
+  xpPartColumn("HISTORY_XP_WORLD", Stats.XP_WORLD, 48),
+  xpPartColumn("HISTORY_XP_DUNGEON", Stats.XP_DUNGEON, 52),
+  xpPartColumn("HISTORY_XP_RAID", Stats.XP_RAID, 48),
+  xpPartColumn("HISTORY_XP_BATTLEGROUND", Stats.XP_BATTLEGROUND, 52),
+}
+
 local SESSION_COLUMNS = {
   { header = "HISTORY_START", width = 80, value = function(r) return dateTime(L.DATE_FORMAT, r.startedAt) end,
     sort = function(r) return r.startedAt end },
@@ -290,6 +311,8 @@ local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
 addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, false, "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
 addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, false,
+  "LEVELS_PARTIAL_HINT")
+addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells, false,
   "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
 addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)

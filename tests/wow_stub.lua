@@ -346,6 +346,7 @@ function StaticPopup_Show(name, textArg1, textArg2, data)
 end
 COMBATLOG_XPGAIN_FIRSTPERSON = "%s stirbt, Ihr bekommt %d Erfahrung."
 COMBATLOG_XPGAIN_EXHAUSTION1 = "%s stirbt, Ihr bekommt %d Erfahrung. (%s EP-Bonus durch %s)"
+ERR_ZONE_EXPLORED_XP = "%1$s entdeckt: %2$d Erfahrung erhalten."
 COMBATLOG_HONORGAIN = "%s stirbt, ehrenhafter Sieg Rang: %s (Geschätzte Ehrenpunkte: %d)"
 -- Texte wie im deutschen Client (WoW Forever, per /dump geprüft)
 INSTANCE_RESET_SUCCESS = "'%s' wurde zurückgesetzt."

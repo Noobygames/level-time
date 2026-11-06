@@ -21,11 +21,11 @@ wow.state.rested = 600  -- Ausruhen füllt den Pool: kein verbrauchter Bonus
 wow.fire("UPDATE_EXHAUSTION")
 expect("Pool-Zunahme zählt nicht", Stats.Get(Stats.LEVEL, Stats.XP_RESTED), 50)
 
-local fromKills, fromQuests, other, total = Experience.GetSources(Stats.LEVEL)
-expect("XP aus Kills", fromKills, 100)
-expect("XP aus Quests", fromQuests, 200)
-expect("sonstige XP", other, 100)
-expect("XP gesamt", total, 400)
+local sources = Experience.GetSources(Stats.LEVEL)
+expect("XP aus Kills", sources.kills, 100)
+expect("XP aus Quests", sources.quests, 200)
+expect("sonstige XP", sources.other, 100)
+expect("XP gesamt", sources.total, 400)
 
 -- 400 XP in 30 min = 800 XP/h, 600 XP fehlen = 45 min
 wow.advance(1770)

@@ -119,12 +119,19 @@ function Experience.CountToLevel(xpCounter, countCounter)
   return Experience.CountForXp(remainingXp, baseXp, isKills and (GetXPExhaustion() or 0) or 0)
 end
 
--- XP-Quellen im Bereich. "Sonstige" ist der Rest (Entdecken, Berufe, ...).
+-- XP-Quellen im Bereich: { kills, quests, explore, gather, other, total }. "Sonstige" ist der Rest (Berufe, Ereignisse, ...).
+-- Entdecken und Sammeln zählt XpSources.lua.
 function Experience.GetSources(scope)
-  local fromKills = Stats.Get(scope, Stats.XP_KILLS)
-  local fromQuests = Stats.Get(scope, Stats.XP_QUESTS)
-  local total = math.max(Stats.GetXp(scope), fromKills + fromQuests)
-  return fromKills, fromQuests, total - fromKills - fromQuests, total
+  local sources = {
+    kills = Stats.Get(scope, Stats.XP_KILLS),
+    quests = Stats.Get(scope, Stats.XP_QUESTS),
+    explore = Stats.Get(scope, Stats.XP_EXPLORE),
+    gather = Stats.Get(scope, Stats.XP_GATHER),
+  }
+  local known = sources.kills + sources.quests + sources.explore + sources.gather
+  sources.total = math.max(Stats.GetXp(scope), known)
+  sources.other = sources.total - known
+  return sources
 end
 
 ---------------------------------------------------------------------------

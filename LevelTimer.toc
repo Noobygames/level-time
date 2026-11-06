@@ -58,6 +58,7 @@ Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
 Tracking\QuestCounter.lua
 Tracking\QuestLogXp.lua
+Tracking\XpSources.lua
 Tracking\Loot.lua
 Tracking\MoneyCounter.lua
 

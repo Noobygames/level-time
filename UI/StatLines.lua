@@ -112,13 +112,21 @@ local function killsPerDeath(scope)
   return ratio and string.format("%.1f", ratio) or NO_VALUE
 end
 
--- Anteil einer XP-Quelle; index 1 = Kills, 2 = Quests, 3 = Sonstige (Reihenfolge von GetSources)
-local function xpShare(index)
+-- Anteil einer XP-Quelle (Schlüssel von Experience.GetSources: kills, quests, explore, gather, other)
+local function xpShare(source)
   return function(scope)
-    local sources = { Experience.GetSources(scope) }
-    local total = sources[4]
+    local sources = Experience.GetSources(scope)
+    if sources.total <= 0 then return NO_VALUE end
+    return Format.Percent(sources[source], sources.total)
+  end
+end
+
+-- Anteil der XP an einem Ort (Zähler aus XpSources.lua) an der XP des Bereichs
+local function xpContextShare(counterName)
+  return function(scope)
+    local total = Stats.GetXp(scope)
     if total <= 0 then return NO_VALUE end
-    return Format.Percent(sources[index], total)
+    return Format.Percent(math.min(total, Stats.Get(scope, counterName)), total)
   end
 end
 
@@ -216,9 +224,17 @@ ns.STAT_LINES = {
   { setting = "showDeathless", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHLESS",
     rows = { { label = "ROW_DEATHLESS", value = timeWithoutDeath } } },
   { setting = "showXpSources", group = "STAT_GROUP_XP", label = "STAT_XP_SOURCES", rows = {
-    { label = "ROW_XP_KILLS", value = xpShare(1) },
-    { label = "ROW_XP_QUESTS", value = xpShare(2) },
-    { label = "ROW_XP_OTHER", value = xpShare(3) },
+    { label = "ROW_XP_KILLS", value = xpShare("kills") },
+    { label = "ROW_XP_QUESTS", value = xpShare("quests") },
+    { label = "ROW_XP_EXPLORE", value = xpShare("explore") },
+    { label = "ROW_XP_GATHER", value = xpShare("gather") },
+    { label = "ROW_XP_OTHER", value = xpShare("other") },
+  } },
+  { setting = "showXpContext", group = "STAT_GROUP_XP", label = "STAT_XP_CONTEXT", rows = {
+    { label = "ROW_XP_WORLD", value = xpContextShare(Stats.XP_WORLD) },
+    { label = "ROW_XP_DUNGEON", value = xpContextShare(Stats.XP_DUNGEON) },
+    { label = "ROW_XP_RAID", value = xpContextShare(Stats.XP_RAID) },
+    { label = "ROW_XP_BATTLEGROUND", value = xpContextShare(Stats.XP_BATTLEGROUND) },
   } },
   { setting = "showRested", group = "STAT_GROUP_XP", label = "STAT_RESTED", rows = { { label = "ROW_RESTED", value = restedXp } } },
   { setting = "showRestedLeft", group = "STAT_GROUP_XP", label = "STAT_RESTED_LEFT", rows = { { label = "ROW_RESTED_LEFT", value = restedLeft } } },
