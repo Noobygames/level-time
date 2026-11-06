@@ -182,8 +182,12 @@ local function instanceLimit()
   return string.format(ns.L.INSTANCE_LIMIT_NEXT, count, limit, Format.Duration(wait))
 end
 
+-- Seit Mitternacht; mit Tageslimit (Classic) dazu die gleitenden 24 Stunden "4 (12/30 in 24 h)"
 local function instancesToday()
-  return tostring(ns.InstanceLimit.GetTodayCount())
+  local InstanceLimit = ns.InstanceLimit
+  local today, dailyLimit = InstanceLimit.GetTodayCount(), InstanceLimit.GetDailyLimit()
+  if not dailyLimit then return tostring(today) end
+  return string.format(ns.L.INSTANCES_TODAY_DAILY, today, InstanceLimit.GetDayCount(), dailyLimit)
 end
 
 -- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP"

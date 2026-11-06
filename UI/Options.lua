@@ -349,6 +349,7 @@ addToggles({
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
 addSlider({
   label = "WARN_BREATH_BELOW",

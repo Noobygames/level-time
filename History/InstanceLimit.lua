@@ -1,6 +1,9 @@
 -- Instanzlimit: Der Server lässt pro Stunde nur LIMIT neue Instanzen (Dungeons und Raids) zu, für alle
 -- Charaktere eines Accounts auf einem Realm (Classic Era, Anniversary, WoW Forever: 5; Retail: 10).
 -- Die Stunde gleitet: ein Platz wird eine Stunde nach dem Betreten der jeweiligen Instanz wieder frei.
+-- Classic-Clients zusätzlich DAILY_LIMIT = 30 neue Instanzen in 24 Stunden (gleitend, Roadmap 282; bekannt aus
+-- WoW Classic 2019, warcraft.wiki.gg "Instance" nennt nur noch das Stundenlimit, daher nur Anzeige und Warnung,
+-- im Spiel zu prüfen). Retail hat kein Tageslimit.
 --
 -- Betretene Instanzen: LevelTimerStatsDB.instanceEntries[Realm] = { { time, name, character }, ... },
 -- älteste zuerst, nur die letzten 24 Stunden. Accountweit, damit alle Charaktere zählen, die das Addon
@@ -20,11 +23,18 @@ ns.InstanceLimit = InstanceLimit
 InstanceLimit.WINDOW = 3600               -- Sekunden, für die eine Instanz zählt
 local LIMIT_CLASSIC = 5
 local LIMIT_RETAIL = 10
+local DAILY_LIMIT_CLASSIC = 30
 local KEEP_SECONDS = 24 * 3600            -- so lange bleiben Einträge gespeichert (Info "heute")
 local COUNTED_TYPES = { party = true, raid = true }  -- Schlachtfelder und Szenarien zählen nicht
 
 function InstanceLimit.GetLimit()
   return ns.Client.IsRetail() and LIMIT_RETAIL or LIMIT_CLASSIC
+end
+
+-- Neue Instanzen je 24 Stunden; nil ohne Tageslimit (Retail)
+function InstanceLimit.GetDailyLimit()
+  if ns.Client.IsRetail() then return nil end
+  return DAILY_LIMIT_CLASSIC
 end
 
 local function realmEntries()
@@ -66,6 +76,11 @@ function InstanceLimit.GetTodayCount()
   return #entriesSince(ns.Daily.StartOfDay(time()) - 1)
 end
 
+-- Neue Instanzen in den letzten 24 Stunden (gleitend, für das Tageslimit)
+function InstanceLimit.GetDayCount()
+  return #entriesSince(time() - KEEP_SECONDS)
+end
+
 -- Stand laut Addon; extra = weitere Werte für das Format (z.B. Instanzen heute)
 local function notifyCount(format, ...)
   local count, limit = InstanceLimit.GetHourCount(), InstanceLimit.GetLimit()
@@ -76,6 +91,12 @@ end
 
 local function warn()
   if not ns.db.warnInstanceLimit then return end
+  local dailyLimit = InstanceLimit.GetDailyLimit()
+  if dailyLimit and InstanceLimit.GetDayCount() >= dailyLimit - 1 then
+    ns.Alerts.Notify({ title = L.NOTICE_INSTANCE_LIMIT, icon = ns.Alerts.ICONS.instanceLimit,
+      text = string.format(L.INSTANCE_DAILY_LIMIT_WARNING, InstanceLimit.GetDayCount(), dailyLimit) },
+      ns.Alerts.WARNING_COLOR)
+  end
   if InstanceLimit.GetHourCount() < InstanceLimit.GetLimit() - 1 then return end
   notifyCount(L.INSTANCE_LIMIT_WARNING)
 end

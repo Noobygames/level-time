@@ -77,7 +77,7 @@ expect("Zeile mit Wartezeit", row("showInstanceLimit"),
   string.format(L.INSTANCE_LIMIT_NEXT, 5, 5, addon.Format.Duration(wait)))
 wow.advance(wait)
 expect("Platz frei", InstanceLimit.GetHourCount(), 4)
-expect("heute alle", row("showInstancesToday"), "5")
+expect("heute alle (Classic mit 24 Stunden)", row("showInstancesToday"), string.format(L.INSTANCES_TODAY_DAILY, 5, 5, 30))
 
 -- Anderer Realm zählt getrennt
 enter(nil)

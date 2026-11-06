@@ -1965,3 +1965,22 @@ Zoomen/Kartenwechsel richtig (ja/nein):
 Letzte Worte stimmen (ja/nein):
 Fehler:
 ```
+
+### 95. Instanz-Bericht an die Gruppe und Tageslimit (Roadmap 282)
+
+- [ ] geprüft
+
+Hinweise > Warnungen „Instanz-Bericht an die Gruppe“ an. In einer Gruppe einen Dungeon einige Minuten laufen (Kills, Gold looten) und hinausgehen, wieder hinein und gleich wieder hinaus. Einmal als Geist hinauslaufen. Statistiken „Instanzen heute“ ansehen (Classic-Clients).
+
+**Erwartet:** Beim Verlassen eine Gruppenchat-Zeile „Level Time: Name: Dauer, XP, Kills (XP/Kill), Gold“, beim sofortigen zweiten Verlassen keine, als Geist keine. Allein nichts. „Instanzen heute“ zeigt in Classic „N (M/30 in 24 h)“. Bitte notieren, ob der Server ein Tageslimit (30) und welches Stundenlimit (5 oder 10) er durchsetzt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bericht kam und stimmt (ja/nein):
+Kein doppelter Bericht (ja/nein):
+Stundenlimit laut Server (5/10):
+Tageslimit laut Server (30/keins):
+Fehler:
+```

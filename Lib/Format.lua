@@ -81,6 +81,12 @@ function Format.Money(copper)
   if coinString then
     return coinString(copper)
   end
+  return Format.PlainMoney(copper)
+end
+
+-- Geld als reiner Text ("2g 30s 5c"), z.B. für Chat-Nachrichten an andere (Münzsymbole sind Texturcodes)
+function Format.PlainMoney(copper)
+  copper = math.floor(copper)
   return string.format("%dg %ds %dc",
     math.floor(copper / COPPER_PER_GOLD),
     math.floor(copper / COPPER_PER_SILVER) % 100,
