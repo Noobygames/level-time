@@ -470,6 +470,23 @@ addToggles({
   toggle("HIDE_ERRORS", "hideErrors"),
   toggle("HIDE_ZONE_TEXT", "hideZoneText"),
 })
+addSection("SECTION_ACTION_BARS")
+addToggles({
+  toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
+  toggle("HIDE_MACRO_TEXT", "hideMacroText"),
+  toggle("RANGE_COLOR", "rangeColor"),
+})
+-- Nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner und Ereignis-Einblendungen nicht in Classic)
+local HideFrames = ns.HideFrames
+addSection("SECTION_HIDE_FRAMES")
+addToggles({
+  toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
+  toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
+  toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
+  toggle("HIDE_STANCE_BAR", "hideStanceBar", HideFrames.HasStanceBar),
+  toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation),
+  toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers),
+})
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)

@@ -42,21 +42,7 @@ function ChatWindows.All()
   return list
 end
 
--- Überschreibt einen Wert eines Objekts umkehrbar: read(object) liefert den Originalzustand (Liste von Werten),
--- write(object, ...) setzt ihn. Set(object, true, ...) überschreibt, Set(object, false) stellt das Original her.
-local function override(read, write)
-  local originals = {}
-  return function(object, enabled, ...)
-    if not object then return end
-    if enabled then
-      if originals[object] == nil then originals[object] = { read(object) } end
-      write(object, ...)
-    elseif originals[object] then
-      write(object, unpack(originals[object]))
-      originals[object] = nil
-    end
-  end
-end
+local override = ns.Overrides.New
 
 local setFading = override(
   function(chatFrame) return chatFrame:GetFading() end,
@@ -66,9 +52,7 @@ local setAltArrows = override(
   function(editBox) return editBox:GetAltArrowKeyMode() end,
   function(editBox, mode) editBox:SetAltArrowKeyMode(mode) end)
 
-local setParent = override(
-  function(frame) return frame:GetParent() end,
-  function(frame, parent) frame:SetParent(parent) end)
+local setParent = ns.Overrides.Parent()
 
 -- Anker als Liste { point, relativeTo, relativePoint, x, y }
 local function readPoints(frame)
@@ -93,15 +77,7 @@ local setTabHidden = override(
     tab:EnableMouse(mouse)
   end)
 
-local hiddenParent  -- versteckter Rahmen für die Chat-Buttons, erst bei Bedarf angelegt
-
-local function holder()
-  if not hiddenParent then
-    hiddenParent = CreateFrame("Frame")
-    hiddenParent:Hide()
-  end
-  return hiddenParent
-end
+local holder = ns.Overrides.HiddenParent
 
 local function editBoxOf(chatFrame)
   return chatFrame.editBox or (chatFrame.GetName and _G[(chatFrame:GetName() or "") .. "EditBox"])

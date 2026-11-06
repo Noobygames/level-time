@@ -154,6 +154,9 @@ local frameMethods = {
   SetFading = function(self, fading) self._fading = fading and true or false end,
   GetAltArrowKeyMode = function(self) return rawget(self, "_altArrows") ~= false end,
   SetAltArrowKeyMode = function(self, mode) self._altArrows = mode and true or false end,
+  -- Texturfarbe (z.B. Symbole der Aktionsknöpfe); Standard weiß
+  SetVertexColor = function(self, r, g, b, a) self._vertexColor = { r, g, b, a or 1 } end,
+  GetVertexColor = function(self) return unpack(rawget(self, "_vertexColor") or { 1, 1, 1, 1 }) end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
@@ -442,6 +445,8 @@ function UnitAffectingCombat(unit)
 end
 function UnitIsGhost() return state.ghost == true end
 function UnitOnTaxi() return state.onTaxi end
+-- Kampfsperre für geschützte Frames (InCombatLockdown); unabhängig von inCombat, damit ältere Szenarien gleich bleiben
+function InCombatLockdown() return state.combatLockdown == true end
 -- Bekannte Zauber (IsPlayerSpell): state.knownSpells[spellId] = true
 function IsPlayerSpell(spellId) return (state.knownSpells or {})[spellId] == true end
 function UnitIsDead(unit) return state.units[unit] ~= nil and state.units[unit].dead == true end

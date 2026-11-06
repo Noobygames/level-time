@@ -28,6 +28,7 @@ Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\Bags.lua
 Lib\Items.lua
+Lib\Overrides.lua
 Lib\Widgets.lua
 Lib\Auras.lua
 Lib\Card.lua
@@ -105,6 +106,8 @@ Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\ActionBars.lua
+Assist\HideFrames.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua

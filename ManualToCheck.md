@@ -1429,3 +1429,23 @@ Chat nach /reload wieder da (ja/nein):
 Spam-Filter (ja/nein):
 Fehler:
 ```
+
+### 67. Oberfläche: Aktionsleisten und Blizzard-Einblendungen ausblenden (Roadmap 329, Schritt 4)
+
+- [ ] geprüft
+
+Komfort > Oberfläche: jeden Schalter einzeln an und wieder aus (ohne /reload): Tastenbelegung, Makronamen, außer Reichweite rot, Boss-Banner, Ereignis-Einblendungen, Meldungen, Haltungsleiste, Ruhe-Animation, Porträtzahlen. Für Reichweite einen Gegner anvisieren und weglaufen, auch mit wenig Mana. Haltungsleiste einmal im Kampf umschalten. Für Meldungen einen Erfolg oder gewonnene Beute abwarten, für die Porträtzahlen kämpfen (auch mit Begleiter), für die Ruhe-Animation in ein Gasthaus gehen.
+
+**Erwartet:** Tasten und Makronamen verschwinden auf allen Leisten und kommen zurück. Symbol wird rot, sobald das Ziel zu weit weg ist, und wieder normal (blau bei wenig Mana) in Reichweite; aus = nie rot. Kein Boss-Banner, keine Toasts in der Mitte (Forever: auch kein Level-Up-Toast), keine Meldungen unten; aus = wieder da. Haltungsleiste verschwindet (im Kampf erst danach) und kommt zurück, ohne Fehlermeldung. „Zzz“ am Porträt weg. Keine Schadenszahlen auf dem Porträt. Schalter, deren Frame der Client nicht hat (Classic: Boss-Banner, Toasts), fehlen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tasten/Makrotext weg und zurück (ja/nein):
+Reichweite rot, wieder normal (ja/nein):
+Boss-Banner/Toasts/Meldungen weg (ja/nein):
+Haltungsleiste weg, im Kampf erst danach (ja/nein):
+Zzz und Porträtzahlen weg (ja/nein):
+Fehler (BugSack, "Aktion blockiert"):
+```
