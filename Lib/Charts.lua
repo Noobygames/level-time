@@ -208,3 +208,86 @@ function Charts.CreateRankChart(parent, width, height)
 
   return chart
 end
+
+---------------------------------------------------------------------------
+-- Heatmap (Wann ich spiele): Zeilen × Spalten aus Kacheln, Farbe von der schwachen Spur bis zur Balkenfarbe nach
+-- Anteil am Maximum. grid = { rows = { Beschriftung }, columns = { Beschriftung }, cells[row][column] = item }
+-- mit item = { value, label, text } (Tooltip wie bei den anderen Diagrammen); Spalten-Beschriftung nur jede n-te.
+---------------------------------------------------------------------------
+local HEAT_ROW_LABEL_WIDTH = 30
+local HEAT_COLUMN_LABEL_HEIGHT = 14
+local HEAT_LABEL_GAP = 4
+local HEAT_GAP = 1
+local HEAT_MAX_CELL = 20
+local HEAT_COLUMN_LABEL_STEP = 3
+local HEAT_EMPTY_COLOR = TRACK_COLOR
+
+-- Farbe einer Kachel: share = 0 schwache Spur, 1 volle Balkenfarbe
+local function heatColor(share)
+  local function mix(index) return HEAT_EMPTY_COLOR[index] + (BAR_COLOR[index] - HEAT_EMPTY_COLOR[index]) * share end
+  return mix(1), mix(2), mix(3), HEAT_EMPTY_COLOR[4] + (1 - HEAT_EMPTY_COLOR[4]) * share
+end
+
+function Charts.CreateHeatmap(parent, width, height)
+  local chart = CreateFrame("Frame", nil, parent)
+  chart:SetSize(width, height)
+  local tiles, rowLabels, columnLabels = {}, {}, {}
+
+  local function getTile(row, column)
+    tiles[row] = tiles[row] or {}
+    if tiles[row][column] then return tiles[row][column] end
+    local tile = CreateFrame("Frame", nil, chart)
+    tile:EnableMouse(true)
+    tile.texture = tile:CreateTexture(nil, "ARTWORK")
+    tile.texture:SetAllPoints(tile)
+    tile:SetScript("OnEnter", function(self)
+      self.texture:SetColorTexture(unpack(BAR_HOVER_COLOR))
+      showTooltip(self, self.item)
+    end)
+    tile:SetScript("OnLeave", function(self)
+      self.texture:SetColorTexture(heatColor(self.share))
+      GameTooltip:Hide()
+    end)
+    tiles[row][column] = tile
+    return tile
+  end
+
+  local function getLabel(list, index)
+    list[index] = list[index] or chart:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    return list[index]
+  end
+
+  function chart:SetItems(grid)
+    local rows, columns = #grid.rows, #grid.columns
+    local cell = math.min(HEAT_MAX_CELL, (width - HEAT_ROW_LABEL_WIDTH) / math.max(1, columns),
+      (height - HEAT_COLUMN_LABEL_HEIGHT) / math.max(1, rows))
+    local maxValue = 0
+    for row = 1, rows do
+      for column = 1, columns do maxValue = math.max(maxValue, grid.cells[row][column].value) end
+    end
+    for row = 1, rows do
+      local label = getLabel(rowLabels, row)
+      label:SetText(grid.rows[row])
+      label:ClearAllPoints()
+      label:SetPoint("RIGHT", chart, "TOPLEFT", HEAT_ROW_LABEL_WIDTH - HEAT_LABEL_GAP, -(row - 0.5) * cell)
+      for column = 1, columns do
+        local tile, item = getTile(row, column), grid.cells[row][column]
+        tile.item = item
+        tile.share = maxValue > 0 and item.value / maxValue or 0
+        tile:ClearAllPoints()
+        tile:SetPoint("TOPLEFT", HEAT_ROW_LABEL_WIDTH + (column - 1) * cell, -(row - 1) * cell)
+        tile:SetSize(cell - HEAT_GAP, cell - HEAT_GAP)
+        tile.texture:SetColorTexture(heatColor(tile.share))
+      end
+    end
+    for column = 1, columns do
+      local label = getLabel(columnLabels, column)
+      label:SetText(grid.columns[column])
+      label:ClearAllPoints()
+      label:SetPoint("TOP", chart, "TOPLEFT", HEAT_ROW_LABEL_WIDTH + (column - 0.5) * cell, -rows * cell - 2)
+      label:SetShown((column - 1) % HEAT_COLUMN_LABEL_STEP == 0)
+    end
+  end
+
+  return chart
+end

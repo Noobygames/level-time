@@ -1895,3 +1895,20 @@ Geteilte Beute als Beute (ja/nein):
 Tabelle Geld stimmt (ja/nein):
 Fehler:
 ```
+
+### 91. Wann ich spiele (Roadmap 277)
+
+- [ ] geprüft
+
+Eine Weile spielen (auch über einen Stundenwechsel), kurz AFK gehen. Historie > Graphen > „Wann“ öffnen und mit der Maus über die Kacheln fahren.
+
+**Erwartet:** 7 Zeilen (Mo bis So) × 24 Stunden, die heutige Stunde ist hell, Tooltip „Mi 13-14 Uhr“ mit aktiver Zeit (ohne AFK) und XP. Stundenbeschriftung alle 3 Stunden, nichts überlappt. Ein neuer Charakter zeigt „keine Daten“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Heatmap sichtbar und lesbar (ja/nein):
+Zeit/XP im Tooltip plausibel (ja/nein):
+Fehler:
+```

@@ -207,3 +207,22 @@ end
 function Analysis.DeathCauses(characterKey)
   return topCounts(ns.Journal.GetEntries(characterKey, "deathLog"), History.DeathCauseText)
 end
+
+-- Wann ich spiele (PlayHours.lua): Heatmap Wochentag × Stunde, Farbe = aktive Zeit, Tooltip mit Zeit und XP.
+-- Liefert ein Raster für Charts.CreateHeatmap statt einer Liste; total = gesamte aktive Zeit (0 = keine Daten).
+function Analysis.PlayHours(characterKey)
+  local PlayHours = ns.PlayHours
+  local source = PlayHours.Grid(characterKey)
+  local grid = { rows = {}, columns = {}, cells = {}, total = source.total }
+  for hour = 0, PlayHours.HOURS - 1 do grid.columns[hour + 1] = tostring(hour) end
+  for day = 1, PlayHours.DAYS do
+    grid.rows[day] = L["WEEKDAY_SHORT_" .. day]
+    grid.cells[day] = {}
+    for hour = 0, PlayHours.HOURS - 1 do
+      local cell = source.cells[day][hour]
+      local label, text = PlayHours.CellText(day, hour, cell)
+      grid.cells[day][hour + 1] = { value = cell.seconds, label = label, text = text }
+    end
+  end
+  return grid
+end

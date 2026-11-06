@@ -8,7 +8,8 @@ local Charts = ns.Charts
 
 local GROUP = "HISTORY_TAB_CHARTS"
 
--- kind: Säulen (Verlauf) oder Rangliste; axis beschriftet bei Säulen den Maximalwert
+-- kind: Säulen (Verlauf), Rangliste oder Heatmap (data liefert dann ein Raster mit total); axis beschriftet bei
+-- Säulen den Maximalwert
 local function createChartView(tab, kind, data, axis)
   local function create(parent, width, height)
     local frame = CreateFrame("Frame", nil, parent)
@@ -17,6 +18,8 @@ local function createChartView(tab, kind, data, axis)
     local chart
     if kind == "column" then
       chart = Charts.CreateColumnChart(frame, width, height)
+    elseif kind == "heatmap" then
+      chart = Charts.CreateHeatmap(frame, width, height)
     else
       chart = Charts.CreateRankChart(frame, width, height)
     end
@@ -27,7 +30,8 @@ local function createChartView(tab, kind, data, axis)
 
     function frame:Render(characterKey)
       local items = data(characterKey)
-      local hasData = #items > 0
+      local hasData
+      if kind == "heatmap" then hasData = items.total > 0 else hasData = #items > 0 end
       emptyText:SetText(L.CHART_EMPTY)
       emptyText:SetShown(not hasData)
       chart:SetShown(hasData)
@@ -52,3 +56,4 @@ AddView(createChartView("CHART_ZONE_XP_RATE", "rank", Analysis.XpRatePerZone))
 AddView(createChartView("CHART_PLAYTIME_PER_DAY", "column", Analysis.PlayTimePerDay, Format.Duration))
 AddView(createChartView("CHART_PLAYTIME_PER_WEEK", "column", Analysis.PlayTimePerWeek, Format.Duration))
 AddView(createChartView("CHART_SESSION_XP", "column", Analysis.SessionXpTimeline, Format.Number))
+AddView(createChartView("CHART_PLAY_HOURS", "heatmap", Analysis.PlayHours))
