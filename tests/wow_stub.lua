@@ -568,6 +568,10 @@ function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
 -- Mana: state.power (aktuell), state.powerMax
 function UnitPower() return state.power or 0 end
+-- Spiegel-Leisten (Atem, Erschöpfung): state.mirrorProgress[timer] = Rest in ms; Blinken zählt wow.flashes
+function GetMirrorTimerProgress(timer) return (state.mirrorProgress or {})[timer] end
+wow.flashes = 0
+function FlashClientIcon() wow.flashes = wow.flashes + 1 end
 ERR_OUT_OF_MANA = "Nicht genug Mana"
 -- Kontrollverlust: state.lossOfControl = { { locType, displayText, timeRemaining, displayType }, ... }
 C_LossOfControl = {

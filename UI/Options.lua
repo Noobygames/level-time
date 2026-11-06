@@ -306,10 +306,20 @@ addToggles({
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
+  toggle("WARN_BREATH_TOGGLE", "warnBreath"),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
   toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
+})
+addSlider({
+  label = "WARN_BREATH_BELOW",
+  min = ns.BreathWarning.MIN_SECONDS,
+  max = ns.BreathWarning.MAX_SECONDS,
+  step = 1,
+  get = function(db) return db.breathWarnSeconds end,
+  set = function(value) ns.Set("breathWarnSeconds", value) end,
+  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addSlider({
   label = "LOW_MANA_BELOW",

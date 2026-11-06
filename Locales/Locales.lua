@@ -820,6 +820,15 @@ ns.locales = {
     LEVELS_PARTIAL_HINT = "* = nur teilweise erfasst, zählt nicht als Bestzeit. Klick auf einen Spaltenkopf sortiert.",
     COVERAGE_GAP = "Seit dem letzten Mal wurden %s ohne Level Time gespielt. Die Erfassungsquote sinkt entsprechend.",
     COVERAGE_ROLLBACK = "Die Spielzeit ist %s kleiner als beim letzten Mal: vermutlich wurde ein älterer Spielstand zurückgespielt.",
+    -- Atem-Warnung (BreathWarning.lua)
+    WARN_BREATH_TOGGLE = "Atem und Erschöpfung knapp",
+    WARN_BREATH_TOGGLE_TIP = "Warnt unter Wasser (Leiste „Atem“) und in der Erschöpfungszone mit Karte, Warnton und blinkender Taskleiste, kurz bevor die Leiste leer ist. Grenze mit dem Regler darunter.",
+    WARN_BREATH_BELOW = "Atem-Warnung ab",
+    WARN_BREATH_BELOW_TIP = "So viele Sekunden vor dem Ende der Atem- oder Erschöpfungsleiste kommt die Warnung.",
+    NOTICE_BREATH = "Luft holen!",
+    WARN_BREATH = "Noch %d s Atem!",
+    NOTICE_FATIGUE = "Erschöpfung!",
+    WARN_FATIGUE = "Noch %d s bis zur Erschöpfung: umkehren!",
   },
   enUS = {
     -- General and commands
@@ -1633,6 +1642,15 @@ ns.locales = {
     LEVELS_PARTIAL_HINT = "* = only partly tracked, never counts as a best time. Click a column header to sort.",
     COVERAGE_GAP = "%s were played without Level Time since last time. The tracked share drops accordingly.",
     COVERAGE_ROLLBACK = "Played time is %s lower than last time: an older save was probably restored.",
+    -- Atem-Warnung (BreathWarning.lua)
+    WARN_BREATH_TOGGLE = "Breath and fatigue running out",
+    WARN_BREATH_TOGGLE_TIP = "Warns underwater (breath bar) and in the fatigue zone with a card, warning sound and flashing taskbar shortly before the bar runs out. Set the limit with the slider below.",
+    WARN_BREATH_BELOW = "Breath warning at",
+    WARN_BREATH_BELOW_TIP = "The warning appears this many seconds before the breath or fatigue bar runs out.",
+    NOTICE_BREATH = "Get some air!",
+    WARN_BREATH = "%d s of breath left!",
+    NOTICE_FATIGUE = "Fatigue!",
+    WARN_FATIGUE = "%d s until fatigue: turn back!",
   },
   frFR = {
     -- Général et commandes
@@ -2446,6 +2464,15 @@ ns.locales = {
     LEVELS_PARTIAL_HINT = "* = suivi en partie seulement, jamais compté comme meilleur temps. Cliquez sur un en-tête pour trier.",
     COVERAGE_GAP = "%s ont été joués sans Level Time depuis la dernière fois. La part suivie baisse en conséquence.",
     COVERAGE_ROLLBACK = "Le temps de jeu est inférieur de %s à la dernière fois : une ancienne sauvegarde a sans doute été restaurée.",
+    -- Atem-Warnung (BreathWarning.lua)
+    WARN_BREATH_TOGGLE = "Souffle et fatigue bientôt épuisés",
+    WARN_BREATH_TOGGLE_TIP = "Avertit sous l'eau (barre de souffle) et dans la zone de fatigue par une carte, un son d'alerte et la barre des tâches qui clignote, peu avant que la barre soit vide. Seuil réglable avec le curseur ci-dessous.",
+    WARN_BREATH_BELOW = "Alerte de souffle à",
+    WARN_BREATH_BELOW_TIP = "L'alerte apparaît ce nombre de secondes avant la fin de la barre de souffle ou de fatigue.",
+    NOTICE_BREATH = "Remontez respirer !",
+    WARN_BREATH = "Plus que %d s de souffle !",
+    NOTICE_FATIGUE = "Fatigue !",
+    WARN_FATIGUE = "Plus que %d s avant la fatigue : faites demi-tour !",
   },
   esES = {
     -- General y comandos
@@ -3259,6 +3286,15 @@ ns.locales = {
     LEVELS_PARTIAL_HINT = "* = registrado solo en parte, nunca cuenta como mejor tiempo. Haz clic en un encabezado para ordenar.",
     COVERAGE_GAP = "Desde la última vez se jugaron %s sin Level Time. La parte registrada baja en consecuencia.",
     COVERAGE_ROLLBACK = "El tiempo jugado es %s menor que la última vez: probablemente se restauró una partida anterior.",
+    -- Atem-Warnung (BreathWarning.lua)
+    WARN_BREATH_TOGGLE = "Aliento y fatiga a punto de agotarse",
+    WARN_BREATH_TOGGLE_TIP = "Avisa bajo el agua (barra de aliento) y en la zona de fatiga con una tarjeta, un sonido de alerta y la barra de tareas parpadeando, poco antes de que la barra se vacíe. Límite con el control de abajo.",
+    WARN_BREATH_BELOW = "Aviso de aliento a",
+    WARN_BREATH_BELOW_TIP = "El aviso aparece estos segundos antes de que se acabe la barra de aliento o de fatiga.",
+    NOTICE_BREATH = "¡Sal a respirar!",
+    WARN_BREATH = "¡Quedan %d s de aliento!",
+    NOTICE_FATIGUE = "¡Fatiga!",
+    WARN_FATIGUE = "Quedan %d s hasta la fatiga: ¡da la vuelta!",
   },
 }
 

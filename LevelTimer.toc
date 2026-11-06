@@ -91,6 +91,7 @@ Assist\FoodTimer.lua
 Assist\FlightTimer.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
+Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
 Assist\TrainerReminder.lua

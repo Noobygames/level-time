@@ -85,6 +85,8 @@ local SETTINGS_DEFAULTS = {
   announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
   lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
+  warnBreath = false,      -- Atem und Erschöpfung knapp (BreathWarning.lua)
+  breathWarnSeconds = 15,  -- ab so vielen Sekunden Rest
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus
   -- Komfort wie Leatrix Plus (Roadmap 329): AutoAccept.lua, Looting.lua, ScreenText.lua, Camera.lua
@@ -364,6 +366,7 @@ local SETTING_RANGES = {
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
   lowManaPercent = { 5, 60 },
+  breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
   alertScale = { 0.5, 2 },

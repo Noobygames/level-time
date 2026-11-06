@@ -1538,3 +1538,23 @@ Quote je Charakter plausibel (Wert):
 Stern am Level (ja/nein):
 Fehler:
 ```
+
+### 72. Atem-Warnung (Roadmap 255)
+
+- [ ] geprüft
+
+Hinweise > Warnungen „Atem und Erschöpfung knapp“ an, Regler auf 15 s. Tauchen, bis die Atemleiste fast leer ist (Spiel im Fenster lassen und kurz wegklicken, um das Blinken zu sehen). Einmal unter Wasser `/reload`. Optional: in Richtung offenes Meer schwimmen, bis „Erschöpfung“ startet.
+
+**Erwartet:** Bei 15 s Rest eine Karte „Luft holen!“ mit Sekunden, Warnton, Taskleiste blinkt (wo der Client `FlashClientIcon` hat). Nur einmal je Abtauchen, nach dem Auftauchen wieder. Nach `/reload` unter Wasser kommt die Warnung trotzdem. Erschöpfung: Karte „Erschöpfung!“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Karte bei der Schwelle, Sekunden stimmen (ja/nein):
+Ton und Blinken (ja/nein):
+Nach /reload unter Wasser (ja/nein):
+Erschöpfung (ja/nein/nicht getestet):
+In Instanzen (z.B. Unterwasser-Dungeon) geheim? (ja/nein/nicht getestet):
+Fehler:
+```
