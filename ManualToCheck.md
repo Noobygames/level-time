@@ -1410,3 +1410,22 @@ Freundschaftsanfrage abgelehnt (ja/nein):
 Fehler:
 ```
 
+### 66. Chat: Fenster, letzter Chat nach /reload, Spam-Filter (Roadmap 329, Schritt 3b)
+
+- [ ] geprüft
+
+Komfort > Chat: jeden Schalter einzeln an und wieder aus: Kampflog-Reiter, Chat-Buttons, Eingabezeile oben, Pfeiltasten, nicht ausblenden. Dann „Chat nach /reload behalten“ an, ein paar Zeilen schreiben, `/reload`. Betrunken werden lassen (Mitspieler) und im Kampf Zauber-Links in der Gruppe posten lassen.
+
+**Erwartet:** Kampflog-Reiter verschwindet, die anderen Reiter rücken auf; aus = wieder da. Menü-, Kanal-, Sprach- und Sozial-Buttons und die Knopfleiste sind weg, Mausrad blättert; aus = wieder da (ohne /reload). Eingabezeile erscheint über den Reitern und überdeckt nichts Wichtiges. Pfeiltasten bewegen den Cursor ohne Alt. Text verblasst nicht. Nach /reload stehen die letzten Zeilen wieder im Chat, nach einem echten Login nicht. Betrunken-Meldungen anderer und Zauber-Links im Kampf erscheinen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kampflog-Reiter weg und zurück (ja/nein):
+Buttons weg und zurück (ja/nein):
+Eingabe oben sitzt gut (ja/nein):
+Chat nach /reload wieder da (ja/nein):
+Spam-Filter (ja/nein):
+Fehler:
+```

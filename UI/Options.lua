@@ -450,7 +450,20 @@ builder.AddTextInput({
 })
 addSubPage("COMFORT_PAGE_CHAT")
 addSection("SECTION_CHAT")
-addToggles({ toggle("CHAT_COPY_TOGGLE", "chatCopyButton") })
+addToggles({
+  toggle("CHAT_COPY_TOGGLE", "chatCopyButton"),
+  toggle("RESTORE_CHAT", "restoreChat"),
+  toggle("FILTER_DRUNK_SPAM", "filterDrunkSpam"),
+  toggle("FILTER_SPELL_LINKS", "filterSpellLinks"),
+})
+addSection("SECTION_CHAT_WINDOWS")
+addToggles({
+  toggle("HIDE_COMBAT_LOG_TAB", "hideCombatLogTab"),
+  toggle("HIDE_CHAT_BUTTONS", "hideChatButtons"),
+  toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
+  toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
+  toggle("NO_CHAT_FADE", "noChatFade"),
+})
 addSubPage("COMFORT_PAGE_INTERFACE")
 addSection("SECTION_SCREEN_TEXT")
 addToggles({

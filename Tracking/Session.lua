@@ -53,10 +53,16 @@ local function startNew()
   }
 end
 
-local function canResume(session)
-  if session.lastSeen == nil then return false end
-  local gap = time() - session.lastSeen
+-- true, wenn seit lastSeen (time()) nur eine kurze Pause war wie bei /reload oder Disconnect
+-- (auch ChatHistory.lua)
+function Session.IsShortGap(lastSeen)
+  if type(lastSeen) ~= "number" then return false end
+  local gap = time() - lastSeen
   return gap >= 0 and gap <= RESUME_GAP_SECONDS  -- negativ = Systemuhr zurückgestellt
+end
+
+local function canResume(session)
+  return Session.IsShortGap(session.lastSeen)
 end
 
 -- Laufende Zeit in die Session schreiben und den Stand festhalten (Logout oder manuelles Beenden)

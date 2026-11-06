@@ -140,7 +140,20 @@ local frameMethods = {
   GetLeft = function() return 100 end,
   GetTop = function() return 500 end,
   SetNormalTexture = function(self, texture) self._normalTexture = texture end,
-  GetPoint = function() return "CENTER", nil, "CENTER", 0, 0 end,
+  -- Mit Nummer: gemerkter Anker (SetPoint), ohne wie bisher ein fester Mittelpunkt
+  GetPoint = function(self, index)
+    if index then return unpack(self._points[index] or {}) end
+    return "CENTER", nil, "CENTER", 0, 0
+  end,
+  GetNumPoints = function(self) return #self._points end,
+  SetParent = function(self, parent) self._parent = parent end,
+  EnableMouse = function(self, enabled) self._mouse = enabled and true or false end,
+  IsMouseEnabled = function(self) return rawget(self, "_mouse") == true end,
+  -- Chatfenster und Eingabezeilen: Standard wie im Client an (Verblassen, Alt für Pfeiltasten)
+  GetFading = function(self) return rawget(self, "_fading") ~= false end,
+  SetFading = function(self, fading) self._fading = fading and true or false end,
+  GetAltArrowKeyMode = function(self) return rawget(self, "_altArrows") ~= false end,
+  SetAltArrowKeyMode = function(self, mode) self._altArrows = mode and true or false end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
@@ -345,7 +358,30 @@ for index = 1, Constants.ChatFrameConstants.MaxChatWindows do
   chatFrame._messages = {}
   chatFrame.GetNumMessages = function(self) return #self._messages end
   chatFrame.GetMessageInfo = function(self, messageIndex) return self._messages[messageIndex], 1, 1, 1 end
+  chatFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
+  chatFrame.GetName = function() return "ChatFrame" .. index end
+  -- Eingabezeile, Knopfleiste und Reiter wie in FloatingChatFrame.xml
+  chatFrame.editBox = newFrame()
+  chatFrame.editBox:SetPoint("TOPLEFT", chatFrame, "BOTTOMLEFT", -5, -2)
+  chatFrame.buttonFrame = newFrame()
+  chatFrame.buttonFrame._parent = chatFrame
   _G["ChatFrame" .. index] = chatFrame
+  _G["ChatFrame" .. index .. "Tab"] = newFrame()
+end
+CHAT_FRAMES = { "ChatFrame1", "ChatFrame2" }
+-- Nachrichtenfilter wie Blizzards ChatFrameUtil; wow.chatFiltered(event, ...) = true, wenn ein Filter verwirft
+wow.chatFilters = {}
+ChatFrameUtil = {
+  AddMessageEventFilter = function(event, filter)
+    wow.chatFilters[event] = wow.chatFilters[event] or {}
+    table.insert(wow.chatFilters[event], filter)
+  end,
+}
+function wow.chatFiltered(event, ...)
+  for _, filter in ipairs(wow.chatFilters[event] or {}) do
+    if filter(ChatFrame1, event, ...) then return true end
+  end
+  return false
 end
 DEFAULT_CHAT_FRAME, SELECTED_CHAT_FRAME = ChatFrame1, ChatFrame1
 date = os.date
