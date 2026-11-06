@@ -74,11 +74,13 @@ local function currentLevelRecord(characterKey)
       seconds = Stats.GetSeconds(Stats.LEVEL),
       xp = Stats.GetXp(Stats.LEVEL),
       counters = ns.TimeBreakdown.Snapshot(Stats.LEVEL),
+      partial = ns.character.currentLevel.partial,
       isCurrent = true,
     }
   end
   local saved = History.GetCharacter(characterKey).currentLevel
-  return { level = saved.level, seconds = saved.seconds, xp = saved.xp, counters = saved.counters, isCurrent = true }
+  return { level = saved.level, seconds = saved.seconds, xp = saved.xp, counters = saved.counters,
+    partial = saved.partial, isCurrent = true }
 end
 
 local function currentSessionRecord(characterKey)
@@ -197,6 +199,7 @@ local function compareRecord(characterKey)
     averageLevelSeconds = completedCount > 0 and completedSeconds / completedCount or nil,
     xpRate = ns.Experience.RecordRate(summary),
     counters = summary.counters,
+    coverage = ns.Coverage.Get(characterKey),
     isCurrent = isLoggedIn(characterKey),
   }
 end
@@ -259,5 +262,6 @@ ns.OnLevelCompleted(function(completedLevel)
     counters = Stats.Snapshot(Stats.LEVEL),
     completedAt = time(),                           -- Zeitpunkt, an dem das nächste Level erreicht wurde
     totalPlayed = ns.PlayedTime.GetTotalSeconds(),  -- /played gesamt in diesem Moment
+    partial = ns.character.currentLevel.partial,    -- nur teilweise erfasst, nie Bestzeit (Coverage.lua)
   }
 end)

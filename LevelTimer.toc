@@ -45,6 +45,7 @@ Tracking\Classification.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua
 Tracking\Session.lua
+Tracking\Coverage.lua
 Tracking\Experience.lua
 Tracking\LevelGains.lua
 Tracking\TrainerCache.lua

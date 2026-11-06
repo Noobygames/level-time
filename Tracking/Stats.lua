@@ -120,6 +120,7 @@ local function startLevel(level)
   currentLevel.level = level
   currentLevel.seconds = 0
   currentLevel.xp = 0
+  currentLevel.partial = nil  -- nur teilweise erfasst (Coverage.lua)
   currentLevel.counters = ns.Database.NewCounters()
 end
 

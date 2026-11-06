@@ -1,5 +1,6 @@
 -- Läufe für Speedrun-Vergleiche: Level-Zeiten eines Charakters oder eines importierten Laufs.
 -- Lauf: { id, name, realm, class, times = { [level] = Sekunden }, reachedLevel, imported, favorite }
+--   eigene Charaktere zusätzlich bestTimes (ohne Teil-Level) und coverage (Erfassungsquote, Coverage.lua)
 --   id = Charakter-Schlüssel ("Name-Realm") oder "import:<n>" für importierte Läufe
 -- Importierte Läufe liegen in LevelTimerStatsDB.importedRuns, Favoriten in LevelTimerStatsDB.runFavorites.
 local _, ns = ...
@@ -16,11 +17,14 @@ local function store()
   return LevelTimerStatsDB
 end
 
--- Abgeschlossene Level-Zeiten eines Charakters: level -> Sekunden
-function Runs.LevelTimes(characterKey)
+-- Abgeschlossene Level-Zeiten eines Charakters: level -> Sekunden. withoutPartial = ohne nur teilweise erfasste
+-- Level (Coverage.lua), z.B. für Bestzeiten
+function Runs.LevelTimes(characterKey, withoutPartial)
   local times = {}
   for _, record in ipairs(History.GetLevelRecords(characterKey)) do
-    if not record.isCurrent and record.seconds then times[record.level] = record.seconds end
+    if not record.isCurrent and record.seconds and not (withoutPartial and record.partial) then
+      times[record.level] = record.seconds
+    end
   end
   return times
 end
@@ -33,6 +37,8 @@ local function fromCharacter(characterKey)
     realm = character.realm,
     class = character.class,
     times = Runs.LevelTimes(characterKey),
+    bestTimes = Runs.LevelTimes(characterKey, true),  -- ohne Teil-Level: nur diese zählen als Bestzeit
+    coverage = ns.Coverage.Get(characterKey),
     reachedLevel = character.currentLevel.level,
   }
 end

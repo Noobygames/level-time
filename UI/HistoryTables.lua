@@ -50,8 +50,13 @@ local function goldColumn(width)
   end, sort = function(r) return counter(r, Stats.MONEY_EARNED) end }
 end
 
+-- Teil-Level (nur teilweise erfasst, Coverage.lua) mit Kennzeichen; Hinweis LEVELS_PARTIAL_HINT
+local PARTIAL_MARK = "*"
+
 local function levelColumn(width)
-  return { header = "HISTORY_LEVEL", width = width, value = function(r) return r.level or "" end,
+  return { header = "HISTORY_LEVEL", width = width, value = function(r)
+    return (r.level or "") .. (r.partial and PARTIAL_MARK or "")
+  end,
     sort = function(r) return r.level end }
 end
 
@@ -215,7 +220,7 @@ local ZONE_COLUMNS = {
 }
 
 local COMPARE_COLUMNS = {
-  { header = "HISTORY_CHARACTER_NAME", width = 140, value = function(r) return History.DisplayName(r.key) end },
+  { header = "HISTORY_CHARACTER_NAME", width = 100, value = function(r) return History.DisplayName(r.key) end },
   levelColumn(40),
   { header = "HISTORY_LEVELS_DONE", width = 56, value = function(r) return r.levelsCompleted end },
   { header = "HISTORY_AVERAGE_LEVEL_TIME", width = 84, value = function(r)
@@ -229,6 +234,8 @@ local COMPARE_COLUMNS = {
     end },
   counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
   goldColumn(56),
+  { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
+    sort = function(r) return r.coverage end },
 }
 
 -- Vergleich: Zeilen in Klassenfarbe
@@ -268,18 +275,19 @@ HistoryTables.ClassColor = classColor
 HistoryTables.CountCells = countCells
 
 -- journal = Einträge aus dem Journal (ohne laufenden Eintrag): neu sortiert nur bei geändertem Journal-Stand
-local function addTable(tab, group, columns, records, footer, journal)
+local function addTable(tab, group, columns, records, footer, journal, hint)
   ns.HistoryWindow.AddView(TableView.Create({
-    tab = tab, group = group, columns = columns, records = records, footer = footer,
+    tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint,
     revision = journal and ns.Journal.Revision or nil,
   }))
 end
 
 local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
 
-addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells)
+addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, false, "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
-addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells)
+addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, false,
+  "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
 addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)
 addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells, true)

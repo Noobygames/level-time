@@ -1519,3 +1519,22 @@ Addon-Liste alphabetisch, Klicks gehen (ja/nein):
 Gruppenfarbe, aus = zurück (ja/nein):
 Fehler:
 ```
+
+### 71. Erfassungsquote und Teil-Level (Roadmap 253)
+
+- [ ] geprüft
+
+Einmal mit einem Twink ohne Level Time spielen (Addon in der Addon-Liste aus, ein paar Minuten), dann mit Addon einloggen. Historie öffnen: Reiter Vergleich und Speedrun > Läufe, Spalte „Erfasst“; Reiter Level.
+
+**Erwartet:** Beim Login mit Addon eine Chatzeile „Seit dem letzten Mal wurden ... ohne Level Time gespielt“. Spalte „Erfasst“ grün ab 95 %, gelb ab 90 %, sonst rot; importierte Läufe zeigen „-“. Das laufende Level hat im Reiter Level ein „*“ und zählt nach dem Level-Up nicht in Speedrun > Rekorde. Nach `/reload` keine Chatzeile.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Chatzeile nach Spielen ohne Addon (ja/nein):
+Keine Chatzeile nach /reload (ja/nein):
+Quote je Charakter plausibel (Wert):
+Stern am Level (ja/nein):
+Fehler:
+```

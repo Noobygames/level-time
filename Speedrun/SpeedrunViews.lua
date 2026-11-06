@@ -59,7 +59,7 @@ end
 local RUN_COLUMNS = {
   { header = "HISTORY_FAVORITE", width = 18, align = LEFT,
     value = function(r) return r.favorite and FAVORITE_MARK or "" end },
-  { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = runName },
+  { header = "HISTORY_CHARACTER_NAME", width = 110, align = LEFT, value = runName },
   { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.class) end },
   { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.reachedLevel or "" end,
     sort = function(r) return r.reachedLevel end },
@@ -67,7 +67,9 @@ local RUN_COLUMNS = {
   { header = "HISTORY_TIME_TO_CURRENT", width = 90, value = function(r)
       return r.timeToLevel and Format.Duration(r.timeToLevel) or "-"
     end, sort = function(r) return r.timeToLevel end },
-  { header = "HISTORY_RUN_STATUS", width = 80, value = function(r)
+  { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
+    sort = function(r) return r.coverage end },
+  { header = "HISTORY_RUN_STATUS", width = 70, value = function(r)
       return isReference(r) and L.RUN_REFERENCE or ""
     end },
 }
@@ -121,7 +123,7 @@ local function recordRows()
   local best = {}
   for _, run in ipairs(Runs.GetAll()) do
     if not run.imported then
-      for level, seconds in pairs(run.times) do
+      for level, seconds in pairs(run.bestTimes) do  -- ohne Teil-Level (Coverage.lua)
         if not best[level] or seconds < best[level].seconds then
           best[level] = { level = level, seconds = seconds, run = run }
         end

@@ -33,7 +33,7 @@ end
 local function bestPerLevel()
   local best = {}
   for _, key in ipairs(otherCharacters()) do
-    for level, seconds in pairs(Runs.LevelTimes(key)) do
+    for level, seconds in pairs(Runs.LevelTimes(key, true)) do  -- Teil-Level zählen nie als Bestzeit
       if not best[level] or seconds < best[level] then best[level] = seconds end
     end
   end

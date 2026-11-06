@@ -815,6 +815,11 @@ ns.locales = {
     TOOLTIP_SHIFT_LEFT = "Shift-Linksklick: Historie",
     TOOLTIP_RIGHT = "Rechtsklick: Fenster ein/aus",
     TOOLTIP_DRAG = "Ziehen: Button verschieben",
+    -- Erfassungsquote und Teil-Level (Coverage.lua)
+    HISTORY_COVERAGE = "Erfasst",
+    LEVELS_PARTIAL_HINT = "* = nur teilweise erfasst, zählt nicht als Bestzeit. Klick auf einen Spaltenkopf sortiert.",
+    COVERAGE_GAP = "Seit dem letzten Mal wurden %s ohne Level Time gespielt. Die Erfassungsquote sinkt entsprechend.",
+    COVERAGE_ROLLBACK = "Die Spielzeit ist %s kleiner als beim letzten Mal: vermutlich wurde ein älterer Spielstand zurückgespielt.",
   },
   enUS = {
     -- General and commands
@@ -1623,6 +1628,11 @@ ns.locales = {
     TOOLTIP_SHIFT_LEFT = "Shift-left-click: history",
     TOOLTIP_RIGHT = "Right-click: toggle window",
     TOOLTIP_DRAG = "Drag: move button",
+    -- Erfassungsquote und Teil-Level (Coverage.lua)
+    HISTORY_COVERAGE = "Tracked",
+    LEVELS_PARTIAL_HINT = "* = only partly tracked, never counts as a best time. Click a column header to sort.",
+    COVERAGE_GAP = "%s were played without Level Time since last time. The tracked share drops accordingly.",
+    COVERAGE_ROLLBACK = "Played time is %s lower than last time: an older save was probably restored.",
   },
   frFR = {
     -- Général et commandes
@@ -2431,6 +2441,11 @@ ns.locales = {
     TOOLTIP_SHIFT_LEFT = "Maj-clic gauche : historique",
     TOOLTIP_RIGHT = "Clic droit : afficher/masquer la fenêtre",
     TOOLTIP_DRAG = "Glisser : déplacer le bouton",
+    -- Erfassungsquote und Teil-Level (Coverage.lua)
+    HISTORY_COVERAGE = "Suivi",
+    LEVELS_PARTIAL_HINT = "* = suivi en partie seulement, jamais compté comme meilleur temps. Cliquez sur un en-tête pour trier.",
+    COVERAGE_GAP = "%s ont été joués sans Level Time depuis la dernière fois. La part suivie baisse en conséquence.",
+    COVERAGE_ROLLBACK = "Le temps de jeu est inférieur de %s à la dernière fois : une ancienne sauvegarde a sans doute été restaurée.",
   },
   esES = {
     -- General y comandos
@@ -3239,6 +3254,11 @@ ns.locales = {
     TOOLTIP_SHIFT_LEFT = "Mayús-clic izquierdo: historial",
     TOOLTIP_RIGHT = "Clic derecho: mostrar/ocultar ventana",
     TOOLTIP_DRAG = "Arrastrar: mover botón",
+    -- Erfassungsquote und Teil-Level (Coverage.lua)
+    HISTORY_COVERAGE = "Registro",
+    LEVELS_PARTIAL_HINT = "* = registrado solo en parte, nunca cuenta como mejor tiempo. Haz clic en un encabezado para ordenar.",
+    COVERAGE_GAP = "Desde la última vez se jugaron %s sin Level Time. La parte registrada baja en consecuencia.",
+    COVERAGE_ROLLBACK = "El tiempo jugado es %s menor que la última vez: probablemente se restauró una partida anterior.",
   },
 }
 
