@@ -2,6 +2,114 @@
 
 Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
 
+## Geplant: Wettbewerbsanalyse (November 2026)
+
+Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Code; Lizenzen beachten), dazu CurseForge-Seiten und die Regeln auf speedrun.com. Komfort: Leatrix Plus (3.3.5-Port), Questie, RXPGuides, Guidelime, Plumber, Mapster, MoveAny, BlizzMove. Statistik: XPLedger (engster Konkurrent, Retail/Forever/Era/MoP), XToLevel, Experiencer, Rested, DataStore, Accountant Classic, Deathlog, Hardcore, NovaInstanceTracker, SavedInstances, LvlHistory. Speedrun: Sprint (vormals ForeverTimer), OnlySplits, Chromely, Earned: Self Found, SelfFound Tracker, Speed Splits, Forever Journey Log, Hardcore Deathrace. Stream/Ziele: Hardcore (Zarant), UltraHardcore, HC Challenge Wheel, FateLocked, Bingo/TiffBingo, FarmIt, Farming Bar, Cerealize. Alle API-Angaben stammen aus fremdem Code und sind vor dem Bau gegen die Blizzard-Doku je Client zu prüfen (CLAUDE.md); „im Spiel prüfen“ heißt `/dump` nötig.
+
+Reihenfolge = Priorität: Korrektheit, Komfort, Statistik, Speedrun, Stream Goal, Stream-Funktionen von Level Time, neue Addons.
+
+Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Regeln), LiveSplit-Autosplitter per Speicherlesen (Warden/AGB), mitgelieferte Flugzeiten- oder Questdatenbanken (Pflegeaufwand, Lizenzen), komplette Leveling-Guides (RXP/Questie decken das ab).
+
+### v2.19: Korrektheit und Fundament
+
+- [x] 251. **Geheime XP-Meldungen als Kill zählen** (S): Seit Midnight kann `CHAT_MSG_COMBAT_XP_GAIN` im Kampf und in Instanzen geheim sein; `Tracking/KillCounter.lua` steigt dann aus, Kills und Kill-XP fehlen in Retail (und vermutlich Forever). XPLedger: jede `PLAYER_XP_UPDATE`-Differenz kurz zurückhalten und mit Hinweisen aus dem Umfeld einordnen (geheime XP-Meldung + Kampf oder bis 3 s danach = Kill ohne Namen, `QUEST_TURNED_IN` = Quest, `ERR_ZONE_EXPLORED_XP` = Erkundung). Journal-Eintrag ohne Namen, Elite/Rare unbekannt. Umgesetzt in `Tracking/KillCounter.lua` (Entscheidung 0,6 s nach der Meldung, XP aus `Experience.OnGain` 2 s davor bis 0,6 s danach, je Gewinn nur ein Kill; Questabgabe ±2 s schließt aus), Szenario `kills_secret`. Offen: im Spiel prüfen mit `/lt debug` (Zeilen „secret XP message ...“), ob Meldungen wirklich geheim kommen und die Fenster passen; Erkundungs-XP über `ERR_ZONE_EXPLORED_XP` folgt mit 275.
+- [ ] 252. **Kompakter speichern** (M): Ersetzt 186. Rohe Journale kurz halten (z.B. 500 Kills), Langzeitdaten als Aggregate (je Gegner `{kills, xp}` mit Obergrenze, je Zone, je Tag; `Daily` macht das schon), Zeitreihen als Spalten (`{ t = {}, v = {} }`, Zeiten als Abstand zu einer Basis), Namen als `npcId`/`mapId` und erst beim Anzeigen auflösen, alte Hälfte bei Überlauf ausdünnen (jeder zweite Punkt). Charakter-Migration, Auswertungen auf Aggregate umstellen.
+- [ ] 253. **Erfassungsquote und Teil-Level** (S): Vom Addon erfasste Zeit ÷ `/played` je Charakter und Lauf (grün ≥ 95 %, gelb ≥ 90 %, rot darunter, wie Hardcore/Chromely). Level, die mitten im Level oder mit Lücke erfasst wurden, bekommen `partial` und zählen nie als Bestzeit. Beim Login: `/played` deutlich über dem gespeicherten Stand (> 45 s) = ohne Addon gespielt, darunter = alter Spielstand zurückgespielt (Earned). Grundlage für 289.
+
+### v2.20: Komfort (Priorität 1)
+
+- [ ] 254. **Schnelles Plündern** (S): Bei `LOOT_READY` alle Plätze per `LootSlot(i)` nehmen (`GetNumLootItems`, `LootSlotHasItem`), nicht bei gehaltener Auto-Loot-Taste (`IsModifiedClick("AUTOLOOTTOGGLE")`); Abbruch bei `UI_ERROR_MESSAGE` mit `ERR_INV_FULL`/`ERR_ITEM_MAX_COUNT`/`ERR_LOOT_ROLL_PENDING`; Sperre gegen Schleifen bis `LOOT_CLOSED` (Leatrix, Plumber). Alle Clients.
+- [ ] 255. **Atem-Warnung** (S): `MIRROR_TIMER_START` mit `BREATH` und negativer Rate merken, `GetMirrorTimerProgress("BREATH")` abfragen; unter einer Schwelle Karte, Ton und `FlashClientIcon()`, Ende bei `MIRROR_TIMER_STOP` (RXP). Wertvoll für Hardcore. Gleiches Muster für Erschöpfung (`EXHAUSTION`).
+- [ ] 256. **Beschwörung und Wiederbelebung annehmen** (S): Zwei Schalter. `CONFIRM_SUMMON`: Beschwörer und Ziel merken, nach 10 s unverändert und außerhalb des Kampfs `ConfirmSummon()` (Retail/Forever vermutlich `C_SummonInfo`, prüfen). `RESURRECT_REQUEST`: `AcceptResurrect()`, optional nicht, solange die Gruppe kämpft. Chatzeile, wer es war.
+- [ ] 257. **Alles lernen beim Lehrer** (S–M): Knopf (oder Schalter, Umschalttaste = aus) im Lehrerfenster: alle Dienste mit Kategorie „available“ kaufen (`GetNumTrainerServices`, `BuyTrainerService`), mit Gesamtkosten und Geldprüfung. Nutzt `TrainerCache`; nicht in Retail. Ergänzt: Hinweis „Gold für den Lehrer reicht nicht“ beim Level-Up (Kosten aus dem Cache, XPLedger).
+- [ ] 258. **Flugzeit-Timer** (M): `hooksecurefunc("TakeTaxiNode")` merkt die Route (Schlüssel aus `TaxiNodePosition` von Start und Zwischenhalten, `%0.2f`), die Landung (`UnitOnTaxi`, `PLAYER_CONTROL_GAINED`) die Dauer; gelernt und account-weit gespeichert, keine mitgelieferten Daten. Countdown als Karte über `Lib/TimerDisplay.lua`, Landeton und Taskleisten-Blinken (nach dem Flug AFK-Spieler zurückholen). Passt zu `taxiSeconds`.
+- [ ] 259. **Quest-Level im Questlog und in Gesprächen** (M): „[12]“, „[12+]“ (Elite/Gruppe) vor Questnamen in Log, Gruß- und Gesprächslisten und Tracker; Level aus `GetQuestLogTitle` (Classic) bzw. `C_QuestLog.GetInfo(i).level`. Rahmen je Client verschieden, daher M (Leatrix, Questie, Guidelime).
+- [ ] 260. **Questautomatik sicherer** (S): Sperrliste für NPCs und Quests, deren Abgabe Items verbraucht (z.B. AQ-Ehrenabzeichen, wiederholbare Abgaben; Questie `DisallowedIDs`), Auswahl über die Quest-ID (`C_GossipInfo.SelectAvailableQuest/SelectActiveQuest`) statt Index, 0,5 s Verzögerung vor dem Klick (Guidelime). Schließt 181 und 182 ab.
+- [ ] 261. **Zwischensequenzen überspringen** (S): `CINEMATIC_START` → `StopCinematic()`; Retail-Filme über `PLAY_MOVIE`/`MovieFrame` (je Client prüfen). Schalter, aus.
+- [ ] 262. **Weniger Bestätigungen** (S): Plündern und Würfeln ohne Rückfrage (`LOOT_BIND_CONFIRM` → `ConfirmLootSlot`, `CONFIRM_LOOT_ROLL` → `ConfirmLootRoll`), Löschen ohne „LÖSCHEN“ tippen (`DELETE_ITEM_CONFIRM`: Eingabefeld aus, Knopf an, Itemlink zeigen) und Warnung, wenn das gelöschte Item eine Quest startet (Plumber). Popup-Namen je Client prüfen.
+- [ ] 263. **Pausen-Erinnerung** (S): Nach N Minuten Session eine Karte „Kurze Pause?“, nicht im Kampf und nicht in Instanzen, AFK-Zeit zählt als Pause (Plumber BreakTime). Nutzt `Session` und `TimeBreakdown`.
+- [ ] 264. **Questfortschritt an die Gruppe** (S): Je Ziel einmal melden („Wölfe 8/8“), nur nach vorher gesehenem unvollständigem Stand (Schlüssel `questId:index`), dazu angenommen/abgeschlossen; Versand wie die Level-Up-Ansage (Chat-Sperre beachten) (Questie Announce).
+- [ ] 265. **Einladungen mit Infos** (S): `PARTY_INVITE_REQUEST` liefert die GUID; `GetPlayerInfoByGUID` zeigt Klasse, Rasse und Level im Popup, statt nur abzulehnen. GUID-Argument in Era prüfen.
+- [ ] 266. **Verschobene Fenster skalieren** (S): Strg+Mausrad skaliert ein mit 238 verschobenes Fenster, Strg+Rechtsklick setzt es zurück (BlizzMove); geschützte Fenster nicht im Kampf. Schließt den offenen Teil von 238.
+- [ ] 267. **Notfall bei wenig Leben** (M): Unter der Beinahe-Tod-Schwelle die Aktionsknöpfe mit Heiltrank, Gesundheitsstein oder Notfallzauber hervorheben (Leisten bei `ACTIONBAR_SLOT_CHANGED` durchsuchen) und den Bildschirmrand rot färben (RXP). Bei geheimem `UnitHealth` aus. Erweitert `NearDeath.lua`.
+- [ ] 268. **Quest-Item-Knopf** (L): Ein sicherer Knopf (`SecureActionButtonTemplate`) für das benutzbare Item der nächsten Quest, plus Ziel-Knopf `/targetexact` für Questmobs (Guidelime, RXP). Nur außerhalb des Kampfs änderbar.
+- [ ] 269. **Kleinkram** (S je): Kartenkoordinaten von Spieler und Mauszeiger (`C_Map.GetPlayerMapPosition`), maximaler Kamera-Zoom (CVar `cameraDistanceMaxZoomFactor`), Einladen per Flüster-Stichwort (`C_PartyInfo.InviteUnit`), Fehlermeldungs-Flut ausblenden. Einzeln schaltbar.
+
+### v2.21: Statistik (Priorität 2)
+
+- [ ] 270. **Quest-XP im Questlog** (S–M): XP aller Quests im Log summieren (`GetQuestLogRewardXP`), getrennt nach abgabebereit (`C_QuestLog.ReadyForTurnIn`) und offen; Zeile „Abgabe reicht für Level-Up“ und Überlagerung auf dem XP-Balken (Experiencer, XPLedger). Era-API prüfen.
+- [ ] 271. **Ruhe-XP der Twinks schätzen** (S): Beim Logout `GetXPExhaustion`, `UnitXPMax`, `IsResting` und Zeit merken; offline +5 % des Balkens je 8 h im Gasthaus (ein Viertel draußen), höchstens 150 % (Pandaren 300 %). Spalte in der Historie und Hinweis „Charakter X ist voll ausgeruht“ (Rested, XPLedger).
+- [ ] 272. **Persönliche Rekorde mit Ansage** (S–M): Account-weit mit Charakter und Datum: beste 60 Minuten XP (gleitendes Fenster), beste Session-XP/h (ab 30 min), größter Einzelgewinn, bester Instanz-Durchgang (XP/h), schnellstes Level. Einblendung und Chat beim Brechen (XPLedger). Unterreiter „Rekorde“.
+- [ ] 273. **Kills bis Level-Up genauer** (S): Ruhe-XP berücksichtigen (Kills im Ruhebonus geben das Doppelte) und Schnitt über die letzten N Kills/Quests statt über das ganze Level (einstellbar, XToLevel).
+- [ ] 274. **Kills bis Level im Tooltip** (S–M): XP je Gegnername und Level aus dem Journal lernen, sonst die Classic-Formel (`5 * level + 45`, Stufenabstand); Zeile im Einheiten-Tooltip, nach Stufenabstand gefärbt (XToLevel). Retail: `TooltipDataProcessor`, geheime Werte überspringen.
+- [ ] 275. **Mehr XP-Quellen und Kontext** (S–M): Erkundung (`ERR_ZONE_EXPLORED_XP`), Sammeln (`CHAT_MSG_OPENING`/`OPEN_LOCK_SELF`), jede XP mit Kontext Welt/Dungeon/Raid/Schlachtfeld (`IsInInstance`); neue Zeilen und Spalten.
+- [ ] 276. **Geld: Einnahmen nach Art und Zeitraum** (S–M): Einnahmen wie die Ausgaben nach offenem Fenster einordnen (Beute `LOOT_OPENED`, Quest `QUEST_COMPLETE`, Post, Auktionshaus, Handel, Händler; geteilte Beute über `CHAT_MSG_MONEY`), je Tag/Woche/Monat/gesamt als `{ ein, aus }`, Gold/h, Gold aller Charaktere (Accountant Classic).
+- [ ] 277. **Wann ich spiele** (S): Heatmap Wochentag × Stunde mit XP und aktiver Zeit (XPLedger). Neues Chart in `Charts.lua`.
+- [ ] 278. **Ruf pro Stunde** (S–M): `CHAT_MSG_COMBAT_FACTION_CHANGE` gegen `FACTION_STANDING_INCREASED` (alle Clients), je Level, Session, Instanz-Durchgang und Zone.
+- [ ] 279. **Fortschrittskurve** (M): Level mit Bruchteil über `/played`, mehrere Charaktere und der Referenz-Run übereinander (XPLedger-Stichproben als Spalten, siehe 252).
+- [ ] 280. **Todeskarte und letzte Worte** (M): Beim Tod `mapId` und Position (`C_Map.GetBestMapForUnit`, in Instanzen nil) und die letzte eigene Chatzeile speichern; Punkte auf der Weltkarte, Unterreiter „Tode“ mit Ort (Deathlog).
+- [ ] 281. **Session-Vergleich beim Login** (S): Kurze Chatzeile „Letzte Session: 2 h 10 min, 48k XP (+12 % XP/h zur vorherigen)“ (XPLedger).
+- [ ] 282. **Instanz-Bericht an die Gruppe** (S): Beim Verlassen optional XP, Kills, XP je Kill, Dauer und Geld des Durchgangs in den Gruppenchat (NovaInstanceTracker); Limit „30 Instanzen je Tag“ prüfen und ergänzen.
+- [ ] 283. **Leerlauf ohne AFK-Flag** (S): Option: aktive Zeit = Abstand zum letzten Gewinn, gekappt bei einer Leerlaufgrenze; fängt Herumstehen ohne AFK ab (XPLedger, Experiencer). Neben `xpRateWithoutAfk`.
+
+### v2.22: Speedrun (Priorität 3)
+
+- [ ] 284. **Gold-Splits** (S): Neue Bestzeit je Level lila, mit Ton und Chatzeile (Sprint, Speed Splits).
+- [ ] 285. **Toleranzband und Klassen-PB** (S): Abweichung innerhalb ±max(3 s, x % der Referenz) gelb (einstellbar, Sprint); Vergleich `pb` optional nur gegen eigene Charaktere derselben Klasse (OnlySplits).
+- [ ] 286. **Prognose gegen PB und Weltrekord** (S): Split-Liste zeigt die voraussichtliche Endzeit der Klammer (1–10/20/60) und den Abstand zu PB, Summe der Bestzeiten und Rekord (Chromely). Nutzt `Forecast`.
+- [ ] 287. **SSF-Regelhelfer (speedrun.com, SUNLA)** (M): Ruhe-XP-Balken gegen die Grenze der Kategorie (1–20: 2 Balken, 1–60: 40), Instanz-IDs je Stunde `/played` (aus `InstanceLimit`), Logout-Zähler (höchstens 3 bzw. 5), Uhr mit Datum für den VOD-Nachweis, Hinweis bei Handel/Post/Auktionshaus. Kategorie wählbar. Kein Run-Verbot, nur Anzeige.
+- [ ] 288. **Eigene Splits** (M): `/lt split [Name]`, Tastenbelegung, `/lt split undo`; Name standardmäßig die Zone, Vorlage für neue Charaktere; Vergleich Run gegen Run neben den Level-Splits (Sprint).
+- [ ] 289. **Quest-Splits** (M): Jede Quest von Annahme bis Abgabe, Bestzeit je Quest-ID, Abweichung farbig, mit Level und XP bei Abgabe (Sprint, OnlySplits). Daten liegen im Journal.
+- [ ] 290. **Prüfcode für Runs** (M): Verkettete Prüfsumme über Level-Zeiten und Ereignisse (`h = hash(vorher, zeit, art, text)`, FNV-1a in reinem Lua), im `LT1:`-Export mit Erfassungsquote (253); `/lt runs verify`. Manipulation sichtbar, nicht verhindert (Earned, Hardcore).
+- [ ] 291. **Run-Kategorie automatisch** (M): Jeder Run startet als SSF und wird bei Handel/Post/Auktionshaus zu Solo, bei Gruppe zu Gruppe, bei viel höherem Gruppenmitglied zu Geboostet (Chromely); Filter in Runs und Rekorden.
+- [ ] 292. **LiveSplit-Export und Webseite** (S–M): Splits als LiveSplit-`.lss` (XML mit Segmenten, PB, Bestsegmenten) im Kopierfenster, niemand sonst kann das; dazu eine statische Seite (GitHub Pages), die `LT1:`- oder CSV-Text einliest und Graphen zeigt (Sprint `SprintStats.html`).
+- [ ] 293. **Rennen gegen Freunde** (M): Beim Inspizieren oder in der Gruppe fragt eine Addon-Nachricht (`C_ChatInfo.SendAddonMessage`) die Level-Zeiten des anderen ab; Spalte „gegen Freund“ in der Split-Liste, Live-Meldungen bei Level-Up (RXP, Chromely). Eigene kleine Drossel (255 Byte, ca. 1 Nachricht/s), Einschränkungen in Instanzen prüfen.
+- [ ] 294. **Meilenstein-Screenshots** (S): `Screenshot()` alle 5 Level, beim Max-Level und optional beim ersten Dungeon oder epischer Beute (Forever Journey Log).
+
+### Stream Goal (nächste Versionen)
+
+- [ ] 295. **Gold-Ziel** (S): „N Gold verdienen“ (Einnahmen aus `MoneyCounter`) oder „N Gold besitzen“ (`GetMoney`, `PLAYER_MONEY`).
+- [ ] 296. **Quest-Ziele** (S–M): N Quests abgeben, bestimmte Quest-ID (`C_QuestLog.IsQuestFlaggedCompleted`, Era prüfen) oder eine Kette in Reihenfolge.
+- [ ] 297. **Berufs-Ziel** (S): Fertigkeit N erreichen über `CHAT_MSG_SKILL` mit `SKILL_RANK_UP` (`ChatPatterns`, alle Clients).
+- [ ] 298. **Items besitzen** (S): Neben „N looten“ auch „N in den Taschen“ (`C_Item.GetItemCount`), Zähler zeigt den Bestand (FarmIt, Farming Bar).
+- [ ] 299. **Frist für jedes Ziel** (M): Endzeit in Echtzeit oder `/played`, Restzeit auf der Karte, Status „gescheitert“ (FateLocked-Aufträge). Neuer Status in Historie und Alert.
+- [ ] 300. **Regel-Ziele, die scheitern können** (M): „Kein Tod bis Level X“, „kein Auktionshaus/Post/Handel“, „keine Flugpunkte“ (`UnitOnTaxi`), „nackt“ (`PLAYER_EQUIPMENT_CHANGED` mit kurzer Schonfrist), „keine Heiltränke“ (`UNIT_SPELLCAST_SUCCEEDED` mit Spell-IDs). Art bekommt `check(event)` und `fail` (Hardcore-Muster). Kein Kampflog nötig.
+- [ ] 301. **Vorlagen und Pakete** (S–M): Fertige Sets („Hardcore-Start“, „Self-Found“, „Dungeon-Tour“) mit einem Klick, eigene Sets über `Serializer` (`LT1:goals:`) importieren und exportieren.
+- [ ] 302. **Dungeon-Ziel** (M): Dungeon X N-mal abschließen oder alle bis Level Y; `ENCOUNTER_END`/`BOSS_KILL` (je Client prüfen), sonst letzter Boss per NPC-ID (6. GUID-Feld) aus `Instances`.
+- [ ] 303. **Ruf-Ziel** (M): Fraktion bis Stufe oder Wert; Era/TBC `GetFactionInfo`, Retail `C_Reputation.GetFactionDataByID`, Forever prüfen; Ersatz über `FACTION_STANDING_INCREASED`.
+- [ ] 304. **Teilziele** (M): Karte mit Checkliste, Fortschritt = erledigt/gesamt; Teilziele dürfen andere Arten sein.
+- [ ] 305. **Bingo** (M): 3×3 oder 5×5 aus Zielarten, Felder kreuzen sich selbst an, „BINGO“-Einblendung und optional Gruppenansage. Kein Konkurrent markiert automatisch.
+- [ ] 306. **Glücksrad** (M): Zufallsziel aus einem Pool bei Level-Up oder per Knopf, begrenzte Neuwürfe, eigene Einträge, Dreh-Animation auf der Karte (HC Challenge Wheel). Zuschauer können per Chat abstimmen, der Streamer dreht.
+- [ ] 307. **Erkundung und Zonen** (S–M): N Gebiete entdecken (`ERR_ZONE_EXPLORED` im Systemchat), Zone X erreichen, optional % einer Zone (`C_MapExplorationInfo`, Era prüfen).
+- [ ] 308. **Belohnungstext und Punkte** (S): Freitext „Belohnung: Zuschauer wählen die nächste Zone“ auf Karte und Alert, Punkte je Ziel und eine Gesamtpunktzahl.
+- [ ] 309. **Erfolge und Ehre** (S je): Erfolg erreichen (`ACHIEVEMENT_EARNED`, Fortschritt `GetAchievementCriteriaInfo`; nicht in Era), N Ehre (`CHAT_MSG_COMBAT_HONOR_GAIN` bzw. Währung in Retail).
+- [ ] 310. **Wiederkehrende Ziele** (M): Täglich/wöchentlich, setzen sich mit `Daily.DayKey` zurück, Serie („5 Tage in Folge“).
+- [ ] 311. **Gruppenziele** (L): Ziel an die Gruppe schicken, gemeinsame Ziele, bei denen Kills/Beute aller zählen, Abgleich über Addon-Nachrichten mit eigener Drossel (Hardcore-Protokoll als Vorbild).
+- [ ] 312. **Einstellungsseite und Aufräumen** (S): Seite für Stream Goal (Größe, Farben, Ton, Kartenzahl), offene Punkte aus 246 (Ziele gelöschter Charaktere, Boss-Prüfung bei Items).
+
+### Stream-Funktionen von Level Time
+
+- [ ] 313. **OBS-Signalfeld** (S): Kleines einfarbiges Feld blinkt bei Tod, Level-Up und erreichtem Ziel; OBS-Plugins (Advanced Scene Switcher, Streamer.bot) erkennen die Farbe und schalten Szenen oder spielen Töne. Ohne Zusatzprogramm (Plugin-Funktion prüfen).
+- [ ] 314. **Nachruf- und Abschlusskarte** (S–M): Beim Tod (Hardcore) oder Max-Level: Level, `/played`, Mörder, Tode, beste Splits als Karte zum Zeigen und Kopieren (FateLocked, Recap).
+- [ ] 315. **Stream-Link** (S): Twitch/Discord-Link im Kopierfeld, optional zeitgesteuert in Gruppe/Gilde mit den Sperren der Level-Up-Ansage (UltraHardcore). Sparsam, kein Spam.
+- [ ] 316. **Zauberleiste für Zuschauer** (M): Die letzten N gewirkten Zauber als Symbole (`UNIT_SPELLCAST_SUCCEEDED` auf `player`, kein Kampflog), Chroma-Hintergrund.
+- [ ] 317. **Statistik beim Gruppenbeitritt** (S): Optional Tode, Dungeons und Level-Zeit in den Gruppenchat (UltraHardcore).
+
+### Neue Addons und Werkzeuge (Ideen)
+
+- [ ] 318. **Level Time Companion** (L): Go-Programm wie `tools/`; liest SavedVariables nach `/reload`/Logout und liefert lokale HTML-Seiten als OBS-Browserquelle (Historie, Splits, Ziele, Recap). Rückweg: schreibt eine im `.toc` vorhandene Daten-Datei, die das Addon beim `/reload` einliest (Kanalpunkte als Ziele, WeakAuras-Companion-Muster). Später Live-Daten über einen Pixelstreifen (Cerealize; Blizzard-Richtlinie vorher prüfen).
+- [ ] 319. **Self-Found-Nachweis** (L): Eigenes Addon auf `LevelTimerAPI`: Verstoßliste (nur abgeschlossene Handel, Auktionen, Post-Entnahmen, Gildenbank), Prüfsummenkette (290), Ruhe- und Instanzgrenzen (287), Zeugen über Gilde/Gruppe („36/42 h von 27 Spielern bezeugt“, Earned). Ziel: Forever und Retail, wo Hardcore/UHC am gesperrten Kampflog scheitern.
+- [ ] 320. **Hardcore-Sicherheitspaket** (M): Atem (255), Notfall bei wenig Leben (267), Liste gefährlicher Gegner mit Bildschirmblitz (RXP), Fallschaden- und Elite-Warnung; als Komfort-Gruppe in Level Time oder eigenes Addon.
+- [ ] 321. **Twink-Übersicht** (M): Ruhe-Schätzung (271), Gold, `/played`, zuletzt gesehen, „Wer ist dran?“-Liste, Hinweis auf lange nicht gespielte Charaktere (Rested, DataStore). Nutzt `LevelTimerStatsDB`.
+- [ ] 322. **Dungeon-Splits** (M–L): Zeit ab erster Bewegung in der Instanz bis zum letzten Boss, Split je Boss (`ENCOUNTER_END`), Bestzeit je Route und Instanz-Kopie (Speed Splits, Murlocs). Baut auf `Instances`/`InstanceCopy`.
+- [ ] 323. **Gilden-Bingo und Events** (L): Gemeinsame Bingo-Karten und Ziele über Addon-Nachrichten, Rangliste je Event, Offiziere legen die Karte fest. Baut auf 305 und 311.
+- [ ] 324. **Farm-Tracker** (M): Gold/h, Itemwert (Händlerpreis, Auctionator-Preis falls geladen), Ruf/h, Währungen je Farm-Session (LvlHistory, sesh).
+- [ ] 325. **Karte aufdecken und Koordinaten** (L): Unerkundete Gebiete sichtbar wie Mapster (`C_MapExplorationInfo.GetExploredMapTextures` plus Kacheldaten je Karte, auch Forever); Aufwand vor allem das Erzeugen der Daten.
+
+## v2.18: Qualitätssicherung
+
+- [] 250. \*_Hinweise-Bleiben-Stehen_ (S): Hinweise wie z.B. sitzenbleiben können bestehen bleiben, obwohl man nicht mehr steht, isst und ggf. sogar im Kampf ist. Sicherstellen, dass diese Hinweise sauber abgeräumt werden.
+
 ## v2.17: Level-Up-Zuwachs
 
 - [x] 249. **Level-Up-Fenster** (L): Eigenes Fenster statt Blizzards Level-Up-Banner (angelehnt an GnomeLevelUp, eigene Gestaltung ohne Fremd-Assets): Titel mit Level, Zuwächse als Tabelle „vorher → nachher (+Zuwachs)“ (aus 247), neue Talentpunkte und die Fähigkeiten, die der Klassenlehrer ab diesem Level anbietet (Symbole mit Tooltip). Die Fähigkeiten merkt `Tracking/TrainerCache.lua` beim Besuch des Lehrers (`TRAINER_SHOW`; Era/TBC und Forever mit je eigener Rückgabereihenfolge von `GetTrainerServiceInfo`, Berufslehrer ignoriert, Retail nicht verfügbar), account-weit je Klasse in `LevelTimerStatsDB.trainerCache`. Aussehen: Themes Modern/Allianz/Horde, Kompaktmodus, Größe, Anzeigedauer, Ton, Verschieben, Vorschau (`/lt debug levelup`); `levelUpHideBlizzard` meldet `PLAYER_LEVEL_UP` bei `LevelUpDisplay` ab. Im Kampf wartet das Fenster. Reiter Einblendungen, Abschnitt „Level-Up-Fenster“. Bewusst nicht: Controller-Modus, Schriften und Farben frei wählbar, Holz-/Metall-/Gnomeregan-Themes. Offen: eingebaute Fähigkeitenliste (Wowhead und wago.tools untersagen automatisches Abrufen in der `robots.txt`; eine Quelle mit passender Lizenz fehlt), Waffenfertigkeiten und Hexenmeister-Grimoires gesondert (stehen derzeit als normale Lehrerfähigkeiten in der Liste), im Spiel prüfen: Blizzard-Banner wirklich aus (Retail/Era/Forever), Trainer-API in Forever, Tooltip.
@@ -93,7 +201,7 @@ Aus dem Review des Branches `feature/alert-style` (fünf Prüfer: Clean Code, Wi
 - [x] 183. **Instanzlimit: Reihenfolge nach Korrektur** (S): `add(name, enteredAt)` hängt einen Eintrag mit früherer Zeit hinter neuere; `prune` und `GetSecondsUntilNextFree` setzen „ältester zuerst“ voraus. Nach dem Einfügen sortieren. `History/InstanceLimit.lua:299`
 - [x] 184. **Quest-Titel veraltet** (S): `pendingTitle` wird nur bei `QUEST_TURNED_IN` gelöscht; ein geöffnetes und verworfenes Fenster hängt den alten Titel an die nächste Quest (Clients ohne `C_QuestLog.GetTitleForQuestID`). Auch bei `QUEST_FINISHED` löschen. `Tracking/QuestCounter.lua:20`
 - [x] 185. **Session: `lastSeen` in der Zukunft** (S): Wird die Systemuhr zurückgestellt, ist `time() - lastSeen` negativ und besteht die Prüfung `<= RESUME_GAP_SECONDS`; eine alte Session setzt fort. `>= 0` ergänzen. `Tracking/Session.lua:56`
-- [ ] 186. **Journal-Grenzen sehr groß** (S–M): 5000 Kills, 2000 Beute, 2000 Quests, 1000 Tode, 500 Beinahe-Tode und 500 Läufe ergeben je Charakter über 2 MB; bei zehn Charakteren langsames Login. Kleinere Grenzen oder kompakte Tupel. `Tracking/Journal.lua:19`
+- [ ] 186. **Journal-Grenzen sehr groß** (S–M): **Weiter in 252.** 5000 Kills, 2000 Beute, 2000 Quests, 1000 Tode, 500 Beinahe-Tode und 500 Läufe ergeben je Charakter über 2 MB; bei zehn Charakteren langsames Login. Kleinere Grenzen oder kompakte Tupel. `Tracking/Journal.lua:19`
 - [ ] 187. **Elite-/Rare-Erkennung nur nach Name** (S): Gleichnamige Gegner mit anderer Einstufung erben die zuletzt gesehene. Bewusste Näherung; mindestens dokumentieren. `Tracking/KillCounter.lua:35`, `Tracking/Classification.lua:24` **Teilweise: Erledigt: im Code dokumentiert (Verhalten bleibt).**
 
 ### Texte und Übersetzung
