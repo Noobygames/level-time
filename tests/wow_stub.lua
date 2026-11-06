@@ -217,6 +217,7 @@ local function newFrame()
   }
   frame.CreateFontString = function() return newFrame() end
   frame.CreateTexture = function() return newFrame() end
+  frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
   return setmetatable(frame, {
     __index = function(_, key) return frameMethods[key] or noop end,

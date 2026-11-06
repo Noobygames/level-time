@@ -1929,3 +1929,21 @@ Ruf wird erkannt (ja/nein, Beispielmeldung aus dem Chat):
 Werte stimmen (ja/nein):
 Fehler:
 ```
+
+### 93. Fortschrittskurve (Roadmap 279)
+
+- [ ] geprüft
+
+Mit einem Charakter einloggen, der einige Level mit dem Addon geschafft hat, und mindestens einen Twink mit Leveln haben. Historie > Graphen > „Kurve“ öffnen, über die Punkte fahren, dann oben einen anderen Charakter wählen.
+
+**Erwartet:** Linien je Charakter in Klassenfarbe (gewählter zuerst in der Legende), dazu „Vergleich (Splits)“ schwächer und dünner. Y-Achse Level, X-Achse Spielzeit. Tooltip „Name: 23.4 - 1d 2h“. Der letzte Punkt des eingeloggten Charakters wandert mit der XP. Mit einem anderen gewählten Charakter fehlt der Vergleich.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Linien sichtbar (ja/nein):
+Achsen und Legende lesbar (ja/nein):
+Werte plausibel (ja/nein):
+Fehler:
+```

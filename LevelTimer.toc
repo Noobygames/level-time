@@ -75,6 +75,7 @@ History\Instances.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
 History\Analysis.lua
+History\ProgressCurve.lua
 History\XpTable.lua
 History\Forecast.lua
 History\Goal.lua
