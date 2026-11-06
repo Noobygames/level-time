@@ -305,6 +305,7 @@ addToggles({
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
+  toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
 })
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then

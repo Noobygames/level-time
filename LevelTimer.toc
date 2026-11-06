@@ -83,6 +83,7 @@ Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\GearWarnings.lua
+Assist\AggroWarning.lua
 Assist\TrainerReminder.lua
 Assist\Comfort.lua
 Assist\Merchant.lua

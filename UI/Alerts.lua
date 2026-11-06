@@ -67,6 +67,7 @@ Alerts.ICONS = {
   charged = 1270893, -- Aufgeladen (Himmelsgeborene, WoW Forever)
   bags = iconPath("INV_Misc_Bag_08"),
   durability = iconPath("INV_Misc_Gear_01"),
+  aggro = iconPath("Ability_Warrior_Charge"),
   ammo = iconPath("INV_Ammo_Arrow_02"),
   trainer = iconPath("INV_Misc_Book_09"),
   instanceLimit = iconPath("INV_Misc_PocketWatch_01"),

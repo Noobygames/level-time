@@ -410,6 +410,9 @@ C_UnitAuras = {
   end,
 }
 function IsInGroup() return state.inGroup end
+-- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
+function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
+function UnitGroupRolesAssigned() return state.role or "NONE" end
 -- Gesendete Chat-Nachrichten landen in wow.sentChat als { message, chatType }
 wow.sentChat = {}
 -- Load-on-Demand-Addons (LevelTimer_Archive): LoadAddOn führt die Dateien der .toc aus und meldet ADDON_LOADED.
