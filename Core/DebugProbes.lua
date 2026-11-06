@@ -612,3 +612,16 @@ check("secret.functions", function()
   table.sort(names)
   return names
 end)
+
+-- 327: Sind die entfernten Aura-IDs von UNIT_AURA im Kampf lesbar (Wasserschild-Ladungen verbraucht)? Einmal je Kampf.
+local auraRemovalLogged = false
+ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
+  if auraRemovalLogged or unit ~= "player" or not DebugLog.IsEnabled() or not InCombatLockdown() then return end
+  if type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
+  local removed = updateInfo.removedAuraInstanceIDs
+  if removed == nil then return end
+  auraRemovalLogged = true
+  write({ area = "probe", name = "unitAura.removedInCombat", secretList = ns.IsSecret(removed),
+    first = type(removed) == "table" and not ns.IsSecret(removed) and removed[1] or nil, state = playerState() })
+end)
+ns.RegisterEvent("PLAYER_REGEN_ENABLED", function() auraRemovalLogged = false end)

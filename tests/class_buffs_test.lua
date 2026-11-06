@@ -143,6 +143,19 @@ wow.advance(1800)
 BuffReminder.Check()
 expect("abgelaufen im Kampf: Hinweis", shown(armorText), before + 1)
 wow.state.inCombat, wow.state.aurasSecret, wow.state.secretSpellAuras = false, false, {}
+
+-- Ladungen verbraucht im Kampf: UNIT_AURA meldet die gemerkte Aura als entfernt
+wow.advance(600)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR, auraInstanceID = 77,
+  expirationTime = GetTime() + 600, duration = 1800 } }
+BuffReminder.Check()
+before = shown(armorText)
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+wow.fire("UNIT_AURA", "player", { removedAuraInstanceIDs = { 12, 77 } })
+BuffReminder.Check()
+expect("entfernt im Kampf: Hinweis", shown(armorText), before + 1)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.secretSpellAuras = false, false, {}
 wow.state.buffs = {}
 addon.Set("remindMageArmor", false)
 expect("keine Fehler", #wow.errors, 0)

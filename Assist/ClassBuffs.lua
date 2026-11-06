@@ -120,13 +120,17 @@ end
 -- Ablauf merken, solange die Buffs lesbar sind (memory = { expiresAt, duration } je Hinweis, GetTime-Zeit). Im Kampf
 -- sperrt WoW Forever auch die Abfrage per Spell-ID (Debug-Log: ShouldSpellAuraBeSecret true); dann gilt der Buff
 -- als weg, sobald die gemerkte Ablaufzeit vorbei ist. Neu gewirkt im Kampf frischt sie auf (UNIT_SPELLCAST_SUCCEEDED).
--- Verbrauchte Ladungen (Wasserschild) sieht man im Kampf nicht; das meldet der Hinweis direkt nach dem Kampf.
+-- Verbrauchte Ladungen (Wasserschild): gemerkt wird auch die auraInstanceID; meldet UNIT_AURA im Kampf genau diese
+-- als entfernt (removedAuraInstanceIDs, sofern lesbar), ist der Buff weg (memory.removedAt).
 local function remember(memory, aura)
   if not memory then return end
   local remaining, duration = nil, nil
   if aura then remaining, duration = ns.Auras.RemainingSeconds(aura) end
   memory.expiresAt = remaining and GetTime() + remaining or nil
   if duration and duration > 0 then memory.duration = duration end
+  local instanceId = aura and aura.auraInstanceID
+  memory.instanceId = (not ns.IsSecret(instanceId)) and instanceId or nil
+  memory.removedAt = nil
 end
 
 local function logMissing(names)
@@ -159,6 +163,7 @@ local function hasAnyBuff(spellIds, memory)
   -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
   local byId = ns.Auras.HasPlayerSpell(spellIdsWithRanks(spellIds, names))
   if byId ~= nil then return byId end
+  if memory and memory.removedAt then return false end
   if memory and memory.expiresAt and GetTime() >= memory.expiresAt then return false end
   return nil
 end
@@ -285,8 +290,30 @@ ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
   if not name then return end
   for _, reminder in ipairs(ClassBuffs.REMINDERS) do
     local memory = reminder.memory
-    if reminder.kind == BUFF and memory and memory.duration and buffNames(reminder.spells)[name] then
-      memory.expiresAt = GetTime() + memory.duration
+    if reminder.kind == BUFF and memory and buffNames(reminder.spells)[name] then
+      if memory.duration then memory.expiresAt = GetTime() + memory.duration end
+      memory.removedAt, memory.instanceId = nil, nil  -- neue Aura, ihre ID kennen wir erst außerhalb des Kampfs
+    end
+  end
+end)
+
+-- Aura entfernt (UNIT_AURA mit updateInfo): ist es der gemerkte Buff, gilt er als weg. Geheime IDs zählen nicht.
+local function isRemoved(removed, instanceId)
+  for _, removedId in ipairs(removed) do
+    if not ns.IsSecret(removedId) and removedId == instanceId then return true end
+  end
+  return false
+end
+
+ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
+  if unit ~= "player" or type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
+  local removed = updateInfo.removedAuraInstanceIDs
+  if type(removed) ~= "table" or ns.IsSecret(removed) then return end
+  for _, reminder in ipairs(ClassBuffs.REMINDERS) do
+    local memory = reminder.memory
+    if memory and memory.instanceId and not memory.removedAt and isRemoved(removed, memory.instanceId) then
+      memory.removedAt = GetTime()
+      ns.Debug("reminder", "%s: aura %s removed", reminder.setting, memory.instanceId)
     end
   end
 end)
