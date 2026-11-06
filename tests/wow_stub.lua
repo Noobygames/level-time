@@ -145,6 +145,7 @@ local frameMethods = {
   GetCenter = function() return 0, 0 end,
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
+  GetParent = function(self) return self._parent end,
   Show = function(self) self._shown = true end,
   Hide = function(self)
     local wasShown = self._shown
@@ -286,8 +287,9 @@ end
 local state = wow.state
 
 -- Benannte Frames landen wie im Client als Global (z.B. LevelTimerFrame)
-CreateFrame = function(_, name)
+CreateFrame = function(_, name, parent)
   local frame = newFrame()
+  frame._parent = parent
   if name then _G[name] = frame end
   return frame
 end

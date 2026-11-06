@@ -393,8 +393,11 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
   finishPage()
 end
 
--- Komfort: Automatik bei Händlern, Quests und Gesprächen
+-- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus (Automatik, Sozial, Chat, Oberfläche)
 addPage("OPTIONS_TAB_COMFORT")
+addHint("COMFORT_HINT")
+local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
+addSubPage("COMFORT_PAGE_AUTOMATION")
 addSection("SECTION_MERCHANT")
 addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
@@ -409,6 +412,7 @@ addToggles({
   toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
+addSubPage("COMFORT_PAGE_SOCIAL")
 addSection("SECTION_DECLINE")
 addToggles({
   toggle("DECLINE_TRADES", "declineTrades"),
@@ -416,8 +420,10 @@ addToggles({
   toggle("DECLINE_GUILD_INVITES", "declineGuildInvites"),
   toggle("DECLINE_DUELS", "declineDuels"),
 })
+addSubPage("COMFORT_PAGE_CHAT")
 addSection("SECTION_CHAT")
 addToggles({ toggle("CHAT_COPY_TOGGLE", "chatCopyButton") })
+addSubPage("COMFORT_PAGE_INTERFACE")
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
@@ -434,7 +440,7 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
-addHint("COMFORT_HINT")
+finishSubPages()
 finishPage()
 
 -- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
