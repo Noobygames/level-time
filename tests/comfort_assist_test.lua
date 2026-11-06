@@ -126,11 +126,21 @@ ZoneTextFrame._scripts.OnShow(ZoneTextFrame)
 expect("Zonentext versteckt", ZoneTextFrame:IsShown(), false)
 
 ---------------------------------------------------------------------------
--- Kamera: nur beim Umschalten gesetzt
+-- Kamera: umkehrbar über CVars.lua, aus = CVar unberührt
 ---------------------------------------------------------------------------
-expect("aus: CVar unberührt", GetCVar("cameraDistanceMaxZoomFactor"), nil)
+wow.state.cvars = wow.state.cvars or {}
+wow.state.cvars.cameraDistanceMaxZoomFactor = "2.2"
+addon.ApplySettings()
+expect("aus: CVar unberührt", GetCVar("cameraDistanceMaxZoomFactor"), "2.2")
 addon.Set("maxCameraZoom", true)
 expect("weiter raus", GetCVar("cameraDistanceMaxZoomFactor"), "2.6")
+expect("Original gemerkt", LevelTimerDB.cvarOriginals.cameraDistanceMaxZoomFactor, "2.2")
+addon.Set("maxCameraZoom", false)
+expect("Wert des Spielers zurück", GetCVar("cameraDistanceMaxZoomFactor"), "2.2")
+expect("Original vergessen", LevelTimerDB.cvarOriginals, nil)
+-- Ältere Versionen merkten nichts: steht die CVar schon auf unserem Wert, gilt der Standard als Original
+wow.state.cvars.cameraDistanceMaxZoomFactor = "2.6"
+addon.Set("maxCameraZoom", true)
 addon.Set("maxCameraZoom", false)
 expect("Standard zurück", GetCVar("cameraDistanceMaxZoomFactor"), "1.9")
 expect("keine Fehler", #wow.errors, 0)

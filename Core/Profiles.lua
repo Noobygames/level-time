@@ -14,7 +14,10 @@ ns.Profiles = Profiles
 
 local KIND = "profile"
 -- Verwaltung der Profile selbst, gehört zu keinem Profil
-local META_KEYS = { profiles = true, activeProfile = true, characterProfiles = true, schemaVersion = true }
+-- cvarOriginals: Werte des Spielers vor unseren CVar-Änderungen (CVars.lua), gehören zum Account, nicht zum Profil
+local META_KEYS = {
+  profiles = true, activeProfile = true, characterProfiles = true, schemaVersion = true, cvarOriginals = true,
+}
 
 local function deepCopy(value)
   if type(value) ~= "table" then return value end

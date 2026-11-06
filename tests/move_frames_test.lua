@@ -40,11 +40,11 @@ expect("nach der Anordnung des Spiels erneut", character._points[#character._poi
 
 -- Im Kampf wird nichts angefasst; ein nie begonnenes Ziehen wird nicht gespeichert
 LevelTimerDB.movedFrames = nil
-InCombatLockdown = function() return true end
+wow.state.combatLockdown = true
 moved = 0
 character._scripts.OnDragStart(character)
 expect("Kampf: kein Verschieben", moved, 0)
-InCombatLockdown = nil
+wow.state.combatLockdown = false
 character._scripts.OnDragStop(character)
 expect("kein Ziehen: nichts gespeichert", LevelTimerDB.movedFrames, nil)
 

@@ -29,6 +29,7 @@ Lib\ChatPatterns.lua
 Lib\Bags.lua
 Lib\Items.lua
 Lib\Overrides.lua
+Lib\CVars.lua
 Lib\Widgets.lua
 Lib\Auras.lua
 Lib\Card.lua
