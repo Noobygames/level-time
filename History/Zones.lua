@@ -1,5 +1,5 @@
 -- Auswertung pro Zone: Spielzeit, XP, Kills und Tode je Zone, gesamt pro Charakter
--- (ns.character.zoneStats[zone] = { seconds, xp, kills, deaths }).
+-- (ns.character.zoneStats[zone] = { seconds, xp, kills, deaths, reputation }; reputation fehlt bei älteren Zonen).
 -- Zeit wird beim Zonenwechsel und beim Logout verbucht; XP, Kills und Tode zählen über Stats.OnIncrement.
 local _, ns = ...
 local Stats = ns.Stats
@@ -14,6 +14,7 @@ local ZONE_FIELDS = {
   [Stats.PVE_KILLS] = "kills",
   [Stats.PVP_KILLS] = "kills",
   [Stats.DEATHS] = "deaths",
+  [Stats.REPUTATION] = "reputation",
 }
 
 local currentZone  -- Name der Zone, in der man gerade ist (nil wenn unbekannt)
@@ -27,7 +28,7 @@ end
 
 local function entryFor(zone)
   local zones = ns.character.zoneStats
-  zones[zone] = zones[zone] or { seconds = 0, xp = 0, kills = 0, deaths = 0 }
+  zones[zone] = zones[zone] or { seconds = 0, xp = 0, kills = 0, deaths = 0, reputation = 0 }
   return zones[zone]
 end
 
@@ -63,7 +64,7 @@ Stats.OnIncrement(function(counter, amount)
   local field = ZONE_FIELDS[counter]
   if field and currentZone then
     local entry = entryFor(currentZone)
-    entry[field] = entry[field] + amount
+    entry[field] = (entry[field] or 0) + amount
   end
 end)
 
@@ -79,7 +80,7 @@ function Zones.GetRecords(characterKey)
       zone = zone,
       seconds = seconds,
       xp = entry.xp,
-      counters = { kills = entry.kills, deaths = entry.deaths },
+      counters = { kills = entry.kills, deaths = entry.deaths, reputation = entry.reputation or 0 },
       isCurrent = isCurrent,
     })
   end

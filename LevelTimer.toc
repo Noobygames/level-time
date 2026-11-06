@@ -62,6 +62,7 @@ Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
 Tracking\MoneyCounter.lua
+Tracking\Reputation.lua
 
 # Historie, Auswertung, Prognose
 History\History.lua

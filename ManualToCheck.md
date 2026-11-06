@@ -1912,3 +1912,20 @@ Heatmap sichtbar und lesbar (ja/nein):
 Zeit/XP im Tooltip plausibel (ja/nein):
 Fehler:
 ```
+
+### 92. Ruf pro Stunde (Roadmap 278)
+
+- [ ] geprüft
+
+Statistiken „Ruf“ an. Quests mit Ruf abgeben und Gegner töten, die Ruf geben (auch in einem Dungeon). Historie > „Ruf“, „Zonen“ und „Instanzen“ ansehen.
+
+**Erwartet:** „Ruf“ und „Ruf/h“ steigen im Level, in der Session und im Instanz-Tab. Die Tabelle „Ruf“ zeigt jede Fraktion mit ihrer Summe; Zonen und Instanzen haben die Spalte „Ruf“. Ruf-Verluste zählen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ruf wird erkannt (ja/nein, Beispielmeldung aus dem Chat):
+Werte stimmen (ja/nein):
+Fehler:
+```

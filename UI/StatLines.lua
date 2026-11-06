@@ -161,6 +161,12 @@ end
 
 local income = money(Stats.MONEY_EARNED)
 
+-- Ruf je Stunde im Bereich (Spielzeit wie bei XP/h)
+local function reputationRate(scope)
+  local rate = Experience.CalculateRate(Stats.Get(scope, Stats.REPUTATION), Experience.ScopeRateSeconds(scope))
+  return rate and Format.Number(rate) or NO_VALUE
+end
+
 -- Gold je Stunde im Bereich (Einnahmen, Spielzeit wie bei XP/h ohne AFK/Leerlauf, wenn eingestellt)
 local function goldPerHour(scope)
   local rate = ns.Money.PerHour(Stats.Get(scope, Stats.MONEY_EARNED), Experience.ScopeRateSeconds(scope))
@@ -266,6 +272,10 @@ ns.STAT_LINES = {
     { label = "ROW_SPENT_TRAINER", value = money(Stats.SPENT_TRAINER) },
     { label = "ROW_SPENT_OTHER", value = money(Stats.SPENT_OTHER) },
     { label = "ROW_JUNK_INCOME", value = money(Stats.MONEY_JUNK) },
+  } },
+  { setting = "showReputation", group = "STAT_GROUP_TIME_MONEY", label = "STAT_REPUTATION", rows = {
+    { label = "ROW_REPUTATION", value = function(scope) return Format.Number(Stats.Get(scope, Stats.REPUTATION)) end },
+    { label = "ROW_REPUTATION_RATE", value = reputationRate },
   } },
   { setting = "showIncome", group = "STAT_GROUP_TIME_MONEY", label = "STAT_INCOME", rows = {
     { label = "ROW_INCOME_LOOT", value = money(Stats.INCOME_LOOT) },

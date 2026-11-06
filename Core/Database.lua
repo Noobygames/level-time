@@ -180,6 +180,7 @@ local SETTINGS_DEFAULTS = {
   showMoney = false,
   showSpending = false,  -- Ausgaben nach Art und Schrott-Erlös (siehe MoneyCounter.lua)
   showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
+  showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
   minimap = { hide = false, angle = 225 },
 }
 
@@ -221,6 +222,7 @@ local COUNTER_DEFAULTS = {
   incomeAuction = 0,
   incomeTrade = 0,
   incomeOther = 0,
+  reputation = 0,
 }
 
 local CHARACTER_DEFAULTS = {

@@ -204,13 +204,14 @@ local QUEST_COLUMNS = {
 
 local INSTANCE_COLUMNS = {
   whenColumn(100),
-  { header = "HISTORY_INSTANCE", width = 120, align = LEFT, value = function(r) return r.name or "" end },
+  { header = "HISTORY_INSTANCE", width = 100, align = LEFT, value = function(r) return r.name or "" end },
   durationColumn(60),
   { header = "HISTORY_XP", width = 60, value = function(r) return Format.Number(r.xp or 0) end,
     sort = function(r) return r.xp end },
   xpRateColumn(50),
   counterColumn("HISTORY_KILLS", "kills", 50),
   counterColumn("HISTORY_DEATHS", "deaths", 40),
+  counterColumn("HISTORY_REPUTATION", "reputation", 40),
   levelColumn(40),
 }
 
@@ -239,6 +240,16 @@ local ZONE_COLUMNS = {
   xpRateColumn(60),
   counterColumn("HISTORY_KILLS", "kills", 50),
   counterColumn("HISTORY_DEATHS", "deaths", 40),
+  counterColumn("HISTORY_REPUTATION", "reputation", 50),
+}
+
+-- Ruf je Fraktion (Reputation.lua)
+local REPUTATION_COLUMNS = {
+  { header = "HISTORY_FACTION", width = 220, align = LEFT, value = function(r) return r.faction end },
+  { header = "HISTORY_REPUTATION", width = 80, value = function(r) return Format.Number(r.amount) end,
+    sort = function(r) return r.amount end },
+  { header = "HISTORY_WHEN", width = 100, value = function(r) return dateTime(L.DATE_TIME_FORMAT, r.last) end,
+    sort = function(r) return r.last end },
 }
 
 local COMPARE_COLUMNS = {
@@ -377,6 +388,7 @@ addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCel
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
 addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
 addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
+addTable("HISTORY_TAB_REPUTATION", nil, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
 addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, false, "MONEY_HINT")
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
