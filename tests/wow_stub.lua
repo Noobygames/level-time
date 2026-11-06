@@ -294,6 +294,13 @@ CreateFrame = function(_, name, parent)
   return frame
 end
 UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), newFrame(), newFrame()
+-- Fehlerfenster und Zonentext; UIErrorsFrame merkt Meldungen in _messages
+UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
+UIErrorsFrame._events.UI_ERROR_MESSAGE = true
+UIErrorsFrame._messages = {}
+UIErrorsFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
+ERR_INV_FULL = "Inventar ist voll."
+
 UISpecialFrames, SlashCmdList = {}, {}
 StaticPopupDialogs, YES, NO = {}, "Ja", "Nein"
 -- Dialog nicht anzeigen, sondern merken; Tests bestätigen mit StaticPopupDialogs[name].OnAccept
@@ -380,7 +387,12 @@ function UnitIsDeadOrGhost() return state.dead end
 function UnitHealth() return state.health end
 function IsInGuild() return state.inGuild end
 function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
-function UnitAffectingCombat() return state.inCombat end
+-- Spieler: state.inCombat; andere Einheiten: state.units[unit].combat
+function UnitAffectingCombat(unit)
+  if unit == nil or unit == "player" then return state.inCombat end
+  return state.units[unit] ~= nil and state.units[unit].combat == true
+end
+function UnitIsGhost() return state.ghost == true end
 function UnitOnTaxi() return state.onTaxi end
 -- Bekannte Zauber (IsPlayerSpell): state.knownSpells[spellId] = true
 function IsPlayerSpell(spellId) return (state.knownSpells or {})[spellId] == true end
@@ -472,6 +484,27 @@ function UnitStat(_, index)
 end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
+function IsModifiedClick() return state.modifiedClick == true end
+-- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
+function GetCVar(name) return (state.cvars or {})[name] end
+function SetCVar(name, value) state.cvars = state.cvars or {}; state.cvars[name] = tostring(value) end
+function GetCVarBool(name) return GetCVar(name) == "1" end
+-- Beschwörung: state.summon = { summoner, area }; Aufrufe landen in wow.comfortActions
+wow.comfortActions = {}
+local function comfortAction(...) table.insert(wow.comfortActions, { ... }) end
+C_SummonInfo = {
+  GetSummonConfirmSummoner = function() return state.summon and state.summon.summoner end,
+  GetSummonConfirmAreaName = function() return state.summon and state.summon.area end,
+  ConfirmSummon = function() comfortAction("confirmSummon") end,
+}
+function AcceptResurrect() comfortAction("acceptResurrect") end
+function RepopMe() comfortAction("repop") end
+C_DeathInfo = { GetSelfResurrectOptions = function() return state.selfResurrect or {} end }
+-- Beute: state.lootSlots = Anzahl; LootSlot merkt den Platz
+function GetNumLootItems() return state.lootSlots or 0 end
+function LootSlot(slot) comfortAction("loot", slot) end
+function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end
+function ConfirmLootSlot(slot) comfortAction("confirmBind", slot) end
 function RequestTimePlayed() end
 -- Nur C_CurrencyInfo: das globale GetCoinTextureString ist im Client ein Kompatibilitäts-Alias
 C_CurrencyInfo = { GetCoinTextureString = function(copper) return copper .. "c" end }

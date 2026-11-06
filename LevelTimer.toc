@@ -88,6 +88,10 @@ Assist\TrainerReminder.lua
 Assist\Comfort.lua
 Assist\Merchant.lua
 Assist\QuestAutomation.lua
+Assist\AutoAccept.lua
+Assist\Looting.lua
+Assist\ScreenText.lua
+Assist\Camera.lua
 Assist\Declines.lua
 Assist\ChatCopy.lua
 Assist\MoveFrames.lua

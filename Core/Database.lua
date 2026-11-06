@@ -79,6 +79,9 @@ local SETTINGS_DEFAULTS = {
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus
+  -- Komfort wie Leatrix Plus (Roadmap 329): AutoAccept.lua, Looting.lua, ScreenText.lua, Camera.lua
+  autoAcceptSummon = false, autoAcceptResurrect = false, autoReleasePvP = false,
+  fasterLoot = false, skipLootConfirm = false, hideErrors = false, hideZoneText = false, maxCameraZoom = false,
   autoRepair = false,       -- beim Händler reparieren (Merchant.lua)
   autoRepairGuild = false,  -- zuerst aus der Gildenbank
   autoSellJunk = false,     -- graue Gegenstände verkaufen

@@ -412,6 +412,12 @@ addToggles({
   toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
+addSection("SECTION_CHARACTER")
+addToggles({
+  toggle("AUTO_ACCEPT_SUMMON", "autoAcceptSummon"),
+  toggle("AUTO_ACCEPT_RESURRECT", "autoAcceptResurrect"),
+  toggle("AUTO_RELEASE_PVP", "autoReleasePvP"),
+})
 addSubPage("COMFORT_PAGE_SOCIAL")
 addSection("SECTION_DECLINE")
 addToggles({
@@ -424,6 +430,11 @@ addSubPage("COMFORT_PAGE_CHAT")
 addSection("SECTION_CHAT")
 addToggles({ toggle("CHAT_COPY_TOGGLE", "chatCopyButton") })
 addSubPage("COMFORT_PAGE_INTERFACE")
+addSection("SECTION_SCREEN_TEXT")
+addToggles({
+  toggle("HIDE_ERRORS", "hideErrors"),
+  toggle("HIDE_ZONE_TEXT", "hideZoneText"),
+})
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
@@ -440,6 +451,14 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
+addSubPage("COMFORT_PAGE_SYSTEM")
+addSection("SECTION_LOOT")
+addToggles({
+  toggle("FASTER_LOOT", "fasterLoot"),
+  toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
+})
+addSection("SECTION_CAMERA")
+addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
 finishSubPages()
 finishPage()
 
