@@ -86,6 +86,7 @@ local SETTINGS_DEFAULTS = {
   autoAcceptSummon = false, autoAcceptResurrect = false, autoReleasePvP = false,
   fasterLoot = false, skipLootConfirm = false, hideErrors = false, hideZoneText = false, maxCameraZoom = false,
   easyDelete = false, fasterMovieSkip = false,  -- SkipDialogs.lua
+  trainAllButton = false,  -- TrainAll.lua
   autoRepair = false,       -- beim Händler reparieren (Merchant.lua)
   autoRepairGuild = false,  -- zuerst aus der Gildenbank
   autoSellJunk = false,     -- graue Gegenstände verkaufen

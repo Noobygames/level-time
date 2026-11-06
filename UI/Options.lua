@@ -411,6 +411,7 @@ addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
   toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
+  toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
 })
 addSection("SECTION_QUESTS")
 addToggles({

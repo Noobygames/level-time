@@ -482,6 +482,10 @@ end
 function GetTrainerServiceLevelReq(index) return state.trainer.services[index].reqLevel end
 function GetTrainerServiceIcon(index) return state.trainer.services[index].texture end
 function IsTradeskillTrainer() return state.trainer.tradeskill or false end
+-- Kosten je Zeile (service.cost); gekaufte Zeilen in wow.trained (Nummer)
+wow.trained = {}
+function GetTrainerServiceCost(index) return state.trainer.services[index].cost or 0 end
+function BuyTrainerService(index) table.insert(wow.trained, index) end
 function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
 -- UnitStat: Basiswert, Gesamtwert, positive und negative Buffs
