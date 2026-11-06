@@ -1,29 +1,53 @@
 -- Aggro-Hinweis (Einstellung warnAggro, Standard aus): in einer Gruppe eine Einblendung, sobald ein Gegner den
--- Spieler angreift (er "tankt"), z.B. für Heiler und Fernkämpfer, die Aggro gezogen haben. Allein, als
--- zugewiesener Tank und bei gesperrter Bedrohung nicht.
--- UnitThreatSituation("player") ohne zweites Argument = höchste Stufe gegenüber allen Gegnern:
--- 0/1 = keine Aggro, 2 = tankt unsicher, 3 = tankt sicher (warcraft.wiki.gg/wiki/API_UnitThreatSituation).
--- UNIT_THREAT_SITUATION_UPDATE kommt mit "player", wenn sich die Stufe ändert. Im Spiel geprüft (WoW Forever
--- 1.60.1): im Kampf lesbar, nicht geheim (C_Secrets.ShouldUnitThreatStateBeSecret false).
--- Gewarnt wird beim Wechsel zu Aggro, höchstens alle REPEAT_SECONDS (die Stufe springt beim Abgeben hin und her).
+-- Spieler wirklich angreift, z.B. für Heiler und Fernkämpfer. Allein und als zugewiesener Tank nicht.
+-- Nicht über UnitThreatSituation("player") allein: das Debug-Log (WoW Forever 1.60.1) zeigte dort oft Stufe 3, obwohl
+-- kein Gegner den Spieler als Ziel hatte. Gezählt wird deshalb nur ein Gegner unter Ziel, Fokus, Maus und
+-- Namensplaketten, der im Kampf ist, den Spieler als Ziel hat (UnitIsUnit(<einheit>target, "player")) und laut
+-- UnitDetailedThreatSituation von ihm "getankt" wird. Geheime Werte (Instanzen in Forever/Retail) zählen nicht.
+-- Gewarnt wird erst, wenn das AGGRO_CONFIRM_SECONDS anhält (kurze Zielwechsel beim Pull), und höchstens alle
+-- REPEAT_SECONDS. Geprüft wird alle CHECK_SECONDS, nur im Kampf in einer Gruppe.
 local _, ns = ...
 local L = ns.L
 
 local AggroWarning = {}
 ns.AggroWarning = AggroWarning
 
-local TANKING = 2          -- ab dieser Stufe greift ein Gegner den Spieler an
+local CHECK_SECONDS = 0.5
+local AGGRO_CONFIRM_SECONDS = 1.5
 local REPEAT_SECONDS = 5
 local TANK_ROLE = "TANK"
+local NAMEPLATE_UNITS = 40
+local FIXED_UNITS = { "target", "focus", "mouseover" }
 
-local hadAggro = false
+local aggroSince   -- GetTime(), seit dem ein Gegner den Spieler angreift
+local warned       -- für diese Aggro schon gewarnt
 local lastShown
 
--- true = ein Gegner greift den Spieler an; nil = nicht lesbar
+-- Wert nur, wenn er lesbar ist
+local function readable(value)
+  if ns.IsSecret(value) then return nil end
+  return value
+end
+
+-- Greift diese Einheit den Spieler an? Nur feindlich, im Kampf, Spieler als Ziel und von ihm getankt
+local function attacksPlayer(unit)
+  if not UnitExists(unit) or not UnitCanAttack("player", unit) or not readable(UnitAffectingCombat(unit)) then
+    return false
+  end
+  if readable(UnitIsUnit(unit .. "target", "player")) ~= true then return false end
+  if not UnitDetailedThreatSituation then return true end
+  return readable((UnitDetailedThreatSituation("player", unit))) ~= false
+end
+
+-- true, wenn ein sichtbarer Gegner den Spieler angreift
 function AggroWarning.HasAggro()
-  local situation = UnitThreatSituation and UnitThreatSituation("player")
-  if ns.IsSecret(situation) then return nil end
-  return situation ~= nil and situation >= TANKING
+  for _, unit in ipairs(FIXED_UNITS) do
+    if attacksPlayer(unit) then return true end
+  end
+  for index = 1, NAMEPLATE_UNITS do
+    if attacksPlayer("nameplate" .. index) then return true end
+  end
+  return false
 end
 
 local function isTank()
@@ -32,28 +56,27 @@ local function isTank()
   return not ns.IsSecret(role) and role == TANK_ROLE
 end
 
-local function shouldWarn()
-  return ns.db.warnAggro and IsInGroup() and not isTank()
-    and (not lastShown or GetTime() - lastShown >= REPEAT_SECONDS)
+local function active()
+  return ns.db.warnAggro and IsInGroup() and not isTank() and UnitAffectingCombat("player")
 end
 
 function AggroWarning.Check()
-  local aggro = AggroWarning.HasAggro()
-  if aggro == nil then return end
-  if aggro and not hadAggro and shouldWarn() then
-    ns.Debug("warnings", "aggro")
-    lastShown = GetTime()
-    ns.Alerts.Notify({ title = L.NOTICE_AGGRO, text = L.WARN_AGGRO, icon = ns.Alerts.ICONS.aggro },
-      ns.Alerts.WARNING_COLOR)
+  if not active() or not AggroWarning.HasAggro() then
+    aggroSince, warned = nil, false
+    return
   end
-  hadAggro = aggro
+  local now = GetTime()
+  aggroSince = aggroSince or now
+  if warned or now - aggroSince < AGGRO_CONFIRM_SECONDS then return end
+  if lastShown and now - lastShown < REPEAT_SECONDS then return end
+  warned, lastShown = true, now
+  ns.Debug("warnings", "aggro")
+  ns.Alerts.Notify({ title = L.NOTICE_AGGRO, text = L.WARN_AGGRO, icon = ns.Alerts.ICONS.aggro },
+    ns.Alerts.WARNING_COLOR)
 end
 
-ns.RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", function(unit)
-  if unit == "player" then AggroWarning.Check() end
-end)
-ns.RegisterEvent("PLAYER_REGEN_ENABLED", function() hadAggro = false end)
+ns.Every(CHECK_SECONDS, AggroWarning.Check)
 
 ns.OnLogin(function()
-  hadAggro, lastShown = false, nil
+  aggroSince, warned, lastShown = nil, false, nil
 end)

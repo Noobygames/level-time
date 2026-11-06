@@ -93,10 +93,36 @@ wow.state.mainHandEnchant = true
 expect("Gift auf der Waffe", ClassBuffs.IsMissing(poisons), false)
 wow.state.mainHandEnchant = false
 
--- Gesperrte Auren (Retail/Forever im Bosskampf): nicht feststellbar, kein Hinweis
+-- Gesperrte Buff-Liste (Retail/Forever im Kampf): einzeln per Spell-ID, soweit nicht geheim
 wow.state.class = "MAGE"
 wow.state.knownSpells = { [FROST_ARMOR] = true }
 wow.state.aurasSecret = true
-expect("Auren gesperrt", ClassBuffs.IsMissing(armor), nil)
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+expect("Spell-Aura geheim: unbekannt", ClassBuffs.IsMissing(armor), nil)
+wow.state.secretSpellAuras = {}
+expect("per Spell-ID: fehlt", ClassBuffs.IsMissing(armor), true)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+expect("per Spell-ID: aktiv", ClassBuffs.IsMissing(armor), false)
+wow.state.buffs = {}
 wow.state.aurasSecret = false
+
+-- Wichtig: auch im Kampf, in Instanzen und sofort beim Wegfall, ohne die Pause abzuwarten
+local armorText = string.format(L.REMIND_CLASS_BUFF, "Frostrüstung")
+addon.Set("remindMageArmor", true)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+BuffReminder.Check()
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.state.buffs = {}
+BuffReminder.Check()
+expect("im Kampf im Dungeon: sofort beim Wegfall", shown(armorText), 1)
+BuffReminder.Check()
+expect("fehlt weiter: Pause gilt", shown(armorText), 1)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+BuffReminder.Check()
+wow.state.buffs = {}
+BuffReminder.Check()
+expect("erneut weggefallen: wieder sofort", shown(armorText), 2)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.instance = false, false, nil
+addon.Set("remindMageArmor", false)
 expect("keine Fehler", #wow.errors, 0)

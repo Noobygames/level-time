@@ -332,6 +332,21 @@ local function harmfulAuras()
   return auras
 end
 
+-- 327: Klassen-Buffs per Spell-ID im Kampf lesbar? Je Zauber der eigenen Klasse: ShouldSpellAuraBeSecret und ob
+-- GetPlayerAuraBySpellID eine Aura liefert (true/false, geheim oder Fehlertext)
+local function classBuffAuras()
+  local result = {}
+  for _, reminder in ipairs(ns.ClassBuffs and ns.ClassBuffs.ForPlayerClass() or {}) do
+    for _, spellId in ipairs(reminder.spells or {}) do
+      local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+      local found = aura
+      if ok and not ns.IsSecret(aura) then found = aura ~= nil elseif not ok then found = "error: " .. tostring(aura) end
+      result[tostring(spellId)] = { secret = call("C_Secrets.ShouldSpellAuraBeSecret", spellId), found = found }
+    end
+  end
+  return result
+end
+
 local function combatSample()
   return {
     combat = call("UnitAffectingCombat", "player"),
@@ -353,6 +368,7 @@ local function combatSample()
     control = { fullControl = call("HasFullControl"), count = call("C_LossOfControl.GetActiveLossOfControlDataCount"),
       first = lossOfControl(), crowdControlAuras = crowdControlCount(), speed = call("GetUnitSpeed", "player") },
     auras = { secret = call("C_Secrets.ShouldAurasBeSecret"), harmful = harmfulAuras() },
+    classBuffs = classBuffAuras(),
   }
 end
 

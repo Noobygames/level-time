@@ -97,10 +97,32 @@ local function joinNames(names)
   return table.concat(list, ", ")
 end
 
+-- Spell-IDs zum Nachsehen per ID (wenn die Buff-Liste gesperrt ist): die Liste plus der höchste gelernte Rang je
+-- Name (C_Spell.GetSpellInfo(Name) liefert in Classic-Clients den höchsten bekannten Rang)
+local function spellIdsWithRanks(spellIds, names)
+  local ids, seen = {}, {}
+  local function add(spellId)
+    if type(spellId) == "number" and not ns.IsSecret(spellId) and not seen[spellId] then
+      seen[spellId] = true
+      ids[#ids + 1] = spellId
+    end
+  end
+  for _, spellId in ipairs(spellIds) do add(spellId) end
+  if C_Spell and C_Spell.GetSpellInfo then
+    for name in pairs(names) do
+      local ok, info = pcall(C_Spell.GetSpellInfo, name)
+      if ok and type(info) == "table" then add(info.spellID) end
+    end
+  end
+  return ids
+end
+
 local function hasAnyBuff(spellIds)
   local names = buffNames(spellIds)
   if not next(names) then return false end
   local active = ns.Auras.Has(function(aura) return names[aura.name] == true end)
+  -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
+  if active == nil then return ns.Auras.HasPlayerSpell(spellIdsWithRanks(spellIds, names)) end
   if active == false then
     -- Fehlt laut Prüfung: gesuchte Namen und vorhandene Buffs, um falsche Zauber-IDs oder Namen zu erkennen
     local present = {}
@@ -172,15 +194,21 @@ local function displayNames(reminder)
   return names
 end
 
-function ClassBuffs.Label(reminder)
-  if reminder.kind == PET then return L.REMIND_PET_TOGGLE end
-  if reminder.kind == WEAPON then return L.REMIND_WEAPON_ENCHANT_TOGGLE end
+-- Bekannte Namen kurz: "Frostrüstung / Eisrüstung", ab MAX_LABEL_NAMES mit "..."
+local function namesText(reminder)
   local names = displayNames(reminder)
+  if #names == 0 then return "?" end
   local shown = {}
   for i = 1, math.min(#names, MAX_LABEL_NAMES) do shown[i] = names[i] end
   local text = table.concat(shown, " / ")
   if #names > MAX_LABEL_NAMES then text = text .. " ..." end
-  return string.format(L.REMIND_CLASS_TOGGLE, text)
+  return text
+end
+
+function ClassBuffs.Label(reminder)
+  if reminder.kind == PET then return L.REMIND_PET_TOGGLE end
+  if reminder.kind == WEAPON then return L.REMIND_WEAPON_ENCHANT_TOGGLE end
+  return string.format(L.REMIND_CLASS_TOGGLE, namesText(reminder))
 end
 
 function ClassBuffs.TipKey(reminder)
@@ -192,7 +220,7 @@ end
 function ClassBuffs.Message(reminder)
   if reminder.kind == PET then return L.REMIND_PET end
   if reminder.kind == WEAPON then return L.REMIND_WEAPON_ENCHANT end
-  return string.format(L.REMIND_CLASS_BUFF, displayNames(reminder)[1] or "?")
+  return string.format(L.REMIND_CLASS_BUFF, namesText(reminder))
 end
 
 -- Symbol: der erste bekannte Zauber (Spell-ID, siehe Lib/Card.lua)
@@ -209,8 +237,12 @@ function ClassBuffs.ForPlayerClass()
   return list
 end
 
+-- Selbst-Buffs (Schilde, Rüstungen) sind wichtig: auch im Kampf, in Instanzen und auf Maximallevel, und sofort,
+-- wenn der Buff wegfällt (remindOnLoss), statt erst nach der Pause
 for _, reminder in ipairs(ClassBuffs.REMINDERS) do
+  local isBuff = reminder.kind == BUFF
   ns.BuffReminder.Register({
+    inCombat = isBuff, anyLevel = true, remindOnLoss = isBuff,
     setting = reminder.setting,
     isMissing = function() return ClassBuffs.IsMissing(reminder) end,
     message = function() return ClassBuffs.Message(reminder) end,

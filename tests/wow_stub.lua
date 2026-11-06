@@ -479,8 +479,19 @@ C_Spell = {
   GetSpellTexture = function(spellID) return "Interface\Icons\Spell_" .. spellID end,
 }
 -- Beschränkte Auren (Retail/Forever, z.B. Bosskampf): wie im Client bricht die Abfrage mit Fehler ab
-C_Secrets = { ShouldAurasBeSecret = function() return state.aurasSecret == true end }
+-- Einzelne Auren per Spell-ID: state.secretSpellAuras[id] = true sperrt sie; aktiv ist eine Spell-ID, wenn ein Buff
+-- in state.buffs sie trägt
+C_Secrets = {
+  ShouldAurasBeSecret = function() return state.aurasSecret == true end,
+  ShouldSpellAuraBeSecret = function(spellId) return (state.secretSpellAuras or {})[spellId] == true end,
+}
 C_UnitAuras = {
+  GetPlayerAuraBySpellID = function(spellId)
+    for _, buff in ipairs(state.buffs) do
+      if type(buff) == "table" and buff.spellId == spellId then return buff end
+    end
+    return nil
+  end,
   GetAuraDataByIndex = function(_, index)
     if state.aurasSecret then
       error("GetAuraDataByIndex(): Auras cannot be accessed when secret while tainted by 'LevelTimer'")
@@ -494,6 +505,14 @@ function IsInGroup() return state.inGroup end
 -- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
 function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
 function UnitGroupRolesAssigned() return state.role or "NONE" end
+-- Gegner: units[unit].hostile (UnitCanAttack), units[unit].tanking (1. Wert von UnitDetailedThreatSituation),
+-- Ziel des Gegners als units[unit .. "target"]
+function UnitCanAttack(_, unit) return state.units[unit] ~= nil and state.units[unit].hostile == true end
+function UnitDetailedThreatSituation(_, unit)
+  local enemy = state.units[unit]
+  if enemy == nil then return nil end
+  return enemy.tanking
+end
 -- Gesendete Chat-Nachrichten landen in wow.sentChat als { message, chatType }
 wow.sentChat = {}
 -- Load-on-Demand-Addons (LevelTimer_Archive): LoadAddOn führt die Dateien der .toc aus und meldet ADDON_LOADED.

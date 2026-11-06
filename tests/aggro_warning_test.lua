@@ -1,4 +1,5 @@
--- Aggro-Hinweis: nur eingeschaltet, nur in einer Gruppe, nicht als Tank; einmal beim Wechsel zu Aggro
+-- Aggro-Hinweis: nur eingeschaltet, in einer Gruppe, im Kampf, nicht als Tank; nur wenn ein Gegner den Spieler
+-- wirklich als Ziel hat und das kurz anhält
 local L = addon.L
 
 local function shown()
@@ -9,55 +10,73 @@ local function shown()
   return count
 end
 
-local function threat(situation)
-  wow.state.threat = situation
-  wow.fire("UNIT_THREAT_SITUATION_UPDATE", "player")
+local me = { name = "Nerzal" }
+
+-- Gegner als Ziel; attacking = hat den Spieler als Ziel
+local function enemy(attacking, tanking)
+  wow.state.units.target = { name = "Hyäne", hostile = true, combat = true, tanking = tanking }
+  wow.state.units.targettarget = attacking and me or { name = "Tank" }
 end
 
-local function endCombat()
-  threat(0)
-  wow.fire("PLAYER_REGEN_ENABLED")
-  wow.advance(10)
+local function tick(seconds)
+  wow.advance(seconds)
+  addon.AggroWarning.Check()
 end
 
 wow.login({ level = 20 })
-wow.state.inGroup = true
+wow.state.units.player = me
+wow.state.inGroup, wow.state.inCombat = true, true
 
-threat(3)
+enemy(true, true)
+tick(2)
 expect("aus: still", shown(), 0)
-endCombat()
 
 addon.Set("warnAggro", true)
-threat(1)
-expect("nur höhere Bedrohung: still", shown(), 0)
-threat(3)
-expect("Aggro: Hinweis", shown(), 1)
+enemy(false, true)
+tick(0.5)
+tick(2)
+expect("Gegner greift anderen an: still", shown(), 0)
+
+enemy(true, true)
+tick(0.5)
+expect("noch nicht bestätigt", shown(), 0)
+tick(1.5)
+expect("Aggro bestätigt: Hinweis", shown(), 1)
 expect("als Karte", LevelTimerNotice.body:GetText(), L.WARN_AGGRO)
-threat(3)
-threat(2)
+tick(1)
 expect("bleibt Aggro: kein zweiter", shown(), 1)
-threat(1)
-threat(3)
-expect("hin und her: nicht sofort wieder", shown(), 1)
-wow.advance(6)
-threat(1)
-threat(2)
+
+enemy(false, true)
+tick(0.5)
+enemy(true, true)
+tick(0.5)
+tick(1.5)
+expect("kurz weg und zurück: Pause", shown(), 1)
+enemy(false, true)
+tick(6)
+enemy(true, true)
+tick(0.5)
+tick(1.5)
 expect("später wieder gezogen", shown(), 2)
-endCombat()
+
+enemy(true, false)
+wow.state.units.targettarget = me
+tick(0.5)
+tick(6)
+expect("Ziel ja, aber nicht getankt: still", shown(), 2)
+
+enemy(true, wow.SECRET)
+wow.state.units.targettarget = me
+tick(6)
+tick(2)
+expect("Bedrohung geheim, Ziel lesbar: zählt", shown(), 3)
 
 wow.state.role = "TANK"
-threat(3)
-expect("Tank: still", shown(), 2)
-endCombat()
+enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
+expect("Tank: still", shown(), 3)
 wow.state.role = nil
 
 wow.state.inGroup = false
-threat(3)
-expect("allein: still", shown(), 2)
-endCombat()
-
-wow.state.inGroup = true
-wow.state.threat = wow.SECRET
-wow.fire("UNIT_THREAT_SITUATION_UPDATE", "player")
-expect("geheim: still", shown(), 2)
+enemy(false, true); tick(6); enemy(true, true); tick(0.5); tick(2)
+expect("allein: still", shown(), 3)
 expect("keine Fehler", #wow.errors, 0)
