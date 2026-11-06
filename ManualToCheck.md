@@ -1752,3 +1752,21 @@ Level-Up-Zeile richtig (ja/nein):
 Gelbes Stück auf dem Balken (ja/nein):
 Fehler:
 ```
+
+### 83. Ruhe-XP der Twinks (Roadmap 271)
+
+- [ ] geprüft
+
+Einen Twink (levelnd) im Gasthaus ausloggen, `/dump GetXPExhaustion(), UnitXPMax("player")` vorher notieren. Mit einem anderen Charakter einloggen, Historie > Vergleich öffnen. Nach einigen Stunden (oder einem Tag) erneut ansehen und den Twink einloggen, wieder `/dump GetXPExhaustion()`.
+
+**Erwartet:** Spalte „Erholt“ zeigt den geschätzten Pool in Prozent des Balkens (+5 % je 8 h im Gasthaus, draußen ein Viertel), höchstens „150% voll“. Beim Login eines anderen Charakters einmal „X ist voll ausgeruht.“, sobald 150 % erreicht sind. Die Schätzung liegt nahe am echten Wert nach dem Einloggen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Pool beim Logout / Schätzung / echter Wert nach Login:
+Stunden offline, Gasthaus ja/nein:
+Meldung "voll ausgeruht" (ja/nein/nicht erreicht):
+Fehler:
+```

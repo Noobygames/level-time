@@ -220,22 +220,25 @@ local ZONE_COLUMNS = {
 }
 
 local COMPARE_COLUMNS = {
-  { header = "HISTORY_CHARACTER_NAME", width = 100, value = function(r) return History.DisplayName(r.key) end },
+  { header = "HISTORY_CHARACTER_NAME", width = 90, value = function(r) return History.DisplayName(r.key) end },
   levelColumn(40),
-  { header = "HISTORY_LEVELS_DONE", width = 56, value = function(r) return r.levelsCompleted end },
-  { header = "HISTORY_AVERAGE_LEVEL_TIME", width = 84, value = function(r)
+  { header = "HISTORY_LEVELS_DONE", width = 50, value = function(r) return r.levelsCompleted end },
+  { header = "HISTORY_AVERAGE_LEVEL_TIME", width = 76, value = function(r)
       return r.averageLevelSeconds and Format.Duration(r.averageLevelSeconds) or "-"
     end, sort = function(r) return r.averageLevelSeconds end },
-  { header = "HISTORY_XP_RATE", width = 56, value = function(r)
+  { header = "HISTORY_XP_RATE", width = 52, value = function(r)
       return r.xpRate and Format.Number(r.xpRate) or "-"
     end, sort = function(r) return r.xpRate end },
   { header = "HISTORY_KILLS", width = 50, value = function(r)
       return counter(r, Stats.PVE_KILLS) + counter(r, Stats.PVP_KILLS)
     end },
-  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
-  goldColumn(56),
+  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 36),
+  goldColumn(50),
   { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
     sort = function(r) return r.coverage end },
+  -- Geschätzter Erholungs-Pool (RestedEstimate.lua), für Twinks seit ihrem Logout hochgerechnet
+  { header = "HISTORY_RESTED", width = 44, value = function(r) return ns.RestedEstimate.Text(r.key) end,
+    sort = function(r) return ns.RestedEstimate.Get(r.key) end },
 }
 
 -- Vergleich: Zeilen in Klassenfarbe

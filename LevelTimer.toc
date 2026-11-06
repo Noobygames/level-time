@@ -63,6 +63,7 @@ Tracking\MoneyCounter.lua
 
 # Historie, Auswertung, Prognose
 History\History.lua
+History\RestedEstimate.lua
 History\Zones.lua
 History\Daily.lua
 History\Instances.lua

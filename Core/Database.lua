@@ -152,6 +152,7 @@ local SETTINGS_DEFAULTS = {
   levelUpSound = true,
   levelUpScale = 1,
   levelUpDuration = 8,
+  restedAltNotice = true,  -- Chatzeile beim Login, wenn ein Twink voll ausgeruht ist (siehe RestedEstimate.lua)
   levelUpGains = true,  -- Zuwachs (Leben, Mana, Werte) in Chat und Level-Up-Karte (siehe LevelGains.lua)
   levelUpAnnounce = "off",  -- Level-Up-Zusammenfassung an "party" oder "guild" (siehe LevelUpSummary.lua)
   showPveKills = true,

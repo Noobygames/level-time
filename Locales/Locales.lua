@@ -881,6 +881,11 @@ ns.locales = {
     QUEST_XP_LEVEL_UP_NO = "Nein (%s fehlen)",
     QUEST_XP_ON_BAR = "Quest-XP auf dem XP-Balken",
     QUEST_XP_ON_BAR_TIP = "Zeigt die XP der abgabebereiten Quests als gelbes Stück hinter dem Fortschritt auf dem XP-Balken.",
+    HISTORY_RESTED = "Erholt",
+    RESTED_FULL_SHORT = "%s voll",
+    RESTED_ALT_FULL = "%s ist voll ausgeruht.",
+    RESTED_ALT_NOTICE_TOGGLE = "Ausgeruhte Twinks melden",
+    RESTED_ALT_NOTICE_TOGGLE_TIP = "Beim Login eine Chatzeile für jeden Twink, der seit seinem Logout voll ausgeruht ist (geschätzt: 5 % des Balkens je 8 h im Gasthaus, draußen ein Viertel, höchstens 150 %). Die Schätzung steht auch in der Historie unter Vergleich.",
   },
   enUS = {
     -- General and commands
@@ -1755,6 +1760,11 @@ ns.locales = {
     QUEST_XP_LEVEL_UP_NO = "No (%s short)",
     QUEST_XP_ON_BAR = "Quest XP on the XP bar",
     QUEST_XP_ON_BAR_TIP = "Shows the XP of quests ready to turn in as a yellow part after your progress on the XP bar.",
+    HISTORY_RESTED = "Rested",
+    RESTED_FULL_SHORT = "%s full",
+    RESTED_ALT_FULL = "%s is fully rested.",
+    RESTED_ALT_NOTICE_TOGGLE = "Report rested alts",
+    RESTED_ALT_NOTICE_TOGGLE_TIP = "At login, a chat line for every alt that has become fully rested since its logout (estimated: 5% of the bar per 8 h in an inn, a quarter outside, at most 150%). The estimate is also shown in the history under Compare.",
   },
   frFR = {
     -- Général et commandes
@@ -2629,6 +2639,11 @@ ns.locales = {
     QUEST_XP_LEVEL_UP_NO = "Non (%s manquants)",
     QUEST_XP_ON_BAR = "PX des quêtes sur la barre",
     QUEST_XP_ON_BAR_TIP = "Affiche les PX des quêtes prêtes à rendre en jaune après votre progression sur la barre d'expérience.",
+    HISTORY_RESTED = "Reposé",
+    RESTED_FULL_SHORT = "%s plein",
+    RESTED_ALT_FULL = "%s est entièrement reposé.",
+    RESTED_ALT_NOTICE_TOGGLE = "Signaler les persos reposés",
+    RESTED_ALT_NOTICE_TOGGLE_TIP = "À la connexion, une ligne de discussion pour chaque personnage entièrement reposé depuis sa déconnexion (estimation : 5 % de la barre par 8 h à l'auberge, un quart dehors, 150 % au plus). L'estimation figure aussi dans l'historique sous Comparer.",
   },
   esES = {
     -- General y comandos
@@ -3503,6 +3518,11 @@ ns.locales = {
     QUEST_XP_LEVEL_UP_NO = "No (faltan %s)",
     QUEST_XP_ON_BAR = "PX de misiones en la barra",
     QUEST_XP_ON_BAR_TIP = "Muestra los PX de las misiones listas para entregar como una parte amarilla tras tu progreso en la barra de PX.",
+    HISTORY_RESTED = "Descanso",
+    RESTED_FULL_SHORT = "%s lleno",
+    RESTED_ALT_FULL = "%s ha descansado por completo.",
+    RESTED_ALT_NOTICE_TOGGLE = "Avisar de alters descansados",
+    RESTED_ALT_NOTICE_TOGGLE_TIP = "Al conectar, una línea de chat por cada alter que haya descansado por completo desde su desconexión (estimado: 5 % de la barra cada 8 h en una posada, un cuarto fuera, como máximo 150 %). La estimación también aparece en el historial en Comparar.",
   },
 }
 
