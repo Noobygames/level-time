@@ -90,9 +90,9 @@ expect("Login-Zeile", hasLine('"reason":"login"'), true)
 SlashCmdList.LEVELTIMER("debug log status")
 expect("Status", lastPrint():find(string.format(L.DEBUG_LOG_STATUS, L.DEBUG_LOG_STATE_ON, DebugLog.LineCount(),
   DebugLog.MAX_LINES), 1, true) ~= nil, true)
-for i = 1, DebugLog.MAX_LINES + 400 do addon.Debug("fill", "%s", i) end
-expect("gekürzt", DebugLog.LineCount() <= DebugLog.MAX_LINES + 300, true)
-expect("neueste bleibt", hasLine('"msg":"' .. (DebugLog.MAX_LINES + 400) .. '"'), true)
+for i = 1, DebugLog.MAX_LINES + 1100 do addon.Debug("fill", "%s", i) end
+expect("gekürzt", DebugLog.LineCount() <= DebugLog.MAX_LINES + 1000, true)
+expect("neueste bleibt", hasLine('"msg":"' .. (DebugLog.MAX_LINES + 1100) .. '"'), true)
 SlashCmdList.LEVELTIMER("debug log clear")
 expect("geleert", DebugLog.LineCount(), 0)
 

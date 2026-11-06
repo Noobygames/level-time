@@ -16,8 +16,8 @@ local Client = ns.Client
 local DebugLog = {}
 ns.DebugLog = DebugLog
 
-DebugLog.MAX_LINES = 4000
-local TRIM_SLACK = 300         -- erst ab MAX_LINES + TRIM_SLACK kürzen, dann auf MAX_LINES (nicht bei jeder Zeile)
+DebugLog.MAX_LINES = 25000  -- rund 7 MB, reicht für einen Spielabend (4000 waren nach gut einer Stunde voll)
+local TRIM_SLACK = 1000        -- erst ab MAX_LINES + TRIM_SLACK kürzen, dann auf MAX_LINES (nicht bei jeder Zeile)
 local PENDING_MAX = 200        -- Zeilen vor dem Login
 local MAX_STRING_LENGTH = 300  -- lange Texte (Chatzeilen, Aufrufstapel) werden gekürzt
 local MAX_TABLE_DEPTH = 7      -- Eintrag > result > Liste > Struktur > Felder; tiefer wird nicht ausgeschrieben
