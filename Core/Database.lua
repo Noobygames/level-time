@@ -404,6 +404,13 @@ local OPTIONAL_SETTINGS = {
     end
     return true
   end,
+  movedFrameScales = function(value)  -- gemerkte Fenstergrößen (MoveFrames.lua), Name -> Faktor
+    if type(value) ~= "table" then return false end
+    for name, scale in pairs(value) do
+      if type(name) ~= "string" or not isFiniteNumber(scale) or scale <= 0 then value[name] = nil end
+    end
+    return true
+  end,
   splitReference = function(value)  -- fester Vergleichslauf (Splits.lua)
     return type(value) == "table" and type(value.name) == "string" and isLevelTimes(value.times)
   end,

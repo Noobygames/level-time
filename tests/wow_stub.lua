@@ -587,6 +587,7 @@ function UnitStat(_, index)
 end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
+function IsControlKeyDown() return state.controlDown == true end
 function IsModifiedClick() return state.modifiedClick == true end
 -- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
 function GetCVar(name) return (state.cvars or {})[name] end

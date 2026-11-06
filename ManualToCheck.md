@@ -1655,3 +1655,22 @@ Tracker (Classic) (ja/nein/nicht getestet):
 Lange Titel umbrechen/überlappen (ja/nein):
 Fehler:
 ```
+
+### 78. Verschobene Fenster skalieren (Roadmap 266)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Fenster „Fenster verschieben“ an. Charakterfenster, Zauberbuch und Händler öffnen, mit gehaltener Strg-Taste das Mausrad über dem Fenster drehen, dann Strg+Rechtsklick. Fenster schließen und neu öffnen, einmal `/reload`. In einem Fenster mit Liste (Questlog, Händler) ohne Strg scrollen. Im Kampf versuchen.
+
+**Erwartet:** Strg+Mausrad macht das Fenster größer/kleiner (50–200 %), Strg+Rechtsklick wieder 100 %. Größe bleibt nach Schließen und /reload. Listen scrollen ohne Strg wie immer. Kein „Aktion blockiert“ im Kampf. „Fensterpositionen zurücksetzen“ setzt die Größe sofort zurück.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Skalieren und Zurücksetzen (ja/nein):
+Gemerkt nach /reload (ja/nein):
+Listen scrollen weiter (ja/nein):
+Im Kampf keine Fehler (ja/nein):
+Fehler:
+```
