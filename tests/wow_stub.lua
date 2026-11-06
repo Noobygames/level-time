@@ -656,7 +656,14 @@ C_QuestLog = {
 function GetNumQuestLogEntries() return #(state.questLog or {}) end
 function GetQuestLogTitle(index)
   local quest = state.questLog[index]
-  return quest.title, quest.level or 1, quest.suggestedGroup or 0, quest.isHeader or false, false, false, 0, quest.questID
+  return quest.title, quest.level or 1, quest.suggestedGroup or 0, quest.isHeader or false, false, quest.isComplete, 0, quest.questID
+end
+-- Belohnungs-XP je Quest-ID: questLog[i].rewardXp
+function GetQuestLogRewardXP(questID)
+  for _, quest in ipairs(state.questLog or {}) do
+    if quest.questID == questID then return quest.rewardXp or 0, quest.rewardXp or 0 end
+  end
+  return 0, 0
 end
 -- Quest-Item je Logeintrag: questLog[i].specialItem = { link, Symbol }
 function GetQuestLogSpecialItemInfo(index)

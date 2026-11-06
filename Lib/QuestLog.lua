@@ -1,7 +1,10 @@
 -- Questlog lesen, gleich in allen Clients (Blizzard_APIDocumentationGenerated je Client, warcraft.wiki.gg):
 --   Retail/Forever  C_QuestLog.GetNumQuestLogEntries + C_QuestLog.GetInfo(i) (questID, title, isHeader, level,
 --                   suggestedGroup)
---   Classic Era/TBC GetNumQuestLogEntries + GetQuestLogTitle(i): title, level, suggestedGroup, isHeader, ..., 8. questID
+--   Classic Era/TBC GetNumQuestLogEntries + GetQuestLogTitle(i): title, level, suggestedGroup, isHeader, isCollapsed,
+--                   isComplete (1 = fertig, -1 = gescheitert, sonst nil), frequency, questID
+-- Abgabebereit: C_QuestLog.ReadyForTurnIn(questID) (Retail/Forever), sonst isComplete == 1 (Era/TBC).
+-- Belohnungs-XP: GetQuestLogRewardXP(questID) in allen Clients (warcraft.wiki.gg: vanilla 1.14.4, tbc 2.5.5, Forever).
 -- Unter eingeklappten Überschriften sieht Classic die Quests nicht. Geheime Werte werden zu nil.
 local _, ns = ...
 
@@ -29,22 +32,39 @@ local function isGroup(suggested)
   return type(suggested) == "string" and suggested ~= ""
 end
 
--- Eintrag i als { index, questID, title, level, group }; nil für Überschriften und Unlesbares
+local COMPLETE = 1  -- isComplete von GetQuestLogTitle für eine fertige Quest
+
+local function isReady(questID, isComplete)
+  if C_QuestLog and C_QuestLog.ReadyForTurnIn then
+    return type(questID) == "number" and readable(C_QuestLog.ReadyForTurnIn(questID)) == true
+  end
+  return readable(isComplete) == COMPLETE
+end
+
+-- Eintrag i als { index, questID, title, level, group, ready }; nil für Überschriften und Unlesbares
 function QuestLog.Entry(index)
-  local questID, title, level, suggested, isHeader
+  local questID, title, level, suggested, isHeader, isComplete
   if useInfoApi() then
     local info = C_QuestLog.GetInfo(index)
     if type(info) ~= "table" then return nil end
     questID, title, level, suggested, isHeader = info.questID, info.title, info.level, info.suggestedGroup, info.isHeader
   elseif GetQuestLogTitle then
     local _
-    title, level, suggested, isHeader, _, _, _, questID = GetQuestLogTitle(index)
+    title, level, suggested, isHeader, _, isComplete, _, questID = GetQuestLogTitle(index)
   else
     return nil
   end
   if readable(isHeader) then return nil end
-  return { index = index, questID = readable(questID), title = readable(title), level = readable(level),
-    group = isGroup(suggested) }
+  questID = readable(questID)
+  return { index = index, questID = questID, title = readable(title), level = readable(level),
+    group = isGroup(suggested), ready = isReady(questID, isComplete) }
+end
+
+-- XP, die die Abgabe der Quest bringt; nil, wenn der Client sie nicht nennt
+function QuestLog.RewardXp(questID)
+  if not GetQuestLogRewardXP or type(questID) ~= "number" then return nil end
+  local xp = readable((GetQuestLogRewardXP(questID)))
+  return type(xp) == "number" and xp or nil
 end
 
 -- Alle Quests im Log (ohne Überschriften) mit Quest-ID

@@ -872,6 +872,15 @@ ns.locales = {
     MAP_COORDS_TOGGLE_TIP = "Zeigt unten auf der Weltkarte deine Position und die des Mauszeigers in Koordinaten der angezeigten Karte. In Instanzen gibt es keine Position.",
     MAP_COORDS = "Spieler: %s   Maus: %s",
     MAP_COORDS_NONE = "–",
+    STAT_QUEST_LOG_XP = "Quest-XP im Questlog",
+    STAT_QUEST_LOG_XP_TIP = "XP aller Quests im Questlog: abgabebereit, noch offen und ob die Abgabe der fertigen Quests für das Level-Up reicht.",
+    ROW_QUEST_XP_READY = "Quest-XP fertig",
+    ROW_QUEST_XP_OPEN = "Quest-XP offen",
+    ROW_QUEST_XP_LEVEL_UP = "Abgabe für Level-Up",
+    QUEST_XP_LEVEL_UP_YES = "Ja (+%s)",
+    QUEST_XP_LEVEL_UP_NO = "Nein (%s fehlen)",
+    QUEST_XP_ON_BAR = "Quest-XP auf dem XP-Balken",
+    QUEST_XP_ON_BAR_TIP = "Zeigt die XP der abgabebereiten Quests als gelbes Stück hinter dem Fortschritt auf dem XP-Balken.",
   },
   enUS = {
     -- General and commands
@@ -1737,6 +1746,15 @@ ns.locales = {
     MAP_COORDS_TOGGLE_TIP = "Shows your position and the mouse cursor's at the bottom of the world map, in coordinates of the map shown. There is no position inside instances.",
     MAP_COORDS = "Player: %s   Cursor: %s",
     MAP_COORDS_NONE = "–",
+    STAT_QUEST_LOG_XP = "Quest XP in quest log",
+    STAT_QUEST_LOG_XP_TIP = "XP of all quests in your quest log: ready to turn in, still open, and whether turning in the finished ones is enough to level up.",
+    ROW_QUEST_XP_READY = "Quest XP ready",
+    ROW_QUEST_XP_OPEN = "Quest XP open",
+    ROW_QUEST_XP_LEVEL_UP = "Turn-in levels up",
+    QUEST_XP_LEVEL_UP_YES = "Yes (+%s)",
+    QUEST_XP_LEVEL_UP_NO = "No (%s short)",
+    QUEST_XP_ON_BAR = "Quest XP on the XP bar",
+    QUEST_XP_ON_BAR_TIP = "Shows the XP of quests ready to turn in as a yellow part after your progress on the XP bar.",
   },
   frFR = {
     -- Général et commandes
@@ -2602,6 +2620,15 @@ ns.locales = {
     MAP_COORDS_TOGGLE_TIP = "Affiche en bas de la carte du monde votre position et celle du curseur, en coordonnées de la carte affichée. Aucune position dans les instances.",
     MAP_COORDS = "Joueur : %s   Curseur : %s",
     MAP_COORDS_NONE = "–",
+    STAT_QUEST_LOG_XP = "PX des quêtes du journal",
+    STAT_QUEST_LOG_XP_TIP = "PX de toutes les quêtes du journal : prêtes à rendre, en cours, et si rendre les quêtes terminées suffit pour monter de niveau.",
+    ROW_QUEST_XP_READY = "PX quêtes prêtes",
+    ROW_QUEST_XP_OPEN = "PX quêtes en cours",
+    ROW_QUEST_XP_LEVEL_UP = "Rendre = niveau",
+    QUEST_XP_LEVEL_UP_YES = "Oui (+%s)",
+    QUEST_XP_LEVEL_UP_NO = "Non (%s manquants)",
+    QUEST_XP_ON_BAR = "PX des quêtes sur la barre",
+    QUEST_XP_ON_BAR_TIP = "Affiche les PX des quêtes prêtes à rendre en jaune après votre progression sur la barre d'expérience.",
   },
   esES = {
     -- General y comandos
@@ -3467,6 +3494,15 @@ ns.locales = {
     MAP_COORDS_TOGGLE_TIP = "Muestra abajo en el mapa del mundo tu posición y la del cursor, en coordenadas del mapa mostrado. No hay posición dentro de las instancias.",
     MAP_COORDS = "Jugador: %s   Cursor: %s",
     MAP_COORDS_NONE = "–",
+    STAT_QUEST_LOG_XP = "PX de misiones del registro",
+    STAT_QUEST_LOG_XP_TIP = "PX de todas las misiones del registro: listas para entregar, abiertas y si entregar las terminadas basta para subir de nivel.",
+    ROW_QUEST_XP_READY = "PX misiones listas",
+    ROW_QUEST_XP_OPEN = "PX misiones abiertas",
+    ROW_QUEST_XP_LEVEL_UP = "Entregar = nivel",
+    QUEST_XP_LEVEL_UP_YES = "Sí (+%s)",
+    QUEST_XP_LEVEL_UP_NO = "No (faltan %s)",
+    QUEST_XP_ON_BAR = "PX de misiones en la barra",
+    QUEST_XP_ON_BAR_TIP = "Muestra los PX de las misiones listas para entregar como una parte amarilla tras tu progreso en la barra de PX.",
   },
 }
 

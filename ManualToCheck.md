@@ -1733,3 +1733,22 @@ Text gut lesbar/Lage ok (ja/nein):
 Fehler/Taint (ja/nein):
 Fehler:
 ```
+
+### 82. Quest-XP im Questlog (Roadmap 270)
+
+- [ ] geprüft
+
+Statistiken > Erfahrung „Quest-XP im Questlog“ an, Allgemein > Fenster „Quest-XP auf dem XP-Balken“ an. Mehrere Quests annehmen, eine davon fertig machen (nicht abgeben), eine Überschrift im Questlog einklappen. Danach `/dump GetQuestLogRewardXP(<questID>)` für eine Quest aus dem Log.
+
+**Erwartet:** „Quest-XP fertig“ = Summe der fertigen Quests, „Quest-XP offen“ = Rest; „Abgabe für Level-Up“ zeigt „Ja (+…)“ grün, sobald die fertigen Quests reichen. Auf dem XP-Balken ein gelbes Stück hinter dem Fortschritt. Nach dem Abgeben sinkt die Summe. In Era/TBC: unter eingeklappten Überschriften fehlen Quests (bekannt).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+/dump GetQuestLogRewardXP(questID) liefert XP (ja/nein, Wert):
+Summen fertig/offen stimmen (ja/nein):
+Level-Up-Zeile richtig (ja/nein):
+Gelbes Stück auf dem Balken (ja/nein):
+Fehler:
+```

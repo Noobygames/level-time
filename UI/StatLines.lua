@@ -40,6 +40,26 @@ local function countToLevel(xpCounter, countCounter)
   end
 end
 
+-- Questlog-XP (QuestLogXp.lua): fertige und offene Quests, und ob die Abgabe für das Level-Up reicht
+local LEVEL_UP_COLOR = "|cff40ff40"
+
+local function questLogXp(index)
+  return function()
+    if not Experience.IsLeveling() then return NO_VALUE end
+    local values = { ns.QuestLogXp.Get() }
+    return Format.Number(values[index])
+  end
+end
+
+local function questTurnInLevelUp()
+  if not Experience.IsLeveling() then return NO_VALUE end
+  local missing = ns.QuestLogXp.MissingAfterTurnIn()
+  if missing <= 0 then
+    return LEVEL_UP_COLOR .. string.format(ns.L.QUEST_XP_LEVEL_UP_YES, Format.Number(-missing)) .. "|r"
+  end
+  return string.format(ns.L.QUEST_XP_LEVEL_UP_NO, Format.Number(missing))
+end
+
 local function timeToLevel(scope)
   if not Experience.IsLeveling() then return NO_VALUE end
   local seconds = Experience.GetSecondsToLevel(scope)
@@ -168,6 +188,11 @@ ns.STAT_LINES = {
     rows = { { label = "ROW_KILLS_TO_LEVEL", value = countToLevel(Stats.XP_KILLS, Stats.PVE_KILLS) } } },
   { setting = "showQuestsToLevel", group = "STAT_GROUP_XP", label = "STAT_QUESTS_TO_LEVEL",
     rows = { { label = "ROW_QUESTS_TO_LEVEL", value = countToLevel(Stats.XP_QUESTS, Stats.QUESTS) } } },
+  { setting = "showQuestLogXp", group = "STAT_GROUP_XP", label = "STAT_QUEST_LOG_XP", rows = {
+    { label = "ROW_QUEST_XP_READY", value = questLogXp(1) },
+    { label = "ROW_QUEST_XP_OPEN", value = questLogXp(2) },
+    { label = "ROW_QUEST_XP_LEVEL_UP", value = questTurnInLevelUp },
+  } },
   { setting = "showMaxLevelEta", group = "STAT_GROUP_XP", label = "STAT_MAX_LEVEL_ETA",
     rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
