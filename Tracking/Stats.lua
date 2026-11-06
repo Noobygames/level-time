@@ -42,6 +42,15 @@ Stats.SPENT_MERCHANT = "spentMerchant"
 Stats.SPENT_TAXI = "spentTaxi"
 Stats.SPENT_TRAINER = "spentTrainer"
 Stats.SPENT_OTHER = "spentOther"
+Stats.INCOME_LOOT = "incomeLoot"          -- Einnahmen nach Art (MoneyCounter.lua), zusammen = MONEY_EARNED
+Stats.INCOME_QUEST = "incomeQuest"
+Stats.INCOME_MERCHANT = "incomeMerchant"
+Stats.INCOME_MAIL = "incomeMail"
+Stats.INCOME_AUCTION = "incomeAuction"
+Stats.INCOME_TRADE = "incomeTrade"
+Stats.INCOME_OTHER = "incomeOther"
+-- Alle Ausgaben-Zähler (Summe = Ausgaben gesamt)
+Stats.SPENDING = { Stats.SPENT_REPAIR, Stats.SPENT_MERCHANT, Stats.SPENT_TAXI, Stats.SPENT_TRAINER, Stats.SPENT_OTHER }
 
 local NO_COUNTERS = {}  -- Instanz-Bereich ohne laufenden Lauf (nie beschrieben)
 

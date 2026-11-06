@@ -161,6 +161,12 @@ end
 
 local income = money(Stats.MONEY_EARNED)
 
+-- Gold je Stunde im Bereich (Einnahmen, Spielzeit wie bei XP/h ohne AFK/Leerlauf, wenn eingestellt)
+local function goldPerHour(scope)
+  local rate = ns.Money.PerHour(Stats.Get(scope, Stats.MONEY_EARNED), Experience.ScopeRateSeconds(scope))
+  return rate and Format.Money(rate) or NO_VALUE
+end
+
 -- Unabhängig vom Bereich: Instanzlimit "3/5, nächste in 14m" (siehe InstanceLimit.lua)
 local function instanceLimit()
   local InstanceLimit = ns.InstanceLimit
@@ -260,6 +266,16 @@ ns.STAT_LINES = {
     { label = "ROW_SPENT_TRAINER", value = money(Stats.SPENT_TRAINER) },
     { label = "ROW_SPENT_OTHER", value = money(Stats.SPENT_OTHER) },
     { label = "ROW_JUNK_INCOME", value = money(Stats.MONEY_JUNK) },
+  } },
+  { setting = "showIncome", group = "STAT_GROUP_TIME_MONEY", label = "STAT_INCOME", rows = {
+    { label = "ROW_INCOME_LOOT", value = money(Stats.INCOME_LOOT) },
+    { label = "ROW_INCOME_QUEST", value = money(Stats.INCOME_QUEST) },
+    { label = "ROW_INCOME_MERCHANT", value = money(Stats.INCOME_MERCHANT) },
+    { label = "ROW_INCOME_MAIL", value = money(Stats.INCOME_MAIL) },
+    { label = "ROW_INCOME_AUCTION", value = money(Stats.INCOME_AUCTION) },
+    { label = "ROW_INCOME_TRADE", value = money(Stats.INCOME_TRADE) },
+    { label = "ROW_INCOME_OTHER", value = money(Stats.INCOME_OTHER) },
+    { label = "ROW_GOLD_PER_HOUR", value = goldPerHour },
   } },
 }
 

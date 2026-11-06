@@ -1,27 +1,46 @@
--- Geld: Einnahmen (Beute, Quests, Verkäufe, Post) und Ausgaben nach Art.
--- Ausgaben werden über das gerade offene Fenster zugeordnet: Händler, Flugmeister, Lehrer
--- (MERCHANT_*, TAXIMAP_*, TRAINER_*); eine Reparatur erkennt der Hook auf RepairAllItems (unser
--- Merchant.lua und Blizzards Button). Kommt binnen REPAIR_GRACE Sekunden keine Abbuchung (z.B. zu
--- wenig Gold), verfällt die Merke, damit spätere Ausgaben nicht als Reparatur zählen.
--- Der Flug wird erst nach dem Schließen der Karte bezahlt, daher gilt die Art noch CLOSE_GRACE
--- Sekunden nach dem Schließen. Alles andere (Post, Auktionshaus, Gilde, ...) zählt als Sonstiges. Einnahmen werden nicht mit Ausgaben verrechnet.
+-- Geld: Einnahmen und Ausgaben nach Art (Roadmap 276 für die Einnahmen).
+-- Beide werden über das gerade offene Fenster zugeordnet (WINDOWS: Händler, Flugmeister, Lehrer, Beute, Quest-Abgabe,
+-- Post, Auktionshaus, Handel); eine Reparatur erkennt der Hook auf RepairAllItems (unser Merchant.lua und Blizzards
+-- Button). Kommt binnen REPAIR_GRACE Sekunden keine Abbuchung (z.B. zu wenig Gold), verfällt die Merke, damit spätere
+-- Ausgaben nicht als Reparatur zählen. Der Flug wird erst nach dem Schließen der Karte bezahlt, daher gilt die Art
+-- noch CLOSE_GRACE Sekunden nach dem Schließen; ebenso kommt Quest-Gold nach QUEST_TURNED_IN.
+-- Geteilte Beute in der Gruppe (und jedes gelootete Gold) meldet CHAT_MSG_MONEY, vor oder nach PLAYER_MONEY; eine
+-- Einnahme ohne Fenster wird daher erst nach MONEY_MESSAGE_WAIT eingeordnet (Beute, wenn die Meldung in der Nähe lag,
+-- sonst Sonstiges). Erlöse aus dem Auktionshaus kommen per Post und zählen als Post.
+-- MONEY_EARNED bleibt die Summe aller Einnahmen. Einnahmen werden nicht mit Ausgaben verrechnet.
+-- Außerdem: character.money = aktuelles Gold (Login, jede Änderung), für "Gold aller Charaktere" (History/Money.lua).
 local _, ns = ...
 local Stats = ns.Stats
 
-local CLOSE_GRACE = 2   -- Sekunden, die eine Art nach dem Schließen ihres Fensters noch gilt
-local REPAIR_GRACE = 3  -- Sekunden, in denen die Abbuchung einer Reparatur erwartet wird
+local CLOSE_GRACE = 2          -- Sekunden, die eine Art nach dem Schließen ihres Fensters noch gilt
+local REPAIR_GRACE = 3         -- Sekunden, in denen die Abbuchung einer Reparatur erwartet wird
+local MONEY_MESSAGE_WAIT = 1   -- Sekunden Abstand zwischen CHAT_MSG_MONEY und der Einnahme, die als Beute gelten
+
+-- Fenster: Ereignisse zum Öffnen/Schließen, Zähler für Ausgaben und Einnahmen darin (nil = Sonstiges)
+local WINDOWS = {
+  { open = "MERCHANT_SHOW", close = "MERCHANT_CLOSED", spent = Stats.SPENT_MERCHANT, income = Stats.INCOME_MERCHANT },
+  { open = "TAXIMAP_OPENED", close = "TAXIMAP_CLOSED", spent = Stats.SPENT_TAXI },
+  { open = "TRAINER_SHOW", close = "TRAINER_CLOSED", spent = Stats.SPENT_TRAINER },
+  { open = "LOOT_OPENED", close = "LOOT_CLOSED", income = Stats.INCOME_LOOT },
+  { open = "QUEST_COMPLETE", close = "QUEST_FINISHED", income = Stats.INCOME_QUEST },
+  { open = "MAIL_SHOW", close = "MAIL_CLOSED", income = Stats.INCOME_MAIL },
+  { open = "AUCTION_HOUSE_SHOW", close = "AUCTION_HOUSE_CLOSED", income = Stats.INCOME_AUCTION },
+  { open = "TRADE_SHOW", close = "TRADE_CLOSED", income = Stats.INCOME_TRADE },
+}
+local QUEST_WINDOW = WINDOWS[5]
 
 local lastMoney
-local context        -- Zähler der Ausgaben-Art des offenen Fensters
+local context        -- Eintrag aus WINDOWS des offenen Fensters
 local contextUntil   -- GetTime(), bis zu der context nach dem Schließen gilt; nil = offen
 local repairUntil    -- GetTime(), bis zu der eine Abbuchung als Reparatur gilt; nil = keine erwartet
+local lastMoneyMessageAt  -- GetTime() der letzten CHAT_MSG_MONEY
 
-local function openContext(counter)
-  context, contextUntil = counter, nil
+local function openContext(window)
+  context, contextUntil = window, nil
 end
 
-local function closeContext(counter)
-  if context == counter then contextUntil = GetTime() + CLOSE_GRACE end
+local function closeContext(window)
+  if context == window then contextUntil = GetTime() + CLOSE_GRACE end
 end
 
 local function currentContext()
@@ -35,22 +54,46 @@ local function spendingKind()
     return Stats.SPENT_REPAIR
   end
   repairUntil = nil
-  return currentContext() or Stats.SPENT_OTHER
+  local window = currentContext()
+  return window and window.spent or Stats.SPENT_OTHER
+end
+
+local function nearMoneyMessage(at)
+  return lastMoneyMessageAt ~= nil and math.abs(lastMoneyMessageAt - at) <= MONEY_MESSAGE_WAIT
+end
+
+local function bookIncome(amount)
+  Stats.Increment(Stats.MONEY_EARNED, amount)
+  local window = currentContext()
+  if window and window.income then
+    Stats.Increment(window.income, amount)
+    return
+  end
+  local at = GetTime()
+  if nearMoneyMessage(at) then
+    Stats.Increment(Stats.INCOME_LOOT, amount)
+    return
+  end
+  C_Timer.After(MONEY_MESSAGE_WAIT, function()
+    Stats.Increment(nearMoneyMessage(at) and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
+  end)
 end
 
 ns.OnLogin(function()
   lastMoney = GetMoney()
-  context, contextUntil, repairUntil = nil, nil, nil
+  ns.character.money = lastMoney
+  context, contextUntil, repairUntil, lastMoneyMessageAt = nil, nil, nil, nil
 end)
 
 ns.RegisterEvent("PLAYER_MONEY", function()
   local current = GetMoney()
   if lastMoney and current > lastMoney then
-    Stats.Increment(Stats.MONEY_EARNED, current - lastMoney)
+    bookIncome(current - lastMoney)
   elseif lastMoney and current < lastMoney then
     Stats.Increment(spendingKind(), lastMoney - current)
   end
   lastMoney = current
+  ns.character.money = current
 end)
 
 -- Gildenbank-Reparaturen kosten den Charakter nichts
@@ -58,11 +101,16 @@ hooksecurefunc("RepairAllItems", function(useGuildBank)
   if not useGuildBank then repairUntil = GetTime() + REPAIR_GRACE end
 end)
 
-for counter, events in pairs({
-  [Stats.SPENT_MERCHANT] = { "MERCHANT_SHOW", "MERCHANT_CLOSED" },
-  [Stats.SPENT_TAXI] = { "TAXIMAP_OPENED", "TAXIMAP_CLOSED" },
-  [Stats.SPENT_TRAINER] = { "TRAINER_SHOW", "TRAINER_CLOSED" },
-}) do
-  ns.RegisterEvent(events[1], function() openContext(counter) end)
-  ns.RegisterEvent(events[2], function() closeContext(counter) end)
+for _, window in ipairs(WINDOWS) do
+  ns.RegisterEvent(window.open, function() openContext(window) end)
+  ns.RegisterEvent(window.close, function() closeContext(window) end)
 end
+
+-- Quest-Gold kommt mit der Abgabe, auch ohne offenes Belohnungsfenster (automatische Abgaben)
+ns.RegisterEvent("QUEST_TURNED_IN", function()
+  context, contextUntil = QUEST_WINDOW, GetTime() + CLOSE_GRACE
+end)
+
+ns.RegisterEvent("CHAT_MSG_MONEY", function()
+  lastMoneyMessageAt = GetTime()
+end)

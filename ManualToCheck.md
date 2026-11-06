@@ -1877,3 +1877,21 @@ Gelernter Wert nach dem Kill stimmt (ja/nein):
 Farbe passt (ja/nein):
 Fehler:
 ```
+
+### 90. Einnahmen nach Art und Zeitraum (Roadmap 276)
+
+- [ ] geprüft
+
+Statistiken „Einnahmen nach Art“ an. Gold looten (allein und in einer Gruppe, geteilte Beute), eine Quest mit Gold abgeben, etwas beim Händler verkaufen, Gold aus der Post nehmen (auch einen Auktionserlös), einen Handel mit Gold abschließen. Danach Historie > „Geld“ öffnen.
+
+**Erwartet:** Jede Einnahme landet in ihrer Zeile (Auktionserlöse unter Post), nichts doppelt; die Summe stimmt mit „Gold“ überein. Gold/h erscheint nach einer Minute. In „Geld“ stehen Heute, Diese Woche, Dieser Monat und Gesamt mit Ein, Aus, Saldo und Gold/h, unten „Gold aller Charaktere“ (Twinks nach ihrem nächsten Login).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Falsch eingeordnete Einnahmen (welche, wo gelandet):
+Geteilte Beute als Beute (ja/nein):
+Tabelle Geld stimmt (ja/nein):
+Fehler:
+```

@@ -1,4 +1,5 @@
--- Tageswerte pro Charakter: ns.character.dailyStats["JJJJ-MM-TT"] = { seconds, kills, deaths, xp }.
+-- Tageswerte pro Charakter: ns.character.dailyStats["JJJJ-MM-TT"] = { seconds, kills, deaths, xp, moneyIn, moneyOut }.
+-- moneyIn/moneyOut (Kupfer, Einnahmen/Ausgaben) gibt es erst seit Roadmap 276; ältere Tage haben 0.
 -- Spielzeit wird beim Lesen und beim Logout verbucht und dabei an Mitternacht aufgeteilt.
 local _, ns = ...
 
@@ -26,7 +27,7 @@ end
 
 -- Felder eines Tageseintrags. Kills, Tode und XP zählen hier dauerhaft mit, auch wenn
 -- das Journal alte Einzeleinträge wegen seines Limits verwirft (Langzeit-Graphen).
-local DAILY_FIELDS = { seconds = 0, kills = 0, deaths = 0, xp = 0 }
+local DAILY_FIELDS = { seconds = 0, kills = 0, deaths = 0, xp = 0, moneyIn = 0, moneyOut = 0 }
 
 -- Tageseintrag holen oder anlegen (fehlende Felder werden ergänzt)
 function Daily.Entry(dailyStats, timestamp)
@@ -68,7 +69,9 @@ local DAILY_COUNTERS = {
   [ns.Stats.PVP_KILLS] = "kills",
   [ns.Stats.DEATHS] = "deaths",
   [ns.Stats.XP_GAINED] = "xp",
+  [ns.Stats.MONEY_EARNED] = "moneyIn",
 }
+for _, counter in ipairs(ns.Stats.SPENDING) do DAILY_COUNTERS[counter] = "moneyOut" end
 
 ns.Stats.OnIncrement(function(counter, amount)
   local field = DAILY_COUNTERS[counter]

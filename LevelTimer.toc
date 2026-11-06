@@ -68,6 +68,7 @@ History\History.lua
 History\RestedEstimate.lua
 History\Zones.lua
 History\Daily.lua
+History\Money.lua
 History\Instances.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua

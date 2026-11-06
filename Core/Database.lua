@@ -179,6 +179,7 @@ local SETTINGS_DEFAULTS = {
   showQuests = false,
   showMoney = false,
   showSpending = false,  -- Ausgaben nach Art und Schrott-Erlös (siehe MoneyCounter.lua)
+  showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
   minimap = { hide = false, angle = 225 },
 }
 
@@ -213,6 +214,13 @@ local COUNTER_DEFAULTS = {
   spentTaxi = 0,
   spentTrainer = 0,
   spentOther = 0,
+  incomeLoot = 0,
+  incomeQuest = 0,
+  incomeMerchant = 0,
+  incomeMail = 0,
+  incomeAuction = 0,
+  incomeTrade = 0,
+  incomeOther = 0,
 }
 
 local CHARACTER_DEFAULTS = {

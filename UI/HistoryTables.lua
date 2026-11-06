@@ -263,6 +263,36 @@ local COMPARE_COLUMNS = {
     sort = function(r) return ns.RestedEstimate.Get(r.key) end },
 }
 
+-- Geld nach Zeitraum (Money.lua): Einnahmen, Ausgaben, Saldo, Gold/h
+local function signedGold(copper)
+  return (copper >= 0 and "+" or "-") .. Format.Gold(math.abs(copper))
+end
+
+local MONEY_COLUMNS = {
+  { header = "HISTORY_PERIOD", width = 140, align = LEFT, value = function(r) return L["MONEY_PERIOD_" .. r.period:upper()] end,
+    sort = function(r) return r.seconds end },
+  { header = "HISTORY_INCOME", width = 80, value = function(r) return Format.Gold(r.moneyIn) end,
+    sort = function(r) return r.moneyIn end },
+  { header = "HISTORY_SPENDING", width = 80, value = function(r) return Format.Gold(r.moneyOut) end,
+    sort = function(r) return r.moneyOut end },
+  { header = "HISTORY_BALANCE", width = 80, value = function(r) return signedGold(r.moneyIn - r.moneyOut) end,
+    sort = function(r) return r.moneyIn - r.moneyOut end },
+  { header = "HISTORY_GOLD_PER_HOUR", width = 70, value = function(r)
+      local rate = ns.Money.PerHour(r.moneyIn, r.seconds)
+      return rate and Format.Gold(rate) or "-"
+    end, sort = function(r) return ns.Money.PerHour(r.moneyIn, r.seconds) or 0 end },
+  durationColumn(70),
+}
+
+-- Summenzeile: Gold aller Charaktere (gelöschte zählen nicht, Twinks mit ihrem Stand beim letzten Logout)
+local function moneyFooter(columns)
+  local cells = {}
+  for index = 1, #columns do cells[index] = "" end
+  local total, count = ns.Money.TotalGold()
+  cells[1] = string.format(L.MONEY_ALL_CHARACTERS, Format.Gold(total), count)
+  return cells
+end
+
 -- Persönliche Rekorde (PersonalRecords.lua), über alle Charaktere; gelöschte Charaktere als "?"
 local function recordHolder(r)
   if not r.characterKey or not History.GetCharacter(r.characterKey) then return r.characterKey and "?" or "" end
@@ -347,6 +377,7 @@ addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCel
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
 addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
 addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
+addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, false, "MONEY_HINT")
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({
