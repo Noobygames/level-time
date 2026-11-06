@@ -87,10 +87,31 @@ local function buffNames(spellIds)
 end
 
 -- true, wenn einer der Buffs aktiv ist; nil, wenn sich das nicht feststellen lässt (Auren gesperrt)
+local lastLogged = {}  -- gesuchte Namen -> zuletzt geloggte vorhandene Buffs
+
+-- Namen einer Menge als Text für das Debug-Log ("Blitzschlagschild, Wasserschild")
+local function joinNames(names)
+  local list = {}
+  for name in pairs(names) do list[#list + 1] = name end
+  table.sort(list)
+  return table.concat(list, ", ")
+end
+
 local function hasAnyBuff(spellIds)
   local names = buffNames(spellIds)
   if not next(names) then return false end
-  return ns.Auras.Has(function(aura) return names[aura.name] == true end)
+  local active = ns.Auras.Has(function(aura) return names[aura.name] == true end)
+  if active == false then
+    -- Fehlt laut Prüfung: gesuchte Namen und vorhandene Buffs, um falsche Zauber-IDs oder Namen zu erkennen
+    local present = {}
+    ns.Auras.ForEachBuff(function(aura) if aura.name then present[aura.name] = true end end)
+    local wanted, buffs = joinNames(names), joinNames(present)
+    if lastLogged[wanted] ~= buffs then  -- nur bei Änderung, die Prüfung läuft alle paar Sekunden
+      lastLogged[wanted] = buffs
+      ns.Debug("reminder", "missing: looking for %s, buffs %s", wanted, buffs)
+    end
+  end
+  return active
 end
 
 local function hasLivingPet()
