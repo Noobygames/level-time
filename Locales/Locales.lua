@@ -867,6 +867,11 @@ ns.locales = {
     QUEST_ITEM_RESET_POSITION = "Zurücksetzen",
     QUEST_ITEM_RESET_POSITION_TIP = "Setzt die Quest-Knöpfe an ihre Ausgangsposition zurück.",
     QUEST_ITEM_MOVE_LABEL = "Quest-Knöpfe",
+    SECTION_WORLD_MAP = "Weltkarte",
+    MAP_COORDS_TOGGLE = "Koordinaten auf der Karte",
+    MAP_COORDS_TOGGLE_TIP = "Zeigt unten auf der Weltkarte deine Position und die des Mauszeigers in Koordinaten der angezeigten Karte. In Instanzen gibt es keine Position.",
+    MAP_COORDS = "Spieler: %s   Maus: %s",
+    MAP_COORDS_NONE = "–",
   },
   enUS = {
     -- General and commands
@@ -1727,6 +1732,11 @@ ns.locales = {
     QUEST_ITEM_RESET_POSITION = "Reset",
     QUEST_ITEM_RESET_POSITION_TIP = "Moves the quest buttons back to their starting position.",
     QUEST_ITEM_MOVE_LABEL = "Quest buttons",
+    SECTION_WORLD_MAP = "World map",
+    MAP_COORDS_TOGGLE = "Coordinates on the map",
+    MAP_COORDS_TOGGLE_TIP = "Shows your position and the mouse cursor's at the bottom of the world map, in coordinates of the map shown. There is no position inside instances.",
+    MAP_COORDS = "Player: %s   Cursor: %s",
+    MAP_COORDS_NONE = "–",
   },
   frFR = {
     -- Général et commandes
@@ -2587,6 +2597,11 @@ ns.locales = {
     QUEST_ITEM_RESET_POSITION = "Réinitialiser",
     QUEST_ITEM_RESET_POSITION_TIP = "Remet les boutons de quête à leur position de départ.",
     QUEST_ITEM_MOVE_LABEL = "Boutons de quête",
+    SECTION_WORLD_MAP = "Carte du monde",
+    MAP_COORDS_TOGGLE = "Coordonnées sur la carte",
+    MAP_COORDS_TOGGLE_TIP = "Affiche en bas de la carte du monde votre position et celle du curseur, en coordonnées de la carte affichée. Aucune position dans les instances.",
+    MAP_COORDS = "Joueur : %s   Curseur : %s",
+    MAP_COORDS_NONE = "–",
   },
   esES = {
     -- General y comandos
@@ -3447,6 +3462,11 @@ ns.locales = {
     QUEST_ITEM_RESET_POSITION = "Restablecer",
     QUEST_ITEM_RESET_POSITION_TIP = "Devuelve los botones de misión a su posición inicial.",
     QUEST_ITEM_MOVE_LABEL = "Botones de misión",
+    SECTION_WORLD_MAP = "Mapa del mundo",
+    MAP_COORDS_TOGGLE = "Coordenadas en el mapa",
+    MAP_COORDS_TOGGLE_TIP = "Muestra abajo en el mapa del mundo tu posición y la del cursor, en coordenadas del mapa mostrado. No hay posición dentro de las instancias.",
+    MAP_COORDS = "Jugador: %s   Cursor: %s",
+    MAP_COORDS_NONE = "–",
   },
 }
 

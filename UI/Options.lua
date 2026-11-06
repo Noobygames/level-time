@@ -580,6 +580,8 @@ addToggles({
   toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
 })
+addSection("SECTION_WORLD_MAP")
+addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates") })
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({

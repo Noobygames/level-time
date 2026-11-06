@@ -1714,3 +1714,22 @@ Zielknopf wählt Questgegner (ja/nein/nicht vorhanden):
 Verschieben gemerkt (ja/nein):
 Fehler:
 ```
+
+### 81. Koordinaten auf der Weltkarte (Roadmap 269)
+
+- [ ] geprüft
+
+Komfort > Fenster > Weltkarte „Koordinaten auf der Karte“ an. Weltkarte öffnen, Maus über die Karte und daneben bewegen, auf eine andere Zone und den Kontinent wechseln, in einer Instanz öffnen. In Retail/Forever danach eine Quest über die Karte verfolgen und im Kampf die Karte öffnen.
+
+**Erwartet:** Unten auf der Karte „Spieler: 45.2, 63.1   Maus: 12.3, 40.0“; die Mauswerte ändern sich mit der Maus, neben der Karte „–“. Auf einer fremden Zone Spieler „–“. In Instanzen Spieler „–“. Keine Lua-Fehler, kein „Aktion blockiert“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Spieler-Koordinaten stimmen (ja/nein):
+Maus-Koordinaten (ja/nein):
+Text gut lesbar/Lage ok (ja/nein):
+Fehler/Taint (ja/nein):
+Fehler:
+```

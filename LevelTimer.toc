@@ -127,6 +127,7 @@ Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\MapCoordinates.lua
 Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua
