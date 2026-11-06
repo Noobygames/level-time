@@ -38,7 +38,7 @@ ClassBuffs.REMINDERS = {
   { class = "DRUID", setting = "remindThorns", kind = BUFF, spells = { 467 } },
   { class = "DRUID", setting = "remindOmenOfClarity", kind = BUFF, spells = { 16864 } },  -- Talent (Classic)
   { class = "SHAMAN", setting = "remindShamanShield", kind = BUFF,
-    spells = { 324, 24398, 974, 192106, 52127 } },                        -- Blitzschlag-, Wasser-, Erdschild
+    spells = { 324, 24398, 408510, 974, 192106, 52127 } },                -- Blitzschlag-, Wasser- (TBC, Forever), Erdschild
   { class = "SHAMAN", setting = "remindShamanWeapon", kind = WEAPON,
     known = { 8017, 8024, 8033, 8232, 318038, 33757 } },                  -- Felsbeißer, Flammenzunge, Frostbrand, Windzorn
   { class = "PALADIN", setting = "remindBlessing", kind = BUFF,
