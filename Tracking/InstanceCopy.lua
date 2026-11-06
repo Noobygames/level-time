@@ -97,6 +97,8 @@ local function enter(key, name, instanceType)
   local visit = visitOf(key, name)
   local pending = visit and visit.pending
   local guessNew = isNewCopy(visit, now)
+  ns.Debug("instances", "enter %s: visit %s, left %s s ago, zoneUID %s, pending %s, ghost %s", key, visit ~= nil,
+    visit and visit.leftAt and (now - visit.leftAt), visit and visit.zoneUID, pending ~= nil, UnitIsDeadOrGhost("player"))
   if pending and not guessNew then
     -- Dieselbe, noch unbestätigte Kopie wie beim letzten Aufenthalt: deren Schätzung gilt weiter
     inside = stay(key, name, instanceType, pending.enteredAt, pending.guessNew, pending.expected)
@@ -120,6 +122,7 @@ local function leave()
   local name = inside.name
   local visit = visits()[inside.key]
   if visit then visit.leftAt = time() end
+  ns.Debug("instances", "leave %s, ghost %s", inside.key, UnitIsDeadOrGhost("player"))
   inside = nil
   notify("leave", name)
 end
@@ -131,6 +134,8 @@ local function confirm(zoneUID)
   visit.zoneUID = zoneUID
   visit.pending = nil
   local expected = inside.expectedZoneUID
+  ns.Debug("instances", "confirmed %s: zoneUID %s, expected %s, guessed new %s", inside.key, zoneUID, expected,
+    inside.guessNew)
   if expected then
     local isNew = zoneUID ~= expected
     if isNew ~= inside.guessNew then
@@ -153,6 +158,7 @@ local function sighted(unit)
   else
     inside.candidate, inside.sightings = zoneUID, 1
   end
+  ns.Debug("instances", "sighted %s: zoneUID %s (%s/%s), guid %s", unit, zoneUID, inside.sightings, CONFIRM_SIGHTINGS, guid)
   if inside.sightings >= CONFIRM_SIGHTINGS then
     confirm(zoneUID)
   end
@@ -164,7 +170,10 @@ local function trackedInstance()
   local inInstance, instanceType = IsInInstance()
   if not inInstance or not TRACKED_TYPES[instanceType] then return nil end
   local name, _, difficultyID = GetInstanceInfo()
-  if ns.IsSecret(name) or ns.IsSecret(difficultyID) then return nil end
+  if ns.IsSecret(name) or ns.IsSecret(difficultyID) then
+    ns.Debug("instances", "instance info secret, not tracked")
+    return nil
+  end
   return copyKey(name, difficultyID), name, instanceType
 end
 
