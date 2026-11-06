@@ -99,6 +99,10 @@ local SETTINGS_DEFAULTS = {
   declineGroupInvites = false,
   declineGuildInvites = false,
   declineDuels = false,
+  -- Sozial (Social.lua): geteilte Quests ablehnen, Freundschaftsanfragen blocken, Einladungen von Freunden/Gilde
+  -- annehmen, per Flüster-Stichwort einladen
+  declineSharedQuests = false, blockFriendRequests = false, acceptFriendInvites = false, inviteFromWhisper = false,
+  inviteKeyword = "inv",
   chatCopyButton = false,   -- Button zum Kopieren an jedem Chatfenster (ChatCopy.lua)
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)

@@ -39,6 +39,8 @@ local ROW_HINT = 30
 local SECTION_GAP = 8
 local SIDEBAR_ROW = 24       -- Höhe eines Eintrags der Seitenleiste
 local SIDEBAR_GAP = 16       -- Abstand zwischen Seitenleiste und Unterseite
+local TEXT_INPUT_WIDTH = 120 -- Standardbreite eines Eingabefelds (AddTextInput)
+local TEXT_INPUT_BORDER = 6  -- InputBoxTemplate zeichnet seinen Rand links außerhalb
 
 -- Für eigene Bausteine des Fensters (z.B. Profil-Liste)
 OptionsBuilder.MARGIN = MARGIN
@@ -328,6 +330,34 @@ function OptionsBuilder.New(options)
     end
     nextRowY = nextRowY - ROW_CHOOSER
     onRefresh(function() label:SetText(L[chooser.label]) end)
+  end
+
+  -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional };
+  -- übernommen mit Enter oder beim Verlassen des Felds, Esc verwirft; Tooltip aus <label>_TIP
+  function builder.AddTextInput(input)
+    local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    addRow(label, 0)
+    local box = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
+    box:SetSize(input.width or TEXT_INPUT_WIDTH, BUTTON_HEIGHT)
+    box:SetAutoFocus(false)
+    box:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP + TEXT_INPUT_BORDER, 0)
+    local current = ""
+    box:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+    box:SetScript("OnEscapePressed", function(self)
+      self:SetText(current)
+      self:ClearFocus()
+    end)
+    box:SetScript("OnEditFocusLost", function(self)
+      if self:GetText() ~= current then input.set(self:GetText()) end
+    end)
+    addTooltip(box, input.label .. "_TIP", localized(input.label))
+    table.insert(chooserRows, { label = label, tabs = { box } })  -- Breite prüft fitWidth wie bei Auswahlzeilen
+    nextRowY = nextRowY - ROW_CHOOSER
+    onRefresh(function(db)
+      label:SetText(L[input.label])
+      current = input.get(db) or ""
+      if not box:HasFocus() then box:SetText(current) end
+    end)
   end
 
   function builder.AddHint(labelKey)

@@ -41,4 +41,17 @@ for _, language in ipairs({ "deDE", "frFR" }) do
   wow.click(L.COMFORT_PAGE_AUTOMATION)
   LevelTimerOptions:Hide()
 end
+-- Stichwort fürs Einladen per Flüstern: Eingabefeld auf der Sozial-Seite, übernommen beim Verlassen des Felds
+SlashCmdList.LEVELTIMER("config")
+wow.click(L.OPTIONS_TAB_COMFORT)
+wow.click(L.COMFORT_PAGE_SOCIAL)
+local keywordBox = wow.findFrame(function(frame) return frame._scripts.OnEditFocusLost ~= nil end)
+expect("Feld zeigt das Stichwort", keywordBox:GetText(), "inv")
+keywordBox:SetText(" einladen ")
+keywordBox._scripts.OnEditFocusLost(keywordBox)
+expect("Stichwort übernommen", addon.db.inviteKeyword, "einladen")
+keywordBox:SetText("verworfen")
+keywordBox._scripts.OnEscapePressed(keywordBox)
+expect("Esc verwirft", keywordBox:GetText(), "einladen")
+LevelTimerOptions:Hide()
 expect("keine Fehler", #wow.errors, 0)

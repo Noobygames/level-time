@@ -1386,3 +1386,27 @@ Fähigkeiten stimmen mit dem Lehrer überein (ja/nein/nicht gemerkt):
 Tooltip der Fähigkeiten (ja/nein):
 Fehler:
 ```
+
+### 65. Sozial: geteilte Quests, Freundschaftsanfragen, Einladungen (Roadmap 329, Schritt 3a)
+
+- [ ] geprüft
+
+Komfort > Sozial: „Geteilte Quests ablehnen“, „Freundschaftsanfragen blocken“, „Gruppe von Freunden annehmen“ und „Einladen per Flüstern“ an (Stichwort „inv“). Mit einem Fremden und mit einem Freund bzw. Gildenmitglied: Quest teilen lassen, Gruppe einladen lassen, „inv“ flüstern lassen (auch über Battle.net). Eine Battle.net-Freundschaftsanfrage schicken lassen.
+
+**Erwartet:** Geteilte Quest des Fremden wird abgelehnt (Chatzeile), die des Freundes bleibt bzw. wird mit „Geteilte Quests annehmen“ angenommen. Einladung des Freundes wird angenommen, auch wenn „Gruppeneinladungen ablehnen“ an ist; die des Fremden wird dann abgelehnt. Nach „inv“ kommt eine Einladung, bei Battle.net-Freunden an das WoW-Spielkonto. Die Freundschaftsanfrage verschwindet sofort.
+
+```
+/dump C_FriendList.IsFriend(UnitGUID("target")), C_GuildInfo.MemberExistsByName(UnitName("target"))
+```
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Quest Fremder abgelehnt / Freund angenommen (ja/nein):
+Einladung Freund angenommen, Dialog weg (ja/nein):
+Einladung per Flüstern / Battle.net (ja/nein):
+Freundschaftsanfrage abgelehnt (ja/nein):
+Fehler:
+```
+

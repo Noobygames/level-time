@@ -80,6 +80,10 @@ wow = {
     questCompletable = true, -- IsQuestCompletable
     questMoney = 0,          -- GetQuestMoneyToGet
     questChoices = {},       -- Belohnungen zur Auswahl: Item-Links (GetQuestItemLink("choice", i))
+    -- Sozial: Charakter-Freunde (Name oder GUID), Battle.net-Freunde (GUID), Gildenmitglieder (Name),
+    -- offene Battle.net-Freundschaftsanfragen { inviteID, accountName }, Battle.net-Konten je ID (accountInfo)
+    friends = {}, bnetFriends = {}, guildMembers = {}, friendInvites = {}, bnetAccounts = {},
+    groupLeader = false,     -- UnitIsGroupLeader("player")
   },
   printed = {},
   UNKNOWN_EVENT = UNKNOWN_EVENT,
@@ -608,11 +612,39 @@ function AcceptQuest() questAction("accept") end
 function AcknowledgeAutoAcceptQuest() questAction("acknowledge") end
 function ConfirmAcceptQuest() questAction("confirm") end
 function StaticPopup_Hide(name) questAction("hidePopup", name) end
+function DeclineQuest() questAction("decline") end
+-- Sichtbarer Dialog (StaticPopup_FindVisible): wow.visiblePopups[name] = Dialog-Frame
+wow.visiblePopups = {}
+function StaticPopup_FindVisible(name) return wow.visiblePopups[name] end
 -- Abgelehnte Anfragen landen in wow.declined (Name der Funktion)
 wow.declined = {}
 for _, name in ipairs({ "CancelTrade", "DeclineGroup", "DeclineGuild", "CancelDuel" }) do
   _G[name] = function() table.insert(wow.declined, name) end
 end
+-- Sozial: Annahmen, Einladungen und abgelehnte Freundschaftsanfragen landen in wow.socialActions
+wow.socialActions = {}
+local function socialAction(...) table.insert(wow.socialActions, { ... }) end
+function AcceptGroup() socialAction("acceptGroup") end
+C_FriendList = {
+  IsFriend = function(guid) return state.friends[guid] == true end,
+  GetFriendInfo = function(name) if state.friends[name] then return { name = name } end end,
+}
+C_BattleNet = {
+  GetAccountInfoByGUID = function(guid) if state.bnetFriends[guid] then return { isFriend = true } end end,
+  GetAccountInfoByID = function(id) return state.bnetAccounts[id] end,
+  GetFriendInviteInfo = function(index) return state.friendInvites[index] end,
+  InviteFriend = function(gameAccountID) socialAction("bnetInvite", gameAccountID) end,
+}
+C_GuildInfo = { MemberExistsByName = function(name) return state.guildMembers[name] == true end }
+C_PartyInfo = { InviteUnit = function(name) socialAction("invite", name) end }
+function BNGetNumFriendInvites() return #state.friendInvites end
+function BNDeclineFriendInvite(inviteID)
+  for index, invite in ipairs(state.friendInvites) do
+    if invite.inviteID == inviteID then table.remove(state.friendInvites, index) end
+  end
+  socialAction("declineFriend", inviteID)
+end
+function UnitIsGroupLeader() return state.groupLeader end
 C_GossipInfo = {
   GetAvailableQuests = function() return state.gossip.available end,
   GetActiveQuests = function() return state.gossip.active end,

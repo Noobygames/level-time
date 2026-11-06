@@ -89,6 +89,8 @@ Assist\AggroWarning.lua
 Assist\TrainerReminder.lua
 Assist\TrainAll.lua
 Assist\Comfort.lua
+Assist\Friends.lua
+Assist\Social.lua
 Assist\Merchant.lua
 Assist\QuestAutomation.lua
 Assist\AutoAccept.lua

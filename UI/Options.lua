@@ -401,7 +401,7 @@ do
   finishPage()
 end
 
--- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus (Automatik, Sozial, Chat, Oberfläche)
+-- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus (Automatik, Sozial, Chat, Oberfläche, System)
 addPage("OPTIONS_TAB_COMFORT")
 addHint("COMFORT_HINT")
 local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
@@ -434,6 +434,19 @@ addToggles({
   toggle("DECLINE_GROUP_INVITES", "declineGroupInvites"),
   toggle("DECLINE_GUILD_INVITES", "declineGuildInvites"),
   toggle("DECLINE_DUELS", "declineDuels"),
+  toggle("DECLINE_SHARED_QUESTS", "declineSharedQuests"),
+  toggle("BLOCK_FRIEND_REQUESTS", "blockFriendRequests", ns.Social.CanBlockFriendRequests),
+})
+-- Einladungen: Vertraute = Freunde und Gilde (Friends.lua); declineGroupInvites lehnt sie dann nicht ab
+addSection("SECTION_INVITES")
+addToggles({
+  toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
+  toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
+})
+builder.AddTextInput({
+  label = "INVITE_KEYWORD",
+  get = function(db) return db.inviteKeyword end,
+  set = function(text) ns.Set("inviteKeyword", strtrim(text)) end,
 })
 addSubPage("COMFORT_PAGE_CHAT")
 addSection("SECTION_CHAT")
