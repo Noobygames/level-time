@@ -1486,3 +1486,36 @@ Im Kampf versteckt, Umschalt zeigt (ja/nein):
 Minimap Mausrad/Knöpfe (ja/nein/fehlt):
 Fehler (auch in Instanzen):
 ```
+
+### 70. System: Bildschirmeffekte, Wetter, Namensplaketten im Kampf, Töne, Addon-Liste, Gruppenfarbe (Roadmap 329, Schritt 5)
+
+- [ ] geprüft
+
+Vorher die Werte ausgeben und in die Antwort schreiben, dann Komfort > System der Reihe nach einschalten und prüfen, danach alles wieder aus und die Werte erneut ausgeben:
+
+```
+/lt debug check
+```
+
+```
+/run for _,n in ipairs({"ffxGlow","ffxDeath","ffxNether","weatherDensity","RAIDweatherDensity","nameplateShowEnemies","Sound_EnableEmoteSounds"}) do print(n, C_CVar.GetCVar(n)) end print("lowLevelRaid", GetAllowLowLevelRaid())
+```
+
+„Kein Rausch-Schleier“ (betrunken werden, z.B. Gasthaus-Bier), „Keine Bildschirmeffekte“ (sterben, als Geist laufen), „Wetterdichte festlegen“ mit Regler 0 und 3 (in einem Regengebiet), „Namensplaketten nur im Kampf“ (Kampf beginnen und beenden, auch den Schalter im Kampf umlegen), „Emotes beim Ausruhen stumm“ (im Gasthaus und draußen /lachen), „Zauber-Fehlschlag stumm“ (Zauber durch Bewegung abbrechen), „Stadtglocken stumm“ (zur vollen Stunde in einer Hauptstadt), „Roboschreiter stumm“ (Gnom-Reittier oder NPC), „Schlachtzug-Beschränkung aufheben“ (Charakter unter Level 10 in einer Gruppe, die zum Schlachtzug wird), „Addon-Liste alphabetisch“ (Addon-Liste im Spielmenü), Komfort > Chat „Eine Gruppenfarbe“ (Schlachtzug- und Instanzchat). Einmal `/reload` mit Einstellungen an, dann aus.
+
+**Erwartet:** Jede Einstellung wirkt sofort, kein „Aktion blockiert“ (auch nicht beim Kampfbeginn mit Namensplaketten). Ausgeschaltet stehen alle CVars wieder auf den notierten Werten, auch mit `/reload` dazwischen; `lowLevelRaid` wieder wie vorher. Plaketten nur im Kampf; im Kampf ausgeschaltet kommt der alte Wert nach dem Kampf. Emotes im Gasthaus ohne Ton, draußen mit. Addon-Liste nach Titel sortiert (Farbcodes egal), Addons und Kategorien lassen sich weiter an- und ausschalten. Schlachtzugchat in der Farbe des Gruppenchats, aus = alte Farben (auch nach einem Neustart). Wenn die Farben direkt nach dem Login nicht umspringen: melden (ChatTypeInfo war dann noch leer).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Werte vorher:
+Werte nachher (gleich? ja/nein):
+Rausch/Geist/Nether/Wetter wirken (ja/nein je):
+Plaketten nur im Kampf, kein „Aktion blockiert“ (ja/nein):
+Emotes/Fehlschlag/Glocken/Roboschreiter stumm (ja/nein je):
+Schlachtzug mit niedrigem Charakter (ja/nein/nicht getestet):
+Addon-Liste alphabetisch, Klicks gehen (ja/nein):
+Gruppenfarbe, aus = zurück (ja/nein):
+Fehler:
+```

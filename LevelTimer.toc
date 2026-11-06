@@ -113,6 +113,12 @@ Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\ScreenEffects.lua
+Assist\CombatPlates.lua
+Assist\Sounds.lua
+Assist\RaidRestrictions.lua
+Assist\AddonList.lua
+Assist\ChatColors.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua

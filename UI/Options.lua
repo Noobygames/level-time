@@ -455,6 +455,7 @@ addToggles({
   toggle("RESTORE_CHAT", "restoreChat"),
   toggle("FILTER_DRUNK_SPAM", "filterDrunkSpam"),
   toggle("FILTER_SPELL_LINKS", "filterSpellLinks"),
+  toggle("UNIVERSAL_GROUP_COLOR", "universalGroupColor", ns.ChatColors.IsAvailable),
 })
 addSection("SECTION_CHAT_WINDOWS")
 addToggles({
@@ -538,6 +539,37 @@ addToggles({
 })
 addSection("SECTION_CAMERA")
 addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
+addSection("SECTION_GRAPHICS")
+addToggles({
+  toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
+  toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
+  toggle("SET_WEATHER_DENSITY", "setWeatherDensity"),
+})
+addSlider({
+  label = "WEATHER_DENSITY",
+  min = ns.ScreenEffects.MIN_WEATHER,
+  max = ns.ScreenEffects.MAX_WEATHER,
+  step = 1,
+  get = function(db) return db.weatherDensity end,
+  set = function(value) ns.Set("weatherDensity", value) end,
+  format = function(value) return tostring(value) end,
+})
+-- Stummschalten nur, wo MuteSoundFile existiert
+local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
+for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
+  table.insert(muteToggles, toggle(group.label, group.setting, ns.Sounds.CanMute))
+end
+addSection("SECTION_SOUND")
+addToggles(muteToggles)
+addSection("SECTION_COMBAT_GROUP")
+addToggles({
+  toggle("COMBAT_PLATES", "combatPlates"),
+  toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
+})
+if ns.AddonListSort.IsAvailable() then
+  addSection("SECTION_ADDON_LIST")
+  addToggles({ toggle("SORT_ADDON_LIST", "sortAddonList") })
+end
 finishSubPages()
 finishPage()
 

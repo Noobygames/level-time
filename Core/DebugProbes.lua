@@ -555,6 +555,21 @@ check("spell.info", function() return call("C_Spell.GetSpellInfo", WELL_FED_SPEL
 check("cvars", function()
   return { autoLoot = call("GetCVar", "autoLootDefault"), cameraZoom = call("GetCVar", "cameraDistanceMaxZoomFactor") }
 end)
+-- Roadmap 329, Schritt 5 (System): gibt es die CVars und APIs, welche Werte stehen, was haben wir gemerkt
+check("system.comfort", function()
+  local values = {}
+  for _, name in ipairs({ "ffxGlow", "ffxDeath", "ffxNether", "weatherDensity", "RAIDweatherDensity",
+    "nameplateShowEnemies", "Sound_EnableEmoteSounds" }) do
+    values[name] = call("GetCVar", name)
+  end
+  return {
+    cvars = values, defaults = { weather = call("C_CVar.GetCVarDefault", "weatherDensity") },
+    originals = LevelTimerDB and LevelTimerDB.cvarOriginals, characterOriginals = ns.character and ns.character.cvarOriginals,
+    muteSoundFile = MuteSoundFile ~= nil, lowLevelRaid = call("GetAllowLowLevelRaid"),
+    addonListUpdate = AddonList_Update ~= nil, addonListProvider = AddonList ~= nil and AddonList.ScrollBox ~= nil,
+    raidColor = ChatTypeInfo and ChatTypeInfo.RAID and { ChatTypeInfo.RAID.r, ChatTypeInfo.RAID.g, ChatTypeInfo.RAID.b },
+  }
+end)
 check("frames", function()
   return { levelUpDisplay = LevelUpDisplay ~= nil, eventToast = EventToastManagerFrame ~= nil,
     movieFrame = MovieFrame ~= nil, cinematicFrame = CinematicFrame ~= nil }

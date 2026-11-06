@@ -87,6 +87,13 @@ local SETTINGS_DEFAULTS = {
   fasterLoot = false, skipLootConfirm = false, hideErrors = false, hideZoneText = false, maxCameraZoom = false,
   easyDelete = false, fasterMovieSkip = false,  -- SkipDialogs.lua
   trainAllButton = false,  -- TrainAll.lua
+  -- System (Roadmap 329, Schritt 5): ScreenEffects.lua, CombatPlates.lua, Sounds.lua, RaidRestrictions.lua,
+  -- AddonList.lua; CVars werden umkehrbar über CVars.lua gesetzt
+  noDrunkenHaze = false, noScreenEffects = false, setWeatherDensity = false,
+  weatherDensity = 3,  -- 0 (kein Wetter) bis 3, nur mit setWeatherDensity
+  combatPlates = false, silenceRestedEmotes = false, muteFizzle = false, muteBells = false, muteMechastrider = false,
+  noRaidRestrictions = false, sortAddonList = false,
+  universalGroupColor = false,  -- Chat: Schlachtzug und Instanz in der Gruppenfarbe (ChatColors.lua)
   autoRepair = false,       -- beim Händler reparieren (Merchant.lua)
   autoRepairGuild = false,  -- zuerst aus der Gildenbank
   autoSellJunk = false,     -- graue Gegenstände verkaufen
@@ -362,6 +369,7 @@ local SETTING_RANGES = {
   foodScale = { 0.5, 2 },
   flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
+  weatherDensity = { 0, 3 },
 }
 
 local OPTIONAL_SETTINGS = {
