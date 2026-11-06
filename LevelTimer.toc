@@ -119,6 +119,7 @@ Assist\MoveFrames.lua
 Assist\QuestMarks.lua
 Assist\QuestLevels.lua
 Assist\ActionBars.lua
+Assist\Emergency.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
 Assist\ClassColors.lua

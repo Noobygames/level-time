@@ -15,6 +15,7 @@ local resurrectedAt  -- GetTime() der letzten Wiederbelebung
 
 local NearDeath = {}
 ns.NearDeath = NearDeath
+NearDeath.LOW_HEALTH = LOW_HEALTH  -- Schwelle auch für den Notfall-Hinweis (Emergency.lua)
 
 -- In Retail und WoW Forever liefert UnitHealth laut generierter Doku immer geheime Werte
 -- (SecretReturns = true, ohne Bedingung); Beinahe-Tode lassen sich dort nicht erkennen, Zeile,
@@ -24,7 +25,7 @@ function NearDeath.IsAvailable()
 end
 
 -- Anteil des Lebens oder nil, wenn der Client den Wert verbirgt
-local function healthFraction()
+function NearDeath.HealthFraction()
   local health, maxHealth = UnitHealth("player"), UnitHealthMax("player")
   if ns.IsSecret(health) or ns.IsSecret(maxHealth) or not maxHealth or maxHealth == 0 then return nil end
   return health / maxHealth
@@ -36,7 +37,7 @@ local function onHealthChanged(unit)
     episode = nil
     return
   end
-  local fraction = healthFraction()
+  local fraction = NearDeath.HealthFraction()
   if not fraction then return end
 
   if not episode then

@@ -319,6 +319,7 @@ addToggles({
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
+  toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
   toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
   toggle("CC_OVER_TOGGLE", "announceControlOver"),

@@ -855,6 +855,8 @@ ns.locales = {
     SECTION_QUEST_DISPLAY = "Quests",
     QUEST_LEVELS_TOGGLE = "Quest-Level anzeigen",
     QUEST_LEVELS_TOGGLE_TIP = "Schreibt das Level vor Questnamen im Questlog, in Gesprächs- und Grußlisten und im Quest-Tracker (Classic): „[12]“, bei Gruppenquests „[12+]“. Ausgeschaltet verschwindet es, sobald die Liste neu aufgebaut wird.",
+    EMERGENCY_TOGGLE = "Notfall bei wenig Leben",
+    EMERGENCY_TOGGLE_TIP = "Fällt dein Leben unter 10 %, leuchten die Aktionsknöpfe mit Heiltrank, Gesundheitsstein oder Notfallzauber (z.B. Gottesschild, Entrinnen, Eisblock) grün, und der Bildschirmrand wird rot. Aus ab 15 % Leben. Makros werden nicht erkannt. Nur in Classic Era und TBC (anderswo ist das Leben für Addons geheim).",
   },
   enUS = {
     -- General and commands
@@ -1703,6 +1705,8 @@ ns.locales = {
     SECTION_QUEST_DISPLAY = "Quests",
     QUEST_LEVELS_TOGGLE = "Show quest levels",
     QUEST_LEVELS_TOGGLE_TIP = "Puts the level in front of quest names in the quest log, gossip and greeting lists and the quest tracker (Classic): \"[12]\", group quests \"[12+]\". When turned off it disappears as soon as the list is rebuilt.",
+    EMERGENCY_TOGGLE = "Emergency at low health",
+    EMERGENCY_TOGGLE_TIP = "When your health drops below 10 %, action buttons with a healing potion, healthstone or emergency spell (e.g. Divine Shield, Evasion, Ice Block) glow green and the screen edge turns red. Off again from 15 % health. Macros are not detected. Classic Era and TBC only (elsewhere health is secret for addons).",
   },
   frFR = {
     -- Général et commandes
@@ -2551,6 +2555,8 @@ ns.locales = {
     SECTION_QUEST_DISPLAY = "Quêtes",
     QUEST_LEVELS_TOGGLE = "Afficher le niveau des quêtes",
     QUEST_LEVELS_TOGGLE_TIP = "Ajoute le niveau devant le nom des quêtes dans le journal, les listes de dialogue et d'accueil et le suivi des quêtes (Classic) : « [12] », quêtes de groupe « [12+] ». Désactivé, il disparaît dès que la liste est reconstruite.",
+    EMERGENCY_TOGGLE = "Urgence à faible vie",
+    EMERGENCY_TOGGLE_TIP = "Quand votre vie passe sous 10 %, les boutons d'action avec potion de soins, pierre de soins ou sort d'urgence (p. ex. Bouclier divin, Évasion, Bloc de glace) brillent en vert et le bord de l'écran devient rouge. Désactivé à partir de 15 % de vie. Les macros ne sont pas reconnues. Uniquement Classic Era et TBC (ailleurs la vie est secrète pour les addons).",
   },
   esES = {
     -- General y comandos
@@ -3399,6 +3405,8 @@ ns.locales = {
     SECTION_QUEST_DISPLAY = "Misiones",
     QUEST_LEVELS_TOGGLE = "Mostrar nivel de misiones",
     QUEST_LEVELS_TOGGLE_TIP = "Pone el nivel delante del nombre de las misiones en el registro, en las listas de diálogo y saludo y en el seguimiento (Classic): «[12]», misiones de grupo «[12+]». Al desactivarlo desaparece en cuanto la lista se reconstruye.",
+    EMERGENCY_TOGGLE = "Emergencia con poca salud",
+    EMERGENCY_TOGGLE_TIP = "Cuando tu salud baja del 10 %, los botones de acción con poción de sanación, piedra de salud o hechizo de emergencia (p. ej. Escudo divino, Evasión, Bloque de hielo) brillan en verde y el borde de la pantalla se vuelve rojo. Se apaga a partir del 15 % de salud. Las macros no se detectan. Solo Classic Era y TBC (en otros clientes la salud es secreta para los addons).",
   },
 }
 

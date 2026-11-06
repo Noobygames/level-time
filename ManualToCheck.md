@@ -1674,3 +1674,23 @@ Listen scrollen weiter (ja/nein):
 Im Kampf keine Fehler (ja/nein):
 Fehler:
 ```
+
+### 79. Notfall bei wenig Leben (Roadmap 267)
+
+- [ ] geprüft
+
+Nur Classic Era/TBC. Hinweise > Warnungen „Notfall bei wenig Leben“ an. Einen Heiltrank, einen Gesundheitsstein und einen Notfallzauber der Klasse (z.B. Gottesschild, Entrinnen, Totstellen) auf die Leisten legen, dazu ein Makro mit Heiltrank. Im Kampf unter 10 % Leben fallen (z.B. Fallschaden, starke Gegner), dann heilen. Danach `/lt debug log` an, `/lt debug check`, `make debuglog` und den Eintrag `emergency.actions` ansehen.
+
+**Erwartet:** Unter 10 % grüner Rahmen um Trank, Stein und Notfallzauber (nicht um das Makro), roter Rand am Bildschirm. Ab 15 % ist alles weg. Kein „Aktion blockiert“, auch nicht im Kampf. In `emergency.actions` haben alle Items und Zauber des Clients einen Namen.
+
+**Antwort:**
+
+```text
+Client (Era/TBC):
+Knöpfe markiert (ja/nein, welche nicht):
+Roter Rand (ja/nein, zu stark/zu schwach):
+Aus ab 15 % (ja/nein):
+Fehler im Kampf (ja/nein):
+IDs ohne Namen in emergency.actions:
+Fehler:
+```

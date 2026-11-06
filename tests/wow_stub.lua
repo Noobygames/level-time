@@ -588,6 +588,11 @@ end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
 function IsControlKeyDown() return state.controlDown == true end
+-- Aktionsplätze: state.actions[platz] = { "item"/"spell"/"macro", id } (GetActionInfo)
+function GetActionInfo(slot)
+  local action = (state.actions or {})[slot]
+  if action then return action[1], action[2] end
+end
 function IsModifiedClick() return state.modifiedClick == true end
 -- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
 function GetCVar(name) return (state.cvars or {})[name] end
