@@ -109,6 +109,7 @@ local SETTINGS_DEFAULTS = {
   autoTurnIn = false,       -- fertige Quests abgeben
   autoChooseReward = false, -- bei mehreren Belohnungen die mit dem höchsten Verkaufswert
   skipGossip = false,       -- Gespräche mit nur einer Option überspringen
+  questExclude = "",        -- eigene Sperrliste der Quest-Automatik: IDs und Namen (QuestBlocklist.lua)
   declineTrades = false,    -- Handel ablehnen (Declines.lua)
   declineGroupInvites = false,
   declineGuildInvites = false,

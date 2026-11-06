@@ -20,13 +20,19 @@
 --   QUEST_GREETING        alte Quest-Liste ohne Gespräch: dasselbe mit SelectActiveQuest/
 --                         SelectAvailableQuest(index), fertig laut GetActiveTitle.
 -- Graue (triviale) und ignorierte Quests werden nicht angenommen: beim Leveln Zeitverschwendung.
--- Wiederholbare Quests wählt die Automatik nie selbst aus den Listen aus; öffnet man sie von Hand,
--- gibt autoTurnIn sie im Dialog trotzdem ab (QUEST_PROGRESS/QUEST_COMPLETE kennen nur diesen einen Dialog).
+-- Wiederholbare Quests wählt die Automatik nie selbst aus den Listen aus. Öffnet man sie von Hand, bleibt die
+-- Abgabe in Retail/Forever manuell (C_QuestLog.IsRepeatableQuest(GetQuestID())); Classic Era/TBC kennen das im
+-- Dialog nicht, dort gibt autoTurnIn sie ab, außer die Sperrliste (QuestBlocklist.lua) nennt NPC oder Quest.
+-- Sperrliste: NPCs und Quests, deren Abgabe Gegenstände verbraucht (Stoffspenden), plus eigene Einträge
+-- (Einstellung questExclude); dort tut die Automatik nichts, auch kein Gespräch überspringen.
 -- Gespräch überspringen wie Blizzards GossipFrame bei selectOptionWhenOnlyOption: keine Quests,
 -- genau eine verfügbare Option (GossipOptionStatus Available), kein ForceGossip; gewählt mit
--- C_GossipInfo.SelectOptionByIndex(orderIndex). Optionen mit Bestätigung fragt das Spiel weiter nach.
+-- C_GossipInfo.SelectOptionByIndex(orderIndex). Optionen mit Bestätigung fragt das Spiel weiter nach. Optionen mit
+-- Flags oder Belohnungen (GossipOptionUIInfo.flags/rewards; normale Optionen haben laut Debug-Log flags 0 und keine
+-- rewards) bleiben manuell.
 local _, ns = ...
 local Comfort = ns.Comfort
+local Blocklist = ns.QuestBlocklist
 
 local QuestAutomation = {}
 ns.QuestAutomation = QuestAutomation
@@ -39,6 +45,16 @@ local OPTION_AVAILABLE = 0    -- Enum.GossipOptionStatus.Available
 -- nach jeder Abgabe öffnet sich das Gespräch wieder, die Automatik würde alle Gegenstände abgeben.
 local function isWorthTaking(quest)
   return not quest.isTrivial and not quest.isIgnored and not quest.repeatable
+    and not Blocklist.IsBlockedQuest(quest.questID, quest.title)
+end
+
+-- Quest im offenen Dialog (Text, Abgabe, Belohnung): gesperrt oder in Retail/Forever als wiederholbar bekannt
+local function isBlockedDialog()
+  local questID = GetQuestID and GetQuestID()
+  if Blocklist.Blocks(questID, GetTitleText()) then return true end
+  if not (C_QuestLog.IsRepeatableQuest and type(questID) == "number" and questID ~= 0) then return false end
+  local repeatable = C_QuestLog.IsRepeatableQuest(questID)
+  return not ns.IsSecret(repeatable) and repeatable == true
 end
 
 -- Erste lohnende Quest aus einer Liste von C_GossipInfo (GossipQuestUIInfo)
@@ -69,6 +85,7 @@ ns.RegisterEvent("QUEST_DETAIL", function()
   if not Comfort.IsActive(shared and "autoAcceptShared" or "autoAcceptQuests") then return end
   if shared and isDeclinedShare() then return end
   if QuestFlagsPVP and QuestFlagsPVP() then return end
+  if isBlockedDialog() then return end
   if isTrivialDetail() then
     ns.Debug("quests", "skipping trivial quest")
     return
@@ -91,12 +108,14 @@ end)
 
 local function firstComplete(quests)
   for _, quest in ipairs(quests) do
-    if quest.isComplete and not quest.repeatable then return quest end
+    if quest.isComplete and not quest.repeatable and not Blocklist.IsBlockedQuest(quest.questID, quest.title) then
+      return quest
+    end
   end
 end
 
 ns.RegisterEvent("QUEST_PROGRESS", function()
-  if not Comfort.IsActive("autoTurnIn") or not IsQuestCompletable() then return end
+  if not Comfort.IsActive("autoTurnIn") or not IsQuestCompletable() or isBlockedDialog() then return end
   ns.Debug("quests", "completing quest")
   CompleteQuest()
 end)
@@ -128,7 +147,7 @@ function QuestAutomation.RewardChoice()
 end
 
 ns.RegisterEvent("QUEST_COMPLETE", function()
-  if not Comfort.IsActive("autoTurnIn") or GetQuestMoneyToGet() > 0 then return end
+  if not Comfort.IsActive("autoTurnIn") or GetQuestMoneyToGet() > 0 or isBlockedDialog() then return end
   local choice = QuestAutomation.RewardChoice()
   ns.Debug("quests", "reward choice %s", choice)
   if choice then GetQuestReward(choice) end
@@ -145,6 +164,7 @@ local function onlyOption()
   if C_GossipInfo.ForceGossip() then return nil end
   local options = C_GossipInfo.GetOptions()
   if #options ~= 1 or options[1].status ~= OPTION_AVAILABLE then return nil end
+  if (options[1].flags or 0) ~= 0 or (options[1].rewards and #options[1].rewards > 0) then return nil end
   -- Solche Optionen wählt Blizzards GossipFrame schon selbst (HandleShow), sonst doppelt gewählt
   if options[1].selectOptionWhenOnlyOption then return nil end
   local id = options[1].gossipOptionID or options[1].orderIndex
@@ -156,6 +176,10 @@ end
 -- Gesprächsfenster: erst fertige Quests abgeben, dann die nächste lohnende öffnen
 -- (QUEST_PROGRESS/QUEST_DETAIL übernehmen den Rest), sonst die einzige Option wählen
 function QuestAutomation.HandleGossip()
+  if Blocklist.IsBlockedNpc() then
+    ns.Debug("quests", "gossip: blocked npc")
+    return false
+  end
   if Comfort.IsActive("autoTurnIn") then
     local quest = firstComplete(C_GossipInfo.GetActiveQuests())
     if quest then
@@ -184,10 +208,14 @@ function QuestAutomation.HandleGossip()
 end
 
 function QuestAutomation.HandleGreeting()
+  if Blocklist.IsBlockedNpc() then
+    ns.Debug("quests", "greeting: blocked npc")
+    return false
+  end
   if Comfort.IsActive("autoTurnIn") then
     for index = 1, GetNumActiveQuests() do
-      local _, isComplete = GetActiveTitle(index)
-      if isComplete then
+      local title, isComplete = GetActiveTitle(index)
+      if isComplete and not Blocklist.IsBlockedQuest(nil, title) then
         ns.Debug("quests", "greeting: turning in quest %s", index)
         SelectActiveQuest(index)
         return true
@@ -198,7 +226,7 @@ function QuestAutomation.HandleGreeting()
     for index = 1, GetNumAvailableQuests() do
       -- 3. Rückgabe in allen Clients: isRepeatable (2. ist in Classic isDaily, sonst frequency)
       local isTrivial, _, isRepeatable = GetAvailableQuestInfo(index)
-      if not isTrivial and not isRepeatable then
+      if not isTrivial and not isRepeatable and not Blocklist.IsBlockedQuest(nil, GetAvailableTitle(index)) then
         ns.Debug("quests", "greeting: opening quest %s", index)
         SelectAvailableQuest(index)
         return true

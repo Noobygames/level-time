@@ -1558,3 +1558,22 @@ Erschöpfung (ja/nein/nicht getestet):
 In Instanzen (z.B. Unterwasser-Dungeon) geheim? (ja/nein/nicht getestet):
 Fehler:
 ```
+
+### 73. Quest-Automatik: Sperrliste (Roadmap 260, 181, 182)
+
+- [ ] geprüft
+
+Komfort > Automatik: Quests annehmen und abgeben an. Mit 60 Leinen-/Wollstoff zum Stoff-Quartiermeister einer Hauptstadt (z.B. Ralston Farnsley in Unterstadt). Danach im Feld „Nie automatisch“ den Namen eines normalen Questgebers eintragen (Enter) und ihn ansprechen. In Retail/Forever eine wiederholbare Quest von Hand öffnen.
+
+**Erwartet:** Beim Quartiermeister öffnet, nimmt und gibt die Automatik nichts. Der eingetragene Questgeber bleibt ebenfalls manuell. Wiederholbare Quests (Retail/Forever) werden nicht automatisch abgegeben. Flugmeister-Gespräch wird weiter übersprungen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Quartiermeister manuell (ja/nein, Name):
+Eigener Eintrag wirkt (ja/nein):
+Wiederholbare Quest manuell (ja/nein/nicht getestet):
+Flugmeister weiter übersprungen (ja/nein):
+Fehler:
+```

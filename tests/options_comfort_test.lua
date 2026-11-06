@@ -45,7 +45,12 @@ end
 SlashCmdList.LEVELTIMER("config")
 wow.click(L.OPTIONS_TAB_COMFORT)
 wow.click(L.COMFORT_PAGE_SOCIAL)
-local keywordBox = wow.findFrame(function(frame) return frame._scripts.OnEditFocusLost ~= nil end)
+-- Eingabefelder: erst die Sperrliste der Quest-Automatik (Seite Automatik), dann das Stichwort (Seite Sozial)
+local excludeBox = wow.findFrame(function(frame) return frame._scripts.OnEditFocusLost ~= nil end)
+local keywordBox = wow.findFrame(function(frame)
+  return frame._scripts.OnEditFocusLost ~= nil and frame ~= excludeBox
+end)
+expect("Sperrliste leer", excludeBox:GetText(), "")
 expect("Feld zeigt das Stichwort", keywordBox:GetText(), "inv")
 keywordBox:SetText(" einladen ")
 keywordBox._scripts.OnEditFocusLost(keywordBox)

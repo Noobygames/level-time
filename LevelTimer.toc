@@ -100,6 +100,7 @@ Assist\Comfort.lua
 Assist\Friends.lua
 Assist\Social.lua
 Assist\Merchant.lua
+Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua

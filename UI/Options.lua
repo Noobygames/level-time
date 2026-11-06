@@ -13,6 +13,7 @@ local ROW_PROFILE = 20
 local PROFILE_NAME_WIDTH = 160
 local PROFILE_SAVE_WIDTH = 120
 local DELETE_PROFILE_POPUP = "LEVELTIMER_DELETE_PROFILE"
+local QUEST_EXCLUDE_WIDTH = 200  -- Eingabefeld für die eigene Sperrliste der Quest-Automatik
 
 local builder = Builder.New({
   name = "LevelTimerOptions",
@@ -443,6 +444,12 @@ addToggles({
   toggle("AUTO_TURN_IN", "autoTurnIn"),
   toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
   toggle("SKIP_GOSSIP", "skipGossip"),
+})
+builder.AddTextInput({
+  label = "QUEST_EXCLUDE",
+  width = QUEST_EXCLUDE_WIDTH,
+  get = function(db) return db.questExclude end,
+  set = function(text) ns.Set("questExclude", strtrim(text)) end,
 })
 addSection("SECTION_CHARACTER")
 addToggles({

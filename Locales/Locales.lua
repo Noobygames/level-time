@@ -829,6 +829,9 @@ ns.locales = {
     WARN_BREATH = "Noch %d s Atem!",
     NOTICE_FATIGUE = "Erschöpfung!",
     WARN_FATIGUE = "Noch %d s bis zur Erschöpfung: umkehren!",
+    -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
+    QUEST_EXCLUDE = "Nie automatisch",
+    QUEST_EXCLUDE_TIP = "NPCs und Quests, bei denen die Quest-Automatik nichts tut: Namen oder IDs, durch Komma getrennt (z.B. „Ralston Farnsley, 7820“). Mit Enter übernehmen. Stoff-Quartiermeister und Stoffspenden sind schon gesperrt, wiederholbare Quests bleiben ohnehin manuell.",
   },
   enUS = {
     -- General and commands
@@ -1651,6 +1654,9 @@ ns.locales = {
     WARN_BREATH = "%d s of breath left!",
     NOTICE_FATIGUE = "Fatigue!",
     WARN_FATIGUE = "%d s until fatigue: turn back!",
+    -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
+    QUEST_EXCLUDE = "Never automatic",
+    QUEST_EXCLUDE_TIP = "NPCs and quests the quest automation leaves alone: names or IDs separated by commas (e.g. \"Ralston Farnsley, 7820\"). Press Enter to apply. Cloth quartermasters and cloth donations are already blocked, repeatable quests stay manual anyway.",
   },
   frFR = {
     -- Général et commandes
@@ -2473,6 +2479,9 @@ ns.locales = {
     WARN_BREATH = "Plus que %d s de souffle !",
     NOTICE_FATIGUE = "Fatigue !",
     WARN_FATIGUE = "Plus que %d s avant la fatigue : faites demi-tour !",
+    -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
+    QUEST_EXCLUDE = "Jamais automatique",
+    QUEST_EXCLUDE_TIP = "PNJ et quêtes que l'automatisation des quêtes ignore : noms ou ID séparés par des virgules (par ex. « Ralston Farnsley, 7820 »). Validez avec Entrée. Les intendants des étoffes et les dons d'étoffes sont déjà bloqués, les quêtes répétables restent manuelles de toute façon.",
   },
   esES = {
     -- General y comandos
@@ -3295,6 +3304,9 @@ ns.locales = {
     WARN_BREATH = "¡Quedan %d s de aliento!",
     NOTICE_FATIGUE = "¡Fatiga!",
     WARN_FATIGUE = "Quedan %d s hasta la fatiga: ¡da la vuelta!",
+    -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
+    QUEST_EXCLUDE = "Nunca automático",
+    QUEST_EXCLUDE_TIP = "PNJ y misiones que la automatización de misiones deja en paz: nombres o ID separados por comas (p. ej. «Ralston Farnsley, 7820»). Pulsa Intro para aplicar. Los intendentes de telas y las donaciones de tela ya están bloqueados; las misiones repetibles siguen siendo manuales.",
   },
 }
 

@@ -630,6 +630,7 @@ end
 C_QuestLog = {
   GetTitleForQuestID = function(questID) return state.questTitles[questID] end,
   IsQuestTrivial = function(questID) return state.trivialQuests[questID] or false end,
+  IsRepeatableQuest = function(questID) return (state.repeatableQuests or {})[questID] == true end,
 }
 function GetQuestID() return state.questID or 0 end
 function strtrim(text) return (text:gsub("^%s+", ""):gsub("%s+$", "")) end
@@ -750,6 +751,7 @@ function GetAvailableQuestInfo(index)
 end
 function SelectAvailableQuest(index) questAction("greetingAvailable", index) end
 function GetNumActiveQuests() return #state.greeting.active end
+function GetAvailableTitle(index) return state.greeting.available[index].title end
 function GetActiveTitle(index)
   local quest = state.greeting.active[index]
   return quest.title, quest.isComplete
