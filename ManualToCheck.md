@@ -1449,3 +1449,21 @@ Haltungsleiste weg, im Kampf erst danach (ja/nein):
 Zzz und Porträtzahlen weg (ja/nein):
 Fehler (BugSack, "Aktion blockiert"):
 ```
+
+### 68. Charakterfenster: Haltbarkeit und Lautstärkeregler (Roadmap 329, Schritt 2d und 4)
+
+- [ ] geprüft
+
+Komfort > Fenster: „Haltbarkeit anzeigen“ und „Lautstärkeregler“ an, Charakterfenster (C) öffnen. Ein paar Mal sterben oder kämpfen, beim Händler reparieren. Regler ziehen, Fenster schließen und wieder öffnen. Beide Schalter wieder aus.
+
+**Erwartet:** Links neben der Waffenhand „Haltbarkeit“ und ein Prozentwert (Summe aller Teile), grün ab 60 %, gelb darunter, rot unter 20 %; nach der Reparatur 100 %. Rechts neben den Waffen ein Regler „Lautstärke“ mit dem aktuellen Wert aus den Spieleinstellungen; Ziehen ändert die Gesamtlautstärke sofort. Nichts überlappt Plätze, Modell oder Reiter (auch auf Französisch). Aus = beides weg.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Haltbarkeit sichtbar, Wert stimmt (ja/nein):
+Position gut, nichts überlappt (ja/nein):
+Lautstärke ändert sich (ja/nein):
+Fehler:
+```

@@ -114,6 +114,7 @@ local SETTINGS_DEFAULTS = {
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
+  characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)
   levelUpHideBlizzard = true,

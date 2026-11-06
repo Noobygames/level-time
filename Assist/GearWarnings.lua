@@ -28,16 +28,29 @@ GearWarnings.MAX_AMMO_REPEAT = 30  -- Minuten
 local AMMO_SLOT = INVSLOT_AMMO or 0
 local HUNTER = "HUNTER"
 
+-- fn(current, maximum) für jeden ausgerüsteten Gegenstand mit Haltbarkeit
+local function forEachDurability(fn)
+  for slot = FIRST_EQUIPPED_SLOT, INVSLOT_LAST_EQUIPPED or DEFAULT_LAST_EQUIPPED_SLOT do
+    local current, maximum = GetInventoryItemDurability(slot)
+    if current and maximum and maximum > 0 then fn(current, maximum) end
+  end
+end
+
 -- Niedrigste Haltbarkeit aller ausgerüsteten Gegenstände (0..1); 1 ohne Gegenstände mit Haltbarkeit
 function GearWarnings.GetLowestDurability()
   local lowest = 1
-  for slot = FIRST_EQUIPPED_SLOT, INVSLOT_LAST_EQUIPPED or DEFAULT_LAST_EQUIPPED_SLOT do
-    local current, maximum = GetInventoryItemDurability(slot)
-    if current and maximum and maximum > 0 then
-      lowest = math.min(lowest, current / maximum)
-    end
-  end
+  forEachDurability(function(current, maximum) lowest = math.min(lowest, current / maximum) end)
   return lowest
+end
+
+-- Gesamthaltbarkeit (Summe aktuell / Summe maximal, 0..1); nil ohne Gegenstände mit Haltbarkeit
+function GearWarnings.GetOverallDurability()
+  local currentSum, maximumSum = 0, 0
+  forEachDurability(function(current, maximum)
+    currentSum, maximumSum = currentSum + current, maximumSum + maximum
+  end)
+  if maximumSum == 0 then return nil end
+  return currentSum / maximumSum
 end
 
 function GearWarnings.HasAmmo()

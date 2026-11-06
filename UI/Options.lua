@@ -503,6 +503,12 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
+addSubPage("COMFORT_PAGE_FRAMES")
+addSection("SECTION_CHARACTER_FRAME")
+addToggles({
+  toggle("CHARACTER_DURABILITY", "characterDurability", ns.CharacterFrameExtras.IsAvailable),
+  toggle("CHARACTER_VOLUME", "characterVolume", ns.CharacterFrameExtras.IsAvailable),
+})
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
