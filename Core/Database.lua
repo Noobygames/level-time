@@ -27,6 +27,7 @@ local SETTINGS_DEFAULTS = {
   showLevelEta = true,
   showKillsToLevel = false,   -- Kills bis zum Level-Up
   showQuestsToLevel = false,  -- Quests bis zum Level-Up
+  toLevelSamples = 20,  -- Kills/Quests bis Level-Up: Schnitt der letzten N (0 = ganzes Level, Experience.CountToLevel)
   showQuestLogXp = false,  -- XP der Quests im Questlog, fertig und offen (siehe QuestLogXp.lua)
   questXpOnBar = false,    -- XP der fertigen Quests als eigenes Stück auf dem XP-Balken
   showMaxLevelEta = false,
@@ -380,6 +381,7 @@ local SETTING_RANGES = {
   ammoLow = { 20, 1000 },
   lowManaPercent = { 5, 60 },
   breakMinutes = { 15, 240 },
+  toLevelSamples = { 0, 50 },
   breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },

@@ -280,7 +280,7 @@ ns.locales = {
     STAT_RESTED_LEFT_TIP = "Erholungs-XP, die noch übrig ist, und ihr Anteil am aktuellen Level (bis 150 %). Bei 0 lohnt sich das nächste Gasthaus.",
     ROW_RESTED_LEFT = "Erholt übrig",
     STAT_KILLS_TO_LEVEL = "Kills bis Level-Up",
-    STAT_KILLS_TO_LEVEL_TIP = "Wie viele Kills noch bis zum Level-Up fehlen, bei der durchschnittlichen XP je Kill auf diesem Level.",
+    STAT_KILLS_TO_LEVEL_TIP = "Wie viele Kills noch bis zum Level-Up fehlen, beim Schnitt der letzten Kills (einstellbar unter Berechnung). Kills im Erholungsbonus zählen doppelt.",
     STAT_QUESTS_TO_LEVEL = "Quests bis Level-Up",
     STAT_QUESTS_TO_LEVEL_TIP = "Wie viele Quests noch bis zum Level-Up fehlen, bei der durchschnittlichen XP je Quest auf diesem Level.",
     ROW_KILLS_TO_LEVEL = "Kills bis Level-Up",
@@ -886,6 +886,10 @@ ns.locales = {
     RESTED_ALT_FULL = "%s ist voll ausgeruht.",
     RESTED_ALT_NOTICE_TOGGLE = "Ausgeruhte Twinks melden",
     RESTED_ALT_NOTICE_TOGGLE_TIP = "Beim Login eine Chatzeile für jeden Twink, der seit seinem Logout voll ausgeruht ist (geschätzt: 5 % des Balkens je 8 h im Gasthaus, draußen ein Viertel, höchstens 150 %). Die Schätzung steht auch in der Historie unter Vergleich.",
+    TO_LEVEL_SAMPLES = "Kills/Quests bis Level-Up: Schnitt über",
+    TO_LEVEL_SAMPLES_TIP = "Wie viele der letzten Kills bzw. Quests den Schnitt für „Kills/Quests bis Level-Up“ bilden. Ganz links: Schnitt des ganzen Levels. Kills im Erholungsbonus zählen doppelt.",
+    TO_LEVEL_SAMPLES_LEVEL = "ganzes Level",
+    TO_LEVEL_SAMPLES_VALUE = "letzte %d",
   },
   enUS = {
     -- General and commands
@@ -1159,7 +1163,7 @@ ns.locales = {
     STAT_RESTED_LEFT_TIP = "Rested XP still available and its share of the current level (up to 150%). At 0 the next inn is worth it.",
     ROW_RESTED_LEFT = "Rested left",
     STAT_KILLS_TO_LEVEL = "Kills to level",
-    STAT_KILLS_TO_LEVEL_TIP = "How many kills are left until the next level, at the average XP per kill on this level.",
+    STAT_KILLS_TO_LEVEL_TIP = "How many kills are left until the next level, at the average of your latest kills (set under Calculation). Kills while rested count double.",
     STAT_QUESTS_TO_LEVEL = "Quests to level",
     STAT_QUESTS_TO_LEVEL_TIP = "How many quests are left until the next level, at the average XP per quest on this level.",
     ROW_KILLS_TO_LEVEL = "Kills to level",
@@ -1765,6 +1769,10 @@ ns.locales = {
     RESTED_ALT_FULL = "%s is fully rested.",
     RESTED_ALT_NOTICE_TOGGLE = "Report rested alts",
     RESTED_ALT_NOTICE_TOGGLE_TIP = "At login, a chat line for every alt that has become fully rested since its logout (estimated: 5% of the bar per 8 h in an inn, a quarter outside, at most 150%). The estimate is also shown in the history under Compare.",
+    TO_LEVEL_SAMPLES = "Kills/quests to level: average of",
+    TO_LEVEL_SAMPLES_TIP = "How many of your latest kills or quests make up the average for \"kills/quests to level\". Far left: average of the whole level. Kills while rested count double.",
+    TO_LEVEL_SAMPLES_LEVEL = "whole level",
+    TO_LEVEL_SAMPLES_VALUE = "last %d",
   },
   frFR = {
     -- Général et commandes
@@ -2038,7 +2046,7 @@ ns.locales = {
     STAT_RESTED_LEFT_TIP = "XP de repos encore disponible et sa part du niveau actuel (jusqu'à 150 %). À 0, la prochaine auberge vaut le coup.",
     ROW_RESTED_LEFT = "Repos restant",
     STAT_KILLS_TO_LEVEL = "Éliminations avant niveau",
-    STAT_KILLS_TO_LEVEL_TIP = "Nombre d'éliminations restantes avant le niveau suivant, selon l'XP moyenne par élimination à ce niveau.",
+    STAT_KILLS_TO_LEVEL_TIP = "Nombre d'éliminations restantes avant le niveau suivant, selon la moyenne de vos dernières victimes (réglable sous Calcul). Les victimes en repos comptent double.",
     STAT_QUESTS_TO_LEVEL = "Quêtes avant niveau",
     STAT_QUESTS_TO_LEVEL_TIP = "Nombre de quêtes restantes avant le niveau suivant, selon l'XP moyenne par quête à ce niveau.",
     ROW_KILLS_TO_LEVEL = "Éliminations restantes",
@@ -2644,6 +2652,10 @@ ns.locales = {
     RESTED_ALT_FULL = "%s est entièrement reposé.",
     RESTED_ALT_NOTICE_TOGGLE = "Signaler les persos reposés",
     RESTED_ALT_NOTICE_TOGGLE_TIP = "À la connexion, une ligne de discussion pour chaque personnage entièrement reposé depuis sa déconnexion (estimation : 5 % de la barre par 8 h à l'auberge, un quart dehors, 150 % au plus). L'estimation figure aussi dans l'historique sous Comparer.",
+    TO_LEVEL_SAMPLES = "Victimes/quêtes avant niveau : moyenne sur",
+    TO_LEVEL_SAMPLES_TIP = "Combien de vos dernières victimes ou quêtes forment la moyenne de « victimes/quêtes avant niveau ». Tout à gauche : moyenne du niveau entier. Les victimes en repos comptent double.",
+    TO_LEVEL_SAMPLES_LEVEL = "niveau entier",
+    TO_LEVEL_SAMPLES_VALUE = "%d derniers",
   },
   esES = {
     -- General y comandos
@@ -2917,7 +2929,7 @@ ns.locales = {
     STAT_RESTED_LEFT_TIP = "PX de descanso aún disponible y su parte del nivel actual (hasta el 150 %). En 0 merece la pena la siguiente posada.",
     ROW_RESTED_LEFT = "Descanso restante",
     STAT_KILLS_TO_LEVEL = "Abatidos hasta subir",
-    STAT_KILLS_TO_LEVEL_TIP = "Cuántos abatidos faltan para el siguiente nivel, con la PX media por abatido en este nivel.",
+    STAT_KILLS_TO_LEVEL_TIP = "Cuántos abatidos faltan para el siguiente nivel, con la media de tus últimos abatidos (ajustable en Cálculo). Los abatidos con descanso cuentan doble.",
     STAT_QUESTS_TO_LEVEL = "Misiones hasta subir",
     STAT_QUESTS_TO_LEVEL_TIP = "Cuántas misiones faltan para el siguiente nivel, con la PX media por misión en este nivel.",
     ROW_KILLS_TO_LEVEL = "Abatidos restantes",
@@ -3523,6 +3535,10 @@ ns.locales = {
     RESTED_ALT_FULL = "%s ha descansado por completo.",
     RESTED_ALT_NOTICE_TOGGLE = "Avisar de alters descansados",
     RESTED_ALT_NOTICE_TOGGLE_TIP = "Al conectar, una línea de chat por cada alter que haya descansado por completo desde su desconexión (estimado: 5 % de la barra cada 8 h en una posada, un cuarto fuera, como máximo 150 %). La estimación también aparece en el historial en Comparar.",
+    TO_LEVEL_SAMPLES = "Abatidos/misiones hasta nivel: media de",
+    TO_LEVEL_SAMPLES_TIP = "Cuántos de tus últimos abatidos o misiones forman la media de «abatidos/misiones hasta nivel». Totalmente a la izquierda: media del nivel entero. Los abatidos con descanso cuentan doble.",
+    TO_LEVEL_SAMPLES_LEVEL = "nivel entero",
+    TO_LEVEL_SAMPLES_VALUE = "últimos %d",
   },
 }
 

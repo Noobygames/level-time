@@ -10,13 +10,15 @@ local Classification = ns.Classification
 -- Gruppen-Kills zählen mit; graue Gegner ohne XP und Kills auf Max-Level nicht.
 -- Die XP-Menge aus der Meldung fließt in die XP-Quellen ein.
 ---------------------------------------------------------------------------
-local function countKill(name, xp)
+-- restedBonus = Erholungs-Bonus in xp (aus der Meldung), nil wenn unbekannt; das Journal merkt beides für
+-- "Kills bis Level-Up" (Experience.CountToLevel)
+local function countKill(name, xp, restedBonus)
   local classification = name and Classification.Of(name) or nil
   Stats.Increment(Stats.PVE_KILLS)
   Stats.Increment(Stats.XP_KILLS, xp or 0)
   if Classification.IsElite(classification) then Stats.Increment(Stats.ELITE_KILLS) end
   if Classification.IsRare(classification) then Stats.Increment(Stats.RARE_KILLS) end
-  Journal.AddKill(Journal.PVE, name, classification)
+  Journal.AddKill(Journal.PVE, name, classification, xp, restedBonus)
 end
 
 ---------------------------------------------------------------------------
@@ -92,6 +94,17 @@ end)
 ns.RegisterEvent("PLAYER_REGEN_ENABLED", function() lastCombatEndAt = GetTime() end)
 ns.RegisterEvent("QUEST_TURNED_IN", function() lastQuestAt = GetTime() end)
 
+-- Kill im Erholungsbonus: "X stirbt, Ihr bekommt 150 Erfahrung. (+75 EP-Bonus durch Erholung)"; das 3. Argument
+-- enthält den Bonus (GlobalStrings aller Clients, Ketho/BlizzardInterfaceResources). Spezielle Formen zuerst.
+local restedFormats = ChatPatterns.CompileGlobals({ "COMBATLOG_XPGAIN_EXHAUSTION1_GROUP",
+  "COMBATLOG_XPGAIN_EXHAUSTION1_RAID", "COMBATLOG_XPGAIN_EXHAUSTION1" })
+
+local function restedBonus(message)
+  local args = ChatPatterns.MatchAny(message, restedFormats)
+  local bonus = args and type(args[3]) == "string" and tonumber(args[3]:match("%d+"))
+  return bonus or 0
+end
+
 if COMBATLOG_XPGAIN_FIRSTPERSON then
   local killFormat = ChatPatterns.Compile(COMBATLOG_XPGAIN_FIRSTPERSON)
 
@@ -103,7 +116,7 @@ if COMBATLOG_XPGAIN_FIRSTPERSON then
     end
     local args = ChatPatterns.Match(message, killFormat)
     if args then
-      countKill(args[1], tonumber(args[2]))
+      countKill(args[1], tonumber(args[2]), restedBonus(message))
       ns.Debug("xp", "kill: %s", message)
     else
       ns.Debug("xp", "no kill: %s", message)

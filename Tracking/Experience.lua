@@ -60,18 +60,63 @@ function Experience.GetSecondsToLevel(scope)
   return remainingXp / rate * SECONDS_PER_HOUR
 end
 
--- Wie viele Kills bzw. Quests noch bis zum Level-Up fehlen, bei der durchschnittlichen XP je
--- Kill/Quest auf diesem Level (sonst der Session); nil ohne Grundlage
-function Experience.CountToLevel(xpCounter, countCounter)
+---------------------------------------------------------------------------
+-- Kills bzw. Quests bis zum Level-Up (Roadmap 273). Grundlage ist die Basis-XP (ohne Erholungsbonus) je Kill/Quest:
+-- der Schnitt der letzten toLevelSamples Einträge im Journal-Eingang (Kills mit xp/rested aus KillCounter.lua,
+-- Quests mit xp), bei 0 oder ohne solche Einträge der Schnitt des Levels (sonst der Session). Kills im Erholungs-Pool
+-- (GetXPExhaustion = XP-Spanne, die doppelt zählt) geben das Doppelte; Quests verbrauchen keine Erholung.
+---------------------------------------------------------------------------
+local KILL_LOG, QUEST_LOG = "killLog", "questLog"
+Experience.MIN_TO_LEVEL_SAMPLES = 0   -- 0 = Schnitt des ganzen Levels
+Experience.MAX_TO_LEVEL_SAMPLES = 50
+
+local function isPveKill(entry) return entry.kind == ns.Journal.PVE end
+local function anyEntry() return true end
+
+-- Schnitt der Basis-XP der neuesten sampleSize Einträge mit XP; nil ohne Einträge
+local function recentBaseXp(logName, matches, sampleSize)
+  local log = ns.character[logName] or {}
+  local sum, count = 0, 0
+  for i = #log, 1, -1 do
+    local entry = log[i]
+    if type(entry.xp) == "number" and entry.xp > 0 and matches(entry) then
+      sum = sum + entry.xp - (entry.rested or 0)
+      count = count + 1
+      if count >= sampleSize then break end
+    end
+  end
+  return count > 0 and sum / count or nil
+end
+
+-- Schnitt des Bereichs (Level, sonst Session); bei Kills ohne den dort verbrauchten Erholungsbonus
+local function scopeBaseXp(xpCounter, countCounter, withRested)
   for _, scope in ipairs({ Stats.LEVEL, Stats.SESSION }) do
     local count = Stats.Get(scope, countCounter)
     local xp = Stats.Get(scope, xpCounter)
-    if count > 0 and xp > 0 then
-      local remainingXp = UnitXPMax("player") - UnitXP("player")
-      return math.ceil(remainingXp / (xp / count))
-    end
+    if withRested then xp = xp - Stats.Get(scope, Stats.XP_RESTED) end
+    if count > 0 and xp > 0 then return xp / count end
   end
   return nil
+end
+
+-- Anzahl bei Basis-XP je Stück; im Erholungs-Pool zählt jedes Stück doppelt
+function Experience.CountForXp(remainingXp, baseXp, restedPool)
+  local doubled = math.min(remainingXp, restedPool or 0)
+  return math.ceil(doubled / (2 * baseXp) + (remainingXp - doubled) / baseXp)
+end
+
+-- Wie viele Kills (countCounter = PVE_KILLS) bzw. Quests (QUESTS) noch bis zum Level-Up fehlen; nil ohne Grundlage
+function Experience.CountToLevel(xpCounter, countCounter)
+  local isKills = countCounter == Stats.PVE_KILLS
+  local sampleSize = ns.db.toLevelSamples or 0
+  local baseXp
+  if sampleSize > 0 then
+    baseXp = recentBaseXp(isKills and KILL_LOG or QUEST_LOG, isKills and isPveKill or anyEntry, sampleSize)
+  end
+  baseXp = baseXp or scopeBaseXp(xpCounter, countCounter, isKills)
+  if not baseXp or baseXp <= 0 then return nil end
+  local remainingXp = UnitXPMax("player") - UnitXP("player")
+  return Experience.CountForXp(remainingXp, baseXp, isKills and (GetXPExhaustion() or 0) or 0)
 end
 
 -- XP-Quellen im Bereich. "Sonstige" ist der Rest (Entdecken, Berufe, ...).

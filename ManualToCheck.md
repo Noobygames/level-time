@@ -1770,3 +1770,20 @@ Stunden offline, Gasthaus ja/nein:
 Meldung "voll ausgeruht" (ja/nein/nicht erreicht):
 Fehler:
 ```
+
+### 84. Kills bis Level-Up mit Erholung (Roadmap 273)
+
+- [ ] geprüft
+
+Statistiken „Kills bis Level-Up“ an, Berechnung „Schnitt über“ auf „letzte 20“. Erholt (blauer Balken) einige Gegner töten, `/lt debug` an und die Chatzeile eines Kills im Erholungsbonus ansehen. Danach Regler ganz nach links („ganzes Level“).
+
+**Erwartet:** Die Zahl passt zu „fehlende XP ÷ XP je Kill ohne Bonus“, im Erholungsbonus etwa halb so viele Kills. Im Journal (Historie > Kills) keine Fehler. Debug-Zeile `stats xpKills +…` mit der vollen XP.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kill-Meldung im Erholungsbonus (Text kopieren):
+Zahl plausibel mit/ohne Erholung (ja/nein):
+Fehler:
+```

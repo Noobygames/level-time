@@ -264,6 +264,17 @@ for _, group in ipairs(ns.STAT_GROUPS) do
 end
 addSection("SECTION_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
+addSlider({
+  label = "TO_LEVEL_SAMPLES",
+  min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
+  max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
+  step = 5,
+  get = function(db) return db.toLevelSamples end,
+  set = function(value) ns.Set("toLevelSamples", value) end,
+  format = function(value)
+    return value == 0 and L.TO_LEVEL_SAMPLES_LEVEL or string.format(L.TO_LEVEL_SAMPLES_VALUE, value)
+  end,
+})
 finishPage()
 
 -- Hinweise: Level-Up im Chat und Erinnerungen an Buffs
