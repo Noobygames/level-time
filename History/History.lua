@@ -17,12 +17,23 @@ local function isLoggedIn(characterKey)
 end
 
 -- Einträge einer Liste (älteste zuerst gespeichert), neueste zuerst
+-- Umgedrehte Kopie (neueste zuerst)
 local function newestFirst(list)
-  local records = {}
-  for i = #list, 1, -1 do
-    table.insert(records, list[i])
+  local records, count = {}, #list
+  for i = count, 1, -1 do
+    records[count - i + 1] = list[i]
   end
   return records
+end
+
+-- Journal neueste zuerst: Journal.GetEntries liefert dieselbe Liste, solange sich nichts ändert, daher hier je Liste
+-- zwischengespeichert (die Historie fragt jede Sekunde, Journale können sehr lang sein). Ergebnis nicht verändern.
+local reversedJournals = setmetatable({}, { __mode = "k" })
+
+local function journalNewestFirst(characterKey, logName)
+  local list = ns.Journal.GetEntries(characterKey, logName)
+  reversedJournals[list] = reversedJournals[list] or newestFirst(list)
+  return reversedJournals[list]
 end
 
 function History.GetCharacter(characterKey)
@@ -121,29 +132,29 @@ end
 
 -- Kills und Tode einzeln (Form siehe Journal.lua), neueste zuerst
 function History.GetKillLog(characterKey)
-  return newestFirst(History.GetCharacter(characterKey).killLog)
+  return journalNewestFirst(characterKey, "killLog")
 end
 
 function History.GetDeathLog(characterKey)
-  return newestFirst(History.GetCharacter(characterKey).deathLog)
+  return journalNewestFirst(characterKey, "deathLog")
 end
 
 function History.GetQuestLog(characterKey)
-  return newestFirst(History.GetCharacter(characterKey).questLog)
+  return journalNewestFirst(characterKey, "questLog")
 end
 
 function History.GetLootLog(characterKey)
-  return newestFirst(History.GetCharacter(characterKey).lootLog)
+  return journalNewestFirst(characterKey, "lootLog")
 end
 
 function History.GetNearDeathLog(characterKey)
-  return newestFirst(History.GetCharacter(characterKey).nearDeathLog)
+  return journalNewestFirst(characterKey, "nearDeathLog")
 end
 
 -- Instanz-Läufe, neueste zuerst; ein laufender (bzw. beim letzten Logout offener) Lauf steht vorne
 function History.GetInstanceLog(characterKey)
   local character = History.GetCharacter(characterKey)
-  local records = newestFirst(character.instanceLog)
+  local records = newestFirst(ns.Journal.GetEntries(characterKey, "instanceLog"))  -- Kopie: laufender Lauf kommt dazu
   local run = character.currentRun
   if run then
     local record = ns.Instances.ToRecord(run)

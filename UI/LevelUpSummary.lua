@@ -17,7 +17,6 @@ local LevelUpSummary = {
 }
 ns.LevelUpSummary = LevelUpSummary
 
-local ANNOUNCE_PREFIX = ns.DISPLAY_NAME .. ": "
 
 local function summaryText(completedLevel)
   local seconds = Stats.GetSeconds(Stats.LEVEL)
@@ -32,36 +31,16 @@ local function summaryText(completedLevel)
     rate and Format.Number(rate) or "-")
 end
 
----------------------------------------------------------------------------
--- Ansage: Chat-Art passend zur Einstellung, nil wenn man nicht in Gruppe bzw. Gilde ist.
--- Gruppen aus der Dungeonsuche/Schlachtfeldern erreicht man nur über INSTANCE_CHAT.
----------------------------------------------------------------------------
+-- Ansage: Chat-Art passend zur Einstellung, nil wenn man nicht in Gruppe bzw. Gilde ist (Lib/GroupChat.lua)
+local GroupChat = ns.GroupChat
+
 local function announceChannel(target)
-  if target == LevelUpSummary.ANNOUNCE_GUILD then
-    return IsInGuild and IsInGuild() and "GUILD" or nil
-  end
-  if target == LevelUpSummary.ANNOUNCE_PARTY and IsInGroup then
-    if LE_PARTY_CATEGORY_INSTANCE and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return "INSTANCE_CHAT" end
-    if IsInGroup() then return "PARTY" end
-  end
+  if target == LevelUpSummary.ANNOUNCE_GUILD then return GroupChat.GuildChannel() end
+  if target == LevelUpSummary.ANNOUNCE_PARTY then return GroupChat.PartyChannel() end
   return nil
 end
 
--- Retail sperrt Chat-Nachrichten von Addons z.B. in Bosskämpfen; dann lieber nichts senden,
--- statt eine "Aktion blockiert"-Meldung auszulösen
-local function chatLocked()
-  return C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown()
-end
-
--- C_ChatInfo.SendChatMessage ersetzt seit 11.2 die globale Funktion; ältere Clients haben nur diese
-local function sendChat(message, chatType)
-  local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
-  send(message, chatType)
-end
-
-local function announcement(text)
-  return ANNOUNCE_PREFIX .. Format.PlainText(text)
-end
+local chatLocked = GroupChat.Locked
 
 local function announce(text)
   local target = ns.db.levelUpAnnounce
@@ -71,7 +50,7 @@ local function announce(text)
     return
   end
   ns.Debug("announce", "sending to %s", chatType)
-  sendChat(announcement(text), chatType)
+  GroupChat.Send(text, chatType)
 end
 
 -- Fehlersuche (/lt debug levelup): Zusammenfassung des laufenden Levels, als wäre es geschafft.

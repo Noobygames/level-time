@@ -8,7 +8,7 @@ RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run package artwork records test test-addon test-installer test-artwork test-records vet
+.PHONY: install update dry-run debuglog package artwork records test test-addon test-installer test-artwork test-records vet
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -24,8 +24,12 @@ dry-run:
 
 # ZIPs für CurseForge oder manuelle Installation: dist/LevelTimer-<version>.zip und dist/StreamGoal-<version>.zip
 package:
-	$(RUN) -package "$(CURDIR)/dist/LevelTimer-$(VERSION).zip"
+	$(RUN) -addons LevelTimer,LevelTimer_Archive -package "$(CURDIR)/dist/LevelTimer-$(VERSION).zip"
 	$(RUN) -addons StreamGoal -package "$(CURDIR)/dist/StreamGoal-$(VERSION).zip"
+
+# Debug-Log von Level Time (/lt debug log, /lt debug check) aus den SavedVariables als JSON Lines ausgeben (nur lesen)
+debuglog:
+	$(RUN) -debuglog $(ARGS)
 
 # CurseForge-Logo und Addon-Icon aus tools/artwork neu erzeugen
 artwork:

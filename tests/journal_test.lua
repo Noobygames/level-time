@@ -71,10 +71,13 @@ expectTrue("Reiter Kills", wow.click("Kills"))
 expectTrue("Reiter Tode", wow.click("Tode"))
 
 ---------------------------------------------------------------------------
--- Begrenzung: nur die neuesten Einträge bleiben
+-- Begrenzung des Eingangs (greift nur, wenn das Archiv nicht umziehen kann): nur die neuesten Einträge bleiben
 ---------------------------------------------------------------------------
-for i = 1, Journal.MAX_KILLS + 10 do
+local inboxLimit = Journal.INBOX_LIMIT
+Journal.INBOX_LIMIT = 50
+for i = 1, Journal.INBOX_LIMIT + 10 do
   Journal.AddKill(Journal.PVE, "Ratte " .. i)
 end
-expect("Kill-Journal begrenzt", #addon.character.killLog, Journal.MAX_KILLS)
-expect("neuester Eintrag bleibt", addon.character.killLog[Journal.MAX_KILLS].name, "Ratte " .. (Journal.MAX_KILLS + 10))
+expect("Kill-Eingang begrenzt", #addon.character.killLog, Journal.INBOX_LIMIT)
+expect("neuester Eintrag bleibt", addon.character.killLog[Journal.INBOX_LIMIT].name, "Ratte " .. (Journal.INBOX_LIMIT + 10))
+Journal.INBOX_LIMIT = inboxLimit

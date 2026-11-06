@@ -3,6 +3,10 @@
 # dagegen nur die Dateien aus der .toc plus LICENSE. Neue Nicht-Addon-Dateien hier eintragen.
 package-as: LevelTimer
 
+# Load-on-Demand-Archiv (eigener Addon-Ordner neben LevelTimer/, siehe Tracking/JournalArchive.lua)
+move-folders:
+  LevelTimer/LevelTimer_Archive: LevelTimer_Archive
+
 ignore:
   - tests
   - StreamGoal

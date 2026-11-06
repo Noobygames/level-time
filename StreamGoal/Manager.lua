@@ -27,6 +27,8 @@ local ACTIVE_ROW = 22
 local MAX_ACTIVE_ROWS = Goals.MAX_ACTIVE
 local KIND_TAB_GAP = 14
 local CANCEL_WIDTH = 80
+local STEP_WIDTH = 24           -- Knöpfe "-" und "+" bei selbst gezählten Zielen
+local BUTTON_GAP = 4
 local ERROR_COLOR = { 1, 0.4, 0.4 }
 local MUTED = Widgets.COLORS.muted
 
@@ -40,8 +42,10 @@ local FORM = {
   kills = { amount = "SG_FORM_AMOUNT", kills = true },
   item = { amount = "SG_FORM_AMOUNT", text1 = "SG_FORM_ITEM", text2 = "SG_FORM_BOSS" },
   bgwin = { amount = "SG_FORM_AMOUNT", text1 = "SG_FORM_BG" },
+  custom = { amount = "SG_FORM_COUNTER", text1 = "SG_FORM_TEXT" },
 }
-local KIND_LABELS = { level = "SG_KIND_LEVEL", kills = "SG_KIND_KILLS", item = "SG_KIND_ITEM", bgwin = "SG_KIND_BGWIN" }
+local KIND_LABELS = { level = "SG_KIND_LEVEL", kills = "SG_KIND_KILLS", item = "SG_KIND_ITEM", bgwin = "SG_KIND_BGWIN",
+  custom = "SG_KIND_CUSTOM" }
 local SOURCE_LABELS = { any = "SG_FORM_SOURCE_ANY", pve = "SG_FORM_SOURCE_PVE", pvp = "SG_FORM_SOURCE_PVP" }
 
 ---------------------------------------------------------------------------
@@ -172,6 +176,8 @@ local function createFromForm()
   elseif selectedKind == "bgwin" then
     local name = boxText(text1Box)
     params = { battleground = name ~= "" and name or nil }
+  elseif selectedKind == "custom" then
+    params = { text = boxText(text1Box) }  -- leere Anzahl = ohne Zähler
   end
   return Goals.Create(selectedKind, params, tonumber(boxText(amountBox)))
 end
@@ -217,6 +223,12 @@ emptyText:SetTextColor(unpack(MUTED))
 emptyText:SetPoint("TOPLEFT", 0, ACTIVE_HEADER_Y - ACTIVE_ROW)
 
 local activeRows = {}
+local STEP_LABELS = { minus = "-", plus = "+" }
+
+local function stepGoal(id, delta)
+  local _, err = Goals.Step(id, delta)
+  if err then ns.Print(err) end
+end
 
 local function activeRow(index)
   if not activeRows[index] then
@@ -225,12 +237,25 @@ local function activeRow(index)
     text:SetPoint("TOPLEFT", 0, y)
     text:SetJustifyH("LEFT")
     text:SetWordWrap(false)
-    text:SetWidth(CONTENT_WIDTH - CANCEL_WIDTH - 8)
+    text:SetWidth(CONTENT_WIDTH - CANCEL_WIDTH - 2 * (STEP_WIDTH + BUTTON_GAP) - 8)
     local cancel = Widgets.CreateButton(goalsPage, CANCEL_WIDTH, ACTIVE_ROW - 4, nil)
     cancel:SetPoint("TOPRIGHT", 0, y + 2)
-    activeRows[index] = { text = text, cancel = cancel }
+    local plus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, nil)
+    plus:SetPoint("RIGHT", cancel, "LEFT", -BUTTON_GAP, 0)
+    Widgets.SetButtonText(plus, STEP_LABELS.plus, STEP_WIDTH)
+    local minus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, nil)
+    minus:SetPoint("RIGHT", plus, "LEFT", -BUTTON_GAP, 0)
+    Widgets.SetButtonText(minus, STEP_LABELS.minus, STEP_WIDTH)
+    activeRows[index] = { text = text, cancel = cancel, plus = plus, minus = minus }
   end
   return activeRows[index]
+end
+
+-- "#3  Text  (4 / 5)"; ohne Zähler nur Nummer und Text
+local function activeLabel(goal)
+  local label = string.format("#%d  %s", goal.id, Goals.Title(goal))
+  if not Goals.HasCount(goal) then return label end
+  return string.format("%s  (%d / %d)", label, goal.progress, goal.target)
 end
 
 local function renderActive()
@@ -241,14 +266,21 @@ local function renderActive()
     local goal = active[i]
     if goal and i <= MAX_ACTIVE_ROWS then
       local row = activeRow(i)
-      row.text:SetText(string.format("#%d  %s  (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
+      row.text:SetText(activeLabel(goal))
       row.text:Show()
       Widgets.SetButtonText(row.cancel, L.SG_CANCEL, CANCEL_WIDTH)
       row.cancel:SetScript("OnClick", function() Manager.CancelGoal(goal.id) end)
       row.cancel:Show()
+      local manual = Goals.IsManual(goal)
+      row.plus:SetScript("OnClick", function() stepGoal(goal.id, 1) end)
+      row.minus:SetScript("OnClick", function() stepGoal(goal.id, -1) end)
+      row.plus:SetShown(manual)
+      row.minus:SetShown(manual and Goals.HasCount(goal))  -- ohne Zähler gibt es nur "erledigt"
     elseif activeRows[i] then
       activeRows[i].text:Hide()
       activeRows[i].cancel:Hide()
+      activeRows[i].plus:Hide()
+      activeRows[i].minus:Hide()
     end
   end
 end
@@ -291,7 +323,8 @@ local historyColumns = {
     value = function(g) return date("%Y-%m-%d", g.finishedAt) end, sort = function(g) return g.finishedAt end },
   { header = "SG_COL_GOAL", width = 190, align = "LEFT", value = function(g) return Goals.Title(g) end },
   { header = "SG_COL_CHARACTER", width = 100, align = "LEFT", value = characterName },
-  { header = "SG_COL_PROGRESS", width = 60, value = function(g) return string.format("%d/%d", g.progress, g.target) end,
+  { header = "SG_COL_PROGRESS", width = 60,
+    value = function(g) return Goals.HasCount(g) and string.format("%d/%d", g.progress, g.target) or "" end,
     sort = function(g) return Goals.Fraction(g) end },
   { header = "SG_COL_RESULT", width = 70, align = "LEFT", value = function(g) return L[STATUS_LABELS[g.status]] end },
   { header = "SG_COL_TIME", width = 70, value = function(g) return Format.Duration(duration(g)) end, sort = duration },

@@ -22,6 +22,9 @@ type options struct {
 	dryRun  bool
 	pkgPath string
 	addons  string
+	// -debuglog: Debug-Log von Level Time ausgeben (nur lesen), tail = nur die letzten Zeilen
+	debugLog bool
+	tail     int
 }
 
 func main() {
@@ -34,10 +37,14 @@ func main() {
 	flag.BoolVar(&o.dryRun, "dry-run", false, "Nur anzeigen, nichts schreiben")
 	flag.StringVar(&o.addons, "addons", "", "Kommagetrennte Addons (Ordnername), z.B. StreamGoal; Standard: alle beim Installieren, das Hauptaddon beim Packen")
 	flag.StringVar(&o.pkgPath, "package", "", "Statt zu installieren eine ZIP für CurseForge/manuelle Installation schreiben")
+	flag.BoolVar(&o.debugLog, "debuglog", false, "Debug-Log von Level Time (/lt debug log) aus den SavedVariables ausgeben, nur lesen; -flavors filtert")
+	flag.IntVar(&o.tail, "tail", 0, "Mit -debuglog: nur die letzten N Zeilen je Log")
 	flag.Parse()
 
 	var err error
-	if o.pkgPath != "" {
+	if o.debugLog {
+		err = runDebugLog(o, os.Stdout, os.Stderr)
+	} else if o.pkgPath != "" {
 		err = runPackage(o)
 	} else {
 		w := &wizard{in: bufio.NewReader(os.Stdin), out: os.Stdout, opts: o}
@@ -54,7 +61,7 @@ func runPackage(o options) error {
 	if err != nil {
 		return err
 	}
-	// Pro ZIP ein Addon: ohne -addons das Hauptaddon
+	// Ohne -addons das Hauptaddon; mehrere Addons (z.B. LevelTimer,LevelTimer_Archive) landen in einer ZIP
 	names := o.addons
 	if names == "" {
 		names = addons[0].Name
@@ -63,10 +70,7 @@ func runPackage(o options) error {
 	if err != nil {
 		return err
 	}
-	if len(selected) != 1 {
-		return errors.New("-package packt genau ein Addon, bitte mit -addons wählen")
-	}
-	if err := WritePackage(selected[0], o.pkgPath); err != nil {
+	if err := WritePackage(selected, o.pkgPath); err != nil {
 		return err
 	}
 	fmt.Printf("Paket erstellt: %s\n", o.pkgPath)

@@ -96,6 +96,16 @@ function actions.splits()
   end
 end
 
+-- Dauerhaftes Debug-Log (DebugLog.lua): an/aus, clear, status
+function actions.log(argument)
+  ns.DebugLog.Command(argument)
+end
+
+-- Alle Prüfungen (DebugLog.CHECKS) einmal ausführen und ins Debug-Log schreiben
+function actions.check()
+  ns.DebugLog.CheckCommand()
+end
+
 function actions.help()
   ns.Print(L.DEBUG_HELP)
 end

@@ -275,6 +275,19 @@ addToggles({
   toggle("REMIND_CAMP_TOGGLE", "remindCamp", ns.BuffReminder.HasCampSystem),
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
 })
+-- Klassen-Hinweise: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
+local classReminders = ns.ClassBuffs.ForPlayerClass()
+if #classReminders > 0 then
+  addSection("SECTION_CLASS_REMINDERS")
+  local classToggles = {}
+  for _, reminder in ipairs(classReminders) do
+    local classToggle = toggle("REMIND_CLASS_TOGGLE", reminder.setting)
+    classToggle.text = function() return ns.ClassBuffs.Label(reminder) end
+    classToggle.tip = ns.ClassBuffs.TipKey(reminder)
+    table.insert(classToggles, classToggle)
+  end
+  addToggles(classToggles)
+end
 addSlider({
   label = "REMINDER_INTERVAL",
   min = ns.BuffReminder.MIN_INTERVAL,
@@ -292,6 +305,20 @@ addToggles({
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
+  toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
+  toggle("LOW_MANA_TOGGLE", "announceLowMana"),
+  toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
+  toggle("CC_OVER_TOGGLE", "announceControlOver"),
+  toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
+})
+addSlider({
+  label = "LOW_MANA_BELOW",
+  min = ns.ManaCallout.MIN_PERCENT,
+  max = ns.ManaCallout.MAX_PERCENT,
+  step = 5,
+  get = function(db) return db.lowManaPercent end,
+  set = function(value) ns.Set("lowManaPercent", value) end,
+  format = percent,
 })
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then
@@ -325,8 +352,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
 end
 finishPage()
 
--- Timer: Lagerfeuer (nur WoW Forever) und Essen
-if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
+-- Timer: Lagerfeuer (nur WoW Forever), Essen und Flüge (überall, daher gibt es den Reiter immer)
+do
   addPage("OPTIONS_TAB_TIMERS")
   -- Größe, Vorschau, Verschieben und Zurücksetzen einer Zeit-Anzeige (Lib/TimerDisplay.lua); Texte <PREFIX>_SCALE, _PREVIEW, _MOVE, _RESET_POSITION
   local function addTimerDisplayControls(prefix, display, scaleSetting)
@@ -376,16 +403,28 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
     })
     addTimerDisplayControls("FOOD", ns.FoodDisplay, "foodScale")
   end
+
+  -- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times", ohne mitgelieferte Daten)
+  addSection("SECTION_FLIGHT")
+  addToggles({
+    toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
+    toggle("FLIGHT_SOUND", "flightSound"),
+  })
+  addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flightScale")
   finishPage()
 end
 
--- Komfort: Automatik bei Händlern, Quests und Gesprächen
+-- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus (Automatik, Sozial, Chat, Oberfläche, System)
 addPage("OPTIONS_TAB_COMFORT")
+addHint("COMFORT_HINT")
+local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
+addSubPage("COMFORT_PAGE_AUTOMATION")
 addSection("SECTION_MERCHANT")
 addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
   toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
+  toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
 })
 addSection("SECTION_QUESTS")
 addToggles({
@@ -395,15 +434,73 @@ addToggles({
   toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
+addSection("SECTION_CHARACTER")
+addToggles({
+  toggle("AUTO_ACCEPT_SUMMON", "autoAcceptSummon"),
+  toggle("AUTO_ACCEPT_RESURRECT", "autoAcceptResurrect"),
+  toggle("AUTO_RELEASE_PVP", "autoReleasePvP"),
+})
+addSubPage("COMFORT_PAGE_SOCIAL")
 addSection("SECTION_DECLINE")
 addToggles({
   toggle("DECLINE_TRADES", "declineTrades"),
   toggle("DECLINE_GROUP_INVITES", "declineGroupInvites"),
   toggle("DECLINE_GUILD_INVITES", "declineGuildInvites"),
   toggle("DECLINE_DUELS", "declineDuels"),
+  toggle("DECLINE_SHARED_QUESTS", "declineSharedQuests"),
+  toggle("BLOCK_FRIEND_REQUESTS", "blockFriendRequests", ns.Social.CanBlockFriendRequests),
 })
+-- Einladungen: Vertraute = Freunde und Gilde (Friends.lua); declineGroupInvites lehnt sie dann nicht ab
+addSection("SECTION_INVITES")
+addToggles({
+  toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
+  toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
+})
+builder.AddTextInput({
+  label = "INVITE_KEYWORD",
+  get = function(db) return db.inviteKeyword end,
+  set = function(text) ns.Set("inviteKeyword", strtrim(text)) end,
+})
+addSubPage("COMFORT_PAGE_CHAT")
 addSection("SECTION_CHAT")
-addToggles({ toggle("CHAT_COPY_TOGGLE", "chatCopyButton") })
+addToggles({
+  toggle("CHAT_COPY_TOGGLE", "chatCopyButton"),
+  toggle("RESTORE_CHAT", "restoreChat"),
+  toggle("FILTER_DRUNK_SPAM", "filterDrunkSpam"),
+  toggle("FILTER_SPELL_LINKS", "filterSpellLinks"),
+  toggle("UNIVERSAL_GROUP_COLOR", "universalGroupColor", ns.ChatColors.IsAvailable),
+})
+addSection("SECTION_CHAT_WINDOWS")
+addToggles({
+  toggle("HIDE_COMBAT_LOG_TAB", "hideCombatLogTab"),
+  toggle("HIDE_CHAT_BUTTONS", "hideChatButtons"),
+  toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
+  toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
+  toggle("NO_CHAT_FADE", "noChatFade"),
+})
+addSubPage("COMFORT_PAGE_INTERFACE")
+addSection("SECTION_SCREEN_TEXT")
+addToggles({
+  toggle("HIDE_ERRORS", "hideErrors"),
+  toggle("HIDE_ZONE_TEXT", "hideZoneText"),
+})
+addSection("SECTION_ACTION_BARS")
+addToggles({
+  toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
+  toggle("HIDE_MACRO_TEXT", "hideMacroText"),
+  toggle("RANGE_COLOR", "rangeColor"),
+})
+-- Nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner und Ereignis-Einblendungen nicht in Classic)
+local HideFrames = ns.HideFrames
+addSection("SECTION_HIDE_FRAMES")
+addToggles({
+  toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
+  toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
+  toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
+  toggle("HIDE_STANCE_BAR", "hideStanceBar", HideFrames.HasStanceBar),
+  toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation),
+  toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers),
+})
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
@@ -420,7 +517,73 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
-addHint("COMFORT_HINT")
+addSubPage("COMFORT_PAGE_FRAMES")
+addSection("SECTION_CHARACTER_FRAME")
+addToggles({
+  toggle("CHARACTER_DURABILITY", "characterDurability", ns.CharacterFrameExtras.IsAvailable),
+  toggle("CHARACTER_VOLUME", "characterVolume", ns.CharacterFrameExtras.IsAvailable),
+})
+addSection("SECTION_UNIT_FRAMES")
+addToggles({ toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable) })
+addSection("SECTION_TOOLTIP")
+addToggles({
+  toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
+  toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
+  toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
+})
+-- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
+local MinimapTweaks = ns.MinimapTweaks
+addSection("SECTION_MINIMAP")
+addToggles({
+  toggle("MINIMAP_WHEEL_ZOOM", "minimapWheelZoom", MinimapTweaks.CanWheelZoom),
+  toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
+  toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
+})
+addSubPage("COMFORT_PAGE_SYSTEM")
+addSection("SECTION_LOOT")
+addToggles({
+  toggle("FASTER_LOOT", "fasterLoot"),
+  toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
+})
+addSection("SECTION_DIALOGS")
+addToggles({
+  toggle("EASY_DELETE", "easyDelete"),
+  toggle("FASTER_MOVIE_SKIP", "fasterMovieSkip"),
+})
+addSection("SECTION_CAMERA")
+addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
+addSection("SECTION_GRAPHICS")
+addToggles({
+  toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
+  toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
+  toggle("SET_WEATHER_DENSITY", "setWeatherDensity"),
+})
+addSlider({
+  label = "WEATHER_DENSITY",
+  min = ns.ScreenEffects.MIN_WEATHER,
+  max = ns.ScreenEffects.MAX_WEATHER,
+  step = 1,
+  get = function(db) return db.weatherDensity end,
+  set = function(value) ns.Set("weatherDensity", value) end,
+  format = function(value) return tostring(value) end,
+})
+-- Stummschalten nur, wo MuteSoundFile existiert
+local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
+for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
+  table.insert(muteToggles, toggle(group.label, group.setting, ns.Sounds.CanMute))
+end
+addSection("SECTION_SOUND")
+addToggles(muteToggles)
+addSection("SECTION_COMBAT_GROUP")
+addToggles({
+  toggle("COMBAT_PLATES", "combatPlates"),
+  toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
+})
+if ns.AddonListSort.IsAvailable() then
+  addSection("SECTION_ADDON_LIST")
+  addToggles({ toggle("SORT_ADDON_LIST", "sortAddonList") })
+end
+finishSubPages()
 finishPage()
 
 -- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)

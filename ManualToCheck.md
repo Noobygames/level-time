@@ -1386,3 +1386,136 @@ Fähigkeiten stimmen mit dem Lehrer überein (ja/nein/nicht gemerkt):
 Tooltip der Fähigkeiten (ja/nein):
 Fehler:
 ```
+
+### 65. Sozial: geteilte Quests, Freundschaftsanfragen, Einladungen (Roadmap 329, Schritt 3a)
+
+- [ ] geprüft
+
+Komfort > Sozial: „Geteilte Quests ablehnen“, „Freundschaftsanfragen blocken“, „Gruppe von Freunden annehmen“ und „Einladen per Flüstern“ an (Stichwort „inv“). Mit einem Fremden und mit einem Freund bzw. Gildenmitglied: Quest teilen lassen, Gruppe einladen lassen, „inv“ flüstern lassen (auch über Battle.net). Eine Battle.net-Freundschaftsanfrage schicken lassen.
+
+**Erwartet:** Geteilte Quest des Fremden wird abgelehnt (Chatzeile), die des Freundes bleibt bzw. wird mit „Geteilte Quests annehmen“ angenommen. Einladung des Freundes wird angenommen, auch wenn „Gruppeneinladungen ablehnen“ an ist; die des Fremden wird dann abgelehnt. Nach „inv“ kommt eine Einladung, bei Battle.net-Freunden an das WoW-Spielkonto. Die Freundschaftsanfrage verschwindet sofort.
+
+```
+/dump C_FriendList.IsFriend(UnitGUID("target")), C_GuildInfo.MemberExistsByName(UnitName("target"))
+```
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Quest Fremder abgelehnt / Freund angenommen (ja/nein):
+Einladung Freund angenommen, Dialog weg (ja/nein):
+Einladung per Flüstern / Battle.net (ja/nein):
+Freundschaftsanfrage abgelehnt (ja/nein):
+Fehler:
+```
+
+### 66. Chat: Fenster, letzter Chat nach /reload, Spam-Filter (Roadmap 329, Schritt 3b)
+
+- [ ] geprüft
+
+Komfort > Chat: jeden Schalter einzeln an und wieder aus: Kampflog-Reiter, Chat-Buttons, Eingabezeile oben, Pfeiltasten, nicht ausblenden. Dann „Chat nach /reload behalten“ an, ein paar Zeilen schreiben, `/reload`. Betrunken werden lassen (Mitspieler) und im Kampf Zauber-Links in der Gruppe posten lassen.
+
+**Erwartet:** Kampflog-Reiter verschwindet, die anderen Reiter rücken auf; aus = wieder da. Menü-, Kanal-, Sprach- und Sozial-Buttons und die Knopfleiste sind weg, Mausrad blättert; aus = wieder da (ohne /reload). Eingabezeile erscheint über den Reitern und überdeckt nichts Wichtiges. Pfeiltasten bewegen den Cursor ohne Alt. Text verblasst nicht. Nach /reload stehen die letzten Zeilen wieder im Chat, nach einem echten Login nicht. Betrunken-Meldungen anderer und Zauber-Links im Kampf erscheinen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kampflog-Reiter weg und zurück (ja/nein):
+Buttons weg und zurück (ja/nein):
+Eingabe oben sitzt gut (ja/nein):
+Chat nach /reload wieder da (ja/nein):
+Spam-Filter (ja/nein):
+Fehler:
+```
+
+### 67. Oberfläche: Aktionsleisten und Blizzard-Einblendungen ausblenden (Roadmap 329, Schritt 4)
+
+- [ ] geprüft
+
+Komfort > Oberfläche: jeden Schalter einzeln an und wieder aus (ohne /reload): Tastenbelegung, Makronamen, außer Reichweite rot, Boss-Banner, Ereignis-Einblendungen, Meldungen, Haltungsleiste, Ruhe-Animation, Porträtzahlen. Für Reichweite einen Gegner anvisieren und weglaufen, auch mit wenig Mana. Haltungsleiste einmal im Kampf umschalten. Für Meldungen einen Erfolg oder gewonnene Beute abwarten, für die Porträtzahlen kämpfen (auch mit Begleiter), für die Ruhe-Animation in ein Gasthaus gehen.
+
+**Erwartet:** Tasten und Makronamen verschwinden auf allen Leisten und kommen zurück. Symbol wird rot, sobald das Ziel zu weit weg ist, und wieder normal (blau bei wenig Mana) in Reichweite; aus = nie rot. Kein Boss-Banner, keine Toasts in der Mitte (Forever: auch kein Level-Up-Toast), keine Meldungen unten; aus = wieder da. Haltungsleiste verschwindet (im Kampf erst danach) und kommt zurück, ohne Fehlermeldung. „Zzz“ am Porträt weg. Keine Schadenszahlen auf dem Porträt. Schalter, deren Frame der Client nicht hat (Classic: Boss-Banner, Toasts), fehlen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tasten/Makrotext weg und zurück (ja/nein):
+Reichweite rot, wieder normal (ja/nein):
+Boss-Banner/Toasts/Meldungen weg (ja/nein):
+Haltungsleiste weg, im Kampf erst danach (ja/nein):
+Zzz und Porträtzahlen weg (ja/nein):
+Fehler (BugSack, "Aktion blockiert"):
+```
+
+### 68. Charakterfenster: Haltbarkeit und Lautstärkeregler (Roadmap 329, Schritt 2d und 4)
+
+- [ ] geprüft
+
+Komfort > Fenster: „Haltbarkeit anzeigen“ und „Lautstärkeregler“ an, Charakterfenster (C) öffnen. Ein paar Mal sterben oder kämpfen, beim Händler reparieren. Regler ziehen, Fenster schließen und wieder öffnen. Beide Schalter wieder aus.
+
+**Erwartet:** Links neben der Waffenhand „Haltbarkeit“ und ein Prozentwert (Summe aller Teile), grün ab 60 %, gelb darunter, rot unter 20 %; nach der Reparatur 100 %. Rechts neben den Waffen ein Regler „Lautstärke“ mit dem aktuellen Wert aus den Spieleinstellungen; Ziehen ändert die Gesamtlautstärke sofort. Nichts überlappt Plätze, Modell oder Reiter (auch auf Französisch). Aus = beides weg.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Haltbarkeit sichtbar, Wert stimmt (ja/nein):
+Position gut, nichts überlappt (ja/nein):
+Lautstärke ändert sich (ja/nein):
+Fehler:
+```
+
+### 69. Fenster: Klassenfarben bei Ziel und Fokus, Tooltip, Minimap (Roadmap 329, Schritt 4)
+
+- [ ] geprüft
+
+Komfort > Fenster: „Klassenfarben bei Ziel und Fokus“ an, Spieler verschiedener Klassen und NPCs anvisieren und fokussieren (auch in einer Instanz). Tooltip: „Namen in Klassenfarbe“ und „Ziel der Einheit zeigen“ an, über Spieler und kämpfende Gegner fahren; „Im Kampf ausblenden“ an, im Kampf über Gegner fahren, dann mit Umschalt. Minimap (Classic): Mausrad, Zoom-Knöpfe, Kalender-Knopf. Alles wieder aus.
+
+**Erwartet:** Namenshintergrund bei Spielern in Klassenfarbe, bei NPCs wie gewohnt (rot/gelb/grün); aus = sofort wieder Reaktionsfarbe. Tooltip-Name von Spielern in Klassenfarbe, Zeile „Ziel: Name“ (bei dir „Ziel: Du“), Tooltip passt seine Größe an. Im Kampf keine Einheiten-Tooltips, mit Umschalt doch; Tooltips von Knöpfen und Gegenständen bleiben. Classic: Mausrad zoomt die Minimap, Zoom-Knöpfe und Kalender-Knopf weg und nicht klickbar; aus = zurück. Retail/Forever: Mausrad- und Zoom-Knopf-Schalter fehlen (dort schon Standard). Keine Fehler, kein „Aktion blockiert“, auch in Instanzen (Forever: geheime Werte).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Klassenfarbe Ziel/Fokus, aus = zurück (ja/nein):
+Tooltip Klassenfarbe und Zielzeile (ja/nein):
+Im Kampf versteckt, Umschalt zeigt (ja/nein):
+Minimap Mausrad/Knöpfe (ja/nein/fehlt):
+Fehler (auch in Instanzen):
+```
+
+### 70. System: Bildschirmeffekte, Wetter, Namensplaketten im Kampf, Töne, Addon-Liste, Gruppenfarbe (Roadmap 329, Schritt 5)
+
+- [ ] geprüft
+
+Vorher die Werte ausgeben und in die Antwort schreiben, dann Komfort > System der Reihe nach einschalten und prüfen, danach alles wieder aus und die Werte erneut ausgeben:
+
+```
+/lt debug check
+```
+
+```
+/run for _,n in ipairs({"ffxGlow","ffxDeath","ffxNether","weatherDensity","RAIDweatherDensity","nameplateShowEnemies","Sound_EnableEmoteSounds"}) do print(n, C_CVar.GetCVar(n)) end print("lowLevelRaid", GetAllowLowLevelRaid())
+```
+
+„Kein Rausch-Schleier“ (betrunken werden, z.B. Gasthaus-Bier), „Keine Bildschirmeffekte“ (sterben, als Geist laufen), „Wetterdichte festlegen“ mit Regler 0 und 3 (in einem Regengebiet), „Namensplaketten nur im Kampf“ (Kampf beginnen und beenden, auch den Schalter im Kampf umlegen), „Emotes beim Ausruhen stumm“ (im Gasthaus und draußen /lachen), „Zauber-Fehlschlag stumm“ (Zauber durch Bewegung abbrechen), „Stadtglocken stumm“ (zur vollen Stunde in einer Hauptstadt), „Roboschreiter stumm“ (Gnom-Reittier oder NPC), „Schlachtzug-Beschränkung aufheben“ (Charakter unter Level 10 in einer Gruppe, die zum Schlachtzug wird), „Addon-Liste alphabetisch“ (Addon-Liste im Spielmenü), Komfort > Chat „Eine Gruppenfarbe“ (Schlachtzug- und Instanzchat). Einmal `/reload` mit Einstellungen an, dann aus.
+
+**Erwartet:** Jede Einstellung wirkt sofort, kein „Aktion blockiert“ (auch nicht beim Kampfbeginn mit Namensplaketten). Ausgeschaltet stehen alle CVars wieder auf den notierten Werten, auch mit `/reload` dazwischen; `lowLevelRaid` wieder wie vorher. Plaketten nur im Kampf; im Kampf ausgeschaltet kommt der alte Wert nach dem Kampf. Emotes im Gasthaus ohne Ton, draußen mit. Addon-Liste nach Titel sortiert (Farbcodes egal), Addons und Kategorien lassen sich weiter an- und ausschalten. Schlachtzugchat in der Farbe des Gruppenchats, aus = alte Farben (auch nach einem Neustart). Wenn die Farben direkt nach dem Login nicht umspringen: melden (ChatTypeInfo war dann noch leer).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Werte vorher:
+Werte nachher (gleich? ja/nein):
+Rausch/Geist/Nether/Wetter wirken (ja/nein je):
+Plaketten nur im Kampf, kein „Aktion blockiert“ (ja/nein):
+Emotes/Fehlschlag/Glocken/Roboschreiter stumm (ja/nein je):
+Schlachtzug mit niedrigem Charakter (ja/nein/nicht getestet):
+Addon-Liste alphabetisch, Klicks gehen (ja/nein):
+Gruppenfarbe, aus = zurück (ja/nein):
+Fehler:
+```

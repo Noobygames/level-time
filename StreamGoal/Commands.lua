@@ -1,5 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add level 20 | add kills 100 [pve|pvp] [bg] | add item <Link oder ID> [Anzahl] | add bgwin 3 [Name]
+--   add custom [Anzahl] <Text> | count <Nr> [+/-Betrag]
 --   list | cancel <Nr> | history | tracker | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
@@ -10,6 +11,7 @@ local L = ns.L
 local Format = ns.LT.Format
 
 local DEFAULT_AMOUNT = 1
+local DEFAULT_STEP = 1
 
 local function words(text)
   local list = {}
@@ -57,6 +59,13 @@ function adders.bgwin(args)
   return "bgwin", { battleground = name ~= "" and name or nil }, tonumber(args[1]) or DEFAULT_AMOUNT
 end
 
+-- Eine führende Zahl ist der Zähler ("add custom 5 Alle Quests für RFC"), ohne Zahl ein Ziel zum Abhaken
+function adders.custom(args, rest)
+  local counter = tonumber(args[1])
+  local text = counter and rest:match("^%S+%s*(.*)$") or rest
+  return "custom", { text = text }, counter
+end
+
 local function add(rest)
   local kind, remainder = rest:match("^(%S+)%s*(.*)$")
   local adder = kind and adders[kind:lower()]
@@ -72,6 +81,17 @@ local function add(rest)
   end
 end
 
+-- Selbst gezähltes Ziel weiterzählen: "count 3" = +1, "count 3 2" = +2, "count 3 -1" = eins zurück
+local function count(argument)
+  local id, amount = argument:match("^(%S*)%s*(%S*)")
+  local goal, err = Goals.Step(tonumber(id), tonumber(amount) or DEFAULT_STEP)
+  if not goal then
+    ns.Print(err)
+  elseif goal.status == Goals.ACTIVE and Goals.HasCount(goal) then
+    ns.Print(string.format("#%d %s (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
+  end
+end
+
 local function list()
   local active = Goals.Active()
   if #active == 0 then
@@ -79,7 +99,11 @@ local function list()
     return
   end
   for _, goal in ipairs(active) do
-    ns.Print(string.format("#%d %s (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
+    if Goals.HasCount(goal) then
+      ns.Print(string.format("#%d %s (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
+    else
+      ns.Print(string.format("#%d %s", goal.id, Goals.Title(goal)))
+    end
   end
 end
 
@@ -108,6 +132,7 @@ local commands = {
   add = add,
   list = list,
   cancel = cancel,
+  count = count,
   tracker = toggleTracker,
   scale = scale,
   move = function() Tracker.mover.SetMoving(not Tracker.mover.IsMoving()) end,

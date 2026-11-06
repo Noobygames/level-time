@@ -88,6 +88,7 @@ end
 
 local function finish()
   if not currentRun() then return end
+  ns.Debug("instances", "run finished: %s, %s s", currentRun().name, Instances.GetRunSeconds(currentRun()))
   pause()
   Journal.AddInstanceRun(currentRun())
   ns.character.currentRun = nil
@@ -117,11 +118,15 @@ end
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
   local run = currentRun()
   if run and run.name == name and not isNew then
+    ns.Debug("instances", "run continues: %s, clock running %s, ghost %s", name, runningSince ~= nil,
+      UnitIsDeadOrGhost("player"))
     -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie
     if not runningSince and run.zoneUID then
       run.unconfirmed = run.unconfirmed or snapshot(run)
     end
   else
+    ns.Debug("instances", "new run: %s (open run %s, guessed new %s, ghost %s)", name, run and run.name, isNew,
+      UnitIsDeadOrGhost("player"))
     finish()
     ns.character.currentRun = newRun(name, instanceType, time(), ns.level)
   end
@@ -130,13 +135,17 @@ end)
 
 -- Als Geist auf dem Weg zum Friedhof und zurück läuft die Uhr weiter
 InstanceCopy.OnLeave(function()
-  if UnitIsDeadOrGhost("player") then return end
+  if UnitIsDeadOrGhost("player") then
+    ns.Debug("instances", "left as ghost, clock keeps running")
+    return
+  end
   pause()
 end)
 
 -- Draußen wiederbelebt (Geistheiler): Uhr anhalten. PLAYER_ALIVE kommt auch beim Freilassen des Geistes.
 local function onPossiblyAlive()
   if UnitIsDeadOrGhost("player") or InstanceCopy.GetInsideName() then return end
+  ns.Debug("instances", "alive outside, clock paused")
   pause()
 end
 
@@ -145,6 +154,7 @@ end
 InstanceCopy.OnCorrected(function(name, instanceType, isNew)
   local run = currentRun()
   if not run or run.name ~= name then return end
+  ns.Debug("instances", "corrected %s: new copy %s, snapshot %s", name, isNew, run.unconfirmed ~= nil)
   if isNew then
     local before = run.unconfirmed
     if not before then return end

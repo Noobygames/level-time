@@ -53,6 +53,35 @@ function Auras.FindBySpellIds(spellIds)
   return found
 end
 
+-- Einzelne Buffs per Spell-ID, auch wenn die Buff-Liste gesperrt ist (Retail/WoW Forever im Kampf): Blizzard gibt
+-- manche Auren trotzdem frei, C_Secrets.ShouldSpellAuraBeSecret(spellId) sagt welche; dann liefert
+-- C_UnitAuras.GetPlayerAuraBySpellID die Aura oder nil. Rückgabe: true = einer aktiv, false = sicher keiner,
+-- nil = nicht feststellbar (mindestens einer geheim oder die Abfrage scheitert).
+local function spellAuraSecret(spellId)
+  if not C_Secrets or not C_Secrets.ShouldSpellAuraBeSecret then return false end
+  local ok, secret = pcall(C_Secrets.ShouldSpellAuraBeSecret, spellId)
+  return not ok or ns.IsSecret(secret) or secret == true
+end
+
+function Auras.HasPlayerSpell(spellIds)
+  if not C_UnitAuras or not C_UnitAuras.GetPlayerAuraBySpellID then return nil end
+  local unknown = false
+  for _, spellId in ipairs(spellIds) do
+    if spellAuraSecret(spellId) then
+      unknown = true
+    else
+      local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+      if not ok or ns.IsSecret(aura) then
+        unknown = true
+      elseif aura ~= nil then
+        return true
+      end
+    end
+  end
+  if unknown then return nil end
+  return false
+end
+
 -- Verbleibende Sekunden und Gesamtdauer eines Buffs mit Ablaufzeit; nil bei unbegrenzten oder geheimen Werten
 function Auras.RemainingSeconds(aura)
   local expiration, duration = aura.expirationTime, aura.duration

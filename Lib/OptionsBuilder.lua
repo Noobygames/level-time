@@ -4,6 +4,8 @@
 -- ns.Set/ns.ApplySettings) zeigt den aktuellen Stand und die gewählte Sprache.
 -- Schalter mit available() == false (z.B. nur in WoW Forever) werden gar nicht angelegt.
 -- Tooltips: Text aus L["<LABEL>_TIP"] (fehlt er, gibt es keinen Tooltip), Titel = Beschriftung.
+-- Unterseiten (AddSubPage ... FinishSubPages): eine Seite mit Seitenleiste links wie bei Leatrix Plus; je Eintrag
+-- eine eigene Unterseite rechts daneben mit denselben Bausteinen (Abschnitte, Schalter in zwei Spalten, ...).
 -- Breite: die zwei Schalter-Spalten, Auswahlzeilen und die Reiterzeile bestimmen sie (fitWidth),
 -- damit längere Sprachen (fr/es) passen; Höhe: längste Seite plus Buttons unten (Finish).
 local _, ns = ...
@@ -35,6 +37,10 @@ local ROW_SLIDER = 44
 local ROW_CHOOSER = 26
 local ROW_HINT = 30
 local SECTION_GAP = 8
+local SIDEBAR_ROW = 24       -- Höhe eines Eintrags der Seitenleiste
+local SIDEBAR_GAP = 16       -- Abstand zwischen Seitenleiste und Unterseite
+local TEXT_INPUT_WIDTH = 120 -- Standardbreite eines Eingabefelds (AddTextInput)
+local TEXT_INPUT_BORDER = 6  -- InputBoxTemplate zeichnet seinen Rand links außerhalb
 
 -- Für eigene Bausteine des Fensters (z.B. Profil-Liste)
 OptionsBuilder.MARGIN = MARGIN
@@ -94,6 +100,8 @@ function OptionsBuilder.New(options)
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
   local page                -- Seite, auf der die Bausteine gerade anlegen
   local nextRowY = CONTENT_TOP
+  local sidebars = {}       -- { startY, entries = { { button, frame, bottom } } } je Seite mit Unterseiten
+  local sidebar             -- Seitenleiste, deren Unterseiten gerade angelegt werden
 
   local function showPage(selected)
     for _, entry in ipairs(pages) do
@@ -130,6 +138,46 @@ function OptionsBuilder.New(options)
     page = entry.frame
     nextRowY = CONTENT_TOP
     onRefresh(function() entry.tabButton:SetLabel(L[labelKey]) end)
+  end
+
+  local function showSubPage(bar, selected)
+    for _, entry in ipairs(bar.entries) do
+      entry.frame:SetShown(entry == selected)
+      entry.button:SetActive(entry == selected)
+    end
+  end
+
+  -- Neue Unterseite der aktuellen Seite mit Eintrag in der Seitenleiste; folgende Add*-Aufrufe landen darauf.
+  -- Die Unterseite deckt die Seite ab (gleiche y-Koordinaten), nur nach rechts versetzt (fitWidth).
+  function builder.AddSubPage(labelKey)
+    if not sidebar then
+      sidebar = { parent = page, startY = nextRowY, entries = {} }
+      table.insert(sidebars, sidebar)
+    else
+      sidebar.entries[#sidebar.entries].bottom = nextRowY
+    end
+    local bar = sidebar
+    local entry = { frame = CreateFrame("Frame", nil, bar.parent) }
+    entry.frame:SetPoint("TOPLEFT")
+    entry.frame:SetPoint("BOTTOMRIGHT")
+    entry.button = Widgets.CreateTab(bar.parent, "GameFontNormal", function() showSubPage(bar, entry) end)
+    entry.button:SetPoint("TOPLEFT", MARGIN, bar.startY - #bar.entries * SIDEBAR_ROW)
+    table.insert(bar.entries, entry)
+    page = entry.frame
+    nextRowY = bar.startY
+    onRefresh(function() entry.button:SetLabel(L[labelKey]) end)
+  end
+
+  -- Unterseiten abschließen: weiter auf der Seite unter der längsten Unterseite bzw. der Seitenleiste
+  function builder.FinishSubPages()
+    local entries = sidebar.entries
+    entries[#entries].bottom = nextRowY
+    local lowest = sidebar.startY - #entries * SIDEBAR_ROW
+    for _, entry in ipairs(entries) do lowest = math.min(lowest, entry.bottom) end
+    page = sidebar.parent
+    nextRowY = lowest
+    showSubPage(sidebar, entries[1])
+    sidebar = nil
   end
 
   -- Seite abschließen: wie weit sie nach unten reicht (für die Fensterhöhe)
@@ -284,6 +332,34 @@ function OptionsBuilder.New(options)
     onRefresh(function() label:SetText(L[chooser.label]) end)
   end
 
+  -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional };
+  -- übernommen mit Enter oder beim Verlassen des Felds, Esc verwirft; Tooltip aus <label>_TIP
+  function builder.AddTextInput(input)
+    local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    addRow(label, 0)
+    local box = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
+    box:SetSize(input.width or TEXT_INPUT_WIDTH, BUTTON_HEIGHT)
+    box:SetAutoFocus(false)
+    box:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP + TEXT_INPUT_BORDER, 0)
+    local current = ""
+    box:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+    box:SetScript("OnEscapePressed", function(self)
+      self:SetText(current)
+      self:ClearFocus()
+    end)
+    box:SetScript("OnEditFocusLost", function(self)
+      if self:GetText() ~= current then input.set(self:GetText()) end
+    end)
+    addTooltip(box, input.label .. "_TIP", localized(input.label))
+    table.insert(chooserRows, { label = label, tabs = { box } })  -- Breite prüft fitWidth wie bei Auswahlzeilen
+    nextRowY = nextRowY - ROW_CHOOSER
+    onRefresh(function(db)
+      label:SetText(L[input.label])
+      current = input.get(db) or ""
+      if not box:HasFocus() then box:SetText(current) end
+    end)
+  end
+
   function builder.AddHint(labelKey)
     local hint = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
@@ -352,6 +428,15 @@ function OptionsBuilder.New(options)
     return width
   end
 
+  -- Versatz der Unterseiten: breitester Eintrag der Seitenleiste plus Abstand (0 ohne Unterseiten)
+  local function sidebarOffset()
+    local widest = 0
+    for _, bar in ipairs(sidebars) do
+      for _, entry in ipairs(bar.entries) do widest = math.max(widest, entry.button:GetWidth()) end
+    end
+    return widest > 0 and widest + SIDEBAR_GAP or 0
+  end
+
   -- Beide Button-Spalten sind gleich breit: so breit wie der längste Text, doppelt plus Abstand
   local function footerWidth()
     local widest = 0
@@ -379,7 +464,15 @@ function OptionsBuilder.New(options)
       cell.checkbox:ClearAllPoints()
       cell.checkbox:SetPoint("TOPLEFT", MARGIN + cell.column * column, cell.y)
     end
-    local content = math.max(2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth())
+    local offset = sidebarOffset()
+    for _, bar in ipairs(sidebars) do
+      for _, entry in ipairs(bar.entries) do
+        entry.frame:ClearAllPoints()
+        entry.frame:SetPoint("TOPLEFT", offset, 0)
+        entry.frame:SetPoint("BOTTOMRIGHT")
+      end
+    end
+    local content = math.max(offset + 2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth())
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end
   end

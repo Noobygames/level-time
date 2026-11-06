@@ -69,6 +69,7 @@ wow = {
     durability = {},         -- je Ausrüstungsplatz { aktuell, max } (GetInventoryItemDurability)
     inventoryCounts = {},    -- Anzahl je Ausrüstungsplatz (GetInventoryItemCount), 0 = Munition
     sellPrices = {},         -- Verkaufspreis je itemID (C_Item.GetItemInfo)
+    itemIcons = {},          -- Symbol (Datei-ID) je itemID (C_Item.GetItemInfoInstant); fehlt = unbekanntes Item
     -- Quest-NPC: Listen im Gespräch (GossipQuestUIInfo) und in der alten Quest-Liste (QUEST_GREETING)
     gossip = { available = {}, active = {}, options = {} },
     greeting = { available = {}, active = {} },  -- { title, isTrivial } bzw. { title, isComplete }
@@ -79,6 +80,10 @@ wow = {
     questCompletable = true, -- IsQuestCompletable
     questMoney = 0,          -- GetQuestMoneyToGet
     questChoices = {},       -- Belohnungen zur Auswahl: Item-Links (GetQuestItemLink("choice", i))
+    -- Sozial: Charakter-Freunde (Name oder GUID), Battle.net-Freunde (GUID), Gildenmitglieder (Name),
+    -- offene Battle.net-Freundschaftsanfragen { inviteID, accountName }, Battle.net-Konten je ID (accountInfo)
+    friends = {}, bnetFriends = {}, guildMembers = {}, friendInvites = {}, bnetAccounts = {},
+    groupLeader = false,     -- UnitIsGroupLeader("player")
   },
   printed = {},
   UNKNOWN_EVENT = UNKNOWN_EVENT,
@@ -135,7 +140,25 @@ local frameMethods = {
   GetLeft = function() return 100 end,
   GetTop = function() return 500 end,
   SetNormalTexture = function(self, texture) self._normalTexture = texture end,
-  GetPoint = function() return "CENTER", nil, "CENTER", 0, 0 end,
+  -- Mit Nummer: gemerkter Anker (SetPoint), ohne wie bisher ein fester Mittelpunkt
+  GetPoint = function(self, index)
+    if index then return unpack(self._points[index] or {}) end
+    return "CENTER", nil, "CENTER", 0, 0
+  end,
+  GetNumPoints = function(self) return #self._points end,
+  SetParent = function(self, parent) self._parent = parent end,
+  EnableMouse = function(self, enabled) self._mouse = enabled and true or false end,
+  IsMouseEnabled = function(self) return rawget(self, "_mouse") == true end,
+  EnableMouseWheel = function(self, enabled) self._mouseWheel = enabled and true or false end,
+  IsMouseWheelEnabled = function(self) return rawget(self, "_mouseWheel") == true end,
+  -- Chatfenster und Eingabezeilen: Standard wie im Client an (Verblassen, Alt für Pfeiltasten)
+  GetFading = function(self) return rawget(self, "_fading") ~= false end,
+  SetFading = function(self, fading) self._fading = fading and true or false end,
+  GetAltArrowKeyMode = function(self) return rawget(self, "_altArrows") ~= false end,
+  SetAltArrowKeyMode = function(self, mode) self._altArrows = mode and true or false end,
+  -- Texturfarbe (z.B. Symbole der Aktionsknöpfe); Standard weiß
+  SetVertexColor = function(self, r, g, b, a) self._vertexColor = { r, g, b, a or 1 } end,
+  GetVertexColor = function(self) return unpack(rawget(self, "_vertexColor") or { 1, 1, 1, 1 }) end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
@@ -144,6 +167,7 @@ local frameMethods = {
   GetCenter = function() return 0, 0 end,
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
+  GetParent = function(self) return self._parent end,
   Show = function(self) self._shown = true end,
   Hide = function(self)
     local wasShown = self._shown
@@ -168,6 +192,7 @@ local frameMethods = {
   AddLine = function(self, text) self._lines = self._lines or {}; table.insert(self._lines, text) end,
   ClearLines = function(self) self._lines = {} end,
   SetOwner = function(self) self._lines = {} end,
+  SetHyperlink = function(self, link) self._hyperlink = link end,
   RegisterEvent = function(self, event)
     if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
     self._events[event] = true
@@ -284,12 +309,28 @@ end
 local state = wow.state
 
 -- Benannte Frames landen wie im Client als Global (z.B. LevelTimerFrame)
-CreateFrame = function(_, name)
+CreateFrame = function(_, name, parent)
   local frame = newFrame()
+  frame._parent = parent
   if name then _G[name] = frame end
   return frame
 end
 UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), newFrame(), newFrame()
+-- Fehlerfenster und Zonentext; UIErrorsFrame merkt Meldungen in _messages
+UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
+UIErrorsFrame._events.UI_ERROR_MESSAGE = true
+UIErrorsFrame._messages = {}
+-- Lösch-Dialog und Filme: StaticPopup1 (.which, Eingabefeld), CinematicFrame mit Bestätigung
+StaticPopup1, StaticPopup1EditBox = newFrame(), newFrame()
+StaticPopup1.GetName = function() return "StaticPopup1" end
+StaticPopup1._shown = false
+CinematicFrame, CinematicFrameCloseDialogConfirmButton = newFrame(), newFrame()
+CinematicFrameCloseDialogConfirmButton.Click = function(self) self._clicks = (rawget(self, "_clicks") or 0) + 1 end
+DELETE_ITEM_CONFIRM_STRING = "LÖSCHEN"
+
+UIErrorsFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
+ERR_INV_FULL = "Inventar ist voll."
+
 UISpecialFrames, SlashCmdList = {}, {}
 StaticPopupDialogs, YES, NO = {}, "Ja", "Nein"
 -- Dialog nicht anzeigen, sondern merken; Tests bestätigen mit StaticPopupDialogs[name].OnAccept
@@ -305,6 +346,8 @@ TRANSFER_ABORT_TOO_MANY_INSTANCES = "Ihr habt in letzter Zeit zu viele Instanzen
 LOOT_ITEM_SELF = "Ihr erhaltet Beute: %s."
 LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
+LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
+LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
 -- Timer laufen nicht von selbst; Tests starten sie mit wow.runTimers()
 wow.timers = {}
 C_Timer = { After = function(_, callback) table.insert(wow.timers, callback) end }
@@ -320,7 +363,30 @@ for index = 1, Constants.ChatFrameConstants.MaxChatWindows do
   chatFrame._messages = {}
   chatFrame.GetNumMessages = function(self) return #self._messages end
   chatFrame.GetMessageInfo = function(self, messageIndex) return self._messages[messageIndex], 1, 1, 1 end
+  chatFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
+  chatFrame.GetName = function() return "ChatFrame" .. index end
+  -- Eingabezeile, Knopfleiste und Reiter wie in FloatingChatFrame.xml
+  chatFrame.editBox = newFrame()
+  chatFrame.editBox:SetPoint("TOPLEFT", chatFrame, "BOTTOMLEFT", -5, -2)
+  chatFrame.buttonFrame = newFrame()
+  chatFrame.buttonFrame._parent = chatFrame
   _G["ChatFrame" .. index] = chatFrame
+  _G["ChatFrame" .. index .. "Tab"] = newFrame()
+end
+CHAT_FRAMES = { "ChatFrame1", "ChatFrame2" }
+-- Nachrichtenfilter wie Blizzards ChatFrameUtil; wow.chatFiltered(event, ...) = true, wenn ein Filter verwirft
+wow.chatFilters = {}
+ChatFrameUtil = {
+  AddMessageEventFilter = function(event, filter)
+    wow.chatFilters[event] = wow.chatFilters[event] or {}
+    table.insert(wow.chatFilters[event], filter)
+  end,
+}
+function wow.chatFiltered(event, ...)
+  for _, filter in ipairs(wow.chatFilters[event] or {}) do
+    if filter(ChatFrame1, event, ...) then return true end
+  end
+  return false
 end
 DEFAULT_CHAT_FRAME, SELECTED_CHAT_FRAME = ChatFrame1, ChatFrame1
 date = os.date
@@ -368,14 +434,38 @@ function UnitExists(unit) return unit == "player" or state.units[unit] ~= nil en
 function UnitIsPlayer(unit) return unit == "player" or (state.units[unit] and state.units[unit].isPlayer) or false end
 function UnitClassification(unit) return state.units[unit] and state.units[unit].classification or "normal" end
 function GetRealmName() return state.realm end
-function UnitClass() return state.class, state.class end
+-- Andere Einheiten: units[unit].class, sonst die Klasse des Spielers
+function UnitClass(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  local class = other and other.class or state.class
+  return class, class
+end
+function UnitIsUnit(a, b) return a == b or (state.units[a] ~= nil and state.units[a] == state.units[b]) end
+-- Reaktionsfarbe (UnitSelectionColor): units[unit].selection oder gelb
+function UnitSelectionColor(unit)
+  local color = state.units[unit] and state.units[unit].selection or { 1, 1, 0 }
+  return color[1], color[2], color[3]
+end
+RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 }, MAGE = { r = 0.25, g = 0.78, b = 0.92 } }
 function UnitRace() return state.race[1], state.race[2], state.race[3] end
 function UnitIsDeadOrGhost() return state.dead end
 function UnitHealth() return state.health end
 function IsInGuild() return state.inGuild end
 function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
-function UnitAffectingCombat() return state.inCombat end
+-- Spieler: state.inCombat; andere Einheiten: state.units[unit].combat
+function UnitAffectingCombat(unit)
+  if unit == nil or unit == "player" then return state.inCombat end
+  return state.units[unit] ~= nil and state.units[unit].combat == true
+end
+function UnitIsGhost() return state.ghost == true end
 function UnitOnTaxi() return state.onTaxi end
+-- Kampfsperre für geschützte Frames (InCombatLockdown); unabhängig von inCombat, damit ältere Szenarien gleich bleiben
+function InCombatLockdown() return state.combatLockdown == true end
+-- Bekannte Zauber (IsPlayerSpell): state.knownSpells[spellId] = true
+function IsPlayerSpell(spellId) return (state.knownSpells or {})[spellId] == true end
+function UnitIsDead(unit) return state.units[unit] ~= nil and state.units[unit].dead == true end
+-- Temporäre Waffen-Verzauberung der Haupthand: state.mainHandEnchant = true
+function GetWeaponEnchantInfo() return state.mainHandEnchant == true end
 function GetInventoryItemCount(_, slot) return state.inventoryCounts[slot] or 0 end
 function GetInventoryItemDurability(slot)
   local entry = state.durability[slot]
@@ -389,8 +479,19 @@ C_Spell = {
   GetSpellTexture = function(spellID) return "Interface\Icons\Spell_" .. spellID end,
 }
 -- Beschränkte Auren (Retail/Forever, z.B. Bosskampf): wie im Client bricht die Abfrage mit Fehler ab
-C_Secrets = { ShouldAurasBeSecret = function() return state.aurasSecret == true end }
+-- Einzelne Auren per Spell-ID: state.secretSpellAuras[id] = true sperrt sie; aktiv ist eine Spell-ID, wenn ein Buff
+-- in state.buffs sie trägt
+C_Secrets = {
+  ShouldAurasBeSecret = function() return state.aurasSecret == true end,
+  ShouldSpellAuraBeSecret = function(spellId) return (state.secretSpellAuras or {})[spellId] == true end,
+}
 C_UnitAuras = {
+  GetPlayerAuraBySpellID = function(spellId)
+    for _, buff in ipairs(state.buffs) do
+      if type(buff) == "table" and buff.spellId == spellId then return buff end
+    end
+    return nil
+  end,
   GetAuraDataByIndex = function(_, index)
     if state.aurasSecret then
       error("GetAuraDataByIndex(): Auras cannot be accessed when secret while tainted by 'LevelTimer'")
@@ -401,8 +502,47 @@ C_UnitAuras = {
   end,
 }
 function IsInGroup() return state.inGroup end
+-- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
+function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
+function UnitGroupRolesAssigned() return state.role or "NONE" end
+-- Gegner: units[unit].hostile (UnitCanAttack), units[unit].tanking (1. Wert von UnitDetailedThreatSituation),
+-- Ziel des Gegners als units[unit .. "target"]
+function UnitCanAttack(_, unit) return state.units[unit] ~= nil and state.units[unit].hostile == true end
+function UnitDetailedThreatSituation(_, unit)
+  local enemy = state.units[unit]
+  if enemy == nil then return nil end
+  return enemy.tanking
+end
 -- Gesendete Chat-Nachrichten landen in wow.sentChat als { message, chatType }
 wow.sentChat = {}
+-- Load-on-Demand-Addons (LevelTimer_Archive): LoadAddOn führt die Dateien der .toc aus und meldet ADDON_LOADED.
+-- state.addOnsUnavailable[name] = true wie ein fehlendes oder ausgeschaltetes Addon; wow.addOnLoads zählt Ladevorgänge.
+wow.addOnLoads = {}
+local loadedAddOns = {}
+C_AddOns = {
+  IsAddOnLoaded = function(name) return loadedAddOns[name] == true end,
+  LoadAddOn = function(name)
+    if loadedAddOns[name] then return true end
+    if (state.addOnsUnavailable or {})[name] then return false, "DISABLED" end
+    local toc = io.open(ADDON_DIR .. "/" .. name .. "/" .. name .. ".toc")
+    if not toc then return false, "MISSING" end
+    local namespace = {}
+    for line in toc:lines() do
+      line = line:gsub("\r", ""):gsub("\\", "/")
+      if line ~= "" and not line:match("^#") then
+        local chunk, err = loadfile(ADDON_DIR .. "/" .. name .. "/" .. line)
+        if not chunk then error(err, 0) end
+        chunk(name, namespace)
+      end
+    end
+    toc:close()
+    loadedAddOns[name] = true
+    wow.addOnLoads[name] = (wow.addOnLoads[name] or 0) + 1
+    wow.fire("ADDON_LOADED", name)
+    return true
+  end,
+}
+
 C_ChatInfo = {
   SendChatMessage = function(message, chatType) table.insert(wow.sentChat, { message = message, chatType = chatType }) end,
   InChatMessagingLockdown = function() return state.chatLockdown end,
@@ -420,8 +560,21 @@ end
 function GetTrainerServiceLevelReq(index) return state.trainer.services[index].reqLevel end
 function GetTrainerServiceIcon(index) return state.trainer.services[index].texture end
 function IsTradeskillTrainer() return state.trainer.tradeskill or false end
+-- Kosten je Zeile (service.cost); gekaufte Zeilen in wow.trained (Nummer)
+wow.trained = {}
+function GetTrainerServiceCost(index) return state.trainer.services[index].cost or 0 end
+function BuyTrainerService(index) table.insert(wow.trained, index) end
 function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
+-- Mana: state.power (aktuell), state.powerMax
+function UnitPower() return state.power or 0 end
+ERR_OUT_OF_MANA = "Nicht genug Mana"
+-- Kontrollverlust: state.lossOfControl = { { locType, displayText, timeRemaining, displayType }, ... }
+C_LossOfControl = {
+  GetActiveLossOfControlDataCount = function() return #(state.lossOfControl or {}) end,
+  GetActiveLossOfControlData = function(index) return (state.lossOfControl or {})[index] end,
+}
+
 -- UnitStat: Basiswert, Gesamtwert, positive und negative Buffs
 function UnitStat(_, index)
   local value = state.stats[index] or 0
@@ -430,6 +583,32 @@ function UnitStat(_, index)
 end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
+function IsModifiedClick() return state.modifiedClick == true end
+-- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
+function GetCVar(name) return (state.cvars or {})[name] end
+function SetCVar(name, value) state.cvars = state.cvars or {}; state.cvars[name] = tostring(value) end
+function GetCVarBool(name) return GetCVar(name) == "1" end
+-- Beschwörung: state.summon = { summoner, area }; Aufrufe landen in wow.comfortActions
+wow.comfortActions = {}
+local function comfortAction(...) table.insert(wow.comfortActions, { ... }) end
+C_SummonInfo = {
+  GetSummonConfirmSummoner = function() return state.summon and state.summon.summoner end,
+  GetSummonConfirmAreaName = function() return state.summon and state.summon.area end,
+  ConfirmSummon = function() comfortAction("confirmSummon") end,
+}
+function AcceptResurrect() comfortAction("acceptResurrect") end
+function RepopMe() comfortAction("repop") end
+C_DeathInfo = { GetSelfResurrectOptions = function() return state.selfResurrect or {} end }
+-- Beute: state.lootSlots = Anzahl; LootSlot merkt den Platz
+-- Flugkarte: state.taxiNodes = { { name, type } } (type "CURRENT", "REACHABLE", ...)
+function NumTaxiNodes() return #(state.taxiNodes or {}) end
+function TaxiNodeName(index) return state.taxiNodes[index].name end
+function TaxiNodeGetType(index) return state.taxiNodes[index].type end
+function TakeTaxiNode() end
+function GetNumLootItems() return state.lootSlots or 0 end
+function LootSlot(slot) comfortAction("loot", slot) end
+function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end
+function ConfirmLootSlot(slot) comfortAction("confirmBind", slot) end
 function RequestTimePlayed() end
 -- Nur C_CurrencyInfo: das globale GetCoinTextureString ist im Client ein Kompatibilitäts-Alias
 C_CurrencyInfo = { GetCoinTextureString = function(copper) return copper .. "c" end }
@@ -516,11 +695,39 @@ function AcceptQuest() questAction("accept") end
 function AcknowledgeAutoAcceptQuest() questAction("acknowledge") end
 function ConfirmAcceptQuest() questAction("confirm") end
 function StaticPopup_Hide(name) questAction("hidePopup", name) end
+function DeclineQuest() questAction("decline") end
+-- Sichtbarer Dialog (StaticPopup_FindVisible): wow.visiblePopups[name] = Dialog-Frame
+wow.visiblePopups = {}
+function StaticPopup_FindVisible(name) return wow.visiblePopups[name] end
 -- Abgelehnte Anfragen landen in wow.declined (Name der Funktion)
 wow.declined = {}
 for _, name in ipairs({ "CancelTrade", "DeclineGroup", "DeclineGuild", "CancelDuel" }) do
   _G[name] = function() table.insert(wow.declined, name) end
 end
+-- Sozial: Annahmen, Einladungen und abgelehnte Freundschaftsanfragen landen in wow.socialActions
+wow.socialActions = {}
+local function socialAction(...) table.insert(wow.socialActions, { ... }) end
+function AcceptGroup() socialAction("acceptGroup") end
+C_FriendList = {
+  IsFriend = function(guid) return state.friends[guid] == true end,
+  GetFriendInfo = function(name) if state.friends[name] then return { name = name } end end,
+}
+C_BattleNet = {
+  GetAccountInfoByGUID = function(guid) if state.bnetFriends[guid] then return { isFriend = true } end end,
+  GetAccountInfoByID = function(id) return state.bnetAccounts[id] end,
+  GetFriendInviteInfo = function(index) return state.friendInvites[index] end,
+  InviteFriend = function(gameAccountID) socialAction("bnetInvite", gameAccountID) end,
+}
+C_GuildInfo = { MemberExistsByName = function(name) return state.guildMembers[name] == true end }
+C_PartyInfo = { InviteUnit = function(name) socialAction("invite", name) end }
+function BNGetNumFriendInvites() return #state.friendInvites end
+function BNDeclineFriendInvite(inviteID)
+  for index, invite in ipairs(state.friendInvites) do
+    if invite.inviteID == inviteID then table.remove(state.friendInvites, index) end
+  end
+  socialAction("declineFriend", inviteID)
+end
+function UnitIsGroupLeader() return state.groupLeader end
 C_GossipInfo = {
   GetAvailableQuests = function() return state.gossip.available end,
   GetActiveQuests = function() return state.gossip.active end,
@@ -555,6 +762,12 @@ C_Item = {
   -- itemID oder Link; Verkaufspreis aus state.sellPrices
   GetItemInfo = function(itemID)
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
+  end,
+  -- Wie im Client: nichts für unbekannte IDs, sonst itemID, Typ, Untertyp, Platz, Symbol, Klasse, Unterklasse
+  GetItemInfoInstant = function(itemID)
+    local icon = state.itemIcons[itemID]
+    if not icon then return nil end
+    return itemID, "Rüstung", "Leder", "INVTYPE_FEET", icon, 4, 2
   end,
 }
 

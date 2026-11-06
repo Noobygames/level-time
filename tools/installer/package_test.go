@@ -16,7 +16,7 @@ func TestWritePackage(t *testing.T) {
 	writeFile(t, filepath.Join(a.Dir, "Makefile"), "nicht ins Paket")
 
 	zipPath := filepath.Join(t.TempDir(), "dist", "LevelTimer-v2.zip")
-	if err := WritePackage(a, zipPath); err != nil {
+	if err := WritePackage([]*Addon{a}, zipPath); err != nil {
 		t.Fatal(err)
 	}
 

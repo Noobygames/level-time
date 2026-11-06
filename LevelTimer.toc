@@ -10,7 +10,7 @@
 ## Notes-esMX: Estadísticas por nivel y por sesión (tiempo de juego, PX/h, abatidos, muertes y más) con historial para todos los personajes
 ## IconTexture: Interface\AddOns\LevelTimer\Media\Icon
 ## AddonCompartmentFunc: LevelTimer_OnAddonCompartmentClick
-## SavedVariables: LevelTimerDB, LevelTimerStatsDB
+## SavedVariables: LevelTimerDB, LevelTimerStatsDB, LevelTimerDebugLog
 # LevelTimerCharDB: veraltet, nur noch geladen, um alte Daten in LevelTimerStatsDB zu übernehmen
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
@@ -19,12 +19,19 @@ Locales\Locales.lua
 Core\Database.lua
 Core\LevelTimer.lua
 Core\Client.lua
+Core\DebugLog.lua
+Core\DebugProbes.lua
 Lib\Format.lua
 Lib\Serializer.lua
+Lib\RecordCodec.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
+Lib\GroupChat.lua
+Lib\GroupRole.lua
 Lib\Bags.lua
 Lib\Items.lua
+Lib\Overrides.lua
+Lib\CVars.lua
 Lib\Widgets.lua
 Lib\Auras.lua
 Lib\Card.lua
@@ -33,6 +40,7 @@ Lib\TimerDisplay.lua
 # Erfassung: Zähler und Ereignisse (Tracking)
 Tracking\Stats.lua
 Tracking\Journal.lua
+Tracking\JournalArchive.lua
 Tracking\Classification.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua
@@ -74,18 +82,47 @@ UI\Alerts.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
+UI\FlightDisplay.lua
 Assist\BuffReminder.lua
+Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
+Assist\FlightTimer.lua
 Assist\GearWarnings.lua
+Assist\AggroWarning.lua
+Assist\ManaCallout.lua
+Assist\ControlCallout.lua
 Assist\TrainerReminder.lua
+Assist\TrainAll.lua
 Assist\Comfort.lua
+Assist\Friends.lua
+Assist\Social.lua
 Assist\Merchant.lua
 Assist\QuestAutomation.lua
+Assist\AutoAccept.lua
+Assist\Looting.lua
+Assist\ScreenText.lua
+Assist\Camera.lua
+Assist\SkipDialogs.lua
 Assist\Declines.lua
 Assist\ChatCopy.lua
+Assist\ChatWindows.lua
+Assist\ChatHistory.lua
+Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\ActionBars.lua
+Assist\HideFrames.lua
+Assist\CharacterFrame.lua
+Assist\ClassColors.lua
+Assist\Tooltip.lua
+Assist\MinimapTweaks.lua
+Assist\ScreenEffects.lua
+Assist\CombatPlates.lua
+Assist\Sounds.lua
+Assist\RaidRestrictions.lua
+Assist\AddonList.lua
+Assist\ChatColors.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua

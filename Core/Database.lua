@@ -59,9 +59,18 @@ local SETTINGS_DEFAULTS = {
   foodTimer = true,      -- Essen-Timer (FoodTimer.lua): Restzeit beim Essen, danach "Satt aktiv"
   foodSound = false,     -- Ton, wenn "Satt" da ist
   foodScale = 1,
+  flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
+  flightSound = false,   -- Ton bei der Landung
+  flightScale = 1,
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
+  -- Klassen-Hinweise (ClassBuffs.lua), je einer; nur für die eigene Klasse in den Einstellungen
+  remindMageArmor = false, remindArcaneIntellect = false, remindFortitude = false, remindInnerFire = false,
+  remindShadowform = false, remindDemonArmor = false, remindWarlockPet = false, remindMarkOfTheWild = false,
+  remindThorns = false, remindOmenOfClarity = false, remindShamanShield = false, remindShamanWeapon = false,
+  remindBlessing = false, remindPaladinAura = false, remindRighteousFury = false, remindAspect = false,
+  remindHunterPet = false, remindPoisons = false, remindBattleShout = false, remindBronzeBlessing = false,
   reminderInterval = 5,  -- Minuten zwischen zwei Hinweisen auf denselben fehlenden Buff
   warnBagsFull = false,  -- Hinweis bei fast vollen Taschen (siehe GearWarnings.lua)
   warnDurability = false,  -- Hinweis bei niedriger Haltbarkeit
@@ -70,8 +79,26 @@ local SETTINGS_DEFAULTS = {
   ammoLow = 200,           -- Schuss, ab denen die Munitionswarnung kommt
   ammoCritical = 50,       -- Schuss, ab denen "fast leer" kommt (0 = aus)
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
+  announceControlLoss = false,  -- Heiler: Kontrollverlust an die Gruppe (ControlCallout.lua)
+  announceControlOver = false,  -- Heiler: Entwarnung, wenn der Kontrollverlust vorbei ist
+  announceHealerAggro = false,  -- Heiler: Aggro über 2 s an die Gruppe (AggroWarning.lua)
+  announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
+  lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt
+  warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus
+  -- Komfort wie Leatrix Plus (Roadmap 329): AutoAccept.lua, Looting.lua, ScreenText.lua, Camera.lua
+  autoAcceptSummon = false, autoAcceptResurrect = false, autoReleasePvP = false,
+  fasterLoot = false, skipLootConfirm = false, hideErrors = false, hideZoneText = false, maxCameraZoom = false,
+  easyDelete = false, fasterMovieSkip = false,  -- SkipDialogs.lua
+  trainAllButton = false,  -- TrainAll.lua
+  -- System (Roadmap 329, Schritt 5): ScreenEffects.lua, CombatPlates.lua, Sounds.lua, RaidRestrictions.lua,
+  -- AddonList.lua; CVars werden umkehrbar über CVars.lua gesetzt
+  noDrunkenHaze = false, noScreenEffects = false, setWeatherDensity = false,
+  weatherDensity = 3,  -- 0 (kein Wetter) bis 3, nur mit setWeatherDensity
+  combatPlates = false, silenceRestedEmotes = false, muteFizzle = false, muteBells = false, muteMechastrider = false,
+  noRaidRestrictions = false, sortAddonList = false,
+  universalGroupColor = false,  -- Chat: Schlachtzug und Instanz in der Gruppenfarbe (ChatColors.lua)
   autoRepair = false,       -- beim Händler reparieren (Merchant.lua)
   autoRepairGuild = false,  -- zuerst aus der Gildenbank
   autoSellJunk = false,     -- graue Gegenstände verkaufen
@@ -84,10 +111,25 @@ local SETTINGS_DEFAULTS = {
   declineGroupInvites = false,
   declineGuildInvites = false,
   declineDuels = false,
+  -- Sozial (Social.lua): geteilte Quests ablehnen, Freundschaftsanfragen blocken, Einladungen von Freunden/Gilde
+  -- annehmen, per Flüster-Stichwort einladen
+  declineSharedQuests = false, blockFriendRequests = false, acceptFriendInvites = false, inviteFromWhisper = false,
+  inviteKeyword = "inv",
   chatCopyButton = false,   -- Button zum Kopieren an jedem Chatfenster (ChatCopy.lua)
+  -- Chatfenster (ChatWindows.lua), letzter Chat nach /reload (ChatHistory.lua), Spam-Filter (ChatFilter.lua)
+  hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,
+  restoreChat = false, filterDrunkSpam = false, filterSpellLinks = false,
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
+  hideKeybindText = false, hideMacroText = false, rangeColor = false,
+  hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
+  hideRestAnimation = false, hidePortraitNumbers = false,
+  characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
+  classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
+  tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false,  -- Tooltip.lua
+  minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)
   levelUpHideBlizzard = true,
@@ -321,6 +363,7 @@ local SETTING_RANGES = {
   splitListRows = { 3, 15 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
+  lowManaPercent = { 5, 60 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
   alertScale = { 0.5, 2 },
@@ -330,7 +373,9 @@ local SETTING_RANGES = {
   campHintPause = { 1, 30 },
   campScale = { 0.5, 2 },
   foodScale = { 0.5, 2 },
+  flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
+  weatherDensity = { 0, 3 },
 }
 
 local OPTIONAL_SETTINGS = {
@@ -340,6 +385,7 @@ local OPTIONAL_SETTINGS = {
   alertPos = isPosition,      -- Einblendungen (Alerts.lua); fehlt = oben in der Mitte
   campPos = isPosition,       -- Lagerfeuer-Anzeige (CampDisplay.lua)
   foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
+  flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
   levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end
@@ -410,7 +456,8 @@ function Database.CharacterKey(name, realm)
 end
 
 -- Neu erstellter Charakter mit dem Namen eines gelöschten: gespeichertes Level höher als das aktuelle
--- (Level sinken nie). Zuhörer (Runs.lua) sichern den alten Versuch, dann beginnen die Daten neu.
+-- (Level sinken nie). Zuhörer (Runs.lua, JournalArchive.lua) bekommen Daten und Schlüssel: sichern den alten
+-- Versuch bzw. löschen sein Archiv, dann beginnen die Daten neu.
 local replacedListeners = {}
 
 function Database.OnCharacterReplaced(listener)
@@ -431,7 +478,7 @@ local function loadCharacter(stats)
   local data = stats.characters[key]
   if data and isReplacedCharacter(data) then
     for _, listener in ipairs(replacedListeners) do
-      ns.SafeCall(listener, data)
+      ns.SafeCall(listener, data, key)
     end
     data = nil
   end
@@ -474,6 +521,16 @@ function Database.GetCharacters()
 end
 
 -- Entfernt alle Statistiken eines Charakters (Einstellungen bleiben unberührt)
+-- Zuhörer (JournalArchive.lua) löschen, was sie zu dem Charakter außerhalb von LevelTimerStatsDB speichern
+local deletedListeners = {}
+
+function Database.OnCharacterDeleted(listener)
+  table.insert(deletedListeners, listener)
+end
+
 function Database.DeleteCharacter(characterKey)
   LevelTimerStatsDB.characters[characterKey] = nil
+  for _, listener in ipairs(deletedListeners) do
+    ns.SafeCall(listener, characterKey)
+  end
 end

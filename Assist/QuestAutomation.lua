@@ -6,10 +6,11 @@
 --                         angenommen hat (QuestGetAutoAccept), AcknowledgeAutoAcceptQuest.
 --                         PvP-Quests (QuestFlagsPVP) fragen im Spiel nach, die bleiben manuell.
 --                         Von einem Spieler geteilt (die Einheit "questnpc" ist ein Spieler): nur mit
---                         autoAcceptShared. Grau: C_QuestLog.IsQuestTrivial(GetQuestID()), das gibt es
+--                         autoAcceptShared und nur, wenn declineSharedQuests (Social.lua) sie nicht ablehnt. Grau: C_QuestLog.IsQuestTrivial(GetQuestID()), das gibt es
 --                         nur in Retail und WoW Forever; Classic Era/TBC filtern graue Quests nur in
 --                         den Quest-Listen (Gespräch, QUEST_GREETING).
---   QUEST_ACCEPT_CONFIRM  Quest eines anderen Spielers (Eskorte): ConfirmAcceptQuest, Dialog schließen.
+--   QUEST_ACCEPT_CONFIRM  Quest eines anderen Spielers (Eskorte): ConfirmAcceptQuest, Dialog schließen; nicht, wenn
+--                         declineSharedQuests sie ablehnt.
 --   QUEST_PROGRESS        Abgabe, Gegenstände prüfen: CompleteQuest, wenn IsQuestCompletable.
 --   QUEST_COMPLETE        Belohnung: GetQuestReward(Wahl); Wahl = 1 bei einer Belohnung zur Auswahl,
 --                         sonst 0 (wie QuestInfoFrame.itemChoice). Quests, die Geld kosten
@@ -51,6 +52,11 @@ local function isShared()
   return UnitExists("questnpc") and UnitIsPlayer("questnpc")
 end
 
+-- Geteilte Quest, die Social.lua ablehnt (declineSharedQuests gewinnt gegen autoAcceptShared)
+local function isDeclinedShare()
+  return ns.Social.DeclinesSharedQuest(UnitName("questnpc"), UnitGUID("questnpc"))
+end
+
 -- Graue Quest im offenen Quest-Text; false, wo der Client das nicht verrät
 local function isTrivialDetail()
   if not (C_QuestLog.IsQuestTrivial and GetQuestID) then return false end
@@ -59,7 +65,9 @@ local function isTrivialDetail()
 end
 
 ns.RegisterEvent("QUEST_DETAIL", function()
-  if not Comfort.IsActive(isShared() and "autoAcceptShared" or "autoAcceptQuests") then return end
+  local shared = isShared()
+  if not Comfort.IsActive(shared and "autoAcceptShared" or "autoAcceptQuests") then return end
+  if shared and isDeclinedShare() then return end
   if QuestFlagsPVP and QuestFlagsPVP() then return end
   if isTrivialDetail() then
     ns.Debug("quests", "skipping trivial quest")
@@ -74,8 +82,8 @@ ns.RegisterEvent("QUEST_DETAIL", function()
   end
 end)
 
-ns.RegisterEvent("QUEST_ACCEPT_CONFIRM", function()
-  if not Comfort.IsActive("autoAcceptShared") then return end
+ns.RegisterEvent("QUEST_ACCEPT_CONFIRM", function(name)
+  if not Comfort.IsActive("autoAcceptShared") or ns.Social.DeclinesSharedQuest(name) then return end
   ns.Debug("quests", "confirming shared quest")
   ConfirmAcceptQuest()
   StaticPopup_Hide(QUEST_ACCEPT_POPUP)

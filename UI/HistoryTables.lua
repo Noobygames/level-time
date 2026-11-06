@@ -267,9 +267,11 @@ end
 HistoryTables.ClassColor = classColor
 HistoryTables.CountCells = countCells
 
-local function addTable(tab, group, columns, records, footer)
+-- journal = Einträge aus dem Journal (ohne laufenden Eintrag): neu sortiert nur bei geändertem Journal-Stand
+local function addTable(tab, group, columns, records, footer, journal)
   ns.HistoryWindow.AddView(TableView.Create({
     tab = tab, group = group, columns = columns, records = records, footer = footer,
+    revision = journal and ns.Journal.Revision or nil,
   }))
 end
 
@@ -279,12 +281,12 @@ addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, s
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
 addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells)
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
-addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells)
-addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells)
-addTable("HISTORY_TAB_QUESTS", JOURNAL, QUEST_COLUMNS, History.GetQuestLog, countCells)
-addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCells)
+addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)
+addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells, true)
+addTable("HISTORY_TAB_QUESTS", JOURNAL, QUEST_COLUMNS, History.GetQuestLog, countCells, true)
+addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCells, true)
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
-addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells)
+addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
 addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle

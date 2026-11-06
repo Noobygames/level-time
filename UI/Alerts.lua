@@ -67,6 +67,7 @@ Alerts.ICONS = {
   charged = 1270893, -- Aufgeladen (Himmelsgeborene, WoW Forever)
   bags = iconPath("INV_Misc_Bag_08"),
   durability = iconPath("INV_Misc_Gear_01"),
+  aggro = iconPath("Ability_Warrior_Charge"),
   ammo = iconPath("INV_Ammo_Arrow_02"),
   trainer = iconPath("INV_Misc_Book_09"),
   instanceLimit = iconPath("INV_Misc_PocketWatch_01"),
@@ -116,12 +117,12 @@ local function isShowing()
   return frame:IsShown() or notice.frame:IsShown()
 end
 
--- spec = { icon, title, body }: als Karte statt als Banner
+-- spec = { icon, texture, title, body }: als Karte statt als Banner (texture siehe Card.Set)
 local function display(message, color, sound, spec)
   local shown
   if spec then
     frame:Hide()
-    notice.Set({ color = color, icon = spec.icon, title = spec.title, body = spec.body })
+    notice.Set({ color = color, icon = spec.icon, texture = spec.texture, title = spec.title, body = spec.body })
     shown = notice.frame
   else
     notice.frame:Hide()

@@ -21,6 +21,12 @@ local function classKey()
   return (select(2, UnitClass("player")))
 end
 
+-- Art einer Zeile der Lehrerliste ("available", "unavailable", "used", "header"); Stelle je Client siehe oben
+function TrainerCache.ServiceType(index)
+  if ns.Client.IsForever() then return (select(2, GetTrainerServiceInfo(index))) end
+  return (select(3, GetTrainerServiceInfo(index)))
+end
+
 -- Eine Zeile der Lehrerliste als { name, rank, level, icon }; nil für Überschriften und Unbrauchbares
 local function readService(index)
   local name, rank, serviceType, level, icon

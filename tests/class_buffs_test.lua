@@ -1,0 +1,161 @@
+-- Klassen-Hinweise: Selbst-Buffs, Begleiter und Waffen-Verzauberungen der eigenen Klasse; nur eingeschaltet, nur mit
+-- bekanntem Zauber, Buffs am Namen erkannt (alle Ränge, auch von anderen). Der Stub-Charakter ist Krieger.
+local BuffReminder, ClassBuffs = addon.BuffReminder, addon.ClassBuffs
+local L = addon.L
+
+local BATTLE_SHOUT, FROST_ARMOR, ICE_ARMOR = 6673, 168, 7302
+wow.state.spellNames[BATTLE_SHOUT] = "Schlachtruf"
+wow.state.spellNames[FROST_ARMOR] = "Frostrüstung"
+wow.state.spellNames[ICE_ARMOR] = "Eisrüstung"
+wow.state.spellNames[883] = "Tier rufen"
+wow.state.spellNames[8681] = "Sofortwirkendes Gift"
+
+local function shown(text)
+  local count = 0
+  for _, line in ipairs(wow.printed) do
+    if line:find(text, 1, true) then count = count + 1 end
+  end
+  return count
+end
+
+local function reminderOf(setting)
+  for _, reminder in ipairs(ClassBuffs.REMINDERS) do
+    if reminder.setting == setting then return reminder end
+  end
+end
+
+wow.login({ level = 10 })
+
+-- Einstellungen: nur die Schalter der eigenen Klasse, beschriftet mit dem Zaubernamen des Clients
+expect("Krieger: ein Hinweis", #ClassBuffs.ForPlayerClass(), 1)
+SlashCmdList.LEVELTIMER("")
+expectTrue("Reiter Hinweise", wow.click(L.OPTIONS_TAB_NOTIFICATIONS))
+expectTrue("Schalter Schlachtruf", wow.findFrame(function(frame)
+  local label = rawget(frame, "label")
+  return label and label._text == string.format(L.REMIND_CLASS_TOGGLE, "Schlachtruf")
+end) ~= nil)
+expect("kein Magier-Schalter", wow.findFrame(function(frame)
+  local label = rawget(frame, "label")
+  return label and label._text and label._text:find("Frostrüstung", 1, true) ~= nil
+end), nil)
+
+-- Zauber unbekannt: kein Hinweis, auch eingeschaltet
+addon.Set("remindBattleShout", true)
+BuffReminder.Check()
+expect("unbekannt: still", shown("Schlachtruf"), 0)
+
+-- Bekannt und fehlt: Hinweis mit Name und Symbol des Zaubers
+wow.state.knownSpells = { [BATTLE_SHOUT] = true }
+BuffReminder.Check()
+expect("Hinweis", shown(string.format(L.REMIND_CLASS_BUFF, "Schlachtruf")), 1)
+expect("als Karte", LevelTimerNotice.body:GetText(), string.format(L.REMIND_CLASS_BUFF, "Schlachtruf"))
+
+-- Buff aktiv (auch von einem anderen Krieger): still
+wow.advance(301)
+wow.state.buffs = { "Schlachtruf" }
+BuffReminder.Check()
+expect("Buff aktiv: still", shown(string.format(L.REMIND_CLASS_BUFF, "Schlachtruf")), 1)
+wow.state.buffs = {}
+
+-- Andere Klasse: nie
+expect("Magier-Hinweis beim Krieger", ClassBuffs.IsMissing(reminderOf("remindMageArmor")), nil)
+
+-- Magier: jeder Rang und jede Rüstung zählt, beschriftet mit den bekannten
+wow.state.class = "MAGE"
+wow.state.knownSpells = { [FROST_ARMOR] = true, [ICE_ARMOR] = true }
+local armor = reminderOf("remindMageArmor")
+expect("Rüstung fehlt", ClassBuffs.IsMissing(armor), true)
+wow.state.buffs = { "Eisrüstung" }
+expect("Eisrüstung zählt", ClassBuffs.IsMissing(armor), false)
+wow.state.buffs = {}
+expect("Beschriftung mit bekannten", ClassBuffs.Label(armor),
+  string.format(L.REMIND_CLASS_TOGGLE, "Frostrüstung / Eisrüstung"))
+
+-- Jäger: Begleiter fehlt oder ist tot, nicht beim Fliegen
+wow.state.class = "HUNTER"
+wow.state.knownSpells = { [883] = true }
+local pet = reminderOf("remindHunterPet")
+expect("ohne Begleiter", ClassBuffs.IsMissing(pet), true)
+wow.state.units.pet = { name = "Wolf" }
+expect("mit Begleiter", ClassBuffs.IsMissing(pet), false)
+wow.state.units.pet.dead = true
+expect("Begleiter tot", ClassBuffs.IsMissing(pet), true)
+wow.state.onTaxi = true
+expect("im Flug nicht", ClassBuffs.IsMissing(pet), nil)
+wow.state.onTaxi, wow.state.units.pet = false, nil
+
+-- Schurke: Gift auf der Waffe oder als Buff
+wow.state.class = "ROGUE"
+wow.state.knownSpells = { [8681] = true }
+local poisons = reminderOf("remindPoisons")
+expect("ohne Gift", ClassBuffs.IsMissing(poisons), true)
+wow.state.mainHandEnchant = true
+expect("Gift auf der Waffe", ClassBuffs.IsMissing(poisons), false)
+wow.state.mainHandEnchant = false
+
+-- Gesperrte Buff-Liste (Retail/Forever im Kampf): einzeln per Spell-ID, soweit nicht geheim
+wow.state.class = "MAGE"
+wow.state.knownSpells = { [FROST_ARMOR] = true }
+wow.state.aurasSecret = true
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+expect("Spell-Aura geheim: unbekannt", ClassBuffs.IsMissing(armor), nil)
+wow.state.secretSpellAuras = {}
+expect("per Spell-ID: fehlt", ClassBuffs.IsMissing(armor), true)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+expect("per Spell-ID: aktiv", ClassBuffs.IsMissing(armor), false)
+wow.state.buffs = {}
+wow.state.aurasSecret = false
+
+-- Wichtig: auch im Kampf, in Instanzen und sofort beim Wegfall, ohne die Pause abzuwarten
+local armorText = string.format(L.REMIND_CLASS_BUFF, "Frostrüstung")
+addon.Set("remindMageArmor", true)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+BuffReminder.Check()
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.state.buffs = {}
+BuffReminder.Check()
+expect("im Kampf im Dungeon: sofort beim Wegfall", shown(armorText), 1)
+BuffReminder.Check()
+expect("fehlt weiter: Pause gilt", shown(armorText), 1)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR } }
+BuffReminder.Check()
+wow.state.buffs = {}
+BuffReminder.Check()
+expect("erneut weggefallen: wieder sofort", shown(armorText), 2)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.instance = false, false, nil
+
+-- Forever: im Kampf auch per Spell-ID gesperrt; gemerkte Ablaufzeit entscheidet, neu wirken frischt sie auf
+wow.advance(600)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR, expirationTime = GetTime() + 60, duration = 1800 } }
+BuffReminder.Check()
+local before = shown(armorText)
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+wow.advance(30)
+BuffReminder.Check()
+expect("vor Ablauf: still", shown(armorText), before)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-1", FROST_ARMOR)
+wow.advance(60)
+BuffReminder.Check()
+expect("neu gewirkt: noch nicht abgelaufen", shown(armorText), before)
+wow.advance(1800)
+BuffReminder.Check()
+expect("abgelaufen im Kampf: Hinweis", shown(armorText), before + 1)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.secretSpellAuras = false, false, {}
+
+-- Ladungen verbraucht im Kampf: UNIT_AURA meldet die gemerkte Aura als entfernt
+wow.advance(600)
+wow.state.buffs = { { name = "Frostrüstung", spellId = FROST_ARMOR, auraInstanceID = 77,
+  expirationTime = GetTime() + 600, duration = 1800 } }
+BuffReminder.Check()
+before = shown(armorText)
+wow.state.inCombat, wow.state.aurasSecret = true, true
+wow.state.secretSpellAuras = { [FROST_ARMOR] = true }
+wow.fire("UNIT_AURA", "player", { removedAuraInstanceIDs = { 12, 77 } })
+BuffReminder.Check()
+expect("entfernt im Kampf: Hinweis", shown(armorText), before + 1)
+wow.state.inCombat, wow.state.aurasSecret, wow.state.secretSpellAuras = false, false, {}
+wow.state.buffs = {}
+addon.Set("remindMageArmor", false)
+expect("keine Fehler", #wow.errors, 0)

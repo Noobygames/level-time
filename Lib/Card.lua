@@ -2,6 +2,7 @@
 -- mit leerlaufendem Balken. Eine Karte zeigt immer einen Inhalt; Größe aus den Texten der Sprache.
 --   local card = Card.Create("MeinFrame")
 --   card.Set({ color = { r, g, b }, icon = Pfad oder Spell-ID, title = "...", body = "...", time = true })
+--   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
 --   card.SetTime("42 s"); card.SetFraction(0.7)
 -- card.frame ist der Rahmen (Position, Skalierung, Ein-/Ausblenden macht der Aufrufer); card.frame.title,
 -- .body und .time sind die Textfelder.
@@ -113,15 +114,16 @@ function Card.Create(name)
     frame:SetHeight(2 * PADDING + math.max(hasIcon and ICON_SIZE or 0, height) + (hasTime and BAR_GAP + BAR_HEIGHT or 0))
   end
 
-  -- spec = { color, icon (Pfad oder Spell-ID, optional), title, body (optional), time (true = Zahl und Balken) }
+  -- spec = { color, icon (Pfad oder Spell-ID, optional), texture (Pfad oder Datei-ID, optional), title,
+  --          body (optional), time (true = Zahl und Balken) }
   function card.Set(spec)
     local r, g, b = unpack(spec.color)
     accent:SetColorTexture(r, g, b, 1)
     barFill:SetColorTexture(r, g, b, 1)
     title:SetTextColor(r, g, b)
-    hasIcon = spec.icon ~= nil
+    hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)
-    if hasIcon then icon:SetTexture(iconTexture(spec.icon)) end
+    if hasIcon then icon:SetTexture(spec.texture or iconTexture(spec.icon)) end
     title:SetText(spec.title or "")
     hasBody = spec.body ~= nil and spec.body ~= ""
     body:SetShown(hasBody)

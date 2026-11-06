@@ -5,6 +5,8 @@
 --               kommt von "Himmelssicht" an einer Elementarkonvergenz)
 -- Erinnert wird nur, wenn es sich lohnt: beim Leveln, außerhalb von Kampf und Ruhegebiet, lebendig,
 -- und je Buff wiederholt im Abstand von reminderInterval Minuten (Einstellung), solange er fehlt.
+-- Lagervorteile und Aufgeladen nur in der offenen Welt (outdoorsOnly): in Dungeons, Schlachtzügen und
+-- Schlachtfeldern gibt es weder Lagerfeuer noch Elementarkonvergenzen.
 -- "Satt" wird über den Namen erkannt, den der Client für Zauber WELL_FED_SPELL_ID in seiner Sprache
 -- liefert: Die vielen Essens-Buffs heißen alle so, haben aber verschiedene Spell-IDs.
 -- Der Camp-Buff hat eine feste Spell-ID und gibt es nur in WoW Forever (BuffReminder.HasCampSystem);
@@ -21,7 +23,7 @@ local WELL_FED_SPELL_ID = 19705    -- "Well Fed" (Classic), liefert den überset
 local CAMP_SPELL_ID = 1229741      -- "Lagervorteile" (WoW Forever), im Spiel per /dump ermittelt
 local CHARGED_SPELL_ID = 1270893   -- "Aufgeladen" (Himmelsgeborene, WoW Forever), im Spiel ermittelt
 local SKYBORNE_RACE_ID = 96        -- 3. Wert von UnitRace: "Himmelsgeborene der Windformer" (Kürzel "Skyborne")
-local CHECK_INTERVAL = 5           -- Sekunden zwischen zwei Prüfungen
+local CHECK_INTERVAL = 2           -- Sekunden zwischen zwei Prüfungen (Schild weg im Kampf: schnell merken)
 local SECONDS_PER_MINUTE = 60
 BuffReminder.MIN_INTERVAL = 1      -- Minuten; Grenzen des Reglers in den Einstellungen
 BuffReminder.MAX_INTERVAL = 30
@@ -68,23 +70,42 @@ function BuffReminder.IsChargedMissing()
   return missing(function(aura) return aura.spellId == CHARGED_SPELL_ID end)
 end
 
--- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol und Zeitpunkt des letzten Hinweises
+-- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol (Schlüssel aus Alerts.ICONS oder
+-- Funktion, die eine Spell-ID oder einen Pfad liefert) und Zeitpunkt des letzten Hinweises
 local REMINDERS = {
-  { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food" },
-  { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp" },
+  -- Essen auch auf Maximallevel in Dungeons und Raids (Buff-Essen gehört dort dazu)
+  { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food",
+    anyLevelInInstance = true },
+  { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp",
+    outdoorsOnly = true },
   {
     setting = "remindCharged",
     isMissing = BuffReminder.IsChargedMissing,
     message = function() return string.format(L.REMIND_CHARGED, spellName(CHARGED_SPELL_ID)) end,
     icon = "charged",
+    outdoorsOnly = true,
   },
 }
+
+-- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
+-- optional: outdoorsOnly, inCombat (auch im Kampf), anyLevel (auch ohne Leveln), anyLevelInInstance (in Instanzen
+-- auch ohne Leveln), remindOnLoss (sofort, sobald der
+-- Buff wegfällt, ohne die Pause abzuwarten) }
+function BuffReminder.Register(reminder)
+  table.insert(REMINDERS, reminder)
+end
+
+local function iconOf(reminder)
+  if type(reminder.icon) == "function" then return reminder.icon() end
+  return ns.Alerts.ICONS[reminder.icon]
+end
 
 local function messageText(reminder)
   if type(reminder.message) == "function" then return reminder.message() end
   return L[reminder.message]
 end
 
+-- Standardbedingungen der Hinweise (Satt, Lagervorteile, ...): beim Leveln, nicht im Kampf, lebendig, nicht ruhend
 function BuffReminder.WorthReminding()
   return ns.Experience.IsLeveling()
     and not UnitAffectingCombat("player")
@@ -92,21 +113,35 @@ function BuffReminder.WorthReminding()
     and not IsResting()
 end
 
+-- Darf dieser Hinweis gerade kommen? Tot und im Ruhegebiet nie; Kampf, Leveln und Instanzen je nach Hinweis
+local function allowedNow(reminder)
+  if UnitIsDeadOrGhost("player") or IsResting() then return false end
+  if UnitAffectingCombat("player") and not reminder.inCombat then return false end
+  local anyLevel = reminder.anyLevel or (reminder.anyLevelInInstance and IsInInstance())
+  if not anyLevel and not ns.Experience.IsLeveling() then return false end
+  return not (reminder.outdoorsOnly and IsInInstance())
+end
+
+-- Fällig: fehlt und die Pause ist um, oder (remindOnLoss) war bei der letzten Prüfung noch da
 local function isDue(reminder)
-  return ns.db[reminder.setting]
-    and (not reminder.lastShown or GetTime() - reminder.lastShown >= ns.db.reminderInterval * SECONDS_PER_MINUTE)
-    and reminder.isMissing()
+  if not ns.db[reminder.setting] or not allowedNow(reminder) then return false end
+  local missing = reminder.isMissing()
+  local wasPresent = reminder.present
+  if missing ~= nil then reminder.present = not missing end
+  if missing ~= true then return false end
+  if reminder.remindOnLoss and wasPresent then return true end
+  return not reminder.lastShown or GetTime() - reminder.lastShown >= ns.db.reminderInterval * SECONDS_PER_MINUTE
 end
 
 -- Fällige Hinweise als Chatzeilen und gemeinsam in einer Einblendung
 function BuffReminder.Check()
-  if not ns.db or not BuffReminder.WorthReminding() then return end
+  if not ns.db then return end
   local messages = {}
   for _, reminder in ipairs(REMINDERS) do
     if isDue(reminder) then
       ns.Debug("reminder", "%s missing, reminding", reminder.setting)
       reminder.lastShown = GetTime()
-      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = ns.Alerts.ICONS[reminder.icon] })
+      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder) })
     end
   end
   if #messages > 0 then
@@ -121,6 +156,6 @@ ns.Every(CHECK_INTERVAL, BuffReminder.Check)
 -- Neuer Login: sofort erinnern dürfen
 ns.OnLogin(function()
   for _, reminder in ipairs(REMINDERS) do
-    reminder.lastShown = nil
+    reminder.lastShown, reminder.present = nil, nil
   end
 end)
