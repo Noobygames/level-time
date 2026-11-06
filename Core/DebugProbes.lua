@@ -302,8 +302,10 @@ local MAX_HARMFUL_AURAS = 5
 local RESTRICTION_CHAT, RESTRICTION_MAP = 5, 4  -- Enum.AddOnRestrictionType (Recherche, im Spiel prüfen)
 local CC_FILTER = "HARMFUL|CROWD_CONTROL"
 
--- Anzahl der CC-Auren: die Liste der IDs ist nicht geheim, nur ihr Inhalt
+-- Anzahl der CC-Auren. Im Spiel geprüft (Forever 1.60.1): bei geheimen Auren (im Kampf) wirft
+-- GetUnitAuraInstanceIDs "Auras cannot be accessed when secret while tainted"; dann nur "secret" loggen.
 local function crowdControlCount()
+  if call("C_Secrets.ShouldAurasBeSecret") == true then return "secret" end
   local ids = call("C_UnitAuras.GetUnitAuraInstanceIDs", "player", CC_FILTER)
   if type(ids) == "table" then return #ids end
   return ids
