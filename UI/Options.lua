@@ -483,6 +483,7 @@ addToggles({
 addSection("SECTION_INVITES")
 addToggles({
   toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
+  toggle("INVITE_INFO_TOGGLE", "inviteInfo"),
   toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
 })
 builder.AddTextInput({

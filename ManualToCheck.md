@@ -1615,3 +1615,22 @@ Eingeklappte Überschrift (Classic): Meldung trotzdem (ja/nein/nicht getestet):
 Im Dungeon/Bosskampf (gesperrt?) (ja/nein/nicht getestet):
 Fehler:
 ```
+
+### 76. Einladungen mit Infos (Roadmap 265)
+
+- [ ] geprüft
+
+Komfort > Sozial > Einladungen „Einladungen mit Infos“ an. Von einem Fremden, einem Freund und einem Gildenmitglied einladen lassen, einmal mit dem Einladenden als Ziel.
+
+**Erwartet:** Chatzeile „Gruppeneinladung von <Name in Klassenfarbe>: Orc Krieger“, als Ziel mit „Level N“ davor, bei Freund/Gilde „(Freund oder Gilde)“ dahinter. Das Einladungsfenster funktioniert wie immer (Annehmen/Ablehnen, kein „Aktion blockiert“).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rasse und Klasse stimmen (ja/nein):
+Level als Ziel (ja/nein):
+Freund/Gilde markiert (ja/nein):
+Popup unverändert, keine Fehler (ja/nein):
+Fehler:
+```

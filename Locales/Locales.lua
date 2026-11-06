@@ -845,6 +845,13 @@ ns.locales = {
     QUEST_PROGRESS_OBJECTIVE = "%s: %s",
     QUEST_PROGRESS_ACCEPTED = "Quest angenommen: %s",
     QUEST_PROGRESS_COMPLETE = "Quest fertig: %s",
+    -- Einladungen mit Infos (InviteInfo.lua)
+    INVITE_INFO_TOGGLE = "Einladungen mit Infos",
+    INVITE_INFO_TOGGLE_TIP = "Schreibt bei einer Gruppeneinladung eine Chatzeile mit Rasse und Klasse des Einladenden, mit Level, wenn er gerade dein Ziel ist, und ob er Freund oder in deiner Gilde ist. Das Einladungsfenster bleibt unverändert.",
+    INVITE_INFO = "Gruppeneinladung von %s: %s",
+    INVITE_INFO_LEVEL = "Level %d",
+    INVITE_INFO_UNKNOWN = "Rasse und Klasse unbekannt",
+    INVITE_INFO_TRUSTED = "(Freund oder Gilde)",
   },
   enUS = {
     -- General and commands
@@ -1683,6 +1690,13 @@ ns.locales = {
     QUEST_PROGRESS_OBJECTIVE = "%s: %s",
     QUEST_PROGRESS_ACCEPTED = "Quest accepted: %s",
     QUEST_PROGRESS_COMPLETE = "Quest complete: %s",
+    -- Einladungen mit Infos (InviteInfo.lua)
+    INVITE_INFO_TOGGLE = "Invites with details",
+    INVITE_INFO_TOGGLE_TIP = "On a group invite, prints a chat line with the inviter's race and class, the level if they are your current target, and whether they are a friend or in your guild. The invite dialog stays unchanged.",
+    INVITE_INFO = "Group invite from %s: %s",
+    INVITE_INFO_LEVEL = "level %d",
+    INVITE_INFO_UNKNOWN = "race and class unknown",
+    INVITE_INFO_TRUSTED = "(friend or guild)",
   },
   frFR = {
     -- Général et commandes
@@ -2521,6 +2535,13 @@ ns.locales = {
     QUEST_PROGRESS_OBJECTIVE = "%s : %s",
     QUEST_PROGRESS_ACCEPTED = "Quête acceptée : %s",
     QUEST_PROGRESS_COMPLETE = "Quête terminée : %s",
+    -- Einladungen mit Infos (InviteInfo.lua)
+    INVITE_INFO_TOGGLE = "Invitations détaillées",
+    INVITE_INFO_TOGGLE_TIP = "Lors d'une invitation de groupe, affiche une ligne avec la race et la classe de l'invitant, son niveau s'il est votre cible et s'il est ami ou de votre guilde. La fenêtre d'invitation ne change pas.",
+    INVITE_INFO = "Invitation de groupe de %s : %s",
+    INVITE_INFO_LEVEL = "niveau %d",
+    INVITE_INFO_UNKNOWN = "race et classe inconnues",
+    INVITE_INFO_TRUSTED = "(ami ou guilde)",
   },
   esES = {
     -- General y comandos
@@ -3359,6 +3380,13 @@ ns.locales = {
     QUEST_PROGRESS_OBJECTIVE = "%s: %s",
     QUEST_PROGRESS_ACCEPTED = "Misión aceptada: %s",
     QUEST_PROGRESS_COMPLETE = "Misión completada: %s",
+    -- Einladungen mit Infos (InviteInfo.lua)
+    INVITE_INFO_TOGGLE = "Invitaciones con detalles",
+    INVITE_INFO_TOGGLE_TIP = "Al recibir una invitación de grupo, muestra una línea con la raza y la clase de quien invita, el nivel si es tu objetivo y si es amigo o de tu hermandad. La ventana de invitación no cambia.",
+    INVITE_INFO = "Invitación de grupo de %s: %s",
+    INVITE_INFO_LEVEL = "nivel %d",
+    INVITE_INFO_UNKNOWN = "raza y clase desconocidas",
+    INVITE_INFO_TRUSTED = "(amigo o hermandad)",
   },
 }
 

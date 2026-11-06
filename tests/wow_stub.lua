@@ -745,6 +745,11 @@ function BNDeclineFriendInvite(inviteID)
   socialAction("declineFriend", inviteID)
 end
 function UnitIsGroupLeader() return state.groupLeader end
+-- Spieler-Infos je GUID: state.playerInfo[guid] = { localizedClass, englishClass, localizedRace, englishRace, ... }
+function GetPlayerInfoByGUID(guid)
+  local info = (state.playerInfo or {})[guid]
+  if info then return unpack(info) end
+end
 C_GossipInfo = {
   GetAvailableQuests = function() return state.gossip.available end,
   GetActiveQuests = function() return state.gossip.active end,

@@ -121,6 +121,7 @@ local SETTINGS_DEFAULTS = {
   -- annehmen, per Flüster-Stichwort einladen
   declineSharedQuests = false, blockFriendRequests = false, acceptFriendInvites = false, inviteFromWhisper = false,
   inviteKeyword = "inv",
+  inviteInfo = false,  -- Chatzeile mit Level, Rasse und Klasse bei Gruppeneinladungen (InviteInfo.lua)
   chatCopyButton = false,   -- Button zum Kopieren an jedem Chatfenster (ChatCopy.lua)
   -- Chatfenster (ChatWindows.lua), letzter Chat nach /reload (ChatHistory.lua), Spam-Filter (ChatFilter.lua)
   hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,

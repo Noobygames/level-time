@@ -101,6 +101,7 @@ Assist\TrainAll.lua
 Assist\Comfort.lua
 Assist\Friends.lua
 Assist\Social.lua
+Assist\InviteInfo.lua
 Assist\Merchant.lua
 Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
