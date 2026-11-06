@@ -5,6 +5,8 @@
 --               kommt von "Himmelssicht" an einer Elementarkonvergenz)
 -- Erinnert wird nur, wenn es sich lohnt: beim Leveln, außerhalb von Kampf und Ruhegebiet, lebendig,
 -- und je Buff wiederholt im Abstand von reminderInterval Minuten (Einstellung), solange er fehlt.
+-- Lagervorteile und Aufgeladen nur in der offenen Welt (outdoorsOnly): in Dungeons, Schlachtzügen und
+-- Schlachtfeldern gibt es weder Lagerfeuer noch Elementarkonvergenzen.
 -- "Satt" wird über den Namen erkannt, den der Client für Zauber WELL_FED_SPELL_ID in seiner Sprache
 -- liefert: Die vielen Essens-Buffs heißen alle so, haben aber verschiedene Spell-IDs.
 -- Der Camp-Buff hat eine feste Spell-ID und gibt es nur in WoW Forever (BuffReminder.HasCampSystem);
@@ -72,16 +74,19 @@ end
 -- Funktion, die eine Spell-ID oder einen Pfad liefert) und Zeitpunkt des letzten Hinweises
 local REMINDERS = {
   { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food" },
-  { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp" },
+  { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp",
+    outdoorsOnly = true },
   {
     setting = "remindCharged",
     isMissing = BuffReminder.IsChargedMissing,
     message = function() return string.format(L.REMIND_CHARGED, spellName(CHARGED_SPELL_ID)) end,
     icon = "charged",
+    outdoorsOnly = true,
   },
 }
 
--- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon }
+-- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
+-- outdoorsOnly optional }
 function BuffReminder.Register(reminder)
   table.insert(REMINDERS, reminder)
 end
@@ -105,6 +110,7 @@ end
 
 local function isDue(reminder)
   return ns.db[reminder.setting]
+    and not (reminder.outdoorsOnly and IsInInstance())
     and (not reminder.lastShown or GetTime() - reminder.lastShown >= ns.db.reminderInterval * SECONDS_PER_MINUTE)
     and reminder.isMissing()
 end

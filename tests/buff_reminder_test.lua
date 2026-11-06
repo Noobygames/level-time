@@ -88,6 +88,23 @@ wow.advance(1.5 + 1.1)  -- die laufende zeigt sich kürzer, solange eine weitere
 LevelTimerNotice._scripts.OnUpdate(LevelTimerNotice, 0.1)
 expect("beide: dann Camp", LevelTimerNotice.body:GetText(), L.REMIND_CAMP)
 
+-- Im Dungeon: Essen ja, Lagervorteile nein (dort gibt es keine Lagerfeuer)
+local function printedCount(text)
+  local count = 0
+  for _, line in ipairs(wow.printed) do
+    if line:find(text, 1, true) then count = count + 1 end
+  end
+  return count
+end
+local campBefore, foodBefore = printedCount(L.REMIND_CAMP), reminders()
+wow.state.instance = { name = "Die Höhlen des Wehklagens", type = "party" }
+wow.advance(301)
+addon.Alerts.Clear()
+BuffReminder.Check()
+expect("Dungeon: Essen erinnert", reminders(), foodBefore + 1)
+expect("Dungeon: kein Camp", printedCount(L.REMIND_CAMP), campBefore)
+wow.state.instance = nil
+
 -- Forever ohne den Zauber (älterer Build): nichts behaupten
 wow.state.spellNames = { [19705] = "Satt" }
 expect("ohne Camp-Zauber unbekannt", BuffReminder.IsCampMissing(), nil)
