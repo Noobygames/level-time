@@ -78,6 +78,7 @@ Alerts.ICONS = {
   nearDeath = iconPath("INV_Misc_Bone_HumanSkull_01"),
   breath = iconPath("Spell_Shadow_DemonBreath"),
   fatigue = iconPath("Spell_Nature_Sleep"),
+  rest = iconPath("INV_Misc_PocketWatch_02"),
 }
 
 local shownAt

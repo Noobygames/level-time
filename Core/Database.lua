@@ -71,6 +71,8 @@ local SETTINGS_DEFAULTS = {
   remindThorns = false, remindOmenOfClarity = false, remindShamanShield = false, remindShamanWeapon = false,
   remindBlessing = false, remindPaladinAura = false, remindRighteousFury = false, remindAspect = false,
   remindHunterPet = false, remindPoisons = false, remindBattleShout = false, remindBronzeBlessing = false,
+  remindBreak = false,  -- Pausen-Erinnerung nach breakMinutes Spielzeit ohne Pause (BreakReminder.lua)
+  breakMinutes = 60,
   reminderInterval = 5,  -- Minuten zwischen zwei Hinweisen auf denselben fehlenden Buff
   warnBagsFull = false,  -- Hinweis bei fast vollen Taschen (siehe GearWarnings.lua)
   warnDurability = false,  -- Hinweis bei niedriger Haltbarkeit
@@ -367,6 +369,7 @@ local SETTING_RANGES = {
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
   lowManaPercent = { 5, 60 },
+  breakMinutes = { 15, 240 },
   breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },

@@ -298,6 +298,17 @@ addSlider({
   set = function(value) ns.Set("reminderInterval", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
+-- Pausen-Erinnerung (BreakReminder.lua)
+addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
+addSlider({
+  label = "BREAK_MINUTES",
+  min = ns.BreakReminder.MIN_MINUTES,
+  max = ns.BreakReminder.MAX_MINUTES,
+  step = 15,
+  get = function(db) return db.breakMinutes end,
+  set = function(value) ns.Set("breakMinutes", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+})
 addSection("SECTION_WARNINGS")
 addHint("WARN_LOOK_HINT")
 addToggles({

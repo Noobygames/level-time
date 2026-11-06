@@ -1577,3 +1577,22 @@ Wiederholbare Quest manuell (ja/nein/nicht getestet):
 Flugmeister weiter übersprungen (ja/nein):
 Fehler:
 ```
+
+### 74. Pausen-Erinnerung (Roadmap 263)
+
+- [ ] geprüft
+
+Hinweise > Erinnerungen „Pausen-Erinnerung“ an, „Pause nach“ auf 15 Minuten. 15 Minuten spielen (einmal mit /reload dazwischen), einmal davon im Kampf über die Grenze kommen. Danach 5 Minuten AFK gehen (`/afk`).
+
+**Erwartet:** Nach 15 Minuten (ohne AFK-Zeit) Karte „Kurze Pause?“ mit der Spielzeit, auch nach /reload richtig gezählt. Im Kampf oder in einer Instanz erst danach. Nach 5 Minuten AFK beginnt die Zählung neu.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Karte nach der eingestellten Zeit (ja/nein):
+Zählung nach /reload weiter (ja/nein):
+Wartet im Kampf/in Instanzen (ja/nein):
+AFK setzt zurück (ja/nein):
+Fehler:
+```

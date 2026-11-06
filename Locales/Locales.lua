@@ -832,6 +832,13 @@ ns.locales = {
     -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
     QUEST_EXCLUDE = "Nie automatisch",
     QUEST_EXCLUDE_TIP = "NPCs und Quests, bei denen die Quest-Automatik nichts tut: Namen oder IDs, durch Komma getrennt (z.B. „Ralston Farnsley, 7820“). Mit Enter übernehmen. Stoff-Quartiermeister und Stoffspenden sind schon gesperrt, wiederholbare Quests bleiben ohnehin manuell.",
+    -- Pausen-Erinnerung (BreakReminder.lua)
+    REMIND_BREAK_TOGGLE = "Pausen-Erinnerung",
+    REMIND_BREAK_TOGGLE_TIP = "Erinnert nach der eingestellten Spielzeit ohne Pause an eine kurze Pause. Nicht im Kampf und nicht in Instanzen. AFK-Zeit zählt nicht mit, 5 Minuten AFK am Stück zählen als Pause.",
+    BREAK_MINUTES = "Pause nach",
+    BREAK_MINUTES_TIP = "So viele Minuten Spielzeit ohne Pause, bis die Pausen-Erinnerung kommt.",
+    NOTICE_BREAK = "Kurze Pause?",
+    BREAK_REMINDER = "Du spielst seit %s ohne Pause. Kurz aufstehen, trinken, Augen entspannen.",
   },
   enUS = {
     -- General and commands
@@ -1657,6 +1664,13 @@ ns.locales = {
     -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
     QUEST_EXCLUDE = "Never automatic",
     QUEST_EXCLUDE_TIP = "NPCs and quests the quest automation leaves alone: names or IDs separated by commas (e.g. \"Ralston Farnsley, 7820\"). Press Enter to apply. Cloth quartermasters and cloth donations are already blocked, repeatable quests stay manual anyway.",
+    -- Pausen-Erinnerung (BreakReminder.lua)
+    REMIND_BREAK_TOGGLE = "Break reminder",
+    REMIND_BREAK_TOGGLE_TIP = "Suggests a short break after the set play time without a break. Not in combat and not in instances. AFK time does not count, 5 minutes AFK in a row count as a break.",
+    BREAK_MINUTES = "Break after",
+    BREAK_MINUTES_TIP = "Minutes of play without a break before the break reminder appears.",
+    NOTICE_BREAK = "Short break?",
+    BREAK_REMINDER = "You have been playing for %s without a break. Stand up, have a drink, rest your eyes.",
   },
   frFR = {
     -- Général et commandes
@@ -2482,6 +2496,13 @@ ns.locales = {
     -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
     QUEST_EXCLUDE = "Jamais automatique",
     QUEST_EXCLUDE_TIP = "PNJ et quêtes que l'automatisation des quêtes ignore : noms ou ID séparés par des virgules (par ex. « Ralston Farnsley, 7820 »). Validez avec Entrée. Les intendants des étoffes et les dons d'étoffes sont déjà bloqués, les quêtes répétables restent manuelles de toute façon.",
+    -- Pausen-Erinnerung (BreakReminder.lua)
+    REMIND_BREAK_TOGGLE = "Rappel de pause",
+    REMIND_BREAK_TOGGLE_TIP = "Propose une courte pause après le temps de jeu réglé sans pause. Pas en combat ni en instance. Le temps ABS ne compte pas, 5 minutes ABS d'affilée comptent comme une pause.",
+    BREAK_MINUTES = "Pause après",
+    BREAK_MINUTES_TIP = "Minutes de jeu sans pause avant que le rappel de pause apparaisse.",
+    NOTICE_BREAK = "Petite pause ?",
+    BREAK_REMINDER = "Vous jouez depuis %s sans pause. Levez-vous, buvez un coup, reposez vos yeux.",
   },
   esES = {
     -- General y comandos
@@ -3307,6 +3328,13 @@ ns.locales = {
     -- Sperrliste der Quest-Automatik (QuestBlocklist.lua)
     QUEST_EXCLUDE = "Nunca automático",
     QUEST_EXCLUDE_TIP = "PNJ y misiones que la automatización de misiones deja en paz: nombres o ID separados por comas (p. ej. «Ralston Farnsley, 7820»). Pulsa Intro para aplicar. Los intendentes de telas y las donaciones de tela ya están bloqueados; las misiones repetibles siguen siendo manuales.",
+    -- Pausen-Erinnerung (BreakReminder.lua)
+    REMIND_BREAK_TOGGLE = "Recordatorio de descanso",
+    REMIND_BREAK_TOGGLE_TIP = "Sugiere un breve descanso tras el tiempo de juego elegido sin pausa. No en combate ni en instancias. El tiempo ausente no cuenta; 5 minutos ausente seguidos cuentan como pausa.",
+    BREAK_MINUTES = "Descanso tras",
+    BREAK_MINUTES_TIP = "Minutos de juego sin pausa antes de que aparezca el recordatorio.",
+    NOTICE_BREAK = "¿Un descanso?",
+    BREAK_REMINDER = "Llevas %s jugando sin pausa. Levántate, bebe algo, descansa la vista.",
   },
 }
 
