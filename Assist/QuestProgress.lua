@@ -5,8 +5,7 @@
 -- Versand wie die Level-Up-Ansage über GroupChat (Gruppe/Instanz, nur in einer Gruppe); bei gesperrtem Chat
 -- (GroupChat.Locked, z.B. Bosskampf) fällt die Meldung weg.
 -- Quellen (Blizzard_APIDocumentationGenerated je Client):
---   Questlog  Retail/Forever C_QuestLog.GetNumQuestLogEntries + C_QuestLog.GetInfo(i) (questID, title, isHeader);
---             Classic Era/TBC GetNumQuestLogEntries + GetQuestLogTitle(i) (8. Rückgabe questID). Unter eingeklappten
+--   Questlog  Lib/QuestLog.lua (Retail/Forever C_QuestLog.GetInfo, Classic GetQuestLogTitle). Unter eingeklappten
 --             Überschriften sieht Classic die Quests nicht; ihr letzter Stand bleibt gemerkt.
 --   Ziele     C_QuestLog.GetQuestObjectives(questID) in allen Clients: { text, finished, numFulfilled, numRequired }
 --   Ereignisse QUEST_LOG_UPDATE (neu einlesen, gebündelt alle SCAN_SECONDS), QUEST_ACCEPTED (Era: questIndex,
@@ -28,29 +27,6 @@ local dirty = true
 local function readable(value)
   if ns.IsSecret(value) then return nil end
   return value
-end
-
--- Quests im Log: Liste von { questID, title }
-local function questLog()
-  local quests = {}
-  local function add(questID, title, isHeader)
-    questID, title = readable(questID), readable(title)
-    if not readable(isHeader) and type(questID) == "number" and questID ~= 0 then
-      table.insert(quests, { questID = questID, title = title })
-    end
-  end
-  if C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo then
-    for index = 1, (C_QuestLog.GetNumQuestLogEntries()) or 0 do
-      local info = C_QuestLog.GetInfo(index)
-      if info then add(info.questID, info.title, info.isHeader) end
-    end
-  elseif GetNumQuestLogEntries and GetQuestLogTitle then
-    for index = 1, (GetNumQuestLogEntries()) or 0 do
-      local title, _, _, isHeader, _, _, _, questID = GetQuestLogTitle(index)
-      add(questID, title, isHeader)
-    end
-  end
-  return quests
 end
 
 local function announce(text)
@@ -95,7 +71,7 @@ end
 function QuestProgress.Scan()
   if not ns.db.announceQuestProgress or not dirty then return end
   dirty = false
-  for _, quest in ipairs(questLog()) do update(quest) end
+  for _, quest in ipairs(ns.QuestLog.Entries()) do update(quest) end
   seen = true
 end
 

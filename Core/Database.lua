@@ -130,6 +130,8 @@ local SETTINGS_DEFAULTS = {
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
+  questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
+  questTargetButton = false, -- Knopf "/targetexact" für einen Questgegner auf den Namensplaketten
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
@@ -398,6 +400,7 @@ local OPTIONAL_SETTINGS = {
   foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
   flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
   levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
+  questItemPos = isPosition,  -- Quest-Item-Knopf (QuestItemButton.lua)
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end
     for name, pos in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten

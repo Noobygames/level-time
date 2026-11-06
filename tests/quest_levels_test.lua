@@ -97,6 +97,7 @@ QuestScrollFrame = { titleFramePool = { EnumerateActive = function()
   local done = false
   return function() if not done then done = true; return mainlineButton end end
 end } }
+C_QuestLog.GetNumQuestLogEntries = function() return 1 end
 C_QuestLog.GetInfo = function(index)
   if index == 1 then return { title = "Drachen", level = 30, suggestedGroup = 0, isHeader = false } end
 end
@@ -104,7 +105,7 @@ function QuestLogQuests_Update() mainlineButton.Text:SetText("Drachen") end
 wow.fire("ADDON_LOADED", "Blizzard_WorldMap")
 QuestLogQuests_Update()
 expect("Retail-Questlog", mainlineButton.Text:GetText(), "[30] Drachen")
-C_QuestLog.GetInfo = nil
+C_QuestLog.GetInfo, C_QuestLog.GetNumQuestLogEntries = nil, nil
 
 -- Ausgeschaltet: beim nächsten Aufbau weg
 addon.Set("questLevels", false)

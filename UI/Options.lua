@@ -549,7 +549,15 @@ if ns.QuestMarks.IsAvailable() then
   })
 end
 addSection("SECTION_QUEST_DISPLAY")
-addToggles({ toggle("QUEST_LEVELS_TOGGLE", "questLevels") })
+addToggles({
+  toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
+  toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
+  toggle("QUEST_TARGET_TOGGLE", "questTargetButton", ns.QuestItem.CanTarget),
+})
+builder.AddButtonRow({
+  { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
+  { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
+})
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({

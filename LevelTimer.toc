@@ -30,6 +30,7 @@ Lib\GroupChat.lua
 Lib\GroupRole.lua
 Lib\Bags.lua
 Lib\Items.lua
+Lib\QuestLog.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
@@ -118,6 +119,7 @@ Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
 Assist\QuestLevels.lua
+Assist\QuestItemButton.lua
 Assist\ActionBars.lua
 Assist\Emergency.lua
 Assist\HideFrames.lua

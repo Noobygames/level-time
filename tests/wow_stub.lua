@@ -184,6 +184,13 @@ local frameMethods = {
   GetChecked = function(self) return self._checked end,
   SetChecked = function(self, checked) self._checked = checked end,
   SetScript = function(self, name, handler) self._scripts[name] = handler end,
+  -- Attribute sicherer Knöpfe; im Kampf wie im Client verboten (Fehler), Tests prüfen so die Kampfsperre
+  SetAttribute = function(self, name, value)
+    if wow.state.combatLockdown then error("ADDON_ACTION_BLOCKED: SetAttribute in combat") end
+    self._attributes = rawget(self, "_attributes") or {}
+    self._attributes[name] = value
+  end,
+  GetAttribute = function(self, name) return (rawget(self, "_attributes") or {})[name] end,
   -- Wie im Client: vorhandenen Handler behalten und den neuen danach aufrufen
   HookScript = function(self, name, handler)
     local previous = self._scripts[name]
@@ -651,6 +658,11 @@ function GetQuestLogTitle(index)
   local quest = state.questLog[index]
   return quest.title, quest.level or 1, quest.suggestedGroup or 0, quest.isHeader or false, false, false, 0, quest.questID
 end
+-- Quest-Item je Logeintrag: questLog[i].specialItem = { link, Symbol }
+function GetQuestLogSpecialItemInfo(index)
+  local item = ((state.questLog or {})[index] or {}).specialItem
+  if item then return item[1], item[2], 0, false end
+end
 function GetNumQuestWatches() return #(state.questWatches or {}) end
 function GetQuestIndexForWatch(index) return (state.questWatches or {})[index] end
 function GetNumQuestLeaderBoards(index)
@@ -795,6 +807,7 @@ function GetQuestItemLink(kind, index) return kind == "choice" and state.questCh
 function GetQuestReward(choice) questAction("reward", choice) end
 
 C_Item = {
+  GetItemCount = function(itemID) return (state.itemCounts or {})[itemID] or 0 end,
   -- itemID oder Link; Verkaufspreis aus state.sellPrices
   GetItemInfo = function(itemID)
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]

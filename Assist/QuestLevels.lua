@@ -51,41 +51,17 @@ function QuestLevels.Prefix(text, level, group)
   return indent .. tag .. rest
 end
 
--- suggestedGroup: Zahl > 0; ältere Clients liefern evtl. einen Text ("Elite", "Gruppe")
-local function isGroup(suggested)
-  suggested = readable(suggested)
-  if type(suggested) == "number" then return suggested > 0 end
-  return type(suggested) == "string" and suggested ~= ""
-end
-
--- Level und Gruppe eines Eintrags im Questlog
+-- Level und Gruppe eines Eintrags im Questlog (Lib/QuestLog.lua)
 local function logEntry(index)
-  if C_QuestLog and C_QuestLog.GetInfo then
-    local info = C_QuestLog.GetInfo(index)
-    if not info or readable(info.isHeader) then return nil end
-    return info.level, isGroup(info.suggestedGroup)
-  elseif GetQuestLogTitle then
-    local _, level, suggested, isHeader = GetQuestLogTitle(index)
-    if readable(isHeader) then return nil end
-    return level, isGroup(suggested)
-  end
+  local entry = ns.QuestLog.Entry(index)
+  if not entry then return nil end
+  return entry.level, entry.group
 end
 
 -- Gruppe einer Quest-ID, wenn sie im Log steht (Gespräche liefern nur das Level)
 local function groupOf(questID)
-  questID = readable(questID)
-  if type(questID) ~= "number" then return false end
-  if C_QuestLog and C_QuestLog.GetLogIndexForQuestID and C_QuestLog.GetInfo then
-    local index = C_QuestLog.GetLogIndexForQuestID(questID)
-    local info = readable(index) and C_QuestLog.GetInfo(index)
-    return info and isGroup(info.suggestedGroup) or false
-  elseif GetNumQuestLogEntries and GetQuestLogTitle then
-    for index = 1, (GetNumQuestLogEntries()) or 0 do
-      local _, _, suggested, _, _, _, _, id = GetQuestLogTitle(index)
-      if readable(id) == questID then return isGroup(suggested) end
-    end
-  end
-  return false
+  local entry = ns.QuestLog.Find(questID)
+  return entry ~= nil and entry.group
 end
 
 -- Text eines Knopfs oder einer Schrift ergänzen; Knöpfe mit Resize (Gespräch) passen ihre Höhe an
@@ -145,7 +121,7 @@ end
 local function onClassicQuestLog()
   if not isEnabled() or not QuestLogListScrollFrame then return end
   local offset = FauxScrollFrame_GetOffset and FauxScrollFrame_GetOffset(QuestLogListScrollFrame) or 0
-  local numEntries = (GetNumQuestLogEntries()) or 0
+  local numEntries = ns.QuestLog.Count()
   for i = 1, (QUESTS_DISPLAYED or 0) do
     local index = i + offset
     local button = _G["QuestLogTitle" .. i]

@@ -1694,3 +1694,23 @@ Fehler im Kampf (ja/nein):
 IDs ohne Namen in emergency.actions:
 Fehler:
 ```
+
+### 80. Quest-Item-Knopf und Zielknopf (Roadmap 268)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Quests „Quest-Item-Knopf“ und „Questgegner-Zielknopf“ an, Namensplaketten an. Eine Quest mit benutzbarem Item annehmen (z.B. Item auf einen Gegner oder Ort benutzen), zweite solche Quest dazu. Knopf anklicken (mit und ohne Ziel), in den Kampf gehen und eine Quest abschließen, danach den Kampf verlassen. „Knöpfe verschieben“, ziehen, Rechtsklick, `/reload`. Nahe Questgegner auf den Plaketten: Zielknopf klicken.
+
+**Erwartet:** Knopf mit dem Symbol des Quest-Items (Anzahl unten rechts), Klick benutzt das Item. Mit zwei Quests in Retail/Forever das Item der näheren Quest, in Classic das der zuletzt angenommenen. Im Kampf ändert sich nichts, kein „Aktion blockiert“; nach dem Kampf wechselt der Knopf. Zielknopf wählt einen Questgegner als Ziel. Position bleibt nach /reload.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Item erkannt und benutzt (ja/nein):
+Nächste/letzte Quest richtig (ja/nein):
+Im Kampf keine Fehler (ja/nein):
+Zielknopf wählt Questgegner (ja/nein/nicht vorhanden):
+Verschieben gemerkt (ja/nein):
+Fehler:
+```
