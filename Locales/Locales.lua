@@ -688,6 +688,8 @@ ns.locales = {
     GOAL_INVALID = "Ziel muss ein Level über dem aktuellen sein, z.B. /lt goal 30.",
     GOAL_REACHED = "Ziel erreicht: Level %d!",
     SHOW_MINIMAP = "Minimap-Button anzeigen",
+    STREAM_HIDE_MINIMAP = "Minimap-Button ausblenden",
+    STREAM_HIDE_MINIMAP_TIP = "Blendet den Knopf an der Minimap aus, damit er nicht im Stream zu sehen ist. Dieselbe Einstellung wie „Minimap-Button anzeigen“ im Reiter Allgemein; /lt minimap holt ihn zurück.",
     STATISTICS = "Statistiken",
 
     -- Schalter der Stats (Einstellungen)
@@ -1765,6 +1767,8 @@ ns.locales = {
     GOAL_INVALID = "Goal must be a level above the current one, e.g. /lt goal 30.",
     GOAL_REACHED = "Goal reached: level %d!",
     SHOW_MINIMAP = "Show minimap button",
+    STREAM_HIDE_MINIMAP = "Hide minimap button",
+    STREAM_HIDE_MINIMAP_TIP = "Hides the minimap button so it does not show on stream. Same setting as “Show minimap button” on the General tab; /lt minimap brings it back.",
     STATISTICS = "Statistics",
 
     -- Stat toggles (settings)
@@ -2842,6 +2846,8 @@ ns.locales = {
     GOAL_INVALID = "L'objectif doit être un niveau supérieur à l'actuel, ex. /lt goal 30.",
     GOAL_REACHED = "Objectif atteint : niveau %d !",
     SHOW_MINIMAP = "Bouton de la minicarte",
+    STREAM_HIDE_MINIMAP = "Masquer le bouton de la minicarte",
+    STREAM_HIDE_MINIMAP_TIP = "Masque le bouton de la minicarte pour qu'il n'apparaisse pas dans le stream. Même réglage que « Bouton de la minicarte » dans l'onglet Général ; /lt minimap le fait revenir.",
     STATISTICS = "Statistiques",
 
     -- Interrupteurs des statistiques
@@ -3919,6 +3925,8 @@ ns.locales = {
     GOAL_INVALID = "El objetivo debe ser un nivel superior al actual, p. ej. /lt goal 30.",
     GOAL_REACHED = "¡Objetivo alcanzado: nivel %d!",
     SHOW_MINIMAP = "Botón del minimapa",
+    STREAM_HIDE_MINIMAP = "Ocultar botón del minimapa",
+    STREAM_HIDE_MINIMAP_TIP = "Oculta el botón del minimapa para que no se vea en el stream. Es el mismo ajuste que «Botón del minimapa» en la pestaña General; /lt minimap lo recupera.",
     STATISTICS = "Estadísticas",
 
     -- Interruptores de estadísticas

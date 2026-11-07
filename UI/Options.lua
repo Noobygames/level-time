@@ -692,6 +692,9 @@ addToggles({
     set = function(checked) ns.StreamMode.SetEnabled(checked) end },
   toggle("STREAMER_PRIVACY", "streamerPrivacy"),
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
+  -- Abkürzung zu "Minimap-Button anzeigen" (Allgemein), umgekehrt formuliert
+  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(checked) end },
 })
 addBackgroundChooser()
 finishPage()

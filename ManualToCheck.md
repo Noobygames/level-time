@@ -2197,3 +2197,24 @@ Sprache, wie es aussieht:
 Abgeschnitten (wo):
 Fehler:
 ```
+
+### 108. Zusammenfassungskarte im Stream (Roadmap 209)
+
+- [ ] geprüft
+
+Einstellungen → Stream → Hintergrund „Grün“, dann `/lt recap` offen lassen und ein paar Gegner töten.
+Danach im Reiter Stream „Minimap-Button ausblenden“ anhaken.
+
+**Erwartet:** Die Karte hat denselben grünen Hintergrund ohne Rand wie das Zeitfenster und zählt Zeit, XP und
+Kills jede Sekunde mit, ohne neu geöffnet zu werden. Mit „Standard“ ist sie wieder dunkel mit Rand. Der
+Minimap-Button verschwindet, im Reiter Allgemein ist „Minimap-Button anzeigen“ nicht mehr angehakt.
+
+**Antwort:**
+
+```text
+Client:
+Chroma-Hintergrund der Karte (ja/nein):
+Karte zählt mit (ja/nein):
+Minimap-Button ausgeblendet (ja/nein):
+Fehler:
+```
