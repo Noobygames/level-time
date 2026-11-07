@@ -141,6 +141,7 @@ end
 -- definition = { tab, group (optional), columns, records(characterKey), footer(columns, records),
 --   rowColor(record) optional (Standard: laufender Eintrag hervorgehoben, sonst weiß),
 --   onRowClick(record, mouseButton) optional,
+--   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
 --   hint = Locale-Key oder function() -> Text optional,
 --   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
@@ -190,6 +191,22 @@ function TableView.Create(definition)
           definition.onRowClick(record, mouseButton)
           frame:Render(frame.characterKey, false, true)
         end)
+      end
+    end
+
+    -- Spiel-Tooltip des Links einer Zeile (Gegenstand, Quest). pcall: ein Client, der die Link-Art nicht kennt, zeigt
+    -- dann einfach nichts statt eines Fehlers
+    if definition.rowLink then
+      for i, row in ipairs(rows) do
+        row:EnableMouse(true)
+        row:SetScript("OnEnter", function(self)
+          local record = records[frame.offset + i]
+          local link = record and definition.rowLink(record)
+          if not link then return end
+          GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+          if pcall(GameTooltip.SetHyperlink, GameTooltip, link) then GameTooltip:Show() else GameTooltip:Hide() end
+        end)
+        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
       end
     end
 

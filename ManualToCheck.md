@@ -2218,3 +2218,23 @@ Karte zählt mit (ja/nein):
 Minimap-Button ausgeblendet (ja/nein):
 Fehler:
 ```
+
+### 109. Spiel-Tooltip in Beute und Quests (Roadmap 212)
+
+- [ ] geprüft
+
+`/lt history` → Journal → Beute: Maus über eine Zeile mit einem Gegenstand. Dann Journal → Quests: Maus über
+eine abgegebene Quest.
+
+**Erwartet:** Bei Beute erscheint der normale Gegenstands-Tooltip am Mauszeiger, bei Quests der Quest-Tooltip
+(Titel, ggf. Ziele). Kein Lua-Fehler; in Classic Era/TBC darf der Quest-Tooltip fehlen oder nur den Titel zeigen,
+dann bitte notieren.
+
+**Antwort:**
+
+```text
+Client:
+Gegenstands-Tooltip (ja/nein):
+Quest-Tooltip (ja/nein/nur Titel):
+Fehler:
+```
