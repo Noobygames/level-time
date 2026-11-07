@@ -2545,3 +2545,25 @@ NPC-Spalte (ja/nein):
 Todeskarte noch ok (ja/nein):
 Fehler:
 ```
+
+### 123. Leichenpfeil (Roadmap 351)
+
+- [ ] geprüft
+
+Komfort > Rahmen > Weltkarte: „Leichenpfeil als Geist“ an. Draußen sterben und freilassen.
+
+1. Als Geist erscheint oben mittig ein Pfeil mit „N Meter“ darunter. Zeigt er zur Leiche, wenn du dich drehst? Nimmt die Entfernung beim Laufen ab und stimmt sie ungefähr (z.B. mit der Minikarte)?
+2. In einer anderen Zone als die Leiche (Friedhof jenseits der Zonengrenze): Pfeil weg oder richtig?
+3. Wiederbelebt: Pfeil weg.
+4. Als Geist `/lt debug log`, `/lt debug check`, danach `make debuglog`: Eintrag `deaths.corpseArrow` (Karte, Leiche, Breite/Höhe, Blickrichtung, Drehung, Entfernung).
+5. In einer Instanz sterben (Forever: geheime Positionen): kein Pfeil, keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Richtung stimmt (ja/nein, um wie viel daneben):
+Entfernung plausibel (ja/nein):
+Andere Zone (ja/nein/weg):
+Fehler:
+```

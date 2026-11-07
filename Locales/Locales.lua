@@ -1158,6 +1158,9 @@ ns.locales = {
     QUEST_MAP_TURN_IN = "Abgabe bei %s",
     QUEST_MAP_OBJECTIVE = "Hier kam ein Ziel voran",
     HISTORY_TURN_IN_NPC = "NPC",
+    CORPSE_ARROW_TOGGLE = "Leichenpfeil als Geist",
+    CORPSE_ARROW_TOGGLE_TIP = "Als Geist zeigt ein Pfeil oben in der Bildschirmmitte die Richtung zu deiner Leiche, darunter die Entfernung. In Instanzen gibt das Spiel keine Position heraus, dort bleibt der Pfeil weg.",
+    CORPSE_DISTANCE = "%d Meter",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2309,6 +2312,9 @@ ns.locales = {
     QUEST_MAP_TURN_IN = "Turn in at %s",
     QUEST_MAP_OBJECTIVE = "An objective advanced here",
     HISTORY_TURN_IN_NPC = "NPC",
+    CORPSE_ARROW_TOGGLE = "Corpse arrow as a ghost",
+    CORPSE_ARROW_TOGGLE_TIP = "As a ghost an arrow at the top center of the screen points to your corpse, with the distance below. In instances the game gives no position, so the arrow stays hidden there.",
+    CORPSE_DISTANCE = "%d yards",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3460,6 +3466,9 @@ ns.locales = {
     QUEST_MAP_TURN_IN = "À rendre à %s",
     QUEST_MAP_OBJECTIVE = "Un objectif a avancé ici",
     HISTORY_TURN_IN_NPC = "PNJ",
+    CORPSE_ARROW_TOGGLE = "Flèche vers le corps en fantôme",
+    CORPSE_ARROW_TOGGLE_TIP = "En fantôme, une flèche en haut au centre de l'écran indique la direction de votre corps, avec la distance en dessous. En instance, le jeu ne donne pas de position : la flèche reste cachée.",
+    CORPSE_DISTANCE = "%d mètres",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4611,6 +4620,9 @@ ns.locales = {
     QUEST_MAP_TURN_IN = "Entregar a %s",
     QUEST_MAP_OBJECTIVE = "Aquí avanzó un objetivo",
     HISTORY_TURN_IN_NPC = "PNJ",
+    CORPSE_ARROW_TOGGLE = "Flecha al cadáver como fantasma",
+    CORPSE_ARROW_TOGGLE_TIP = "Como fantasma, una flecha arriba en el centro de la pantalla señala tu cadáver, con la distancia debajo. En instancias el juego no da la posición, así que la flecha no aparece.",
+    CORPSE_DISTANCE = "%d metros",
   },
 }
 
