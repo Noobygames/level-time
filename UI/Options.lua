@@ -812,6 +812,12 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
 end
 addToggles(recordToggles)
 addWorldRecordScopeChooser()
+addSection("SECTION_SCREENSHOTS")
+addToggles({
+  toggle("MILESTONE_SCREENSHOTS", "milestoneScreenshots"),
+  toggle("SCREENSHOT_FIRST_DUNGEON", "screenshotFirstDungeon"),
+  toggle("SCREENSHOT_EPIC_LOOT", "screenshotEpicLoot"),
+})
 addSection("SECTION_SSF")
 addSsfCategoryChooser()
 addHint("SSF_HINT")

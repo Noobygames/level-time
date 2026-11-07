@@ -570,6 +570,9 @@ C_AddOns = {
 wow.addonMessages = {}
 wow.addonPrefixes = {}
 function NotifyInspect() end
+-- Screenshot(): wow.screenshots zählt die Aufnahmen
+wow.screenshots = 0
+function Screenshot() wow.screenshots = wow.screenshots + 1 end
 function GetUnitName(unit, showServer)
   local name = UnitName(unit)
   local realm = state.units[unit] and state.units[unit].realm

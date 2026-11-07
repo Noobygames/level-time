@@ -2159,3 +2159,21 @@ Level-Up-Meldung (ja/nein):
 In Instanzen (ja/nein):
 Fehler:
 ```
+
+### 106. Meilenstein-Screenshots (Roadmap 294)
+
+- [ ] geprüft
+
+Speedrun > Meilenstein-Screenshots: alle drei an. Auf ein durch 5 teilbares Level aufsteigen, einen Dungeon zum ersten Mal mit dem Charakter betreten, epische Beute bekommen (falls möglich).
+
+**Erwartet:** Je Ereignis eine Sekunde später ein Screenshot (Chatmeldung des Clients „Screenshot gespeichert …“, Datei im Ordner Screenshots), kein „Aktion blockiert“. Beim zweiten Dungeon keiner.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Level-Screenshot (ja/nein):
+Dungeon-Screenshot (ja/nein):
+Beute-Screenshot (ja/nein/nicht getestet):
+Fehler:
+```
