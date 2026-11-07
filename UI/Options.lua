@@ -858,7 +858,21 @@ finishPage()
 
 addFooterButton("HISTORY", function() ns.ToggleHistory() end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
-addFooterButton("NEW_SESSION", function() ns.StartNewSession() end)
+-- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
+local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
+StaticPopupDialogs[NEW_SESSION_POPUP] = {
+  button1 = YES or "Yes",
+  button2 = NO or "No",
+  OnAccept = function() ns.StartNewSession() end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+addFooterButton("NEW_SESSION", function()
+  StaticPopupDialogs[NEW_SESSION_POPUP].text = L.NEW_SESSION_CONFIRM  -- aktuelle Sprache
+  StaticPopup_Show(NEW_SESSION_POPUP, ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
+end)
 
 builder.Finish()
 ns.RegisterApply(builder.Refresh)
