@@ -37,6 +37,7 @@ local SETTINGS_DEFAULTS = {
   splitListRows = 5,
   splitListShowTotal = true,   -- Zeile "Gesamt" in der Split-Liste
   splitListShowPlayed = true,  -- Zeile "/played" in der Split-Liste
+  splitListShowForecast = false,  -- Prognose des nächsten Abschnitts gegen PB, Bestzeiten und Rekord (BracketForecast.lua)
   showWorldRecords = true,  -- Speedrun-Rekorde in der Split-Liste (siehe WorldRecords.lua)
   showRecordsAge = true,    -- Stand der Rekord-Daten in der Split-Liste
   recordBrackets = {},      -- [Abschnitt] = false blendet ihn in der Split-Liste aus

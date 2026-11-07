@@ -2018,3 +2018,20 @@ Gelb im Band (ja/nein):
 PB nur gleiche Klasse (ja/nein):
 Fehler:
 ```
+
+### 98. Prognose des nächsten Abschnitts (Roadmap 286)
+
+- [ ] geprüft
+
+Speedrun > „Prognose des nächsten Abschnitts“ an, Split-Liste an. Mit einem Charakter unter Level 10 bzw. 20 spielen, am besten mit einem zweiten Charakter, der den Abschnitt schon erreicht hat.
+
+**Erwartet:** Unter den Leveln „Prognose 1-10“ (bzw. 1-20) mit einer plausiblen /played-Endzeit, darunter „gegen PB“, „gegen Bestzeiten“ (nur wenn jedes Level eine Zeit hat) und „gegen Rekord“ mit farbiger Abweichung.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Prognose plausibel (ja/nein):
+Vergleiche stimmen (ja/nein):
+Fehler:
+```

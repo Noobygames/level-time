@@ -9,6 +9,12 @@ ns.languages = {
 
 ns.locales = {
   deDE = {
+    SHOW_SPLIT_FORECAST = "Prognose des nächsten Abschnitts",
+    SHOW_SPLIT_FORECAST_TIP = "Voraussichtliche /played-Zeit beim Erreichen des nächsten Abschnitts (1-10, 1-20, 1-60) und der Abstand zu deinem PB, zur Summe der Bestzeiten je Level und zum Speedrun-Rekord.",
+    SPLIT_FORECAST = "Prognose %s",
+    SPLIT_FORECAST_PB = "  gegen PB",
+    SPLIT_FORECAST_SOB = "  gegen Bestzeiten",
+    SPLIT_FORECAST_RECORD = "  gegen Rekord",
     SPLIT_TOLERANCE = "Toleranzband der Splits",
     SPLIT_TOLERANCE_TIP = "Abweichungen innerhalb von ±max(3 s, so viel Prozent der Vergleichszeit) erscheinen gelb statt grün oder rot. Aus = immer grün/rot.",
     TOLERANCE_OFF = "aus",
@@ -999,6 +1005,12 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
   },
   enUS = {
+    SHOW_SPLIT_FORECAST = "Forecast of the next bracket",
+    SHOW_SPLIT_FORECAST_TIP = "Expected /played time when reaching the next bracket (1-10, 1-20, 1-60) and the difference to your PB, the sum of best times per level and the speedrun record.",
+    SPLIT_FORECAST = "Forecast %s",
+    SPLIT_FORECAST_PB = "  vs PB",
+    SPLIT_FORECAST_SOB = "  vs sum of best",
+    SPLIT_FORECAST_RECORD = "  vs record",
     SPLIT_TOLERANCE = "Split tolerance band",
     SPLIT_TOLERANCE_TIP = "Differences within ±max(3 s, this percentage of the comparison time) show in yellow instead of green or red. Off = always green/red.",
     TOLERANCE_OFF = "off",
@@ -1989,6 +2001,12 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
   },
   frFR = {
+    SHOW_SPLIT_FORECAST = "Prévision de la prochaine tranche",
+    SHOW_SPLIT_FORECAST_TIP = "Temps /played prévu à l'arrivée à la prochaine tranche (1-10, 1-20, 1-60) et l'écart avec votre PB, la somme des meilleurs temps par niveau et le record de speedrun.",
+    SPLIT_FORECAST = "Prévision %s",
+    SPLIT_FORECAST_PB = "  vs PB",
+    SPLIT_FORECAST_SOB = "  vs meilleurs temps",
+    SPLIT_FORECAST_RECORD = "  vs record",
     SPLIT_TOLERANCE = "Marge de tolérance des écarts",
     SPLIT_TOLERANCE_TIP = "Les écarts dans ±max(3 s, ce pourcentage du temps de comparaison) s'affichent en jaune au lieu de vert ou rouge. Désactivé = toujours vert/rouge.",
     TOLERANCE_OFF = "désactivé",
@@ -2979,6 +2997,12 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
   },
   esES = {
+    SHOW_SPLIT_FORECAST = "Previsión del siguiente tramo",
+    SHOW_SPLIT_FORECAST_TIP = "Tiempo /played previsto al llegar al siguiente tramo (1-10, 1-20, 1-60) y la diferencia con tu MP, la suma de mejores tiempos por nivel y el récord de speedrun.",
+    SPLIT_FORECAST = "Previsión %s",
+    SPLIT_FORECAST_PB = "  vs MP",
+    SPLIT_FORECAST_SOB = "  vs suma de mejores",
+    SPLIT_FORECAST_RECORD = "  vs récord",
     SPLIT_TOLERANCE = "Margen de tolerancia de parciales",
     SPLIT_TOLERANCE_TIP = "Las diferencias dentro de ±max(3 s, este porcentaje del tiempo de comparación) se muestran en amarillo en vez de verde o rojo. Desactivado = siempre verde/rojo.",
     TOLERANCE_OFF = "desactivado",

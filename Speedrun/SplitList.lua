@@ -3,7 +3,8 @@
 -- und die gesamte Spielzeit (/played); optional die Speedrun-Rekorde je Abschnitt (WorldRecords.lua).
 -- Einstellungen (Reiter Speedrun): showSplitList (an/aus, /lt splits), splitListRows (Zahl der Level),
 -- splitListScale (eigene Größe, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
--- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde).
+-- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
+-- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord).
 -- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
 local _, ns = ...
 local L = ns.L
@@ -70,6 +71,25 @@ function SplitList.BuildLines()
   return lines
 end
 
+-- Prognose des nächsten Abschnitts (BracketForecast.lua): Endzeit, darunter der Abstand zu jedem
+-- bekannten Vergleich (negativ = voraussichtlich schneller)
+function SplitList.AddForecastLines(lines)
+  local forecast = ns.BracketForecast.Get()
+  if not forecast then return end
+  table.insert(lines, { string.format(L.SPLIT_FORECAST, forecast.label), Format.Duration(forecast.forecast), "" })
+  local comparisons = {
+    { L.SPLIT_FORECAST_PB, forecast.pb },
+    { L.SPLIT_FORECAST_SOB, forecast.sumOfBest },
+    { L.SPLIT_FORECAST_RECORD, forecast.record },
+  }
+  for _, comparison in ipairs(comparisons) do
+    if comparison[2] then
+      table.insert(lines, { comparison[1], Format.Duration(comparison[2]),
+        Format.SplitDelta(forecast.forecast - comparison[2]) })
+    end
+  end
+end
+
 -- Zeilen unter den Leveln: { Bezeichnung, Wert, Abweichung }, je nach Einstellungen
 function SplitList.BuildFooterLines()
   local db = ns.db
@@ -81,6 +101,7 @@ function SplitList.BuildFooterLines()
     local played = ns.PlayedTime.GetTotalSeconds()
     table.insert(lines, { L.SPLIT_LIST_PLAYED, played and Format.Duration(played) or "...", "" })
   end
+  if db.splitListShowForecast then SplitList.AddForecastLines(lines) end
   if not db.showWorldRecords then return lines end
 
   local WorldRecords = ns.WorldRecords
