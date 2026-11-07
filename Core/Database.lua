@@ -96,6 +96,10 @@ local SETTINGS_DEFAULTS = {
   campSound = false,     -- Ton, wenn die Lagervorteile da sind
   foodTimer = true,      -- Essen-Timer (FoodTimer.lua): Restzeit beim Essen, danach "Satt aktiv"
   foodSound = false,     -- Ton, wenn "Satt" da ist
+  -- Schlafsack-Timer in WoW Forever (SleepTimer.lua, SleepDisplay.lua); auf Wunsch des Spielers gleich an
+  sleepTimer = true,         -- Countdown beim Ausruhen im Schlafsack
+  sleepTimerSound = false,   -- Ton bei jedem Stapel "Gut erholt" und am Ende
+  sleepStackNotice = true,   -- Hinweis bei jedem neuen Stapel "Gut erholt"
   flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
   flightSound = false,   -- Ton bei der Landung
   flightTimeTooltip = true,  -- Flugzeit im Tooltip der Flugkarte (FlightTooltip.lua), nur mit flightTimer

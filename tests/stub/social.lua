@@ -105,6 +105,11 @@ C_Item = {
     return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
   end,
   GetItemIconByID = function(itemID) return state.itemIcons[itemID] end,
+  -- Zauber eines benutzbaren Items: state.itemSpells[itemID] = { name, id }; sonst nichts
+  GetItemSpell = function(itemID)
+    local spell = (state.itemSpells or {})[itemID]
+    if spell then return spell.name, spell.id end
+  end,
   -- Itemlevel je itemID: state.itemLevels
   GetDetailedItemLevelInfo = function(item)
     local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
