@@ -124,7 +124,7 @@ function Goals.Create(kind, params, target, extras)
   if err then return nil, err end
   if #Goals.Active() >= Goals.MAX_ACTIVE then return nil, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
 
-  local start = def.initial and def.initial() or 0
+  local start = def.initial and def.initial(params) or 0
   local goal = {
     id = ns.db.nextId,
     kind = kind,
@@ -229,6 +229,13 @@ local function finish(goal, status)
   changed()
   trimHistory()
   notify(status, goal)
+end
+
+-- Erreicht ohne Zählerereignis (Regel bis zum Ende der Frist gehalten)
+function Goals.Complete(goal)
+  if goal.status ~= Goals.ACTIVE then return end
+  goal.progress = math.max(goal.progress, goal.target)
+  finish(goal, Goals.DONE)
 end
 
 -- Gescheitert (Frist abgelaufen, Regel gebrochen); reason = Text für Historie und Meldung (optional)

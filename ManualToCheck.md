@@ -2551,3 +2551,23 @@ Scheitern mit Einblendung (ja/nein):
 Spielzeit-Frist stimmt nach Login (ja/nein):
 Fehler:
 ```
+
+### 178. Regel-Ziele (Roadmap 300)
+
+- [ ] geprüft
+
+1. `/sg add rule nopotion`, einen Heiltrank trinken: Ziel scheitert mit „Heiltrank benutzt“ (Classic/TBC; Retail und
+   Forever: `/lt debug check` zeigt unter `300.goals.potionSpells`, welche IDs der Client kennt).
+2. `/sg add rule naked` ohne Rüstung, ein Rüstungsteil anlegen und sofort wieder ablegen: hält; anbehalten: scheitert
+   nach etwa 10 s.
+3. `/sg add rule notaxi`, Flugmeister: spätestens 10 s nach dem Abflug „Flugpunkt benutzt“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Heiltrank erkannt (ja/nein, Trank):
+Nackt mit Schonfrist (ja/nein):
+Flug erkannt (ja/nein):
+Fehler:
+```

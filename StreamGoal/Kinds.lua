@@ -9,7 +9,8 @@
 --   usage              Locale-Key der Befehlszeile für /sg help
 --   validate(params, target) -> Fehlertext oder nil
 --   prepare(params, target) -> target  (optional) Ziel vor der Prüfung ergänzen, z.B. Standardwert
---   initial()          Startstand (nur wo er nicht 0 ist, z.B. das aktuelle Level)
+--   initial(params)    Startstand (nur wo er nicht 0 ist, z.B. das aktuelle Level)
+--   deadlineSucceeds   true = Ablauf der Frist ist Erfolg statt Scheitern (Regeln: "bis dahin durchgehalten")
 --   current(goal)      (optional) Stand beim Anlegen, wenn er ein Bestand ist (Gold, Items in den Taschen)
 --   manual             true = der Spieler zählt selbst (Goals.Step), kein Ereignis füttert die Art
 --   hasCount(goal)     (optional) false = nur erledigt/offen, kein Zählerstand auf Karte und in Listen

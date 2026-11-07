@@ -1,5 +1,6 @@
 -- Fristen (Roadmap 299): jedes Ziel kann bis zu einer Endzeit laufen, in Echtzeit oder in Spielzeit (/played des
--- Charakters, läuft nur, solange er eingeloggt ist). Abgelaufen = Status "gescheitert" (Goals.Fail), Einblendung und
+-- Charakters, läuft nur, solange er eingeloggt ist). Abgelaufen = Status "gescheitert" (Goals.Fail; bei Arten mit
+-- deadlineSucceeds wie Regeln dagegen erreicht), Einblendung und
 -- Historie zeigen es. Restzeit auf der Karte (Tracker) und im Fenster.
 -- goal.deadline = { mode = "real"|"played", at = Endzeit (time() bzw. /played-Sekunden), seconds = Dauer }
 -- Prüfung einmal je Sekunde, nur solange ein laufendes Ziel des Charakters eine Frist hat (LT.Every mit Prädikat).
@@ -121,7 +122,11 @@ function Deadlines.Check()
   for _, goal in ipairs(Goals.Active()) do
     if goal.status == Goals.ACTIVE and Deadlines.Remaining(goal) == 0 then
       ns.Debug("deadline", "#%s expired", goal.id)
-      Goals.Fail(goal, L.SG_FAIL_DEADLINE)
+      if Goals.GetKind(goal.kind).deadlineSucceeds then
+        Goals.Complete(goal)
+      else
+        Goals.Fail(goal, L.SG_FAIL_DEADLINE)
+      end
     end
   end
 end
