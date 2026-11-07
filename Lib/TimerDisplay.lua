@@ -76,7 +76,7 @@ function TimerDisplay.Create(config)
   end
 
   local sinceUpdate = 0
-  frame:SetScript("OnUpdate", function(_, elapsed)
+  ns.SetUpdateScript(frame, config.name or "TimerDisplay", function(_, elapsed)
     sinceUpdate = sinceUpdate + elapsed
     if sinceUpdate < UPDATE_INTERVAL then return end
     sinceUpdate = 0

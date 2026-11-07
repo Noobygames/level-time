@@ -92,9 +92,87 @@ local function onError(message)
   return geterrorhandler()(message)
 end
 
-function ns.SafeCall(fn, ...)
+local function safeCall(fn, ...)
   local args, count = { ... }, select("#", ...)
   return xpcall(function() return fn(unpack(args, 1, count)) end, onError)
+end
+ns.SafeCall = safeCall
+-- Ungemessener Aufruf für den Profiler (Core/Profiler.lua), der ns.SafeCall beim Messen ersetzt
+ns.RawSafeCall = safeCall
+
+---------------------------------------------------------------------------
+-- Profiler-Haken (/lt debug perf, Core/Profiler.lua). Ausgeschaltet kostet er nichts: der Kern tauscht beim
+-- Einschalten die Verteiler (OnEvent, OnUpdate, ns.SafeCall) gegen gemessene Varianten aus und beim Ausschalten
+-- zurück. Herkunft jedes Callbacks ("Datei.lua:Zeile") wird beim Registrieren einmal gemerkt.
+---------------------------------------------------------------------------
+local sources = setmetatable({}, { __mode = "k" })
+local SOURCE_STACK_DEPTH = 8
+local CORE_FILE = "LevelTimer.lua"
+
+-- Erste Aufrufer-Zeile außerhalb des Kerns und der Datei skipFile (z.B. "Stats.lua" für Stats.OnIncrement)
+local function callerSource(skipFile)
+  if not debugstack then return "?" end
+  local stack = debugstack(1, SOURCE_STACK_DEPTH, 0) or ""
+  local fallback
+  for file, line in stack:gmatch("([%w_]+%.lua)[^:\n]*:(%d+)") do
+    local source = file .. ":" .. line
+    fallback = fallback or source
+    if file ~= CORE_FILE and file ~= skipFile then return source end
+  end
+  return fallback or "?"
+end
+
+-- Herkunft eines Callbacks für den Profiler merken; skipFile = Datei der Registrier-Funktion
+function ns.RememberSource(fn, skipFile)
+  if sources[fn] == nil then sources[fn] = callerSource(skipFile) end
+end
+
+function ns.SourceOf(fn)
+  return sources[fn] or "?"
+end
+
+-- Skripte, die der Profiler austauscht: { frame, script, plain, profiled }; profiled(measure) liefert den Handler
+local profiledScripts = {}
+local measure  -- nil = Profiler aus; measure(key, fn, ...) misst einen geschützten Aufruf
+
+local function applyScript(entry)
+  entry.frame:SetScript(entry.script, measure and entry.profiled(measure) or entry.plain)
+end
+
+local function addProfiledScript(frame, script, plain, profiled)
+  local entry = { frame = frame, script = script, plain = plain, profiled = profiled }
+  table.insert(profiledScripts, entry)
+  applyScript(entry)
+end
+
+-- OnUpdate eines Fensters setzen, das der Profiler unter label misst (z.B. "TimerWindow")
+function ns.SetUpdateScript(frame, label, fn)
+  local key = "onupdate " .. label
+  addProfiledScript(frame, "OnUpdate", fn, function(measured)
+    return function(self, elapsed) measured(key, fn, self, elapsed) end
+  end)
+end
+
+-- Schlüssel je Funktion einmal bauen, damit das Messen selbst keinen Müll erzeugt
+local callKeys = setmetatable({}, { __mode = "k" })
+local function profiledSafeCall(fn, ...)
+  local key = callKeys[fn]
+  if not key then
+    key = "call " .. ns.SourceOf(fn)
+    callKeys[fn] = key
+  end
+  return measure(key, fn, ...)
+end
+
+-- measureFn(key, fn, ...) = geschützter, gemessener Aufruf; nil schaltet zurück auf die ungemessenen Verteiler
+function ns.SetProfiler(measureFn)
+  measure = measureFn
+  ns.SafeCall = measureFn and profiledSafeCall or safeCall
+  for _, entry in ipairs(profiledScripts) do applyScript(entry) end
+end
+
+function ns.IsProfiling()
+  return measure ~= nil
 end
 
 -- Alle Callbacks einer Liste, jeder für sich geschützt: ein fehlerhaftes Modul hält die anderen
@@ -105,6 +183,12 @@ local function runAll(callbacks, ...)
   end
 end
 
+-- Callback in eine Liste aufnehmen und seine Herkunft für den Profiler merken
+local function addCallback(callbacks, callback)
+  ns.RememberSource(callback)
+  table.insert(callbacks, callback)
+end
+
 ---------------------------------------------------------------------------
 -- Einstellungen: Module registrieren Apply-Callbacks, die bei jeder Änderung
 -- ihren Zustand aus ns.db neu aufbauen.
@@ -112,7 +196,7 @@ end
 local applyCallbacks = {}
 
 function ns.RegisterApply(callback)
-  table.insert(applyCallbacks, callback)
+  addCallback(applyCallbacks, callback)
 end
 
 function ns.ApplySettings()
@@ -130,6 +214,7 @@ end
 ---------------------------------------------------------------------------
 local eventFrame = CreateFrame("Frame")
 local eventHandlers = {}
+local eventKeys = {}  -- Profiler-Schlüssel je Event und Handler-Index: "event NAME Datei.lua:Zeile"
 
 -- Gibt false zurück, wenn der Client das Event nicht kennt (andere Spielversion).
 -- Das zugehörige Feature bleibt dann still aus, statt einen Fehler zu werfen.
@@ -139,13 +224,24 @@ function ns.RegisterEvent(event, handler)
       return false
     end
     eventHandlers[event] = {}
+    eventKeys[event] = {}
   end
   table.insert(eventHandlers[event], handler)
+  table.insert(eventKeys[event], "event " .. event .. " " .. callerSource())
   return true
 end
 
-eventFrame:SetScript("OnEvent", function(_, event, ...)
+local function onEvent(_, event, ...)
   runAll(eventHandlers[event], ...)
+end
+
+addProfiledScript(eventFrame, "OnEvent", onEvent, function(measured)
+  return function(_, event, ...)
+    local handlers, keys = eventHandlers[event], eventKeys[event]
+    for index = 1, #handlers do
+      measured(keys[index], handlers[index], ...)
+    end
+  end
 end)
 
 ---------------------------------------------------------------------------
@@ -158,19 +254,29 @@ local repeatingTasks = {}
 local taskFrame = CreateFrame("Frame")
 
 function ns.Every(seconds, fn)
-  table.insert(repeatingTasks, { interval = seconds, fn = fn, elapsed = 0 })
+  table.insert(repeatingTasks, { interval = seconds, fn = fn, elapsed = 0, key = "task " .. callerSource() })
 end
 
-taskFrame:SetScript("OnUpdate", function(_, elapsed)
+-- run(task, due) führt eine fällige Aufgabe aus (ungemessen oder gemessen)
+local function tickTasks(elapsed, run)
   if not ns.character then return end
   for _, task in ipairs(repeatingTasks) do
     task.elapsed = task.elapsed + elapsed
     if task.elapsed >= task.interval then
       local due = task.elapsed
       task.elapsed = 0
-      ns.SafeCall(task.fn, due)
+      run(task, due)
     end
   end
+end
+
+local function runTask(task, due)
+  ns.SafeCall(task.fn, due)
+end
+
+addProfiledScript(taskFrame, "OnUpdate", function(_, elapsed) tickTasks(elapsed, runTask) end, function(measured)
+  local function runMeasured(task, due) measured(task.key, task.fn, due) end
+  return function(_, elapsed) tickTasks(elapsed, runMeasured) end
 end)
 
 ---------------------------------------------------------------------------
@@ -185,11 +291,11 @@ local loginCallbacks = {}
 local logoutCallbacks = {}
 
 function ns.OnLogin(callback)
-  table.insert(loginCallbacks, callback)
+  addCallback(loginCallbacks, callback)
 end
 
 function ns.OnLogout(callback)
-  table.insert(logoutCallbacks, callback)
+  addCallback(logoutCallbacks, callback)
 end
 
 local function startTracking()
@@ -225,11 +331,11 @@ local levelCompletedCallbacks = {}
 local levelStartedCallbacks = {}
 
 function ns.OnLevelCompleted(callback)
-  table.insert(levelCompletedCallbacks, callback)
+  addCallback(levelCompletedCallbacks, callback)
 end
 
 function ns.OnLevelStarted(callback)
-  table.insert(levelStartedCallbacks, callback)
+  addCallback(levelStartedCallbacks, callback)
 end
 
 ns.RegisterEvent("PLAYER_LEVEL_UP", function(newLevel)

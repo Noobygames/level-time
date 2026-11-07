@@ -65,6 +65,7 @@ Journal.LOGS = {
 local addListeners = {}
 
 function Journal.OnAdd(listener)
+  ns.RememberSource(listener, "Journal.lua")
   table.insert(addListeners, listener)
 end
 

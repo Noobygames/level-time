@@ -64,7 +64,7 @@ local function create()
   display.text = display:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   display.text:SetPoint("BOTTOM", map.ScrollContainer or map, "BOTTOM", 0, BOTTOM_OFFSET)
   local elapsedSince = UPDATE_SECONDS
-  display:SetScript("OnUpdate", function(_, elapsed)
+  ns.SetUpdateScript(display, "MapCoordinates", function(_, elapsed)
     elapsedSince = elapsedSince + elapsed
     if elapsedSince < UPDATE_SECONDS then return end
     elapsedSince = 0

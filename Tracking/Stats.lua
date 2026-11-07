@@ -84,6 +84,7 @@ end
 local incrementListeners = {}
 
 function Stats.OnIncrement(listener)
+  ns.RememberSource(listener, "Stats.lua")
   table.insert(incrementListeners, listener)
 end
 

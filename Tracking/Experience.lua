@@ -161,6 +161,7 @@ local gainListeners = {}
 
 -- listener(amount) bei jedem XP-Gewinn (z.B. um geheime Kill-Meldungen ihrer XP zuzuordnen)
 function Experience.OnGain(listener)
+  ns.RememberSource(listener, "Experience.lua")
   gainListeners[#gainListeners + 1] = listener
 end
 

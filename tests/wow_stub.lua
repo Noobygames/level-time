@@ -427,6 +427,14 @@ function GetMaxPlayerLevel() return state.maxLevel end
 function GetXPExhaustion() return state.rested > 0 and state.rested or nil end
 function GetMoney() return state.money end
 function GetTime() return state.now end
+-- Profiler-Uhr in Millisekunden: läuft mit GetTime; wow.profileMs schiebt sie zusätzlich vor (teurer Handler)
+wow.profileMs = 0
+function debugprofilestop() return state.now * 1000 + wow.profileMs end
+-- Aufrufstapel wie im Client ("Datei.lua:Zeile: in function ...", ab dem Aufrufer), aus gopher-luas traceback
+function debugstack()
+  local trace = debug and debug.traceback and debug.traceback() or ""
+  return (trace:gsub("^stack traceback:%s*[^\n]*\n", ""))
+end
 -- Geheime Werte (Retail/Forever): Tests setzen wow.SECRET als Rückgabe einer API
 wow.SECRET = setmetatable({}, { __tostring = function() return "<secret>" end })
 function issecretvalue(value) return value == wow.SECRET end

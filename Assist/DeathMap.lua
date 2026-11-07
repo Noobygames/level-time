@@ -82,7 +82,7 @@ local function create()
   overlay:SetAllPoints(canvas)
   overlay:SetFrameLevel((canvas:GetFrameLevel() or 1) + 10)
   local sinceCheck = CHECK_SECONDS
-  overlay:SetScript("OnUpdate", function(_, elapsed)
+  ns.SetUpdateScript(overlay, "DeathMap", function(_, elapsed)
     sinceCheck = sinceCheck + elapsed
     if sinceCheck < CHECK_SECONDS then return end
     sinceCheck = 0

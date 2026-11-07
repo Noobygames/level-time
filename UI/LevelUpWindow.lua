@@ -310,7 +310,7 @@ local function display(level, gains, abilities, overrideKind)
   frame:Show()
 end
 
-frame:SetScript("OnUpdate", function(self)
+ns.SetUpdateScript(frame, "LevelUpWindow", function(self)
   if not self:IsShown() then return end
   local age = GetTime() - shownAt
   if override then

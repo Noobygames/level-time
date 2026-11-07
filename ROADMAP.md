@@ -124,6 +124,12 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 - [ ] 324. **Farm-Tracker** (M): Gold/h, Itemwert (Händlerpreis, Auctionator-Preis falls geladen), Ruf/h, Währungen je Farm-Session (LvlHistory, sesh).
 - [ ] 325. **Karte aufdecken und Koordinaten** (L): Unerkundete Gebiete sichtbar wie Mapster (`C_MapExplorationInfo.GetExploredMapTextures` plus Kacheldaten je Karte, auch Forever); Aufwand vor allem das Erzeugen der Daten.
 
+### Performance
+
+CPU-Last senken, ohne eine Funktion wegzunehmen (Speicher darf dafür steigen). Grundlage: Performance-Review der Event-Verteilung, Aufgaben, Aura-Scans und Fenster.
+
+- [x] 330. **Profiler** (S–M): `/lt debug perf [on|off|report [n]|reset]` misst jeden Event-Handler, jede `ns.Every`-Aufgabe, jeden Listener (Zähler, XP, Journal, Login, Apply) und die OnUpdate-Skripte der Fenster: Summe, Aufrufe, Maximum in ms (`debugprofilestop`) und Speicherzuwachs (`collectgarbage("count")`). Aus kostet nichts (Verteiler werden nur beim Einschalten ausgetauscht). Bericht im Chat, mit Debug-Log auch dort. **Erledigt: Profiler, `Core/Profiler.lua`.**
+
 ## v2.18: Qualitätssicherung
 
 - [] 250. \*_Hinweise-Bleiben-Stehen_ (S): Hinweise wie z.B. sitzenbleiben können bestehen bleiben, obwohl man nicht mehr steht, isst und ggf. sogar im Kampf ist. Sicherstellen, dass diese Hinweise sauber abgeräumt werden.
