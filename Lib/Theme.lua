@@ -154,27 +154,33 @@ end
 ---------------------------------------------------------------------------
 -- Schriften
 ---------------------------------------------------------------------------
-local fonts = {}     -- Rolle -> Font-Objekt
+local fonts = {}     -- Name des Font-Objekts -> { font, role, outlined }
 local defaults = {}  -- Rolle -> { face, size, flags } des Blizzard-Objekts
+local OUTLINED_SUFFIX = "Outline"
 
-local function fontName(role)
-  return "LevelTimerFont_" .. role
+local function fontName(role, outlined)
+  return "LevelTimerFont_" .. role .. (outlined and OUTLINED_SUFFIX or "")
 end
 
+-- Je Rolle zwei Objekte: wie eingestellt und immer mit Kontur (Layout "text" für Streams, Textfelder auf Balken)
 for role, baseName in pairs(FONT_ROLES) do
-  local font = CreateFont(fontName(role))
   local base = _G[baseName]
-  if base then
-    -- Kopie statt Vererbung: eigene Änderungen (SetFont) wirken nicht auf Blizzards Objekt zurück
-    if font.CopyFontObject then font:CopyFontObject(base) else font:SetFontObject(base) end
-    defaults[role] = { base:GetFont() }
+  if base then defaults[role] = { base:GetFont() } end
+  for _, outlined in ipairs({ false, true }) do
+    local name = fontName(role, outlined)
+    local font = CreateFont(name)
+    if base then
+      -- Kopie statt Vererbung: eigene Änderungen (SetFont) wirken nicht auf Blizzards Objekt zurück
+      if font.CopyFontObject then font:CopyFontObject(base) else font:SetFontObject(base) end
+    end
+    fonts[name] = { font = font, role = role, outlined = outlined }
   end
-  fonts[role] = font
 end
 
--- Name des Font-Objekts einer Rolle, für CreateFontString(nil, layer, Theme.Font("label"))
-function Theme.Font(role)
-  return fontName(role)
+-- Name des Font-Objekts einer Rolle, für CreateFontString(nil, layer, Theme.Font("label")); outlined = immer mit
+-- Kontur (mindestens "outline", "thick" bleibt)
+function Theme.Font(role, outlined)
+  return fontName(role, outlined)
 end
 
 local function sharedMedia()
@@ -216,18 +222,19 @@ local function applyFonts(db)
   local face = Theme.FontPath(db.themeFont)
   local outline = OUTLINE_FLAGS[db.themeOutline]
   local offset = db.themeFontSize or 0
-  for role, font in pairs(fonts) do
-    local default = defaults[role]
+  for _, entry in pairs(fonts) do
+    local default = defaults[entry.role]
     if default and default[1] then
-      local flags = (outline and outline ~= "") and outline or (default[3] or "")
-      font:SetFont(face or default[1], math.max(MIN_FONT_SIZE, default[2] + offset), flags)
+      local flags = (outline and outline ~= "") and outline or (entry.outlined and OUTLINE_FLAGS.outline)
+        or (default[3] or "")
+      entry.font:SetFont(face or default[1], math.max(MIN_FONT_SIZE, default[2] + offset), flags)
     end
   end
 end
 
 -- Höhe einer Rolle in Punkten (für Zeilenhöhen, die der Schrift folgen sollen)
 function Theme.FontHeight(role)
-  local _, size = fonts[role]:GetFont()
+  local _, size = fonts[fontName(role)].font:GetFont()
   return size or 0
 end
 
@@ -329,13 +336,13 @@ function Theme.RegisterCard(frame)
 end
 
 -- Hintergrund eines Anzeigefensters aus den Einstellungen (Hauptfenster, Split-Liste, Zusammenfassung):
--- windowBackground = "default" (bgAlpha) oder eine Chroma-Farbe
+-- windowBackground = "default" (bgAlpha) oder eine Chroma-Farbe; alpha optional statt bgAlpha (Layout "text": 0)
 Theme.BACKGROUND_DEFAULT = "default"
 Theme.CHROMA = { green = Theme.COLORS.chromaGreen, magenta = Theme.COLORS.chromaMagenta }
 
-function Theme.ApplyBackground(frame, db)
+function Theme.ApplyBackground(frame, db, alpha)
   panels[frame] = nil  -- Deckkraft kommt aus den Einstellungen, nicht aus der Anmeldung
-  Theme.ApplyPanel(frame, db.bgAlpha, Theme.CHROMA[db.windowBackground])
+  Theme.ApplyPanel(frame, alpha or db.bgAlpha, Theme.CHROMA[db.windowBackground])
 end
 
 function Theme.Apply(db)

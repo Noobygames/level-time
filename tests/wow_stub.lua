@@ -187,6 +187,7 @@ local frameMethods = {
   end,
   SetShown = function(self, shown) self._shown = shown and true or false end,
   SetText = function(self, text) self._text = tostring(text) end,
+  SetFontObject = function(self, font) self._fontObject = font end,
   GetText = function(self) return self._text end,
   SetFocus = function(self) wow.focus = self end,
   ClearFocus = function(self) if wow.focus == self then wow.focus = nil end end,
@@ -266,7 +267,12 @@ local function newFrame()
     _shown = true, _scripts = {}, _events = {}, _text = "",
     _width = 200, _height = 100, _scale = 1, _checked = false, _normalTexture = "", _points = {},
   }
-  frame.CreateFontString = function() return newFrame() end
+  -- Font-Objekt (Name) gemerkt: frame._fontObject, auch nach SetFontObject
+  frame.CreateFontString = function(_, _, _, font)
+    local fontString = newFrame()
+    fontString._fontObject = font
+    return fontString
+  end
   frame.CreateTexture = function() return newFrame() end
   frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)

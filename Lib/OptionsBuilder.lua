@@ -3,6 +3,8 @@
 -- Jedes Steuerelement registriert eine refresh(db)-Funktion; Refresh(db) (nach jeder Änderung über
 -- ns.Set/ns.ApplySettings) zeigt den aktuellen Stand und die gewählte Sprache.
 -- Schalter mit available() == false (z.B. nur in WoW Forever) werden gar nicht angelegt.
+-- Abhängige Bausteine: enabled(db) optional bei Schaltern, Reglern, Auswahlzeilen und Zyklus-Buttons; false = ausgegraut
+-- und nicht bedienbar (z.B. Einstellungen eines anderen Layouts), geprüft bei jedem Refresh.
 -- Tooltips: Text aus L["<LABEL>_TIP"] (fehlt er, gibt es keinen Tooltip), Titel = Beschriftung.
 -- Unterseiten (AddSubPage ... FinishSubPages): eine Seite mit Seitenleiste links wie bei Leatrix Plus; je Eintrag
 -- eine eigene Unterseite rechts daneben mit denselben Bausteinen (Abschnitte, Schalter in zwei Spalten, ...).
@@ -37,6 +39,18 @@ local ROW_SLIDER = 44
 local ROW_CHOOSER = 26
 local ROW_HINT = 30
 local SECTION_GAP = 8
+local DISABLED_ALPHA = 0.4   -- ausgegraute Bausteine (enabled(db) == false)
+
+-- Bausteine nach enabled(db) bedienbar oder ausgegraut; ohne enabled immer bedienbar
+local function applyEnabled(enabled, db, ...)
+  if not enabled then return end
+  local on = enabled(db) and true or false
+  for index = 1, select("#", ...) do
+    local widget = select(index, ...)
+    widget:SetAlpha(on and 1 or DISABLED_ALPHA)
+    widget:EnableMouse(on)
+  end
+end
 local SIDEBAR_ROW = 24       -- Höhe eines Eintrags der Seitenleiste
 local SIDEBAR_GAP = 16       -- Abstand zwischen Seitenleiste und Unterseite
 local TEXT_INPUT_WIDTH = 120 -- Standardbreite eines Eingabefelds (AddTextInput)
@@ -251,6 +265,7 @@ function OptionsBuilder.New(options)
       local value = slider.get(db)
       control.label:SetText(L[slider.label])
       control:SetValueSilently(value, slider.format(value))
+      applyEnabled(slider.enabled, db, control, control.slider)
     end)
   end
 
@@ -269,6 +284,7 @@ function OptionsBuilder.New(options)
       addTooltip(checkbox, toggle.tip or (toggle.label .. "_TIP"), function() return checkbox.label:GetText() end)
       onRefresh(function(db)
         checkbox:SetChecked(toggle.get(db))
+        applyEnabled(toggle.enabled, db, checkbox)
         if setMeasuredText(checkbox.label, "SetText", toggle.text and toggle.text() or L[toggle.label]) then
           -- Beschriftung gehört zur Klick- und Tooltip-Fläche
           checkbox:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + checkbox.label:GetStringWidth()), 0, 0)
@@ -350,6 +366,7 @@ function OptionsBuilder.New(options)
       onRefresh(function(db)
         setMeasuredText(tab, "SetLabel", choice.name())
         tab:SetActive(db[chooser.setting] == choice.value)
+        applyEnabled(chooser.enabled, db, tab)
       end)
     end
     nextRowY = nextRowY - ROW_CHOOSER
@@ -382,6 +399,7 @@ function OptionsBuilder.New(options)
       if setMeasuredText(button, "SetText", cycle.nameOf(cycle.get(db))) then
         Widgets.SetButtonText(button, button:GetText(), BUTTON_ROW_MIN_WIDTH)
       end
+      applyEnabled(cycle.enabled, db, label, button)
     end)
   end
 

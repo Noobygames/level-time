@@ -81,6 +81,25 @@ function Format.Number(value)
   return string.format("%d", value)
 end
 
+-- Ganze Zahl mit Tausender-Trennzeichen der Sprache (UNIT_THOUSANDS_SEPARATOR): "12.345" bzw. "12,345"
+local THOUSANDS_GROUP = "^(-?%d+)(%d%d%d)"
+function Format.Integer(value)
+  local text = string.format("%d", math.floor(value + 0.5))
+  local separator = unit("UNIT_THOUSANDS_SEPARATOR")
+  local count
+  repeat
+    text, count = text:gsub(THOUSANDS_GROUP, "%1" .. separator:gsub("%%", "%%%%") .. "%2")
+  until count == 0
+  return text
+end
+
+-- Anteil in Prozent mit einer Nachkommastelle und dem Dezimalzeichen der Sprache: "38,9 %" bzw. "38.9%"
+function Format.PercentPrecise(part, total)
+  if total <= 0 then return "-" end
+  local text = string.format("%.1f", part / total * 100)
+  return string.format(unit("UNIT_PERCENT_FORMAT"), (text:gsub("%.", unit("UNIT_DECIMAL_SEPARATOR"))))
+end
+
 -- Anteil in Prozent, "-" wenn es keine Gesamtmenge gibt
 function Format.Percent(part, total)
   if total <= 0 then return "-" end

@@ -180,6 +180,14 @@ Assist\Sounds.lua
 Assist\RaidRestrictions.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
+UI\WindowModel.lua
+UI\WindowElements.lua
+UI\Layouts\Layouts.lua
+UI\Layouts\Bar.lua
+UI\Layouts\Clock.lua
+UI\Layouts\XpBar.lua
+UI\Layouts\Tiles.lua
+UI\DisplayVisibility.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua

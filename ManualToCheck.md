@@ -136,6 +136,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **126. Themes und Schriften, Datenteil (Roadmap 357)**: check `357.theme` (Preset, Schrift je Rolle mit Größe und Flags nach dem Anwenden, LibSharedMedia geladen, Zahl der Schriften)
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
+- **129. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
+- **131. Sichtbarkeitsregeln, Datenteil (Roadmap 362)**: check `362.visibility` (Regel, Kampf, Instanz, Leveln, `IsMouseOver`, Alpha und Sichtbarkeit beider Rahmen) im Kampf, in einer Instanz und mit der Maus über dem Fenster
 
 ---
 
@@ -1776,5 +1778,53 @@ Mausrad/Pfeiltasten ok (ja/nein):
 Menü ok (ja/nein):
 Kampf beendet sauber (ja/nein):
 Blizzard-Modus (nur Retail/Forever):
+Fehler:
+```
+
+### 129. Layouts des Hauptfensters (Roadmap 360)
+
+- [ ] geprüft
+
+Einstellungen > Allgemein > Anzeige: jedes Layout einmal wählen (am besten im Edit-Modus, `/lt edit`), in Deutsch und Französisch.
+
+1. Tabelle: sieht aus wie vor dem Update (Reiter, Zeit, XP-Balken, Zeilen).
+2. Leiste (`/lt bar`): eine Zeile mit Kurzbezeichnungen („Niveau“ statt „Prochain niveau dans“), XP-Balken darunter.
+3. Kompakt (`/lt compact`): Zeit, Balken und die drei gewählten Werte („Wert 1–3“); ohne Wahl nur Zeit und Balken.
+4. Text: kein Grund, kein Rand, Schrift mit Kontur, gut lesbar über hellem und dunklem Gelände; mit Hintergrund „Grün“ deckend grün (OBS).
+5. Uhr: große Zeit, darunter die gewählten Werte in einer Zeile.
+6. XP-Balken: schmaler Balken mit Level/Prozent links, Zeit in der Mitte, Werten rechts; „Texte auf dem Balken: Maus“ zeigt sie nur beim Überfahren; Breite per Regler.
+7. Kacheln: Raster mit Zeit-Kachel zuerst, Spaltenzahl per Regler; Kacheln gleich breit, nichts ragt über den Rand.
+8. Nicht passende Einstellungen (z.B. Spalten bei Tabelle) sind ausgegraut.
+9. Statistiken > Reihenfolge der Zeilen: Zeile wählen, „Nach oben/unten“ verschiebt sie sofort im Fenster.
+
+**Erwartet:** keine Lua-Fehler, kein abgeschnittener Text, kein Springen der Breite im Sekundentakt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Layouts ok (je Layout ja/nein):
+Text-Layout lesbar (ja/nein):
+Reihenfolge ok (ja/nein):
+Fehler:
+```
+
+### 131. Sichtbarkeitsregeln (Roadmap 362)
+
+- [ ] geprüft
+
+Allgemein > Anzeige > „Fenster sichtbar“ und Speedrun > „Split-Liste sichtbar“, „Abgeblendet“ auf 30 % und auf 0 %.
+
+1. „Nicht im Kampf“: im Kampf blendet das Fenster ab (bzw. verschwindet bei 0 %), danach wieder voll.
+2. „Nur in Instanzen“: draußen ab, im Dungeon voll.
+3. „Bei Mauskontakt“: nur beim Überfahren voll sichtbar, auch über den Reitern; bei 0 % unsichtbar, aber per Maus auffindbar.
+4. Im Edit-Modus sind beide Anzeigen immer voll da.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Regeln ok (ja/nein):
+Maus über Reitern bleibt sichtbar (ja/nein):
 Fehler:
 ```
