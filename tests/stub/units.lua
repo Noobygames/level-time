@@ -86,6 +86,10 @@ function UnitIsGhost() return state.ghost == true end
 function UnitOnTaxi() return state.onTaxi end
 -- Kampfsperre für geschützte Frames (InCombatLockdown); unabhängig von inCombat, damit ältere Szenarien gleich bleiben
 function InCombatLockdown() return state.combatLockdown == true end
+-- Bewegung: state.moving; Tasten für Springen und Sitzen/Aufstehen (Bindings) tun nichts
+function IsPlayerMoving() return state.moving == true end
+function JumpOrAscendStart() end
+function SitStandOrDescendStart() end
 -- Bekannte Zauber (IsPlayerSpell): state.knownSpells[spellId] = true
 function IsPlayerSpell(spellId) return (state.knownSpells or {})[spellId] == true end
 function UnitIsDead(unit) return state.units[unit] ~= nil and state.units[unit].dead == true end

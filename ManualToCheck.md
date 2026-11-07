@@ -148,6 +148,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
+- **187. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, Zustand des Timers) vor und während des Liegens, debug `sleep` (emote …, started by emote/item, well rested stacks … -> …, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` (gewirkte Zauber nach `/schlafen`: welche Spell-ID hat der Schlafsack?) und `430.sleep.auras` (Spell-IDs aller Buffs bei jeder Änderung: eigene Schlaf-Aura? stapelt „Gut erholt“?)
 
 ---
 
@@ -2709,5 +2710,25 @@ Fehler:
 Client (Retail/Era/TBC/Forever):
 Animation flüssig (ja/nein):
 Neuwürfe und Level-Up ok (ja/nein):
+Fehler:
+```
+
+### 187. Schlafsack-Timer (Roadmap 430, WoW Forever)
+
+- [ ] geprüft
+
+1. Mit „Gemütlicher Schlafsack“ in der Tasche `/schlafen` eingeben (oder den Schlafsack benutzen): die Karte
+   „Im Schlafsack ausruhen“ erscheint unter dem Essen-Timer und zählt von 3:00 (180 s) herunter, der Balken läuft leer.
+2. Liegen bleiben: bei jedem neuen Stapel „Gut erholt“ kurz ein Hinweis „Gut erholt ×N“ (Karte und Chatzeile), der
+   Titel zeigt den Stapel; nach 180 s „Fertig ausgeruht!“.
+3. Noch einmal hinlegen und nach ein paar Sekunden laufen, springen oder aufstehen: „Ausruhen abgebrochen“.
+
+**Antwort:**
+
+```text
+Client (Forever):
+Startet bei /schlafen bzw. Benutzen (ja/nein):
+Stapel-Hinweise kommen (ja/nein, wie viele in 180 s):
+Abbruch beim Aufstehen (ja/nein):
 Fehler:
 ```

@@ -875,3 +875,60 @@ check("361.readability", function()
     xpFillTexture = method(fill, "GetTexture"), barChoices = #Theme.BarTextureChoices(), valueColors = ns.db.valueColors,
     averageLevelXpRate = ns.Forecast.AverageLevelXpRate() }
 end)
+
+-- 430: Schlafsack-Timer (WoW Forever). Prüfung: Item in der Tasche, Zauber des Items, "Gut erholt" mit allen Feldern
+-- (stapelt er über applications?), Zustand des Timers. Proben, solange ein Startsignal frisch ist oder der Timer
+-- läuft: gewirkte Zauber (welcher ist der Schlafsack?) und jede Buff-Änderung samt Spell-IDs aller Buffs (hat das
+-- Schlafen eine eigene Aura?). Das Emote selbst schreibt SleepTimer per ns.Debug ("sleep").
+local function wellRestedInfo()
+  local aura = ns.Auras.FindBySpellId(ns.SleepTimer.WELL_RESTED_SPELL_ID)
+  if not aura then return aura end  -- false = keiner, nil = nicht lesbar
+  return { name = aura.name, applications = aura.applications, charges = aura.charges,
+    maxCharges = aura.maxCharges, duration = aura.duration, expirationTime = aura.expirationTime,
+    remaining = ns.Auras.RemainingSeconds(aura), now = GetTime() }
+end
+
+local function buffSpellIds()
+  local ids = {}
+  ns.Auras.ForEachBuff(function(aura)
+    ids[#ids + 1] = aura.spellId
+  end)
+  return table.concat(ids, ",")
+end
+
+check("430.sleep.state", function()
+  local SleepTimer = ns.SleepTimer
+  local state = SleepTimer.State()
+  return {
+    available = SleepTimer.IsAvailable(), setting = ns.db.sleepTimer, ownsBag = SleepTimer.OwnsBag(),
+    bagCount = ns.BuffReminder.SleepingBagCount(), itemSpell = call("C_Item.GetItemSpell", SleepTimer.ITEM_ID),
+    itemSpellId = SleepTimer.ItemSpellId(), wellRested = wellRestedInfo(), stacks = SleepTimer.Stacks(),
+    performEmote = api("C_ChatInfo.PerformEmote") ~= nil, doEmote = api("DoEmote") ~= nil,
+    jumpHook = api("JumpOrAscendStart") ~= nil, sitHook = api("SitStandOrDescendStart") ~= nil,
+    moving = call("IsPlayerMoving"),
+    timer = state and { phase = state.phase, signal = state.signal, stacks = state.stacks,
+      elapsed = GetTime() - state.startedAt } or false,
+    shown = ns.SleepDisplay.ShownKind(),
+  }
+end)
+
+local sleepProbes = ns.NewEventGroup()
+local sleepAuraVersion
+sleepProbes.Add("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, spellId)
+  if not ns.SleepTimer.Probing() then return end
+  write({ area = "event", event = "UNIT_SPELLCAST_SUCCEEDED", name = "430.sleep.cast",
+    extra = { spellId = spellId, itemSpellId = ns.SleepTimer.ItemSpellId() } })
+end)
+sleepProbes.Add("UNIT_AURA", "player", function()
+  if not ns.SleepTimer.Probing() then return end
+  ns.Auras.Snapshot()
+  local version = ns.Auras.Version()
+  if version == sleepAuraVersion then return end
+  sleepAuraVersion = version
+  write({ area = "event", event = "UNIT_AURA", name = "430.sleep.auras",
+    extra = { wellRested = wellRestedInfo(), buffs = buffSpellIds() } })
+end)
+
+if ns.SleepTimer.IsAvailable() then
+  DebugLog.OnStateChanged(function(enabled) sleepProbes.SetActive(enabled) end)
+end

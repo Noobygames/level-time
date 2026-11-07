@@ -131,12 +131,14 @@ UI\AlertPosition.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
+UI\SleepDisplay.lua
 UI\FlightDisplay.lua
 UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
+Assist\SleepTimer.lua
 Assist\FlightTimesData.lua
 Assist\FlightMap.lua
 Assist\FlightTimes.lua
