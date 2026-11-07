@@ -4,6 +4,10 @@
 -- ReputationColor, Classic nameBackground) mit UnitSelectionColor; wir färben per hooksecurefunc danach um (kein
 -- Ersetzen, nur die Farbe einer Textur, auch im Kampf erlaubt). Geheime Klassen (Forever/Retail in Instanzen)
 -- bleiben bei Blizzards Farbe. Ausgeschaltet bekommen die Rahmen sofort wieder UnitSelectionColor.
+-- classColorPlayerFrame (Standard aus): Namenshintergrund am Spielerrahmen in der eigenen Klassenfarbe. Classic-Rahmen
+-- (PlayerFrameTexture, Classic Era/Anniversary) haben dort keinen; eigene Textur wie der Namenshintergrund des Ziels
+-- (TargetFrame.xml: UI-TargetingFrame-LevelBackground, 119x19, TOPRIGHT -90/-26), gespiegelt an der gleichen Stelle des
+-- gleich großen Spielerrahmens. Retail/Forever (Atlas-Rahmen) fehlen: Lage ohne Blizzard-Vorbild ungeprüft.
 local _, ns = ...
 
 local ClassColors = {}
@@ -59,7 +63,41 @@ local function restore(frame)
   end
 end
 
+---------------------------------------------------------------------------
+-- Spielerrahmen (Classic-Rahmen)
+---------------------------------------------------------------------------
+ClassColors.PLAYER_NAME_TEXTURE = "Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground"
+ClassColors.PLAYER_NAME_SIZE = { 119, 19 }
+ClassColors.PLAYER_NAME_OFFSET = { 90, -26 }
+local NAME_SUBLEVEL = 1  -- über PlayerFrameBackground (gleiche Schicht)
+
+local playerBackground
+
+function ClassColors.CanColorPlayerFrame()
+  return PlayerFrame ~= nil and PlayerFrameTexture ~= nil and PlayerName ~= nil
+end
+
+function ClassColors.PlayerBackground()
+  return playerBackground
+end
+
+local function applyPlayerFrame(enabled)
+  if not ClassColors.CanColorPlayerFrame() then return end
+  if enabled and not playerBackground then
+    playerBackground = PlayerFrame:CreateTexture(nil, "BACKGROUND", nil, NAME_SUBLEVEL)
+    playerBackground:SetTexture(ClassColors.PLAYER_NAME_TEXTURE)
+    playerBackground:SetTexCoord(1, 0, 0, 1)  -- gespiegelt wie der ganze Spielerrahmen
+    playerBackground:SetSize(unpack(ClassColors.PLAYER_NAME_SIZE))
+    playerBackground:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", unpack(ClassColors.PLAYER_NAME_OFFSET))
+  end
+  if not playerBackground then return end
+  local color = enabled and ClassColors.ForUnit("player")
+  if color then playerBackground:SetVertexColor(color.r, color.g, color.b) end
+  playerBackground:SetShown(color ~= nil and color ~= false)
+end
+
 ns.RegisterApply(function(db)
+  applyPlayerFrame(db.classColorPlayerFrame)
   local frames = ClassColors.Frames()
   if db.classColorFrames and not hooked then
     hooked = true

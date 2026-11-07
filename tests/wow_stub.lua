@@ -455,6 +455,12 @@ function CreateFont(name)
 end
 GameFontNormal, GameFontHighlight, GameFontNormalSmall = newFont(), newFont(), newFont()
 GameFontHighlightSmall, GameFontNormalHuge = newFont(), newFont()
+-- Spielerrahmen: Classic-Rahmen (Szenarien era_classic_frame*) mit PlayerFrameTexture und PlayerName wie PlayerFrame.xml
+if (SCENARIO or ""):match("^era_classic_frame") then
+  PlayerFrame = newFrame()
+  PlayerFrameTexture = PlayerFrame:CreateTexture()
+  PlayerName = PlayerFrame:CreateFontString()
+end
 -- Quest-Schriften (Blizzard_Fonts_Shared/Shared, alle Clients)
 QuestFont, QuestFontLeft, QuestFontNormalSmall = newFont(), newFont(), newFont()
 QuestTitleFont, QuestTitleFontBlackShadow = newFont(), newFont()

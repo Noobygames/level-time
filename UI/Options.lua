@@ -992,7 +992,10 @@ addToggles({
   toggle("CHARACTER_VOLUME", "characterVolume", ns.CharacterFrameExtras.IsAvailable),
 })
 addSection("SECTION_UNIT_FRAMES")
-addToggles({ toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable) })
+addToggles({
+  toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable),
+  toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
+})
 addSection("SECTION_TOOLTIP")
 addToggles({
   toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
