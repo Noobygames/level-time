@@ -640,3 +640,19 @@ check("359.editMode", function()
     blizzard = type(manager) == "table", enter = type(manager) == "table" and type(manager.EnterEditMode) == "function",
     hooked = ns.EditMode.blizzardHooked == true, combat = call("InCombatLockdown") }
 end)
+
+-- 258/364: Flugzeiten-Schätzung: eigene Strecken, Faktoren und Messungen je Karte, mitgelieferte Faktoren; dazu was
+-- die Flug-API gerade liefert (bei offener Karte: GetTaxiMapID, ob C_TaxiMap nodeIDs je Slot kennt; offen für Era/TBC)
+check("258.flight.estimates", function()
+  local summary = ns.FlightTimes.Summary()
+  local mapID = call("GetTaxiMapID")
+  local nodes = type(mapID) == "number" and mapID ~= 0 and call("C_TaxiMap.GetAllTaxiNodes", mapID)
+  local first = type(nodes) == "table" and nodes[1]
+  summary.api = { taxiMapID = mapID, numNodes = call("NumTaxiNodes"),
+    taxiMapNodes = type(nodes) == "table" and #nodes or nil,
+    firstNode = type(first) == "table" and { nodeID = first.nodeID, slotIndex = first.slotIndex, name = first.name }
+      or nil,
+    tooltipHook = type(_G.TaxiNodeOnButtonEnter) == "function", flightMapMixin = type(_G.FlightMap_FlightPointPinMixin) }
+  summary.shipped = ns.FlightTimesData ~= nil and ns.FlightTimesData[ns.Client.Flavor()] ~= nil
+  return summary
+end)

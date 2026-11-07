@@ -3,7 +3,7 @@
 --   GetTaxiMapID()                  Karte (uiMapID) der Flugkarte; Schlüssel, weil Positionen je Karte normiert sind
 --   TaxiNodeName/TaxiNodeGetType/TaxiNodePosition(slot)   Name, Typ (CURRENT, REACHABLE, ...), Position 0..1
 --   C_TaxiMap.GetAllTaxiNodes(mapID) nodeID je slotIndex (sprachunabhängiger Schlüssel). In Forever laut Debug-Log
---                                   vorhanden; ob Era/TBC dort Knoten liefern, ist offen (Prüfung 364.flight.estimates).
+--                                   vorhanden; ob Era/TBC dort Knoten liefern, ist offen (Prüfung 258.flight.estimates).
 --                                   Ohne nodeID ist der Schlüssel die gerundete Position "x,y".
 --   GetNumRoutes(slot), TaxiGetNodeSlot(slot, hop, true/false)  Teilstrecken bis zum Ziel (wie Blizzards Linien)
 -- Knoten: { slot, name, key, id, x, y, type }. Nur lesen, kein Eingriff in Blizzards Rahmen.

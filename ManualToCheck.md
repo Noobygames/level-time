@@ -136,6 +136,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **126. Themes und Schriften, Datenteil (Roadmap 357)**: check `357.theme` (Preset, Schrift je Rolle mit Größe und Flags nach dem Anwenden, LibSharedMedia geladen, Zahl der Schriften)
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
+- **129. Flugzeiten-Schätzung, Datenteil (Roadmap 364)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 
 ---
 
@@ -1776,5 +1777,27 @@ Mausrad/Pfeiltasten ok (ja/nein):
 Menü ok (ja/nein):
 Kampf beendet sauber (ja/nein):
 Blizzard-Modus (nur Retail/Forever):
+Fehler:
+```
+
+### 129. Flugzeiten im Tooltip und geschätzte Restzeit (Roadmap 364)
+
+- [ ] geprüft
+
+Einstellungen > Timer > Flüge: „Flugzeiten“ und „Flugzeit im Tooltip“ an. Einen Flugmeister ansprechen.
+
+1. Maus auf ein Ziel der Flugkarte: unter Name und Preis steht „Flugzeit 2:21 (dein Flug)“ (blau) bei schon geflogenen Strecken, „~2:20 (geschätzt)“ (grau) bei anderen, sobald auf dieser Karte einmal geflogen wurde; nichts am eigenen Standort. Die Zeile passt in den Tooltip, kein doppelter Tooltip, kein Flackern.
+2. Retail/Forever mit der großen Flugkarte (Weltkarten-Stil): dasselbe auf den Flugpunkt-Symbolen.
+3. Eine nie geflogene Strecke abfliegen: die Flug-Anzeige zeigt die Restzeit grau mit „~“ (z.B. „~2:20“) und läuft herunter; nach der Landung dieselbe Strecke noch einmal: normale Farbe, ohne „~“.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“ beim Abflug über die Flugkarte, Text passt in allen vier Sprachen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltip-Zeile gemessen/geschätzt ok (ja/nein):
+Große Flugkarte (nur Retail/Forever):
+Anzeige grau mit ~, danach normal (ja/nein):
 Fehler:
 ```
