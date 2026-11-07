@@ -9,6 +9,11 @@ ns.languages = {
 
 ns.locales = {
   deDE = {
+    SPLIT_TOLERANCE = "Toleranzband der Splits",
+    SPLIT_TOLERANCE_TIP = "Abweichungen innerhalb von ±max(3 s, so viel Prozent der Vergleichszeit) erscheinen gelb statt grün oder rot. Aus = immer grün/rot.",
+    TOLERANCE_OFF = "aus",
+    PB_SAME_CLASS = "PB nur gegen dieselbe Klasse",
+    PB_SAME_CLASS_TIP = "Der Vergleich „PB“ nimmt nur eigene Charaktere deiner Klasse (schnellster Lauf bis zum aktuellen Level).",
     GOLD_SPLIT = "Gold-Split! Level %d in %s (%s gegen die Bestzeit)",
     GOLD_SPLIT_NOTICE = "Gold-Splits melden",
     GOLD_SPLIT_NOTICE_TIP = "Schneller als die Bestzeit deiner anderen Charaktere für ein Level: Chatzeile und Ton beim Level-Up. In der Split-Liste stehen Gold-Splits immer lila.",
@@ -994,6 +999,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
   },
   enUS = {
+    SPLIT_TOLERANCE = "Split tolerance band",
+    SPLIT_TOLERANCE_TIP = "Differences within ±max(3 s, this percentage of the comparison time) show in yellow instead of green or red. Off = always green/red.",
+    TOLERANCE_OFF = "off",
+    PB_SAME_CLASS = "PB only against the same class",
+    PB_SAME_CLASS_TIP = "The \"PB\" comparison only uses your own characters of your class (fastest run up to the current level).",
     GOLD_SPLIT = "Gold split! Level %d in %s (%s against the best time)",
     GOLD_SPLIT_NOTICE = "Announce gold splits",
     GOLD_SPLIT_NOTICE_TIP = "Faster than the best time of your other characters for a level: chat line and sound on level up. The split list always shows gold splits in purple.",
@@ -1979,6 +1989,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
   },
   frFR = {
+    SPLIT_TOLERANCE = "Marge de tolérance des écarts",
+    SPLIT_TOLERANCE_TIP = "Les écarts dans ±max(3 s, ce pourcentage du temps de comparaison) s'affichent en jaune au lieu de vert ou rouge. Désactivé = toujours vert/rouge.",
+    TOLERANCE_OFF = "désactivé",
+    PB_SAME_CLASS = "PB seulement contre la même classe",
+    PB_SAME_CLASS_TIP = "La comparaison « PB » n'utilise que vos personnages de votre classe (course la plus rapide jusqu'au niveau actuel).",
     GOLD_SPLIT = "Gold split ! Niveau %d en %s (%s par rapport au meilleur temps)",
     GOLD_SPLIT_NOTICE = "Annoncer les gold splits",
     GOLD_SPLIT_NOTICE_TIP = "Plus rapide que le meilleur temps de vos autres personnages pour un niveau : ligne de chat et son au passage de niveau. La liste des écarts affiche toujours les gold splits en violet.",
@@ -2964,6 +2979,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
   },
   esES = {
+    SPLIT_TOLERANCE = "Margen de tolerancia de parciales",
+    SPLIT_TOLERANCE_TIP = "Las diferencias dentro de ±max(3 s, este porcentaje del tiempo de comparación) se muestran en amarillo en vez de verde o rojo. Desactivado = siempre verde/rojo.",
+    TOLERANCE_OFF = "desactivado",
+    PB_SAME_CLASS = "MP solo contra la misma clase",
+    PB_SAME_CLASS_TIP = "La comparación «MP» solo usa tus personajes de tu clase (carrera más rápida hasta el nivel actual).",
     GOLD_SPLIT = "¡Parcial de oro! Nivel %d en %s (%s frente al mejor tiempo)",
     GOLD_SPLIT_NOTICE = "Avisar parciales de oro",
     GOLD_SPLIT_NOTICE_TIP = "Más rápido que el mejor tiempo de tus otros personajes en un nivel: línea de chat y sonido al subir de nivel. La lista de parciales muestra siempre los parciales de oro en morado.",

@@ -2001,3 +2001,20 @@ Chatzeile und Ton (ja/nein):
 Lila in der Split-Liste (ja/nein):
 Fehler:
 ```
+
+### 97. Toleranzband und PB derselben Klasse (Roadmap 285)
+
+- [ ] geprüft
+
+Speedrun > „Toleranzband der Splits“ auf 5 %, Split-Liste an. Ein Level knapp (innerhalb von 5 % der Vergleichszeit) vor oder hinter dem Vergleich halten. Dann Vergleich „PB“ und „PB nur gegen dieselbe Klasse“ an, mit einem schnelleren Charakter anderer Klasse auf dem Account.
+
+**Erwartet:** Knappe Abweichungen gelb, deutliche grün/rot. Mit „PB nur gegen dieselbe Klasse“ vergleicht die Split-Liste nur mit Charakteren der eigenen Klasse.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Gelb im Band (ja/nein):
+PB nur gleiche Klasse (ja/nein):
+Fehler:
+```

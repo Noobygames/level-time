@@ -752,6 +752,16 @@ addToggles({
   toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
 })
 addSplitComparisonChooser()
+addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })
+addSlider({
+  label = "SPLIT_TOLERANCE",
+  min = 0,
+  max = ns.Splits.MAX_TOLERANCE_PERCENT,
+  step = 1,
+  get = function(db) return db.splitTolerancePercent end,
+  set = function(value) ns.Set("splitTolerancePercent", value) end,
+  format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
+})
 addSlider({
   label = "SPLIT_LIST_SIZE",
   min = toPercent(TimerWindow.MIN_SCALE),

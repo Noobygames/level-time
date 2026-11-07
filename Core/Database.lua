@@ -41,7 +41,9 @@ local SETTINGS_DEFAULTS = {
   showRecordsAge = true,    -- Stand der Rekord-Daten in der Split-Liste
   recordBrackets = {},      -- [Abschnitt] = false blendet ihn in der Split-Liste aus
   worldRecordScope = "class",  -- "overall" oder "class"
-  goldSplitNotice = false,  -- Gold-Split (neue Bestzeit je Level) beim Level-Up mit Chatzeile und Ton melden
+  goldSplitNotice = false,
+  splitTolerancePercent = 0,  -- Toleranzband der Splits in Prozent der Vergleichszeit, 0 = aus (Splits.lua)
+  pbSameClass = false,  -- Vergleich "pb" nur gegen eigene Charaktere derselben Klasse  -- Gold-Split (neue Bestzeit je Level) beim Level-Up mit Chatzeile und Ton melden
   showGoal = false,  -- Session-Ziel (siehe Goal.lua); /lt goal schaltet die Zeile ein
   streamerPrivacy = false,  -- Realm und andere Charaktere in der Historie verbergen (siehe History.DisplayName)
   -- Große Einblendungen (siehe Alerts.lua), für Streams gedacht und daher aus
@@ -401,6 +403,7 @@ local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   splitListScale = { 0.5, 2 },
   splitListRows = { 3, 15 },
+  splitTolerancePercent = { 0, 10 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
   lowManaPercent = { 5, 60 },

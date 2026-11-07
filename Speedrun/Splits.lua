@@ -2,12 +2,14 @@
 -- Vergleich (Einstellung splitComparison):
 --   "best"       schnellste Zeit je Level über alle anderen Charaktere ("Sum of Best")
 --   "pb"         persönliche Bestzeit: der andere Charakter, der am schnellsten bis zum aktuellen Level kam
---                (Summe seiner Level-Zeiten ab dem ersten eigenen Level; er braucht alle diese Level)
+--                (Summe seiner Level-Zeiten ab dem ersten eigenen Level; er braucht alle diese Level);
+--                mit pbSameClass nur Charaktere der eigenen Klasse
 --   "run"        ein gewählter Lauf (db.splitReference = { id, name, times }, /lt compare Name oder
 --                Klick in der Ansicht "Läufe"); die Zeiten werden beim Wählen kopiert und bleiben fest
 -- Abweichung < 0 = schneller als der Vergleich. Ohne Vergleichswert für ein Level gibt es keinen Split.
 -- Gold-Split: abgeschlossenes Level schneller als die Bestzeit aller anderen Charaktere (unabhängig vom
 -- Vergleich), lila in der Split-Liste; Einstellung goldSplitNotice meldet ihn beim Level-Up mit Ton.
+-- Toleranzband (splitTolerancePercent > 0): Abweichung innerhalb ±max(3 s, x % der Vergleichszeit) gelb.
 local _, ns = ...
 local Stats = ns.Stats
 local History = ns.History
@@ -24,10 +26,14 @@ ns.Splits = Splits
 ---------------------------------------------------------------------------
 local Runs = ns.Runs
 
-local function otherCharacters()
+-- Andere Charaktere; sameClass = nur die der Klasse des eingeloggten Charakters
+local function otherCharacters(sameClass)
   local keys = {}
   for _, key in ipairs(History.GetCharacterKeys()) do
-    if key ~= ns.characterKey then table.insert(keys, key) end
+    local character = History.GetCharacter(key)
+    if key ~= ns.characterKey and (not sameClass or character.class == ns.character.class) then
+      table.insert(keys, key)
+    end
   end
   return keys
 end
@@ -59,7 +65,7 @@ end
 -- Zeiten des anderen Charakters mit der kleinsten Summe über die Level from..to (nur wer alle hat); nil ohne Treffer
 local function fastestRun(from, to)
   local bestTimes, bestSum
-  for _, key in ipairs(otherCharacters()) do
+  for _, key in ipairs(otherCharacters(ns.db.pbSameClass)) do
     local times = Runs.LevelTimes(key)
     local sum = Runs.SumOfLevels(times, from, to)
     if sum and (not bestSum or sum < bestSum) then bestTimes, bestSum = times, sum end
@@ -100,7 +106,7 @@ local function cacheKey()
   for _ in pairs(ns.Database.GetCharacters()) do count = count + 1 end
   local reference = ns.db.splitReference
   return table.concat({ ns.characterKey, count, ns.level, ns.db.splitComparison,
-    reference and reference.id or "" }, ":")
+    reference and reference.id or "", tostring(ns.db.pbSameClass) }, ":")
 end
 
 -- Login (auch der Neustart nach dem Löschen des eingeloggten Charakters, bei gleicher Zahl der
@@ -200,13 +206,29 @@ end
 ---------------------------------------------------------------------------
 local Format = ns.Format
 
--- Abweichung eines abgeschlossenen Levels als Text, Gold-Splits lila
+Splits.MIN_TOLERANCE_SECONDS = 3
+Splits.MAX_TOLERANCE_PERCENT = 10
+local PERCENT = 100
+
+-- Innerhalb des Toleranzbands: |Abweichung| <= max(3 s, x % der Vergleichszeit); aus bei 0 %
+function Splits.IsWithinTolerance(delta, reference)
+  local percent = ns.db.splitTolerancePercent
+  if not delta or not reference or percent <= 0 then return false end
+  return math.abs(delta) <= math.max(Splits.MIN_TOLERANCE_SECONDS, reference * percent / PERCENT)
+end
+
+local function deltaText(delta, reference, gold)
+  local style = (gold and Format.SPLIT_GOLD) or (Splits.IsWithinTolerance(delta, reference) and Format.SPLIT_EVEN) or nil
+  return Format.SplitDelta(delta, style)
+end
+
+-- Abweichung eines abgeschlossenen Levels als Text, Gold-Splits lila, im Toleranzband gelb
 function Splits.LevelDeltaText(level)
-  return Format.SplitDelta(Splits.GetLevelDelta(level), Splits.IsGoldSplit(level) and Format.SPLIT_GOLD or nil)
+  return deltaText(Splits.GetLevelDelta(level), Splits.GetReference(level), Splits.IsGoldSplit(level))
 end
 
 function Splits.CurrentDeltaText()
-  return Format.SplitDelta(Splits.GetCurrentDelta())
+  return deltaText(Splits.GetCurrentDelta(), Splits.GetReference(ns.level), false)
 end
 
 -- Gold-Split beim Level-Up melden (Chatzeile und Ton, Einstellung goldSplitNotice). Läuft nach
