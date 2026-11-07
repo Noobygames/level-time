@@ -245,9 +245,7 @@ function OptionsBuilder.New(options)
 
   -- Seite nach oben scrollen bzw. so weit, dass die Zeile y oben steht (Inhalt in Fensterkoordinaten, s. AddPage)
   local function scrollTo(tab, y)
-    local scroll = tab.scroll
-    local target = -SCROLL_TOP + (CONTENT_TOP - (y or CONTENT_TOP))
-    scroll:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(scroll:GetVerticalScrollRange(), target)))
+    tab.scroll:ScrollTo(-SCROLL_TOP + (CONTENT_TOP - (y or CONTENT_TOP)))
   end
 
   -- Unterseite wählen; der Reiter springt nach oben, weil Unterseiten verschieden lang sind
@@ -519,19 +517,10 @@ function OptionsBuilder.New(options)
     -- Jede Seite scrollt: Inhalt (frame) in einem Scrollbereich zwischen Reitern und Buttons. Die Inhaltskoordinaten
     -- bleiben die des Fensters (y ab Fensteroberkante); der Bereich beginnt bei SCROLL_TOP, daher steht er
     -- ruhend um -SCROLL_TOP verschoben.
-    local scroll = CreateFrame("ScrollFrame", nil, panel)
+    local scroll = Widgets.CreateScrollArea(panel, { step = SCROLL_STEP, top = -SCROLL_TOP, keepInRange = true })
     local entry = { key = labelKey, scroll = scroll, frame = CreateFrame("Frame", nil, scroll) }
     currentTab, currentSub = entry, nil
     scroll:SetScrollChild(entry.frame)
-    scroll:EnableMouseWheel(true)
-    scroll:SetScript("OnMouseWheel", function(self, delta)
-      local target = self:GetVerticalScroll() - delta * SCROLL_STEP
-      self:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(self:GetVerticalScrollRange(), target)))
-    end)
-    scroll:SetScript("OnScrollRangeChanged", function(self, _, yRange)
-      local current = self:GetVerticalScroll()
-      self:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(yRange, current)))
-    end)
     entry.tabButton = Widgets.CreateTab(panel, "GameFontNormal", function() showPage(entry) end)
     local previous = pages[#pages]
     if previous then

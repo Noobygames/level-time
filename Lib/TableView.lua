@@ -255,7 +255,7 @@ function TableView.Create(definition)
     local scrollBar
     local lastSignature, lastLive, lastCharacterKey, lastApplyAt = nil, nil, nil, 0  -- siehe Render
     local function scrollTo(offset)
-      frame.offset = math.max(0, math.min(offset, visibleCount() - visibleRows))
+      frame.offset = Widgets.ClampOffset(offset, visibleCount(), visibleRows)
       scrollBar:SetOffsetSilently(frame.offset)
       draw()
     end

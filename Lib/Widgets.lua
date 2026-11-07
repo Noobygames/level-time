@@ -385,3 +385,32 @@ function Widgets.CreateScrollBar(parent, onScroll)
 
   return bar
 end
+
+-- Erster sichtbarer Index einer Liste mit Grenzen: 0 bis total - visible (nie negativ)
+function Widgets.ClampOffset(offset, total, visible)
+  return math.max(0, math.min(offset, total - visible))
+end
+
+-- Bildlaufbereich in Pixeln (ScrollFrame) mit Mausrad und Grenzen. options = { step = Pixel je Raste,
+-- top = kleinster Bildlauf (Standard 0; negativ, wenn der Inhalt ruhend verschoben steht),
+-- keepInRange = true: wird der Inhalt kürzer, rückt der Bildlauf in den gültigen Bereich }.
+-- area:ScrollTo(y) setzt den Bildlauf begrenzt auf top..GetVerticalScrollRange().
+function Widgets.CreateScrollArea(parent, options)
+  local top = options.top or 0
+  local area = CreateFrame("ScrollFrame", nil, parent)
+
+  function area:ScrollTo(y)
+    self:SetVerticalScroll(math.max(top, math.min(self:GetVerticalScrollRange(), y)))
+  end
+
+  area:EnableMouseWheel(true)
+  area:SetScript("OnMouseWheel", function(self, delta)
+    self:ScrollTo(self:GetVerticalScroll() - delta * options.step)
+  end)
+  if options.keepInRange then
+    area:SetScript("OnScrollRangeChanged", function(self, _, yRange)
+      self:SetVerticalScroll(math.max(top, math.min(yRange, self:GetVerticalScroll())))
+    end)
+  end
+  return area
+end

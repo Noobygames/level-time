@@ -148,7 +148,7 @@ local function addProfileList()
   end
 
   local function scrollTo(offset)
-    listOffset = math.max(0, math.min(maxOffset(), offset))
+    listOffset = Widgets.ClampOffset(offset, #Profiles.GetNames(), MAX_PROFILE_ROWS)
     builder.Refresh(ns.db)
   end
 

@@ -66,7 +66,7 @@ function Export.New(host)
   local hint = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
   hint:SetPoint("BOTTOMLEFT", MARGIN, MARGIN - 4)
 
-  local scrollFrame = CreateFrame("ScrollFrame", nil, panel)
+  local scrollFrame = Widgets.CreateScrollArea(panel, { step = WHEEL_STEP })
   scrollFrame:SetPoint("TOPLEFT", MARGIN, TEXT_TOP)
   scrollFrame:SetPoint("BOTTOMRIGHT", -MARGIN, MARGIN + IMPORT_BUTTON_HEIGHT)
 
@@ -82,12 +82,6 @@ function Export.New(host)
   -- würde es nicht treffen, und Strg+V ginge ins Leere. Daher fokussiert jeder Klick in den Textbereich.
   scrollFrame:EnableMouse(true)
   scrollFrame:SetScript("OnMouseDown", function() editBox:SetFocus() end)
-
-  scrollFrame:EnableMouseWheel(true)
-  scrollFrame:SetScript("OnMouseWheel", function(self, delta)
-    local offset = self:GetVerticalScroll() - delta * WHEEL_STEP
-    self:SetVerticalScroll(math.max(0, math.min(offset, self:GetVerticalScrollRange())))
-  end)
 
   -- Import: onImport(text) liefert eine Meldung und ob der Text übernommen wurde
   local onImport

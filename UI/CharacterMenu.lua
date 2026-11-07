@@ -44,7 +44,7 @@ function CharacterMenu.Create(parent, options)
 
   local function refresh()
     local keys = History.GetCharacterKeys()
-    offset = math.max(0, math.min(offset, #keys - MENU_ROWS))
+    offset = Widgets.ClampOffset(offset, #keys, MENU_ROWS)
     local shown = math.min(#keys, MENU_ROWS)
     local widest = 0
     for i = 1, shown do
