@@ -72,6 +72,7 @@ local function setEventsMuted(frame, events, mute)
     muted[frame] = nil
   end
 end
+HideFrames.SetEventsMuted = setEventsMuted  -- auch für BlizzardHide.lua (Sprechender Kopf)
 
 ---------------------------------------------------------------------------
 -- Frames je Client

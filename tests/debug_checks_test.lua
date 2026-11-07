@@ -18,7 +18,7 @@ local CHECKS = {
   "329.social.target", "329.chat.windows", "329.chat.colors", "329.classColors", "329.characterFrame", "329.minimap",
   "357.theme", "358.frames.positions", "359.editMode",
   "364.lootRoll.api", "365.blizzardXpBar", "258.flight.estimates",
-  "360.window.layout", "360.xpTooltip", "362.visibility",
+  "360.window.layout", "360.xpTooltip", "362.visibility", "371.blizzardFrames",
 }
 
 wow.login()

@@ -798,3 +798,24 @@ check("362.visibility", function()
     mouseOver = method(_G.LevelTimerFrame, "IsMouseOver"),
     main = frameState(_G.LevelTimerFrame), splits = frameState(_G.LevelTimerSplits) }
 end)
+
+-- 371: Blizzard-Oberfläche ausblenden: je Eintrag gefunden?, Frame-Name und Zustand, ausgeblendet (Einstellung) und von
+-- uns angewendet, geschützt; dazu die Minimap (ob die Karte selbst Alpha 0 des Rahmens folgt, sieht man nur im Spiel)
+check("371.blizzardFrames", function()
+  local BlizzardHide = ns.BlizzardHide
+  local entries = {}
+  for _, entry in ipairs(BlizzardHide.ENTRIES) do
+    local frames = BlizzardHide.Frames(entry)
+    local first = frames[1]
+    local state = first and frameState(first) or {}
+    state.id, state.supported, state.found = entry.id, BlizzardHide.IsSupported(entry), #frames
+    state.name, state.mouse = first and frameName(first), first and method(first, "IsMouseEnabled")
+    state.protected = first and method(first, "IsProtected")
+    state.hidden, state.applied = BlizzardHide.IsHidden(entry.id), BlizzardHide.IsApplied(entry.id)
+    state.setting, state.markedProtected = entry.setting, entry.protected == true
+    table.insert(entries, state)
+  end
+  return { pending = BlizzardHide.IsPending(), combat = call("InCombatLockdown"),
+    editOverlays = ns.db.editBlizzardFrames, minimapAlpha = method(_G.Minimap, "GetAlpha"),
+    minimapEffectiveAlpha = method(_G.Minimap, "GetEffectiveAlpha"), entries = chunked(entries) }
+end)

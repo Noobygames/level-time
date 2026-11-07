@@ -1854,6 +1854,29 @@ Komfort > Quests: „Quest-Item-Knopf“, „Questgegner-Zielknopf“ und „Que
 5. Schalter aus: der Knopf zeigt wieder die nächste bzw. zuletzt angenommene Quest wie vorher.
 
 **Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“; nichts verschwindet, was in der Zone gebraucht wird.
+### 137. Blizzard-Oberfläche ausblenden (Roadmap 371)
+
+- [ ] geprüft
+
+`/lt edit`: über jedem Blizzard-Element liegt eine graue Fläche mit Namen und Haken „Ausgeblendet“; dazu Komfort >
+Oberfläche > „Blizzard-Oberfläche“. Vorher und nachher `/lt debug check` (Prüfung `371.blizzardFrames`).
+
+1. Edit-Modus: Flächen über Spieler-, Ziel-, Gruppenrahmen, Minimap, Uhr, Buffs, Tracker, Chat, Aktionsleisten,
+   Mikromenü, Taschen; kleine Flächen (Uhr, Gebietsname) liegen über der Minimap und sind anklickbar.
+2. Haken setzen: das Element verschwindet, die Fläche wird dunkel und heißt „… (ausgeblendet)“; Haken weg: es sieht
+   aus wie vorher (Deckkraft, Maus, Tooltip).
+3. Ausgeblendete Aktionsleiste: Tasten wirken weiter, unsichtbare Knöpfe lassen sich nicht anklicken.
+4. Minimap ganz aus: ist die Karte selbst weg oder bleibt sie sichtbar (Rahmen weg, Karte da)?
+5. Zauberleiste aus: beim Zaubern nichts zu sehen, auch kein kurzes Aufblitzen am Ende?
+6. Buffs/Gruppenrahmen aus, dann neue Buffs bekommen bzw. Gruppe wechseln: lassen sich unsichtbare Buff-Symbole
+   rechtsklicken (Buff weg)?
+7. Im Kampf in den Optionen umschalten: ändert sich erst nach dem Kampf, kein „Aktion blockiert“.
+8. Retail/Forever: Esc > Bearbeitungsmodus mit ausgeblendeten Elementen öffnen und schließen: kein Taint-Hinweis,
+   ausgeblendete bleiben unsichtbar; Deckkraft im Blizzard-Edit-Mode ändern und danach wieder einblenden: Blizzards
+   Deckkraft gilt.
+9. Schalter „Blizzard-Elemente zeigen“ in der Leiste aus: die grauen Flächen verschwinden, unsere Anzeigen bleiben.
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis (`ADDON_ACTION_BLOCKED` im Debug-Log).
 
 **Antwort:**
 
@@ -1935,5 +1958,11 @@ Wechsel beim Zonenwechsel (ja/nein):
 Fremde Zone: Knopf weg (ja/nein):
 Höhle/Gebäude ok (ja/nein):
 Fehlt etwas zu Unrecht (welche Quest, Überschrift im Log):
+Flächen richtig (ja/nein, welche fehlen):
+Ausblenden und zurück (ja/nein):
+Minimap-Karte weg (ja/nein):
+Zauberleiste blitzt (ja/nein):
+Unsichtbare Buffs klickbar (ja/nein):
+Kampf wartet (ja/nein):
 Fehler:
 ```
