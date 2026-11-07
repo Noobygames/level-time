@@ -2711,3 +2711,50 @@ Animation flüssig (ja/nein):
 Neuwürfe und Level-Up ok (ja/nein):
 Fehler:
 ```
+
+### 187. Fenster von Level Time Goals (/sg) aufgeräumt
+
+- [ ] geprüft
+
+1. `/sg`: das Schließen-Kreuz sitzt oben rechts vollständig im Fenster (auch nach Verschieben an den oberen Rand).
+2. Zielarten: oben eine Zeile mit Gruppen (Fortschritt, Kampf, Beute & Gold, Quests, Regeln & Spaß), darunter nur die
+   Arten der gewählten Gruppe; jede Art ist erreichbar, beim Zurückwechseln ist die zuletzt gewählte Art wieder da.
+   Auch auf Französisch/Spanisch kein Text über den rechten Rand.
+3. Formular: alle Felder beginnen in einer Spalte; Zahlen (Ziel, Frist, Punkte) gleich schmal, Textfelder (Belohnung,
+   Item, Eigenes) bis zum rechten Rand, Auswahl-Buttons gleich breit.
+4. Fußzeile: „Layout bearbeiten“ (Tooltip wie bei Level Time) schließt das Fenster und startet den Edit-Modus.
+5. Ohne aktive Ziele: Hinweis „Keine aktiven Ziele …“ und Button „Vorlagen öffnen“, der den Reiter Vorlagen zeigt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kreuz im Fenster (ja/nein):
+Gruppen und Arten übersichtlich (ja/nein):
+Felder bündig (ja/nein):
+Layout bearbeiten / Vorlagen öffnen ok (ja/nein):
+Fehler:
+```
+
+### 188. Historie > Speedrun > Läufe: Kopfzeile, Namen, Werkzeugzeile
+
+- [ ] geprüft
+
+1. `/lt history`, Speedrun > Läufe: „Filter“ steht vollständig rechts neben „LiveSplit“ (kein „lter“), das Suchfeld
+   überlappt nichts; auf Französisch/Spanisch ggf. schmaler oder in einer eigenen Zeile darunter.
+2. Spaltenköpfe „Splits“ und „Quote“ statt zweimal „Erfasst“; Maus auf jeden Kopf zeigt eine Erklärung (auch
+   „Bis akt. Level“ und „Prüfcode“). Keine leere Status-Spalte mehr, die Tabelle endet vor der Bildlaufleiste.
+3. Namen ohne Realm („Nerzal“); Maus auf die Zeile zeigt „Name - Realm“ und Klasse. Zwei Charaktere gleichen Namens
+   auf verschiedenen Realms zeigen den unterscheidenden Teil des Realms in Klammern.
+4. Gewählter Vergleich (Klick auf einen Lauf) trägt „>“ in der ersten Spalte, Favoriten „*“.
+5. Auf Level 1 zeigt „Bis akt. Level“ ein gedämpftes „–“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Filter frei lesbar (ja/nein):
+Köpfe eindeutig, Tooltips ok (ja/nein):
+Namen und Tooltip ok (ja/nein):
+Fehler:
+```
