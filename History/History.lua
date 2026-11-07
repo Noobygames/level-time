@@ -44,16 +44,44 @@ function History.GetCharacter(characterKey)
   return ns.Database.GetCharacters()[characterKey]
 end
 
--- Eingeloggter Charakter zuerst, danach alphabetisch
-function History.GetCharacterKeys()
-  local keys = {}
-  for key in pairs(ns.Database.GetCharacters()) do
+-- Eingeloggter Charakter zuerst, danach alphabetisch. Zwischengespeichert, bis sich die Charaktere ändern (andere
+-- Tabelle, andere Anzahl, anderer eingeloggter Charakter, Löschen/Ersetzen): Zählen kostet O(C), Sortieren gibt es
+-- nur beim Neubau. positions = Platz je Schlüssel (DisplayName mit Streamer-Datenschutz).
+local characterKeys = {}  -- { characters, count, loggedIn, keys, positions }
+
+local function countOf(characters)
+  local count = 0
+  for _ in pairs(characters) do count = count + 1 end
+  return count
+end
+
+local function currentCharacterKeys()
+  local characters = ns.Database.GetCharacters()
+  local count = countOf(characters)
+  local cached = characterKeys
+  if cached.characters == characters and cached.count == count and cached.loggedIn == ns.characterKey then
+    return cached
+  end
+  local keys, positions = {}, {}
+  for key in pairs(characters) do
     if not isLoggedIn(key) then table.insert(keys, key) end
   end
   table.sort(keys)
   table.insert(keys, 1, ns.characterKey)
-  return keys
+  for index, key in ipairs(keys) do positions[key] = index end
+  characterKeys = { characters = characters, count = count, loggedIn = ns.characterKey, keys = keys,
+    positions = positions }
+  return characterKeys
 end
+
+-- Ergebnis nicht verändern (zwischengespeichert; eine neue Liste, sobald sich die Charaktere ändern)
+function History.GetCharacterKeys()
+  return currentCharacterKeys().keys
+end
+
+local function forgetCharacterKeys() characterKeys = {} end
+ns.Database.OnCharacterDeleted(forgetCharacterKeys)
+ns.Database.OnCharacterReplaced(forgetCharacterKeys)
 
 -- Anzeigename "Name - Realm". Mit Streamer-Datenschutz (Einstellung streamerPrivacy) ohne Realm,
 -- andere Charaktere nur als "Charakter N" (N = Platz in GetCharacterKeys), gegen Stream-Sniping.
@@ -65,9 +93,8 @@ function History.DisplayName(characterKey)
   if isLoggedIn(characterKey) then
     return character.name or "?"
   end
-  for index, key in ipairs(History.GetCharacterKeys()) do
-    if key == characterKey then return string.format(L.HIDDEN_CHARACTER, index) end
-  end
+  local index = currentCharacterKeys().positions[characterKey]
+  if index then return string.format(L.HIDDEN_CHARACTER, index) end
   return "?"
 end
 
