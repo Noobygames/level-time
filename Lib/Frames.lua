@@ -8,7 +8,7 @@
 --     keepTopLeft (Größenwechsel hält die linke obere Ecke fest statt des Ankers), dragWhenUnlocked (auch außerhalb
 --     des Edit-Modus ziehbar, solange "locked" aus ist), store = { get(), set(entry) } (eigener Speicher, z.B. Stream
 --     Goal), onScale(scale) (weitere Rahmen mitskalieren), available() (gibt es die Anzeige in diesem Client),
---     preview(on) (Beispielinhalt im Edit-Modus), hide() (Anzeige ausschalten), settingsPage (Locale-Key des Reiters),
+--     preview(on) (Beispielinhalt im Edit-Modus), hide() (Anzeige ausschalten), settingsPage (Locale-Key des Reiters oder der Unterseite),
 --     protected (sichere Kinder: nicht im Kampf ändern)
 --   })
 -- Ein Profilwechsel bringt neue Tabellen mit: daran erkennt das Apply, dass eine Anzeige an ihre neue Stelle muss.

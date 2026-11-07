@@ -131,5 +131,5 @@ expect("Position zurückgesetzt", LevelTimerDB.frames.food, nil)
 -- Einstellungen
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Timer", wow.click(L.OPTIONS_TAB_TIMERS))
-expectTrue("Button Vorschau", wow.click(L.FOOD_PREVIEW))
+expectTrue("Button Vorschau", wow.clickOption("FOOD_PREVIEW"))
 expect("Vorschau zeigt Anzeige", food:IsShown(), true)

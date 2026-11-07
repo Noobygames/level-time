@@ -2041,3 +2041,30 @@ Bericht (/lt debug perf report 25):
 Sitzungsdauer:
 Fehler:
 ```
+
+### 140. Einstellungen in Kategorien (Roadmap 380)
+
+- [ ] geprüft
+
+`/lt` öffnen, in Deutsch, Französisch und Spanisch (Allgemein > Sprache & Minimap).
+
+1. Reiter: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle außer Profile mit
+   Seitenleiste links, Inhalt rechts daneben, nichts überlappt (auch die rechte Schalter-Spalte nicht).
+2. Jede Kategorie einmal anklicken: das Fenster springt nicht in der Höhe, keine Seite braucht Scrollen (außer bei
+   kleinem Bildschirm/hoher UI-Skalierung), beim Kategoriewechsel steht die Seite oben.
+3. Komfort > Quests: Quest-Automatik, Questfortschritt, „Questlog fast voll“ und die Quest-Einblendungen stehen dort;
+   Allgemein > Stream und Einblendungen > Timer/Flüge funktionieren wie vorher.
+4. Edit-Modus (`/lt edit`): Rechtsklick auf Split-Liste, Einblendung, Level-Up-Fenster, Flug-Anzeige > „Einstellungen“
+   öffnet die passende Kategorie.
+5. Fenster schließen und wieder öffnen: dieselbe Kategorie ist noch gewählt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Sprache(n):
+Überlappungen (wo):
+Höhe/Scrollen ok (ja/nein):
+Sprünge aus dem Edit-Modus ok (ja/nein):
+Fehler:
+```

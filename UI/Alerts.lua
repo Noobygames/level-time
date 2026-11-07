@@ -248,7 +248,7 @@ end
 -- Die Karte folgt der Größe des Rahmens
 ns.Frames.Register({
   id = "alert", frame = frame, label = "EDIT_FRAME_ALERT", default = DEFAULT_POSITION,
-  settingsPage = "OPTIONS_TAB_ALERTS", preview = setEditing,
+  settingsPage = "OPTIONS_PAGE_ALERT_LOOK", preview = setEditing,
   onScale = function(scale) notice.frame:SetScale(scale) end,
 })
 

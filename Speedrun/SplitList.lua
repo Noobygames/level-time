@@ -236,7 +236,7 @@ local visibility = ns.DisplayVisibility.Attach({
 
 ns.Frames.Register({
   id = "splitList", frame = panel, label = "EDIT_FRAME_SPLITS", default = DEFAULT_POSITION,
-  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_TAB_SPEEDRUN",
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_SPLIT_LIST",
   fallbackScale = function() return ns.Frames.GetScale("main") end,
   preview = function(on)
     visibility:SetEditing(on)

@@ -328,7 +328,7 @@ local function create()
 
   ns.Frames.Register({
     id = "questItem", frame = holder, label = "EDIT_FRAME_QUEST_ITEM", default = DEFAULT_POS, protected = true,
-    settingsPage = "OPTIONS_TAB_COMFORT",
+    settingsPage = "COMFORT_PAGE_QUEST_DISPLAY",
     preview = function(on)
       if inCombat() then return end
       editing = on

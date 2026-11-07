@@ -135,6 +135,10 @@ local frameMethods = {
   SetHeight = function(self, height) self._height = height end,
   GetFrameLevel = function(self) return rawget(self, "_level") or 1 end,
   SetFrameLevel = function(self, level) self._level = level end,
+  -- Scrollbereiche: Position wird gemerkt; Bereich = frame._scrollRange (Standard groß genug für jede Seite)
+  SetVerticalScroll = function(self, offset) self._verticalScroll = offset end,
+  GetVerticalScroll = function(self) return rawget(self, "_verticalScroll") or 0 end,
+  GetVerticalScrollRange = function(self) return rawget(self, "_scrollRange") or 10000 end,
   GetAlpha = function(self) return rawget(self, "_alpha") or 1 end,
   SetAlpha = function(self, alpha) self._alpha = alpha end,
   GetScale = function(self) return self._scale end,
@@ -337,6 +341,19 @@ function wow.click(text, last)
     local caption = label and label._text or frame._text
     if caption == text and frame._scripts.OnClick then
       frame._scripts.OnClick(frame, "LeftButton")
+      return true
+    end
+  end
+  return false
+end
+
+-- Steuerelement der Einstellungen zu einem Locale-Key klicken, eindeutig über den Suchindex (Tooltip <KEY>_TIP),
+-- auch wenn mehrere Buttons denselben Text haben (z.B. "Vorschau")
+function wow.clickOption(labelKey)
+  for _, entry in ipairs(addon.OptionsWindow.Search(addon.L[labelKey])) do
+    local onClick = entry.tipKey == labelKey .. "_TIP" and entry.left._scripts.OnClick
+    if onClick then
+      onClick(entry.left, "LeftButton")
       return true
     end
   end

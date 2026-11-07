@@ -405,7 +405,7 @@ end
 
 ns.Frames.Register({
   id = "levelUp", frame = frame, label = "EDIT_FRAME_LEVEL_UP", default = DEFAULT_POSITION,
-  settingsPage = "OPTIONS_TAB_ALERTS", preview = setEditing,
+  settingsPage = "OPTIONS_PAGE_LEVEL_UP_WINDOW", preview = setEditing,
   hide = function() ns.Set("levelUpWindow", false) end,
 })
 

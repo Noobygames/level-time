@@ -26,17 +26,34 @@ local function checkOptions(language)
   addon.Set("language", language)
   SlashCmdList.LEVELTIMER("config")
 
-  -- Schalterpaare in einer Zeile, je Reiter eins: links und rechts überlappen nicht
+  -- Schalterpaare in einer Zeile, je Reiter eins: links und rechts überlappen nicht. Schalter auf Unterseiten stehen
+  -- rechts neben der Seitenleiste (Versatz der Unterseite)
+  local function subPageOffset(frame)
+    local parent = frame:GetParent()
+    return parent and parent._points[1] and anchorX(parent) or 0
+  end
   for _, pair in ipairs({
     { "SHOW_XP_BAR", "AUTO_INSTANCE_TAB" },
     { "STAT_XP_RATE", "STAT_RECENT_XP_RATE" },
     { "ALERT_TOGGLE_LEVEL_UP", "ALERT_TOGGLE_RARE" },
+    { "WARN_BAGS_FULL_TOGGLE", "WARN_DURABILITY_TOGGLE" },
+    { "AUTO_ACCEPT_QUESTS", "AUTO_ACCEPT_SHARED" },
   }) do
     local left, right = findByLabel(L[pair[1]]), findByLabel(L[pair[2]])
     local leftEnd = anchorX(left) + left:GetWidth() + addon.Widgets.CHECKBOX_LABEL_GAP + left.label:GetStringWidth()
     expectTrue(language .. ": " .. pair[2] .. " beginnt hinter " .. pair[1], anchorX(right) > leftEnd)
     expectTrue(language .. ": " .. pair[2] .. " passt ins Fenster",
-      anchorX(right) + right:GetWidth() + right.label:GetStringWidth() <= options:GetWidth())
+      subPageOffset(right) + anchorX(right) + right:GetWidth() + right.label:GetStringWidth() <= options:GetWidth())
+  end
+
+  -- Seitenleisten: jede Unterseite beginnt rechts neben dem breitesten Eintrag aller Leisten
+  local offset = subPageOffset(findByLabel(L.SHOW_XP_BAR))
+  expectTrue(language .. ": Fenster-Schalter auf einer Unterseite", offset > 0)
+  for _, page in ipairs(addon.OptionsWindow.PageKeys()) do
+    if page.sub then
+      local entry = findByLabel(L[page.sub])
+      expectTrue(language .. ": Leiste " .. page.sub, entry and entry:GetWidth() < offset)
+    end
   end
 
   -- Sprachwahl: Beschriftung und alle Reiter nebeneinander
