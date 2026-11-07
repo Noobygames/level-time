@@ -226,12 +226,32 @@ end)
 ---------------------------------------------------------------------------
 -- Ablauf
 ---------------------------------------------------------------------------
+-- Werte lesen (Roadmap 380): einmal je angezeigter Sekunde (die Zeit zeigt Sekunden) und sofort nach Ereignissen,
+-- die Werte ändern (Zähler, XP, Geld, Kampf, Zone); dazwischen prüft der Takt nur zwei Zahlen
 local sinceUpdate = 0
+local refreshedSecond
+local dirty = true
+
+local function markDirty()
+  dirty = true
+end
+TimerWindow.MarkDirty = markDirty
+Stats.OnIncrement(markDirty)
+for _, event in ipairs({ "PLAYER_XP_UPDATE", "UPDATE_EXHAUSTION", "PLAYER_MONEY", "TIME_PLAYED_MSG",
+  "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD",
+  "QUEST_LOG_UPDATE", "PLAYER_FLAGS_CHANGED" }) do
+  ns.RegisterEvent(event, markDirty)
+end
+
 ns.SetUpdateScript(window, "TimerWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0
-  refresh()
+  local second = math.floor(GetTime())
+  if dirty or second ~= refreshedSecond then
+    dirty, refreshedSecond = false, second
+    refresh()
+  end
   -- Ziehgriff nur zeigen, wenn die Maus über dem Fenster ist (oder gerade gezogen wird)
   grip:UpdateAlpha()
 end)
