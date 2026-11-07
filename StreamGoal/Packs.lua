@@ -34,6 +34,14 @@ Packs.BUILTIN = {
     },
   },
   {
+    key = "dungeons", label = "SG_PACK_DUNGEONS",
+    goals = {
+      { kind = "dungeon", params = {}, target = function() return 10 end },
+      { kind = "quest", params = { mode = "count" }, target = function() return 10 end },
+      { kind = "rule", params = { rule = "nodeath" }, target = function(level) return level + 3 end },
+    },
+  },
+  {
     key = "explorer", label = "SG_PACK_EXPLORER",
     goals = {
       { kind = "explore", params = { mode = "count" }, target = function() return 10 end },

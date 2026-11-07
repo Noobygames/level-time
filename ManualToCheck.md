@@ -2622,3 +2622,18 @@ Erneuert nach Mitternacht/Login (ja/nein):
 Serie stimmt (ja/nein):
 Fehler:
 ```
+
+### 182. Boss-Ziele (Roadmap 302)
+
+- [ ] geprüft
+
+1. `/sg add boss 1 <Name des ersten Bosses>` in einem Dungeon: Sieg hakt ab, ein Wipe nicht; mit Instanz-Feld zählt
+   nur diese Instanz. Classic Era/TBC: kommt ENCOUNTER_END bei Dungeon-Bossen (sonst `/lt debug log` Zeilen notieren)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Boss gezählt (ja/nein):
+Fehler:
+```
