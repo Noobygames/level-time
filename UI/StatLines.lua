@@ -39,6 +39,18 @@ local function recentXpRate()
   return rate and Format.Number(rate) or PENDING
 end
 
+-- Unabhängig vom Bereich: Summe bzw. hochgerechnete Rate eines Zählers in den letzten 15 Minuten (RecentCounts.lua)
+local function recentCount(counterName)
+  return function() return Format.Number(ns.RecentCounts.Count(counterName)) end
+end
+
+local function recentRate(counterName)
+  return function()
+    local rate = ns.RecentCounts.Rate(counterName)
+    return rate and Format.Number(rate) or PENDING
+  end
+end
+
 -- "~38": Kills bzw. Quests bis zum Level-Up beim Durchschnitt des Levels
 local function countToLevel(xpCounter, countCounter)
   return function()
@@ -235,6 +247,10 @@ ns.STAT_LINES = {
     rows = { { label = "ROW_PVE_KILLS", value = counter(Stats.PVE_KILLS) } } },
   { setting = "showKillRate", group = "STAT_GROUP_COMBAT", label = "STAT_KILL_RATE",
     rows = { { label = "ROW_KILL_RATE", value = perHour(Stats.PVE_KILLS) } } },
+  { setting = "showRecentKills", group = "STAT_GROUP_COMBAT", label = "STAT_RECENT_KILLS", rows = {
+    { label = "ROW_RECENT_KILLS", value = recentCount(Stats.PVE_KILLS) },
+    { label = "ROW_RECENT_KILL_RATE", value = recentRate(Stats.PVE_KILLS) },
+  } },
   { setting = "showPvpKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVP_KILLS",
     rows = { { label = "ROW_PVP_KILLS", value = counter(Stats.PVP_KILLS) } } },
   { setting = "showSpecialKills", group = "STAT_GROUP_COMBAT", label = "STAT_SPECIAL_KILLS", rows = {

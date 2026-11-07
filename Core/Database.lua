@@ -234,6 +234,7 @@ local SETTINGS_DEFAULTS = {
   showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
   showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
   showKillRate = false,    -- Kills (PvE) je Stunde im Bereich
+  showRecentKills = false,  -- Kills der letzten 15 min und Kills/h daraus (siehe RecentCounts.lua)
   minimap = { hide = false, angle = 225 },
 }
 
