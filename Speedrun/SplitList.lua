@@ -7,7 +7,8 @@
 -- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
 -- ssfCategory (SSF-Regelhelfer, SsfRules.lua), splitListShowCustom (die letzten eigenen Splits, CustomSplits.lua).
 -- Mit friendRace und einem gehörten Freund (FriendRace.lua) eine vierte Spalte "gegen Freund" je Level.
--- Position über Lib/Frames.lua; Hintergrund und Fixieren folgen dem Hauptfenster.
+-- Position über Lib/Frames.lua; Hintergrund und Fixieren folgen dem Hauptfenster, Sichtbarkeit splitListVisibility
+-- (UI/DisplayVisibility.lua). Je Takt werden nur geänderte Texte gesetzt; Spalten und Größe nur bei geändertem Text.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -144,12 +145,16 @@ function SplitList.BuildFooterLines()
   return lines
 end
 
+local setText = Widgets.SetTextIfChanged
+
+-- true, wenn sich ein Text der Zeile geändert hat
 local function setCells(row, levelText, timeText, deltaText, friendText)
-  row.level:SetText(levelText)
-  row.time:SetText(timeText)
-  row.delta:SetText(deltaText)
-  row.friend:SetText(friendText or "")
+  local changed = setText(row.level, levelText)
+  changed = setText(row.time, timeText) or changed
+  changed = setText(row.delta, deltaText) or changed
+  changed = setText(row.friend, friendText or "") or changed
   for _, fontString in pairs(row) do fontString:Show() end
+  return changed
 end
 
 -- Spalten so breit wie ihr breitester Text, Fenster entsprechend
@@ -190,37 +195,51 @@ local function layout(count)
     2 * PADDING_Y + (count + 1) * height)
 end
 
-local function render()
+local laidOut = { count = -1, height = 0 }  -- Stand des letzten layout(): Zeilenzahl und Zeilenhöhe
+
+local function renderLines()
   local friend = ns.FriendRace.Current()
-  title:SetText(friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
+  local changed = setText(title,
+    friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
   local lines = SplitList.BuildLines()
   for i, line in ipairs(lines) do
-    setCells(getRow(i), tostring(line.level),
-      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText)
+    changed = setCells(getRow(i), tostring(line.level),
+      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText) or changed
   end
   local used = #lines
   for _, line in ipairs(SplitList.BuildFooterLines()) do
     used = used + 1
-    setCells(getRow(used), line[1], line[2], line[3])
+    changed = setCells(getRow(used), line[1], line[2], line[3]) or changed
   end
   for i = used + 1, #rows do
     for _, fontString in pairs(rows[i]) do fontString:Hide() end
   end
-  layout(used)
+  -- Anker und Größe nur, wenn sich ein Text, die Zahl der Zeilen oder die Schriftgröße geändert hat
+  if changed or used ~= laidOut.count or rowHeight() ~= laidOut.height then
+    laidOut.count, laidOut.height = used, rowHeight()
+    layout(used)
+  end
+end
+
+-- Ein Takt (TickCache: Gesamt-Split und Vergleich nur einmal berechnet)
+local function render()
+  ns.TickCache.Run(renderLines)
 end
 
 ---------------------------------------------------------------------------
 -- Position (Lib/Frames.lua; ohne eigene Größe die des Hauptfensters), Ablauf
 ---------------------------------------------------------------------------
-local editing = false  -- Edit-Modus: auch ausgeschaltet sichtbar
+local visibility = ns.DisplayVisibility.Attach({
+  frame = panel, setting = "splitListVisibility",
+  enabled = function() return ns.db.showSplitList end,
+})
 
 ns.Frames.Register({
   id = "splitList", frame = panel, label = "EDIT_FRAME_SPLITS", default = DEFAULT_POSITION,
   keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_TAB_SPEEDRUN",
   fallbackScale = function() return ns.Frames.GetScale("main") end,
   preview = function(on)
-    editing = on
-    panel:SetShown(on or ns.db.showSplitList)
+    visibility:SetEditing(on)
     if panel:IsShown() then render() end
   end,
   hide = function() ns.Set("showSplitList", false) end,
@@ -248,7 +267,7 @@ end)
 ns.RegisterApply(function(db)
   grip:SetShown(not db.locked)
   Theme.ApplyBackground(panel, db)
-  local shown = db.showSplitList or editing
-  panel:SetShown(shown)
-  if shown then render() end
+  laidOut.count = -1  -- Schrift oder Sprache können gewechselt haben
+  visibility:Update()
+  if panel:IsShown() then render() end
 end)

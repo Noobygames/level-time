@@ -743,3 +743,47 @@ check("258.flight.estimates", function()
   summary.shipped = ns.FlightTimesData ~= nil and ns.FlightTimesData[ns.Client.Flavor()] ~= nil
   return summary
 end)
+
+-- 360: Layout des Hauptfensters: Zeilen des Modells, Maße und je sichtbarem Text die gemessene Breite gegen die
+-- Fensterbreite (abgeschnitten = IsTruncated, wo es das gibt); Schrift der Rolle mit Kontur
+local function fontStringState(fontString)
+  return { text = plain(method(fontString, "GetText")), width = method(fontString, "GetStringWidth"),
+    truncated = method(fontString, "IsTruncated"), font = { method(fontString, "GetFont") } }
+end
+
+check("360.window.layout", function()
+  local elements, model = ns.TimerWindow.Elements(), ns.TimerWindow.Model()
+  local texts = {}
+  for _, fontString in ipairs({ elements.time, elements.big, elements.sub }) do
+    if method(fontString, "IsShown") then texts[#texts + 1] = fontStringState(fontString) end
+  end
+  for _, row in ipairs(elements.rows) do
+    if method(row.value, "IsShown") then
+      texts[#texts + 1] = { label = fontStringState(row.label), value = fontStringState(row.value) }
+    end
+  end
+  for _, field in ipairs(elements.fields) do
+    if method(field, "IsShown") then texts[#texts + 1] = fontStringState(field) end
+  end
+  local rows = {}
+  for index, row in ipairs(model.rows) do rows[index] = row.key end
+  return { layout = ns.TimerWindow.ActiveLayout(), setting = ns.db.windowLayout, rows = rows,
+    order = ns.db.rowOrder, chosen = ns.db.compactRows, frame = frameState(_G.LevelTimerFrame),
+    renders = ns.TimerWindow.RenderCount(), texts = chunked(texts),
+    outlined = { method(_G[ns.Theme.Font("small", true)], "GetFont") } }
+end)
+
+-- XP-Tooltip (Wunsch zu 360): Zeilen wie beim Überfahren des Balkens und die Rohwerte dahinter
+check("360.xpTooltip", function()
+  return { content = ns.XpTooltip.Build(), xp = call("UnitXP", "player"), xpMax = call("UnitXPMax", "player"),
+    rested = call("GetXPExhaustion"), questReady = ns.QuestLogXp.Get() }
+end)
+
+-- 362: Sichtbarkeitsregeln: Einstellung, Zustand der Regeln (Kampf, Instanz, Leveln) und was die Rahmen zeigen
+check("362.visibility", function()
+  return { window = ns.db.windowVisibility, splitList = ns.db.splitListVisibility, fade = ns.db.fadeAlpha,
+    combat = call("UnitAffectingCombat", "player"), lockdown = call("InCombatLockdown"),
+    instance = { call("IsInInstance") }, leveling = ns.Experience.IsLeveling(),
+    mouseOver = method(_G.LevelTimerFrame, "IsMouseOver"),
+    main = frameState(_G.LevelTimerFrame), splits = frameState(_G.LevelTimerSplits) }
+end)

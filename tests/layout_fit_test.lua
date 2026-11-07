@@ -28,7 +28,7 @@ local function checkOptions(language)
 
   -- Schalterpaare in einer Zeile, je Reiter eins: links und rechts überlappen nicht
   for _, pair in ipairs({
-    { "SHOW_XP_BAR", "COMPACT_MODE" },
+    { "SHOW_XP_BAR", "AUTO_INSTANCE_TAB" },
     { "STAT_XP_RATE", "STAT_RECENT_XP_RATE" },
     { "ALERT_TOGGLE_LEVEL_UP", "ALERT_TOGGLE_RARE" },
   }) do

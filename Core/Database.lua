@@ -22,8 +22,19 @@ local SETTINGS_DEFAULTS = {
   themeOutline = "none", -- "none", "outline" oder "thick"
   showTimer = true,
   showXpBar = true,
-  compactMode = false,  -- nur Zeit, XP-Balken und XP/h (siehe TimerWindow.lua)
-  horizontalLayout = false,  -- Fenster als Info-Leiste: alles in einer Zeile (siehe TimerWindow.lua)
+  -- Anordnung des Hauptfensters (UI/Layouts/): "table", "bar", "compact", "text", "clock", "xpbar", "tiles"
+  windowLayout = "table",
+  compactRows = "ROW_XP_RATE",  -- gewählte Werte (Zeilen-Schlüssel, Komma-getrennt, bis 3) für compact/clock/xpbar
+  rowOrder = "",       -- Reihenfolge der Stat-Zeilen (Stat-Einstellungen, Komma-getrennt; UI/WindowModel.lua)
+  tileColumns = 3,     -- Spalten im Layout "tiles"
+  xpbarText = "always",  -- Layout "xpbar": Texte "always", "mouseover" oder "never"
+  xpbarWidth = 400,    -- Layout "xpbar": Breite des Balkens
+  textLabels = true,   -- Layout "text": Bezeichnungen vor den Werten
+  -- Sichtbarkeitsregeln (UI/DisplayVisibility.lua): "always", "outOfCombat", "inCombat", "instanceOnly",
+  -- "hideAtMaxLevel", "mouseover"; sonst auf fadeAlpha abgeblendet
+  windowVisibility = "always",
+  splitListVisibility = "always",
+  fadeAlpha = 0,
   autoInstanceTab = false,  -- beim Betreten einer Instanz zum Reiter Instanz wechseln, beim Verlassen zurück
   historyTab = "",  -- zuletzt gewählter Reiter der Historie (siehe HistoryWindow.lua)
   windowScope = "level",  -- "level", "session" oder "instance" (siehe Stats.lua)
@@ -328,7 +339,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 6
+local SETTINGS_SCHEMA_VERSION = 7
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -390,6 +401,10 @@ local settingsMigrations = {
       if values == settings.streamBackup then values.frames = nil end
     end)
   end,
+  -- Eine Anordnung statt zweier Schalter (windowLayout): horizontalLayout -> "bar", compactMode -> "compact"
+  [7] = function(settings)
+    forEachSettingsCopy(settings, function(values) Database.MoveLegacyLayoutKeys(values) end)
+  end,
 }
 
 -- Die Version wird nie gesenkt: nach einem Downgrade (ältere Addon-Version) liefen nicht wiederholbare
@@ -447,6 +462,9 @@ local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   themeFontSize = { -4, 8 },
   splitListRows = { 3, 15 },
+  tileColumns = { 1, 6 },
+  xpbarWidth = { 200, 1200 },
+  fadeAlpha = { 0, 1 },
   splitTolerancePercent = { 0, 10 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
@@ -550,6 +568,26 @@ function Database.MoveLegacyFrameKeys(values)
   end
 end
 
+-- Frühere Schalter der Anordnung (bis Settings-Schema 6) -> windowLayout; ein schon gesetztes windowLayout gewinnt.
+-- Läuft in der Migration, beim Import und beim Laden eines Profils (wie MoveLegacyFrameKeys).
+function Database.MoveLegacyLayoutKeys(values)
+  if values.windowLayout == nil then
+    if values.horizontalLayout == true then
+      values.windowLayout = "bar"
+    elseif values.compactMode == true then
+      values.windowLayout = "compact"
+    end
+  end
+  values.horizontalLayout = nil
+  values.compactMode = nil
+end
+
+-- Alle Umzüge alter Schlüssel (Positionen, Anordnung)
+function Database.MoveLegacyKeys(values)
+  Database.MoveLegacyFrameKeys(values)
+  Database.MoveLegacyLayoutKeys(values)
+end
+
 -- Ein Wert passt, wenn er den Typ des Defaults hat (verschachtelt geprüft) bzw. die Form einer
 -- optionalen Einstellung
 local function sanitizeValue(key, value)
@@ -588,7 +626,7 @@ end
 function sanitizeSettings(settings)
   local source = {}  -- Kopie: alte Positions-Schlüssel (Profile älterer Versionen) ziehen nach frames um
   for key, value in pairs(settings) do source[key] = value end
-  Database.MoveLegacyFrameKeys(source)
+  Database.MoveLegacyKeys(source)
   local clean = {}
   for key, value in pairs(source) do
     if type(key) == "string" then clean[key] = sanitizeValue(key, value) end

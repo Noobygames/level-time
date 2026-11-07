@@ -9,9 +9,9 @@ local applies = { count = 0 }
 addon.RegisterApply(function() applies.count = applies.count + 1 end)
 
 -- Gleicher Wert: kein Apply; anderer Wert: genau einer
-addon.Set("compactMode", addon.db.compactMode)
+addon.Set("autoInstanceTab", addon.db.autoInstanceTab)
 expect("gleicher Wert: kein Apply", applies.count, 0)
-addon.Set("compactMode", not addon.db.compactMode)
+addon.Set("autoInstanceTab", not addon.db.autoInstanceTab)
 expect("neuer Wert: ein Apply", applies.count, 1)
 -- Tabellen (Positionen) werden oft an Ort und Stelle geändert: immer anwenden
 local position = { alert = { point = "CENTER", relPoint = "CENTER", x = 0, y = 0 } }
@@ -30,7 +30,7 @@ wow.update(0.02)
 expect("danach keiner mehr", applies.count, 1)
 -- Ein sofortiger Apply erledigt einen ausstehenden mit
 addon.SetDeferred("bgAlpha", 0.5)
-addon.Set("compactMode", not addon.db.compactMode)
+addon.Set("autoInstanceTab", not addon.db.autoInstanceTab)
 wow.update(0.02)
 expect("ausstehender Apply mit erledigt", applies.count, 2)
 
@@ -42,15 +42,15 @@ local function checkbox(labelKey)
   end)
 end
 SlashCmdList.LEVELTIMER("config")
-local compact = checkbox("COMPACT_MODE")
+local compact = checkbox("AUTO_INSTANCE_TAB")
 expectTrue("Schalter gefunden", compact ~= nil)
 addon.ToggleOptions()
 expect("Fenster zu", LevelTimerOptions:IsShown(), false)
 local before = compact:GetChecked()
-addon.Set("compactMode", not addon.db.compactMode)
+addon.Set("autoInstanceTab", not addon.db.autoInstanceTab)
 expect("geschlossen: nicht aktualisiert", compact:GetChecked(), before)
 LevelTimerOptions:Show()
-expect("beim Öffnen aktualisiert", compact:GetChecked(), addon.db.compactMode)
+expect("beim Öffnen aktualisiert", compact:GetChecked(), addon.db.autoInstanceTab)
 
 -- Offen: Wertänderung misst keine Texte, Sprachwechsel schon
 local measured = { count = 0 }
@@ -60,10 +60,10 @@ label.GetStringWidth = function(self)
   measured.count = measured.count + 1
   return width(self)
 end
-addon.Set("compactMode", not addon.db.compactMode)
-expect("offen: Schalter aktualisiert", compact:GetChecked(), addon.db.compactMode)
+addon.Set("autoInstanceTab", not addon.db.autoInstanceTab)
+expect("offen: Schalter aktualisiert", compact:GetChecked(), addon.db.autoInstanceTab)
 expect("Wertänderung: keine Messung", measured.count, 0)
 addon.Set("language", "enUS")
 expectTrue("Sprachwechsel: gemessen", measured.count > 0)
-expect("englische Beschriftung", label:GetText(), addon.L.COMPACT_MODE)
+expect("englische Beschriftung", label:GetText(), addon.L.AUTO_INSTANCE_TAB)
 addon.Set("language", "deDE")

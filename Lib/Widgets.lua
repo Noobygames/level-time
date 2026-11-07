@@ -49,6 +49,11 @@ function Widgets.SetTextIfChanged(fontString, text)
   return true
 end
 
+-- Nach einem SetText an SetTextIfChanged vorbei (z.B. Breite messen): der nächste SetTextIfChanged setzt sicher
+function Widgets.ForgetText(fontString)
+  shownTexts[fontString] = nil
+end
+
 function Widgets.CreatePanel(name, backgroundAlpha)
   local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
   Theme.RegisterPanel(panel, backgroundAlpha)  -- Grund und Rand im Stil des Themes, auch nach einem Wechsel

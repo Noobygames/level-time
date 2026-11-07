@@ -264,6 +264,141 @@ local function addThemeSection()
   addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
 end
 
+-- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige
+local function addVisibilityCycle(label, setting)
+  builder.AddCycleButton({
+    label = label,
+    choices = function()
+      local choices = {}
+      for i, mode in ipairs(ns.DisplayVisibility.MODES) do choices[i] = { key = mode } end
+      return choices
+    end,
+    get = function(db) return db[setting] end,
+    set = function(key) ns.Set(setting, key) end,
+    nameOf = function(key) return L["VISIBILITY_" .. key:upper()] end,
+  })
+end
+
+-- Anzeige: Layout des Hauptfensters (UI/Layouts/), Einstellungen nur des gewählten Layouts (sonst ausgegraut),
+-- gewählte Werte, Sichtbarkeit. Wirkt sofort, auch im Edit-Modus (Vorschau = das echte Fenster).
+local function addDisplaySection()
+  local Layouts, WindowModel = ns.WindowLayouts, ns.WindowModel
+  addSection("SECTION_DISPLAY")
+  local choices = {}
+  for i, id in ipairs(Layouts.ORDER) do choices[i] = { value = id, name = localized(Layouts.Get(id).label) } end
+  addChooser({ label = "WINDOW_LAYOUT", setting = "windowLayout", choices = choices })
+  local function layoutIs(...)
+    local ids = { ... }
+    return function(db)
+      for _, id in ipairs(ids) do
+        if Layouts.Get(db.windowLayout).id == id then return true end
+      end
+      return false
+    end
+  end
+
+  -- Gewählte Werte (compactRows) für Kompakt, Uhr und XP-Balken: je Stelle ein Zyklus-Button über alle Zeilen
+  local function rowChoices()
+    local list = { { key = "" } }
+    for _, row in ipairs(WindowModel.AllRows()) do
+      if WindowModel.IsRowAvailable(row.key) then table.insert(list, { key = row.key }) end
+    end
+    return list
+  end
+  local usesChosenRows = function(db) return Layouts.Get(db.windowLayout).source == WindowModel.CHOSEN end
+  for index = 1, WindowModel.MAX_CHOSEN_ROWS do
+    builder.AddCycleButton({
+      label = "CHOSEN_ROW_" .. index,
+      choices = rowChoices,
+      get = function(db) return WindowModel.ChosenRowKey(db, index) end,
+      set = function(key) WindowModel.SetChosenRow(ns.db, index, key) end,
+      nameOf = function(key) return key == "" and L.CHOSEN_ROW_NONE or L[key] end,
+      enabled = usesChosenRows,
+    })
+  end
+  local textToggle = toggle("TEXT_LABELS", "textLabels")
+  textToggle.enabled = layoutIs("text")
+  addToggles({ textToggle })
+  addSlider({
+    label = "TILE_COLUMNS",
+    min = Layouts.Tiles.MIN_COLUMNS,
+    max = Layouts.Tiles.MAX_COLUMNS,
+    step = 1,
+    get = function(db) return db.tileColumns end,
+    set = function(value) ns.SetDeferred("tileColumns", value) end,
+    format = tostring,
+    enabled = layoutIs("tiles"),
+  })
+  local textModes = {}
+  for i, mode in ipairs(Layouts.XpBar.MODES) do textModes[i] = { value = mode, name = localized("XPBAR_TEXT_" .. mode:upper()) } end
+  addChooser({ label = "XPBAR_TEXT", setting = "xpbarText", choices = textModes, enabled = layoutIs("xpbar") })
+  addSlider({
+    label = "XPBAR_WIDTH",
+    min = Layouts.XpBar.MIN_WIDTH,
+    max = Layouts.XpBar.MAX_WIDTH,
+    step = 20,
+    get = function(db) return db.xpbarWidth end,
+    set = function(value) ns.SetDeferred("xpbarWidth", value) end,
+    format = tostring,
+    enabled = layoutIs("xpbar"),
+  })
+  addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
+  addSlider({
+    label = "FADE_ALPHA",
+    min = 0,
+    max = 100,
+    step = 5,
+    get = function(db) return toPercent(db.fadeAlpha) end,
+    set = function(value) ns.SetDeferred("fadeAlpha", value / 100) end,
+    format = function(value) return value .. "%" end,
+  })
+end
+
+-- Reihenfolge der Stat-Zeilen (rowOrder): Stat wählen (nur eingeschaltete), dann nach oben oder unten
+local function addRowOrderSection()
+  local WindowModel = ns.WindowModel
+  local selected  -- gewählte Stat-Einstellung; ohne Wahl die erste eingeschaltete
+  local function current(db)
+    local shown = WindowModel.ShownStats(db)
+    for _, stat in ipairs(shown) do
+      if stat.setting == selected then return selected end
+    end
+    return shown[1] and shown[1].setting or ""
+  end
+  addSection("SECTION_ROW_ORDER")
+  builder.AddCycleButton({
+    label = "ROW_ORDER_STAT",
+    choices = function()
+      local list = {}
+      for i, stat in ipairs(WindowModel.ShownStats(ns.db)) do list[i] = { key = stat.setting, label = stat.label } end
+      if #list == 0 then list[1] = { key = "" } end
+      return list
+    end,
+    get = current,
+    set = function(key)
+      selected = key
+      builder.Refresh(ns.db)
+    end,
+    nameOf = function(key)
+      for _, stat in ipairs(ns.STAT_LINES) do
+        if stat.setting == key then return L[stat.label] end
+      end
+      return L.ROW_ORDER_NONE
+    end,
+  })
+  local function move(delta)
+    return function()
+      selected = current(ns.db)
+      if selected ~= "" then WindowModel.MoveStat(ns.db, selected, delta) end
+    end
+  end
+  builder.AddButtonRow({
+    { label = "ROW_ORDER_UP", onClick = move(-1) },
+    { label = "ROW_ORDER_DOWN", onClick = move(1) },
+    { label = "ROW_ORDER_RESET", onClick = function() ns.Set("rowOrder", "") end },
+  })
+end
+
 -- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
 local function addFrameScaleSlider(label, id)
   local Frames = ns.Frames
@@ -299,13 +434,12 @@ addToggles({
   toggle("SHOW_TIMER", "showTimer"),
   toggle("LOCK_FRAME", "locked"),
   toggle("SHOW_XP_BAR", "showXpBar"),
-  toggle("COMPACT_MODE", "compactMode"),
-  toggle("HORIZONTAL_LAYOUT", "horizontalLayout"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
   toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
   toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end),
 })
 addHint("OPTIONS_HINT")
+addDisplaySection()
 addThemeSection()
 addSection("SECTION_LANGUAGE")
 addLanguageChooser()
@@ -335,6 +469,7 @@ for _, group in ipairs(ns.STAT_GROUPS) do
     addButton("INSTANCE_RESET", function() ns.ConfirmInstanceReset() end)
   end
 end
+addRowOrderSection()
 addSection("SECTION_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
 addSlider({
@@ -856,6 +991,7 @@ addSlider({
   format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
 addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
+addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
 addSlider({
   label = "SPLIT_LIST_ROWS",
   min = ns.SplitList.MIN_ROWS,
