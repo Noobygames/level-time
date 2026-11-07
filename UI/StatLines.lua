@@ -336,7 +336,9 @@ ns.STAT_LINES = {
   } },
 }
 
--- Gruppen für die Einstellungen (Reihenfolge der Abschnitte); jede Stat-Zeile nennt ihre group
+-- Gruppen für die Einstellungen: nur die Reihenfolge der Abschnitte (weicht von der Reihenfolge der Zeilen ab);
+-- jede Stat-Zeile nennt ihre group. Dass jede group hier steht und jede Gruppe Zeilen hat, prüft
+-- tests/stat_presets_test.lua, ebenso, dass die Voreinstellungen nur vorhandene Stat-Einstellungen nennen.
 ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_LOOT", "STAT_GROUP_INSTANCE",
   "STAT_GROUP_TIME_MONEY" }
 
