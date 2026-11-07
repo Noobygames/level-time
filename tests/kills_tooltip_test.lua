@@ -69,6 +69,16 @@ local function noLine(description, unit)
   expect(description, #tooltipLines, 0)
 end
 noLine("Spieler", { name = "Aragorn", level = 10, hostile = true, isPlayer = true })
+-- Spieler: gar nicht erst rechnen (Roadmap 381)
+local killsToLevel = MobXp.KillsToLevel
+local computed = { count = 0 }
+MobXp.KillsToLevel = function(...)
+  computed.count = computed.count + 1
+  return killsToLevel(...)
+end
+noLine("Spieler ohne Rechnung", { name = "Norfire", level = 10, hostile = true, isPlayer = true })
+expect("Spieler: nicht gerechnet", computed.count, 0)
+MobXp.KillsToLevel = killsToLevel
 noLine("freundlich", { name = "Wache", level = 10 })
 noLine("tot", { name = "Wolf", level = 10, hostile = true, dead = true })
 noLine("geheime Stufe", { name = "Wolf", level = wow.SECRET, hostile = true })
