@@ -1149,6 +1149,10 @@ ns.locales = {
     ALERT_TOGGLE_RARE_FLASH = "Dabei Taskleiste blinken",
     ALERT_TOGGLE_RARE_FLASH_TIP = "Lässt bei „Rare gesichtet“ zusätzlich das WoW-Symbol in der Taskleiste blinken, falls das Spiel im Hintergrund läuft.",
     ALERT_RARE_SPOTTED = "Rare gesichtet: %s",
+    QUEST_ITEM_TOOLTIP_TOGGLE = "Quest-Gegenstände im Tooltip",
+    QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "Der Tooltip eines Gegenstands nennt die offene Quest, für die er gebraucht wird, mit Stand (z.B. 3/8). Gehört er nur zu erledigten Quests: „Quest erledigt – verkaufbar“. Aus gelernten Daten und den Zieltexten im Questlog.",
+    QUEST_ITEM_FOR_QUEST = "Für Quest: %s",
+    QUEST_ITEM_DONE = "Quest erledigt – verkaufbar",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2291,6 +2295,10 @@ ns.locales = {
     ALERT_TOGGLE_RARE_FLASH = "Flash the taskbar too",
     ALERT_TOGGLE_RARE_FLASH_TIP = "Also flashes the WoW icon in the taskbar on \"Rare spotted\" when the game runs in the background.",
     ALERT_RARE_SPOTTED = "Rare spotted: %s",
+    QUEST_ITEM_TOOLTIP_TOGGLE = "Quest items in the tooltip",
+    QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "The tooltip of an item names the open quest that needs it, with progress (e.g. 3/8). If it only belongs to finished quests: \"Quest done – sellable\". From learned data and the objective texts in the quest log.",
+    QUEST_ITEM_FOR_QUEST = "For quest: %s",
+    QUEST_ITEM_DONE = "Quest done – sellable",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3433,6 +3441,10 @@ ns.locales = {
     ALERT_TOGGLE_RARE_FLASH = "Faire clignoter la barre des tâches",
     ALERT_TOGGLE_RARE_FLASH_TIP = "Fait aussi clignoter l'icône de WoW dans la barre des tâches lors de « Rare repéré » si le jeu est en arrière-plan.",
     ALERT_RARE_SPOTTED = "Rare repéré : %s",
+    QUEST_ITEM_TOOLTIP_TOGGLE = "Objets de quête dans l'infobulle",
+    QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "L'infobulle d'un objet indique la quête ouverte qui en a besoin, avec la progression (p. ex. 3/8). S'il n'appartient qu'à des quêtes terminées : « Quête terminée – vendable ». D'après les données apprises et les objectifs du journal.",
+    QUEST_ITEM_FOR_QUEST = "Pour la quête : %s",
+    QUEST_ITEM_DONE = "Quête terminée – vendable",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4575,6 +4587,10 @@ ns.locales = {
     ALERT_TOGGLE_RARE_FLASH = "Parpadear la barra de tareas",
     ALERT_TOGGLE_RARE_FLASH_TIP = "Hace también parpadear el icono de WoW en la barra de tareas con «Raro avistado» si el juego está en segundo plano.",
     ALERT_RARE_SPOTTED = "Raro avistado: %s",
+    QUEST_ITEM_TOOLTIP_TOGGLE = "Objetos de misión en el tooltip",
+    QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "El tooltip de un objeto nombra la misión abierta que lo necesita, con el progreso (p. ej. 3/8). Si solo pertenece a misiones terminadas: «Misión terminada – se puede vender». Con datos aprendidos y los objetivos del registro.",
+    QUEST_ITEM_FOR_QUEST = "Para la misión: %s",
+    QUEST_ITEM_DONE = "Misión terminada – se puede vender",
   },
 }
 

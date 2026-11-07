@@ -2500,3 +2500,25 @@ Meldung bei Plakette/Ziel/Mouseover (ja/nein):
 Taskleiste blinkt (ja/nein):
 Fehler:
 ```
+
+### 121. Quest-Gegenstand im Tooltip (Roadmap 349)
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Gegenstände im Tooltip“ an (dazu am besten „Questgegner und -gegenstände lernen“). Eine Sammelquest offen haben und einige Gegenstände dafür in der Tasche.
+
+1. Tooltip eines solchen Gegenstands in der Tasche: „Für Quest: Name (3/8)“ in Gelb.
+2. Ein Gegenstand, dessen Name nicht im Zieltext steht (z.B. „Schuppe“ für „Schuppen gesammelt“): erscheint die Zeile erst nach dem Lernen (zweite Beute)?
+3. Quest abgeben, übrig gebliebener Gegenstand: „Quest erledigt – verkaufbar“ in Grau.
+4. Retail/Forever: Zeile auch im Tooltip von Händler, Beute-Fenster und Chat-Links?
+
+**Erwartet:** Zeile nur einmal pro Tooltip, keine Lua-Fehler; keine Zeile bei normalen Gegenständen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Offene Quest mit Stand (ja/nein):
+„verkaufbar“ nach Abgabe (ja/nein):
+Fehler:
+```

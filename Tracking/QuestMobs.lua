@@ -252,6 +252,21 @@ function QuestMobs.ItemsOf(questID)
   return items
 end
 
+-- Alle Quests (auch abgegebene), zu denen ein Gegenstand laut gelernten Daten gehört: Liste der Quest-IDs
+function QuestMobs.QuestsOfItem(itemID)
+  local quests = {}
+  for questID, learned in pairs(LevelTimerStatsDB and LevelTimerStatsDB.questMobs or {}) do
+    for _, data in pairs(learned) do
+      if confirmed(data.items[itemID]) then
+        quests[#quests + 1] = questID
+        break
+      end
+    end
+  end
+  table.sort(quests)
+  return quests
+end
+
 -- Stand zum Gegner aus dem Questlog: "Titel (3/8)" bzw. "3/8" und der Treffer; nil ohne gelerntes offenes Ziel
 function QuestMobs.ProgressOf(name)
   local hits = QuestMobs.ForMob(name)

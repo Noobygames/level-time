@@ -139,6 +139,7 @@ Assist\Merchant.lua
 Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
 Assist\RewardHint.lua
+Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua

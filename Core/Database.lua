@@ -152,6 +152,7 @@ local SETTINGS_DEFAULTS = {
   warnQuestLogFull = false,   -- Hinweis bei fast vollem Questlog
   rewardHint = false,         -- Goldmünze und Itemlevel-Gewinn auf Questbelohnungen (RewardHint.lua)
   questEfficiencyTooltip = false, -- "Bisher: Ø Dauer, XP/min" an Quest-Links (QuestEfficiency.lua)
+  questItemTooltip = false,   -- Item-Tooltip nennt die Quest des Gegenstands (QuestItemTooltip.lua)
   questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
   -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
