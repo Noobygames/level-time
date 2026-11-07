@@ -217,6 +217,7 @@ UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua
 Core\DebugChecks.lua

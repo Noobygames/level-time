@@ -837,3 +837,21 @@ check("371.blizzardFrames", function()
     editOverlays = ns.db.editBlizzardFrames, minimapAlpha = method(_G.Minimap, "GetAlpha"),
     minimapEffectiveAlpha = method(_G.Minimap, "GetEffectiveAlpha"), entries = chunked(entries) }
 end)
+
+-- 403: Eintrag im Blizzard-Einstellungsmenü: welche Schnittstelle der Client hat, ob die Kategorie steht (ID), Strata
+-- von SettingsPanel gegen unser Fenster (unser DIALOG muss darüber liegen)
+check("403.blizzardSettings", function()
+  local category = ns.BlizzardSettings.category
+  local settings = _G.Settings
+  local hasSettings = type(settings) == "table"
+  return {
+    settings = hasSettings,
+    canvasApi = hasSettings and type(settings.RegisterCanvasLayoutCategory) == "function",
+    legacyApi = type(_G.InterfaceOptions_AddCategory) == "function",
+    registered = category ~= nil,
+    categoryId = type(category) == "table" and method(category, "GetID") or nil,
+    canvasShown = method(ns.BlizzardSettings.canvas, "IsVisible"),
+    panelStrata = method(_G.SettingsPanel, "GetFrameStrata"),
+    optionsStrata = method(_G.LevelTimerOptions, "GetFrameStrata"),
+  }
+end)

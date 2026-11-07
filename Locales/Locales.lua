@@ -1409,6 +1409,8 @@ ns.locales = {
     ROW_XP_BATTLEGROUND_SHORT = "XP BG",
     ROW_SPENT_OTHER_SHORT = "Sonst. Ausg.",
     ROW_INCOME_AUCTION_SHORT = "AH",
+    BLIZZARD_SETTINGS_TEXT = "Statistiken je Level und Session, Speedrun-Splits, Hinweise und Komfort. Alle Einstellungen stehen im eigenen Fenster mit Suche (auch /lt).",
+    BLIZZARD_SETTINGS_OPEN = "Level-Time-Einstellungen öffnen",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2811,6 +2813,8 @@ ns.locales = {
     ROW_XP_BATTLEGROUND_SHORT = "XP BG",
     ROW_SPENT_OTHER_SHORT = "Other spent",
     ROW_INCOME_AUCTION_SHORT = "AH",
+    BLIZZARD_SETTINGS_TEXT = "Statistics per level and session, speedrun splits, notices and comfort features. All settings live in their own window with search (also /lt).",
+    BLIZZARD_SETTINGS_OPEN = "Open Level Time settings",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -4213,6 +4217,8 @@ ns.locales = {
     ROW_XP_BATTLEGROUND_SHORT = "PX CdB",
     ROW_SPENT_OTHER_SHORT = "Autres dép.",
     ROW_INCOME_AUCTION_SHORT = "HV",
+    BLIZZARD_SETTINGS_TEXT = "Statistiques par niveau et par session, splits de speedrun, notifications et confort. Tous les paramètres sont dans une fenêtre dédiée avec recherche (aussi /lt).",
+    BLIZZARD_SETTINGS_OPEN = "Ouvrir les paramètres de Level Time",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -5615,6 +5621,8 @@ ns.locales = {
     ROW_XP_BATTLEGROUND_SHORT = "PX CB",
     ROW_SPENT_OTHER_SHORT = "Otros gastos",
     ROW_INCOME_AUCTION_SHORT = "Subasta",
+    BLIZZARD_SETTINGS_TEXT = "Estadísticas por nivel y por sesión, splits de speedrun, avisos y comodidad. Todos los ajustes están en su propia ventana con búsqueda (también /lt).",
+    BLIZZARD_SETTINGS_OPEN = "Abrir los ajustes de Level Time",
   },
 }
 

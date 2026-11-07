@@ -137,6 +137,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **144. Blizzard-Einstellungsmenü, Datenteil (Roadmap 403)**: check `403.blizzardSettings` (Settings/InterfaceOptions vorhanden, Kategorie-ID, Strata von SettingsPanel und unserem Fenster), event `ADDON_ACTION_BLOCKED`
 - **132. Flugzeiten-Schätzung, Datenteil (Roadmap 370)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 - **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
 - **134. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
@@ -2116,5 +2117,27 @@ Client (Retail/Era/TBC/Forever):
 richtige Unterseite je Anzeige (ja/nein, welche nicht):
 Einblendung klickdurchlässig (ja/nein):
 Timer-Anzeigen stören (ja/nein):
+Fehler:
+```
+
+### 144. Eintrag im Blizzard-Einstellungsmenü (Roadmap 403)
+
+- [ ] geprüft
+
+Esc > Optionen > Reiter „AddOns“ > „Level Time“.
+
+1. Seite zeigt Titel, Kurztext (umbricht, nicht abgeschnitten) und den Button „Level-Time-Einstellungen öffnen“.
+2. Button: unser Fenster öffnet über dem Blizzard-Menü (nicht dahinter); Esc schließt erst unser Fenster, dann das Menü.
+3. Danach im Blizzard-Menü eine Einstellung ändern und „Schließen“: keine Meldung „Aktion blockiert“/kein Taint
+   (BugSack leer), Tastenbelegungen bleiben gespeichert.
+4. Französisch/Spanisch: Button-Text passt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Eintrag vorhanden (ja/nein):
+Fenster liegt oben (ja/nein):
+Taint/Fehler beim Schließen (ja/nein):
 Fehler:
 ```
