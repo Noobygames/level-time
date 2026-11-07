@@ -147,6 +147,11 @@ local strings = {
     SG_FORM_SKILL = "Beruf (Name wie im Spiel)",
     SG_GOAL_SKILL = "%s auf %d",
     SG_ERR_SKILL = "Gib den Namen des Berufs an.",
+    SG_KIND_OWNED = "Besitz",
+    SG_USAGE_OWNED = "add owned <Link/ID> <Anzahl> [bank] (in den Taschen haben)",
+    SG_FORM_WITH_BANK = "Bank mitzählen",
+    SG_GOAL_OWNED = "%s besitzen (%dx)",
+    SG_WITH_BANK = "Taschen und Bank",
   },
   enUS = {
     SG_TITLE = "Level Time Goals",
@@ -291,6 +296,11 @@ local strings = {
     SG_FORM_SKILL = "Profession (name as in game)",
     SG_GOAL_SKILL = "%s to %d",
     SG_ERR_SKILL = "Enter the name of the profession.",
+    SG_KIND_OWNED = "Owned",
+    SG_USAGE_OWNED = "add owned <link/ID> <amount> [bank] (have in your bags)",
+    SG_FORM_WITH_BANK = "Include bank",
+    SG_GOAL_OWNED = "Own %s (%dx)",
+    SG_WITH_BANK = "Bags and bank",
   },
   frFR = {
     SG_TITLE = "Level Time Goals",
@@ -435,6 +445,11 @@ local strings = {
     SG_FORM_SKILL = "Métier (nom du jeu)",
     SG_GOAL_SKILL = "%s à %d",
     SG_ERR_SKILL = "Indiquez le nom du métier.",
+    SG_KIND_OWNED = "Possédés",
+    SG_USAGE_OWNED = "add owned <lien/ID> <nombre> [bank] (dans les sacs)",
+    SG_FORM_WITH_BANK = "Compter la banque",
+    SG_GOAL_OWNED = "Posséder %s (%dx)",
+    SG_WITH_BANK = "Sacs et banque",
   },
   esES = {
     SG_TITLE = "Level Time Goals",
@@ -579,6 +594,11 @@ local strings = {
     SG_FORM_SKILL = "Profesión (nombre del juego)",
     SG_GOAL_SKILL = "%s a %d",
     SG_ERR_SKILL = "Indica el nombre de la profesión.",
+    SG_KIND_OWNED = "En posesión",
+    SG_USAGE_OWNED = "add owned <enlace/ID> <cantidad> [bank] (en las bolsas)",
+    SG_FORM_WITH_BANK = "Contar el banco",
+    SG_GOAL_OWNED = "Tener %s (%dx)",
+    SG_WITH_BANK = "Bolsas y banco",
   },
 }
 

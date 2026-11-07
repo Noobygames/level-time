@@ -2482,3 +2482,19 @@ Startwert stimmt (ja/nein):
 Steigen zählt (ja/nein):
 Fehler:
 ```
+
+### 174. Items besitzen (Roadmap 298)
+
+- [ ] geprüft
+
+1. `/sg add owned <Link> 20`: Karte zeigt den Bestand mit Item-Symbol; looten, kaufen, verkaufen, Bank-Fach räumen
+   ändern den Stand; mit „Bank mitzählen“ nach einmal Bank öffnen auch die Bank.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bestand folgt (ja/nein):
+Bank mitgezählt (ja/nein):
+Fehler:
+```
