@@ -147,11 +147,11 @@ function OptionsBuilder.New(options)
   local toggleCells = {}    -- { checkbox, column, y } aller Schalter; Spaltenbreite setzt fitWidth
   local chooserRows = {}    -- { label, tabs } je Auswahlzeile; Breite prüft fitWidth
   local page                -- Seite, auf der die Bausteine gerade anlegen
+  local wantedHeight        -- Höhe der längsten Seite (Finish); begrenzt auf maxPanelHeight
 
   local function addRefresher(refresh, owner)
     table.insert(refreshers, { run = refresh, owner = owner })
   end
-
 
   function builder.OnRefresh(refresh)
     addRefresher(refresh, page)
@@ -845,14 +845,13 @@ function OptionsBuilder.New(options)
     endItem()
   end
 
-  -- Nach dem letzten Baustein: Höhe für die längste Seite, damit das Fenster beim Reiterwechsel
-  -- nicht springt; erste Seite zeigen
   -- Höher als der Bildschirm wird das Fenster nicht; der Rest scrollt (Mausrad)
-  local wantedHeight
   local function maxPanelHeight()
     return math.floor(UIParent:GetHeight() * MAX_SCREEN_FRACTION / panel:GetScale())
   end
 
+  -- Nach dem letzten Baustein: Höhe für die längste Seite, damit das Fenster beim Reiterwechsel
+  -- nicht springt; erste Seite zeigen
   function builder.Finish()
     local lowestBottom = CONTENT_TOP
     for _, entry in ipairs(pages) do
@@ -923,12 +922,15 @@ function OptionsBuilder.New(options)
     return widest > 0 and widest + SIDEBAR_GAP or 0
   end
 
+  -- Platz, den ein Button für seinen Text braucht
+  local function fitButton(button)
+    return button:GetTextWidth() + BUTTON_TEXT_PADDING
+  end
+
   -- Beide Button-Spalten sind gleich breit: so breit wie der längste Text, doppelt plus Abstand
   local function footerWidth()
     local widest = 0
-    for _, button in ipairs(footerButtons) do
-      widest = math.max(widest, button:GetTextWidth() + BUTTON_TEXT_PADDING)
-    end
+    for _, button in ipairs(footerButtons) do widest = math.max(widest, fitButton(button)) end
     return 2 * widest + FOOTER_COLUMN_GAP
   end
 
@@ -937,7 +939,7 @@ function OptionsBuilder.New(options)
     local widest = 0
     for _, widgets in ipairs(buttonRows) do
       local width = BUTTON_ROW_GAP * (#widgets - 1)
-      for _, button in ipairs(widgets) do width = width + button:GetTextWidth() + BUTTON_TEXT_PADDING end
+      for _, button in ipairs(widgets) do width = width + fitButton(button) end
       widest = math.max(widest, width)
     end
     return widest
