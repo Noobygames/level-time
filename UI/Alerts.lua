@@ -1,24 +1,14 @@
--- Große Einblendungen oben in der Bildschirmmitte für Stream-Momente: Level-Up, Rare- und Elite-Kill,
--- epische Beute, Beinahe-Tod. Jede Art ist einzeln schaltbar (Einstellungen alert*), alle aus.
--- Aussehen: alertStyle (Text oder Banner = Karte mit Symbol, Lib/Card.lua), alertDuration, alertSound; Position und Größe
--- über Lib/Frames.lua (Edit-Modus). Dieselbe Einblendung zeigt auch Hinweise (Alerts.Notify).
--- Quellen: ns.OnLevelStarted und neue Journal-Einträge (Journal.OnAdd), kein eigenes Event-Parsing.
--- In Dungeons und Raids ist fast jeder Gegner Elite: dort keine Elite-Einblendung (IsInInstance).
--- In Raids ist epische Beute normal: dort keine Beute-Einblendung.
+-- Große Einblendungen oben in der Bildschirmmitte: Warteschlange, Anzeige (Banner oder Karte) und Hinweise
+-- (Alerts.Notify). Aussehen: alertStyle (Text oder Banner = Karte mit Symbol, Lib/Card.lua), alertDuration, alertSound.
+-- Die Arten samt Auslösern (Level-Up, Rare, Elite, Beute, ...) stehen in UI/AlertTriggers.lua, Position und
+-- Edit-Modus in UI/AlertPosition.lua.
 local _, ns = ...
-local L = ns.L
-local Widgets = ns.Widgets
-local Journal = ns.Journal
-local Classification = ns.Classification
 
 local Alerts = {}
 ns.Alerts = Alerts
 
 local FADE_IN_SECONDS = 0.25  -- weich einblenden
 local FADE_SECONDS = 1       -- nach der Anzeigedauer ausblenden
-local DEFAULT_POSITION = { "TOP", "TOP", 0, -160 }
-local EPIC_QUALITY = 4
-local GROUP_INSTANCES = { party = true, raid = true }  -- Instanzarten von IsInInstance mit Elite-Gegnern
 local RAID_WARNING_SOUND = SOUNDKIT and SOUNDKIT.RAID_WARNING or 8959  -- in allen Clients gleich
 -- Einstellung alertStyle: nur Text oder Banner (Karte mit Symbol wie die Hinweise)
 Alerts.STYLE_TEXT = "text"
@@ -29,7 +19,7 @@ local MAX_TEXT_WIDTH = 520   -- längere Texte brechen um
 local MAX_QUEUE = 4          -- wartende Einblendungen; bei mehr fällt die älteste weg
 local QUEUED_HOLD = 1.5      -- Anzeigedauer, solange weitere warten
 local Theme = ns.Theme
-local COLORS = {
+Alerts.COLORS = {
   levelUp = Theme.COLORS.gold,
   rare = { 0.75, 0.75, 1 },
   elite = { 1, 0.5, 0.1 },
@@ -38,9 +28,13 @@ local COLORS = {
   quest = Theme.COLORS.success,
 }
 Alerts.WARNING_COLOR = Theme.COLORS.warning   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
-Alerts.REMINDER_COLOR = COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
+Alerts.REMINDER_COLOR = Alerts.COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
+
+Alerts.DEFAULT_POSITION = { "TOP", "TOP", 0, -160 }
+local DEFAULT_POSITION = Alerts.DEFAULT_POSITION
 
 local frame = CreateFrame("Frame", "LevelTimerAlert", UIParent)
+Alerts.frame = frame  -- Banner-Rahmen; an ihm hängen Position und Größe (UI/AlertPosition.lua)
 frame:SetSize(1, 1)
 frame:SetPoint(DEFAULT_POSITION[1], UIParent, DEFAULT_POSITION[2], DEFAULT_POSITION[3], DEFAULT_POSITION[4])
 frame:SetFrameStrata("HIGH")
@@ -55,6 +49,7 @@ frame:Hide()
 local notice = ns.Card.Create("LevelTimerNotice")
 notice.frame:SetFrameStrata("HIGH")
 notice.frame:SetPoint("TOP", frame, "TOP")
+Alerts.noticeFrame = notice.frame
 
 local function iconPath(name)
   return "Interface\\Icons\\" .. name
@@ -89,7 +84,7 @@ Alerts.ICONS = {
 local shownAt
 local moving  -- Edit-Modus: ein Beispiel bleibt stehen
 
-local function isBanner()
+function Alerts.IsBanner()
   return ns.db and ns.db.alertStyle == Alerts.STYLE_BANNER
 end
 
@@ -204,121 +199,16 @@ function Alerts.Show(message, color, options)
   display(message, color, options.sound, options.notice)
 end
 
--- Laufende und wartende Einblendungen verwerfen
-function Alerts.Clear()
+-- Sofort zeigen und die Warteschlange leeren, auch im Edit-Modus (Beispiel beim Einschalten des Edit-Modus)
+function Alerts.ShowPinned(message, color, card)
+  ns.Debug("alert", "%s", message)
   queue = {}
-  held = {}
-  current = nil
-  if not moving then
-    frame:Hide()
-    notice.frame:Hide()
-  end
-end
-
----------------------------------------------------------------------------
--- Edit-Modus (Lib/Frames.lua): ein Beispiel bleibt stehen, Neues wartet und erscheint danach
----------------------------------------------------------------------------
-local function setEditing(enabled)
-  enabled = enabled and true or false
-  if enabled == (moving or false) then return end
-  if enabled then
-    local card = isBanner() and { title = L.ALERT_MOVE_HINT } or nil
-    Alerts.Show(L.ALERT_MOVE_HINT, COLORS.levelUp, { immediate = true, notice = card })  -- noch nicht im Modus: wird gezeigt
-    moving = true
-    if notice.frame:IsShown() then
-      -- Banner-Stil: Das sichtbare Beispiel ist die Karte; der (sonst versteckte) Rahmen bekommt ihre Größe, damit
-      -- die Fläche des Edit-Modus sie abdeckt; die Karte hängt an ihm
-      notice.frame:SetAlpha(1)
-      frame:SetSize(notice.frame:GetWidth(), notice.frame:GetHeight())
-      frame:SetAlpha(0)
-      frame:Show()
-    else
-      frame:SetAlpha(1)
-    end
-    return
-  end
-  moving = false
-  frame:SetSize(1, 1)
-  frame:Hide()
-  notice.frame:Hide()
-  current = nil
-  local waiting = table.remove(queue, 1)
-  if waiting then display(unpack(waiting, 1, 5)) end
-end
-
--- Die Karte folgt der Größe des Rahmens. Kein Rechtsklick zu den Einstellungen: die Einblendung steht mitten im Bild
--- und bleibt klickdurchlässig (sonst schluckte sie im Kampf Klicks auf Gegner)
-ns.Frames.Register({
-  id = "alert", frame = frame, label = "EDIT_FRAME_ALERT", default = DEFAULT_POSITION,
-  settingsPage = "OPTIONS_PAGE_ALERT_LOOK", preview = setEditing,
-  onScale = function(scale) notice.frame:SetScale(scale) end,
-})
-
-function Alerts.IsEditing()
-  return moving or false
-end
-
--- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
-local function noticeCard(entry)
-  return { icon = entry.icon, texture = entry.texture, title = entry.title or entry.text,
-    body = entry.title and entry.text or nil }
-end
-
--- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander).
--- notices = Text, { text, title, icon } oder eine Liste davon; icon siehe Alerts.ICONS
-function Alerts.Notify(notices, color)
-  if type(notices) == "string" or notices.text then notices = { notices } end
-  for _, entry in ipairs(notices) do
-    if type(entry) == "string" then entry = { text = entry } end
-    ns.Print(entry.text)
-    Alerts.Show(entry.text, color, { notice = noticeCard(entry) })
-  end
-end
-
--- Arten: Einstellung, inCombat ("hold" = im Kampf zurückhalten und danach zeigen), Farbe, Symbol (Alerts.ICONS), Text aus einem Wert (Level, Name, Link, Prozent) und Beispielwert
--- für /lt debug alert
-Alerts.KINDS = {
-  levelUp = { setting = "alertLevelUp", color = COLORS.levelUp, format = "ALERT_LEVEL_UP", inCombat = "hold",
-    sample = function() return ns.level + 1 end,
-    sampleBody = function() local gains = ns.LevelGains.Sample(); return gains and table.concat(ns.LevelGains.Lines(gains), "\n") end },
-  rare = { setting = "alertRareKill", color = COLORS.rare, format = "ALERT_RARE_KILL",
-    sample = function() return "Hogger" end },
-  elite = { setting = "alertEliteKill", color = COLORS.elite, format = "ALERT_ELITE_KILL",
-    sample = function() return "Hogger" end },
-  loot = { setting = "alertEpicLoot", color = COLORS.loot, format = "ALERT_EPIC_LOOT",
-    sample = function() return "[Thunderfury]" end },
-  nearDeath = { setting = "alertNearDeath", color = COLORS.nearDeath, format = "ALERT_NEAR_DEATH",
-    sample = function() return 4 end },
-  questComplete = { setting = "alertQuestComplete", color = COLORS.quest, format = "ALERT_QUEST_COMPLETE", inCombat = "hold",
-    sample = function() return "Hogger" end },
-  rareSpotted = { setting = "alertRareSpotted", color = COLORS.rare, format = "ALERT_RARE_SPOTTED",
-    sample = function() return "Mor'Ladim" end },
-  questObjective = { setting = "alertQuestObjective", color = COLORS.quest, format = "ALERT_QUEST_OBJECTIVE", inCombat = "hold",
-    sample = function() return "Hogger: 1/1" end },
-}
-
--- Text und Karte einer Art: im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
-local function kindMessage(kind, value, body)
-  local message = string.format(L[Alerts.KINDS[kind].format], value)
-  return message, isBanner() and { icon = Alerts.ICONS[kind], title = message, body = body } or nil
-end
-
--- Nur, wenn die Art eingeschaltet ist
-local function alert(kind, value, body)
-  local definition = Alerts.KINDS[kind]
-  if not ns.db[definition.setting] then return end
-  local message, card = kindMessage(kind, value, body)
-  Alerts.Show(message, definition.color, { sound = true, notice = card, combat = definition.inCombat })
-end
-
--- Einblendung einer Art für andere Module (Quest fertig, ...), nur wenn die Art eingeschaltet ist
-function Alerts.Raise(kind, value, body)
-  alert(kind, value, body)
+  display(message, color, nil, card)
 end
 
 -- Beispiel (Vorschau, /lt debug alert) sofort zeigen, ohne wartende echte Einblendungen zu verwerfen: eine gerade
 -- sichtbare echte kommt vorne zurück in die Warteschlange und erscheint nach dem Beispiel noch einmal ganz
-local function showSample(message, color, card, sound)
+function Alerts.ShowSampleMessage(message, color, card, sound)
   if moving then
     -- Im Edit-Modus wartet auch das Beispiel und erscheint danach
     if #queue >= MAX_QUEUE then table.remove(queue, 1) end
@@ -330,67 +220,49 @@ local function showSample(message, color, card, sound)
   display(message, color, sound, card, true)
 end
 
--- Beispiel unabhängig von der Einstellung (Fehlersuche); false bei unbekannter Art
-function Alerts.ShowSample(kind)
-  local definition = Alerts.KINDS[kind]
-  if not definition then return false end
-  local body = ns.db.levelUpGains and definition.sampleBody and definition.sampleBody() or nil
-  local message, card = kindMessage(kind, definition.sample(), body)
-  showSample(message, definition.color, card, true)
-  return true
+-- Edit-Modus: Das sichtbare Beispiel bleibt stehen, Neues wartet. Beim Beenden verschwindet das Beispiel und die
+-- erste wartende Einblendung erscheint.
+function Alerts.SetPaused(paused)
+  moving = paused
+  if paused then return end
+  frame:SetSize(1, 1)
+  frame:Hide()
+  notice.frame:Hide()
+  current = nil
+  local waiting = table.remove(queue, 1)
+  if waiting then display(unpack(waiting, 1, 5)) end
 end
 
--- Erst wenn der Zuwachs feststeht (LevelGains), damit die Karte Leben und Werte zeigen kann
-ns.LevelGains.OnReady(function(level, gains)
-  if ns.db.levelUpWindow then return end  -- das Level-Up-Fenster zeigt dieselben Zuwächse
-  local lines = ns.db.levelUpGains and gains and ns.LevelGains.Lines(gains)
-  alert("levelUp", level, lines and table.concat(lines, "\n") or nil)
-end)
-
-local function instanceType()
-  local inInstance, kind = IsInInstance()
-  return inInstance and kind or nil
+function Alerts.IsEditing()
+  return moving or false
 end
 
-local handlers = {
-  killLog = function(entry)
-    local name = entry.name or L.UNKNOWN_NAME
-    if Classification.IsRare(entry.classification) and ns.db.alertRareKill then
-      alert("rare", name)
-    elseif Classification.IsElite(entry.classification) and not GROUP_INSTANCES[instanceType()] then
-      alert("elite", name)
-    end
-  end,
-  lootLog = function(entry)
-    if (entry.quality or 0) >= EPIC_QUALITY and instanceType() ~= "raid" then
-      alert("loot", entry.link or entry.name or "?")
-    end
-  end,
-  nearDeathLog = function(entry)
-    alert("nearDeath", entry.lowestPercent)
-  end,
-}
-
-Journal.OnAdd(function(logName, entry)
-  local handler = handlers[logName]
-  if handler then handler(entry) end
-end)
-
--- Vorschau: eine Beispiel-Einblendung mit den aktuellen Einstellungen
-local PREVIEW_ORDER = { "levelUp", "rare", "elite", "loot", "nearDeath", "notice" }
-local previewIndex = 0
-
--- Beispiel einer Hinweis-Karte (wie "Taschen fast voll"), ohne Chatzeile
-local function showNoticeSample()
-  local sample = { icon = Alerts.ICONS.bags, title = L.NOTICE_BAGS, text = L.WARN_BAGS_FULL }
-  showSample(sample.text, Alerts.WARNING_COLOR, noticeCard(sample))
+-- Laufende und wartende Einblendungen verwerfen
+function Alerts.Clear()
+  queue = {}
+  held = {}
+  current = nil
+  if not moving then
+    frame:Hide()
+    notice.frame:Hide()
+  end
 end
 
-function Alerts.Preview()
-  if moving then return end
-  previewIndex = previewIndex % #PREVIEW_ORDER + 1
-  local kind = PREVIEW_ORDER[previewIndex]
-  if kind == "notice" then showNoticeSample() else Alerts.ShowSample(kind) end
+-- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
+function Alerts.NoticeCard(entry)
+  return { icon = entry.icon, texture = entry.texture, title = entry.title or entry.text,
+    body = entry.title and entry.text or nil }
+end
+
+-- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander).
+-- notices = Text, { text, title, icon } oder eine Liste davon; icon siehe Alerts.ICONS
+function Alerts.Notify(notices, color)
+  if type(notices) == "string" or notices.text then notices = { notices } end
+  for _, entry in ipairs(notices) do
+    if type(entry) == "string" then entry = { text = entry } end
+    ns.Print(entry.text)
+    Alerts.Show(entry.text, color, { notice = Alerts.NoticeCard(entry) })
+  end
 end
 
 ns.RegisterApply(function()
