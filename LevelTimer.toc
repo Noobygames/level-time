@@ -123,7 +123,11 @@ Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
+Assist\FlightTimesData.lua
+Assist\FlightMap.lua
+Assist\FlightTimes.lua
 Assist\FlightTimer.lua
+Assist\FlightTooltip.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua

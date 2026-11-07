@@ -83,6 +83,7 @@ local SETTINGS_DEFAULTS = {
   foodSound = false,     -- Ton, wenn "Satt" da ist
   flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
   flightSound = false,   -- Ton bei der Landung
+  flightTimeTooltip = true,  -- Flugzeit im Tooltip der Flugkarte (FlightTooltip.lua), nur mit flightTimer
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)

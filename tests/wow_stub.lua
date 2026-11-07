@@ -793,11 +793,42 @@ function AcceptResurrect() comfortAction("acceptResurrect") end
 function RepopMe() comfortAction("repop") end
 C_DeathInfo = { GetSelfResurrectOptions = function() return state.selfResurrect or {} end }
 -- Beute: state.lootSlots = Anzahl; LootSlot merkt den Platz
--- Flugkarte: state.taxiNodes = { { name, type } } (type "CURRENT", "REACHABLE", ...)
+-- Flugkarte: state.taxiNodes = { { name, type, x, y, id, hops } } (type "CURRENT", "REACHABLE", ...; x/y wie
+-- TaxiNodePosition; id = nodeID aus C_TaxiMap.GetAllTaxiNodes, ohne id liefert der Client den Knoten dort nicht;
+-- hops = { { vonSlot, nachSlot }, ... } Teilstrecken, Standard eine direkte vom CURRENT-Knoten); state.taxiMapID
 function NumTaxiNodes() return #(state.taxiNodes or {}) end
 function TaxiNodeName(index) return state.taxiNodes[index].name end
 function TaxiNodeGetType(index) return state.taxiNodes[index].type end
+function TaxiNodePosition(index) local node = state.taxiNodes[index]; return node.x or 0, node.y or 0 end
 function TakeTaxiNode() end
+function GetTaxiMapID() return state.taxiMapID or 0 end
+local function taxiHops(index)
+  local node = state.taxiNodes[index]
+  if node.hops then return node.hops end
+  for slot, other in ipairs(state.taxiNodes) do
+    if other.type == "CURRENT" then return { { slot, index } } end
+  end
+  return {}
+end
+function GetNumRoutes(index) return #taxiHops(index) end
+function TaxiGetNodeSlot(index, hop, source)
+  local part = taxiHops(index)[hop]
+  return source and part[1] or part[2]
+end
+C_TaxiMap = {
+  GetAllTaxiNodes = function()
+    local nodes = {}
+    for slot, node in ipairs(state.taxiNodes or {}) do
+      if node.id then table.insert(nodes, { nodeID = node.id, slotIndex = slot, name = node.name }) end
+    end
+    return nodes
+  end,
+}
+-- Blizzards Tooltip der Flugpunkte (TaxiFrame), damit Hooks darauf greifen
+function TaxiNodeOnButtonEnter(button)
+  GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+  GameTooltip:AddLine(TaxiNodeName(button:GetID()))
+end
 function GetNumLootItems() return state.lootSlots or 0 end
 function LootSlot(slot) comfortAction("loot", slot) end
 function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end

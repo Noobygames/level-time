@@ -2,13 +2,14 @@ INSTALLER := tools/installer
 ADDONTEST := tools/addontest
 ARTWORK   := tools/artwork
 RECORDS   := tools/records
+FLIGHTS   := tools/flights
 VERSION   := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run debuglog package artwork records test test-addon test-installer test-artwork test-records vet
+.PHONY: install update dry-run debuglog package artwork records flights test test-addon test-installer test-artwork test-records test-flights vet
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -39,7 +40,12 @@ artwork:
 records:
 	go -C $(RECORDS) run . -out "$(CURDIR)/Speedrun/SpeedrunRecords.lua"
 
-test: test-addon test-installer test-artwork test-records
+# Selbst gemessene Flugzeiten aus den SavedVariables aller Flavors (nur lesen) nach Assist/FlightTimesData.lua,
+# z.B. make flights ARGS="-wow 'D:/Games/World of Warcraft'" (oder WOW_DIR)
+flights:
+	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" $(ARGS)
+
+test: test-addon test-installer test-artwork test-records test-flights
 
 # Lua-Szenarien aus tests/ gegen eine nachgebaute WoW-API.
 # -count=1: Go kennt die Lua-Dateien nicht und würde sonst veraltete Ergebnisse aus dem Cache zeigen.
@@ -55,8 +61,12 @@ test-artwork:
 test-records:
 	go -C $(RECORDS) test ./...
 
+test-flights:
+	go -C $(FLIGHTS) test ./...
+
 vet:
 	go -C $(INSTALLER) vet ./...
 	go -C $(ADDONTEST) vet ./...
 	go -C $(ARTWORK) vet ./...
 	go -C $(RECORDS) vet ./...
+	go -C $(FLIGHTS) vet ./...

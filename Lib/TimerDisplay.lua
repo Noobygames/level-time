@@ -6,7 +6,8 @@
 -- config: { name, id und label (Edit-Modus, Lib/Frames.lua), default (Position), soundKey, colors[kind],
 --   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber im Edit-Modus), pulseKind,
 --   toggleKey (Einstellung, die "Ausblenden" im Edit-Modus abschaltet), available() optional,
---   formatTime(remaining) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen.
+--   formatTime(remaining, state) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen,
+--   estimated (geschätzte Restzeit: Farbe config.colors.estimated, formatTime sieht den Zustand).
 -- spellId darf auch ein Texturpfad sein (Card nimmt beides).
 -- Einstellungen: db[soundKey] (bei "done"); Position und Größe in db.frames[id].
 local _, ns = ...
@@ -47,7 +48,8 @@ function TimerDisplay.Create(config)
       local seconds = math.ceil(remaining)
       if seconds ~= shownSeconds then
         shownSeconds = seconds
-        card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+        card.SetTime(config.formatTime and config.formatTime(seconds, current)
+          or string.format(ns.L.SECONDS_SHORT, seconds))
       end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
@@ -65,7 +67,7 @@ function TimerDisplay.Create(config)
   local function setCard(state)
     shownSeconds = nil  -- Card.Set misst mit einem Platzhalter-Text, die Zahl kommt danach neu
     card.Set({
-      color = config.colors[state.kind],
+      color = state.estimated and config.colors.estimated or config.colors[state.kind],
       icon = state.spellId,
       title = state.title or config.titleFor(state.kind),
       time = state.kind == "countdown",
@@ -98,14 +100,15 @@ function TimerDisplay.Create(config)
   end)
 
   -- Zustand aus der Prüfung: nil blendet aus, ein laufender "done" bleibt bis zum Ende stehen.
-  -- state = { kind, spellId, remaining, duration }
+  -- state = { kind, spellId, remaining, duration, title, estimated }
   function Display.Show(state)
     if override then return end
     if not state then
       if not (current and current.kind == "done") then hide() end
       return
     end
-    if current and current.kind == state.kind and current.title == state.title then
+    if current and current.kind == state.kind and current.title == state.title
+      and current.estimated == state.estimated then
       if state.kind == "countdown" then  -- nur nachführen, ohne Neuaufbau
         current.expiration = GetTime() + state.remaining
         current.duration = state.duration
@@ -116,6 +119,7 @@ function TimerDisplay.Create(config)
       kind = state.kind,
       spellId = state.spellId,
       title = state.title,
+      estimated = state.estimated,
       expiration = state.remaining and GetTime() + state.remaining or nil,
       duration = state.duration,
     })

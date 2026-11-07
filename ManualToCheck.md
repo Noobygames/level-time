@@ -137,6 +137,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **129. Flugzeiten-Schätzung, Datenteil (Roadmap 364)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 
 ---
 
@@ -1822,5 +1823,27 @@ Rufleiste weg (ja/nein):
 Kampf wartet (ja/nein):
 Zurück wie vorher (ja/nein):
 Lücke stört (ja/nein):
+Fehler:
+```
+
+### 132. Flugzeiten im Tooltip und geschätzte Restzeit (Roadmap 370)
+
+- [ ] geprüft
+
+Einstellungen > Timer > Flüge: „Flugzeiten“ und „Flugzeit im Tooltip“ an. Einen Flugmeister ansprechen.
+
+1. Maus auf ein Ziel der Flugkarte: unter Name und Preis steht „Flugzeit 2:21 (dein Flug)“ (blau) bei schon geflogenen Strecken, „~2:20 (geschätzt)“ (grau) bei anderen, sobald auf dieser Karte einmal geflogen wurde; nichts am eigenen Standort. Die Zeile passt in den Tooltip, kein doppelter Tooltip, kein Flackern.
+2. Retail/Forever mit der großen Flugkarte (Weltkarten-Stil): dasselbe auf den Flugpunkt-Symbolen.
+3. Eine nie geflogene Strecke abfliegen: die Flug-Anzeige zeigt die Restzeit grau mit „~“ (z.B. „~2:20“) und läuft herunter; nach der Landung dieselbe Strecke noch einmal: normale Farbe, ohne „~“.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“ beim Abflug über die Flugkarte, Text passt in allen vier Sprachen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltip-Zeile gemessen/geschätzt ok (ja/nein):
+Große Flugkarte (nur Retail/Forever):
+Anzeige grau mit ~, danach normal (ja/nein):
 Fehler:
 ```
