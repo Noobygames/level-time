@@ -2162,3 +2162,22 @@ nur die Kategorie zurückgesetzt (ja/nein):
 Rückgängig ok (ja/nein):
 Fehler:
 ```
+
+### 146. Einklappbare Abschnitte (Roadmap 406)
+
+- [ ] geprüft
+
+`/lt` > Komfort > Ausblenden und Komfort > Quests.
+
+1. Ausblenden zeigt die Blizzard-Elemente in Gruppen (Einheitenrahmen, Minimap/Buffs/Tracker, Aktionsleisten, Weitere).
+2. Klick auf eine Überschrift („-“ davor) klappt sie ein („+“), die Gruppen darunter rücken ohne Lücke hoch.
+3. Suche nach einem Element einer eingeklappten Gruppe (z.B. „Zielrahmen“): Gruppe klappt auf, Treffer hervorgehoben.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Gruppen sinnvoll (ja/nein):
+Einklappen ohne Lücken/Überlappung (ja/nein):
+Fehler:
+```

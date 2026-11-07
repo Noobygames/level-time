@@ -1419,6 +1419,10 @@ ns.locales = {
     OPTIONS_RESET_DONE = "Kategorie „%s“ auf Standard gesetzt. „Rückgängig“ unter der Seitenleiste stellt sie wieder her.",
     OPTIONS_RESET_UNDONE = "Kategorie „%s“ wiederhergestellt.",
     SECTION_COLLAPSE_TIP = "Klick klappt den Abschnitt ein oder aus.",
+    SECTION_BLIZZ_UNIT_FRAMES = "Einheitenrahmen",
+    SECTION_BLIZZ_MINIMAP_BUFFS = "Minimap, Buffs, Tracker",
+    SECTION_BLIZZ_BARS = "Aktionsleisten, Menü, Taschen",
+    SECTION_BLIZZ_OTHER = "Weitere",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2831,6 +2835,10 @@ ns.locales = {
     OPTIONS_RESET_DONE = "Category \"%s\" reset to defaults. \"Undo\" below the sidebar restores it.",
     OPTIONS_RESET_UNDONE = "Category \"%s\" restored.",
     SECTION_COLLAPSE_TIP = "Click to collapse or expand this section.",
+    SECTION_BLIZZ_UNIT_FRAMES = "Unit frames",
+    SECTION_BLIZZ_MINIMAP_BUFFS = "Minimap, buffs, tracker",
+    SECTION_BLIZZ_BARS = "Action bars, menu, bags",
+    SECTION_BLIZZ_OTHER = "Other",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -4243,6 +4251,10 @@ ns.locales = {
     OPTIONS_RESET_DONE = "Catégorie « %s » réinitialisée. « Annuler » sous la barre latérale la rétablit.",
     OPTIONS_RESET_UNDONE = "Catégorie « %s » rétablie.",
     SECTION_COLLAPSE_TIP = "Cliquer pour replier ou déplier cette section.",
+    SECTION_BLIZZ_UNIT_FRAMES = "Cadres d'unité",
+    SECTION_BLIZZ_MINIMAP_BUFFS = "Minicarte, buffs, suivi",
+    SECTION_BLIZZ_BARS = "Barres d'action, menu, sacs",
+    SECTION_BLIZZ_OTHER = "Autres",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -5655,6 +5667,10 @@ ns.locales = {
     OPTIONS_RESET_DONE = "Categoría «%s» restablecida. «Deshacer» bajo la barra lateral la recupera.",
     OPTIONS_RESET_UNDONE = "Categoría «%s» recuperada.",
     SECTION_COLLAPSE_TIP = "Haz clic para plegar o desplegar esta sección.",
+    SECTION_BLIZZ_UNIT_FRAMES = "Marcos de unidad",
+    SECTION_BLIZZ_MINIMAP_BUFFS = "Minimapa, beneficios, seguimiento",
+    SECTION_BLIZZ_BARS = "Barras de acción, menú, bolsas",
+    SECTION_BLIZZ_OTHER = "Otros",
   },
 }
 

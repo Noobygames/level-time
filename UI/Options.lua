@@ -899,13 +899,50 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
 end
 -- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
 -- Oberfläche, Chat und Fenster); auch im Edit-Modus direkt am Element schaltbar
+-- In Gruppen mit einklappbaren Überschriften (Roadmap 406); unbekannte Einträge landen unter "Weitere"
+local BLIZZARD_GROUPS = {
+  { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
+    "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
+  { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
+    "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
+  { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
+    "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS" } },
+}
+local function addBlizzardHideGroups()
+  local groupOf = {}
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    for _, label in ipairs(group.labels) do groupOf[label] = index end
+  end
+  local lists, rest = {}, {}
+  for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
+    entry.resetKeys = { "hiddenBlizzardFrames" }
+    local index = groupOf[entry.label]
+    if index then
+      lists[index] = lists[index] or {}
+      table.insert(lists[index], entry)
+    else
+      table.insert(rest, entry)
+    end
+  end
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    if lists[index] then
+      addSection(group.section, { collapsible = true })
+      addToggles(lists[index])
+    end
+  end
+  if #rest > 0 then
+    addSection("SECTION_BLIZZ_OTHER", { collapsible = true })
+    addToggles(rest)
+  end
+end
+
 addSubPage("COMFORT_PAGE_HIDE")
 addSection("SECTION_BLIZZARD_FRAMES")
 addHint("BLIZZARD_FRAMES_HINT")
-addToggles(ns.BlizzardHide.Toggles())
+addBlizzardHideGroups()
 -- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
 addSubPage("COMFORT_PAGE_QUESTS")
-addSection("COMFORT_PAGE_AUTOMATION")
+addSection("COMFORT_PAGE_AUTOMATION", { collapsible = true })
 addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
   toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
@@ -920,16 +957,16 @@ builder.AddTextInput({
   get = function(db) return db.questExclude end,
   set = function(text) ns.Set("questExclude", strtrim(text)) end,
 })
-addSection("SECTION_QUEST_NOTICES")
+addSection("SECTION_QUEST_NOTICES", { collapsible = true })
 addToggles({
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
   toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })
-addSection("SECTION_QUEST_LEARNING")
+addSection("SECTION_QUEST_LEARNING", { collapsible = true })
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
-addSection("SECTION_QUEST_LOG")
+addSection("SECTION_QUEST_LOG", { collapsible = true })
 addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
 -- Quest-Anzeige: Questlevel, Quest-Buttons, Tooltips und Markierungen an Gegnern und NPCs
 addSubPage("COMFORT_PAGE_QUEST_DISPLAY")
