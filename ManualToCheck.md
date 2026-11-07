@@ -2458,3 +2458,25 @@ Münze richtig (ja/nein):
 Im Questlog-Detail (ja/nein):
 Fehler:
 ```
+
+### 119. Quest-Effizienz (Roadmap 347)
+
+- [ ] geprüft
+
+Nach einigen abgegebenen Quests (mit Quest-Splits, also nach der Installation angenommen) `/lt history` > Quests > Effizienz.
+
+1. Je Quest: Abgaben, Ø Dauer, Ø XP, XP/min; Klick auf die Spaltenköpfe sortiert.
+2. Komfort > Quests: „Quest-Effizienz im Tooltip“ an. Einen Quest-Link im Chat anklicken bzw. in der Tabelle mit der Maus darüber: Zeile „Bisher: Ø 3:40, 1.250 XP/min, 2x“.
+3. Retail/Forever: zeigt die Questliste neben der Karte beim Überfahren einen Link-Tooltip mit dieser Zeile? (Wenn nicht, bitte notieren; Classic zeigt im Questlog keinen Tooltip.)
+
+**Erwartet:** Werte plausibel, Twink sieht die Werte des Main, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tabelle richtig (ja/nein):
+Tooltipzeile an Links (ja/nein):
+In der Questliste (ja/nein/kein Tooltip):
+Fehler:
+```

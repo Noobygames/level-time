@@ -198,7 +198,7 @@ local frameMethods = {
     local previous = self._scripts[name]
     self._scripts[name] = previous and function(...) previous(...); handler(...) end or handler
   end,
-  AddLine = function(self, text) self._lines = self._lines or {}; table.insert(self._lines, text) end,
+  AddLine = function(self, text) self._lines = rawget(self, "_lines") or {}; table.insert(self._lines, text) end,
   ClearLines = function(self) self._lines = {} end,
   SetOwner = function(self) self._lines = {} end,
   SetHyperlink = function(self, link) self._hyperlink = link end,

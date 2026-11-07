@@ -3,6 +3,8 @@
 --                         XP je Quest (QuestLog.RewardXp) und Anteil am aktuellen Level; Summe in der Fußzeile
 --                         ("bringt N % Level"). Hilft beim Bündeln vor dem Ruhestein. Andere Charaktere: leer, weil
 --                         nur der eigene Questlog lesbar ist.
+--   Effizienz (Roadmap 347) je Quest über alle Charaktere: Abgaben, Ø Dauer, Ø XP, XP/min
+--                         (History/QuestEfficiency.lua); sortierbar, zeigt Twinks, welche Quests sich lohnen.
 local _, ns = ...
 local L = ns.L
 local Format = ns.Format
@@ -77,4 +79,29 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   revision = function() return revision end,
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "TURN_IN_HINT",
+}))
+
+local EFFICIENCY_COLUMNS = {
+  { header = "HISTORY_QUEST", width = 170, align = LEFT, value = function(r) return r.name or L.UNKNOWN_NAME end },
+  { header = "HISTORY_TURN_INS", width = 56, value = function(r) return r.count end, sort = function(r) return r.count end },
+  { header = "HISTORY_AVERAGE_TIME", width = 64, value = function(r)
+      return r.averageSeconds and Format.Duration(r.averageSeconds) or "-"
+    end, sort = function(r) return r.averageSeconds end },
+  { header = "HISTORY_XP", width = 64, value = function(r)
+      return r.averageXp and Format.Number(math.floor(r.averageXp + 0.5)) or "-"
+    end, sort = function(r) return r.averageXp end },
+  { header = "HISTORY_XP_PER_MINUTE", width = 64, value = function(r)
+      return r.xpPerMinute and Format.Number(math.floor(r.xpPerMinute + 0.5)) or "-"
+    end, sort = function(r) return r.xpPerMinute end },
+}
+
+ns.HistoryWindow.AddView(ns.TableView.Create({
+  tab = "HISTORY_TAB_QUEST_EFFICIENCY",
+  group = GROUP,
+  columns = EFFICIENCY_COLUMNS,
+  records = function() return ns.QuestEfficiency.GetRecords() end,
+  footer = HistoryTables.CountCells,
+  revision = ns.Journal.Revision,
+  rowLink = function(r) return "quest:" .. r.questID end,
+  hint = "QUEST_EFFICIENCY_HINT",
 }))

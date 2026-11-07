@@ -82,6 +82,7 @@ History\PlayHours.lua
 History\Instances.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
+History\QuestEfficiency.lua
 History\Analysis.lua
 History\ProgressCurve.lua
 History\XpTable.lua

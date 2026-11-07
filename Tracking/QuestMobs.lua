@@ -160,7 +160,7 @@ end)
 
 ns.Loot.OnSelfLoot(function(link)
   if not ns.db.questLearning or type(link) ~= "string" then return end
-  local itemID = tonumber(link:match("item:(%d+)"))
+  local itemID = tonumber((link:match("item:(%d+)")))
   if not itemID then return end
   local now = GetTime()
   local source = lastKillBefore(now, DROP_SOURCE_SECONDS)
