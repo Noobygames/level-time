@@ -70,7 +70,7 @@ ns.RegisterEvent("PLAYER_DEAD", function() episode = nil end)
 
 -- Wiederbelebt mit wenig Leben ist kein Beinahe-Tod. PLAYER_ALIVE kommt auch beim Freilassen des Geistes.
 local function onPossiblyResurrected()
-  if not UnitIsDeadOrGhost("player") then
+  if NearDeath.IsAvailable() and not UnitIsDeadOrGhost("player") then
     resurrectedAt = GetTime()
     ns.Debug("neardeath", "resurrected at %s health", NearDeath.HealthFraction())
   end

@@ -552,7 +552,9 @@ check("reputation.factions", factions)
 check("skill.professions", professions)
 check("map.position", mapPosition)
 check("map.exploredTextures", function()
-  local textures = C_MapExplorationInfo.GetExploredMapTextures(C_Map.GetBestMapForUnit("player"))
+  local mapID = C_Map.GetBestMapForUnit("player")  -- in Instanzen nil
+  if not mapID then return "no map" end
+  local textures = C_MapExplorationInfo.GetExploredMapTextures(mapID)
   return textures and #textures
 end)
 check("instance.info", instanceInfo)
