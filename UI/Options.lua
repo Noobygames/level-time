@@ -1143,6 +1143,7 @@ addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
+  toggle("SHOW_SPLIT_HEADER", "splitListHeader"),
   toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),

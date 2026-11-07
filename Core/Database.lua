@@ -242,7 +242,8 @@ local SETTINGS_DEFAULTS = {
   showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
   showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
-  optionsAdvanced = true,  -- Einstellungsfenster: alle Bausteine; false = Modus "Einfach" (Roadmap 402)
+  optionsAdvanced = true,
+  splitListHeader = true,  -- Kopfzeile Level / Zeit / ± über der Split-Liste (UX 215)  -- Einstellungsfenster: alle Bausteine; false = Modus "Einfach" (Roadmap 402)
 }
 
 -- Zähler für Level und Session gleichermaßen. Schlüssel siehe Stats.lua.
