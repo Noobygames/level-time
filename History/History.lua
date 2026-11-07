@@ -26,14 +26,18 @@ local function newestFirst(list)
   return records
 end
 
--- Journal neueste zuerst: Journal.GetEntries liefert dieselbe Liste, solange sich nichts ändert, daher hier je Liste
--- zwischengespeichert (die Historie fragt jede Sekunde, Journale können sehr lang sein). Ergebnis nicht verändern.
-local reversedJournals = setmetatable({}, { __mode = "k" })
+-- Journal neueste zuerst: je Liste von Journal.GetEntries und deren Länge zwischengespeichert (die Liste wächst an
+-- Ort und Stelle). Ergebnis nicht verändern. Die Journal-Tabellen der Historie lesen die Liste direkt (appendOnly).
+local reversedJournals = setmetatable({}, { __mode = "k" })  -- [Liste] = { count, records }
 
 local function journalNewestFirst(characterKey, logName)
   local list = ns.Journal.GetEntries(characterKey, logName)
-  reversedJournals[list] = reversedJournals[list] or newestFirst(list)
-  return reversedJournals[list]
+  local cached = reversedJournals[list]
+  if not cached or cached.count ~= #list then
+    cached = { count = #list, records = newestFirst(list) }
+    reversedJournals[list] = cached
+  end
+  return cached.records
 end
 
 function History.GetCharacter(characterKey)

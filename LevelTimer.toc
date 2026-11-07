@@ -166,6 +166,7 @@ UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
 Lib\Export.lua
+Lib\TableOrder.lua
 Lib\TableView.lua
 Lib\OptionsBuilder.lua
 UI\HistoryWindow.lua

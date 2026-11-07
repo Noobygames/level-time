@@ -72,11 +72,23 @@ end
 -- Stand der Journale: steigt bei jeder Änderung (neuer Eintrag, nachgetragene Ursache, herausgenommener Lauf), einmal
 -- gesamt und je Log, damit eine Tod-Ansicht nicht bei jedem Kill neu rechnet
 local revision = 0
-local logRevisions = {}  -- [logName] = Stand dieses Logs
+local logRevisions = {}   -- [logName] = Stand dieses Logs
+local editRevisions = {}  -- [logName] = Zahl der Änderungen an schon vorhandenen Einträgen (nicht neue Einträge)
 
 local function changed(logName)
   revision = revision + 1
   logRevisions[logName] = (logRevisions[logName] or 0) + 1
+end
+
+-- Ein vorhandener Eintrag wurde geändert (z.B. nachgetragene Todesursache): Ansichten, die Werte je Eintrag
+-- zwischenspeichern (TableView appendOnly), rechnen dann neu
+local function edited(logName)
+  changed(logName)
+  editRevisions[logName] = (editRevisions[logName] or 0) + 1
+end
+
+function Journal.EditRevision(logName)
+  return editRevisions[logName] or 0
 end
 
 -- Stand eines Logs (logName) oder aller Logs (ohne Argument), jeweils mit dem Archiv-Stand
@@ -187,7 +199,7 @@ function Journal.AddDeath(cause)
 end
 
 function Journal.SetDeathCause(entry, cause)
-  changed("deathLog")
+  edited("deathLog")
   entry.killer = cause.killer
   entry.spell = cause.spell
   entry.environment = cause.environment
@@ -195,9 +207,12 @@ end
 
 ---------------------------------------------------------------------------
 -- Lesen: Archiv (lädt bei Bedarf) und Eingang zusammen, älteste zuerst. Das Ergebnis wird je Charakter und Log
--- zwischengespeichert, bis sich Archiv oder Eingang ändern; Aufrufer dürfen die Liste nicht verändern.
+-- zwischengespeichert; Aufrufer dürfen die Liste nicht verändern. Neue Einträge im Eingang werden an dieselbe Liste
+-- angehängt (O(neue Einträge) statt einer Kopie je Kill); ändert sich das Archiv oder schrumpft der Eingang
+-- (Kürzen, herausgenommener Lauf), gibt es eine neue Liste. Wer sich etwas je Liste merkt, prüft also auch #list.
 ---------------------------------------------------------------------------
-local combined = {}  -- [characterKey .. logName] = { archiveVersion, inboxCount, inboxLast, list }
+local combined = {}  -- [characterKey .. "#" .. logName] = { version, inbox, count, last, archivedCount, list }
+local NO_INBOX = {}
 
 -- Zwischengespeicherte Listen (auch die entpackten des Archivs) freigeben, z.B. wenn die Historie schließt
 function Journal.ReleaseCache()
@@ -205,19 +220,28 @@ function Journal.ReleaseCache()
   ns.JournalArchive.ReleaseCache()
 end
 
+-- Liegt der Eingang noch so wie beim letzten Lesen vor, nur mit neuen Einträgen dahinter? Dann anhängen.
+local function extend(cached, inbox, version)
+  if cached.version ~= version or cached.inbox ~= inbox then return false end
+  local had, count = cached.count, #inbox
+  if count < had or (had > 0 and inbox[had] ~= cached.last) then return false end
+  local list, offset = cached.list, cached.archivedCount
+  for i = had + 1, count do list[offset + i] = inbox[i] end
+  cached.count, cached.last = count, inbox[count]
+  return true
+end
+
 function Journal.GetEntries(characterKey, logName)
   local character = LevelTimerStatsDB and LevelTimerStatsDB.characters[characterKey]
-  local inbox = character and character[logName] or {}
-  local Archive = ns.JournalArchive
-  local archived, version = Archive.Entries(characterKey, logName)
+  local inbox = character and character[logName] or NO_INBOX
+  local archived, version = ns.JournalArchive.Entries(characterKey, logName)
   local cacheKey = characterKey .. "#" .. logName
   local cached = combined[cacheKey]
-  if cached and cached.version == version and cached.count == #inbox and cached.last == inbox[#inbox] then
-    return cached.list
-  end
+  if cached and extend(cached, inbox, version) then return cached.list end
   local list = {}
   for i = 1, #archived do list[i] = archived[i] end
   for _, entry in ipairs(inbox) do list[#list + 1] = entry end
-  combined[cacheKey] = { version = version, count = #inbox, last = inbox[#inbox], list = list }
+  combined[cacheKey] = { version = version, inbox = inbox, count = #inbox, last = inbox[#inbox],
+    archivedCount = #archived, list = list }
   return list
 end
