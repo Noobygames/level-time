@@ -1,96 +1,174 @@
 # Level Time
 
-See how your leveling is really going. Level Time tracks your play time, XP per hour, kills, deaths, quests and income for your **current level** and your **current session**, and keeps a history of every finished level and every past session for all of your characters.
+See how your leveling is really going. Level Time tracks play time, XP per hour, kills, deaths, quests and gold for your **current level**, your **current session** and the **instance** you are in, and keeps a history of every level, session and run for all of your characters. On top come speedrun splits, alerts and reminders, and a set of optional quality-of-life features.
 
-## Features
+**Works on Retail, Classic Era, TBC Anniversary and WoW Forever** from one download. Features a game version cannot provide stay off quietly. Available in English, German, French and Spanish.
 
-### Live window
+## Highlights
 
-A small, movable window shows either your current level or your current session. Switch with the **Level | Session** tabs.
+- Live window with play time synced to `/played`, XP bar, XP/h, time to level and max level, kills, deaths and more; every row can be switched on or off
+- History for every character: levels, sessions, kills, deaths with cause, quests, loot, instances, zones, reputation, money, personal records
+- Charts: time and XP/h per level, kills per day, top enemies, death causes, play time per day/week, when you play (heatmap), progress curve
+- Speedrun splits like LiveSplit: gold splits, PB and best-per-level comparison, bracket forecast, own splits, quest splits, speedrun.com records, LiveSplit export
+- Level-up window with stat gains and the new abilities from your class trainer
+- Alerts and reminders: rare/elite kills, epic loot, near deaths, missing food/class buffs, full bags, low durability, breath, breaks, instance limit
+- Healer callouts to your group: low mana, crowd control, aggro
+- Comfort features in the spirit of Leatrix Plus (own code, all off by default): automation, social, chat, interface, frames, system
+- Quest helpers: quest levels, quest item and quest mob buttons, kill-quest markers, quest XP on the XP bar, loot sparkles
+- Stream-friendly: stream mode, chroma-key background for OBS, hidden names, session recap card
 
-- **Play time**: on this level (synced with the server's `/played`) or in this session, counted up live
-- **XP bar** with rested bonus
-- **XP per hour**, the estimated play time until the next level and until max level, optionally without AFK time
-- **Current XP/h** over the last 15 minutes and **kills/quests left** until the next level
-- **Time breakdown**: combat, flight paths, AFK and the rest
-- **Kills**, split into **PvE** (every kill that granted experience, including group kills), **PvP** (honorable kills) and optionally **elite** and **rare** kills
-- **Deaths**, with time spent dead or as a ghost and kills per death
-- **XP sources**: share of XP from kills, quests and everything else (exploration, professions, ...)
-- **Rested XP**: bonus XP gained from rest and its share of your XP
-- **Quests** turned in
-- **Income**: money earned from loot, quests, sales and mail, and **spending** by kind (repairs, merchants, flights, trainers)
-- **Level-up summary** in chat when you ding
+## Live window and statistics
 
-Shown as a clear table, label left and value right. Every value can be switched on or off on its own, e.g. PvE and PvP kills separately.
+A small, movable window shows one scope at a time: **Level N | Session | Instance** (tabs; optionally switches to Instance automatically when you enter one).
 
-### History and evaluation
-
-- **Levels**: play time, XP/h, kills, deaths, quests and gold of every finished level, saved automatically on level-up
-- **Time split**: combat, flying, AFK and dead time per level
-- **Timeline**: when each level was reached, with total /played and how long it took
-- **Sessions**: start, duration, level range, XP/h, kills, deaths, quests and gold of every past session
-- **Kills**: every killed creature and player with time, name, PvE/PvP, level and zone
-- **Deaths**: every death with time, cause (enemy and spell, or falling, drowning, ...), level and zone. Retail hides the combat log from addons, so the cause shows as "Unknown" there.
-- **Quests**: every quest turned in with time, name, XP and gold
-- **Near deaths**: every close call below 10 % health with lowest value and cause
-- **Loot**: rare and better items with time, quantity and likely source
-- **Instances**: every dungeon, raid and scenario run with duration, XP, kills and deaths
-- **Zones**: XP/h, kills and deaths per zone, so you see where leveling pays off
-- **Compare**: all your characters side by side, fastest leveler first
-- **Charts**: time per level, XP/h per level, kills per day, top enemies, death causes, XP/h per zone, play time per day and week and the XP timeline of your session
-- Sort by any column, filter by any text; a **Total** row sums up the shown rows; long lists scroll smoothly
-- **Export** any table as CSV to copy into a spreadsheet
-- Browse **all your characters** from any character
+- **Play time** on this level (from the server's `/played`, correct even if you install mid-level) or in this session, counted up live
+- **XP bar** with rested bonus; optionally the XP of quests ready to turn in as a yellow part
+- **Experience**: XP per hour, current XP/h (last 15 minutes), gained XP, time to level up, time to max level, kills to level, quests to level, quest XP in your quest log
+- **Progress**: splits against your comparison, goal level with progress and forecast (`/lt goal 30`)
+- **Combat**: PvE kills (every kill that gave XP, group kills included), PvP honorable kills, elite and rare kills, deaths with time spent dead, kills per death, near deaths, time without death (for hardcore)
+- **XP sources**: kills, quests, exploring, gathering and other; XP by location (world, dungeon, raid, battleground); rested XP gained and rested XP left
+- **Time, quests and money**: time breakdown (combat, flight paths, AFK, rest), quests turned in, income, income by kind (loot, quests, merchants, mail, auction house, trade) with gold per hour, spending (repairs, merchants, flights, trainers), reputation and reputation per hour
+- **Instance**: time and XP of the running dungeon or raid visit (leaving and coming back continues it), instance limit (new instances in the last hour per realm and when the next slot frees up), instances today
+- **Presets** Minimal, Leveling and Dungeon, with undo
+- **Calculation**: XP/h without AFK time, idle time without XP can be left out (off by default), average for kills/quests to level adjustable
+- **Layouts**: compact mode (time, XP bar, XP/h only), horizontal bar (everything in one line), resize by dragging the corner or with a slider, background opacity, lock
+- **Level-up summary** in chat (on by default), optional announcement to party or guild
+- At login (on by default): a chat line about your last session, and which alts have become fully rested (estimated)
+- **Data text** for Titan Panel, ElvUI, Bazooka and other LibDataBroker displays, when one of them is installed
+- **Minimap button**: left-click settings, Shift-left-click history, right-click show/hide window. On Retail also in the addon compartment
 
 A session runs from login to logout. A `/reload` or a short break (up to 5 minutes) continues it.
 
-### Settings
+## History and charts
 
-- Language: English, German, French or Spanish
-- Window size (also by dragging the bottom right corner) and background opacity
-- Lock, show or hide the window, reset position and size
-- Show or hide the minimap button
-- One toggle per statistic
-- Comfort (each off by default, hold Shift to skip once): auto repair (optionally from the guild bank), sell gray items, accept and turn in quests, accept shared quests, skip single-option gossip, decline trades, group and guild invites and duels
-- Warnings: bags almost full, low durability, new spells at the trainer and low ammo for hunters (the last two in Classic Era, TBC and WoW Forever)
+Open with `/lt history`, Shift-click on the minimap button or the button in the settings. Browse all your characters from any character.
 
-## Usage
+- **Levels**: overview (time, XP/h, kills, deaths, quests, gold per level), timeline (when each level was reached, with `/played`), time split (combat, flying, AFK, dead), XP sources, personal records
+- **Sessions**: start, duration, level range, XP/h, kills, deaths, quests and gold of every session
+- **Journal**:
+  - Kills: every creature and player with time, kind (PvE/PvP, elite, rare), level and zone
+  - Deaths: time, cause (enemy and spell, falling, drowning, ...), level and zone. On Retail and WoW Forever the cause comes from the death recap
+  - Quests and loot (rare and better, with likely source), with game tooltips on hover
+  - Instances: every dungeon, raid and scenario run with duration, XP, XP/h, kills, deaths and reputation
+  - Near deaths (Classic Era and TBC only, other clients keep health secret)
+- **Zones** (XP/h, kills, deaths per zone, best first), **Reputation** per faction, **Money** per day, week and month
+- **Compare**: all characters side by side, fastest leveler first, with tracking coverage and estimated rested XP
+- **Charts**: time per level, XP/h per level, kills per day, top enemies, death causes, XP/h per zone, play time per day and per week, XP timeline of the session, when you play (weekday x hour heatmap), progress curve of all characters
+- **Personal records** across all characters (most XP in 60 minutes, best session XP/h, biggest XP gain, best instance run, fastest level), optionally announced when you beat one
+- Sort by any column, filter by text, **Total** row, smooth scrolling, **CSV export** of the visible rows
+- **Delete data** removes a character's statistics
 
-- **Window**: drag the bottom right corner to resize, right-click to open the settings
-- **Minimap button**: left-click opens the settings, Shift-left-click the history, right-click shows or hides the window, drag to move the button
-- On Retail, Level Time also appears in the addon compartment menu
-- **Data text** for Titan Panel, ElvUI and other LibDataBroker displays
+The journal has no fixed limit: older entries move into a small load-on-demand archive addon (`LevelTimer_Archive`, included).
 
-| Command | Effect |
-|---|---|
-| `/lt` or `/lt config` | Open settings |
-| `/lt history` | Open the history |
-| `/lt lock` / `/lt unlock` | Lock or unlock the window position and size |
-| `/lt reset` | Reset window position and size |
-| `/lt compact` | Toggle compact mode (play time, XP bar and XP/h only) |
-| `/lt bar` | Toggle horizontal bar layout (everything in one line, like an info bar) |
-| `/lt newsession` | Archive the running session and start a new one (also a button in the settings) |
-| `/lt stream` | Stream mode: alerts on, names hidden (window size and transparency unchanged); again restores your settings |
-| `/lt splits` | Show or hide the split list (last levels with time and difference) |
-| `/lt profile` | List profiles; `/lt profile Name` switches, `save Name`, `delete Name`, `export`, `import` (also in Settings > Profiles) |
-| `/lt runs backup` / `/lt runs import` | Copy all runs as text, or paste runs shared by others (also buttons in History > Speedrun) |
-| `/lt compare pb` | Splits against your personal best run (`best` = best time per level, or a character name) |
-| `/lt recap` | Session summary card: time, levels, XP, kills, deaths, best loot, most dangerous enemy |
-| `/lt goal 30` | Set a goal level with progress and forecast in the window; `/lt goal` removes it |
-| `/lt show` / `/lt hide` | Show or hide the window |
-| `/lt sync` | Re-sync play time with the server |
-| `/lt minimap` | Toggle the minimap button |
-| `/lt debug` | Extended logging in chat until /reload; `/lt debug help` lists test commands (state, levelup, alert, remind, death, splits) |
+## Speedrun and splits
+
+Settings tab "Speedrun" and History > Speedrun.
+
+- **Split list** (`/lt splits`): a separate panel like LiveSplit with the running level and the last levels (3-15), total row and `/played` row
+- **Comparison**: best time per level of your other characters, your personal best run (optionally same class only) or a chosen run (`/lt compare <name>`)
+- **Gold splits** in purple with an optional chat line and sound, optional tolerance band (yellow)
+- **Forecast** of the next bracket (1-10, 1-20, 1-60) against your PB, sum of best and the speedrun record
+- **Speedrun records** from speedrun.com (WoW Classic, Leveling SSF softcore, overall or your class) compared with your `/played` at the bracket level. The addon has no internet access, so records ship as a snapshot with each update
+- **Own splits** (`/lt split [name]`, undo, key binding under AddOns, template for new characters)
+- **Quest splits**: time from accepting to turning in each quest, best time across characters, optional chat line
+- **Runs**: your characters plus imported runs, favorites, share as text, back up all, import (`/lt runs import`)
+- **Check code** per run against edited data (`/lt runs verify`), **coverage** (share of `/played` the addon actually recorded; partial levels never count as best times), **run category** detected automatically (SSF, solo, group, boosted)
+- **LiveSplit export** as `.lss` (`/lt runs lss`)
+- **Race against friends**: level times exchanged with other Level Time users in your group or when inspecting (off by default, nothing is sent while off)
+- **SSF rule helper**: rested XP bars, logouts, instances per hour and a clock for your VOD; warns when trade, mail or the auction house opens (display only)
+- **Milestone screenshots**: every 5 levels and at max level, first dungeon, epic loot (off by default)
+
+## Notifications and warnings
+
+Alerts and warnings appear as cards with icon, sharing one queue, size, duration and position (movable, banner or text style).
+
+- **Alerts** (off by default): level up, rare kill, elite kill (not in dungeons/raids), epic loot (not in raids), near death (Classic Era/TBC)
+- **Level-up window** (on by default): health, mana and stats before -> after, new talent points and the abilities your class trainer offers at the new level (learned once you visit the trainer; not on Retail). Themes Modern, Alliance and Horde, compact view, size, duration, sound; hides Blizzard's banner while on
+- **Timers** (on by default where available): eating countdown until Well Fed, campfire countdown and hint (WoW Forever), flight times measured per route with a countdown on later flights (flight timer off by default)
+- **Leveling reminders** (off by default, repeat every 1-30 minutes, not in combat or rest areas): not Well Fed, no camp benefits (WoW Forever), Skyborne charge missing (WoW Forever), class buffs of your own class (armor, intellect/fortitude buffs, shields, weapon enchants, poisons, pets, aspects, ...)
+- **Break reminder** after a set play time (off by default)
+- **Warnings** (off by default): bags almost full, low durability, visit trainer on even levels (not Retail), low ammo for hunters (adjustable thresholds and repeat), instance limit, aggro in a group, breath and fatigue running out, emergency highlight at low health (Classic Era/TBC: glows potion, healthstone and emergency spell buttons, red screen edge)
+- **Group messages** (off by default, never while Blizzard locks the chat): quest progress, instance report when you leave (duration, XP, kills, money)
+- **Healer callouts** (off by default, healer role in dungeons and raids): low mana, crowd control (with kind and duration where the client tells it), all clear after CC, aggro on you. WoW Forever hides mana and CC details from addons, so there only "out of mana" and "can't heal" are possible
+
+## Comfort
+
+Settings tab "Comfort" with a sidebar like Leatrix Plus. Everything is off by default; hold Shift to skip an automation once.
+
+- **Automation**: repair automatically (guild bank first where available), sell junk, "Train all" button at trainers (not Retail); accept quests, accept shared quests, turn in quests, pick the most valuable reward, skip single-option gossip, own "never automatic" list (gray, PvP, repeatable and paid quests stay manual); accept summons (after 10 s), accept resurrections, release in battlegrounds
+- **Social**: decline trades, group invites, guild invites, duels and shared quests, block Battle.net friend requests; accept groups from friends and guild, invites with details in chat, invite on a whispered keyword
+- **Chat**: copy button on every chat window (or `/lt copy`), keep chat after `/reload`, hide drunk messages, hide spell links in combat, one group color; hide combat log tab, hide chat buttons, input box at the top, arrow keys without Alt, no chat fade
+- **Interface**: hide error messages and zone text; hide keybind and macro text, red when out of range; hide boss banner, event toasts, alerts, stance bar, rest animation and portrait numbers (where the client has them); move and scale Blizzard windows (Ctrl+mouse wheel); kill-quest markers on nameplates; loot sparkles; quest levels, quest item button, quest mob target button
+- **Frames**: durability and volume slider in the character frame, class colors on target and focus, tooltip with class colors and the unit's target, hide tooltips in combat, kills to level in the tooltip, minimap wheel zoom and hidden zoom/calendar buttons, coordinates and your deaths on the world map
+- **System**: faster looting, loot without confirmation, delete without typing, skip movies quickly, zoom out further, no drunken haze, no screen effects, weather density, silence emotes while resting, mute spell fizzle / city bells / mechanostriders, nameplates only in combat, remove raid restrictions, alphabetical addon list
+
+Every change to game settings (CVars, chat colors, Blizzard frames) is reversible: turning a feature off restores your previous value.
+
+## Quests
+
+- **Quest levels** in the quest log, gossip and greeting lists, and the quest tracker on Classic: `[12]`, group quests `[12+]`
+- **Quest item button** for the usable item of the nearest quest (Retail/WoW Forever by distance, Classic the most recently accepted), plus a **target button** for quest mobs on nameplates; movable
+- **Kill-quest markers**: icon next to the nameplate of enemies and NPCs that belong to an active quest
+- **Quest XP**: XP of quests in your log (ready and open), whether turning in is enough to level, optionally shown on the XP bar
+- **Quest progress to group**, **quest splits** (see Speedrun), quest automation (see Comfort)
+- **Loot sparkles**: quest items keep the game's sparkle even after a graphics preset (WoW Forever); ore veins, herbs, quest objects and corpses with loot glint as you approach (dim out of reach, bright in reach, grey when your skill is too low). Uses the game's soft targeting; corpses only after combat. Stays off while ForeverLootSparkles or Lueur is loaded
+
+## Streaming
+
+- **Stream mode** (`/lt stream`): turns on the big alerts and hidden names at once; turning it off restores your previous settings
+- **Chroma background**: solid green or magenta without border for keying out the window in OBS
+- **Hide names**: no realm, other characters only as "Character 2, 3, ..." (also in exports)
+- **Deaths in red** (on by default), hide the minimap button
+- **Session summary card** (`/lt recap`): time, levels, XP, kills, deaths, best loot and most dangerous enemy; updates while open and follows the chroma background
+- **Start new session** (button or `/lt newsession`), e.g. at the start of a stream
+
+## Profiles, import and export
+
+- Named **profiles** for all settings, chosen per character; save, switch, delete
+- **Export/import** profiles and runs as text (copy with Ctrl+C, paste into the import window), e.g. between clients or accounts
+- **CSV export** of every history table, LiveSplit `.lss` export
+
+Addons cannot write files, so copying text is the only way out of the game.
+
+## Commands
 
 `/leveltimer` works as an alias for `/lt`.
 
+| Command | Effect |
+|---|---|
+| `/lt` or `/lt config` | Open the settings |
+| `/lt help` | List all commands |
+| `/lt show` / `/lt hide` | Show or hide the window |
+| `/lt lock` / `/lt unlock` | Lock or unlock window position and size |
+| `/lt reset` | Reset position and size of the window and split list |
+| `/lt compact` | Toggle compact mode |
+| `/lt bar` | Toggle the horizontal bar layout |
+| `/lt splits` | Show or hide the split list |
+| `/lt stream` | Toggle stream mode |
+| `/lt history` | Open the history |
+| `/lt recap` | Session summary card |
+| `/lt newsession` | Archive the running session and start a new one |
+| `/lt resetinstance` | Reset the data of the running instance visit (not the game's instance reset) |
+| `/lt goal 30` | Set a goal level; `/lt goal` shows it, `/lt goal off` removes it |
+| `/lt compare best` / `pb` / `<name>` | Splits against best per level, your personal best or a chosen run |
+| `/lt split [name]` / `undo` / `template` | Set an own split, undo the last one, save this character's splits as template |
+| `/lt runs import` / `backup` / `verify` / `lss` | Import runs, copy all runs, recompute check codes, LiveSplit export |
+| `/lt profile` | List profiles; `/lt profile <name>` switches, `save <name>`, `delete <name>`, `export`, `import` |
+| `/lt copy` | Copy the lines of the current chat window |
+| `/lt sync` | Request `/played` from the server again |
+| `/lt minimap` | Toggle the minimap button |
+| `/lt debug` | Extended chat logging until `/reload`; `/lt debug help` lists test commands, `/lt debug log` keeps a persistent log for bug reports, `/lt debug check` runs all client checks |
+
 ## Good to know
 
-- Statistics are recorded separately for every character and stored account-wide, so the history can show all of them.
-- Level statistics start counting when the addon is installed. Play time and XP per hour use the server's values, so they are correct for the whole level right away.
-- PvE kills count kills that gave you experience. Grey mobs and kills at max level don't count.
-- Level Time supports several game versions from one download. Features a game version doesn't provide stay off quietly.
+- Statistics are recorded per character and stored account-wide, so the history can show and compare all of your characters.
+- Play time and XP/h use the server's values, so the current level is right from the start. Kills, deaths and quests count from the moment the addon is installed.
+- PvE kills are kills that gave you experience; gray mobs and kills at max level don't count.
+- Retail and WoW Forever hide some values from addons ("secret values"), e.g. health, mana, combat log and some chat messages in combat. Level Time works around this where possible (e.g. death cause from the death recap, kill XP from XP changes) and turns features off where it cannot, such as near deaths and the emergency highlight.
+- Some features exist only on some clients: campfire timers and the Skyborne reminder on WoW Forever, trainer features and ammo warnings outside Retail, time-to-max-level from the XP table on Classic clients (Retail uses your recent level times).
+- No libraries are bundled. The data text appears when another addon provides LibDataBroker.
+- Sister addon for streamers: [Level Time Goals](https://www.curseforge.com/wow/addons/streamer-goals) shows goals (reach a level, kill N enemies, loot items, win battlegrounds, custom goals) as cards on screen. Needs Level Time.
 
 ## Feedback
 
-Bugs and ideas: [GitHub issues](https://github.com/Noobygames/wow-statistics/issues)
+Bugs and ideas: [GitHub issues](https://github.com/Noobygames/wow-statistics/issues). For bug reports, `/lt debug log` followed by a `/reload` writes a log to your SavedVariables that helps a lot.

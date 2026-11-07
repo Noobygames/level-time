@@ -87,7 +87,7 @@ Works across several game versions (Retail, Classic Era, Anniversary, ...) from 
 | `/lt runs backup` / `/lt runs import` | Copy all runs as text, or paste runs shared by others (also buttons in History > Speedrun) |
 | `/lt compare pb` | Splits against your personal best run (`best` = best time per level, or a character name) |
 | `/lt recap` | Session summary card: time, levels, XP, kills, deaths, best loot, most dangerous enemy |
-| `/lt goal 30` | Set a goal level with progress and forecast in the window; `/lt goal` removes it |
+| `/lt goal 30` | Set a goal level with progress and forecast in the window; `/lt goal` shows it, `/lt goal off` removes it |
 | `/lt show` / `/lt hide` | Show or hide the window |
 | `/lt sync` | Re-sync play time with the server |
 | `/lt minimap` | Toggle the minimap button |

@@ -6,7 +6,7 @@ Values for the CurseForge project form.
 
 - **Project name:** Level Time
 - **Logo:** `logo.png` (512x512, own artwork, no Blizzard assets; regenerate with `make artwork`)
-- **Summary:** Tracks play time, XP per hour, kills, deaths, quests and gold per level and per session, with a history for all your characters.
+- **Summary:** Leveling statistics per level, session and instance (play time, XP/h, time to level, kills, deaths, quests, gold) with history and charts for all characters, speedrun splits, alerts and optional comfort features.
 - **Class:** Addons
 - **Primary category:** Quests & Leveling
 
