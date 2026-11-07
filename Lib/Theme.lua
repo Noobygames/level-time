@@ -34,6 +34,14 @@ local CLASSIC_COLORS = {
   info = { 0.55, 0.8, 1 },           -- Hinweise, Flüge
   warning = { 1, 0.6, 0.2 },
   chromaGreen = { 0, 1, 0 },
+  -- Buttons (Widgets.CreateButton): Grund je Zustand, Rand, Text deaktiviert
+  buttonFace = { 0.11, 0.12, 0.2 },
+  buttonFaceHover = { 0.18, 0.19, 0.3 },
+  buttonFacePressed = { 0.06, 0.07, 0.12 },
+  buttonFaceDisabled = { 0.08, 0.08, 0.1 },
+  buttonBorder = { 0.5, 0.38, 0.14 },
+  buttonBorderDisabled = { 0.3, 0.3, 0.3 },
+  buttonTextDisabled = { 0.5, 0.5, 0.5 },
   chromaMagenta = { 1, 0, 1 },
 }
 

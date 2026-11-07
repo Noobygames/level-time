@@ -19,7 +19,7 @@ local FADE_SECONDS = 1       -- nach der Anzeigedauer ausblenden
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -160 }
 local EPIC_QUALITY = 4
 local GROUP_INSTANCES = { party = true, raid = true }  -- Instanzarten von IsInInstance mit Elite-Gegnern
-local RAID_WARNING_SOUND = 8959  -- SOUNDKIT.RAID_WARNING, in allen Clients gleich
+local RAID_WARNING_SOUND = SOUNDKIT and SOUNDKIT.RAID_WARNING or 8959  -- in allen Clients gleich
 -- Einstellung alertStyle: nur Text oder Banner (Karte mit Symbol wie die Hinweise)
 Alerts.STYLE_TEXT = "text"
 Alerts.STYLE_BANNER = "banner"
@@ -110,7 +110,8 @@ local function setColor(color)
 end
 
 local function duration()
-  return math.max(Alerts.MIN_DURATION, math.min(Alerts.MAX_DURATION, ns.db and ns.db.alertDuration or 3))
+  local seconds = ns.db and ns.db.alertDuration or ns.Database.SettingDefault("alertDuration")
+  return math.max(Alerts.MIN_DURATION, math.min(Alerts.MAX_DURATION, seconds))
 end
 
 local queue = {}  -- { message, color, sound, notice, sample } der wartenden Einblendungen, älteste zuerst

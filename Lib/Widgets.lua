@@ -190,11 +190,13 @@ local BUTTON_BACKDROP = {
   edgeSize = 1,
   insets = { left = 1, right = 1, top = 1, bottom = 1 },
 }
+-- Farben aus dem Theme (Tokens werden beim Preset-Wechsel an Ort und Stelle geändert), Deckkraft je Zustand
+local C = Theme.COLORS
 local BUTTON_COLORS = {
-  normal = { background = { 0.11, 0.12, 0.2, 0.95 }, border = { 0.5, 0.38, 0.14, 1 }, text = Widgets.COLORS.highlight },
-  hover = { background = { 0.18, 0.19, 0.3, 0.98 }, border = Widgets.COLORS.border, text = { 1, 1, 1 } },
-  pressed = { background = { 0.06, 0.07, 0.12, 1 }, border = Widgets.COLORS.border, text = Widgets.COLORS.highlight },
-  disabled = { background = { 0.08, 0.08, 0.1, 0.8 }, border = { 0.3, 0.3, 0.3, 1 }, text = { 0.5, 0.5, 0.5 } },
+  normal = { background = C.buttonFace, alpha = 0.95, border = C.buttonBorder, text = C.accent },
+  hover = { background = C.buttonFaceHover, alpha = 0.98, border = C.border, text = C.text },
+  pressed = { background = C.buttonFacePressed, alpha = 1, border = C.border, text = C.accent },
+  disabled = { background = C.buttonFaceDisabled, alpha = 0.8, border = C.buttonBorderDisabled, text = C.buttonTextDisabled },
 }
 
 function Widgets.CreateButton(parent, width, height, onClick)
@@ -214,8 +216,9 @@ function Widgets.CreateButton(parent, width, height, onClick)
     elseif hovered then
       colors = BUTTON_COLORS.hover
     end
-    button:SetBackdropColor(unpack(colors.background))
-    button:SetBackdropBorderColor(unpack(colors.border))
+    local face, border = colors.background, colors.border
+    button:SetBackdropColor(face[1], face[2], face[3], colors.alpha)
+    button:SetBackdropBorderColor(border[1], border[2], border[3], 1)
     button.label:SetTextColor(unpack(colors.text))
   end
   button:HookScript("OnEnter", function() hovered = true; paint() end)
