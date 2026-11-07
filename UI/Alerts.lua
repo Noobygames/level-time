@@ -83,6 +83,7 @@ Alerts.ICONS = {
   questComplete = iconPath("INV_Misc_Note_01"),
   questObjective = iconPath("INV_Misc_Note_01"),
   questLog = iconPath("INV_Misc_Book_09"),
+  rareSpotted = iconPath("INV_Misc_Eye_01"),
 }
 
 local shownAt
@@ -289,6 +290,8 @@ Alerts.KINDS = {
     sample = function() return 4 end },
   questComplete = { setting = "alertQuestComplete", color = COLORS.quest, format = "ALERT_QUEST_COMPLETE", inCombat = "hold",
     sample = function() return "Hogger" end },
+  rareSpotted = { setting = "alertRareSpotted", color = COLORS.rare, format = "ALERT_RARE_SPOTTED",
+    sample = function() return "Mor'Ladim" end },
   questObjective = { setting = "alertQuestObjective", color = COLORS.quest, format = "ALERT_QUEST_OBJECTIVE", inCombat = "hold",
     sample = function() return "Hogger: 1/1" end },
 }

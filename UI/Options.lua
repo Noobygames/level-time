@@ -741,6 +741,8 @@ addToggles({
   toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
+  toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
+  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
   toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })

@@ -2480,3 +2480,23 @@ Tooltipzeile an Links (ja/nein):
 In der Questliste (ja/nein/kein Tooltip):
 Fehler:
 ```
+
+### 120. Seltene Gegner melden (Roadmap 348)
+
+- [ ] geprüft
+
+Einblendungen: „Rare gesichtet“ und „Dabei Taskleiste blinken“ an, Ton an. Zu einem bekannten seltenen Gegner gehen (silberner Drache am Porträt).
+
+1. Sobald seine Plakette erscheint (oder beim Anvisieren/Mouseover): „Rare gesichtet: Name“ mit Ton; läuft WoW im Hintergrund, blinkt das Symbol in der Taskleiste.
+2. Erneut hinsehen: keine zweite Meldung in dieser Session; nach Logout/Login wieder.
+3. Toter Rare: keine Meldung. In Instanzen (geheime Werte in Forever): keine Fehler.
+4. `/lt debug alert rarespotted` zeigt ein Beispiel.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Meldung bei Plakette/Ziel/Mouseover (ja/nein):
+Taskleiste blinkt (ja/nein):
+Fehler:
+```

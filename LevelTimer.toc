@@ -126,6 +126,7 @@ Assist\ManaCallout.lua
 Assist\ControlCallout.lua
 Assist\QuestProgress.lua
 Assist\QuestCompleteAlert.lua
+Assist\RareAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
 Assist\BreakReminder.lua

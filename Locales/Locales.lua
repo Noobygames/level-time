@@ -1144,6 +1144,11 @@ ns.locales = {
     QUEST_EFFICIENCY_AVERAGE = "Ø %s",
     QUEST_EFFICIENCY_RATE = "%s XP/min",
     QUEST_EFFICIENCY_COUNT = "%dx",
+    ALERT_TOGGLE_RARE_SPOTTED = "Rare gesichtet",
+    ALERT_TOGGLE_RARE_SPOTTED_TIP = "Einblendung mit Ton, sobald ein lebender seltener Gegner auf einer Namensplakette, als Ziel oder unter der Maus auftaucht. Je Name einmal pro Session, ohne Rare-Liste (das Spiel sagt es selbst).",
+    ALERT_TOGGLE_RARE_FLASH = "Dabei Taskleiste blinken",
+    ALERT_TOGGLE_RARE_FLASH_TIP = "Lässt bei „Rare gesichtet“ zusätzlich das WoW-Symbol in der Taskleiste blinken, falls das Spiel im Hintergrund läuft.",
+    ALERT_RARE_SPOTTED = "Rare gesichtet: %s",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2281,6 +2286,11 @@ ns.locales = {
     QUEST_EFFICIENCY_AVERAGE = "avg. %s",
     QUEST_EFFICIENCY_RATE = "%s XP/min",
     QUEST_EFFICIENCY_COUNT = "%dx",
+    ALERT_TOGGLE_RARE_SPOTTED = "Rare spotted",
+    ALERT_TOGGLE_RARE_SPOTTED_TIP = "Alert with sound as soon as a living rare mob shows up on a nameplate, as target or under the mouse. Once per name per session, no rare list needed (the game tells us).",
+    ALERT_TOGGLE_RARE_FLASH = "Flash the taskbar too",
+    ALERT_TOGGLE_RARE_FLASH_TIP = "Also flashes the WoW icon in the taskbar on \"Rare spotted\" when the game runs in the background.",
+    ALERT_RARE_SPOTTED = "Rare spotted: %s",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3418,6 +3428,11 @@ ns.locales = {
     QUEST_EFFICIENCY_AVERAGE = "moy. %s",
     QUEST_EFFICIENCY_RATE = "%s PX/min",
     QUEST_EFFICIENCY_COUNT = "%dx",
+    ALERT_TOGGLE_RARE_SPOTTED = "Rare repéré",
+    ALERT_TOGGLE_RARE_SPOTTED_TIP = "Alerte avec son dès qu'un ennemi rare vivant apparaît sur une plaque, en cible ou sous la souris. Une fois par nom et par session, sans liste de rares (le jeu l'indique).",
+    ALERT_TOGGLE_RARE_FLASH = "Faire clignoter la barre des tâches",
+    ALERT_TOGGLE_RARE_FLASH_TIP = "Fait aussi clignoter l'icône de WoW dans la barre des tâches lors de « Rare repéré » si le jeu est en arrière-plan.",
+    ALERT_RARE_SPOTTED = "Rare repéré : %s",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4555,6 +4570,11 @@ ns.locales = {
     QUEST_EFFICIENCY_AVERAGE = "media %s",
     QUEST_EFFICIENCY_RATE = "%s PX/min",
     QUEST_EFFICIENCY_COUNT = "%dx",
+    ALERT_TOGGLE_RARE_SPOTTED = "Raro avistado",
+    ALERT_TOGGLE_RARE_SPOTTED_TIP = "Aviso con sonido en cuanto un enemigo raro vivo aparece en una placa, como objetivo o bajo el ratón. Una vez por nombre y sesión, sin lista de raros (el juego lo indica).",
+    ALERT_TOGGLE_RARE_FLASH = "Parpadear la barra de tareas",
+    ALERT_TOGGLE_RARE_FLASH_TIP = "Hace también parpadear el icono de WoW en la barra de tareas con «Raro avistado» si el juego está en segundo plano.",
+    ALERT_RARE_SPOTTED = "Raro avistado: %s",
   },
 }
 
