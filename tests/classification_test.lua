@@ -50,3 +50,19 @@ expect("geheime Werte ohne Fehler", #wow.errors, 0)
 expect("geheimer Name nicht gemerkt", addon.Classification.Of("Geheimer Elite"), nil)
 expect("geheimer Spielerstatus nicht gemerkt", addon.Classification.Of("Geheimer Spieler"), nil)
 expect("geheime GUID ohne zoneUID", addon.InstanceCopy.ZoneUIDOf(wow.SECRET), nil)
+
+-- Roadmap 187: gleichnamige Gegner; steht der getötete tot im Ziel, zählt dessen Einstufung
+see("nameplate3", "Defias-Schläger", "elite")
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
+wow.state.units.target = { name = "Defias-Schläger", classification = "normal", dead = true }
+local elitesBefore = Stats.Get(Stats.LEVEL, Stats.ELITE_KILLS)
+kill("Defias-Schläger")
+expect("totes Ziel entscheidet", Stats.Get(Stats.LEVEL, Stats.ELITE_KILLS), elitesBefore)
+wow.state.units.target = nil
+kill("Defias-Schläger")
+expect("ohne Ziel die zuletzt gesehene", Stats.Get(Stats.LEVEL, Stats.ELITE_KILLS), elitesBefore + 1)
+-- Geheimes Ziel: kein Fehler, Rückfall auf den Namen
+wow.state.units.target = { name = wow.SECRET, classification = "normal", dead = true }
+kill("Defias-Schläger")
+expect("geheimes Ziel: Name entscheidet", Stats.Get(Stats.LEVEL, Stats.ELITE_KILLS), elitesBefore + 2)
+expect("keine Fehler", #wow.errors, 0)
