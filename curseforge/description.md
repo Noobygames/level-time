@@ -14,7 +14,7 @@ See how your leveling is really going. Level Time tracks play time, XP per hour,
 - Alerts and reminders: rare/elite kills, epic loot, near deaths, missing food/class buffs, full bags, low durability, breath, breaks, instance limit
 - Healer callouts to your group: low mana, crowd control, aggro
 - Comfort features in the spirit of Leatrix Plus (own code, all off by default): automation, social, chat, interface, frames, system
-- Quest helpers: quest levels, quest item and quest mob buttons, kill-quest markers, quest XP on the XP bar, loot sparkles
+- Quest helpers: quest levels, progress on quest markers, learned quest mobs and NPCs with map pins, quest item and target buttons, quest XP on the XP bar, reward hints, loot sparkles
 - Stream-friendly: stream mode, chroma-key background for OBS, hidden names, session recap card
 
 ## Live window and statistics
@@ -110,6 +110,13 @@ Every change to game settings (CVars, chat colors, Blizzard frames) is reversibl
 - **Quest item button** for the usable item of the nearest quest (Retail/WoW Forever by distance, Classic the most recently accepted), plus a **target button** for quest mobs on nameplates; movable
 - **Kill-quest markers**: icon next to the nameplate of enemies and NPCs that belong to an active quest
 - **Quest XP**: XP of quests in your log (ready and open), whether turning in is enough to level, optionally shown on the XP bar
+- **Progress on markers** ("3/8") next to quest mobs, read from the game's tooltip
+- **Learns quest mobs, items and quest NPCs** as you play (account-wide, no shipped database): markers on Classic where the game has no quest info for units, quest item line in item tooltips, quest givers and turn-ins as pins on the world map
+- **Target button** with learned names and an optional skull marker (secure macro, changed only out of combat)
+- **Alerts** when a quest or an objective is complete, **rare mob** alert with optional screen flash
+- **Quest log helpers**: remove gray quests with one click (always asks first), notice when the log is almost full, leftover quest items in your bags
+- **History > Quests**: turn-in overview with XP, quest efficiency (XP per minute from quest splits); reward recommendation by sell value and item level
+- **Corpse arrow** with distance while you are a ghost
 - **Quest progress to group**, **quest splits** (see Speedrun), quest automation (see Comfort)
 - **Loot sparkles**: quest items keep the game's sparkle even after a graphics preset (WoW Forever); ore veins, herbs, quest objects and corpses with loot glint as you approach (dim out of reach, bright in reach, grey when your skill is too low). Uses the game's soft targeting; corpses only after combat. Stays off while ForeverLootSparkles or Lueur is loaded
 
