@@ -16,6 +16,7 @@
 
 # Grundlagen: Sprachen, Kern (Core), allgemeine Helfer (Lib)
 Locales\Locales.lua
+Lib\Migrate.lua
 Core\Database.lua
 Core\LevelTimer.lua
 Core\Client.lua
@@ -29,6 +30,7 @@ Lib\RecentCounter.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
 Lib\RecordCodec.lua
+Lib\ProfileStore.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\GroupChat.lua

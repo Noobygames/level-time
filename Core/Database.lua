@@ -452,31 +452,9 @@ local settingsMigrations = {
   end,
 }
 
--- Die Version wird nie gesenkt: nach einem Downgrade (ältere Addon-Version) liefen nicht wiederholbare
--- Migrationen beim nächsten Upgrade sonst ein zweites Mal
-local function migrate(data, migrations, targetVersion)
-  local version = data.schemaVersion or 1
-  if version >= targetVersion then return end
-  for nextVersion = version + 1, targetVersion do
-    if migrations[nextVersion] then
-      migrations[nextVersion](data)
-    end
-  end
-  data.schemaVersion = targetVersion
-end
-
--- Fehlende Werte aus den Defaults ergänzen (auch verschachtelt)
-local function applyDefaults(data, defaults)
-  for key, value in pairs(defaults) do
-    if type(value) == "table" then
-      if type(data[key]) ~= "table" then data[key] = {} end
-      applyDefaults(data[key], value)
-    elseif data[key] == nil then
-      data[key] = value
-    end
-  end
-  return data
-end
+-- Migrationen und Defaults allgemein in Lib/Migrate.lua
+local migrate = ns.Migrate.Run
+local applyDefaults = ns.Migrate.ApplyDefaults
 
 local function isFiniteNumber(value)
   return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
