@@ -98,8 +98,11 @@ local function ammoDetail()
 end
 
 -- Freie Plätze als Zusatz, z.B. "Taschen fast voll! (1 frei)"
+-- Mit Questresten (QuestLeftovers.lua) dahinter, z.B. "1 frei; Questreste: Wolfspelz"
 local function bagsDetail()
-  return string.format(L.BAGS_FREE_COUNT, ns.Bags.GetFreeSlots())
+  local detail = string.format(L.BAGS_FREE_COUNT, ns.Bags.GetFreeSlots())
+  local leftovers = ns.QuestLeftovers.BagsHint()
+  return leftovers and detail .. "; " .. leftovers or detail
 end
 
 -- Je Hinweis: Einstellung, Prüfung (true = warnen), Text, detail() (optional, Zusatz hinter dem Text); active = Zustand bei der letzten Prüfung;

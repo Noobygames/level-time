@@ -36,6 +36,7 @@ local COLORS = {
   elite = { 1, 0.5, 0.1 },
   loot = { 0.64, 0.21, 0.93 },
   nearDeath = { 1, 0.25, 0.25 },
+  quest = { 0.45, 1, 0.45 },
 }
 Alerts.WARNING_COLOR = { 1, 0.6, 0.2 }   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
 Alerts.REMINDER_COLOR = COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
@@ -79,6 +80,10 @@ Alerts.ICONS = {
   breath = iconPath("Spell_Shadow_DemonBreath"),
   fatigue = iconPath("Spell_Nature_Sleep"),
   rest = iconPath("INV_Misc_PocketWatch_02"),
+  questComplete = iconPath("INV_Misc_Note_01"),
+  questObjective = iconPath("INV_Misc_Note_01"),
+  questLog = iconPath("INV_Misc_Book_09"),
+  rareSpotted = iconPath("INV_Misc_Eye_01"),
 }
 
 local shownAt
@@ -289,6 +294,12 @@ Alerts.KINDS = {
     sample = function() return "[Thunderfury]" end },
   nearDeath = { setting = "alertNearDeath", color = COLORS.nearDeath, format = "ALERT_NEAR_DEATH",
     sample = function() return 4 end },
+  questComplete = { setting = "alertQuestComplete", color = COLORS.quest, format = "ALERT_QUEST_COMPLETE", inCombat = "hold",
+    sample = function() return "Hogger" end },
+  rareSpotted = { setting = "alertRareSpotted", color = COLORS.rare, format = "ALERT_RARE_SPOTTED",
+    sample = function() return "Mor'Ladim" end },
+  questObjective = { setting = "alertQuestObjective", color = COLORS.quest, format = "ALERT_QUEST_OBJECTIVE", inCombat = "hold",
+    sample = function() return "Hogger: 1/1" end },
 }
 
 -- Text und Karte einer Art: im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
@@ -303,6 +314,11 @@ local function alert(kind, value, body)
   if not ns.db[definition.setting] then return end
   local message, card = kindMessage(kind, value, body)
   Alerts.Show(message, definition.color, { sound = true, notice = card, combat = definition.inCombat })
+end
+
+-- Einblendung einer Art für andere Module (Quest fertig, ...), nur wenn die Art eingeschaltet ist
+function Alerts.Raise(kind, value, body)
+  alert(kind, value, body)
 end
 
 -- Beispiel (Vorschau, /lt debug alert) sofort zeigen, ohne wartende echte Einblendungen zu verwerfen: eine gerade

@@ -9,7 +9,11 @@
 --   "Nächste"   Retail/Forever C_QuestLog.GetDistanceSqToQuest (kleinster lesbarer Abstand); Classic kennt keinen
 --               Abstand: die zuletzt angenommene Quest mit Item, sonst die erste im Log.
 --   Ziel        Namensplaketten, die C_QuestLog.UnitIsRelatedToActiveQuest als Questgegner meldet (wie QuestMarks.lua,
---               nur wo es das gibt), Knopf type "macro" mit "/targetexact <Name>". Kein Lesen von Zieltexten.
+--               nur wo es das gibt), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
+--               fallen heraus). Knopf type "macro": "/cleartarget", je Name "/targetexact <Name>" (sichtbare Plaketten
+--               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
+--               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
+--               Zweige). SetRaidTarget direkt ist in Retail/Forever für Addons gesperrt; der sichere Knopf geht überall.
 -- Attribute, Anzeigen und Verstecken der sicheren Knöpfe nur außerhalb des Kampfs; im Kampf wird es gemerkt und bei
 -- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (verschiebbar über Widgets.CreateMover, Position questItemPos) wird
 -- durch die sicheren Kinder selbst geschützt und deshalb ebenfalls nur außerhalb des Kampfs angefasst.
@@ -26,7 +30,8 @@ local BUTTON_SIZE = 36
 local GAP = 4
 local LABEL_HEIGHT = 14  -- Griff zum Verschieben über den Knöpfen (nur im Verschiebe-Modus sichtbar)
 local REFRESH_SECONDS = 1
-local MAX_NAMEPLATES = 40
+local MAX_MACRO = 255          -- Länge eines Makros
+local MARKER_LINE = "\n/tm [exists,nodead] !8"  -- 8 = Totenkopf
 local DEFAULT_POS = { "CENTER", "CENTER", 0, -180 }
 local MOVE_BACKGROUND = { 0, 0, 0, 0.6 }
 
@@ -45,7 +50,7 @@ local function inCombat()
 end
 
 function QuestItem.CanTarget()
-  return ns.QuestMarks.IsAvailable()
+  return ns.QuestMarks.IsAvailable() and ns.QuestMarks.HasClientQuestUnits()
 end
 
 -- Quests mit benutzbarem Item: { questID, index, link, itemId, texture }
@@ -90,19 +95,61 @@ function QuestItem.Pick()
   return best
 end
 
--- Name eines lebenden Questgegners auf einer Namensplakette
-function QuestItem.TargetName()
-  if not QuestItem.CanTarget() then return nil end
-  for i = 1, MAX_NAMEPLATES do
-    local unit = "nameplate" .. i
-    if UnitExists(unit) and not UnitIsPlayer(unit) and not UnitIsDead(unit) then
+local function isLivingMob(unit)
+  return UnitExists(unit) and readable(UnitIsPlayer(unit)) == false and readable(UnitIsDead(unit)) == false
+end
+
+-- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt)
+local function plateNames()
+  local names = {}
+  if not QuestItem.CanTarget() then return names end
+  for unit in pairs(ns.NamePlates.Active()) do
+    if isLivingMob(unit) then
       local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
       local name = readable(UnitName(unit))
       if not ns.IsSecret(related) and related == true and type(name) == "string" and name ~= "" then
-        return name
+        names[#names + 1] = name
       end
     end
   end
+  table.sort(names)
+  return names
+end
+
+-- Namen für den Zielknopf: gelernte Gegner offener Ziele, danach die sichtbaren Questgegner (ohne Doppelte)
+function QuestItem.TargetNames()
+  local names, seen = {}, {}
+  local function add(name)
+    if not seen[name] then
+      seen[name] = true
+      names[#names + 1] = name
+    end
+  end
+  local visible = plateNames()
+  local visibleSet = {}
+  for _, name in ipairs(visible) do visibleSet[name] = true end
+  if ns.db.questLearning then
+    for _, name in ipairs(ns.QuestMobs.OpenMobNames()) do
+      if not visibleSet[name] then add(name) end
+    end
+  end
+  for _, name in ipairs(visible) do add(name) end
+  return names
+end
+
+-- Makrotext: /cleartarget, /targetexact je Name (die letzten haben Vorrang, daher vorne gekürzt), optional Marker
+function QuestItem.TargetMacro(names, marker)
+  if #names == 0 then return nil end
+  local tail = marker and MARKER_LINE or ""
+  local lines = {}
+  local length = #"/cleartarget" + #tail
+  for index = #names, 1, -1 do
+    local line = "\n/targetexact " .. names[index]
+    if length + #line > MAX_MACRO then break end
+    length = length + #line
+    table.insert(lines, 1, line)
+  end
+  return "/cleartarget" .. table.concat(lines) .. tail, #lines
 end
 
 local function createSecureButton(name, actionType)
@@ -122,8 +169,8 @@ local function showTooltip(self)
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
   if self == itemButton and self.link then
     GameTooltip:SetHyperlink(self.link)
-  elseif self == targetButton and shown.target then
-    GameTooltip:AddLine(string.format(L.QUEST_TARGET_TIP_LINE, shown.target))
+  elseif self == targetButton and shown.names then
+    GameTooltip:AddLine(string.format(L.QUEST_TARGET_TIP_LINE, table.concat(shown.names, ", ")), 1, 1, 1, true)
   end
   GameTooltip:Show()
 end
@@ -189,14 +236,16 @@ local function setItem(candidate)
   shown.itemId = itemId
 end
 
-local function setTarget(name)
-  if name then
-    if name ~= shown.target then targetButton:SetAttribute("macrotext", "/targetexact " .. name) end
+local function setTarget(names)
+  local macro, count = QuestItem.TargetMacro(names or {}, ns.db and ns.db.questTargetMarker)
+  if macro then
+    if macro ~= shown.target then targetButton:SetAttribute("macrotext", macro) end
     targetButton:Show()
   else
     targetButton:Hide()
   end
-  shown.target = name
+  shown.target = macro
+  shown.names = macro and { unpack(names, #names - count + 1) } or nil
 end
 
 -- Stand neu bestimmen; nur außerhalb des Kampfs (sichere Knöpfe)
@@ -212,7 +261,7 @@ function QuestItem.Refresh()
   local moving = mover.IsMoving()
   local itemBefore, targetBefore = shown.itemId, shown.target
   setItem(db and db.questItemButton and QuestItem.Pick() or nil)
-  setTarget(db and db.questTargetButton and QuestItem.TargetName() or nil)
+  setTarget(db and db.questTargetButton and QuestItem.TargetNames() or nil)
   if shown.itemId ~= itemBefore or shown.target ~= targetBefore then
     ns.Debug("questitem", "item %s (link %s), target %s", shown.itemId, itemButton.link, shown.target)
   end

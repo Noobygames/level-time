@@ -1406,3 +1406,294 @@ Nachher (Top-Zeilen):
 Tabellen korrekt (Sortierung, Suche, Summe):
 Fehler:
 ```
+
+### 113. Zielstand am Quest-Symbol (Roadmap 340)
+
+- [ ] geprüft
+
+Komfort > Quests > Kill-Quest-Markierung: „Kill-Quest-Mobs markieren“ und „Zielstand am Symbol“ an, Namensplaketten an. Eine Quest „töte 8 X“ annehmen und zu den Gegnern gehen.
+
+1. Links vom Quest-Symbol steht der Stand, z.B. „0/8“; nach jedem Kill steigt er, nach dem letzten verschwindet das Symbol.
+2. Einen Questgegner anvisieren, `/lt debug log`, `/lt debug check`, danach `make debuglog` (Eintrag `quests.unitTooltip`: Zeilentypen, Texte, `completed`, gedeuteter Stand).
+3. Classic Era/TBC: steht im Tooltip eines Questgegners überhaupt eine Questzeile? Wenn nicht, bleibt der Zähler leer (dann kommt er später aus gelernten Daten).
+
+**Erwartet:** Zähler stimmt mit dem Questlog überein, kein Flackern, keine Lua-Fehler; im Kampf in Instanzen (geheime Zeilen) kein Zähler, aber auch kein Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zähler sichtbar und richtig (ja/nein):
+Tooltip-Zeilen laut Debug-Log (Typen/Text):
+Fehler:
+```
+
+### 114. Questgegner und Quest-Gegenstände lernen (Roadmap 341)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ an, `/lt debug log` an. Eine Tötungsquest („töte 8 X“) und eine Sammelquest („bringe 4 Y“, Y droppt von Gegnern) annehmen und je drei Ziele erledigen, dazu einen grauen Gegner für eine Quest töten, falls möglich.
+
+1. `/lt debug check`, danach `make debuglog`: Eintrag `quests.learned` nennt die gelernten Namen (`openMobs`), die `quests`-Zeilen „objective .../... rose (...): learned true“.
+2. Classic Era/TBC: Komfort > Quests > Kill-Quest-Markierung an. Gelernte Gegner bekommen nach dem zweiten Kill das Quest-Symbol (mit „Zielstand am Symbol“ auch den Zähler aus dem Questlog); Mouseover zeigt „Quest: Name (3/8)“.
+3. Mit einem Twink dieselbe Quest annehmen: die Gegner sind sofort markiert (Classic) bzw. der Zielknopf kennt sie.
+4. Ziel erfüllt: Markierung und Tooltipzeile verschwinden.
+
+**Erwartet:** keine falschen Zuordnungen (z.B. ein zufällig gleichzeitig getöteter anderer Gegner bleibt unter 2 Treffern), keine Lua-Fehler. Retail/Forever: Tooltipzeile erscheint nicht (der Client zeigt eigene Questzeilen).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Gelernt laut Debug-Log (Namen):
+Markierung/Tooltip in Classic (ja/nein):
+Twink sofort markiert (ja/nein):
+Falsche Zuordnungen:
+Fehler:
+```
+
+### 115. Zielknopf mit gelernten Namen und Totenkopf (Roadmap 342)
+
+- [ ] geprüft
+
+Komfort > Quests: „Questgegner-Zielknopf“, „Ziel mit Totenkopf markieren“ und „Questgegner und -gegenstände lernen“ an. Eine Tötungsquest mit schon gelernten Gegnern (siehe 341) offen haben.
+
+1. Der Zielknopf erscheint auch ohne sichtbare Plakette; Mouseover nennt die Namen. Klick wählt den nächsten passenden Gegner und setzt den Totenkopf, ein zweiter Klick nimmt ihn nicht wieder ab.
+2. Im Kampf ein Ziel erfüllen: der Knopf ändert sich erst nach dem Kampf, ohne „Aktion blockiert“.
+3. Ziel erfüllt: der Name verschwindet aus dem Mouseover des Knopfs.
+4. Solo in Classic Era: setzt `/tm` überhaupt einen Marker? (Falls nicht, bitte notieren.)
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis; Makro wird nie länger als 255 Zeichen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielwahl mit gelernten Namen (ja/nein):
+Totenkopf gesetzt, bleibt beim 2. Klick (ja/nein):
+Fehler:
+```
+
+### 116. „Quest fertig“ als Einblendung (Roadmap 343)
+
+- [ ] geprüft
+
+Einblendungen: „Quest fertig“ und „Questziel erfüllt“ an, Stil Banner, Ton an. Allein (ohne Gruppe) eine Quest mit zwei Zielen erledigen.
+
+1. Erstes Ziel erfüllt: Karte „Ziel erfüllt: …“ mit Questname darunter.
+2. Letztes Ziel erfüllt: nur „Quest fertig: Name“ mit „+N XP bei Abgabe“ und Ton, keine zusätzliche Ziel-Karte.
+3. Ziel im Kampf erfüllen: Karte kommt erst nach dem Kampf.
+4. `/reload` mit einer schon fertigen Quest: keine Karte.
+5. `/lt debug alert questcomplete` zeigt ein Beispiel.
+
+**Erwartet:** XP stimmt mit dem Questlog überein (Retail: Wert nach Level), keine doppelten Karten, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ziel-/Quest-Karte (ja/nein):
+XP richtig (ja/nein):
+Im Kampf zurückgehalten (ja/nein):
+Fehler:
+```
+
+### 117. Graue Quests aufräumen, Questlog fast voll (Roadmap 344)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: Knopf „Graue Quests“ an; Hinweise > Warnungen: „Questlog fast voll“ an. Ein Charakter mit mindestens zwei grauen Quests.
+
+1. Questlog öffnen (Classic: L, Retail/Forever: Karte mit Questliste): unter dem Fenster steht „Graue Quests (N)“; Lage und Größe ok? Überdeckt er etwas?
+2. Klick: Rückfrage mit den Namen. „Nein“: nichts passiert. „Ja“: die grauen Quests verschwinden nacheinander aus dem Log, sonst keine. Danach `/lt debug log` mit `make debuglog`: Zeilen „abandoned gray quest …“.
+3. Gibt es nach dem Abbruch einen Fehler „Aktion blockiert“/„Interface-Aktion fehlgeschlagen“? (Abbrechen ist laut Doku nicht geschützt, aber ungeprüft.)
+4. So viele Quests annehmen, bis nur noch 2 Plätze frei sind: einmal Hinweis „N von M Quests im Log“.
+
+**Erwartet:** nie ohne Bestätigung abgebrochen, keine Lua-Fehler; Classic: graue Quests stimmen mit der grauen Farbe im Log überein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Knopf sichtbar und gut platziert (ja/nein):
+Nur graue abgebrochen (ja/nein):
+Blockiert-Fehler (ja/nein):
+Hinweis „fast voll“ (ja/nein):
+Fehler:
+```
+
+### 118. Abgabe-Übersicht (Roadmap 345)
+
+- [ ] geprüft
+
+Mit mehreren abgabebereiten Quests in verschiedenen Zonen `/lt history` > Quests > Abgabe öffnen.
+
+1. Jede fertige Quest steht mit Zone (Überschrift im Questlog), Level, XP und „% Level“; Fußzeile mit Anzahl, XP-Summe und Summe in Prozent.
+2. Maus über eine Zeile zeigt den Quest-Tooltip des Spiels.
+3. Eine Quest abgeben: sie verschwindet nach spätestens 5 s aus der Liste.
+4. Classic: Quests unter eingeklappten Überschriften fehlen (bekannt); bitte notieren, ob das stört.
+
+**Erwartet:** XP stimmen mit dem Questlog überein, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste und Summen richtig (ja/nein):
+Quest-Tooltip (ja/nein):
+Fehler:
+```
+
+### 119. Belohnungsempfehlung (Roadmap 346)
+
+- [ ] geprüft
+
+Komfort > Quests: „Belohnung empfehlen“ an. Eine Quest mit mehreren Belohnungen zur Auswahl abgeben (Questfenster) und vorher im Questlog die Details derselben Quest ansehen.
+
+1. Die Wahl mit dem höchsten Händlerpreis hat oben links eine Goldmünze; die benutzbare Wahl mit dem größten Itemlevel-Gewinn unten links „+N“ in Grün.
+2. Beim ersten Öffnen (Items noch nicht im Cache) erscheinen die Symbole kurz verzögert.
+3. Sitzen die Symbole sauber auf den Knöpfen (auch im Questlog-Detail)? Überdecken sie Anzahl oder Name?
+4. `/lt debug log`, danach `make debuglog`: Zeile „reward hint: value …, upgrade …, log …“.
+
+**Erwartet:** keine automatische Wahl, keine Lua-Fehler; Ringe/Schmuck vergleichen mit dem schwächeren angelegten.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Münze richtig (ja/nein):
++N richtig (ja/nein):
+Im Questlog-Detail (ja/nein):
+Fehler:
+```
+
+### 120. Quest-Effizienz (Roadmap 347)
+
+- [ ] geprüft
+
+Nach einigen abgegebenen Quests (mit Quest-Splits, also nach der Installation angenommen) `/lt history` > Quests > Effizienz.
+
+1. Je Quest: Abgaben, Ø Dauer, Ø XP, XP/min; Klick auf die Spaltenköpfe sortiert.
+2. Komfort > Quests: „Quest-Effizienz im Tooltip“ an. Einen Quest-Link im Chat anklicken bzw. in der Tabelle mit der Maus darüber: Zeile „Bisher: Ø 3:40, 1.250 XP/min, 2x“.
+3. Retail/Forever: zeigt die Questliste neben der Karte beim Überfahren einen Link-Tooltip mit dieser Zeile? (Wenn nicht, bitte notieren; Classic zeigt im Questlog keinen Tooltip.)
+
+**Erwartet:** Werte plausibel, Twink sieht die Werte des Main, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tabelle richtig (ja/nein):
+Tooltipzeile an Links (ja/nein):
+In der Questliste (ja/nein/kein Tooltip):
+Fehler:
+```
+
+### 121. Seltene Gegner melden (Roadmap 348)
+
+- [ ] geprüft
+
+Einblendungen: „Rare gesichtet“ und „Dabei Taskleiste blinken“ an, Ton an. Zu einem bekannten seltenen Gegner gehen (silberner Drache am Porträt).
+
+1. Sobald seine Plakette erscheint (oder beim Anvisieren/Mouseover): „Rare gesichtet: Name“ mit Ton; läuft WoW im Hintergrund, blinkt das Symbol in der Taskleiste.
+2. Erneut hinsehen: keine zweite Meldung in dieser Session; nach Logout/Login wieder.
+3. Toter Rare: keine Meldung. In Instanzen (geheime Werte in Forever): keine Fehler.
+4. `/lt debug alert rarespotted` zeigt ein Beispiel.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Meldung bei Plakette/Ziel/Mouseover (ja/nein):
+Taskleiste blinkt (ja/nein):
+Fehler:
+```
+
+### 122. Quest-Gegenstand im Tooltip (Roadmap 349)
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Gegenstände im Tooltip“ an (dazu am besten „Questgegner und -gegenstände lernen“). Eine Sammelquest offen haben und einige Gegenstände dafür in der Tasche.
+
+1. Tooltip eines solchen Gegenstands in der Tasche: „Für Quest: Name (3/8)“ in Gelb.
+2. Ein Gegenstand, dessen Name nicht im Zieltext steht (z.B. „Schuppe“ für „Schuppen gesammelt“): erscheint die Zeile erst nach dem Lernen (zweite Beute)?
+3. Quest abgeben, übrig gebliebener Gegenstand: „Quest erledigt – verkaufbar“ in Grau.
+4. Retail/Forever: Zeile auch im Tooltip von Händler, Beute-Fenster und Chat-Links?
+
+**Erwartet:** Zeile nur einmal pro Tooltip, keine Lua-Fehler; keine Zeile bei normalen Gegenständen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Offene Quest mit Stand (ja/nein):
+„verkaufbar“ nach Abgabe (ja/nein):
+Fehler:
+```
+
+### 123. Quest-NPCs und Orte lernen, Questkarte (Roadmap 350)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ und „Gelernte Questorte auf der Karte“ an, `/lt debug log` an. Eine Quest bei einem NPC annehmen, ein paar Ziele an verschiedenen Stellen erledigen, abgeben; eine zweite Quest annehmen und fertig machen, aber noch nicht abgeben.
+
+1. Weltkarte: gelbe Punkte, wo die Ziele der offenen Quest vorankamen; Maus darüber nennt die Quest.
+2. Fertige Quest, deren Abgabe-NPC schon bekannt ist (z.B. Twink mit derselben Quest): Fragezeichen am NPC, Tooltip „Abgabe bei Name“.
+3. Historie > Quests > Abgabe: Spalte NPC mit dem gelernten Namen.
+4. `make debuglog`: Zeilen „quest … giver/turnIn: Name (NPC-ID) map …“. In einer Forever-Instanz: Name ohne NPC-ID, keine Fehler.
+5. Die Todeskarte (Komfort > Rahmen > Weltkarte) zeigt weiterhin die Tode (gemeinsamer Baustein).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielpunkte (ja/nein):
+Abgabe-Fragezeichen (ja/nein):
+NPC-Spalte (ja/nein):
+Todeskarte noch ok (ja/nein):
+Fehler:
+```
+
+### 124. Leichenpfeil (Roadmap 351)
+
+- [ ] geprüft
+
+Komfort > Rahmen > Weltkarte: „Leichenpfeil als Geist“ an. Draußen sterben und freilassen.
+
+1. Als Geist erscheint oben mittig ein Pfeil mit „N Meter“ darunter. Zeigt er zur Leiche, wenn du dich drehst? Nimmt die Entfernung beim Laufen ab und stimmt sie ungefähr (z.B. mit der Minikarte)?
+2. In einer anderen Zone als die Leiche (Friedhof jenseits der Zonengrenze): Pfeil weg oder richtig?
+3. Wiederbelebt: Pfeil weg.
+4. Als Geist `/lt debug log`, `/lt debug check`, danach `make debuglog`: Eintrag `deaths.corpseArrow` (Karte, Leiche, Breite/Höhe, Blickrichtung, Drehung, Entfernung).
+5. In einer Instanz sterben (Forever: geheime Positionen): kein Pfeil, keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Richtung stimmt (ja/nein, um wie viel daneben):
+Entfernung plausibel (ja/nein):
+Andere Zone (ja/nein/weg):
+Fehler:
+```
+
+### 125. Questreste in den Taschen (Roadmap 352)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: „Questreste melden“ an, dazu „Questgegner und -gegenstände lernen“. Eine Sammelquest mit überzähligen Gegenständen abgeben oder eine Quest mit Quest-Item abbrechen.
+
+1. Beim nächsten Händler: Hinweis „Questreste – Kann weg: Name (Anzahl)“. Gegenstände, die eine andere offene Quest braucht, stehen nicht dabei.
+2. Verkaufen: beim nächsten Händler kein Hinweis mehr.
+3. Taschen fast voll (Hinweis an): der Hinweis nennt die Questreste mit.
+4. `/reload` zwischen Annahme und Abbruch: das Quest-Item wird trotzdem erkannt.
+
+**Erwartet:** keine falschen Vorschläge (z.B. Gegenstände für Folgequests: bitte notieren), keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hinweis beim Händler (ja/nein):
+Falsche Vorschläge:
+Fehler:
+```

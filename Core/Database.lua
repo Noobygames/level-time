@@ -60,6 +60,10 @@ local SETTINGS_DEFAULTS = {
   alertEliteKill = false,
   alertEpicLoot = false,
   alertNearDeath = false,
+  alertRareSpotted = false,     -- seltener Gegner gesichtet (RareAlert.lua)
+  alertRareFlash = false,       -- dabei das WoW-Symbol blinken lassen
+  alertQuestComplete = false,   -- Quest abgabebereit (QuestCompleteAlert.lua)
+  alertQuestObjective = false,  -- einzelnes Questziel erfüllt
   alertStyle = "banner",  -- "text" oder "banner" (siehe Alerts.lua)
   alertScale = 1,
   alertDuration = 3,      -- Sekunden voll sichtbar
@@ -144,13 +148,24 @@ local SETTINGS_DEFAULTS = {
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  questCleanupButton = false, -- Knopf "Graue Quests" am Questlog (QuestCleanup.lua)
+  warnQuestLogFull = false,   -- Hinweis bei fast vollem Questlog
+  rewardHint = false,         -- Goldmünze und Itemlevel-Gewinn auf Questbelohnungen (RewardHint.lua)
+  questEfficiencyTooltip = false, -- "Bisher: Ø Dauer, XP/min" an Quest-Links (QuestEfficiency.lua)
+  questItemTooltip = false,   -- Item-Tooltip nennt die Quest des Gegenstands (QuestItemTooltip.lua)
+  questMap = false,           -- gelernte Abgabe-NPCs und Zielorte auf der Weltkarte (QuestMap.lua)
+  corpseArrow = false,        -- als Geist Pfeil und Entfernung zur Leiche (CorpseArrow.lua)
+  questLeftovers = false,     -- Gegenstände erledigter Quests als Verkaufsvorschlag (QuestLeftovers.lua)
+  questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
+  questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
   -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
   -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken
   lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
   lootSparkleCorpses = false, lootSparkleScale = 1,
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
-  questTargetButton = false, -- Knopf "/targetexact" für einen Questgegner auf den Namensplaketten
+  questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)
+  questTargetMarker = false, -- derselbe Knopf setzt den Totenkopf auf das Ziel ("/tm !8")
   mapCoordinates = false,    -- Koordinaten von Spieler und Mauszeiger auf der Weltkarte (MapCoordinates.lua)
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)

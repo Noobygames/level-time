@@ -66,12 +66,30 @@ wow.state.units.nameplate1 = { name = "Spieler", isPlayer = true, quest = true }
 wow.state.units.nameplate2 = { name = "Toter Kobold", dead = true, quest = true }
 wow.state.units.nameplate3 = { name = "Wolf", quest = false }
 wow.state.units.nameplate4 = { name = "Kobold", quest = true }
+for index = 1, 4 do wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate" .. index) end
 addon.Set("questTargetButton", true)
-expect("Makro", target:GetAttribute("macrotext"), "/targetexact Kobold")
+expect("Makro", target:GetAttribute("macrotext"), "/cleartarget\n/targetexact Kobold")
 expectTrue("Zielknopf sichtbar", target:IsShown() and bar:IsShown())
 wow.state.units.nameplate4.name = wow.SECRET
 wow.update(1)
 expectTrue("geheimer Name: kein Ziel", not target:IsShown())
+
+-- Gelernte Namen offener Ziele (Roadmap 342): vor den sichtbaren, die Vorrang haben; Marker optional
+wow.state.units.nameplate4.name = "Kobold"
+addon.QuestMobs.OpenMobNames = function() return { "Kobold", "Wolf" } end
+addon.Set("questLearning", true)
+expect("gelernt und sichtbar", target:GetAttribute("macrotext"), "/cleartarget\n/targetexact Wolf\n/targetexact Kobold")
+addon.Set("questTargetMarker", true)
+expect("mit Totenkopf", target:GetAttribute("macrotext"),
+  "/cleartarget\n/targetexact Wolf\n/targetexact Kobold\n/tm [exists,nodead] !8")
+local long = {}
+for index = 1, 30 do long[index] = "Gegner Nummer " .. index end
+local macro, count = QuestItem.TargetMacro(long, true)
+expectTrue("höchstens 255 Zeichen", #macro <= 255)
+expectTrue("letzte Namen bleiben", macro:find("Gegner Nummer 30", 1, true) ~= nil and count < 30)
+expectTrue("Marker bleibt", macro:find("/tm", 1, true) ~= nil)
+addon.Set("questTargetMarker", false)
+addon.Set("questLearning", false)
 
 -- Verschieben: Griff sichtbar, nicht im Kampf
 addon.Set("questTargetButton", false)

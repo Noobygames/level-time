@@ -378,6 +378,7 @@ addToggles({
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
 addSlider({
@@ -589,19 +590,6 @@ addToggles({
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
-if ns.QuestMarks.IsAvailable() then
-  addSection("SECTION_QUEST_MARKS")
-  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks") })
-  addSlider({
-    label = "QUEST_MARK_SCALE",
-    min = toPercent(ns.QuestMarks.MIN_SCALE),
-    max = toPercent(ns.QuestMarks.MAX_SCALE),
-    step = 5,
-    get = function(db) return toPercent(db.questMarkScale) end,
-    set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
-    format = percent,
-  })
-end
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
 local LootSparkles = ns.LootSparkles
 if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
@@ -625,16 +613,39 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     })
   end
 end
+-- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
+addSubPage("COMFORT_PAGE_QUESTS")
+addSection("SECTION_QUEST_LEARNING")
+addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
+addSection("SECTION_QUEST_LOG")
+addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
-  toggle("QUEST_TARGET_TOGGLE", "questTargetButton", ns.QuestItem.CanTarget),
+  toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
+  toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
+  toggle("REWARD_HINT_TOGGLE", "rewardHint"),
+  toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
+  toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
 })
 builder.AddButtonRow({
   { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
   { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
 })
+if ns.QuestMarks.IsAvailable() then
+  addSection("SECTION_QUEST_MARKS")
+  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
+  addSlider({
+    label = "QUEST_MARK_SCALE",
+    min = toPercent(ns.QuestMarks.MIN_SCALE),
+    max = toPercent(ns.QuestMarks.MAX_SCALE),
+    step = 5,
+    get = function(db) return toPercent(db.questMarkScale) end,
+    set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
+    format = percent,
+  })
+end
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({
@@ -659,7 +670,8 @@ addToggles({
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
 })
 addSection("SECTION_WORLD_MAP")
-addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap") })
+addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
+  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
@@ -731,6 +743,10 @@ addToggles({
   toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
+  toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
+  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
+  toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
+  toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })
 addSection("SECTION_LEVEL_UP_WINDOW")
 addToggles({

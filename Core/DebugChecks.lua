@@ -418,7 +418,7 @@ end)
 check("268.questItem.pick", function()
   local pick = ns.QuestItem.Pick()
   return { candidates = ns.QuestItem.Candidates(), pick = pick and { itemId = pick.itemId, questID = pick.questID },
-    target = ns.QuestItem.TargetName(), canTarget = ns.QuestItem.CanTarget(),
+    targets = ns.QuestItem.TargetNames(), canTarget = ns.QuestItem.CanTarget(),
     buttons = framesByName({ "LevelTimerQuestItemButton", "LevelTimerQuestTargetButton" }) }
 end)
 
