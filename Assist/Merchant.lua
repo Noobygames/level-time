@@ -5,7 +5,9 @@
 -- wo CanGuildBankRepair existiert (nicht in Classic Era, siehe Client.HasGuildBank).
 -- Ob die Gilde zahlen kann, ist vorher nicht verlässlich bekannt (GetGuildBankMoney ist 0 bzw. veraltet,
 -- solange die Gildenbank in dieser Sitzung nicht offen war). Daher wie Blizzard einfach versuchen und
--- danach an den restlichen Kosten sehen, was die Gilde bezahlt hat; den Rest zahlt der Charakter.
+-- danach an den restlichen Kosten sehen, was die Gilde bezahlt hat; den Rest zahlt der Charakter. Das Abhebelimit
+-- (GetGuildBankWithdrawMoney) wird aus demselben Grund nicht vorab geprüft; ein zu kleines Limit führt nur dazu,
+-- dass der Charakter den Rest zahlt (Roadmap 179).
 -- Schrott: Taschen über Bags.ForEachItem (quality, hasNoValue, isLocked); verkauft wird mit C_Container.UseContainerItem bei offenem Händler. Den Erlös zählt
 -- MoneyCounter wie jede Einnahme, zusätzlich der Zähler moneyJunk (erwarteter Erlös).
 local _, ns = ...
