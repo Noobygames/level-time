@@ -460,6 +460,7 @@ if (SCENARIO or ""):match("^era_classic_frame") then
   PlayerFrame = newFrame()
   PlayerFrameTexture = PlayerFrame:CreateTexture()
   PlayerName = PlayerFrame:CreateFontString()
+  PlayerFrameManaBar = newFrame()
 end
 -- Quest-Schriften (Blizzard_Fonts_Shared/Shared, alle Clients)
 QuestFont, QuestFontLeft, QuestFontNormalSmall = newFont(), newFont(), newFont()

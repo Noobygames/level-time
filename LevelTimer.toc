@@ -182,6 +182,7 @@ Assist\HideFrames.lua
 Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\PlayerChain.lua
+Assist\DruidManaBar.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
 Assist\BlizzardHide.lua

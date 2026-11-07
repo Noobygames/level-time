@@ -995,6 +995,7 @@ addSection("SECTION_UNIT_FRAMES")
 addToggles({
   toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable),
   toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
+  toggle("DRUID_MANA_BAR", "druidManaBar", ns.DruidManaBar.IsAvailable),
 })
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
