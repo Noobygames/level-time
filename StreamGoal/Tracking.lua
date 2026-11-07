@@ -88,6 +88,8 @@ local function checkBattlegroundResult()
   local winner = getWinner()
   if winner == nil then return end  -- läuft noch
   ns.db.bgResultCounted = true
+  ns.Debug("tracking", "battleground over: winner %s, faction %s, won %s", winner, UnitFactionGroup("player"),
+    playerWon(winner))
   if not playerWon(winner) then return end
   local name = (GetInstanceInfo()) or ""
   Goals.Add("bgwin", function(goal)

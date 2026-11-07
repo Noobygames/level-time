@@ -175,5 +175,6 @@ UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+Core\DebugChecks.lua
 Core\DebugTools.lua
 Core\Commands.lua

@@ -131,12 +131,15 @@ end
 
 local function markButtons()
   clearMarks()
+  local names = {}
   for _, button in ipairs(ns.ActionBars.Buttons()) do
     if Emergency.IsEmergencyAction(button.action) then
       marked[button] = true
       glowFor(button):Show()
+      names[#names + 1] = ns.Overrides.NameOf(button) .. "=" .. tostring(button.action)
     end
   end
+  ns.Debug("emergency", "marked %s", table.concat(names, ", "))
   dirty = false
 end
 

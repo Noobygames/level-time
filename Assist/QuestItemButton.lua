@@ -200,14 +200,19 @@ end
 function QuestItem.Refresh()
   if not holder then return end
   if inCombat() then
+    if not pending then ns.Debug("questitem", "in combat, update waits") end
     pending = true
     return
   end
   pending = false
   local db = ns.db
   local moving = mover.IsMoving()
+  local itemBefore, targetBefore = shown.itemId, shown.target
   setItem(db and db.questItemButton and QuestItem.Pick() or nil)
   setTarget(db and db.questTargetButton and QuestItem.TargetName() or nil)
+  if shown.itemId ~= itemBefore or shown.target ~= targetBefore then
+    ns.Debug("questitem", "item %s (link %s), target %s", shown.itemId, itemButton.link, shown.target)
+  end
   holder:SetShown(moving or shown.itemId ~= nil or shown.target ~= nil)
 end
 

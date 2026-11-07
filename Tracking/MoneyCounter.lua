@@ -66,16 +66,20 @@ local function bookIncome(amount)
   Stats.Increment(Stats.MONEY_EARNED, amount)
   local window = currentContext()
   if window and window.income then
+    ns.Debug("money", "income %s from window %s", amount, window.open)
     Stats.Increment(window.income, amount)
     return
   end
   local at = GetTime()
   if nearMoneyMessage(at) then
+    ns.Debug("money", "income %s as loot (money message before)", amount)
     Stats.Increment(Stats.INCOME_LOOT, amount)
     return
   end
   C_Timer.After(MONEY_MESSAGE_WAIT, function()
-    Stats.Increment(nearMoneyMessage(at) and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
+    local loot = nearMoneyMessage(at)
+    ns.Debug("money", "income %s as %s (waited for a money message)", amount, loot and "loot" or "other")
+    Stats.Increment(loot and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
   end)
 end
 
@@ -90,7 +94,9 @@ ns.RegisterEvent("PLAYER_MONEY", function()
   if lastMoney and current > lastMoney then
     bookIncome(current - lastMoney)
   elseif lastMoney and current < lastMoney then
-    Stats.Increment(spendingKind(), lastMoney - current)
+    local kind = spendingKind()
+    ns.Debug("money", "spent %s as %s", lastMoney - current, kind)
+    Stats.Increment(kind, lastMoney - current)
   end
   lastMoney = current
   ns.character.money = current

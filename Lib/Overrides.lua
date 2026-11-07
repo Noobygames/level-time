@@ -13,13 +13,23 @@ function Overrides.New(read, write)
   return function(object, enabled, ...)
     if not object then return end
     if enabled then
-      if originals[object] == nil then originals[object] = { read(object) } end
+      if originals[object] == nil then
+        originals[object] = { read(object) }
+        ns.Debug("overrides", "%s overridden", Overrides.NameOf(object))
+      end
       write(object, ...)
     elseif originals[object] then
       write(object, unpack(originals[object]))
       originals[object] = nil
+      ns.Debug("overrides", "%s restored", Overrides.NameOf(object))
     end
   end
+end
+
+-- Name eines Frames für das Debug-Log; ohne Namen der Typ
+function Overrides.NameOf(object)
+  local name = type(object) == "table" and type(object.GetName) == "function" and object:GetName()
+  return name or tostring(object)
 end
 
 -- Häufige Fälle

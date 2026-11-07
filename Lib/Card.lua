@@ -123,7 +123,15 @@ function Card.Create(name)
     title:SetTextColor(r, g, b)
     hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)
-    if hasIcon then icon:SetTexture(spec.texture or iconTexture(spec.icon)) end
+    if hasIcon then
+      local texture = spec.texture or iconTexture(spec.icon)
+      icon:SetTexture(texture)
+      -- Fehlt die Textur im Client, zeigt er ein grünes Quadrat; das Log zeigt, was aufgelöst wurde (Roadmap 237, 244)
+      if ns.IsDebugging() then
+        ns.Debug("card", "icon %s -> %s, file %s", spec.texture or spec.icon, texture,
+          icon.GetTextureFileID and icon:GetTextureFileID())
+      end
+    end
     title:SetText(spec.title or "")
     hasBody = spec.body ~= nil and spec.body ~= ""
     body:SetShown(hasBody)

@@ -36,6 +36,7 @@ end
 function DeathRecap.GetLastCause()
   if not DeathRecap.IsAvailable() then return nil end
   local ok, events = pcall(C_DeathRecap.GetRecapEvents)
+  ns.Debug("death", "recap: ok %s, %s, events %s", ok, type(events), type(events) == "table" and #events or events)
   if not ok or type(events) ~= "table" then return nil end
   local event = events[KILLING_BLOW_INDEX]
   if not event then return nil end

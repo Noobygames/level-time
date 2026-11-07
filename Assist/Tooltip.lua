@@ -79,6 +79,10 @@ local function onUnitTooltip(tooltip)
   if ns.db.tooltipKillsToLevel then
     local text, color = Tooltip.KillsLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
+    if ns.IsDebugging() then
+      local name = UnitName(unit)
+      ns.Debug("tooltip", "kills line for %s (level %s): %s", name, UnitLevel(unit), text)
+    end
   end
 end
 

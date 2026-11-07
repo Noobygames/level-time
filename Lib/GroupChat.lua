@@ -30,5 +30,6 @@ end
 
 function GroupChat.Send(text, chatType)
   local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+  ns.Debug("groupchat", "%s: %s", chatType, text)
   send(PREFIX .. ns.Format.PlainText(text), chatType)
 end

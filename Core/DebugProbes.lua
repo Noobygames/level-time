@@ -625,3 +625,9 @@ ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
     first = type(removed) == "table" and not ns.IsSecret(removed) and removed[1] or nil, state = playerState() })
 end)
 ns.RegisterEvent("PLAYER_REGEN_ENABLED", function() auraRemovalLogged = false end)
+
+-- Helfer für weitere Proben und Prüfungen (DebugChecks.lua, lädt nach allen Modulen)
+DebugLog.Probe = {
+  api = api, call = call, safe = safe, listOf = listOf, playerState = playerState, unitInfo = unitInfo,
+  MAX_EVENT_ARGS = MAX_EVENT_ARGS,
+}
