@@ -60,34 +60,45 @@ Manager.panel = panel
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", 0, -14)
 
-local goalsPage = CreateFrame("Frame", nil, panel)
-goalsPage:SetSize(CONTENT_WIDTH, PAGE_HEIGHT)
-goalsPage:SetPoint("TOPLEFT", MARGIN, PAGE_TOP)
-local historyPage = CreateFrame("Frame", nil, panel)
-historyPage:SetSize(CONTENT_WIDTH, PAGE_HEIGHT)
-historyPage:SetPoint("TOPLEFT", MARGIN, PAGE_TOP)
-
-local pageTabs = {}
+-- Reiter des Fensters: Manager.AddPage(key, labelKey, render) legt Seite und Reiter an (weitere Dateien, z.B.
+-- Vorlagen); render() läuft beim Zeigen der Seite und nach Änderungen der Ziele, solange sie sichtbar ist
+Manager.PAGE_WIDTH, Manager.PAGE_HEIGHT = CONTENT_WIDTH, PAGE_HEIGHT
+local pages = {}      -- [key] = { frame, tab, labelKey, render }
+local pageOrder = {}
 local shownPage = "goals"
 
 local function showPage(name)
   shownPage = name
-  goalsPage:SetShown(name == "goals")
-  historyPage:SetShown(name == "history")
-  for key, tab in pairs(pageTabs) do tab:SetActive(key == name) end
-  if name == "history" then Manager.history:Render() end
+  for key, page in pairs(pages) do
+    page.frame:SetShown(key == name)
+    page.tab:SetActive(key == name)
+  end
+  if pages[name].render then pages[name].render() end
 end
 
-local function createPageTab(key, labelKey)
+function Manager.AddPage(key, labelKey, render)
+  local frame = CreateFrame("Frame", nil, panel)
+  frame:SetSize(CONTENT_WIDTH, PAGE_HEIGHT)
+  frame:SetPoint("TOPLEFT", MARGIN, PAGE_TOP)
+  frame:Hide()
   local tab = Widgets.CreateTab(panel, Theme.Font("title"), function() showPage(key) end)
-  tab.labelKey = labelKey
-  pageTabs[key] = tab
-  return tab
+  local previous = pages[pageOrder[#pageOrder]]
+  if previous then
+    tab:SetPoint("LEFT", previous.tab, "RIGHT", KIND_TAB_GAP, 0)
+  else
+    tab:SetPoint("TOPLEFT", MARGIN, -40)
+  end
+  pages[key] = { frame = frame, tab = tab, labelKey = labelKey, render = render }
+  table.insert(pageOrder, key)
+  return frame
 end
-local goalsTab = createPageTab("goals", "SG_TAB_GOALS")
-local historyTab = createPageTab("history", "SG_TAB_HISTORY")
-goalsTab:SetPoint("TOPLEFT", MARGIN, -40)
-historyTab:SetPoint("LEFT", goalsTab, "RIGHT", KIND_TAB_GAP, 0)
+
+function Manager.ShownPage()
+  return panel:IsShown() and shownPage or nil
+end
+
+local goalsPage = Manager.AddPage("goals", "SG_TAB_GOALS")
+local historyPage = Manager.AddPage("history", "SG_TAB_HISTORY", function() Manager.history:Render() end)
 
 ---------------------------------------------------------------------------
 -- Reiter "Ziele": Formular je Zielart
@@ -520,9 +531,9 @@ end
 -- Alle Texte (Sprache!), Felder der gewählten Art und laufende Ziele neu setzen
 function Manager.Refresh()
   title:SetText(L.SG_TITLE)
-  for key, tab in pairs(pageTabs) do
-    tab:SetLabel(L[tab.labelKey])
-    tab:SetActive(key == shownPage)
+  for key, page in pairs(pages) do
+    page.tab:SetLabel(L[page.labelKey])
+    page.tab:SetActive(key == shownPage)
   end
   formHeader:SetText(L.SG_FORM_TITLE)
   activeHeader:SetText(L.SG_ACTIVE_TITLE)
@@ -533,6 +544,8 @@ function Manager.Refresh()
   trackerCheck:SetChecked(ns.db.settings.showTracker)
   Widgets.SetButtonText(settingsButton, L.SG_SETTINGS, FOOTER_BUTTON_MIN_WIDTH)
   Widgets.SetButtonText(moveButton, L.SG_MOVE, FOOTER_BUTTON_MIN_WIDTH)
+  local page = pages[shownPage]
+  if panel:IsShown() and page.render then page.render() end
 end
 
 function Manager.Toggle(page)
@@ -548,9 +561,12 @@ end
 
 -- Ziele ändern sich auch durch Spielereignisse: offene Liste aktuell halten
 Goals.OnChange(function()
-  if panel:IsShown() then
-    renderActive()
-    if shownPage == "history" then Manager.history:Render(nil, false, true) end
+  if not panel:IsShown() then return end
+  renderActive()
+  if shownPage == "history" then
+    Manager.history:Render(nil, false, true)
+  elseif shownPage ~= "goals" and pages[shownPage].render then
+    pages[shownPage].render()
   end
 end)
 

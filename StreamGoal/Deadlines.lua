@@ -54,16 +54,26 @@ local function now(mode)
   return time()
 end
 
+-- Eingabe des Ziels mitführen (Vorlagen und Export legen die Frist wieder an)
+local function rememberInput(goal, seconds, mode)
+  local extras = goal.source and goal.source.extras
+  if not extras then return end
+  extras.deadline = seconds and (seconds .. "s") or nil
+  extras.deadlineMode = seconds and mode or nil
+end
+
 -- Frist setzen (seconds nil = keine Frist mehr)
 function Deadlines.Set(goal, seconds, mode)
   if not seconds then
     goal.deadline = nil
+    rememberInput(goal, nil)
     return true
   end
   mode = mode == Deadlines.PLAYED and Deadlines.PLAYED or Deadlines.REAL
   local current = now(mode)
   if not current then return false end
   goal.deadline = { mode = mode, at = current + seconds, seconds = seconds }
+  rememberInput(goal, seconds, mode)
   LT.RefreshTasks()
   return true
 end

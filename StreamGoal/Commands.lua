@@ -1,18 +1,19 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   deadline <Nr> <Dauer|off> [played] | sub <Checkliste> <Ziel> | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
 local Tracker = ns.Tracker
 local Manager = ns.Manager
 local L = ns.L
-local Format = ns.LT.Format
+local LT = ns.LT
+local Format = LT.Format
 
 local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
-ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_SUB" }
+ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_SUB", "SG_USAGE_PACK" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -115,6 +116,32 @@ local function sub(argument)
   ns.Print(err or string.format(L.SG_CHAT_SUBGOAL, Goals.Title(child), Goals.Title(parent)))
 end
 
+-- Vorlagen: "pack" (Liste), "pack <Name>" (anlegen), "pack save <Name>", "pack delete <Name>",
+-- "pack export <Name>", "pack import" (Fenster zum Einfügen); ohne Fenster reicht der Reiter "Vorlagen"
+local function pack(argument)
+  local action, name = argument:match("^(%S*)%s*(.-)$")
+  local Packs = ns.Packs
+  action = action:lower()
+  if action == "" or action == "list" then
+    for _, entry in ipairs(Packs.List()) do
+      ns.Print(string.format("%s  (%s)", Packs.Label(entry.key), entry.key))
+    end
+  elseif action == "save" then
+    local err = Packs.Save(name)
+    ns.Print(err or string.format(L.SG_CHAT_PACK_SAVED, name))
+  elseif action == "delete" then
+    ns.Print(Packs.Delete(name) and string.format(L.SG_CHAT_PACK_DELETED, name)
+      or string.format(L.SG_ERR_PACK_UNKNOWN, name))
+  elseif action == "export" then
+    local text = Packs.Export(name)
+    if text then LT.Export.Show(Packs.Label(name), text) else ns.Print(string.format(L.SG_ERR_PACK_UNKNOWN, name)) end
+  elseif action == "import" then
+    Manager.Toggle("packs")
+  else
+    ns.PacksView.Apply(strtrim(argument))
+  end
+end
+
 local function toggleTracker()
   local shown = not ns.db.settings.showTracker
   Tracker.SetShown(shown)
@@ -134,6 +161,7 @@ local commands = {
   count = count,
   deadline = deadline,
   sub = sub,
+  pack = pack,
   tracker = toggleTracker,
   scale = scale,
   options = function() ns.Options.Toggle() end,

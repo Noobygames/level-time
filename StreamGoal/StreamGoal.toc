@@ -28,8 +28,9 @@ Kinds\Honor.lua
 Kinds\Rule.lua
 Kinds\Checklist.lua
 
-# Zusätze jeder Zielart: Frist
+# Zusätze jeder Zielart: Frist; Vorlagen
 Deadlines.lua
+Packs.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
@@ -37,5 +38,6 @@ Tracking.lua
 # Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
 Tracker.lua
 Manager.lua
+PacksView.lua
 Options.lua
 Commands.lua

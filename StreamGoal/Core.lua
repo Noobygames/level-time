@@ -2,7 +2,7 @@
 -- Das Addon hängt per "## Dependencies: LevelTimer" von Level Time ab; Ereignisse, Login, Karten, Fenster,
 -- Tabellen und Texte kommen von dort, hier liegt nur, was zu den Zielen gehört.
 --
--- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, settings }.
+-- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, packs, settings }.
 -- Es existiert erst ab PLAYER_LOGIN (ns.OnLogin), vorher nie anfassen.
 local _, ns = ...
 
@@ -73,6 +73,7 @@ LT.OnLogin(function()
   db.schemaVersion = math.max(db.schemaVersion or 0, ns.SCHEMA_VERSION)
   db.nextId = db.nextId or 1
   db.goals = db.goals or {}
+  db.packs = type(db.packs) == "table" and db.packs or {}  -- eigene Vorlagen (Packs.lua)
   db.settings = db.settings or {}
   fillDefaults(db.settings, ns.SETTING_DEFAULTS)
   -- Früher pos = { Punkt, Bezugspunkt, x, y } und scale; jetzt ein Eintrag wie bei Level Time (Lib/Frames.lua)

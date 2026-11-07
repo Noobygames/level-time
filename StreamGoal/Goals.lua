@@ -1,7 +1,7 @@
 -- Ziel-Modell: anlegen, Fortschritt buchen, abschließen, abbrechen, Historie. Welche Zielarten es gibt, steht in
 -- Kinds.lua; welche Ereignisse sie füttern, in Tracking.lua.
 --
--- Ziel: { id, kind, character, createdAt, target, start, progress, params, status, finishedAt }
+-- Ziel: { id, kind, character, createdAt, target, start, progress, params, status, finishedAt, source }
 --   character = Schlüssel "Name-Realm" von Level Time; ein Ziel läuft nur, solange dieser Charakter eingeloggt ist.
 --   start/progress: Zählerstand beim Anlegen und jetzt (Level: das Level, sonst 0 und gezählte Stücke).
 --   status: "active", "done", "cancelled" oder "failed"; finishedAt = Zeitpunkt des Abschlusses (Historie).
@@ -88,6 +88,16 @@ local function notify(event, goal)
   end
 end
 
+-- Flache Kopie mit nur Texten, Zahlen und Wahrheitswerten (Eingaben, Vorlagen, Import); andere Werte fallen weg
+function Goals.CopyFlat(values)
+  local copy = {}
+  for key, value in pairs(values or {}) do
+    local kind = type(value)
+    if type(key) == "string" and (kind == "string" or kind == "number" or kind == "boolean") then copy[key] = value end
+  end
+  return copy
+end
+
 -- Zusätze, die jede Zielart haben kann (Frist, Belohnung, Punkte): Goals.RegisterExtra(name, { fields = Formularfelder
 -- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras) });
 -- extras = Tabelle aus Formular oder Befehl (Felder je Zusatz)
@@ -119,6 +129,7 @@ function Goals.Create(kind, params, target, extras)
   if not def or not Goals.IsAvailable(kind) then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
   params = params or {}
   extras = extras or {}
+  local source = { kind = kind, params = Goals.CopyFlat(params), target = target, extras = Goals.CopyFlat(extras) }
   if def.prepare then target = def.prepare(params, target) end
   local err = def.validate(params, target) or validateExtras(extras)
   if err then return nil, err end
@@ -135,6 +146,7 @@ function Goals.Create(kind, params, target, extras)
     progress = start,
     params = params,
     status = Goals.ACTIVE,
+    source = source,  -- Eingabe vor prepare: daraus baut Packs.lua Vorlagen und Export
   }
   -- Bestands-Ziele (Gold besitzen, Items in den Taschen): der Stand ist der Bestand, schon erreicht = kein Ziel
   if def.current then

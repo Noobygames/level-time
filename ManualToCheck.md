@@ -2588,3 +2588,20 @@ Symbole sichtbar (ja/nein):
 Teilziel zählt (ja/nein):
 Fehler:
 ```
+
+### 180. Vorlagen und Pakete (Roadmap 301)
+
+- [ ] geprüft
+
+1. `/sg`, Reiter „Vorlagen“: drei fertige Pakete, Buttons in einer Zeile (auch fr/es); „Übernehmen“ legt die Ziele an.
+2. Laufende Ziele unter einem Namen speichern, „Teilen“: Text kopieren, auf einem anderen Charakter „Importieren“ und
+   einfügen: Paket erscheint, „Übernehmen“ legt dieselben Ziele an.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Reiter-Layout ok (ja/nein):
+Teilen/Importieren ok (ja/nein):
+Fehler:
+```
