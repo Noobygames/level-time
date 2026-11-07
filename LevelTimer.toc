@@ -172,6 +172,7 @@ Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
 Assist\QuestMap.lua
@@ -200,6 +201,7 @@ UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
 UI\EditMode.lua
+UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
 Core\Commands.lua

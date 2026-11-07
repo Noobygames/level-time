@@ -13,6 +13,7 @@ local SETTINGS_DEFAULTS = {
   windowBackground = "default",  -- "default", "green" oder "magenta" (Chroma-Key, siehe TimerWindow.lua)
   locked = false,  -- Anzeigen nur im Edit-Modus verschieben und skalieren (Lib/Frames.lua)
   editGrid = true,  -- Raster im Edit-Modus (UI/EditMode.lua), daran rastet das Ziehen ein
+  editBlizzardFrames = true,  -- Flächen über Blizzards Elementen im Edit-Modus (UI/BlizzardOverlays.lua)
   editModeWithBlizzard = true,  -- Edit-Modus zusammen mit Blizzards Bearbeitungsmodus (Retail, WoW Forever)
   -- Aussehen aller Anzeigen (siehe Theme.lua)
   theme = "classic",     -- "classic", "flat", "minimal" oder "colorblind"
@@ -469,6 +470,16 @@ local OPTIONAL_SETTINGS = {
     if type(value) ~= "table" then return false end
     for id, entry in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
       value[id] = type(id) == "string" and Database.SanitizeFrameEntry(entry) or nil
+    end
+    return true
+  end,
+  hiddenBlizzardFrames = function(value)  -- ausgeblendete Blizzard-Elemente (BlizzardHide.lua), Id -> true
+    if type(value) ~= "table" then return false end
+    local BlizzardHide = ns.BlizzardHide  -- lädt später; beim Laden der Daten genügt die Form
+    for id, hidden in pairs(value) do  -- unbekannte Ids und andere Werte einzeln entfernen
+      if type(id) ~= "string" or hidden ~= true or (BlizzardHide and not BlizzardHide.IsOwnId(id)) then
+        value[id] = nil
+      end
     end
     return true
   end,

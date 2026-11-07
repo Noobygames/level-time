@@ -38,9 +38,19 @@ local ARROWS = { UP = { 0, 1 }, DOWN = { 0, -1 }, LEFT = { -1, 0 }, RIGHT = { 1,
 local active = false
 local selected     -- zuletzt angeklickte Anzeige (Pfeiltasten)
 local overlays = {}  -- id -> Fläche
+local enterListeners, leaveListeners = {}, {}
 
 function EditMode.IsActive()
   return active
+end
+
+-- Andere Module beim Betreten und Verlassen (z.B. Flächen über Blizzards Elementen, UI/BlizzardOverlays.lua)
+function EditMode.OnEnter(listener)
+  table.insert(enterListeners, listener)
+end
+
+function EditMode.OnLeave(listener)
+  table.insert(leaveListeners, listener)
 end
 
 ---------------------------------------------------------------------------
@@ -289,7 +299,7 @@ local function updateGrid()
 end
 
 ---------------------------------------------------------------------------
--- Leiste oben: Titel, Hinweis, Schalter Blizzard-XP-Leiste, Raster, Alle zurücksetzen, Fertig; nimmt die Tastatur
+-- Leiste oben: Titel, Hinweis, Schalter (XP-Leiste, Blizzard-Elemente), Raster, Alle zurücksetzen, Fertig; Tastatur
 ---------------------------------------------------------------------------
 local toolbar = Widgets.CreatePanel("LevelTimerEditMode", 0.95)
 toolbar:SetFrameStrata("FULLSCREEN_DIALOG")
@@ -322,25 +332,49 @@ toolbarButton("EDIT_MODE_RESET_ALL", function()
 end)
 toolbarButton("EDIT_MODE_DONE", function() EditMode.Leave() end)
 
--- Blizzards Erfahrungsleiste gleich beim Anordnen ausblenden (dieselbe Einstellung wie Komfort > Oberfläche)
-local xpBarCheck = Widgets.CreateCheckbox(toolbar, function(checked) ns.Set("hideBlizzardXpBar", checked) end)
-Widgets.AttachTooltip(xpBarCheck, function() return L.HIDE_BLIZZARD_XP_BAR end,
-  function() return L.HIDE_BLIZZARD_XP_BAR_TIP end)
-toolbar.xpBarCheck = xpBarCheck
+-- Schalter über der Knopfzeile, untereinander und mittig: definition = { label, tip (Locale-Schlüssel), get(db),
+-- set(checked), available() }; nicht verfügbare fehlen. Liefert die Prüfbox.
+local toolbarChecks = {}
 
--- Schalter über der Knopfzeile, mittig; liefert Breite und Höhe (0, wenn es die Leiste im Client nicht gibt)
-local function layoutXpBarCheck()
-  local available = ns.HideFrames.HasXpBar()
-  xpBarCheck:SetShown(available)
-  if not available then return 0, 0 end
-  xpBarCheck.label:SetText(L.HIDE_BLIZZARD_XP_BAR)
-  xpBarCheck:SetChecked(ns.db.hideBlizzardXpBar == true)
-  local labelWidth = Widgets.CHECKBOX_LABEL_GAP + (xpBarCheck.label:GetStringWidth() or 0)
-  xpBarCheck:SetHitRectInsets(0, -labelWidth, 0, 0)  -- Beschriftung gehört zur Klick- und Tooltip-Fläche
-  local width = xpBarCheck:GetWidth() + labelWidth
-  xpBarCheck:ClearAllPoints()
-  xpBarCheck:SetPoint("BOTTOMLEFT", toolbar, "BOTTOM", -width / 2, TOOLBAR_PADDING + BUTTON_HEIGHT + CHECK_GAP)
-  return width, xpBarCheck:GetHeight() + CHECK_GAP
+function EditMode.AddToolbarCheck(definition)
+  local check = Widgets.CreateCheckbox(toolbar, definition.set)
+  check.definition = definition
+  Widgets.AttachTooltip(check, function() return L[definition.label] end, function() return L[definition.tip] end)
+  table.insert(toolbarChecks, check)
+  return check
+end
+
+-- Blizzards Erfahrungsleiste gleich beim Anordnen ausblenden (dieselbe Einstellung wie Komfort > Oberfläche)
+toolbar.xpBarCheck = EditMode.AddToolbarCheck({
+  label = "HIDE_BLIZZARD_XP_BAR",
+  tip = "HIDE_BLIZZARD_XP_BAR_TIP",
+  get = function(db) return db.hideBlizzardXpBar == true end,
+  set = function(checked) ns.Set("hideBlizzardXpBar", checked) end,
+  available = function() return ns.HideFrames.HasXpBar() end,
+})
+
+-- Liefert größte Breite und Gesamthöhe der Schalter (0, wenn keiner verfügbar ist)
+local function layoutToolbarChecks()
+  local maxWidth, height = 0, 0
+  local y = TOOLBAR_PADDING + BUTTON_HEIGHT + CHECK_GAP
+  for _, check in ipairs(toolbarChecks) do
+    local definition = check.definition
+    local available = definition.available == nil or definition.available()
+    check:SetShown(available)
+    if available then
+      check.label:SetText(L[definition.label])
+      check:SetChecked(definition.get(ns.db) and true or false)
+      local labelWidth = Widgets.CHECKBOX_LABEL_GAP + (check.label:GetStringWidth() or 0)
+      check:SetHitRectInsets(0, -labelWidth, 0, 0)  -- Beschriftung gehört zur Klick- und Tooltip-Fläche
+      local width = check:GetWidth() + labelWidth
+      check:ClearAllPoints()
+      check:SetPoint("BOTTOMLEFT", toolbar, "BOTTOM", -width / 2, y)
+      y = y + check:GetHeight() + CHECK_GAP
+      height = height + check:GetHeight() + CHECK_GAP
+      maxWidth = math.max(maxWidth, width)
+    end
+  end
+  return maxWidth, height
 end
 
 local function layoutToolbar()
@@ -362,7 +396,7 @@ local function layoutToolbar()
     end
     previous = button
   end
-  local checkWidth, checkHeight = layoutXpBarCheck()
+  local checkWidth, checkHeight = layoutToolbarChecks()
   local textWidth = math.max(toolbar.title:GetStringWidth() or 0, toolbar.hint:GetStringWidth() or 0, checkWidth)
   toolbar:SetSize(math.max(width, textWidth) + 2 * TOOLBAR_PADDING,
     3 * TOOLBAR_PADDING + 2 * 14 + BUTTON_HEIGHT + checkHeight)
@@ -481,6 +515,7 @@ function EditMode.Enter()
   toolbar:Show()
   toolbar:EnableKeyboard(true)
   updateGrid()
+  for _, listener in ipairs(enterListeners) do ns.SafeCall(listener) end
   return true
 end
 
@@ -491,6 +526,7 @@ function EditMode.Leave()
   selected = nil
   popup:Hide()
   for _, overlay in pairs(overlays) do overlay:Hide() end
+  for _, listener in ipairs(leaveListeners) do ns.SafeCall(listener) end
   for _, reg in ipairs(Frames.All()) do
     if reg.preview then reg.preview(false) end
   end

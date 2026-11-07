@@ -622,6 +622,11 @@ addToggles({
   toggle("HIDE_BLIZZARD_XP_BAR", "hideBlizzardXpBar", HideFrames.HasXpBar),
   toggle("HIDE_BLIZZARD_REP_BAR", "hideBlizzardRepBar", HideFrames.HasRepBar),
 })
+-- Blizzard-Oberfläche: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen
+-- schon oben bzw. unter Chat und Minimap); auch im Edit-Modus direkt am Element schaltbar
+addSection("SECTION_BLIZZARD_FRAMES")
+addHint("BLIZZARD_FRAMES_HINT")
+addToggles(ns.BlizzardHide.Toggles())
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)

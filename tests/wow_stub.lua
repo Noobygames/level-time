@@ -176,7 +176,7 @@ local frameMethods = {
     local parent = rawget(self, "_parent")
     return self._shown and (parent == nil or parent == UIParent or parent:IsVisible()) or false
   end,
-  GetParent = function(self) return self._parent end,
+  GetParent = function(self) return rawget(self, "_parent") end,
   -- Wie im Client: OnShow beim Wechsel von versteckt zu gezeigt
   Show = function(self)
     local wasShown = self._shown
