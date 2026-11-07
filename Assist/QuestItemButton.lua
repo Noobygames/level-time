@@ -14,6 +14,12 @@
 --               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
 --               Zweige). SetRaidTarget direkt ist in Retail/Forever für Addons gesperrt; der sichere Knopf geht überall.
+--   Zone        Einstellung questButtonsZoneOnly (Standard an): Item und gelernte Zielnamen nur für Quests der
+--               aktuellen Zone (QuestLog.ZoneStatus: Questkarte, Questlog-Überschrift, gelernte QuestNpcs-Orte).
+--               Unbekannte Zone (Kategorie-Überschrift, fehlende Daten) zählt als "hier", damit nichts zu Unrecht
+--               verschwindet. Sichtbare Questgegner auf Namensplaketten sind ohnehin in der Nähe und bleiben.
+--               Ort und Entscheidungen werden zwischengespeichert und bei Zonenwechsel (ZONE_CHANGED*,
+--               PLAYER_ENTERING_WORLD) bzw. Questlog-Änderung (QUEST_LOG_UPDATE) verworfen.
 -- Attribute, Anzeigen und Verstecken der sicheren Knöpfe nur außerhalb des Kampfs; im Kampf wird es gemerkt und bei
 -- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (Position und Größe über Lib/Frames.lua, Edit-Modus) wird
 -- durch die sicheren Kinder selbst geschützt und deshalb ebenfalls nur außerhalb des Kampfs angefasst.
@@ -39,6 +45,9 @@ local editing = false  -- Edit-Modus: Halter mit Grund und Beschriftung sichtbar
 local shown = { itemId = nil, target = nil, texture = nil }  -- zuletzt gesetzte Attribute und Symbol
 local pending = false                         -- im Kampf aufgeschoben
 local acceptedAt = {}                         -- [questID] = GetTime() der Annahme
+local here                                    -- QuestLog.Here(), bis zum nächsten Zonenwechsel
+local zoneCache = {}                          -- [questID] = { inZone, signals }
+local headers                                 -- [questID] = Questlog-Überschrift, bis zur nächsten Questlog-Änderung
 
 local function readable(value)
   if ns.IsSecret(value) then return nil end
@@ -53,7 +62,8 @@ function QuestItem.CanTarget()
   return ns.QuestMarks.IsAvailable() and ns.QuestMarks.HasClientQuestUnits()
 end
 
--- Quests mit benutzbarem Item: { questID, index, link, itemId, texture }
+-- Quests mit benutzbarem Item, unabhängig von der Zone (QuestLeftovers braucht alle):
+-- { questID, index, header, link, itemId, texture }
 function QuestItem.Candidates()
   local list = {}
   if not GetQuestLogSpecialItemInfo then return list end
@@ -62,10 +72,62 @@ function QuestItem.Candidates()
     link, texture = readable(link), readable(texture)
     local itemId = type(link) == "string" and tonumber(link:match("item:(%d+)"))
     if itemId then
-      table.insert(list, { questID = entry.questID, index = entry.index, link = link, itemId = itemId, texture = texture })
+      table.insert(list, { questID = entry.questID, index = entry.index, header = entry.header, link = link,
+        itemId = itemId, texture = texture })
     end
   end
   return list
+end
+
+local function forgetZones()
+  here, zoneCache = nil, {}
+end
+
+local function forgetQuestLog()
+  headers, zoneCache = nil, {}
+end
+
+function QuestItem.Here()
+  if not here then here = ns.QuestLog.Here() end
+  return here
+end
+
+local function headerOf(questID)
+  if not headers then
+    headers = {}
+    for _, entry in ipairs(ns.QuestLog.Entries()) do headers[entry.questID] = entry.header or false end
+  end
+  return headers[questID] or nil
+end
+
+-- Karten, auf denen Ziele der Quest vorankamen (QuestNpcs, Roadmap 350)
+local function learnedMaps(questID)
+  local record = ns.QuestNpcs.Get(questID)
+  if not (record and record.spots) then return nil end
+  local maps = {}
+  for _, spot in ipairs(record.spots) do
+    if type(spot.mapID) == "number" then maps[#maps + 1] = spot.mapID end
+  end
+  return maps
+end
+
+-- Zone der Quest: true/false, nil = unbekannt; dazu die Einzelhinweise (QuestLog.ZoneStatus)
+function QuestItem.ZoneOf(questID)
+  local cached = zoneCache[questID]
+  if not cached then
+    local status, signals = ns.QuestLog.ZoneStatus(questID, headerOf(questID), QuestItem.Here(), learnedMaps(questID))
+    cached = { inZone = status, signals = signals }
+    zoneCache[questID] = cached
+    ns.Debug("questitem", "quest %s zone %s (map %s, header %s %s, learned %s) player map %s zone %s", questID,
+      status, signals.map, headerOf(questID), signals.header, signals.learned, here.mapID, here.zone)
+  end
+  return cached.inZone, cached.signals
+end
+
+-- Darf die Quest die Knöpfe füllen? Ohne questButtonsZoneOnly immer; unbekannte Zone zählt als hier
+function QuestItem.IsInZone(questID)
+  if not (ns.db and ns.db.questButtonsZoneOnly) then return true end
+  return QuestItem.ZoneOf(questID) ~= false
 end
 
 local function distanceOf(questID)
@@ -74,23 +136,25 @@ local function distanceOf(questID)
   return type(distance) == "number" and distance or nil
 end
 
--- Nächste Quest (Abstand), sonst die zuletzt angenommene, sonst die erste
+-- Nächste Quest der Zone (Abstand), sonst die zuletzt angenommene, sonst die erste
 function QuestItem.Pick()
   local best, bestDistance, bestAccepted
   for _, candidate in ipairs(QuestItem.Candidates()) do
-    local distance = distanceOf(candidate.questID)
-    local accepted = acceptedAt[candidate.questID] or 0
-    local better
-    if not best then
-      better = true
-    elseif distance and bestDistance then
-      better = distance < bestDistance
-    elseif distance or bestDistance then
-      better = distance ~= nil
-    else
-      better = accepted > bestAccepted
+    if QuestItem.IsInZone(candidate.questID) then
+      local distance = distanceOf(candidate.questID)
+      local accepted = acceptedAt[candidate.questID] or 0
+      local better
+      if not best then
+        better = true
+      elseif distance and bestDistance then
+        better = distance < bestDistance
+      elseif distance or bestDistance then
+        better = distance ~= nil
+      else
+        better = accepted > bestAccepted
+      end
+      if better then best, bestDistance, bestAccepted = candidate, distance, accepted end
     end
-    if better then best, bestDistance, bestAccepted = candidate, distance, accepted end
   end
   return best
 end
@@ -116,7 +180,18 @@ local function plateNames()
   return names
 end
 
--- Namen für den Zielknopf: gelernte Gegner offener Ziele, danach die sichtbaren Questgegner (ohne Doppelte)
+-- Gehört ein gelernter Gegner zu einer offenen Quest dieser Zone? Ohne bekannte Quest: ja
+local function learnedHere(name)
+  local hits = ns.QuestMobs.ForMob(name)
+  if not hits or #hits == 0 then return true end
+  for _, hit in ipairs(hits) do
+    if QuestItem.IsInZone(hit.questID) then return true end
+  end
+  return false
+end
+
+-- Namen für den Zielknopf: gelernte Gegner offener Ziele (nur Quests der Zone), danach die sichtbaren Questgegner
+-- (ohne Doppelte)
 function QuestItem.TargetNames()
   local names, seen = {}, {}
   local function add(name)
@@ -130,7 +205,7 @@ function QuestItem.TargetNames()
   for _, name in ipairs(visible) do visibleSet[name] = true end
   if ns.db.questLearning then
     for _, name in ipairs(ns.QuestMobs.OpenMobNames()) do
-      if not visibleSet[name] then add(name) end
+      if not visibleSet[name] and learnedHere(name) then add(name) end
     end
   end
   for _, name in ipairs(visible) do add(name) end
@@ -292,8 +367,23 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if pending then apply() end
 end)
 
+local function buttonsWanted()
+  return ns.db and (ns.db.questItemButton or ns.db.questTargetButton)
+end
+
+-- Zonenwechsel: Ort neu lesen und die Knöpfe sofort neu bestimmen (im Kampf aufgeschoben)
+local function onZoneChanged()
+  forgetZones()
+  if buttonsWanted() then QuestItem.Refresh() end
+end
+for _, event in ipairs({ "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "PLAYER_ENTERING_WORLD" }) do
+  ns.RegisterEvent(event, onZoneChanged)
+end
+-- Questlog geändert: Überschriften und Zonen-Entscheidungen verwerfen; die Knöpfe folgen mit dem Sekundentakt
+ns.RegisterEvent("QUEST_LOG_UPDATE", forgetQuestLog)
+
 ns.Every(REFRESH_SECONDS, function()
-  if ns.db.questItemButton or ns.db.questTargetButton or (holder and holder:IsShown()) then QuestItem.Refresh() end
+  if buttonsWanted() or (holder and holder:IsShown()) then QuestItem.Refresh() end
 end)
 
 ns.RegisterApply(apply)

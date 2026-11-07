@@ -184,6 +184,7 @@ local SETTINGS_DEFAULTS = {
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
   questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)
   questTargetMarker = false, -- derselbe Knopf setzt den Totenkopf auf das Ziel ("/tm !8")
+  questButtonsZoneOnly = true, -- beide Knöpfe nur für Quests der aktuellen Zone (QuestLog.ZoneStatus)
   mapCoordinates = false,    -- Koordinaten von Spieler und Mauszeiger auf der Weltkarte (MapCoordinates.lua)
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)

@@ -796,6 +796,7 @@ addToggles({
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
   toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
+  toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"),
   toggle("REWARD_HINT_TOGGLE", "rewardHint"),
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
