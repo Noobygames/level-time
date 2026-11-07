@@ -18,6 +18,8 @@
 -- Je Charakter gemerkt: character.instanceVisits[Schlüssel] = { zoneUID, leftAt, pending }. Schlüssel =
 -- Name und Schwierigkeit ("Name#difficultyID"): Normal und Heroisch sind verschiedene Kopien gleichen
 -- Namens. Abonnenten bekommen den Namen; ob es eine neue Kopie ist, sagt ihnen isNew.
+-- Ändert sich drinnen nur die Schwierigkeit (der Client meldet direkt nach dem Betreten kurz 0), bleibt es
+-- derselbe Aufenthalt: kein Verlassen, kein neuer Lauf, kein zweiter Eintrag fürs Instanzlimit.
 --
 -- Abonnenten (Instances.lua, InstanceLimit.lua):
 --   OnEnter(fn(name, instanceType, isNew))                     isNew = Schätzung
@@ -218,9 +220,22 @@ local function trackedInstance()
   return copyKey(name, difficultyID), name, instanceType
 end
 
+-- Drinnen meldet der Client eine andere Schwierigkeit, ohne dass man die Instanz verlassen hat (direkt nach dem
+-- Betreten zuerst 0, Sekunden später die echte): derselbe Aufenthalt, der Besuch zieht nur auf den neuen Schlüssel um
+local function difficultySettled(key)
+  ns.Debug("instances", "difficulty changed inside %s: %s -> %s, same visit", inside.name, inside.key, key)
+  local all = visits()
+  all[key], all[inside.key] = all[inside.key], nil
+  inside.key = key
+end
+
 local function onWorldChanged()
   local key, name, instanceType = trackedInstance()
   if key == (inside and inside.key) then return end
+  if inside and key and name == inside.name then
+    difficultySettled(key)
+    return
+  end
   if inside then leave() end
   if key then enter(key, name, instanceType) end
 end
@@ -259,6 +274,9 @@ end)
 
 ns.RegisterEvent("PLAYER_ENTERING_WORLD", onWorldChanged)
 ns.RegisterEvent("ZONE_CHANGED_NEW_AREA", onWorldChanged)
+-- Die Schwierigkeit steht oft erst nach dem Betreten fest; diese Ereignisse melden das (falls der Client sie kennt)
+ns.RegisterEvent("PLAYER_DIFFICULTY_CHANGED", onWorldChanged)
+ns.RegisterEvent("UPDATE_INSTANCE_INFO", onWorldChanged)
 ns.RegisterEvent("CHAT_MSG_SYSTEM", onSystemMessage)
 ns.RegisterEvent("PLAYER_TARGET_CHANGED", function() sighted("target") end)
 ns.RegisterEvent("UPDATE_MOUSEOVER_UNIT", function() sighted("mouseover") end)
