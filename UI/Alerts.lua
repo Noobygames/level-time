@@ -108,7 +108,8 @@ local function duration()
   return math.max(Alerts.MIN_DURATION, math.min(Alerts.MAX_DURATION, ns.db and ns.db.alertDuration or 3))
 end
 
-local queue = {}  -- { message, color, sound } der wartenden Einblendungen, älteste zuerst
+local queue = {}  -- { message, color, sound, notice, sample } der wartenden Einblendungen, älteste zuerst
+local current     -- die gerade sichtbare echte Einblendung (gleicher Aufbau), nil bei Beispielen oder nichts
 local held = {}   -- Einblendungen aus dem Kampf: { message, color, options }, kommen nach dem Kampf
 
 -- Der Raid-Warnton; auch für andere Anzeigen (z.B. Lagerfeuer), wenn der Spieler Ton eingeschaltet hat
@@ -121,7 +122,8 @@ local function isShowing()
 end
 
 -- spec = { icon, texture, title, body }: als Karte statt als Banner (texture siehe Card.Set)
-local function display(message, color, sound, spec)
+local function display(message, color, sound, spec, sample)
+  current = not sample and { message, color, sound, spec } or nil
   local shown
   if spec then
     frame:Hide()
@@ -149,8 +151,9 @@ local function fade(self)
   if age >= hold + FADE_SECONDS then
     local nextAlert = table.remove(queue, 1)
     if nextAlert then
-      display(unpack(nextAlert, 1, 4))
+      display(unpack(nextAlert, 1, 5))
     else
+      current = nil
       self:Hide()
     end
   elseif age > hold then
@@ -193,6 +196,7 @@ end
 function Alerts.Clear()
   queue = {}
   held = {}
+  current = nil
   if not moving then
     frame:Hide()
     notice.frame:Hide()
@@ -224,8 +228,9 @@ local mover = Widgets.CreateMover(frame, {
     frame:SetSize(1, 1)
     frame:Hide()
     notice.frame:Hide()
+    current = nil
     local waiting = table.remove(queue, 1)
-    if waiting then display(unpack(waiting, 1, 4)) end
+    if waiting then display(unpack(waiting, 1, 5)) end
   end,
 })
 
@@ -280,25 +285,41 @@ Alerts.KINDS = {
     sample = function() return 4 end },
 }
 
--- Im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
-local function showKind(kind, value, body, combat)
-  local definition = Alerts.KINDS[kind]
-  local message = string.format(L[definition.format], value)
-  local card = isBanner() and { icon = Alerts.ICONS[kind], title = message, body = body } or nil
-  Alerts.Show(message, definition.color, { sound = true, notice = card, combat = combat })
+-- Text und Karte einer Art: im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
+local function kindMessage(kind, value, body)
+  local message = string.format(L[Alerts.KINDS[kind].format], value)
+  return message, isBanner() and { icon = Alerts.ICONS[kind], title = message, body = body } or nil
 end
 
 -- Nur, wenn die Art eingeschaltet ist
 local function alert(kind, value, body)
-  if ns.db[Alerts.KINDS[kind].setting] then showKind(kind, value, body, Alerts.KINDS[kind].inCombat) end
+  local definition = Alerts.KINDS[kind]
+  if not ns.db[definition.setting] then return end
+  local message, card = kindMessage(kind, value, body)
+  Alerts.Show(message, definition.color, { sound = true, notice = card, combat = definition.inCombat })
+end
+
+-- Beispiel (Vorschau, /lt debug alert) sofort zeigen, ohne wartende echte Einblendungen zu verwerfen: eine gerade
+-- sichtbare echte kommt vorne zurück in die Warteschlange und erscheint nach dem Beispiel noch einmal ganz
+local function showSample(message, color, card, sound)
+  if moving then
+    -- Im Verschiebemodus wartet auch das Beispiel und erscheint nach dem Verschieben
+    if #queue >= MAX_QUEUE then table.remove(queue, 1) end
+    table.insert(queue, { message, color, sound, card, true })
+    return
+  end
+  if current then table.insert(queue, 1, current) end
+  while #queue > MAX_QUEUE do table.remove(queue) end
+  display(message, color, sound, card, true)
 end
 
 -- Beispiel unabhängig von der Einstellung (Fehlersuche); false bei unbekannter Art
 function Alerts.ShowSample(kind)
   local definition = Alerts.KINDS[kind]
   if not definition then return false end
-  Alerts.Clear()
-  showKind(kind, definition.sample(), ns.db.levelUpGains and definition.sampleBody and definition.sampleBody() or nil)
+  local body = ns.db.levelUpGains and definition.sampleBody and definition.sampleBody() or nil
+  local message, card = kindMessage(kind, definition.sample(), body)
+  showSample(message, definition.color, card, true)
   return true
 end
 
@@ -344,9 +365,8 @@ local previewIndex = 0
 
 -- Beispiel einer Hinweis-Karte (wie "Taschen fast voll"), ohne Chatzeile
 local function showNoticeSample()
-  Alerts.Clear()
   local sample = { icon = Alerts.ICONS.bags, title = L.NOTICE_BAGS, text = L.WARN_BAGS_FULL }
-  Alerts.Show(sample.text, Alerts.WARNING_COLOR, { notice = noticeCard(sample), immediate = true })
+  showSample(sample.text, Alerts.WARNING_COLOR, noticeCard(sample))
 end
 
 function Alerts.Preview()

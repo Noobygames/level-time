@@ -20,8 +20,8 @@ ns.LevelUpSummary = LevelUpSummary
 
 local function summaryText(completedLevel)
   local seconds = Stats.GetSeconds(Stats.LEVEL)
-  -- UnitXPMax: Bedarf des alten Levels; Zeit wie im Fenster (ohne AFK, wenn eingestellt)
-  local rate = Experience.RecordRate({ xp = UnitXPMax("player"), seconds = seconds, counters = Stats.Snapshot(Stats.LEVEL) })
+  -- Bedarf des alten Levels; Zeit wie im Fenster (ohne AFK, wenn eingestellt)
+  local rate = Experience.RecordRate({ xp = Experience.XpMaxOf(completedLevel), seconds = seconds, counters = Stats.Snapshot(Stats.LEVEL) })
   return string.format(L.LEVEL_UP_SUMMARY,
     completedLevel + 1,
     completedLevel,

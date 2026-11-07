@@ -243,8 +243,7 @@ local WORLD_RECORD_COLUMNS = {
 }
 
 local function worldRecordHint()
-  local _, fetched = WorldRecords.GetSource()
-  return string.format(L.WORLD_RECORDS_HINT, fetched or "?")
+  return string.format(L.WORLD_RECORDS_HINT, WorldRecords.GetFetchedText())
 end
 
 ns.HistoryWindow.AddView(ns.TableView.Create({

@@ -15,8 +15,10 @@ local function formatLevel(level)
 end
 
 -- kind: Säulen (Verlauf), Rangliste oder Heatmap (data liefert dann ein Raster mit total); axis beschriftet bei
--- Säulen den Maximalwert
-local function createChartView(tab, kind, data, axis)
+-- Säulen den Maximalwert. revision (optional, z.B. Journal.Revision): die Daten hängen nur vom Journal ab; dann wird
+-- nur bei geändertem Stand, Charakter oder Sprache neu ausgewertet statt jede Sekunde (Ranglisten über das ganze
+-- Kill-Journal), Roadmap 213.
+local function createChartView(tab, kind, data, axis, revision)
   local function create(parent, width, height)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetAllPoints(parent)
@@ -36,7 +38,13 @@ local function createChartView(tab, kind, data, axis)
     local emptyText = frame:CreateFontString(nil, "OVERLAY", "GameFontDisable")
     emptyText:SetPoint("CENTER")
 
+    local lastKey
     function frame:Render(characterKey)
+      if revision then
+        local key = table.concat({ characterKey or "", ns.db and ns.db.language or "", revision() }, ":")
+        if key == lastKey then return end
+        lastKey = key
+      end
       local items = data(characterKey)
       local hasData
       if kind == "heatmap" then hasData = items.total > 0 else hasData = #items > 0 end  -- line: Liste der Reihen
@@ -60,8 +68,8 @@ local AddView = ns.HistoryWindow.AddView
 AddView(createChartView("CHART_LEVEL_TIME", "column", Analysis.TimePerLevel, Format.Duration))
 AddView(createChartView("CHART_LEVEL_XP_RATE", "column", Analysis.XpRatePerLevel, Format.Number))
 AddView(createChartView("CHART_KILLS_PER_DAY", "column", Analysis.KillsPerDay, tostring))
-AddView(createChartView("CHART_TOP_KILLS", "rank", Analysis.TopKills))
-AddView(createChartView("CHART_DEATH_CAUSES", "rank", Analysis.DeathCauses))
+AddView(createChartView("CHART_TOP_KILLS", "rank", Analysis.TopKills, nil, ns.Journal.Revision))
+AddView(createChartView("CHART_DEATH_CAUSES", "rank", Analysis.DeathCauses, nil, ns.Journal.Revision))
 AddView(createChartView("CHART_ZONE_XP_RATE", "rank", Analysis.XpRatePerZone))
 AddView(createChartView("CHART_PLAYTIME_PER_DAY", "column", Analysis.PlayTimePerDay, Format.Duration))
 AddView(createChartView("CHART_PLAYTIME_PER_WEEK", "column", Analysis.PlayTimePerWeek, Format.Duration))

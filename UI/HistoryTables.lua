@@ -358,11 +358,23 @@ HistoryTables.ClassColor = classColor
 HistoryTables.CountCells = countCells
 
 -- journal = Einträge aus dem Journal (ohne laufenden Eintrag): neu sortiert nur bei geändertem Journal-Stand
-local function addTable(tab, group, columns, records, footer, journal, hint)
+local function addTable(tab, group, columns, records, footer, journal, hint, rowLink)
   ns.HistoryWindow.AddView(TableView.Create({
     tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint,
-    revision = journal and ns.Journal.Revision or nil,
+    revision = journal and ns.Journal.Revision or nil, rowLink = rowLink,
   }))
+end
+
+-- Spiel-Links für den Tooltip einer Zeile: Gegenstand aus dem gespeicherten Link (ältere Einträge haben nur den
+-- Namen), Quest als "quest:ID:Level" wie in Chat-Links (Classic leitet sie ebenfalls an SetHyperlink, ItemRef.lua);
+-- Level ist die Stufe beim Abgeben, weil die Queststufe nicht im Journal steht
+local function itemLink(record)
+  return type(record.link) == "string" and record.link:match("|H(item:[^|]+)|h") or nil
+end
+
+local function questLink(record)
+  if type(record.questID) ~= "number" then return nil end
+  return string.format("quest:%d:%d", record.questID, record.level or -1)
 end
 
 local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
@@ -385,10 +397,13 @@ ns.HistoryWindow.AddView(TableView.Create({
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
 addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)
 addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells, true)
-addTable("HISTORY_TAB_QUESTS", JOURNAL, QUEST_COLUMNS, History.GetQuestLog, countCells, true)
-addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCells, true)
+addTable("HISTORY_TAB_QUESTS", JOURNAL, QUEST_COLUMNS, History.GetQuestLog, countCells, true, nil, questLink)
+addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCells, true, nil, itemLink)
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
-addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
+-- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
+if ns.NearDeath.IsAvailable() then
+  addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
+end
 addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
 addTable("HISTORY_TAB_REPUTATION", nil, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
 addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, false, "MONEY_HINT")

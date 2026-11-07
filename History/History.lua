@@ -153,14 +153,31 @@ function History.GetNearDeathLog(characterKey)
   return journalNewestFirst(characterKey, "nearDeathLog")
 end
 
--- Instanz-Läufe, neueste zuerst; ein laufender (bzw. beim letzten Logout offener) Lauf steht vorne
+-- Liste mit freiem ersten Platz für den laufenden Lauf, je umgedrehtem Journal einmal gebaut (nicht jede Sekunde
+-- alle Läufe kopieren, Roadmap 213)
+local withCurrentRun = setmetatable({}, { __mode = "k" })
+
+local function listWithCurrentRun(reversed)
+  local list = withCurrentRun[reversed]
+  if not list then
+    list = { false }
+    for i, record in ipairs(reversed) do list[i + 1] = record end
+    withCurrentRun[reversed] = list
+  end
+  return list
+end
+
+-- Instanz-Läufe, neueste zuerst; ein laufender (bzw. beim letzten Logout offener) Lauf steht vorne.
+-- Ergebnis nicht verändern (zwischengespeichert); der laufende Lauf ist bei jedem Aufruf ein neuer Eintrag.
 function History.GetInstanceLog(characterKey)
   local character = History.GetCharacter(characterKey)
-  local records = newestFirst(ns.Journal.GetEntries(characterKey, "instanceLog"))  -- Kopie: laufender Lauf kommt dazu
+  local reversed = journalNewestFirst(characterKey, "instanceLog")
   local run = character.currentRun
-  if run then
+  if not run then return reversed end
+  local records = listWithCurrentRun(reversed)
+  do
     local record = ns.Instances.ToRecord(run)
-    table.insert(records, 1, {
+    records[1] = {
       time = run.startedAt,
       name = run.name,
       seconds = ns.Instances.GetRunSeconds(run),
@@ -168,7 +185,7 @@ function History.GetInstanceLog(characterKey)
       xp = record.xp,
       counters = record.counters,
       isCurrent = true,
-    })
+    }
   end
   return records
 end
@@ -254,13 +271,14 @@ function History.Summarize(records)
   return summary
 end
 
--- Läuft vor dem Zurücksetzen der Zähler. UnitXPMax liefert hier noch den Bedarf des alten Levels.
+-- Läuft vor dem Zurücksetzen der Zähler. XP-Bedarf des alten Levels aus Experience.XpMaxOf, weil UnitXPMax hier
+-- schon den des neuen liefern kann (Reihenfolge von PLAYER_XP_UPDATE und PLAYER_LEVEL_UP).
 -- seconds/totalPlayed sind nil, falls /played noch nicht geantwortet hatte.
 ns.OnLevelCompleted(function(completedLevel)
   ns.character.levelHistory[completedLevel] = {
     level = completedLevel,
     seconds = Stats.GetSeconds(Stats.LEVEL),
-    xp = UnitXPMax("player"),
+    xp = ns.Experience.XpMaxOf(completedLevel),
     counters = Stats.Snapshot(Stats.LEVEL),
     completedAt = time(),                           -- Zeitpunkt, an dem das nächste Level erreicht wurde
     totalPlayed = ns.PlayedTime.GetTotalSeconds(),  -- /played gesamt in diesem Moment

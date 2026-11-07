@@ -24,12 +24,24 @@ end
 local SECONDS_PER_DAY = 86400
 local NOON = 12  -- Mittag des Stichtags, damit Zeitzonen den Tag nicht verschieben
 
--- Alter der Rekord-Daten in ganzen Tagen (Stand = Tag von "make records"); nil ohne Datum
-function WorldRecords.GetAgeDays()
+-- Zeitpunkt des Stands (Mittag des Tags von "make records", Feld fetched = "JJJJ-MM-TT"); nil ohne Datum
+function WorldRecords.GetFetchedAt()
   local _, fetched = WorldRecords.GetSource()
   local year, month, day = (fetched or ""):match("^(%d+)-(%d+)-(%d+)$")
   if not year then return nil end
-  local fetchedAt = time({ year = tonumber(year), month = tonumber(month), day = tonumber(day), hour = NOON })
+  return time({ year = tonumber(year), month = tonumber(month), day = tonumber(day), hour = NOON })
+end
+
+-- Stand als Datum in der eingestellten Sprache, "?" ohne Datum
+function WorldRecords.GetFetchedText()
+  local fetchedAt = WorldRecords.GetFetchedAt()
+  return fetchedAt and date(ns.L.FULL_DATE_FORMAT, fetchedAt) or "?"
+end
+
+-- Alter der Rekord-Daten in ganzen Tagen; nil ohne Datum
+function WorldRecords.GetAgeDays()
+  local fetchedAt = WorldRecords.GetFetchedAt()
+  if not fetchedAt then return nil end
   return math.max(0, math.floor((time() - fetchedAt) / SECONDS_PER_DAY))
 end
 

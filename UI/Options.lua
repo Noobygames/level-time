@@ -86,7 +86,7 @@ StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
   button1 = YES or "Yes",
   button2 = NO or "No",
   OnAccept = function(_, name)
-    ns.Profiles.Delete(name)
+    if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
     ns.ApplySettings()
   end,
   timeout = 0,
@@ -94,6 +94,52 @@ StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
   hideOnEscape = true,
   preferredIndex = 3,
 }
+
+-- Profil nach Rückfrage löschen (Rechtsklick in der Liste und /lt profile delete); nicht löschbare melden sich sofort
+function ns.ConfirmProfileDelete(name)
+  if not ns.Profiles.CanDelete(name) then
+    ns.Print(L.PROFILE_NOT_DELETED)
+    return
+  end
+  StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM  -- aktuelle Sprache
+  StaticPopup_Show(DELETE_PROFILE_POPUP, ns.Profiles.DisplayName(name), nil, name)
+end
+
+local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
+local onProfileSaved  -- Rückruf des laufenden Speicherns (leert z.B. das Namensfeld)
+
+local function saveProfile(name)
+  if ns.Profiles.SaveAs(name) then
+    ns.Print(string.format(L.PROFILE_SAVED, name))
+    if onProfileSaved then onProfileSaved() end
+    ns.ApplySettings()
+  end
+end
+
+StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
+  button1 = YES or "Yes",
+  button2 = NO or "No",
+  OnAccept = function(_, name) saveProfile(name) end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+
+-- Einstellungen als Profil speichern (Button und /lt profile save); leerer Name meldet sich, ein vorhandenes
+-- Profil wird erst nach Rückfrage überschrieben. onSaved läuft nach dem Speichern.
+function ns.ConfirmProfileSave(name, onSaved)
+  name = strtrim(name or "")
+  onProfileSaved = onSaved
+  if name == "" then
+    ns.Print(L.PROFILE_NAME_EMPTY)
+  elseif ns.Profiles.Exists(name) then
+    StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
+    StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
+  else
+    saveProfile(name)
+  end
+end
 
 -- Liste der Profile: MAX_PROFILE_ROWS Zeilen; mehr Profile per Mausrad oder Scrollleiste erreichbar
 local function addProfileList()
@@ -124,8 +170,7 @@ local function addProfileList()
     local tab = Widgets.CreateTab(builder.Page(), "GameFontHighlight", function(self, mouseButton)
       local name = self.profileName
       if mouseButton == "RightButton" then
-        StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM
-        StaticPopup_Show(DELETE_PROFILE_POPUP, Profiles.DisplayName(name), nil, name)
+        ns.ConfirmProfileDelete(name)
       else
         Profiles.Switch(name)
       end
@@ -157,40 +202,14 @@ function ns.ShowProfileImport()
   end)
 end
 
-local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
-
 local function addProfileSaver()
   local page = builder.Page()
   local nameBox = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
   nameBox:SetSize(PROFILE_NAME_WIDTH, Builder.BUTTON_HEIGHT)
   nameBox:SetAutoFocus(false)
   nameBox:SetPoint("TOPLEFT", Builder.MARGIN + 6, builder.RowY())  -- Vorlage zeichnet ihren Rand links außerhalb
-  local function save(name)
-    if ns.Profiles.SaveAs(name) then
-      ns.Print(string.format(L.PROFILE_SAVED, name))
-      nameBox:SetText("")
-      ns.ApplySettings()
-    end
-  end
-  StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
-    button1 = YES or "Yes",
-    button2 = NO or "No",
-    OnAccept = function(_, name) save(name) end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-  }
   local saveButton = Widgets.CreateButton(page, PROFILE_SAVE_WIDTH, Builder.BUTTON_HEIGHT, function()
-    local name = strtrim(nameBox:GetText())
-    if name == "" then
-      ns.Print(L.PROFILE_NAME_EMPTY)
-    elseif ns.Profiles.Exists(name) then
-      StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
-      StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
-    else
-      save(name)
-    end
+    ns.ConfirmProfileSave(nameBox:GetText(), function() nameBox:SetText("") end)
   end)
   saveButton:SetPoint("LEFT", nameBox, "RIGHT", Builder.CHOOSER_TAB_GAP, 0)
   builder.AddTooltip(saveButton, "PROFILE_SAVE_TIP", localized("PROFILE_SAVE"))
@@ -259,6 +278,7 @@ local presetButtons = {}
 for i, preset in ipairs(ns.STAT_PRESETS) do
   presetButtons[i] = { label = preset.label, onClick = function() ns.ApplyStatPreset(preset) end }
 end
+table.insert(presetButtons, { label = "PRESET_UNDO", onClick = function() ns.UndoStatPreset() end })
 builder.AddButtonRow(presetButtons)
 for _, group in ipairs(ns.STAT_GROUPS) do
   addSection(group)
@@ -695,6 +715,9 @@ addToggles({
     set = function(checked) ns.StreamMode.SetEnabled(checked) end },
   toggle("STREAMER_PRIVACY", "streamerPrivacy"),
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
+  -- Abkürzung zu "Minimap-Button anzeigen" (Allgemein), umgekehrt formuliert
+  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(checked) end },
 })
 addBackgroundChooser()
 finishPage()
@@ -861,7 +884,21 @@ finishPage()
 
 addFooterButton("HISTORY", function() ns.ToggleHistory() end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
-addFooterButton("NEW_SESSION", function() ns.StartNewSession() end)
+-- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
+local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
+StaticPopupDialogs[NEW_SESSION_POPUP] = {
+  button1 = YES or "Yes",
+  button2 = NO or "No",
+  OnAccept = function() ns.StartNewSession() end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+addFooterButton("NEW_SESSION", function()
+  StaticPopupDialogs[NEW_SESSION_POPUP].text = L.NEW_SESSION_CONFIRM  -- aktuelle Sprache
+  StaticPopup_Show(NEW_SESSION_POPUP, ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
+end)
 
 builder.Finish()
 ns.RegisterApply(builder.Refresh)

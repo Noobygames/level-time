@@ -2207,3 +2207,64 @@ CVars nach Ausschalten zurück (ja/nein):
 Debug-Eintrag lootSparkles.target (Zeiger):
 Fehler:
 ```
+
+### 108. Einheiten je Sprache (Roadmap 194)
+
+- [ ] geprüft
+
+Einstellungen → Allgemein → Sprache nacheinander auf Deutsch, Français und Español stellen. Jeweils Zeitfenster,
+Historie → Levels (Spalten Zeit, XP, Gold) und Historie → Sessions ansehen.
+
+**Erwartet:** Tage als „T“ (de), „j“ (fr), „d“ (es/en); Geld als Text „2g 30s 5k“ (de), „2po 30pa 5pc“ (fr),
+„2o 30p 5c“ (es). Spalten schneiden die etwas längeren französischen Geldeinheiten nicht ab; der Wechsel
+wirkt sofort, ohne `/reload`.
+
+**Antwort:**
+
+```text
+Client:
+Sprache, wie es aussieht:
+Abgeschnitten (wo):
+Fehler:
+```
+
+### 109. Zusammenfassungskarte im Stream (Roadmap 209)
+
+- [ ] geprüft
+
+Einstellungen → Stream → Hintergrund „Grün“, dann `/lt recap` offen lassen und ein paar Gegner töten.
+Danach im Reiter Stream „Minimap-Button ausblenden“ anhaken.
+
+**Erwartet:** Die Karte hat denselben grünen Hintergrund ohne Rand wie das Zeitfenster und zählt Zeit, XP und
+Kills jede Sekunde mit, ohne neu geöffnet zu werden. Mit „Standard“ ist sie wieder dunkel mit Rand. Der
+Minimap-Button verschwindet, im Reiter Allgemein ist „Minimap-Button anzeigen“ nicht mehr angehakt.
+
+**Antwort:**
+
+```text
+Client:
+Chroma-Hintergrund der Karte (ja/nein):
+Karte zählt mit (ja/nein):
+Minimap-Button ausgeblendet (ja/nein):
+Fehler:
+```
+
+### 110. Spiel-Tooltip in Beute und Quests (Roadmap 212)
+
+- [ ] geprüft
+
+`/lt history` → Journal → Beute: Maus über eine Zeile mit einem Gegenstand. Dann Journal → Quests: Maus über
+eine abgegebene Quest.
+
+**Erwartet:** Bei Beute erscheint der normale Gegenstands-Tooltip am Mauszeiger, bei Quests der Quest-Tooltip
+(Titel, ggf. Ziele). Kein Lua-Fehler; in Classic Era/TBC darf der Quest-Tooltip fehlen oder nur den Titel zeigen,
+dann bitte notieren.
+
+**Antwort:**
+
+```text
+Client:
+Gegenstands-Tooltip (ja/nein):
+Quest-Tooltip (ja/nein/nur Titel):
+Fehler:
+```

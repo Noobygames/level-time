@@ -7,7 +7,8 @@ local Classification = {}
 ns.Classification = Classification
 
 -- Hinweis: der Name ist der Schlüssel (der Kill-Text nennt nur ihn); gleichnamige Gegner mit anderer Einstufung
--- erben die zuletzt gesehene.
+-- erben die zuletzt gesehene. Ausnahme: ist das Ziel tot und heißt wie der Kill, gilt dessen Einstufung (der
+-- übliche Fall: man hat getötet, was man im Ziel hatte), Roadmap 187.
 local MAX_NAMES = 5000  -- danach wird neu begonnen, damit die Tabelle nicht endlos wächst
 
 local byName = {}
@@ -33,9 +34,20 @@ local function remember(unit)
   if not ns.IsSecret(level) and type(level) == "number" and level > 0 then levelByName[name] = level end
 end
 
--- Zuletzt gesehene Einstufung eines Gegners oder nil
+-- Einstufung des toten Ziels, wenn es name heißt; sonst nil
+local function deadTargetClassification(name)
+  local dead, targetName, isPlayer = UnitIsDead("target"), UnitName("target"), UnitIsPlayer("target")
+  if ns.IsSecret(dead) or not dead or ns.IsSecret(targetName) or targetName ~= name then return nil end
+  if ns.IsSecret(isPlayer) or isPlayer then return nil end
+  local classification = UnitClassification("target")
+  if ns.IsSecret(classification) then return nil end
+  return classification
+end
+
+-- Einstufung eines eben getöteten Gegners: das tote Ziel mit diesem Namen, sonst die zuletzt gesehene; nil = unbekannt
 function Classification.Of(name)
-  return name and byName[name]
+  if not name then return nil end
+  return deadTargetClassification(name) or byName[name]
 end
 
 -- Zuletzt gesehene Stufe eines Gegners oder nil (unbekannt oder "??")

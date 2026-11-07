@@ -141,6 +141,7 @@ end
 -- definition = { tab, group (optional), columns, records(characterKey), footer(columns, records),
 --   rowColor(record) optional (Standard: laufender Eintrag hervorgehoben, sonst weiß),
 --   onRowClick(record, mouseButton) optional,
+--   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
 --   hint = Locale-Key oder function() -> Text optional,
 --   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
@@ -193,6 +194,22 @@ function TableView.Create(definition)
       end
     end
 
+    -- Spiel-Tooltip des Links einer Zeile (Gegenstand, Quest). pcall: ein Client, der die Link-Art nicht kennt, zeigt
+    -- dann einfach nichts statt eines Fehlers
+    if definition.rowLink then
+      for i, row in ipairs(rows) do
+        row:EnableMouse(true)
+        row:SetScript("OnEnter", function(self)
+          local record = records[frame.offset + i]
+          local link = record and definition.rowLink(record)
+          if not link then return end
+          GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+          if pcall(GameTooltip.SetHyperlink, GameTooltip, link) then GameTooltip:Show() else GameTooltip:Hide() end
+        end)
+        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+      end
+    end
+
     -- Leerer Zustand: statt nur Kopf und "Gesamt: 0" ein Hinweis in der Mitte
     local emptyText = frame:CreateFontString(nil, "OVERLAY", "GameFontDisable")
     emptyText:SetPoint("CENTER", frame, "CENTER", 0, 0)
@@ -223,7 +240,7 @@ function TableView.Create(definition)
     end
 
     local scrollBar
-    local lastSignature, lastCharacterKey, lastApplyAt = nil, nil, 0  -- siehe Render
+    local lastSignature, lastLive, lastCharacterKey, lastApplyAt = nil, nil, nil, 0  -- siehe Render
     local function scrollTo(offset)
       frame.offset = math.max(0, math.min(offset, #records - visibleRows))
       scrollBar:SetOffsetSilently(frame.offset)
@@ -318,6 +335,24 @@ function TableView.Create(definition)
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
 
+    -- Nur der laufende Eintrag (Level, Session, Instanz-Durchgang) hat sich geändert, z.B. seine Sekunden: ohne Filter
+    -- und Sortierung steht er auch in der Anzeige vorne, dann reicht es, ihn dort zu ersetzen und neu zu zeichnen,
+    -- statt jede Sekunde alle Einträge zu filtern und zu sortieren (Roadmap 213). Sonst wie bisher alles neu, außer
+    -- solange die Drosselung großer Journale greift (fullAllowed false).
+    local function updateLive(newest, live, fullAllowed)
+      if newest and newest.isCurrent and filterText == "" and not sort and records[1] and records[1].isCurrent then
+        records[1] = newest
+        draw()
+        fillRow(footerRow, definition.footer(columns, records), Widgets.COLORS.highlight)
+      elseif fullAllowed then
+        lastApplyAt = GetTime()
+        apply()
+      else
+        return
+      end
+      lastLive = live
+    end
+
     -- force erzwingt das Neuzeichnen (nach Klick auf eine Zeile, die z.B. Favoriten ändert)
     function frame:Render(characterKey, selectionChanged, force)
       frame.characterKey = characterKey
@@ -329,18 +364,22 @@ function TableView.Create(definition)
       for _, button in ipairs(extraButtons) do button.widget:SetText(L[button.label]) end
       allRecords = definition.records(characterKey)
       if selectionChanged then frame.offset = 0 end
-      -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren (bis 5000 Einträge) nur, wenn sich etwas
-      -- geändert hat: Charakter, Sprache, Anzahl, der jüngste (laufende) Eintrag, spätestens alle 5 s
+      -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren aller Einträge nur, wenn sich etwas geändert hat:
+      -- Charakter, Sprache, Anzahl, der jüngste Eintrag, Journal-Stand bzw. spätestens alle 5 s. Ändert sich nur der
+      -- laufende Eintrag (live), ersetzt updateLive ihn, wo das reicht.
       local newest = allRecords[1]
       local freshness = definition.revision and definition.revision() or math.floor(GetTime() / REFRESH_SECONDS)
       local signature = table.concat({ characterKey or "", ns.db and ns.db.language or "", #allRecords,
-        newest and (newest.time or newest.startedAt or 0) or 0, newest and newest.seconds or 0,
-        newest and newest.xp or 0, freshness }, ":")
+        newest and (newest.time or newest.startedAt or 0) or 0, freshness }, ":")
+      local live = table.concat({ newest and newest.seconds or 0, newest and newest.xp or 0 }, ":")
       local urgent = selectionChanged or force or characterKey ~= lastCharacterKey
-      if signature == lastSignature and not urgent then return end
       -- Große Journale: neue Einträge höchstens alle REFRESH_SECONDS einsortieren (Charakterwechsel sofort)
-      if definition.revision and not urgent and GetTime() - lastApplyAt < REFRESH_SECONDS then return end
-      lastSignature, lastApplyAt, lastCharacterKey = signature, GetTime(), characterKey
+      local throttled = definition.revision and GetTime() - lastApplyAt < REFRESH_SECONDS
+      if not urgent and (signature == lastSignature or throttled) then
+        if live ~= lastLive then updateLive(newest, live, signature == lastSignature and not throttled) end
+        return
+      end
+      lastSignature, lastLive, lastApplyAt, lastCharacterKey = signature, live, GetTime(), characterKey
       apply()
     end
 

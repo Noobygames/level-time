@@ -158,6 +158,14 @@ end
 ---------------------------------------------------------------------------
 local lastXp, lastXpMax, lastLevel
 local gainListeners = {}
+-- Zuletzt gesehener XP-Bedarf je Level. Beim Level-Up kann UnitXPMax schon den Bedarf des neuen Levels liefern,
+-- wenn PLAYER_XP_UPDATE vor PLAYER_LEVEL_UP kam; der Historie-Eintrag braucht aber den des alten.
+local xpMaxByLevel = {}
+
+-- XP-Bedarf von level, wie zuletzt gesehen; ohne Beobachtung UnitXPMax (Bedarf des aktuellen Levels)
+function Experience.XpMaxOf(level)
+  return xpMaxByLevel[level] or UnitXPMax("player")
+end
 
 -- listener(amount) bei jedem XP-Gewinn (z.B. um geheime Kill-Meldungen ihrer XP zuzuordnen)
 function Experience.OnGain(listener)
@@ -182,10 +190,12 @@ local function trackXpGained()
     if xpMax ~= lastXpMax or xp < lastXp or ns.level > lastLevel then
       local newLevel = math.max(ns.level, lastLevel + 1)
       gained = (lastXpMax - lastXp) + skippedLevelsXp(lastLevel + 1, newLevel) + xp
+      xpMaxByLevel[lastLevel] = lastXpMax
       lastLevel = newLevel
     else
       gained = xp - lastXp
     end
+    xpMaxByLevel[lastLevel] = xpMax
     if gained > 0 then
       Stats.Increment(Stats.XP_GAINED, gained)
       notifyGain(gained)
@@ -215,6 +225,7 @@ end
 
 ns.OnLogin(function()
   lastXp, lastXpMax, lastLevel = UnitXP("player"), UnitXPMax("player"), ns.level
+  xpMaxByLevel = { [lastLevel] = lastXpMax }
   lastRestedPool = restedPool()
 end)
 

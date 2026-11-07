@@ -176,3 +176,22 @@ for _ = 1, 6 do
 end
 expect("Vorschau zeigt irgendwann die Karte", noticeFrame.title:GetText(), L.NOTICE_BAGS)
 Alerts.Clear()
+
+-- Roadmap 164: Beispiele verwerfen keine wartenden echten Einblendungen
+Alerts.Clear()
+addon.Set("alertStyle", "text")
+Alerts.Show("Echt 1", { 1, 1, 1 })
+Alerts.Show("Echt 2", { 1, 1, 1 })
+Alerts.ShowSample("rare")
+expect("Beispiel sofort sichtbar", alert.text:GetText(), string.format(L.ALERT_RARE_KILL, "Hogger"))
+addon.Set("alertDuration", 1)
+local seen = {}
+for _ = 1, 10 do
+  wow.advance(2.5)
+  alert._scripts.OnUpdate(alert, 0.1)
+  if alert:IsShown() then seen[#seen + 1] = alert.text:GetText() end
+end
+expect("unterbrochene kommt zuerst zurück", seen[1], "Echt 1")
+expect("dann die wartende", seen[2], "Echt 2")
+expect("danach nichts mehr", #seen, 2)
+Alerts.Clear()

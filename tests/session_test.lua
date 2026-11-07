@@ -97,5 +97,10 @@ expectNear("neue Session zählt weiter", Stats.GetSeconds(Stats.SESSION), 120)
 -- Button in den Einstellungen
 SlashCmdList.LEVELTIMER("config")
 wow.advance(120)
+wow.popup = nil
 expectTrue("Button Neue Session", wow.click(addon.L.NEW_SESSION))
+-- Roadmap 208: erst die Rückfrage mit der Dauer der laufenden Session
+expect("Button fragt nach", #addon.character.sessionHistory, before + 1)
+expect("Rückfrage nennt die Dauer", wow.popup and wow.popup.text, addon.Format.Duration(addon.Stats.GetSeconds(addon.Stats.SESSION)))
+StaticPopupDialogs[wow.popup.name].OnAccept()
 expect("Button archiviert", #addon.character.sessionHistory, before + 2)

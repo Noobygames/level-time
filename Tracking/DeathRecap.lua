@@ -31,7 +31,8 @@ function DeathRecap.IsAvailable()
 end
 
 -- Ursache des letzten Todes { killer, spell, environment } oder nil (keine API, kein Recap, nur geheime Werte).
--- Ohne recapID liefert der Client den Recap des letzten Todes.
+-- Ohne recapID liefert der Client den Recap des letzten Todes: recapID ist laut DeathRecapDocumentation.lua (live und
+-- forever) Nilable, Blizzards Recap-Fenster ruft GetRecapEvents(self:GetRecapID()) ebenfalls mit nil auf (Roadmap 180).
 function DeathRecap.GetLastCause()
   if not DeathRecap.IsAvailable() then return nil end
   local ok, events = pcall(C_DeathRecap.GetRecapEvents)

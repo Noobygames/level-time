@@ -124,10 +124,16 @@ function Profiles.Exists(name)
   return profiles()[storedName(name and strtrim(name) or "")] ~= nil
 end
 
+-- Löschbar ist jedes vorhandene Profil außer dem Standard- und dem aktiven
+function Profiles.CanDelete(name)
+  name = storedName(name or "")
+  return name ~= Profiles.DEFAULT and name ~= Profiles.GetActive() and profiles()[name] ~= nil
+end
+
 -- Löschen; das Standard- und das aktive Profil bleiben. Charaktere damit nutzen wieder Standard.
 function Profiles.Delete(name)
+  if not Profiles.CanDelete(name) then return false end
   name = storedName(name)
-  if name == Profiles.DEFAULT or name == Profiles.GetActive() or not profiles()[name] then return false end
   profiles()[name] = nil
   for characterKey, assigned in pairs(ns.db.characterProfiles) do
     if assigned == name then ns.db.characterProfiles[characterKey] = nil end
