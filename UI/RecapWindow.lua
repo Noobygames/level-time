@@ -23,13 +23,14 @@ local UPDATE_INTERVAL = 1      -- s: offene Karte zählt mit (Zeit, XP, Kills)
 -- Inhalt
 ---------------------------------------------------------------------------
 
--- Einträge eines Journals seit Beginn der Session
+-- Einträge eines Journals seit Beginn der Session, älteste zuerst. Der Eingang ist nach Zeit geordnet (angehängt mit
+-- time()): von hinten lesen und beim ersten älteren Eintrag aufhören, statt jede Sekunde den ganzen Eingang.
 local function sinceSessionStart(log)
   local startedAt = ns.character.currentSession.startedAt or 0
+  local first = #log + 1
+  while first > 1 and (log[first - 1].time or 0) >= startedAt do first = first - 1 end
   local entries = {}
-  for _, entry in ipairs(log) do
-    if (entry.time or 0) >= startedAt then table.insert(entries, entry) end
-  end
+  for i = first, #log do entries[#entries + 1] = log[i] end
   return entries
 end
 

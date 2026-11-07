@@ -252,10 +252,32 @@ local function compareRecord(characterKey)
   }
 end
 
+-- Zeilen anderer Charaktere ändern sich während der Sitzung nicht (Stand ihres letzten Logouts): je Charakter gemerkt,
+-- bis sich Charakter-Tabelle, Zahl der Level-Einträge, gespeichertes laufendes Level oder Einstellungen (XP/h ohne
+-- AFK) ändern. Der eingeloggte Charakter wird jede Sekunde neu gerechnet.
+local compareCache = {}  -- [Schlüssel] = { character, levelCount, currentLevel, settings, record }
+local settingsStamp = 0
+ns.RegisterApply(function() settingsStamp = settingsStamp + 1 end)
+
+local function cachedCompareRecord(characterKey)
+  if isLoggedIn(characterKey) then return compareRecord(characterKey) end
+  local character = History.GetCharacter(characterKey)
+  local levelCount = 0
+  for _ in pairs(character.levelHistory) do levelCount = levelCount + 1 end
+  local cached = compareCache[characterKey]
+  if not (cached and cached.character == character and cached.levelCount == levelCount
+    and cached.currentLevel == character.currentLevel and cached.settings == settingsStamp) then
+    cached = { character = character, levelCount = levelCount, currentLevel = character.currentLevel,
+      settings = settingsStamp, record = compareRecord(characterKey) }
+    compareCache[characterKey] = cached
+  end
+  return cached.record
+end
+
 function History.GetCharacterComparison()
   local records = {}
   for _, key in ipairs(History.GetCharacterKeys()) do
-    table.insert(records, compareRecord(key))
+    table.insert(records, cachedCompareRecord(key))
   end
   table.sort(records, function(a, b)
     if a.averageLevelSeconds and b.averageLevelSeconds then

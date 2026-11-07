@@ -220,7 +220,6 @@ end)
 Widgets.AttachTooltip(nameButton, function() return L.HISTORY end, function() return L.HISTORY_CHARACTER_LIST_TIP end)
 panel:HookScript("OnHide", function()
   menu:Hide()
-  ns.Journal.ReleaseCache()  -- entpackte Archiv-Listen freigeben, beim nächsten Öffnen neu
 end)
 
 ---------------------------------------------------------------------------

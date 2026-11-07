@@ -34,6 +34,7 @@ Journal.MAX_INSTANCE_RUNS = 20000
 Journal.MAX_LOOT = 100000
 Journal.MAX_NEAR_DEATHS = 50000
 Journal.INBOX_LIMIT = 20000
+Journal.INBOX_SLACK = 1000  -- so viele Einträge darf der Eingang über INBOX_LIMIT wachsen, dann wird in einem Zug gekürzt
 
 -- Die Logs mit Archiv-Grenze und Feldern für die kompakte Form (RecordCodec; neue Felder nur hinten anhängen)
 local VALUE = "value"
@@ -103,14 +104,23 @@ function Journal.RevisionOf(logName)
   return function() return Journal.Revision(logName) end
 end
 
--- Neuen Eintrag an den Eingang character[logName] anhängen; über INBOX_LIMIT (nur ohne Archiv) fallen die ältesten weg
+-- list[1..count] verwerfen, der Rest rückt nach vorn: ein Durchlauf statt table.remove(list, 1) je Eintrag
+function Journal.DropOldest(list, count)
+  local size = #list
+  for i = 1, size - count do list[i] = list[i + count] end
+  for i = size, size - count + 1, -1 do list[i] = nil end
+end
+
+-- Neuen Eintrag an den Eingang character[logName] anhängen. Über INBOX_LIMIT + INBOX_SLACK (nur ohne Archiv) fallen
+-- die ältesten bis auf INBOX_LIMIT weg: ein Kürzen je INBOX_SLACK Einträge statt ein Verschieben des ganzen Eingangs
+-- bei jedem Kill
 local function append(logName, entry)
   changed(logName)
   ns.Debug("journal", "%s: %s", logName, entry.name or entry.killer or entry.link or entry.environment or "-")
   local log = ns.character[logName]
   table.insert(log, entry)
-  while #log > Journal.INBOX_LIMIT do
-    table.remove(log, 1)
+  if #log > Journal.INBOX_LIMIT + Journal.INBOX_SLACK then
+    Journal.DropOldest(log, #log - Journal.INBOX_LIMIT)
   end
   for _, listener in ipairs(addListeners) do
     ns.SafeCall(listener, logName, entry)
@@ -213,12 +223,6 @@ end
 ---------------------------------------------------------------------------
 local combined = {}  -- [characterKey .. "#" .. logName] = { version, inbox, count, last, archivedCount, list }
 local NO_INBOX = {}
-
--- Zwischengespeicherte Listen (auch die entpackten des Archivs) freigeben, z.B. wenn die Historie schließt
-function Journal.ReleaseCache()
-  combined = {}
-  ns.JournalArchive.ReleaseCache()
-end
 
 -- Liegt der Eingang noch so wie beim letzten Lesen vor, nur mit neuen Einträgen dahinter? Dann anhängen.
 local function extend(cached, inbox, version)
