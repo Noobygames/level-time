@@ -53,6 +53,15 @@ local function addWorldRecordScopeChooser()
   } })
 end
 
+-- SSF-Regelhelfer: aus oder eine Kategorie (SsfRules.lua)
+local function addSsfCategoryChooser()
+  local choices = { { value = ns.SsfRules.OFF, name = localized("SSF_CATEGORY_OFF") } }
+  for _, category in ipairs(ns.SsfRules.ORDER) do
+    table.insert(choices, { value = category, name = function() return category end })
+  end
+  addChooser({ label = "SSF_CATEGORY", setting = "ssfCategory", choices = choices })
+end
+
 -- Level-Up-Ansage: aus, Gruppe oder Gilde
 local function addAnnounceChooser()
   local Summary = ns.LevelUpSummary
@@ -800,6 +809,9 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
 end
 addToggles(recordToggles)
 addWorldRecordScopeChooser()
+addSection("SECTION_SSF")
+addSsfCategoryChooser()
+addHint("SSF_HINT")
 finishPage()
 
 -- Profile: Einstellungen benannt speichern, je Charakter wählen, als Text teilen

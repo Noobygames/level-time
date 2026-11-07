@@ -2035,3 +2035,21 @@ Prognose plausibel (ja/nein):
 Vergleiche stimmen (ja/nein):
 Fehler:
 ```
+
+### 99. SSF-Regelhelfer (Roadmap 287)
+
+- [ ] geprüft
+
+Speedrun > SSF-Kategorie „1-20“, Split-Liste an. Etwas mit Ruhe-XP leveln, einmal /reload und einmal richtig ausloggen (über 5 Minuten), einen Briefkasten und ein Handelsfenster öffnen.
+
+**Erwartet:** Split-Liste: „SSF 1-20“, Ruhe-XP-Balken steigen beim Leveln mit Ruhe-Bonus, Logouts zählt nur das echte Ausloggen, Instanzen der letzten Stunde, Uhr mit Datum. Beim Briefkasten und Handel eine SSF-Karte. Nichts wird blockiert.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ruhe-XP-Balken plausibel (ja/nein):
+Logout-Zähler richtig (ja/nein):
+Hinweis bei Post/Handel/AH (ja/nein):
+Fehler:
+```

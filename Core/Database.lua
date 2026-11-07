@@ -43,6 +43,7 @@ local SETTINGS_DEFAULTS = {
   recordBrackets = {},      -- [Abschnitt] = false blendet ihn in der Split-Liste aus
   worldRecordScope = "class",  -- "overall" oder "class"
   goldSplitNotice = false,
+  ssfCategory = "off",  -- SSF-Regelhelfer: "off", "1-20" oder "1-60" (SsfRules.lua), nur Anzeige
   splitTolerancePercent = 0,  -- Toleranzband der Splits in Prozent der Vergleichszeit, 0 = aus (Splits.lua)
   pbSameClass = false,  -- Vergleich "pb" nur gegen eigene Charaktere derselben Klasse  -- Gold-Split (neue Bestzeit je Level) beim Level-Up mit Chatzeile und Ton melden
   showGoal = false,  -- Session-Ziel (siehe Goal.lua); /lt goal schaltet die Zeile ein
@@ -252,6 +253,7 @@ local CHARACTER_DEFAULTS = {
   lootLog = {},         -- seltene und bessere Beute, älteste zuerst (siehe Loot.lua)
   nearDeathLog = {},    -- Beinahe-Tode, älteste zuerst (siehe NearDeath.lua)
   zoneStats = {},       -- Spielzeit, XP, Kills und Tode je Zone (siehe Zones.lua)
+  ssfLogouts = 0,       -- echte Logouts seit Beginn der Aufzeichnung (SSF-Regelhelfer, SsfRules.lua)
   dailyStats = {},      -- Tageswerte, Schlüssel "JJJJ-MM-TT" (siehe Daily.lua)
 }
 

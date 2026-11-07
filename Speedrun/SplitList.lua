@@ -4,7 +4,8 @@
 -- Einstellungen (Reiter Speedrun): showSplitList (an/aus, /lt splits), splitListRows (Zahl der Level),
 -- splitListScale (eigene Größe, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
 -- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
--- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord).
+-- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
+-- ssfCategory (SSF-Regelhelfer, SsfRules.lua).
 -- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
 local _, ns = ...
 local L = ns.L
@@ -102,6 +103,7 @@ function SplitList.BuildFooterLines()
     table.insert(lines, { L.SPLIT_LIST_PLAYED, played and Format.Duration(played) or "...", "" })
   end
   if db.splitListShowForecast then SplitList.AddForecastLines(lines) end
+  for _, line in ipairs(ns.SsfRules.BuildLines()) do table.insert(lines, line) end
   if not db.showWorldRecords then return lines end
 
   local WorldRecords = ns.WorldRecords
