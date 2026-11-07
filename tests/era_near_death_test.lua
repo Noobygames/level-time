@@ -2,6 +2,7 @@
 local Stats = addon.Stats
 local PLAYER = wow.state.guid
 
+wow.state.interface = 11509  -- Classic Era: Leben lesbar (Retail/Forever: geheim, keine Beinahe-Tode)
 wow.login({ level = 25, zone = "Sumpfland" })
 
 local function health(percent)

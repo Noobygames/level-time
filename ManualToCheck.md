@@ -2268,3 +2268,33 @@ Gegenstands-Tooltip (ja/nein):
 Quest-Tooltip (ja/nein/nur Titel):
 Fehler:
 ```
+
+### 111. CPU-Last vorher/nachher (Roadmap 331–336)
+
+- [ ] geprüft
+
+Einmal mit dem Stand **vor** dem Performance-Branch und einmal **danach** messen, jeweils gleiche Situation (z.B. 5 min Questen draußen, dazu wenn möglich 5 min Dungeon/Raid oder Schlachtfeld). Nach `/reload`:
+
+```
+/lt debug perf on
+```
+
+Spielen, dann:
+
+```
+/lt debug perf report 20
+```
+
+Danach `/lt copy`, die perf-Zeilen kopieren. Vor dem Wechsel `/lt debug perf off`. (Der alte Stand kennt den Befehl noch nicht; dort als Gegencheck `/console scriptProfile 1`, `/reload`, nach dem Spielen `/dump GetAddOnCPUUsage("LevelTimer")` nach `/run UpdateAddOnCPUUsage()`, danach `scriptProfile 0`.)
+
+**Erwartet:** Der Bericht listet Schlüssel wie `event UNIT_AURA ...`, `task ...`, `onupdate TimerWindow`; nach dem Branch kleinere Summen bei UNIT_*-Events, COMBAT_LOG_EVENT_UNFILTERED (Classic) und den Aura-Aufgaben, weniger Speicherzuwachs. Keine Fehler, keine fehlenden Funktionen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Situation:
+Vorher (Top-Zeilen oder GetAddOnCPUUsage):
+Nachher (Top-Zeilen):
+Fehler:
+```

@@ -201,8 +201,17 @@ local function recordDebugLine(area, text)
   write({ area = area, msg = text })
 end
 
+local stateListeners = {}
+-- listener(enabled) nach jedem Login und jedem An- oder Ausschalten, vor der Kopfzeile (z.B. Proben-Events anmelden)
+function DebugLog.OnStateChanged(listener)
+  stateListeners[#stateListeners + 1] = listener
+end
+
 local function attach()
-  ns.SetDebugRecorder(DebugLog.IsEnabled() and recordDebugLine or nil)
+  local enabled = DebugLog.IsEnabled()
+  ns.SetDebugRecorder(enabled and recordDebugLine or nil)
+  for _, listener in ipairs(stateListeners) do ns.SafeCall(listener, enabled) end
+  ns.RefreshTasks()  -- Aufgaben, die nur mit Log laufen (DebugProbes)
 end
 
 function DebugLog.SetEnabled(enabled)

@@ -62,25 +62,38 @@ end
 -- als Kompatibilitäts-Alias (Blizzard_DeprecatedCombatLog, nur mit CVar loadDeprecationFallbacks)
 local getCombatLogEventInfo = (C_CombatLog and C_CombatLog.GetCurrentEventInfo) or CombatLogGetCurrentEventInfo
 
+-- Ein Treffer-Speicher, wiederverwendet: das Kampflog feuert im Raid oder Schlachtfeld hunderte Male pro Sekunde,
+-- davon trifft nur ein kleiner Teil den Spieler. PeekLastHit gibt eine Kopie heraus.
+local hitMemory = {}
+
+local function rememberHit(killer, spell, environment)
+  hitMemory.killer, hitMemory.spell, hitMemory.environment, hitMemory.at = killer, spell, environment, GetTime()
+  lastHit = hitMemory
+end
+
+local isSecret = issecretvalue  -- nil in Clients ohne geheime Werte (Classic Era, TBC)
+
+-- Läuft für jedes Kampflog-Event, daher zuerst der billigste Abbruch (Ziel ist nicht der Spieler). Eigener Frame
+-- ohne ns.SafeCall je Event: der pcall um den Abruf fängt Client-Fehler ab, der Rest kann nicht scheitern.
 local function onCombatLogEvent()
   local ok, _, subevent, _, _, sourceName, _, _, destGUID, _, _, _, extra1, extra2 =
     pcall(getCombatLogEventInfo)
-  if not ok or not playerGUID or readable(destGUID) ~= playerGUID then return end
+  if not ok or (isSecret and isSecret(destGUID)) or destGUID ~= playerGUID or not playerGUID then return end
 
   if subevent == "ENVIRONMENTAL_DAMAGE" then
-    lastHit = { environment = readable(extra1) }
+    rememberHit(nil, nil, readable(extra1))
   elseif subevent == "SWING_DAMAGE" then
-    lastHit = { killer = readable(sourceName) }
+    rememberHit(readable(sourceName), nil, nil)
   elseif SPELL_DAMAGE_EVENTS[subevent] then
-    lastHit = { killer = readable(sourceName), spell = readable(extra2) }
-  else
-    return
+    rememberHit(readable(sourceName), readable(extra2), nil)
   end
-  lastHit.at = GetTime()
 end
 
 if getCombatLogEventInfo then
-  ns.RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", onCombatLogEvent)
+  local combatLogFrame = CreateFrame("Frame")
+  if pcall(combatLogFrame.RegisterEvent, combatLogFrame, "COMBAT_LOG_EVENT_UNFILTERED") then
+    ns.SetEventScript(combatLogFrame, "COMBAT_LOG_EVENT_UNFILTERED DeathCounter", onCombatLogEvent)
+  end
 end
 
 -- Letzter Treffer, falls frisch genug: { killer, spell, environment } (Felder können fehlen)

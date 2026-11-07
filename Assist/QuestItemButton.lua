@@ -31,7 +31,7 @@ local DEFAULT_POS = { "CENTER", "CENTER", 0, -180 }
 local MOVE_BACKGROUND = { 0, 0, 0, 0.6 }
 
 local holder, itemButton, targetButton, mover
-local shown = { itemId = nil, target = nil }  -- zuletzt gesetzte Attribute
+local shown = { itemId = nil, target = nil, texture = nil }  -- zuletzt gesetzte Attribute und Symbol
 local pending = false                         -- im Kampf aufgeschoben
 local acceptedAt = {}                         -- [questID] = GetTime() der Annahme
 
@@ -175,9 +175,12 @@ local function setItem(candidate)
   if itemId then
     if itemId ~= shown.itemId then itemButton:SetAttribute("item", "item:" .. itemId) end
     itemButton.link = candidate.link
-    itemButton.icon:SetTexture(candidate.texture)
+    if candidate.texture ~= shown.texture then
+      shown.texture = candidate.texture
+      itemButton.icon:SetTexture(candidate.texture)
+    end
     local count = itemCount(itemId)
-    itemButton.count:SetText(count > 1 and tostring(count) or "")
+    ns.Widgets.SetTextIfChanged(itemButton.count, count > 1 and tostring(count) or "")
     itemButton:Show()
   else
     itemButton.link = nil

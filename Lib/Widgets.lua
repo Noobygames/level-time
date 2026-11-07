@@ -43,6 +43,17 @@ local SLIDER_HEIGHT = 17
 local SLIDER_LABEL_HEIGHT = 18
 
 -- Verschiebbares Fenster im Addon-Stil (Ziehen muss der Aufrufer per OnDragStart regeln)
+-- Text nur setzen, wenn er sich geändert hat (Anzeigen, die mehrmals pro Sekunde aktualisieren); true = geändert,
+-- dann z.B. Breite neu messen. Nur für FontStrings, deren Text ausschließlich hierüber gesetzt wird, sonst stimmt der
+-- gemerkte Text nicht mehr. Gemerkt in einer schwachen Tabelle (nicht am Frame, Blizzard-Frames bleiben unberührt).
+local shownTexts = setmetatable({}, { __mode = "k" })
+function Widgets.SetTextIfChanged(fontString, text)
+  if shownTexts[fontString] == text then return false end
+  shownTexts[fontString] = text
+  fontString:SetText(text)
+  return true
+end
+
 function Widgets.CreatePanel(name, backgroundAlpha)
   local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
   panel:SetBackdrop(PANEL_BACKDROP)

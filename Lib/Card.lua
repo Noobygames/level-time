@@ -106,7 +106,7 @@ function Card.Create(name)
     if hasTime then
       timeText:ClearAllPoints()
       timeText:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -LINE_GAP)
-      timeText:SetText(string.format(ns.L.SECONDS_SHORT, 99))  -- breiteste Zahl
+      ns.Widgets.SetTextIfChanged(timeText, string.format(ns.L.SECONDS_SHORT, 99))  -- breiteste Zahl
       local width, timeHeight = measure(timeText)
       widest, height = math.max(widest, width), height + LINE_GAP + timeHeight
     end
@@ -136,7 +136,7 @@ function Card.Create(name)
   end
 
   function card.SetTime(text)
-    timeText:SetText(text)
+    ns.Widgets.SetTextIfChanged(timeText, text)
   end
 
   function card.SetFraction(fraction)

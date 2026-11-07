@@ -458,7 +458,7 @@ end)
 -- Ablauf
 ---------------------------------------------------------------------------
 local sinceUpdate = 0
-window:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(window, "TimerWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0

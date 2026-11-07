@@ -270,11 +270,13 @@ local function probeEvent(probe, ...)
   write(entry)
 end
 
+-- Alle Proben-Events hängen nur, solange das Log läuft, am Client (sonst kostet jedes dieser Events einen Aufruf,
+-- der sofort abbricht); angemeldet wird am Ende der Datei. unknownEvents = Events, die der Client nicht kennt.
+local probeEvents = ns.NewEventGroup()
 local unknownEvents = {}
+local unknownEventsKnown = false
 for _, probe in ipairs(EVENT_PROBES) do
-  if not ns.RegisterEvent(probe.event, function(...) probeEvent(probe, ...) end) then
-    unknownEvents[#unknownEvents + 1] = probe.event
-  end
+  probeEvents.Add(probe.event, nil, function(...) probeEvent(probe, ...) end)
 end
 
 -- 258: Flugroute beim Abflug (Start, Ziel, Zwischenhalte); die Landung zeigt PLAYER_CONTROL_GAINED mit Zustand
@@ -381,21 +383,19 @@ end
 
 ns.Every(COMBAT_SAMPLE_SECONDS, function()
   if ns.InCombat() then writeCombatSample("tick") end
-end)
+end, DebugLog.IsEnabled)
 
 for _, event in ipairs({ "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE", "PLAYER_REGEN_DISABLED" }) do
-  if not ns.RegisterEvent(event, function(...) writeCombatSample(event, ...) end) then
-    unknownEvents[#unknownEvents + 1] = event
-  end
+  probeEvents.Add(event, nil, function(...) writeCombatSample(event, ...) end)
 end
-ns.RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", function(unit, ...)
-  if unit == "player" then writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", unit, ...) end
+probeEvents.Add("UNIT_THREAT_SITUATION_UPDATE", "player", function(...)
+  writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", ...)
 end)
 
 -- 300/316: gewirkte Zauber des Spielers, als Zählung je Spell-ID im Schnappschuss (einzeln wären es zu viele Zeilen)
 local castCounts = {}
-ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
-  if unit ~= "player" or not DebugLog.IsEnabled() or ns.IsSecret(spellId) or spellId == nil then return end
+probeEvents.Add("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, spellId)
+  if not DebugLog.IsEnabled() or ns.IsSecret(spellId) or spellId == nil then return end
   local key = tostring(spellId)
   castCounts[key] = (castCounts[key] or 0) + 1
 end)
@@ -404,7 +404,7 @@ ns.Every(SNAPSHOT_SECONDS, function()
   if not DebugLog.IsEnabled() then return end
   write({ area = "snapshot", state = playerState(), casts = castCounts })
   castCounts = {}
-end)
+end, DebugLog.IsEnabled)
 
 ns.OnLogout(function()
   if DebugLog.IsEnabled() then write({ area = "snapshot", reason = "logout", state = playerState() }) end
@@ -459,6 +459,11 @@ DebugLog.OnHeader(function()
   for _, path in ipairs(API_PROBES) do apis[path] = type(api(path)) end
   local strings = {}
   for _, name in ipairs(GLOBAL_STRING_PROBES) do strings[name] = _G[name] or false end
+  if not unknownEventsKnown then
+    -- /lt debug check bei ausgeschaltetem Log: einmal kurz anmelden, um unbekannte Events festzustellen
+    unknownEvents, unknownEventsKnown = probeEvents.SetActive(true), true
+    probeEvents.SetActive(false)
+  end
   write({ area = "probe", apis = apis, strings = strings, unknownEvents = unknownEvents, state = playerState() })
 end)
 
@@ -615,8 +620,8 @@ end)
 
 -- 327: Sind die entfernten Aura-IDs von UNIT_AURA im Kampf lesbar (Wasserschild-Ladungen verbraucht)? Einmal je Kampf.
 local auraRemovalLogged = false
-ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
-  if auraRemovalLogged or unit ~= "player" or not DebugLog.IsEnabled() or not InCombatLockdown() then return end
+probeEvents.Add("UNIT_AURA", "player", function(_, updateInfo)
+  if auraRemovalLogged or not DebugLog.IsEnabled() or not InCombatLockdown() then return end
   if type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
   local removed = updateInfo.removedAuraInstanceIDs
   if removed == nil then return end
@@ -624,4 +629,14 @@ ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
   write({ area = "probe", name = "unitAura.removedInCombat", secretList = ns.IsSecret(removed),
     first = type(removed) == "table" and not ns.IsSecret(removed) and removed[1] or nil, state = playerState() })
 end)
-ns.RegisterEvent("PLAYER_REGEN_ENABLED", function() auraRemovalLogged = false end)
+probeEvents.Add("PLAYER_REGEN_ENABLED", nil, function() auraRemovalLogged = false end)
+
+-- Proben an- und abmelden, wenn das Log an- oder ausgeht (auch beim Login, vor der Kopfzeile)
+DebugLog.OnStateChanged(function(enabled)
+  if enabled and not probeEvents.IsActive() then
+    auraRemovalLogged = false
+    unknownEvents, unknownEventsKnown = probeEvents.SetActive(true), true
+  elseif not enabled then
+    probeEvents.SetActive(false)
+  end
+end)

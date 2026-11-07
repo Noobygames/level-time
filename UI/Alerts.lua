@@ -165,8 +165,8 @@ local function fade(self)
   end
 end
 
-frame:SetScript("OnUpdate", fade)
-notice.frame:SetScript("OnUpdate", fade)
+ns.SetUpdateScript(frame, "Alerts", fade)
+ns.SetUpdateScript(notice.frame, "AlertNotice", fade)
 
 -- Einblendung zeigen; läuft schon eine, wartet die neue (höchstens MAX_QUEUE). options = { immediate = ersetzt die
 -- laufende und leert die Warteschlange, sound = Ton, falls eingeschaltet, notice = { icon, title, body } zeigt eine

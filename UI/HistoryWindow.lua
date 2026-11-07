@@ -337,7 +337,7 @@ local function tick()
 end
 
 local sinceUpdate = 0
-panel:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(panel, "HistoryWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0

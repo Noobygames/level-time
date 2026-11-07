@@ -31,8 +31,7 @@ function NearDeath.HealthFraction()
   return health / maxHealth
 end
 
-local function onHealthChanged(unit)
-  if unit ~= "player" then return end
+local function onHealthChanged()
   if UnitIsDeadOrGhost("player") then
     episode = nil
     return
@@ -56,8 +55,12 @@ local function onHealthChanged(unit)
   end
 end
 
-ns.RegisterEvent("UNIT_HEALTH", onHealthChanged)
-ns.RegisterEvent("UNIT_HEALTH_FREQUENT", onHealthChanged)  -- ältere Clients melden Änderungen hierüber
+-- Nur das eigene Leben (UNIT_HEALTH käme sonst für jede Einheit) und nur, wo es lesbar ist: in Retail/Forever
+-- ist es immer geheim, dort bleibt der Handler abgemeldet. UNIT_HEALTH_FREQUENT gibt es nur in Classic Era/TBC.
+local healthEvents = ns.NewEventGroup()
+healthEvents.Add("UNIT_HEALTH", "player", onHealthChanged)
+healthEvents.Add("UNIT_HEALTH_FREQUENT", "player", onHealthChanged)
+ns.RegisterApply(function() healthEvents.SetActive(NearDeath.IsAvailable()) end)
 ns.RegisterEvent("PLAYER_DEAD", function() episode = nil end)
 
 -- Wiederbelebt mit wenig Leben ist kein Beinahe-Tod. PLAYER_ALIVE kommt auch beim Freilassen des Geistes.

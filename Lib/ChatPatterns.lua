@@ -40,8 +40,11 @@ function ChatPatterns.CompileGlobals(globalNames, stringCapture)
   return compiled
 end
 
--- Meldung gegen ein Format prüfen; Rückgabe: Argumente in Format-Reihenfolge oder nil
+-- Meldung gegen ein Format prüfen; Rückgabe: Argumente in Format-Reihenfolge oder nil.
+-- Die meisten Chatzeilen passen nicht (fremde Beute im Raid, Systemmeldungen): erst ohne Tabelle prüfen, ob das
+-- verankerte Muster überhaupt passt, und nur bei einem Treffer die Captures einsammeln.
 function ChatPatterns.Match(message, compiled)
+  if not message:find(compiled.pattern) then return nil end
   local captures = { message:match(compiled.pattern) }
   if #captures == 0 then return nil end
   local args = {}
