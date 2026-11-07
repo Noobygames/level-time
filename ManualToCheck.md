@@ -2694,3 +2694,20 @@ Raster lesbar (ja/nein):
 BINGO und Ansage (ja/nein):
 Fehler:
 ```
+
+### 186. Glücksrad (Roadmap 306)
+
+- [ ] geprüft
+
+1. `/sg wheel`: Karte links neben dem Tracker wechselt etwa zwei Sekunden lang die Titel und bleibt grün beim Ergebnis
+   stehen; das Ziel erscheint im Tracker. `/sg wheel reroll` ersetzt es, bis keine Neuwürfe mehr übrig sind.
+2. „Bei jedem Level-Up drehen“ an: Level-Up dreht automatisch.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Animation flüssig (ja/nein):
+Neuwürfe und Level-Up ok (ja/nein):
+Fehler:
+```

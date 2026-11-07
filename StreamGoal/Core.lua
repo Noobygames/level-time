@@ -34,6 +34,8 @@ ns.SETTING_DEFAULTS = {
   cardColors = "kind",   -- "kind" = Farbe der Zielart, "accent" = Akzentfarbe des Themes für alle
   showBingo = true,      -- Bingo-Schein am Bildschirm (BingoView.lua)
   bingoAnnounce = false, -- BINGO in den Gruppenchat
+  wheelOnLevelUp = false,  -- Glücksrad bei jedem Level-Up drehen (Wheel.lua)
+  wheelRerolls = 2,        -- Neuwürfe je Drehung
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
 
@@ -78,8 +80,14 @@ LT.OnLogin(function()
   db.packs = type(db.packs) == "table" and db.packs or {}  -- eigene Vorlagen (Packs.lua)
   db.settings = db.settings or {}
   fillDefaults(db.settings, ns.SETTING_DEFAULTS)
-  -- Früher pos = { Punkt, Bezugspunkt, x, y } und scale; jetzt ein Eintrag wie bei Level Time (Lib/Frames.lua)
   local settings = db.settings
+  if type(settings.maxCards) ~= "number" or settings.maxCards < ns.MIN_CARDS or settings.maxCards > ns.MAX_CARDS then
+    settings.maxCards = ns.SETTING_DEFAULTS.maxCards
+  end
+  if type(settings.wheelRerolls) ~= "number" or settings.wheelRerolls < 0 or settings.wheelRerolls > 5 then
+    settings.wheelRerolls = ns.SETTING_DEFAULTS.wheelRerolls
+  end
+  -- Früher pos = { Punkt, Bezugspunkt, x, y } und scale; jetzt ein Eintrag wie bei Level Time (Lib/Frames.lua)
   if settings.pos ~= nil or settings.scale ~= nil then
     local pos = type(settings.pos) == "table" and settings.pos or {}
     settings.frame = settings.frame or LT.Database.SanitizeFrameEntry({

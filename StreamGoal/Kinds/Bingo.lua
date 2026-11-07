@@ -46,8 +46,8 @@ function Bingo.Texts()
   return texts
 end
 
--- Pool gemischt: Einträge { kind, params, target }
-local function shuffledPool()
+-- Pool gemischt (auch für das Glücksrad): Einträge { kind, params, target }
+function Bingo.ShuffledPool()
   local entries = {}
   for _, entry in ipairs(Bingo.POOL) do
     if Goals.IsAvailable(entry.kind) then
@@ -76,7 +76,7 @@ end
 -- notfalls wiederholt
 local function fill(board)
   local size = board.params.size
-  local pool = shuffledPool()
+  local pool = Bingo.ShuffledPool()
   local cells, next, attempts = {}, 1, 0
   for index = 1, cellCount(size) do
     if isFree(board, index) then

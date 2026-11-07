@@ -101,6 +101,20 @@ builder.AddButtonRow({
   { label = "SG_RESET_POSITION", onClick = function() Frames.Reset(Tracker.FRAME_ID) end },
 })
 
+builder.AddSection("SG_OPTIONS_SECTION_WHEEL")
+builder.AddToggles({ toggle("SG_OPTIONS_WHEEL_LEVELUP", "wheelOnLevelUp") })
+builder.AddSlider({
+  label = "SG_OPTIONS_WHEEL_REROLLS",
+  min = 0, max = ns.Wheel.MAX_REROLLS, step = 1,
+  get = function() return settings().wheelRerolls end,
+  set = function(value) ns.SetSetting("wheelRerolls", value) end,
+  format = function(value) return tostring(value) end,
+  reset = settingReset("wheelRerolls"),
+})
+builder.AddButtonRow({
+  { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
+})
+
 builder.AddSubPage("SG_OPTIONS_PAGE_NOTICES")
 builder.AddSection("SG_OPTIONS_SECTION_DONE")
 builder.AddToggles({

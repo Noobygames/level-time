@@ -43,6 +43,7 @@ Tracking.lua
 # Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
 Tracker.lua
 BingoView.lua
+Wheel.lua
 Manager.lua
 PacksView.lua
 Options.lua

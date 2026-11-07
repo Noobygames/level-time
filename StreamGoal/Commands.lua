@@ -14,7 +14,7 @@ local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
 ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
-  "SG_USAGE_PACK", "SG_USAGE_BINGO_TEXT" }
+  "SG_USAGE_PACK", "SG_USAGE_BINGO_TEXT", "SG_USAGE_WHEEL" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -214,6 +214,13 @@ local function bingo(argument)
   end
 end
 
+-- Glücksrad: "wheel" dreht, "wheel reroll" verwirft das letzte Ergebnis und dreht neu
+local function wheel(argument)
+  local ok, err
+  if argument:lower() == "reroll" then ok, err = ns.Wheel.Reroll() else ok, err = ns.Wheel.Spin() end
+  if not ok and err then ns.Print(err) end
+end
+
 local function toggleTracker()
   local shown = not ns.db.settings.showTracker
   Tracker.SetShown(shown)
@@ -238,6 +245,7 @@ local commands = {
   ["repeat"] = repeatGoal,
   pack = pack,
   bingo = bingo,
+  wheel = wheel,
   tracker = toggleTracker,
   scale = scale,
   options = function() ns.Options.Toggle() end,
@@ -246,7 +254,8 @@ local commands = {
   history = function() Manager.Toggle("history") end,
   help = help,
 }
-ns.commands = commands  -- weitere Befehle melden die Dateien danach an (z.B. Pakete)
+-- Für Knöpfe im Einstellungsfenster (lädt vor dieser Datei, ruft erst beim Klick)
+ns.Commands = { Wheel = wheel }
 
 SLASH_STREAMGOAL1 = "/sg"
 SLASH_STREAMGOAL2 = "/streamgoal"
