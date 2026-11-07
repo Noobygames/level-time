@@ -1375,3 +1375,34 @@ Vorher (Top-Zeilen oder GetAddOnCPUUsage):
 Nachher (Top-Zeilen):
 Fehler:
 ```
+
+### 112. Historie offen beim Kämpfen vorher/nachher (Roadmap 337–339, 353–355)
+
+- [ ] geprüft
+
+Einmal mit dem Stand **vor** dem Branch `perf/bigo` und einmal **danach**, gleiche Situation: Charakter mit großem Kill-Journal (möglichst einige tausend Kills, Archiv geladen), Historie offen auf **Journal > Kills**, nach Name sortiert und mit Suchtext (z.B. `wolf`), dann 5 min Mobs töten. Danach dasselbe auf **Graphen > Top-Gegner** und **Speedrun > Läufe**. Nach `/reload`:
+
+```
+/lt debug perf on
+```
+
+Spielen, dann:
+
+```
+/lt debug perf report 20
+```
+
+Danach `/lt copy`, die perf-Zeilen kopieren, `/lt debug perf off`. Zusätzlich im Optionsfenster einen Regler (z.B. Hintergrund) hin und her ziehen und den Bericht danach ansehen.
+
+**Erwartet:** Nach dem Branch deutlich kleinere Summen und Maxima bei den OnUpdate-Zeilen der Historie und bei den Journal-Listenern; neue Kills erscheinen weiter spätestens nach 5 s an der richtigen Stelle der sortierten Tabelle, Suche und Summenzeile stimmen, Top-Gegner zählt mit. Reglerziehen ohne Ruckeln. Keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Journal-Größe (Kills):
+Vorher (Top-Zeilen):
+Nachher (Top-Zeilen):
+Tabellen korrekt (Sortierung, Suche, Summe):
+Fehler:
+```

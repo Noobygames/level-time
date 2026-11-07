@@ -26,30 +26,62 @@ local function newestFirst(list)
   return records
 end
 
--- Journal neueste zuerst: Journal.GetEntries liefert dieselbe Liste, solange sich nichts ändert, daher hier je Liste
--- zwischengespeichert (die Historie fragt jede Sekunde, Journale können sehr lang sein). Ergebnis nicht verändern.
-local reversedJournals = setmetatable({}, { __mode = "k" })
+-- Journal neueste zuerst: je Liste von Journal.GetEntries und deren Länge zwischengespeichert (die Liste wächst an
+-- Ort und Stelle). Ergebnis nicht verändern. Die Journal-Tabellen der Historie lesen die Liste direkt (appendOnly).
+local reversedJournals = setmetatable({}, { __mode = "k" })  -- [Liste] = { count, records }
 
 local function journalNewestFirst(characterKey, logName)
   local list = ns.Journal.GetEntries(characterKey, logName)
-  reversedJournals[list] = reversedJournals[list] or newestFirst(list)
-  return reversedJournals[list]
+  local cached = reversedJournals[list]
+  if not cached or cached.count ~= #list then
+    cached = { count = #list, records = newestFirst(list) }
+    reversedJournals[list] = cached
+  end
+  return cached.records
 end
 
 function History.GetCharacter(characterKey)
   return ns.Database.GetCharacters()[characterKey]
 end
 
--- Eingeloggter Charakter zuerst, danach alphabetisch
-function History.GetCharacterKeys()
-  local keys = {}
-  for key in pairs(ns.Database.GetCharacters()) do
+-- Eingeloggter Charakter zuerst, danach alphabetisch. Zwischengespeichert, bis sich die Charaktere ändern (andere
+-- Tabelle, andere Anzahl, anderer eingeloggter Charakter, Löschen/Ersetzen): Zählen kostet O(C), Sortieren gibt es
+-- nur beim Neubau. positions = Platz je Schlüssel (DisplayName mit Streamer-Datenschutz).
+local characterKeys = {}  -- { characters, count, loggedIn, keys, positions }
+
+local function countOf(characters)
+  local count = 0
+  for _ in pairs(characters) do count = count + 1 end
+  return count
+end
+
+local function currentCharacterKeys()
+  local characters = ns.Database.GetCharacters()
+  local count = countOf(characters)
+  local cached = characterKeys
+  if cached.characters == characters and cached.count == count and cached.loggedIn == ns.characterKey then
+    return cached
+  end
+  local keys, positions = {}, {}
+  for key in pairs(characters) do
     if not isLoggedIn(key) then table.insert(keys, key) end
   end
   table.sort(keys)
   table.insert(keys, 1, ns.characterKey)
-  return keys
+  for index, key in ipairs(keys) do positions[key] = index end
+  characterKeys = { characters = characters, count = count, loggedIn = ns.characterKey, keys = keys,
+    positions = positions }
+  return characterKeys
 end
+
+-- Ergebnis nicht verändern (zwischengespeichert; eine neue Liste, sobald sich die Charaktere ändern)
+function History.GetCharacterKeys()
+  return currentCharacterKeys().keys
+end
+
+local function forgetCharacterKeys() characterKeys = {} end
+ns.Database.OnCharacterDeleted(forgetCharacterKeys)
+ns.Database.OnCharacterReplaced(forgetCharacterKeys)
 
 -- Anzeigename "Name - Realm". Mit Streamer-Datenschutz (Einstellung streamerPrivacy) ohne Realm,
 -- andere Charaktere nur als "Charakter N" (N = Platz in GetCharacterKeys), gegen Stream-Sniping.
@@ -61,9 +93,8 @@ function History.DisplayName(characterKey)
   if isLoggedIn(characterKey) then
     return character.name or "?"
   end
-  for index, key in ipairs(History.GetCharacterKeys()) do
-    if key == characterKey then return string.format(L.HIDDEN_CHARACTER, index) end
-  end
+  local index = currentCharacterKeys().positions[characterKey]
+  if index then return string.format(L.HIDDEN_CHARACTER, index) end
   return "?"
 end
 
@@ -221,10 +252,32 @@ local function compareRecord(characterKey)
   }
 end
 
+-- Zeilen anderer Charaktere ändern sich während der Sitzung nicht (Stand ihres letzten Logouts): je Charakter gemerkt,
+-- bis sich Charakter-Tabelle, Zahl der Level-Einträge, gespeichertes laufendes Level oder Einstellungen (XP/h ohne
+-- AFK) ändern. Der eingeloggte Charakter wird jede Sekunde neu gerechnet.
+local compareCache = {}  -- [Schlüssel] = { character, levelCount, currentLevel, settings, record }
+local settingsStamp = 0
+ns.RegisterApply(function() settingsStamp = settingsStamp + 1 end)
+
+local function cachedCompareRecord(characterKey)
+  if isLoggedIn(characterKey) then return compareRecord(characterKey) end
+  local character = History.GetCharacter(characterKey)
+  local levelCount = 0
+  for _ in pairs(character.levelHistory) do levelCount = levelCount + 1 end
+  local cached = compareCache[characterKey]
+  if not (cached and cached.character == character and cached.levelCount == levelCount
+    and cached.currentLevel == character.currentLevel and cached.settings == settingsStamp) then
+    cached = { character = character, levelCount = levelCount, currentLevel = character.currentLevel,
+      settings = settingsStamp, record = compareRecord(characterKey) }
+    compareCache[characterKey] = cached
+  end
+  return cached.record
+end
+
 function History.GetCharacterComparison()
   local records = {}
   for _, key in ipairs(History.GetCharacterKeys()) do
-    table.insert(records, compareRecord(key))
+    table.insert(records, cachedCompareRecord(key))
   end
   table.sort(records, function(a, b)
     if a.averageLevelSeconds and b.averageLevelSeconds then

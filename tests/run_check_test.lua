@@ -25,8 +25,10 @@ expect("eigener Lauf ok", RunCheck.Verify(own), RunCheck.OK)
 
 -- Zeit in den SavedVariables geändert: sichtbar
 addon.character.levelHistory[5].seconds = 300
+Runs.Invalidate()  -- im Spiel wird die Datei außerhalb geändert; der nächste Login liest neu
 expect("geändert erkannt", RunCheck.Verify(Runs.Get(addon.characterKey)), RunCheck.CHANGED)
 addon.character.levelHistory[5].seconds = 600
+Runs.Invalidate()
 
 -- Export mit Code und Erfassungsquote, Import prüft nach
 local text = Runs.Export(Runs.Get(addon.characterKey))

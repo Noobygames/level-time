@@ -240,7 +240,7 @@ addSlider({
   max = toPercent(TimerWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.scale) end,
-  set = function(value) ns.Set("scale", value / 100) end,
+  set = function(value) ns.SetDeferred("scale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -249,7 +249,7 @@ addSlider({
   max = 100,
   step = 5,
   get = function(db) return toPercent(db.bgAlpha) end,
-  set = function(value) ns.Set("bgAlpha", value / 100) end,
+  set = function(value) ns.SetDeferred("bgAlpha", value / 100) end,
   format = percent,
 })
 addToggles({
@@ -299,7 +299,7 @@ addSlider({
   max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
   step = 1,
   get = function(db) return db.idleMinutes end,
-  set = function(value) ns.Set("idleMinutes", value) end,
+  set = function(value) ns.SetDeferred("idleMinutes", value) end,
   format = function(value) return value == 0 and L.IDLE_LIMIT_OFF or string.format(L.MINUTES, value) end,
 })
 addSlider({
@@ -308,7 +308,7 @@ addSlider({
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
   step = 5,
   get = function(db) return db.toLevelSamples end,
-  set = function(value) ns.Set("toLevelSamples", value) end,
+  set = function(value) ns.SetDeferred("toLevelSamples", value) end,
   format = function(value)
     return value == 0 and L.TO_LEVEL_SAMPLES_LEVEL or string.format(L.TO_LEVEL_SAMPLES_VALUE, value)
   end,
@@ -348,7 +348,7 @@ addSlider({
   max = ns.BuffReminder.MAX_INTERVAL,
   step = 1,
   get = function(db) return db.reminderInterval end,
-  set = function(value) ns.Set("reminderInterval", value) end,
+  set = function(value) ns.SetDeferred("reminderInterval", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
 -- Pausen-Erinnerung (BreakReminder.lua)
@@ -359,7 +359,7 @@ addSlider({
   max = ns.BreakReminder.MAX_MINUTES,
   step = 15,
   get = function(db) return db.breakMinutes end,
-  set = function(value) ns.Set("breakMinutes", value) end,
+  set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
 addSection("SECTION_WARNINGS")
@@ -386,7 +386,7 @@ addSlider({
   max = ns.BreathWarning.MAX_SECONDS,
   step = 1,
   get = function(db) return db.breathWarnSeconds end,
-  set = function(value) ns.Set("breathWarnSeconds", value) end,
+  set = function(value) ns.SetDeferred("breathWarnSeconds", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addSlider({
@@ -395,7 +395,7 @@ addSlider({
   max = ns.ManaCallout.MAX_PERCENT,
   step = 5,
   get = function(db) return db.lowManaPercent end,
-  set = function(value) ns.Set("lowManaPercent", value) end,
+  set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
 })
 -- Munition: nur für Jäger
@@ -406,7 +406,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_AMMO,
     step = 20,
     get = function(db) return db.ammoLow end,
-    set = function(value) ns.Set("ammoLow", value) end,
+    set = function(value) ns.SetDeferred("ammoLow", value) end,
     format = function(value) return string.format(L.AMMO_COUNT, value) end,
   })
   addSlider({
@@ -415,7 +415,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_CRITICAL_AMMO,
     step = 10,
     get = function(db) return db.ammoCritical end,
-    set = function(value) ns.Set("ammoCritical", value) end,
+    set = function(value) ns.SetDeferred("ammoCritical", value) end,
     format = function(value) return value == 0 and L.AMMO_OFF or string.format(L.AMMO_COUNT, value) end,
   })
   addSlider({
@@ -424,7 +424,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_AMMO_REPEAT,
     step = 1,
     get = function(db) return db.ammoRepeat end,
-    set = function(value) ns.Set("ammoRepeat", value) end,
+    set = function(value) ns.SetDeferred("ammoRepeat", value) end,
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
   })
 end
@@ -441,7 +441,7 @@ do
       max = toPercent(display.MAX_SCALE),
       step = 5,
       get = function(db) return toPercent(db[scaleSetting]) end,
-      set = function(value) ns.Set(scaleSetting, value / 100) end,
+      set = function(value) ns.SetDeferred(scaleSetting, value / 100) end,
       format = percent,
     })
     builder.AddButtonRow({
@@ -466,7 +466,7 @@ do
       max = ns.CampFire.MAX_HINT_PAUSE,
       step = 1,
       get = function(db) return db.campHintPause end,
-      set = function(value) ns.Set("campHintPause", value) end,
+      set = function(value) ns.SetDeferred("campHintPause", value) end,
       format = function(value) return string.format(L.MINUTES, value) end,
     })
     addTimerDisplayControls("CAMP", ns.CampDisplay, "campScale")
@@ -598,7 +598,7 @@ if ns.QuestMarks.IsAvailable() then
     max = toPercent(ns.QuestMarks.MAX_SCALE),
     step = 5,
     get = function(db) return toPercent(db.questMarkScale) end,
-    set = function(value) ns.Set("questMarkScale", value / 100) end,
+    set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
     format = percent,
   })
 end
@@ -620,7 +620,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       max = toPercent(ns.LootSparkle.MAX_SCALE),
       step = 5,
       get = function(db) return toPercent(db.lootSparkleScale) end,
-      set = function(value) ns.Set("lootSparkleScale", value / 100) end,
+      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
       format = percent,
     })
   end
@@ -685,7 +685,7 @@ addSlider({
   max = ns.ScreenEffects.MAX_WEATHER,
   step = 1,
   get = function(db) return db.weatherDensity end,
-  set = function(value) ns.Set("weatherDensity", value) end,
+  set = function(value) ns.SetDeferred("weatherDensity", value) end,
   format = function(value) return tostring(value) end,
 })
 -- Stummschalten nur, wo MuteSoundFile existiert
@@ -750,7 +750,7 @@ addSlider({
   max = toPercent(ns.LevelUpWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.levelUpScale) end,
-  set = function(value) ns.Set("levelUpScale", value / 100) end,
+  set = function(value) ns.SetDeferred("levelUpScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -759,7 +759,7 @@ addSlider({
   max = ns.LevelUpWindow.MAX_DURATION,
   step = 1,
   get = function(db) return db.levelUpDuration end,
-  set = function(value) ns.Set("levelUpDuration", value) end,
+  set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 builder.AddButtonRow({
@@ -779,7 +779,7 @@ addSlider({
   max = toPercent(Alerts.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.alertScale) end,
-  set = function(value) ns.Set("alertScale", value / 100) end,
+  set = function(value) ns.SetDeferred("alertScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -788,7 +788,7 @@ addSlider({
   max = Alerts.MAX_DURATION,
   step = 1,
   get = function(db) return db.alertDuration end,
-  set = function(value) ns.Set("alertDuration", value) end,
+  set = function(value) ns.SetDeferred("alertDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addToggles({ toggle("ALERT_SOUND", "alertSound") })
@@ -818,7 +818,7 @@ addSlider({
   max = ns.Splits.MAX_TOLERANCE_PERCENT,
   step = 1,
   get = function(db) return db.splitTolerancePercent end,
-  set = function(value) ns.Set("splitTolerancePercent", value) end,
+  set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
   format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
 addSlider({
@@ -827,7 +827,7 @@ addSlider({
   max = toPercent(TimerWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(ns.SplitList.GetScale(db)) end,
-  set = function(value) ns.Set("splitListScale", value / 100) end,
+  set = function(value) ns.SetDeferred("splitListScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -836,7 +836,7 @@ addSlider({
   max = ns.SplitList.MAX_ROWS,
   step = 1,
   get = function(db) return db.splitListRows end,
-  set = function(value) ns.Set("splitListRows", value) end,
+  set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
 })
 addSection("SECTION_WORLD_RECORDS")
@@ -901,7 +901,7 @@ addFooterButton("NEW_SESSION", function()
 end)
 
 builder.Finish()
-ns.RegisterApply(builder.Refresh)
+ns.RegisterApply(builder.RefreshIfShown)
 
 function ns.ToggleOptions()
   if not ns.db then return end

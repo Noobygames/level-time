@@ -249,14 +249,38 @@ function ns.RegisterApply(callback)
   addCallback(applyCallbacks, callback)
 end
 
+-- Verzögerter Apply (ns.SetDeferred): ein unsichtbarer Rahmen, dessen OnUpdate nur läuft, solange er gezeigt wird
+local deferredApplyFrame = CreateFrame("Frame")
+deferredApplyFrame:Hide()
+
 function ns.ApplySettings()
+  deferredApplyFrame:Hide()  -- ein noch ausstehender verzögerter Apply ist damit erledigt
   runAll(applyCallbacks, ns.db)
   ns.RefreshTasks()
 end
 
+ns.SetUpdateScript(deferredApplyFrame, "DeferredApply", function()
+  ns.ApplySettings()
+end)
+
+-- Gleicher Wert ändert nichts: kein Apply (alle Module bauen dabei ihren Zustand neu auf). Tabellen (Positionen)
+-- werden oft an Ort und Stelle geändert und wieder übergeben, für sie gilt das nicht.
+local function unchanged(key, value)
+  return type(value) ~= "table" and ns.db[key] == value
+end
+
 function ns.Set(key, value)
+  if unchanged(key, value) then return end
   ns.db[key] = value
   ns.ApplySettings()
+end
+
+-- Wie ns.Set, der Apply läuft aber erst im nächsten Frame, einmal für alle Änderungen bis dahin (Regler ziehen:
+-- OnValueChanged kommt je Pixel). Der Wert steht sofort in ns.db.
+function ns.SetDeferred(key, value)
+  if unchanged(key, value) then return end
+  ns.db[key] = value
+  deferredApplyFrame:Show()
 end
 
 ---------------------------------------------------------------------------

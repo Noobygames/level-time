@@ -343,25 +343,38 @@ end
 -- (in den Speedrun-Tabellen ist die erste Spalte nur ein Favoriten-Stern)
 local COUNT_MIN_WIDTH = 80
 
-local function countCells(columns, records)
+-- count: Anzahl der Zeilen (TableView reicht sie mit; appendOnly-Tabellen haben keine records-Liste)
+local function countCells(columns, records, count)
   local cells = {}
   local target = 1
   for index, column in ipairs(columns) do
     if column.width >= COUNT_MIN_WIDTH then target = index break end
   end
   for index = 1, target - 1 do cells[index] = "" end
-  cells[target] = string.format(L.HISTORY_COUNT, #records)
+  cells[target] = string.format(L.HISTORY_COUNT, count or #records)
   return cells
 end
 
 HistoryTables.ClassColor = classColor
 HistoryTables.CountCells = countCells
 
--- journal = Einträge aus dem Journal (ohne laufenden Eintrag): neu sortiert nur bei geändertem Journal-Stand
-local function addTable(tab, group, columns, records, footer, journal, hint, rowLink)
+local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
+
+local function addTable(tab, group, columns, records, footer, hint, rowLink)
   ns.HistoryWindow.AddView(TableView.Create({
-    tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint,
-    revision = journal and ns.Journal.Revision or nil, rowLink = rowLink,
+    tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint, rowLink = rowLink,
+  }))
+end
+
+-- Tabelle über ein Journal-Log (älteste zuerst, wächst nur hinten): neu sortiert nur bei geändertem Stand dieses Logs,
+-- neue Einträge werden einsortiert statt alles neu zu sortieren (TableView appendOnly)
+local function addJournalTable(tab, columns, logName, rowLink)
+  ns.HistoryWindow.AddView(TableView.Create({
+    tab = tab, group = JOURNAL, columns = columns, footer = countCells, rowLink = rowLink,
+    records = function(characterKey) return Journal.GetEntries(characterKey, logName) end,
+    appendOnly = true,
+    revision = Journal.RevisionOf(logName),
+    edits = function() return Journal.EditRevision(logName) end,
   }))
 end
 
@@ -377,13 +390,11 @@ local function questLink(record)
   return string.format("quest:%d:%d", record.questID, record.level or -1)
 end
 
-local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
 
-addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, false, "LEVELS_PARTIAL_HINT")
+addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
-addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, false,
-  "LEVELS_PARTIAL_HINT")
-addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells, false,
+addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
+addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells,
   "LEVELS_PARTIAL_HINT")
 -- Rekorde gelten für alle Charaktere, die Charakter-Auswahl spielt keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({
@@ -395,18 +406,18 @@ ns.HistoryWindow.AddView(TableView.Create({
   hint = "PERSONAL_RECORDS_HINT",
 }))
 addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
-addTable("HISTORY_TAB_KILLS", JOURNAL, KILL_COLUMNS, History.GetKillLog, countCells, true)
-addTable("HISTORY_TAB_DEATHS", JOURNAL, DEATH_COLUMNS, History.GetDeathLog, countCells, true)
-addTable("HISTORY_TAB_QUESTS", JOURNAL, QUEST_COLUMNS, History.GetQuestLog, countCells, true, nil, questLink)
-addTable("HISTORY_TAB_LOOT", JOURNAL, LOOT_COLUMNS, History.GetLootLog, countCells, true, nil, itemLink)
+addJournalTable("HISTORY_TAB_KILLS", KILL_COLUMNS, "killLog")
+addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
+addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
+addJournalTable("HISTORY_TAB_LOOT", LOOT_COLUMNS, "lootLog", itemLink)
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
 -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
 if ns.NearDeath.IsAvailable() then
-  addTable("HISTORY_TAB_NEAR_DEATHS", JOURNAL, NEAR_DEATH_COLUMNS, History.GetNearDeathLog, countCells, true)
+  addJournalTable("HISTORY_TAB_NEAR_DEATHS", NEAR_DEATH_COLUMNS, "nearDeathLog")
 end
 addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
 addTable("HISTORY_TAB_REPUTATION", nil, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
-addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, false, "MONEY_HINT")
+addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, "MONEY_HINT")
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({

@@ -184,7 +184,8 @@ local QUEST_SPLIT_COLUMNS = {
     sort = function(r) return r.xp end },
   { header = "HISTORY_TIME", width = 64, value = function(r) return Format.Duration(r.duration) end,
     sort = function(r) return r.duration end },
-  { header = "HISTORY_BEST_TIME", width = 64, value = function(r)
+  -- Bestzeit über alle Abgaben: ändert sich mit späteren Quests, daher volatile (nicht je Zeile zwischengespeichert)
+  { header = "HISTORY_BEST_TIME", width = 64, volatile = true, value = function(r)
       local best = QuestSplits.GetBest(r.questID)
       return best and Format.Duration(best) or "-"
     end, sort = function(r) return QuestSplits.GetBest(r.questID) end },
@@ -196,9 +197,10 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_QUEST_SPLITS",
   group = GROUP,
   columns = QUEST_SPLIT_COLUMNS,
-  records = QuestSplits.GetRecords,
+  records = QuestSplits.GetEntries,
+  appendOnly = true,
   footer = HistoryTables.CountCells,
-  revision = ns.Journal.Revision,
+  revision = ns.Journal.RevisionOf("questLog"),
   hint = "QUEST_SPLITS_HINT",
 }))
 

@@ -19,6 +19,38 @@ Goals.MAX_HISTORY = 500  -- abgeschlossene Ziele; die ältesten fallen weg
 local kinds = {}
 local listeners = {}
 
+-- Laufende Ziele des eingeloggten Charakters, insgesamt und je Art: jeder Kill und jede Beute fragt danach, die Liste
+-- aller Ziele samt Historie hat bis zu MAX_HISTORY Einträge. Neu gebaut, wenn sich die Ziele ändern (Anlegen,
+-- Abschließen, Abbrechen: stamp) oder die Liste selbst (andere Tabelle, andere Länge, anderer Charakter).
+local stamp = 0
+local active = {}  -- { goals, count, character, stamp, list, byKind = { [Art] = { Ziele } }, byId }
+local NO_GOALS = {}
+
+local function changed()
+  stamp = stamp + 1
+end
+
+local function index()
+  local goals = ns.db.goals
+  local cached = active
+  if cached.goals == goals and cached.count == #goals and cached.character == LT.characterKey
+    and cached.stamp == stamp then
+    return cached
+  end
+  local list, byKind, byId = {}, {}, {}
+  for _, goal in ipairs(goals) do
+    byId[goal.id] = byId[goal.id] or goal
+    if goal.status == Goals.ACTIVE and goal.character == LT.characterKey then
+      table.insert(list, goal)
+      byKind[goal.kind] = byKind[goal.kind] or {}
+      table.insert(byKind[goal.kind], goal)
+    end
+  end
+  active = { goals = goals, count = #goals, character = LT.characterKey, stamp = stamp, list = list,
+    byKind = byKind, byId = byId }
+  return active
+end
+
 -- Zielart anmelden; def siehe Kinds.lua
 function Goals.RegisterKind(name, def)
   kinds[name] = def
@@ -64,25 +96,18 @@ function Goals.Create(kind, params, target)
   }
   ns.db.nextId = goal.id + 1
   table.insert(ns.db.goals, goal)
+  changed()
   notify("added", goal)
   return goal
 end
 
 function Goals.Get(id)
-  for _, goal in ipairs(ns.db.goals) do
-    if goal.id == id then return goal end
-  end
+  return index().byId[id]
 end
 
--- Laufende Ziele des eingeloggten Charakters, älteste zuerst
+-- Laufende Ziele des eingeloggten Charakters, älteste zuerst (zwischengespeichert, nicht verändern)
 function Goals.Active()
-  local list = {}
-  for _, goal in ipairs(ns.db.goals) do
-    if goal.status == Goals.ACTIVE and goal.character == LT.characterKey then
-      table.insert(list, goal)
-    end
-  end
-  return list
+  return index().list
 end
 
 -- Abgeschlossene und abgebrochene Ziele aller Charaktere, neueste zuerst
@@ -119,10 +144,10 @@ end
 
 -- Älteste abgeschlossene Ziele verwerfen, wenn es mehr als MAX_HISTORY gibt
 local function trimHistory()
-  local excess = #Goals.History() - Goals.MAX_HISTORY
+  local history = Goals.History()
+  local excess = #history - Goals.MAX_HISTORY
   if excess <= 0 then return end
   local doomed = {}
-  local history = Goals.History()
   for i = 0, excess - 1 do doomed[history[#history - i]] = true end
   local kept = {}
   for _, goal in ipairs(ns.db.goals) do
@@ -134,6 +159,7 @@ end
 local function finish(goal, status)
   goal.status = status
   goal.finishedAt = time()
+  changed()
   trimHistory()
   notify(status, goal)
 end
@@ -169,10 +195,11 @@ function Goals.Step(id, delta)
   return goal
 end
 
--- amount dazuzählen bei allen laufenden Zielen dieser Art, für die matches(goal) stimmt
+-- amount dazuzählen bei allen laufenden Zielen dieser Art, für die matches(goal) stimmt. Abschließen baut den Index
+-- neu (neue Listen), die durchlaufene Liste bleibt dabei unverändert.
 function Goals.Add(kind, matches, amount)
-  for _, goal in ipairs(Goals.Active()) do
-    if goal.kind == kind and matches(goal) then
+  for _, goal in ipairs(index().byKind[kind] or NO_GOALS) do
+    if goal.status == Goals.ACTIVE and matches(goal) then
       advance(goal, goal.progress + amount)
     end
   end
@@ -180,7 +207,7 @@ end
 
 -- Stand setzen (z.B. das Level) bei allen laufenden Zielen dieser Art
 function Goals.Set(kind, value)
-  for _, goal in ipairs(Goals.Active()) do
-    if goal.kind == kind then advance(goal, value) end
+  for _, goal in ipairs(index().byKind[kind] or NO_GOALS) do
+    if goal.status == Goals.ACTIVE then advance(goal, value) end
   end
 end

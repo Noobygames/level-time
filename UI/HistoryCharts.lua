@@ -15,7 +15,7 @@ local function formatLevel(level)
 end
 
 -- kind: Säulen (Verlauf), Rangliste oder Heatmap (data liefert dann ein Raster mit total); axis beschriftet bei
--- Säulen den Maximalwert. revision (optional, z.B. Journal.Revision): die Daten hängen nur vom Journal ab; dann wird
+-- Säulen den Maximalwert. revision (optional, z.B. Journal.RevisionOf(log)): die Daten hängen nur vom Journal ab; dann wird
 -- nur bei geändertem Stand, Charakter oder Sprache neu ausgewertet statt jede Sekunde (Ranglisten über das ganze
 -- Kill-Journal), Roadmap 213.
 local function createChartView(tab, kind, data, axis, revision)
@@ -68,8 +68,8 @@ local AddView = ns.HistoryWindow.AddView
 AddView(createChartView("CHART_LEVEL_TIME", "column", Analysis.TimePerLevel, Format.Duration))
 AddView(createChartView("CHART_LEVEL_XP_RATE", "column", Analysis.XpRatePerLevel, Format.Number))
 AddView(createChartView("CHART_KILLS_PER_DAY", "column", Analysis.KillsPerDay, tostring))
-AddView(createChartView("CHART_TOP_KILLS", "rank", Analysis.TopKills, nil, ns.Journal.Revision))
-AddView(createChartView("CHART_DEATH_CAUSES", "rank", Analysis.DeathCauses, nil, ns.Journal.Revision))
+AddView(createChartView("CHART_TOP_KILLS", "rank", Analysis.TopKills, nil, ns.Journal.RevisionOf("killLog")))
+AddView(createChartView("CHART_DEATH_CAUSES", "rank", Analysis.DeathCauses, nil, ns.Journal.RevisionOf("deathLog")))
 AddView(createChartView("CHART_ZONE_XP_RATE", "rank", Analysis.XpRatePerZone))
 AddView(createChartView("CHART_PLAYTIME_PER_DAY", "column", Analysis.PlayTimePerDay, Format.Duration))
 AddView(createChartView("CHART_PLAYTIME_PER_WEEK", "column", Analysis.PlayTimePerWeek, Format.Duration))

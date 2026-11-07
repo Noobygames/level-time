@@ -72,10 +72,22 @@ function RunCheck.ForCharacter(character)
   return check.hash, check.from, check.to
 end
 
+-- Ergebnis je Lauf, solange Code, Spanne und Zeiten-Tabelle gleich bleiben (die Läufe-Ansicht fragt je Zeile jede
+-- Sekunde; Runs.GetAll baut die Zeiten nur bei Änderungen neu, importierte Zeiten ändern sich nie)
+local verified = setmetatable({}, { __mode = "k" })  -- [Lauf] = { check, from, to, times, status }
+
 -- RunCheck.OK, RunCheck.CHANGED oder nil ohne Code
 function RunCheck.Verify(run)
   if not run.check or not run.checkFrom or not run.checkTo then return nil end
-  return RunCheck.Compute(run.times, run.checkFrom, run.checkTo) == run.check and RunCheck.OK or RunCheck.CHANGED
+  local memo = verified[run]
+  if memo and memo.check == run.check and memo.from == run.checkFrom and memo.to == run.checkTo
+    and memo.times == run.times then
+    return memo.status
+  end
+  local status = RunCheck.Compute(run.times, run.checkFrom, run.checkTo) == run.check and RunCheck.OK
+    or RunCheck.CHANGED
+  verified[run] = { check = run.check, from = run.checkFrom, to = run.checkTo, times = run.times, status = status }
+  return status
 end
 
 function RunCheck.StatusText(run)

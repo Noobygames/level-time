@@ -23,11 +23,35 @@ function Money.PeriodStart(period, timestamp)
   return ns.Daily.StartOfDay(timestamp)
 end
 
--- Summe der Tageswerte ab startKey ("JJJJ-MM-TT", Schlüssel lassen sich als Text vergleichen)
-local function sumDays(dailyStats, startKey)
+-- Tagesschlüssel ("JJJJ-MM-TT") eines Zeitraums vom Beginn bis heute, höchstens 31; einmal je Tag gebaut statt
+-- jede Sekunde über alle gespeicherten Tage zu laufen (dailyStats wächst unbegrenzt)
+local periodKeys = {}  -- { today, [period] = { Schlüssel } }
+
+local function daysOf(period, now)
+  local todayKey = ns.Daily.DayKey(now)
+  if periodKeys.today ~= todayKey then periodKeys = { today = todayKey } end
+  local keys = periodKeys[period]
+  if not keys then
+    keys = {}
+    local start, offset = Money.PeriodStart(period, now), 0
+    local day = start
+    repeat
+      keys[#keys + 1] = ns.Daily.DayKey(day)
+      offset = offset + 1
+      day = ns.Daily.AddDays(start, offset)
+    until keys[#keys] == todayKey or day > now
+    periodKeys[period] = keys
+  end
+  return keys
+end
+
+-- Summe der Tageswerte des Zeitraums
+local function sumDays(dailyStats, keys)
   local record = { moneyIn = 0, moneyOut = 0, seconds = 0 }
-  for key, entry in pairs(dailyStats or {}) do
-    if key >= startKey then
+  if not dailyStats then return record end
+  for _, key in ipairs(keys) do
+    local entry = dailyStats[key]
+    if entry then
       record.moneyIn = record.moneyIn + (entry.moneyIn or 0)
       record.moneyOut = record.moneyOut + (entry.moneyOut or 0)
       record.seconds = record.seconds + (entry.seconds or 0)
@@ -49,7 +73,7 @@ function Money.GetPeriodRecords(characterKey)
   local now = time()
   local records = {}
   for _, period in ipairs(PERIODS) do
-    local record = sumDays(dailyStats, ns.Daily.DayKey(Money.PeriodStart(period, now)))
+    local record = sumDays(dailyStats, daysOf(period, now))
     record.period = period
     records[#records + 1] = record
   end

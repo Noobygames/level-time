@@ -182,11 +182,13 @@ function Splits.SetReferenceRun(run)
   for level, seconds in pairs(run.times) do times[level] = seconds end
   ns.db.splitReference = { id = run.id, name = run.name, times = times }
   caches = {}  -- auch bei gleicher Wahl neu lesen (der Lauf kann sich seit dem letzten Mal geändert haben)
-  ns.Set("splitComparison", Splits.RUN)
+  ns.db.splitComparison = Splits.RUN
+  ns.ApplySettings()  -- immer: der gewählte Lauf ist neu, auch wenn splitComparison schon RUN war
 end
 
 -- Lauf per Name wählen; false ohne Treffer
 function Splits.CompareWith(name)
+  Runs.Invalidate()  -- ausdrückliche Wahl: den aktuellen Stand lesen
   local run = Runs.FindByName(name)
   if not run then return false end
   Splits.SetReferenceRun(run)

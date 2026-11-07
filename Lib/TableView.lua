@@ -4,7 +4,8 @@
 -- Leiste) werden sie mit den passenden Einträgen neu gefüllt. So bleiben auch tausende Einträge flüssig.
 -- Spalten: header = Locale-Key, value(record) = Zellentext, width, align = "LEFT" für Text
 -- (Standard: erste Spalte links, Zahlen rechts), sort(record) = Sortierschlüssel, wenn der Zellentext
--- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert.
+-- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
+-- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -78,74 +79,24 @@ local function defaultRowColor(record)
   return record.isCurrent and Widgets.COLORS.highlight or WHITE
 end
 
----------------------------------------------------------------------------
--- Sortieren und Filtern
----------------------------------------------------------------------------
-
 local plainText = Format.PlainText
-
--- Sortierschlüssel einmal je Zeile aufbereiten (nicht in jedem Vergleich): Zahlen bleiben Zahlen,
--- Text ohne Farbcodes und Groß-/Kleinschreibung, leere Werte = nil
-local function sortKey(column, record)
-  local key
-  if column.sort then key = column.sort(record) else key = column.value(record) end
-  if key == nil or key == "" or type(key) == "number" then return key ~= "" and key or nil end
-  return plainText(key):lower()
-end
-
--- Fehlende Werte immer ans Ende; Zahlen vor Text, damit gemischte Spalten eine feste Ordnung haben
-local function compareKeys(a, b, descending)
-  if a == nil then return false end
-  if b == nil then return true end
-  local aIsNumber, bIsNumber = type(a) == "number", type(b) == "number"
-  if aIsNumber ~= bIsNumber then return aIsNumber end
-  if descending then return a > b end
-  return a < b
-end
-
--- Gefilterte und sortierte Kopie; sort = { column, descending } oder nil
-local function filterAndSort(columns, records, filterText, sort)
-  local result = {}
-  for index, record in ipairs(records) do
-    local include = filterText == ""
-    if not include then
-      for _, column in ipairs(columns) do
-        if plainText(column.value(record)):lower():find(filterText, 1, true) then
-          include = true
-          break
-        end
-      end
-    end
-    if include then
-      table.insert(result, { record = record, index = index, key = sort and sortKey(sort.column, record) })
-    end
-  end
-
-  if sort then
-    table.sort(result, function(a, b)
-      if a.key == b.key then return a.index < b.index end  -- gleiche Werte: ursprüngliche Reihenfolge
-      return compareKeys(a.key, b.key, sort.descending)
-    end)
-  end
-
-  for i, entry in ipairs(result) do
-    result[i] = entry.record
-  end
-  return result
-end
+local TableOrder = ns.TableOrder
 
 ---------------------------------------------------------------------------
 -- Tabellen-Ansicht: Suchfeld, sortierbare Kopfzeile, Zeilen (Lazy Load), Summenzeile
 ---------------------------------------------------------------------------
 
--- definition = { tab, group (optional), columns, records(characterKey), footer(columns, records),
+-- definition = { tab, group (optional), columns, records(characterKey), footer(columns, records, count),
 --   rowColor(record) optional (Standard: laufender Eintrag hervorgehoben, sonst weiß),
 --   onRowClick(record, mouseButton) optional,
 --   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
 --   hint = Locale-Key oder function() -> Text optional,
 --   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
---   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS }
+--   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS,
+--   appendOnly optional: records() liefert älteste zuerst dieselbe Liste, die nur hinten wächst (oder eine neue);
+--   angezeigt neueste zuerst, ohne Kopie und mit Zwischenspeicher je Eintrag (TableOrder.NewAppendOnly). footer
+--   bekommt dann records = nil, nur count. Einträge ändern sich nicht, außer edits() optional meldet es }
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
 function TableView.Create(definition)
   local columns = definition.columns
@@ -157,7 +108,16 @@ function TableView.Create(definition)
     frame.offset = 0  -- Index vor dem ersten sichtbaren Eintrag
 
     local visibleRows = math.floor((height - TOOLBAR_HEIGHT - HINT_HEIGHT) / ROW_HEIGHT) - 2  -- ohne Kopf- und Summenzeile
-    local allRecords, records = {}, {}  -- alle Einträge bzw. gefiltert und sortiert
+    local allRecords, records = {}, {}  -- alle Einträge bzw. gefiltert und sortiert (ohne appendOnly)
+    local view = definition.appendOnly and TableOrder.NewAppendOnly(columns)  -- angezeigte Einträge mit appendOnly
+    local function visibleCount()
+      if view then return view:Count() end
+      return #records
+    end
+    local function visibleAt(position)
+      if view then return view:At(position) end
+      return records[position]
+    end
     local filterText = ""
     local sort  -- { column, index, descending } oder nil (ursprüngliche Reihenfolge)
 
@@ -186,7 +146,7 @@ function TableView.Create(definition)
       for i, row in ipairs(rows) do
         row:EnableMouse(true)
         row:SetScript("OnMouseUp", function(_, mouseButton)
-          local record = records[frame.offset + i]
+          local record = visibleAt(frame.offset + i)
           if not record then return end
           definition.onRowClick(record, mouseButton)
           frame:Render(frame.characterKey, false, true)
@@ -200,7 +160,7 @@ function TableView.Create(definition)
       for i, row in ipairs(rows) do
         row:EnableMouse(true)
         row:SetScript("OnEnter", function(self)
-          local record = records[frame.offset + i]
+          local record = visibleAt(frame.offset + i)
           local link = record and definition.rowLink(record)
           if not link then return end
           GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
@@ -230,7 +190,7 @@ function TableView.Create(definition)
 
     local function draw()
       for i, row in ipairs(rows) do
-        local record = records[frame.offset + i]
+        local record = visibleAt(frame.offset + i)
         if record then
           fillRow(row, recordCells(columns, record), rowColor(record))
         else
@@ -242,7 +202,7 @@ function TableView.Create(definition)
     local scrollBar
     local lastSignature, lastLive, lastCharacterKey, lastApplyAt = nil, nil, nil, 0  -- siehe Render
     local function scrollTo(offset)
-      frame.offset = math.max(0, math.min(offset, #records - visibleRows))
+      frame.offset = math.max(0, math.min(offset, visibleCount() - visibleRows))
       scrollBar:SetOffsetSilently(frame.offset)
       draw()
     end
@@ -266,13 +226,28 @@ function TableView.Create(definition)
       end
     end
 
+    local function showFooter()
+      fillRow(footerRow, definition.footer(columns, not view and records or nil, visibleCount()),
+        Widgets.COLORS.highlight)
+    end
+
+    -- Stand, bei dessen Änderung appendOnly-Zwischenspeicher verfallen: Sprache (Texte) und nachgetragene Werte
+    local function cacheEpoch()
+      local edits = definition.edits and definition.edits() or ""
+      return (ns.db and ns.db.language or "") .. ":" .. edits
+    end
+
     -- Filter und Sortierung auf alle Einträge anwenden und neu zeichnen
     function apply()
-      records = filterAndSort(columns, allRecords, filterText, sort)
+      if view then
+        view:Update(allRecords, filterText, sort, cacheEpoch())
+      else
+        records = TableOrder.FilterAndSort(columns, allRecords, filterText, sort)
+      end
       showHeaders()
-      scrollBar:SetRange(math.max(0, #records - visibleRows))
+      scrollBar:SetRange(math.max(0, visibleCount() - visibleRows))
       scrollTo(frame.offset)
-      fillRow(footerRow, definition.footer(columns, records), Widgets.COLORS.highlight)
+      showFooter()
       emptyText:SetText(L.TABLE_EMPTY)
       emptyText:SetShown(#allRecords == 0)
     end
@@ -311,6 +286,7 @@ function TableView.Create(definition)
 
     -- Aktuell angezeigte (gefilterte und sortierte) Einträge, z.B. für den Export
     function frame:GetVisibleRecords()
+      if view then return view:List() end
       return records
     end
 
@@ -320,8 +296,8 @@ function TableView.Create(definition)
       for i, column in ipairs(columns) do
         headers[i] = L[column.header]
       end
-      for _, record in ipairs(records) do
-        local cells = recordCells(columns, record)
+      for position = 1, visibleCount() do
+        local cells = recordCells(columns, visibleAt(position))
         for i, cell in ipairs(cells) do
           cells[i] = plainText(cell)
         end
@@ -340,10 +316,11 @@ function TableView.Create(definition)
     -- statt jede Sekunde alle Einträge zu filtern und zu sortieren (Roadmap 213). Sonst wie bisher alles neu, außer
     -- solange die Drosselung großer Journale greift (fullAllowed false).
     local function updateLive(newest, live, fullAllowed)
-      if newest and newest.isCurrent and filterText == "" and not sort and records[1] and records[1].isCurrent then
+      if not view and newest and newest.isCurrent and filterText == "" and not sort and records[1]
+        and records[1].isCurrent then
         records[1] = newest
         draw()
-        fillRow(footerRow, definition.footer(columns, records), Widgets.COLORS.highlight)
+        showFooter()
       elseif fullAllowed then
         lastApplyAt = GetTime()
         apply()
@@ -367,7 +344,7 @@ function TableView.Create(definition)
       -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren aller Einträge nur, wenn sich etwas geändert hat:
       -- Charakter, Sprache, Anzahl, der jüngste Eintrag, Journal-Stand bzw. spätestens alle 5 s. Ändert sich nur der
       -- laufende Eintrag (live), ersetzt updateLive ihn, wo das reicht.
-      local newest = allRecords[1]
+      local newest = allRecords[definition.appendOnly and #allRecords or 1]
       local freshness = definition.revision and definition.revision() or math.floor(GetTime() / REFRESH_SECONDS)
       local signature = table.concat({ characterKey or "", ns.db and ns.db.language or "", #allRecords,
         newest and (newest.time or newest.startedAt or 0) or 0, freshness }, ":")

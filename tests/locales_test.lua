@@ -41,6 +41,7 @@ GetLocale = originalGetLocale
 
 -- Umschalten in den Einstellungen
 wow.login()
+SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Français", wow.click("Français"))
 expect("französische Texte", addon.L.ROW_DEATHS, "Morts")
 expectTrue("Reiter Español", wow.click("Español"))

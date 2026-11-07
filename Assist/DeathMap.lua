@@ -17,15 +17,31 @@ local overlay
 local pins = {}
 local shownFor  -- Karte, Journal-Stand und Größe der zuletzt gezeichneten Punkte
 
--- Tode des eingeloggten Charakters auf dieser Karte
-function DeathMap.DeathsOn(mapID)
-  local deaths = {}
-  for _, entry in ipairs(ns.Journal.GetEntries(ns.characterKey, "deathLog")) do
-    if entry.mapID == mapID and type(entry.x) == "number" and type(entry.y) == "number" then
-      deaths[#deaths + 1] = entry
+-- Tode je Karte, aus dem Tod-Journal des eingeloggten Charakters. Das Journal wächst nur hinten (Journal.GetEntries
+-- hängt an dieselbe Liste an): neue Tode kommen dazu, statt bei jedem Kartenwechsel alle zu durchlaufen. Eine andere
+-- oder kürzere Liste (anderer Charakter, Archiv-Umzug) baut den Index neu. Ort steht schon beim Anlegen (DeathPlace).
+local index = { count = 0 }  -- { list, count, byMap = { [mapID] = { Einträge } } }
+local NO_DEATHS = {}
+
+local function deathsByMap()
+  local list = ns.Journal.GetEntries(ns.characterKey, "deathLog")
+  if index.list ~= list or #list < index.count then index = { list = list, count = 0, byMap = {} } end
+  local byMap = index.byMap
+  for i = index.count + 1, #list do
+    local entry = list[i]
+    if entry.mapID ~= nil and type(entry.x) == "number" and type(entry.y) == "number" then
+      byMap[entry.mapID] = byMap[entry.mapID] or {}
+      table.insert(byMap[entry.mapID], entry)
     end
   end
-  return deaths
+  index.count = #list
+  return byMap
+end
+
+-- Tode des eingeloggten Charakters auf dieser Karte (nicht verändern)
+function DeathMap.DeathsOn(mapID)
+  if mapID == nil then return NO_DEATHS end
+  return deathsByMap()[mapID] or NO_DEATHS
 end
 
 local function showTooltip(pin)
@@ -59,7 +75,7 @@ function DeathMap.Refresh(force)
   if not overlay or not map.GetMapID then return end
   local mapID = map:GetMapID()
   local width, height = overlay:GetWidth(), overlay:GetHeight()
-  local key = table.concat({ tostring(mapID), ns.Journal.Revision(), width, height }, ":")
+  local key = table.concat({ tostring(mapID), ns.Journal.Revision("deathLog"), width, height }, ":")
   if not force and key == shownFor then return end
   shownFor = key
   local deaths = type(mapID) == "number" and DeathMap.DeathsOn(mapID) or {}
