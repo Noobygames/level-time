@@ -95,18 +95,10 @@ local function addBackgroundChooser()
 end
 
 -- Profile: Liste (Klick wechselt, Rechtsklick löscht), Name + Speichern, Export und Import
-StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, name)
-    if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
-    ns.ApplySettings()
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmProfileDelete = Widgets.ConfirmPopup(DELETE_PROFILE_POPUP, "PROFILE_DELETE_CONFIRM", function(name)
+  if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
+  ns.ApplySettings()
+end)
 
 -- Profil nach Rückfrage löschen (Rechtsklick in der Liste und /lt profile delete); nicht löschbare melden sich sofort
 function ns.ConfirmProfileDelete(name)
@@ -114,8 +106,7 @@ function ns.ConfirmProfileDelete(name)
     ns.Print(L.PROFILE_NOT_DELETED)
     return
   end
-  StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(DELETE_PROFILE_POPUP, ns.Profiles.DisplayName(name), nil, name)
+  confirmProfileDelete(ns.Profiles.DisplayName(name), name)
 end
 
 local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
@@ -129,15 +120,7 @@ local function saveProfile(name)
   end
 end
 
-StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, name) saveProfile(name) end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmOverwrite = Widgets.ConfirmPopup(OVERWRITE_PROFILE_POPUP, "PROFILE_OVERWRITE_CONFIRM", saveProfile)
 
 -- Einstellungen als Profil speichern (Button und /lt profile save); leerer Name meldet sich, ein vorhandenes
 -- Profil wird erst nach Rückfrage überschrieben. onSaved läuft nach dem Speichern.
@@ -147,8 +130,7 @@ function ns.ConfirmProfileSave(name, onSaved)
   if name == "" then
     ns.Print(L.PROFILE_NAME_EMPTY)
   elseif ns.Profiles.Exists(name) then
-    StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
-    StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
+    confirmOverwrite(name, name)
   else
     saveProfile(name)
   end
@@ -1238,18 +1220,9 @@ end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
 -- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
 local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
-StaticPopupDialogs[NEW_SESSION_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function() ns.StartNewSession() end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmNewSession = Widgets.ConfirmPopup(NEW_SESSION_POPUP, "NEW_SESSION_CONFIRM", function() ns.StartNewSession() end)
 addFooterButton("NEW_SESSION", function()
-  StaticPopupDialogs[NEW_SESSION_POPUP].text = L.NEW_SESSION_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(NEW_SESSION_POPUP, ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
+  confirmNewSession(ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
 end)
 
 builder.Finish()

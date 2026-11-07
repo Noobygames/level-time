@@ -37,9 +37,8 @@ local SCROLL_STEP = 40               -- Pixel je Mausrad-Raste
 local MAX_SCREEN_FRACTION = 0.9      -- höher als dieser Anteil des Bildschirms wird das Fenster nicht
 local BUTTON_ROW_GAP = 6          -- Abstand zwischen Buttons einer Zeile
 local BUTTON_ROW_MIN_WIDTH = 60
-local BUTTON_TEXT_PADDING = 24   -- Rand im Button links und rechts zusammen
+local BUTTON_TEXT_PADDING = Widgets.BUTTON_TEXT_PADDING  -- Rand im Button links und rechts zusammen
 local FOOTER_COLUMN_GAP = 8     -- Abstand zwischen den beiden Button-Spalten unten
-local FOOTER_TEXT_PADDING = 24  -- Rand im Button links und rechts zusammen
 local COLUMN_GAP = 12        -- Mindestabstand zwischen einer Beschriftung und der rechten Spalte
 local ROW_SECTION = 24
 local ROW_CHECKBOX = 26
@@ -928,7 +927,7 @@ function OptionsBuilder.New(options)
   local function footerWidth()
     local widest = 0
     for _, button in ipairs(footerButtons) do
-      widest = math.max(widest, button:GetTextWidth() + FOOTER_TEXT_PADDING)
+      widest = math.max(widest, button:GetTextWidth() + BUTTON_TEXT_PADDING)
     end
     return 2 * widest + FOOTER_COLUMN_GAP
   end
@@ -1197,22 +1196,13 @@ function OptionsBuilder.New(options)
     return entry and #resetsOfPage(entry) or 0
   end
 
-  StaticPopupDialogs[RESET_POPUP] = {
-    button1 = YES or "Yes",
-    button2 = NO or "No",
-    OnAccept = function(_, labelKey) builder.ResetPage(labelKey) end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-  }
+  local confirmReset = Widgets.ConfirmPopup(RESET_POPUP, "OPTIONS_RESET_CONFIRM", function(labelKey) builder.ResetPage(labelKey) end)
 
   function createSidebarButtons(bar)
     bar.resetButton = Widgets.CreateButton(bar.parent, SIDEBAR_BUTTON_MIN_WIDTH, BUTTON_HEIGHT, function()
       local entry = bar.shown
       if not entry then return end
-      StaticPopupDialogs[RESET_POPUP].text = L.OPTIONS_RESET_CONFIRM  -- aktuelle Sprache
-      StaticPopup_Show(RESET_POPUP, L[entry.key], nil, entry.key)
+      confirmReset(L[entry.key], entry.key)
     end)
     bar.undoButton = Widgets.CreateButton(bar.parent, SIDEBAR_BUTTON_MIN_WIDTH, BUTTON_HEIGHT, function()
       if bar.shown then builder.UndoReset(bar.shown.key) end

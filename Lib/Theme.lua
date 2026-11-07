@@ -247,7 +247,7 @@ end
 -- geladen hat, dessen "statusbar"-Medien
 ---------------------------------------------------------------------------
 local MEDIA = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
-local FLAT_TEXTURE = "Interface\\Buttons\\WHITE8x8"
+local FLAT_TEXTURE = "Interface\\Buttons\\WHITE8x8"  -- wie Theme.WHITE_TEXTURE (steht weiter unten)
 local BUILTIN_BARS = {
   { key = "smooth", path = MEDIA .. "BarSmooth" },
   { key = "gloss", path = MEDIA .. "BarGloss" },
@@ -315,6 +315,7 @@ end
 -- Rahmen: Fenster (Panels mit BackdropTemplate) und Karten (einfache Frames)
 ---------------------------------------------------------------------------
 local WHITE_TEXTURE = "Interface\\Buttons\\WHITE8x8"
+Theme.WHITE_TEXTURE = WHITE_TEXTURE  -- einfarbige Fläche; Widgets.WHITE_TEXTURE zeigt hierher
 local BORDER_SIZE = 1
 local TOOLTIP_BACKDROP = {
   bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",

@@ -169,17 +169,9 @@ end)
 ---------------------------------------------------------------------------
 local RESET_INSTANCE_POPUP = "LEVELTIMER_RESET_INSTANCE"
 
-StaticPopupDialogs[RESET_INSTANCE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function()
-    if ns.Instances.ResetCurrent() then ns.Print(L.INSTANCE_RESET_DONE) end
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmInstanceReset = Widgets.ConfirmPopup(RESET_INSTANCE_POPUP, "INSTANCE_RESET_CONFIRM", function()
+  if ns.Instances.ResetCurrent() then ns.Print(L.INSTANCE_RESET_DONE) end
+end)
 
 function ns.ConfirmInstanceReset()
   local run = ns.Instances.GetCurrentRun()
@@ -187,8 +179,7 @@ function ns.ConfirmInstanceReset()
     ns.Print(L.INSTANCE_RESET_NONE)
     return
   end
-  StaticPopupDialogs[RESET_INSTANCE_POPUP].text = L.INSTANCE_RESET_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(RESET_INSTANCE_POPUP, run.name)
+  confirmInstanceReset(run.name)
 end
 
 ---------------------------------------------------------------------------

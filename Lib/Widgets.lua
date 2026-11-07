@@ -29,7 +29,7 @@ local SECTION_HEADER_HEIGHT = 18
 local CLOSE_BUTTON_SIZE = 24
 local SCROLLBAR_WIDTH = 8
 local SCROLLBAR_THUMB_HEIGHT = 30
-local WHITE_TEXTURE = "Interface\\Buttons\\WHITE8x8"
+local WHITE_TEXTURE = Theme.WHITE_TEXTURE
 Widgets.WHITE_TEXTURE = WHITE_TEXTURE  -- einfarbige Fläche für Hintergründe und Balken
 
 local CHECKBOX_SIZE = 26
@@ -285,12 +285,31 @@ function Widgets.CreateResizeGrip(frame, clamp, onDone)
 end
 
 local BUTTON_TEXT_PADDING = 24  -- Rand links und rechts zusammen
+Widgets.BUTTON_TEXT_PADDING = BUTTON_TEXT_PADDING  -- auch für Breitenrechnungen anderer Module (OptionsBuilder)
 
 -- Text setzen und den Button mindestens so breit machen, dass er hineinpasst (übersetzte Texte sind
 -- unterschiedlich lang); minWidth bleibt die kleinste Breite
 function Widgets.SetButtonText(button, text, minWidth)
   button:SetText(text)
   button:SetWidth(math.max(minWidth, math.ceil(button:GetTextWidth()) + BUTTON_TEXT_PADDING))
+end
+
+-- Rückfrage Ja/Nein über StaticPopup, Text aus L[textKey] in der Sprache zur Anzeigezeit (Roadmap 218).
+-- Rückgabe: show(textArg, data); onAccept(data) bekommt data aus show
+function Widgets.ConfirmPopup(name, textKey, onAccept)
+  StaticPopupDialogs[name] = {
+    button1 = YES or "Yes",
+    button2 = NO or "No",
+    OnAccept = function(_, data) onAccept(data) end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,  -- eigener Platz, kollidiert nicht mit Blizzard-Dialogen
+  }
+  return function(textArg, data)
+    StaticPopupDialogs[name].text = ns.L[textKey]
+    StaticPopup_Show(name, textArg, nil, data)
+  end
 end
 
 -- Abschnitts-Überschrift: Text mit feiner Linie bis zum rechten Rand
