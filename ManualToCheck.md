@@ -2637,3 +2637,20 @@ Client (Retail/Era/TBC/Forever):
 Boss gezählt (ja/nein):
 Fehler:
 ```
+
+### 183. Ruf-Ziele (Roadmap 303)
+
+- [ ] geprüft
+
+1. `/sg add rep <nächste Stufe> <Fraktion>`: Karte zeigt „Stufe jetzt > Ziel“, der Balken wächst mit jedem Rufgewinn;
+   Forever: findet `C_Reputation` die Fraktion?
+2. `/sg add rep 500 <Fraktion>`: Quest der Fraktion abgeben zählt die Rufmenge.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Stufe und Balken stimmen (ja/nein):
+Ruf gewinnen zählt (ja/nein):
+Fehler:
+```

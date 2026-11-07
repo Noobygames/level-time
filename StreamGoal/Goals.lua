@@ -154,6 +154,7 @@ function Goals.Create(kind, params, target, extras)
     local now = def.current(goal) or 0
     if now >= target then return nil, L.SG_ERR_ALREADY_REACHED end
     goal.progress = now
+    if def.startAtCurrent then goal.start = now end
   end
   for _, handler in ipairs(extraHandlers) do handler.apply(goal, extras) end
   ns.db.nextId = goal.id + 1

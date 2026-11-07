@@ -28,6 +28,7 @@ Kinds\Honor.lua
 Kinds\Rule.lua
 Kinds\Checklist.lua
 Kinds\Dungeon.lua
+Kinds\Reputation.lua
 
 # Zusätze jeder Zielart: Frist, Wiederholung; Vorlagen
 Deadlines.lua

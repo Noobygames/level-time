@@ -26,7 +26,7 @@ local function help()
 end
 
 -- Kurze Namen für /sg add
-local KIND_ALIASES = { list = "checklist", boss = "dungeon" }
+local KIND_ALIASES = { list = "checklist", boss = "dungeon", rep = "reputation" }
 
 local function add(rest)
   local kind, remainder = rest:match("^(%S+)%s*(.*)$")

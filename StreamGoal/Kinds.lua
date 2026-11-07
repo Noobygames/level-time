@@ -12,6 +12,7 @@
 --   initial(params)    Startstand (nur wo er nicht 0 ist, z.B. das aktuelle Level)
 --   deadlineSucceeds   true = Ablauf der Frist ist Erfolg statt Scheitern (Regeln: "bis dahin durchgehalten")
 --   current(goal)      (optional) Stand beim Anlegen, wenn er ein Bestand ist (Gold, Items in den Taschen)
+--   startAtCurrent     true = der Balken beginnt beim Stand zum Anlegen (current), nicht bei 0 (Rufwert)
 --   manual             true = der Spieler zählt selbst (Goals.Step), kein Ereignis füttert die Art
 --   step(goal, delta)  (optional, manual) neuer Stand für einen Klick (z.B. nächsten Punkt der Checkliste abhaken)
 --   hasCount(goal)     (optional) false = nur erledigt/offen, kein Zählerstand auf Karte und in Listen
