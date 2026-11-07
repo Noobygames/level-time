@@ -40,7 +40,7 @@ local expected = string.format(L.INSTANCE_REPORT, "Die Todesminen", table.concat
   addon.Format.Duration(addon.Instances.GetRunSeconds(addon.Instances.GetCurrentRun())),
   string.format(L.INSTANCE_REPORT_XP, "600"),
   string.format(L.INSTANCE_REPORT_KILLS, 2) .. string.format(L.INSTANCE_REPORT_PER_KILL, "300"),
-  "2g 30s 5c" }, ", "))
+  addon.Format.PlainMoney(23005) }, ", "))
 expect("Text", sent()[1] and sent()[1].message, "Level Time: " .. expected)
 expect("Gruppenchat", sent()[1] and sent()[1].chatType, "PARTY")
 

@@ -18,26 +18,34 @@ local function splitDuration(totalSeconds)
     totalSeconds % 60
 end
 
+-- Einheiten in der eingestellten Sprache (UNIT_*_SHORT, z.B. "T" statt "d" auf Deutsch); erst beim Aufruf gelesen,
+-- damit ein Sprachwechsel sofort gilt
+local function unit(key)
+  return ns.L[key]
+end
+
 -- Laufende Uhr mit Sekunden: "01h 02m 03s", ab einem Tag "1d 01h 02m 03s"
 function Format.Clock(totalSeconds)
   local days, hours, minutes, seconds = splitDuration(totalSeconds)
+  local clock = string.format("%02d%s %02d%s %02d%s", hours, unit("UNIT_HOUR_SHORT"), minutes, unit("UNIT_MINUTE_SHORT"),
+    seconds, unit("UNIT_SECOND_SHORT"))
   if days > 0 then
-    return string.format("%dd %02dh %02dm %02ds", days, hours, minutes, seconds)
+    return string.format("%d%s %s", days, unit("UNIT_DAY_SHORT"), clock)
   end
-  return string.format("%02dh %02dm %02ds", hours, minutes, seconds)
+  return clock
 end
 
 -- Kompakte Dauer mit den zwei größten Einheiten: "2d 3h", "1h 05m", "4m 10s", "35s"
 function Format.Duration(totalSeconds)
   local days, hours, minutes, seconds = splitDuration(totalSeconds)
   if days > 0 then
-    return string.format("%dd %dh", days, hours)
+    return string.format("%d%s %d%s", days, unit("UNIT_DAY_SHORT"), hours, unit("UNIT_HOUR_SHORT"))
   elseif hours > 0 then
-    return string.format("%dh %02dm", hours, minutes)
+    return string.format("%d%s %02d%s", hours, unit("UNIT_HOUR_SHORT"), minutes, unit("UNIT_MINUTE_SHORT"))
   elseif minutes > 0 then
-    return string.format("%dm %02ds", minutes, seconds)
+    return string.format("%d%s %02d%s", minutes, unit("UNIT_MINUTE_SHORT"), seconds, unit("UNIT_SECOND_SHORT"))
   end
-  return string.format("%ds", seconds)
+  return string.format("%d%s", seconds, unit("UNIT_SECOND_SHORT"))
 end
 
 -- Abweichung mit Vorzeichen: "+3m 12s", "-1m 05s" (Splits)
@@ -69,9 +77,9 @@ end
 -- Große Zahlen kürzen: 950, 12.3k, 1.2M
 function Format.Number(value)
   if value >= 1000000 then
-    return string.format("%.1fM", value / 1000000)
+    return string.format("%.1f%s", value / 1000000, unit("UNIT_MILLION_SHORT"))
   elseif value >= 1000 then
-    return string.format("%.1fk", value / 1000)
+    return string.format("%.1f%s", value / 1000, unit("UNIT_THOUSAND_SHORT"))
   end
   return string.format("%d", value)
 end
@@ -96,15 +104,15 @@ end
 -- Geld als reiner Text ("2g 30s 5c"), z.B. für Chat-Nachrichten an andere (Münzsymbole sind Texturcodes)
 function Format.PlainMoney(copper)
   copper = math.floor(copper)
-  return string.format("%dg %ds %dc",
-    math.floor(copper / COPPER_PER_GOLD),
-    math.floor(copper / COPPER_PER_SILVER) % 100,
-    copper % 100)
+  return string.format("%d%s %d%s %d%s",
+    math.floor(copper / COPPER_PER_GOLD), unit("UNIT_GOLD_SHORT"),
+    math.floor(copper / COPPER_PER_SILVER) % 100, unit("UNIT_SILVER_SHORT"),
+    copper % 100, unit("UNIT_COPPER_SHORT"))
 end
 
 -- Nur volles Gold, für schmale Tabellenspalten
 function Format.Gold(copper)
-  return string.format("%dg", math.floor(copper / COPPER_PER_GOLD))
+  return string.format("%d%s", math.floor(copper / COPPER_PER_GOLD), unit("UNIT_GOLD_SHORT"))
 end
 
 -- Text ohne Farbcodes und Link-Markup (z.B. Item-Links), für Suche und Export

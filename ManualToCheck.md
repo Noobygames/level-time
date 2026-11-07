@@ -2177,3 +2177,23 @@ Dungeon-Screenshot (ja/nein):
 Beute-Screenshot (ja/nein/nicht getestet):
 Fehler:
 ```
+
+### 107. Einheiten je Sprache (Roadmap 194)
+
+- [ ] geprüft
+
+Einstellungen → Allgemein → Sprache nacheinander auf Deutsch, Français und Español stellen. Jeweils Zeitfenster,
+Historie → Levels (Spalten Zeit, XP, Gold) und Historie → Sessions ansehen.
+
+**Erwartet:** Tage als „T“ (de), „j“ (fr), „d“ (es/en); Geld als Text „2g 30s 5k“ (de), „2po 30pa 5pc“ (fr),
+„2o 30p 5c“ (es). Spalten schneiden die etwas längeren französischen Geldeinheiten nicht ab; der Wechsel
+wirkt sofort, ohne `/reload`.
+
+**Antwort:**
+
+```text
+Client:
+Sprache, wie es aussieht:
+Abgeschnitten (wo):
+Fehler:
+```
