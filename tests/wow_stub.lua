@@ -53,7 +53,9 @@ wow = {
     resting = false,
     buffs = {},              -- aktive Buffs: Name oder { name, spellId } (C_UnitAuras.GetAuraDataByIndex)
     spellNames = { [433] = "Essen", [19705] = "Satt", [1229741] = "Lagervorteile" },  -- C_Spell.GetSpellName
-    interface = (SCENARIO or ""):match("^forever_") and 16001 or 120105,  -- Interface-Version (GetBuildInfo); Szenarien forever_* laden als WoW Forever (16001)
+    -- Interface-Version (GetBuildInfo): Szenarien forever_* laden als WoW Forever (16001), era_* als Classic Era
+    -- (11509), alle anderen als Retail
+    interface = (SCENARIO or ""):match("^forever_") and 16001 or (SCENARIO or ""):match("^era_") and 11509 or 120105,
     health = 1000,
     healthMax = 1000,
     powerMax = 0,
