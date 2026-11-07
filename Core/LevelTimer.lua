@@ -50,6 +50,11 @@ local function record(area, text)
   if debugRecorder then pcall(debugRecorder, area, text) end  -- ein defektes Log darf nichts aufhalten
 end
 
+-- Läuft gerade irgendein Logging? Für Aufrufer, die vor ns.Debug teure Vorarbeit leisten (Listen, Sortieren)
+function ns.DebugActive()
+  return ns.debug == true or debugRecorder ~= nil
+end
+
 -- Nur bei eingeschaltetem Logging (Chat mit /lt debug, dauerhaftes Log mit /lt debug log)
 function ns.Debug(area, format, ...)
   if not ns.debug and not debugRecorder then return end

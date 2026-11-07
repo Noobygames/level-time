@@ -203,3 +203,26 @@ expect("anderer Modus löst ab", Display.IsMoving(), false)
 expect("anderer Modus: Anzeige weg", camp:IsShown(), false)
 alerts.SetMoving(false)
 expectTrue("Button Zurücksetzen", wow.click(L.CAMP_RESET_POSITION))
+
+-- Beide Anzeigen aus: keine Buff-Abfrage, die Anzeige verschwindet; Einschalten beginnt neu
+local scans = { count = 0 }
+local getAura = C_UnitAuras.GetAuraDataByIndex
+C_UnitAuras.GetAuraDataByIndex = function(...)
+  scans.count = scans.count + 1
+  return getAura(...)
+end
+wow.state.buffs = { nearby(), inviting(GetTime() + 60) }
+addon.Set("campCountdown", true)
+Camp.Check()
+expect("an: Countdown", camp:IsShown(), true)
+addon.Set("campCountdown", false)
+addon.Set("campHint", false)
+expect("aus: Anzeige weg", camp:IsShown(), false)
+wow.state.buffs = { nearby(), inviting(GetTime() + 50) }
+local scansBefore = scans.count
+Camp.Check()
+expect("aus: keine Abfrage", scans.count, scansBefore)
+addon.Set("campCountdown", true)
+Camp.Check()
+expect("wieder an: Countdown", camp:IsShown(), true)
+C_UnitAuras.GetAuraDataByIndex = getAura

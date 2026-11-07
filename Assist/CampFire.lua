@@ -98,8 +98,18 @@ local function benefitsGranted(benefits)
   return expiration ~= nil and expiration > benefitsAtStart + 1
 end
 
+-- Beide Anzeigen aus: keine Buffs lesen; der Zustand beginnt beim Einschalten neu (wie nach dem Login)
+local function reset()
+  previousKind, benefitsAtStart, countdownEndedAt = nil, NO_BENEFITS, nil
+  hintShownAt, hintNextAt = nil, 0
+end
+
+local function wanted(db)
+  return db.campCountdown or db.campHint
+end
+
 function CampFire.Check()
-  if not ns.db then return end
+  if not ns.db or not wanted(ns.db) then return end
   local state, benefits = CampFire.GetState()
   local kind = state and state.kind or nil
 
@@ -137,7 +147,10 @@ if CampFire.IsAvailable() then
   ns.Every(CHECK_INTERVAL, CampFire.Check)
 end
 
-ns.OnLogin(function()
-  previousKind, benefitsAtStart, countdownEndedAt = nil, NO_BENEFITS, nil
-  hintShownAt, hintNextAt = nil, 0
+ns.OnLogin(reset)
+
+ns.RegisterApply(function(db)
+  if wanted(db) then return end
+  reset()
+  ns.CampDisplay.Show(nil)
 end)

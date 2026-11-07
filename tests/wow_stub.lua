@@ -347,6 +347,21 @@ end
 ---------------------------------------------------------------------------
 local state = wow.state
 
+-- Buffs ändern sich im Client nie ohne UNIT_AURA: wow.state.buffs = { ... } meldet das Event für den Spieler
+-- (der Aura-Schnappschuss in Lib/Auras.lua liest erst danach neu)
+do
+  local buffs = state.buffs
+  state.buffs = nil
+  setmetatable(state, {
+    __index = function(_, key) if key == "buffs" then return buffs end end,
+    __newindex = function(self, key, value)
+      if key ~= "buffs" then return rawset(self, key, value) end
+      buffs = value
+      wow.fire("UNIT_AURA", "player")
+    end,
+  })
+end
+
 -- Benannte Frames landen wie im Client als Global (z.B. LevelTimerFrame)
 CreateFrame = function(_, name, parent)
   local frame = newFrame()

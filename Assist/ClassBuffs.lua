@@ -148,16 +148,18 @@ end
 local function hasAnyBuff(spellIds, memory)
   local names = buffNames(spellIds)
   if not next(names) then return false end
-  local found
-  local read = ns.Auras.ForEachBuff(function(aura)
-    if names[aura.name] then
-      found = aura
-      return true
+  local buffs = ns.Auras.Snapshot()
+  if buffs then
+    local found
+    for _, aura in ipairs(buffs.list) do
+      if names[aura.name] then
+        found = aura
+        break
+      end
     end
-  end)
-  if read ~= nil then
     remember(memory, found)
-    if not found then logMissing(names) end
+    -- Nur fürs Debug-Log (zweiter Durchlauf, Sortieren, Text): ohne Logging gar nicht erst bauen
+    if not found and ns.DebugActive() then logMissing(names) end
     return found ~= nil
   end
   -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
