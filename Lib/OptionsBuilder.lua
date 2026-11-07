@@ -98,12 +98,21 @@ function OptionsBuilder.New(options)
   local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
   title:SetPoint("TOP", 0, -14)
 
+  -- { run(db), owner }: owner = Seite oder Unterseite, auf der das Steuerelement steht (nil = immer sichtbar: Reiter,
+  -- Fuß-Buttons). Bei offenem Fenster aktualisiert ein Apply nur die sichtbaren (Roadmap 376); verborgene Seiten
+  -- merken sich das (stale) und holen es beim Umschalten nach.
   local refreshers = {}
+  local stale = {}          -- [owner] = true: Einstellungen geändert, während die Seite verborgen war
   local toggleCells = {}    -- { checkbox, column, y } aller Schalter; Spaltenbreite setzt fitWidth
   local chooserRows = {}    -- { label, tabs } je Auswahlzeile; Breite prüft fitWidth
+  local page                -- Seite, auf der die Bausteine gerade anlegen
+
+  local function addRefresher(refresh, owner)
+    table.insert(refreshers, { run = refresh, owner = owner })
+  end
 
   function builder.OnRefresh(refresh)
-    table.insert(refreshers, refresh)
+    addRefresher(refresh, page)
   end
   local onRefresh = builder.OnRefresh
 
@@ -124,16 +133,18 @@ function OptionsBuilder.New(options)
   -- Reiter: je Reiter eine Seite über das ganze Fenster; Steuerelemente hängen an ihrer Seite
   -------------------------------------------------------------------------
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
-  local page                -- Seite, auf der die Bausteine gerade anlegen
   local nextRowY = CONTENT_TOP
   local sidebars = {}       -- { startY, entries = { { button, frame, bottom } } } je Seite mit Unterseiten
   local sidebar             -- Seitenleiste, deren Unterseiten gerade angelegt werden
+
+  local catchUp  -- unten definiert: verborgene Seiten nachholen, die jetzt sichtbar sind
 
   local function showPage(selected)
     for _, entry in ipairs(pages) do
       entry.scroll:SetShown(entry == selected)
       entry.tabButton:SetActive(entry == selected)
     end
+    catchUp()
   end
 
   -- Reiter nach seinem Locale-Key zeigen (z.B. "Einstellungen" einer Anzeige im Edit-Modus); false = unbekannt
@@ -174,7 +185,7 @@ function OptionsBuilder.New(options)
     table.insert(pages, entry)
     page = entry.frame
     nextRowY = CONTENT_TOP
-    onRefresh(function() setMeasuredText(entry.tabButton, "SetLabel", L[labelKey]) end)
+    addRefresher(function() setMeasuredText(entry.tabButton, "SetLabel", L[labelKey]) end, nil)
   end
 
   local function showSubPage(bar, selected)
@@ -182,6 +193,7 @@ function OptionsBuilder.New(options)
       entry.frame:SetShown(entry == selected)
       entry.button:SetActive(entry == selected)
     end
+    catchUp()
   end
 
   -- Neue Unterseite der aktuellen Seite mit Eintrag in der Seitenleiste; folgende Add*-Aufrufe landen darauf.
@@ -202,7 +214,7 @@ function OptionsBuilder.New(options)
     table.insert(bar.entries, entry)
     page = entry.frame
     nextRowY = bar.startY
-    onRefresh(function() setMeasuredText(entry.button, "SetLabel", L[labelKey]) end)
+    addRefresher(function() setMeasuredText(entry.button, "SetLabel", L[labelKey]) end, bar.parent)
   end
 
   -- Unterseiten abschließen: weiter auf der Seite unter der längsten Unterseite bzw. der Seitenleiste
@@ -345,7 +357,7 @@ function OptionsBuilder.New(options)
     end
     table.insert(footerButtons, button)
     addTooltip(button, labelKey .. "_TIP", localized(labelKey))
-    onRefresh(function() setMeasuredText(button, "SetText", L[labelKey]) end)
+    addRefresher(function() setMeasuredText(button, "SetText", L[labelKey]) end, nil)
   end
 
   -- Auswahl als Zeile von Reitern: chooser = { label = Locale-Key, setting, choices = { { value, name() }, ... } }
@@ -550,12 +562,9 @@ function OptionsBuilder.New(options)
 
   local refreshPending = false  -- Einstellungen haben sich bei geschlossenem Fenster geändert
 
-  function builder.Refresh(db)
-    refreshPending = false
-    title:SetText(options.title())
-    for _, refreshControl in ipairs(refreshers) do
-      refreshControl(db)
-    end
+  local refreshedLanguage  -- Sprache der letzten vollständigen Aktualisierung
+
+  local function finishRefresh()
     if layoutStale then
       layoutStale = false
       fitWidth()
@@ -564,14 +573,63 @@ function OptionsBuilder.New(options)
     if wantedHeight then panel:SetHeight(math.min(wantedHeight, maxPanelHeight())) end
   end
 
+  -- Alle Steuerelemente, auch auf verborgenen Seiten (Öffnen, Sprachwechsel, Profilliste)
+  function builder.Refresh(db)
+    refreshPending = false
+    refreshedLanguage = db.language
+    for owner in pairs(stale) do stale[owner] = nil end
+    title:SetText(options.title())
+    for _, refresher in ipairs(refreshers) do
+      refresher.run(db)
+    end
+    finishRefresh()
+  end
+
+  -- Nur die sichtbaren; verborgene Seiten merken sich, dass sie beim Zeigen nachholen müssen
+  local function refreshVisible(db)
+    title:SetText(options.title())
+    for _, refresher in ipairs(refreshers) do
+      local owner = refresher.owner
+      if not owner or owner:IsVisible() then
+        refresher.run(db)
+      else
+        stale[owner] = true
+      end
+    end
+    finishRefresh()
+  end
+
+  function catchUp()
+    if not next(stale) or not ns.db or not panel:IsShown() then return end
+    local done
+    for _, refresher in ipairs(refreshers) do
+      local owner = refresher.owner
+      if owner and stale[owner] and owner:IsVisible() then
+        refresher.run(ns.db)
+        done = done or {}
+        done[owner] = true
+      end
+    end
+    if not done then return end
+    for owner in pairs(done) do stale[owner] = nil end
+    finishRefresh()
+  end
+
   -- Für ns.RegisterApply: nur das offene Fenster aktualisieren (jede Einstellungsänderung ruft das, auch bei
-  -- geschlossenem Fenster); geschlossen holt OnShow es nach
+  -- geschlossenem Fenster); geschlossen holt OnShow es nach. Offen nur die sichtbare Seite, außer nach einem
+  -- Sprachwechsel (alle Texte und Breiten neu).
   function builder.RefreshIfShown(db)
-    if panel:IsShown() then builder.Refresh(db) else refreshPending = true end
+    if not panel:IsShown() then
+      refreshPending = true
+    elseif db.language ~= refreshedLanguage then
+      builder.Refresh(db)
+    else
+      refreshVisible(db)
+    end
   end
 
   panel:SetScript("OnShow", function()
-    if refreshPending and ns.db then builder.Refresh(ns.db) end
+    if refreshPending and ns.db then builder.Refresh(ns.db) else catchUp() end
   end)
 
   return builder
