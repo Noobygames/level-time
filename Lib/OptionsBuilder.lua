@@ -193,6 +193,7 @@ function OptionsBuilder.New(options)
   -- Reiter: je Reiter eine Seite über das ganze Fenster; Steuerelemente hängen an ihrer Seite
   -------------------------------------------------------------------------
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
+  local pageTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
   local nextRowY = CONTENT_TOP
   local sidebars = {}       -- { startY, entries = { { button, frame, bottom } } } je Seite mit Unterseiten
   local sidebar             -- Seitenleiste, deren Unterseiten gerade angelegt werden
@@ -521,13 +522,7 @@ function OptionsBuilder.New(options)
     local entry = { key = labelKey, scroll = scroll, frame = CreateFrame("Frame", nil, scroll) }
     currentTab, currentSub = entry, nil
     scroll:SetScrollChild(entry.frame)
-    entry.tabButton = Widgets.CreateTab(panel, "GameFontNormal", function() showPage(entry) end)
-    local previous = pages[#pages]
-    if previous then
-      entry.tabButton:SetPoint("LEFT", previous.tabButton, "RIGHT", TAB_GAP, 0)
-    else
-      entry.tabButton:SetPoint("TOPLEFT", MARGIN, TABS_TOP)
-    end
+    entry.tabButton = pageTabs:Add(function() showPage(entry) end)
     table.insert(pages, entry)
     page = entry.frame
     nextRowY = CONTENT_TOP
@@ -911,14 +906,6 @@ function OptionsBuilder.New(options)
     return widest
   end
 
-  local function tabRowWidth()
-    local width = 0
-    for i, entry in ipairs(pages) do
-      width = width + entry.tabButton:GetWidth() + (i > 1 and TAB_GAP or 0)
-    end
-    return width
-  end
-
   -- Versatz der Unterseiten: breitester Eintrag der Seitenleiste plus Abstand (0 ohne Unterseiten)
   local function sidebarOffset()
     local widest = 0
@@ -969,7 +956,7 @@ function OptionsBuilder.New(options)
     end
     -- Titel steht mittig: links und rechts je Platz für das Suchfeld
     local titleRow = title:GetStringWidth() + 2 * (SEARCH_WIDTH + TEXT_INPUT_BORDER + MARGIN)
-    local content = math.max(offset + 2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth(),
+    local content = math.max(offset + 2 * column, widestChooserRow(), pageTabs:Width(), footerWidth(), buttonRowsWidth(),
       titleRow)
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end

@@ -50,6 +50,7 @@ content:SetSize(HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
 local entries = {}
 local entriesByGroup = {}
 local selectedEntry
+local entryTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
 local selectedCharacter  -- Schlüssel "Name-Realm"; nil = eingeloggter Charakter
 local rendered = {}      -- zuletzt angezeigte Ansicht und Charakter (Wechsel setzt den Bildlauf zurück)
 local refresh            -- unten definiert
@@ -75,16 +76,15 @@ local function restoreView()
 end
 
 local function createEntry(tabKey)
-  local entry = { tab = tabKey, members = {} }
-  entry.tabButton = Widgets.CreateTab(panel, "GameFontNormal", function()
+  -- Unterreiter von links nach rechts, bei Platzmangel in die nächste Zeile (Position setzt layoutSubtabs, weil die
+  -- Breite von der Sprache abhängt)
+  local entry = { tab = tabKey, members = {}, subtabs = ns.TabStrip.New(panel, {
+    font = "GameFontHighlightSmall", left = MARGIN, top = SUBTABS_TOP, gap = SUBTAB_GAP,
+    maxWidth = HistoryWindow.CONTENT_WIDTH, rowHeight = SUBTAB_ROW_HEIGHT,
+  }) }
+  entry.tabButton = entryTabs:Add(function()
     selectView(entry, entry.selected)
   end)
-  local previous = entries[#entries]
-  if previous then
-    entry.tabButton:SetPoint("LEFT", previous.tabButton, "RIGHT", TAB_GAP, 0)
-  else
-    entry.tabButton:SetPoint("TOPLEFT", MARGIN, TABS_TOP)
-  end
   table.insert(entries, entry)
   selectedEntry = selectedEntry or entry
   return entry
@@ -106,8 +106,7 @@ function HistoryWindow.AddView(view)
     if view.group then entriesByGroup[view.group] = entry end
   end
 
-  -- Position setzt layoutSubtabs, weil die Breite von der Sprache abhängt
-  view.subtabButton = Widgets.CreateTab(panel, "GameFontHighlightSmall", function()
+  view.subtabButton = entry.subtabs:Add(function()
     selectView(entry, view)
   end)
 
@@ -181,20 +180,10 @@ end
 -- Aufbau
 ---------------------------------------------------------------------------
 
--- Unterreiter einer Gruppe von links nach rechts, bei Platzmangel in die nächste Zeile.
--- Erwartet gesetzte Beschriftungen (Breite); gibt die Zahl der Zeilen zurück.
+-- Unterreiter einer Gruppe in Zeilen (TabStrip mit Umbruch). Erwartet gesetzte Beschriftungen (Breite); gibt die Zahl
+-- der Zeilen zurück.
 local function layoutSubtabs(entry)
-  local x, row = 0, 0
-  for _, view in ipairs(entry.members) do
-    local width = view.subtabButton:GetWidth()
-    if x > 0 and x + width > HistoryWindow.CONTENT_WIDTH then
-      x, row = 0, row + 1
-    end
-    view.subtabButton:ClearAllPoints()
-    view.subtabButton:SetPoint("TOPLEFT", MARGIN + x, SUBTABS_TOP - row * SUBTAB_ROW_HEIGHT)
-    x = x + width + SUBTAB_GAP
-  end
-  return row + 1
+  return entry.subtabs:Layout()
 end
 
 -- Inhalt unter die Unterreiter. Platz für die meisten Zeilen aller Gruppen, damit das Fenster

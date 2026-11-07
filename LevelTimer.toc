@@ -46,6 +46,7 @@ Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
+Lib\TabStrip.lua
 Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
