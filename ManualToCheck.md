@@ -2343,3 +2343,25 @@ Twink sofort markiert (ja/nein):
 Falsche Zuordnungen:
 Fehler:
 ```
+
+### 114. Zielknopf mit gelernten Namen und Totenkopf (Roadmap 342)
+
+- [ ] geprüft
+
+Komfort > Quests: „Questgegner-Zielknopf“, „Ziel mit Totenkopf markieren“ und „Questgegner und -gegenstände lernen“ an. Eine Tötungsquest mit schon gelernten Gegnern (siehe 341) offen haben.
+
+1. Der Zielknopf erscheint auch ohne sichtbare Plakette; Mouseover nennt die Namen. Klick wählt den nächsten passenden Gegner und setzt den Totenkopf, ein zweiter Klick nimmt ihn nicht wieder ab.
+2. Im Kampf ein Ziel erfüllen: der Knopf ändert sich erst nach dem Kampf, ohne „Aktion blockiert“.
+3. Ziel erfüllt: der Name verschwindet aus dem Mouseover des Knopfs.
+4. Solo in Classic Era: setzt `/tm` überhaupt einen Marker? (Falls nicht, bitte notieren.)
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis; Makro wird nie länger als 255 Zeichen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielwahl mit gelernten Namen (ja/nein):
+Totenkopf gesetzt, bleibt beim 2. Klick (ja/nein):
+Fehler:
+```

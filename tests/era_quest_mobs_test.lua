@@ -101,10 +101,18 @@ expect("Stand aus dem Questlog", created.progress:GetText(), "5/8")
 -- Tooltipzeile (Classic ohne Questzeilen im Tooltip)
 expect("Tooltipzeile", addon.Tooltip.LearnedQuestLine("nameplate1"), string.format(L.TOOLTIP_QUEST_LINE, "Wölfe jagen (5/8)"))
 
+-- Zielknopf ohne Client-Unterstützung: gelernte Namen (Roadmap 342)
+addon.Set("questTargetButton", true)
+expect("Zielknopf mit gelernten Namen", LevelTimerQuestTargetButton:GetAttribute("macrotext"),
+  "/cleartarget\n/targetexact Waldwolf\n/targetexact Wolf")
+
 -- Ziel erfüllt: nicht mehr offen
 wolves.text, wolves.finished = "Wolf getötet: 8/8", true
 questLogChanged()
 expect("erfüllt: kein Questgegner", QuestMobs.IsQuestMob("Wolf"), false)
 wow.update(5)
 expect("erfüllt: Markierung weg", created:IsShown(), false)
+wow.update(1)
+expect("erfülltes Ziel fällt aus dem Zielknopf", LevelTimerQuestTargetButton:GetAttribute("macrotext"),
+  "/cleartarget\n/targetexact Waldwolf")
 expect("Fehler?", #wow.errors, 0)

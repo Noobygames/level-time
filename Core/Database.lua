@@ -152,7 +152,8 @@ local SETTINGS_DEFAULTS = {
   lootSparkleCorpses = false, lootSparkleScale = 1,
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
-  questTargetButton = false, -- Knopf "/targetexact" für einen Questgegner auf den Namensplaketten
+  questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)
+  questTargetMarker = false, -- derselbe Knopf setzt den Totenkopf auf das Ziel ("/tm !8")
   mapCoordinates = false,    -- Koordinaten von Spieler und Mauszeiger auf der Weltkarte (MapCoordinates.lua)
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)

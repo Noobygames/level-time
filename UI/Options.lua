@@ -620,7 +620,8 @@ addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
-  toggle("QUEST_TARGET_TOGGLE", "questTargetButton", ns.QuestItem.CanTarget),
+  toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
+  toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
 })
 builder.AddButtonRow({
   { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
