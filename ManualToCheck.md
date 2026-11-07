@@ -2140,3 +2140,22 @@ LiveSplit öffnet die Datei (ja/nein):
 Zeiten stimmen (ja/nein):
 Fehler:
 ```
+
+### 105. Rennen gegen Freunde (Roadmap 293)
+
+- [ ] geprüft
+
+Zwei Accounts/Charaktere mit Level Time, beide Speedrun > „Rennen gegen Freunde“ an, Split-Liste an. Gruppe bilden bzw. den anderen inspizieren. Mit einem der beiden ein Level aufsteigen. Einmal in einem Dungeon wiederholen.
+
+**Erwartet:** Nach wenigen Sekunden zeigt die Split-Liste „Splits (gegen Name)“ und eine vierte Spalte mit der Abweichung je Level. Beim Level-Up des anderen erscheint „Name hat Level N erreicht …“ im Chat. Keine Fehler, kein „Aktion blockiert“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Austausch in der Gruppe (ja/nein):
+Austausch beim Inspizieren (ja/nein):
+Level-Up-Meldung (ja/nein):
+In Instanzen (ja/nein):
+Fehler:
+```

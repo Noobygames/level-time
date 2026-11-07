@@ -94,6 +94,7 @@ Speedrun\SsfRules.lua
 Speedrun\CustomSplits.lua
 Speedrun\QuestSplits.lua
 Speedrun\LiveSplitExport.lua
+Speedrun\FriendRace.lua
 
 # Oberfläche (UI), Leveling-Hilfe (Assist), Speedrun-Fenster, Befehle
 UI\StatLines.lua

@@ -6,6 +6,7 @@
 -- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
 -- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
 -- ssfCategory (SSF-Regelhelfer, SsfRules.lua), splitListShowCustom (die letzten eigenen Splits, CustomSplits.lua).
+-- Mit friendRace und einem gehörten Freund (FriendRace.lua) eine vierte Spalte "gegen Freund" je Level.
 -- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
 local _, ns = ...
 local L = ns.L
@@ -45,6 +46,7 @@ local function getRow(index)
     level = cell("GameFontNormalSmall"),
     time = cell("GameFontHighlightSmall"),
     delta = cell("GameFontHighlightSmall"),
+    friend = cell("GameFontHighlightSmall"),
   }
   return rows[index]
 end
@@ -53,19 +55,27 @@ end
 -- Inhalt
 ---------------------------------------------------------------------------
 
--- { level, seconds, delta, deltaText, gold } für das laufende Level und die zuletzt abgeschlossenen,
+-- Abweichung zum zuletzt gehörten Freund (FriendRace.lua); "" ohne Freund, "-" ohne seine Zeit
+function SplitList.FriendDeltaText(level, seconds)
+  if not ns.FriendRace.Current() then return "" end
+  return Format.SplitDelta(ns.FriendRace.GetLevelDelta(level, seconds))
+end
+
+-- { level, seconds, delta, deltaText, gold, friendText } für das laufende Level und die zuletzt abgeschlossenen,
 -- neueste zuerst
 function SplitList.BuildLines()
   local lines = {
     { level = ns.level, seconds = Stats.GetSeconds(Stats.LEVEL), delta = Splits.GetCurrentDelta(),
       deltaText = Splits.CurrentDeltaText() },
   }
+  lines[1].friendText = SplitList.FriendDeltaText(ns.level, lines[1].seconds)
   local level = ns.level - 1
   while #lines < ns.db.splitListRows and level >= 1 do
     local record = ns.character.levelHistory[level]
     if record then
       table.insert(lines, { level = level, seconds = record.seconds, delta = Splits.GetLevelDelta(level),
-        deltaText = Splits.LevelDeltaText(level), gold = Splits.IsGoldSplit(level) })
+        deltaText = Splits.LevelDeltaText(level), gold = Splits.IsGoldSplit(level),
+        friendText = SplitList.FriendDeltaText(level, record.seconds) })
     end
     level = level - 1
   end
@@ -134,22 +144,26 @@ function SplitList.BuildFooterLines()
   return lines
 end
 
-local function setCells(row, levelText, timeText, deltaText)
+local function setCells(row, levelText, timeText, deltaText, friendText)
   row.level:SetText(levelText)
   row.time:SetText(timeText)
   row.delta:SetText(deltaText)
+  row.friend:SetText(friendText or "")
   for _, fontString in pairs(row) do fontString:Show() end
 end
 
 -- Spalten so breit wie ihr breitester Text, Fenster entsprechend
 local function layout(count)
-  local levelWidth, timeWidth, deltaWidth = 0, 0, 0
+  local levelWidth, timeWidth, deltaWidth, friendWidth = 0, 0, 0, 0
   for i = 1, count do
     levelWidth = math.max(levelWidth, rows[i].level:GetStringWidth())
     timeWidth = math.max(timeWidth, rows[i].time:GetStringWidth())
     deltaWidth = math.max(deltaWidth, rows[i].delta:GetStringWidth())
+    friendWidth = math.max(friendWidth, rows[i].friend:GetStringWidth())
   end
   local timeRight = PADDING_X + levelWidth + COLUMN_GAP + timeWidth
+  local deltaRight = timeRight + COLUMN_GAP + deltaWidth
+  local friendSpace = friendWidth > 0 and COLUMN_GAP + friendWidth or 0
   for i = 1, count do
     local y = -PADDING_Y - i * ROW_HEIGHT
     local row = rows[i]
@@ -158,19 +172,26 @@ local function layout(count)
     row.time:ClearAllPoints()
     row.time:SetPoint("TOPRIGHT", panel, "TOPLEFT", timeRight, y)
     row.delta:ClearAllPoints()
-    row.delta:SetPoint("TOPRIGHT", -PADDING_X, y)
+    if friendSpace > 0 then
+      row.delta:SetPoint("TOPRIGHT", panel, "TOPLEFT", deltaRight, y)
+    else
+      row.delta:SetPoint("TOPRIGHT", -PADDING_X, y)  -- ohne Freund-Spalte am rechten Rand wie bisher
+    end
+    row.friend:ClearAllPoints()
+    row.friend:SetPoint("TOPRIGHT", -PADDING_X, y)
   end
-  local width = timeRight + COLUMN_GAP + deltaWidth + PADDING_X
+  local width = deltaRight + friendSpace + PADDING_X
   panel:SetSize(math.max(MIN_WIDTH, width, title:GetStringWidth() + 2 * PADDING_X),
     2 * PADDING_Y + (count + 1) * ROW_HEIGHT)
 end
 
 local function render()
-  title:SetText(L.SPLIT_LIST_TITLE)
+  local friend = ns.FriendRace.Current()
+  title:SetText(friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
   local lines = SplitList.BuildLines()
   for i, line in ipairs(lines) do
     setCells(getRow(i), tostring(line.level),
-      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText)
+      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText)
   end
   local used = #lines
   for _, line in ipairs(SplitList.BuildFooterLines()) do

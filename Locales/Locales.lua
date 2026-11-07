@@ -9,6 +9,10 @@ ns.languages = {
 
 ns.locales = {
   deDE = {
+    FRIEND_RACE = "Rennen gegen Freunde",
+    FRIEND_RACE_TIP = "Tauscht per Addon-Nachricht die Level-Zeiten mit anderen Level-Time-Nutzern: beim Inspizieren und in der Gruppe. Die Split-Liste bekommt eine Spalte gegen den zuletzt gehörten Freund, Level-Ups von Freunden erscheinen im Chat. Aus = nichts wird gesendet oder beantwortet.",
+    FRIEND_LEVEL_UP = "%s hat Level %d erreicht (letztes Level in %s).",
+    SPLIT_LIST_TITLE_FRIEND = "%s (gegen %s)",
     LIVESPLIT_EXPORT = "LiveSplit",
     LIVESPLIT_TITLE = "LiveSplit (.lss): alles kopieren und als Datei mit Endung .lss speichern",
     LIVESPLIT_EMPTY = "Noch kein abgeschlossenes Level für LiveSplit.",
@@ -1048,6 +1052,10 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
   },
   enUS = {
+    FRIEND_RACE = "Race against friends",
+    FRIEND_RACE_TIP = "Exchanges level times with other Level Time users via addon messages: when inspecting and in a group. The split list gets a column against the friend heard last, friends' level ups show in chat. Off = nothing is sent or answered.",
+    FRIEND_LEVEL_UP = "%s reached level %d (last level in %s).",
+    SPLIT_LIST_TITLE_FRIEND = "%s (vs %s)",
     LIVESPLIT_EXPORT = "LiveSplit",
     LIVESPLIT_TITLE = "LiveSplit (.lss): copy everything and save it as a file ending in .lss",
     LIVESPLIT_EMPTY = "No completed level for LiveSplit yet.",
@@ -2087,6 +2095,10 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
   },
   frFR = {
+    FRIEND_RACE = "Course contre des amis",
+    FRIEND_RACE_TIP = "Échange les temps de niveau avec d'autres utilisateurs de Level Time par message d'addon : à l'inspection et en groupe. La liste des écarts reçoit une colonne contre le dernier ami entendu, les montées de niveau des amis apparaissent dans le chat. Désactivé = rien n'est envoyé ni répondu.",
+    FRIEND_LEVEL_UP = "%s a atteint le niveau %d (dernier niveau en %s).",
+    SPLIT_LIST_TITLE_FRIEND = "%s (vs %s)",
     LIVESPLIT_EXPORT = "LiveSplit",
     LIVESPLIT_TITLE = "LiveSplit (.lss) : tout copier et enregistrer dans un fichier .lss",
     LIVESPLIT_EMPTY = "Aucun niveau terminé pour LiveSplit.",
@@ -3126,6 +3138,10 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
   },
   esES = {
+    FRIEND_RACE = "Carrera contra amigos",
+    FRIEND_RACE_TIP = "Intercambia tiempos de nivel con otros usuarios de Level Time mediante mensajes de addon: al inspeccionar y en grupo. La lista de parciales recibe una columna contra el último amigo recibido, las subidas de nivel de amigos aparecen en el chat. Desactivado = no se envía ni responde nada.",
+    FRIEND_LEVEL_UP = "%s ha alcanzado el nivel %d (último nivel en %s).",
+    SPLIT_LIST_TITLE_FRIEND = "%s (vs %s)",
     LIVESPLIT_EXPORT = "LiveSplit",
     LIVESPLIT_TITLE = "LiveSplit (.lss): copia todo y guárdalo en un archivo .lss",
     LIVESPLIT_EMPTY = "Aún no hay ningún nivel completado para LiveSplit.",

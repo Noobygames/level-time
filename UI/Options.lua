@@ -762,6 +762,7 @@ addToggles({
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
   toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
   toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
+  toggle("FRIEND_RACE", "friendRace"),
 })
 addSplitComparisonChooser()
 addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })

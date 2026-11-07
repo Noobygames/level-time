@@ -566,7 +566,22 @@ C_AddOns = {
   end,
 }
 
+-- Addon-Nachrichten: wow.addonMessages = { { prefix, message, chatType, target } }, wow.addonPrefixes
+wow.addonMessages = {}
+wow.addonPrefixes = {}
+function NotifyInspect() end
+function GetUnitName(unit, showServer)
+  local name = UnitName(unit)
+  local realm = state.units[unit] and state.units[unit].realm
+  if showServer and name and realm then return name .. "-" .. realm end
+  return name
+end
 C_ChatInfo = {
+  RegisterAddonMessagePrefix = function(prefix) wow.addonPrefixes[prefix] = true; return 0 end,
+  SendAddonMessage = function(prefix, message, chatType, target)
+    table.insert(wow.addonMessages, { prefix = prefix, message = message, chatType = chatType, target = target })
+    return 0
+  end,
   SendChatMessage = function(message, chatType) table.insert(wow.sentChat, { message = message, chatType = chatType }) end,
   InChatMessagingLockdown = function() return state.chatLockdown end,
 }
