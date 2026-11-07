@@ -990,6 +990,7 @@ addSection("SECTION_CHARACTER_FRAME")
 addToggles({
   toggle("CHARACTER_DURABILITY", "characterDurability", ns.CharacterFrameExtras.IsAvailable),
   toggle("CHARACTER_VOLUME", "characterVolume", ns.CharacterFrameExtras.IsAvailable),
+  toggle("DRESS_UP_BUTTONS", "dressUpButtons"),
 })
 addSection("SECTION_UNIT_FRAMES")
 addToggles({

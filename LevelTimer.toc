@@ -180,6 +180,7 @@ Assist\ActionBars.lua
 Assist\Emergency.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
+Assist\DressUp.lua
 Assist\ClassColors.lua
 Assist\PlayerChain.lua
 Assist\DruidManaBar.lua

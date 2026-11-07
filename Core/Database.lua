@@ -201,6 +201,7 @@ local SETTINGS_DEFAULTS = {
   hideRestAnimation = false, hidePortraitNumbers = false,
   hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
+  dressUpButtons = false,  -- Knöpfe "Ausziehen" und "Wappenrock" in der Anprobe (DressUp.lua)
   classColorPlayerFrame = false,  -- Namenshintergrund des Spielerrahmens in Klassenfarbe (ClassColors.lua)
   playerChain = "off",  -- Drache am Spielerrahmen: off/elite/rare/rareelite (PlayerChain.lua)
   druidManaBar = false,  -- Manaleiste in Druiden-Gestalten, Classic (DruidManaBar.lua)
