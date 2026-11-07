@@ -60,9 +60,15 @@ function Goals.RegisterKind(name, def)
   kinds[name] = def
 end
 
--- Namen aller Zielarten in Anmelde-Reihenfolge (nicht verändern)
+-- Namen aller Zielarten in Anmelde-Reihenfolge (nicht verändern), auch der im Client nicht verfügbaren
 function Goals.KindOrder()
   return kindOrder
+end
+
+-- Gibt es die Art in diesem Client? def.available() optional (z.B. Erfolge nicht in Classic Era)
+function Goals.IsAvailable(kind)
+  local def = kinds[kind]
+  return def ~= nil and (not def.available or def.available() and true or false)
 end
 
 function Goals.GetKind(name)
@@ -84,7 +90,7 @@ end
 -- Neues Ziel für den eingeloggten Charakter. Rückgabe: Ziel, oder nil und eine Fehlermeldung (übersetzt)
 function Goals.Create(kind, params, target)
   local def = kinds[kind]
-  if not def then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
+  if not def or not Goals.IsAvailable(kind) then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
   params = params or {}
   if def.prepare then target = def.prepare(params, target) end
   local err = def.validate(params, target)

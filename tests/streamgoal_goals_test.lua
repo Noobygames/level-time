@@ -201,7 +201,11 @@ SlashCmdList.STREAMGOAL("move")
 local printedBefore = #wow.printed
 SlashCmdList.STREAMGOAL("help")
 expect("Hilfe", wow.printed[printedBefore + 1]:find(L.SG_HELP, 1, true) ~= nil, true)
-expect("Hilfe nennt jede Zielart", #wow.printed - printedBefore, 1 + #Goals.KindOrder())
+local availableKinds = 0
+for _, kind in ipairs(Goals.KindOrder()) do
+  if Goals.IsAvailable(kind) then availableKinds = availableKinds + 1 end
+end
+expect("Hilfe nennt jede verfügbare Zielart", #wow.printed - printedBefore, 1 + availableKinds)
 expect("Hilfe mit Syntax", wow.printed[printedBefore + 2]:find(L.SG_USAGE_LEVEL, 1, true) ~= nil, true)
 
 ---------------------------------------------------------------------------

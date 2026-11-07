@@ -23,6 +23,8 @@ Kinds\Quests.lua
 Kinds\Skill.lua
 Kinds\Owned.lua
 Kinds\Explore.lua
+Kinds\Achievement.lua
+Kinds\Honor.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua

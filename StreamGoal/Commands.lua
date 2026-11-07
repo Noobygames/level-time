@@ -16,14 +16,14 @@ local function help()
   ns.Print(L.SG_HELP)
   for _, kind in ipairs(Goals.KindOrder()) do
     local usage = Goals.GetKind(kind).usage
-    if usage then ns.Print("  " .. L[usage]) end
+    if usage and Goals.IsAvailable(kind) then ns.Print("  " .. L[usage]) end
   end
 end
 
 local function add(rest)
   local kind, remainder = rest:match("^(%S+)%s*(.*)$")
   local def = kind and Goals.GetKind(kind:lower())
-  if not def or not def.parse then
+  if not def or not def.parse or not Goals.IsAvailable(def.name) then
     ns.Print(string.format(L.SG_ERR_UNKNOWN_KIND, kind or "?"))
     return
   end

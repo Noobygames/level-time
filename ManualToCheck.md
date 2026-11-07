@@ -2514,3 +2514,21 @@ Entdecken zählt einmal je Gebiet (ja/nein, doppelt/gar nicht):
 Zone erreicht (ja/nein):
 Fehler:
 ```
+
+### 176. Erfolge und Ehre (Roadmap 309)
+
+- [ ] geprüft
+
+1. Retail/Forever: Erfolg per Shift-Klick im Erfolgsfenster in das Feld (`/sg`, Reiter Erfolg): Karte mit Erfolgssymbol,
+   Stand aus den Kriterien, Abschluss beim Erreichen. Classic Era/TBC: kein Reiter „Erfolg“.
+2. `/sg add honor 100` auf dem Schlachtfeld: Siege und Bonusehre zählen; Retail: zählt die Karte überhaupt
+   (sonst Chatzeilen von CHAT_MSG_COMBAT_HONOR_GAIN notieren)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Erfolg-Fortschritt stimmt (ja/nein):
+Ehre zählt (ja/nein, Chatzeile):
+Fehler:
+```

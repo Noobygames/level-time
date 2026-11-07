@@ -178,22 +178,32 @@ for _, kind in ipairs(Goals.KindOrder()) do
   buildForm(kind)
 end
 
--- Reiter der Zielarten in Zeilen umbrechen; Rückgabe: Höhe aller Zeilen
+-- Reiter hinter den vorigen setzen oder in die nächste Zeile, wenn er nicht mehr passt
+local function placeKindTab(tab, kind, left, row)
+  tab:SetLabel(L[Goals.GetKind(kind).label])
+  local width = tab:GetWidth()
+  if left > 0 and left + width > CONTENT_WIDTH then
+    left, row = 0, row + 1
+  end
+  tab:ClearAllPoints()
+  tab:SetPoint("TOPLEFT", left, KIND_TABS_TOP - row * KIND_TAB_ROW)
+  return left + width + KIND_TAB_GAP, row
+end
+
+-- Reiter der verfügbaren Zielarten in Zeilen umbrechen; Rückgabe: Höhe aller Zeilen
 local function layoutKindTabs()
   local left, row = 0, 0
   for _, kind in ipairs(Goals.KindOrder()) do
     local tab = kindTabs[kind]
-    tab:SetLabel(L[Goals.GetKind(kind).label])
-    local width = tab:GetWidth()
-    if left > 0 and left + width > CONTENT_WIDTH then
-      left, row = 0, row + 1
+    local available = Goals.IsAvailable(kind)
+    tab:SetShown(available)
+    if available then
+      left, row = placeKindTab(tab, kind, left, row)
     end
-    tab:ClearAllPoints()
-    tab:SetPoint("TOPLEFT", left, KIND_TABS_TOP - row * KIND_TAB_ROW)
-    left = left + width + KIND_TAB_GAP
   end
   return (row + 1) * KIND_TAB_ROW
 end
+
 
 -- Breite der Beschriftungsspalte: breiteste Beschriftung aller Formulare (fr/es sind länger)
 local function labelColumnWidth()
@@ -446,6 +456,7 @@ Manager.history = historyView.Create(historyPage, CONTENT_WIDTH, PAGE_HEIGHT)
 -- Anzeige aufbauen
 ---------------------------------------------------------------------------
 function Manager.SelectKind(kind)
+  if not Goals.IsAvailable(kind) then return end
   selectedKind = kind
   errorText:SetText("")
   Manager.Refresh()
