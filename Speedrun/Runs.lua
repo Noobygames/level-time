@@ -2,6 +2,7 @@
 -- Lauf: { id, name, realm, class, times = { [level] = Sekunden }, reachedLevel, imported, favorite }
 --   eigene Charaktere zusätzlich bestTimes (ohne Teil-Level) und coverage (Erfassungsquote, Coverage.lua)
 --   id = Charakter-Schlüssel ("Name-Realm") oder "import:<n>" für importierte Läufe
+--   check/checkFrom/checkTo: Prüfcode über die Level checkFrom..checkTo (RunCheck.lua), coverage auch bei Importen
 -- Importierte Läufe liegen in LevelTimerStatsDB.importedRuns, Favoriten in LevelTimerStatsDB.runFavorites.
 local _, ns = ...
 local History = ns.History
@@ -31,7 +32,9 @@ end
 
 local function fromCharacter(characterKey)
   local character = History.GetCharacter(characterKey)
+  local check, checkFrom, checkTo = ns.RunCheck.ForCharacter(character)
   return {
+    check = check, checkFrom = checkFrom, checkTo = checkTo,
     id = characterKey,
     name = character.name,
     realm = character.realm,
@@ -51,6 +54,8 @@ local function fromImport(index, run)
     class = run.class,
     times = run.times,
     reachedLevel = run.reachedLevel,
+    coverage = run.coverage,
+    check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo,
     imported = true,
   }
 end
@@ -115,7 +120,8 @@ local function shareable(run)
     realm = nil
     if not run.imported then name = History.DisplayName(run.id) end
   end
-  return { name = name, realm = realm, class = run.class, reachedLevel = run.reachedLevel, times = run.times }
+  return { name = name, realm = realm, class = run.class, reachedLevel = run.reachedLevel, times = run.times,
+    coverage = run.coverage, check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo }
 end
 
 function Runs.Export(run)
@@ -136,6 +142,21 @@ local function plain(text)
   return type(text) == "string" and (text:gsub("|", "")) or nil
 end
 
+local function number(value)
+  return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge and value or nil
+end
+
+-- Prüfcode von außen: nur Hex-Text (RunCheck.lua), sonst verworfen
+local function checkCode(value)
+  return type(value) == "string" and value:match("^%x+$") and value or nil
+end
+
+-- Erfassungsquote von außen: Anteil 0..1
+local function fraction(value)
+  value = number(value)
+  return value and math.max(0, math.min(1, value)) or nil
+end
+
 -- Nur Läufe mit Namen und Level-Zeiten aus Zahlen übernehmen (der Text kommt von außen)
 local function sanitize(run)
   if type(run) ~= "table" or type(run.name) ~= "string" or type(run.times) ~= "table" then return nil end
@@ -152,6 +173,10 @@ local function sanitize(run)
     class = plain(run.class),
     reachedLevel = type(run.reachedLevel) == "number" and run.reachedLevel or nil,
     times = times,
+    coverage = fraction(run.coverage),
+    check = checkCode(run.check),
+    checkFrom = number(run.checkFrom),
+    checkTo = number(run.checkTo),
   }
 end
 

@@ -23,6 +23,7 @@ Core\DebugLog.lua
 Core\DebugProbes.lua
 Lib\Format.lua
 Lib\Serializer.lua
+Lib\Fnv.lua
 Lib\RecordCodec.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
@@ -83,6 +84,7 @@ History\Goal.lua
 
 # Speedrun (Daten)
 Speedrun\Runs.lua
+Speedrun\RunCheck.lua
 Speedrun\Splits.lua
 Speedrun\SpeedrunRecords.lua
 Speedrun\WorldRecords.lua

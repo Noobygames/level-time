@@ -58,12 +58,14 @@ local commands = {
       ns.Print(L.PROFILE_UNKNOWN)
     end
   end,
-  -- /lt runs import | backup: Läufe einfügen bzw. alle als Text sichern
+  -- /lt runs import | backup | verify: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen
   runs = function(argument)
     if argument == "import" then
       ns.ShowRunImport()
     elseif argument == "backup" then
       ns.Export.Show(L.RUNS_BACKUP, ns.Runs.ExportAll())
+    elseif argument == "verify" then
+      ns.RunCheck.PrintAll()
     else
       printHelp()
     end

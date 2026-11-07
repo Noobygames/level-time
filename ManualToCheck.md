@@ -2088,3 +2088,20 @@ Dauer stimmt (ja/nein):
 Bestzeit und Abweichung (ja/nein):
 Fehler:
 ```
+
+### 102. Prüfcode für Läufe (Roadmap 290)
+
+- [ ] geprüft
+
+Ein Level aufsteigen, dann `/lt runs verify`. Historie > Speedrun > Läufe: Spalte „Prüfcode“. Einen Lauf mit Shift+Klick exportieren und auf einem anderen Account/Client importieren, dann `/lt runs verify`.
+
+**Erwartet:** Eigene Charaktere „ok“, auch nach /reload. Der importierte Lauf zeigt „ok“; ändert man im Text eine Zeit von Hand (nicht empfohlen, nur zum Test), zeigt er „geändert“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Eigene Läufe ok (ja/nein):
+Import ok (ja/nein):
+Fehler:
+```

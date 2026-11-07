@@ -69,6 +69,7 @@ local RUN_COLUMNS = {
     end, sort = function(r) return r.timeToLevel end },
   { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
     sort = function(r) return r.coverage end },
+  { header = "HISTORY_RUN_CHECK", width = 60, value = function(r) return ns.RunCheck.StatusText(r) end },
   { header = "HISTORY_RUN_STATUS", width = 70, value = function(r)
       return isReference(r) and L.RUN_REFERENCE or ""
     end },
