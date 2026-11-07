@@ -55,6 +55,21 @@ function Instances.GetRunSeconds(run)
   return run.seconds + running
 end
 
+-- Bereich Stats.INSTANCE = der offene Lauf; ohne Lauf leer (keine Zähler, 0 Sekunden, nicht offen)
+local NO_COUNTERS = {}
+Stats.RegisterScope(Stats.INSTANCE, {
+  counters = function()
+    local run = currentRun()
+    return run and run.stats or NO_COUNTERS
+  end,
+  seconds = function()
+    local run = currentRun()
+    return run and Instances.GetRunSeconds(run) or 0
+  end,
+  isOpen = function() return currentRun() ~= nil end,
+  isCounting = Instances.IsRunning,
+})
+
 local function pause()
   local run = currentRun()
   if not run or not runningSince then return end

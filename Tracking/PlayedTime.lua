@@ -24,6 +24,9 @@ function PlayedTime.GetLevelSeconds()
   return levelSeconds + sinceSync()
 end
 
+-- Zeitquelle des Level-Bereichs (Stats.GetSeconds)
+ns.Stats.RegisterScope(ns.Stats.LEVEL, { seconds = PlayedTime.GetLevelSeconds })
+
 -- Gesamte Spielzeit des Charakters oder nil, solange der Server noch nicht geantwortet hat
 function PlayedTime.GetTotalSeconds()
   if not totalSeconds then return nil end

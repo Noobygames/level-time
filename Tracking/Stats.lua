@@ -3,6 +3,8 @@
 --   SESSION   aktuelle Session, beginnt beim Login neu (siehe Session.lua)
 --   INSTANCE  laufender Instanz-Lauf (siehe Instances.lua), ohne Lauf leer
 -- Jedes Increment zählt in Level und Session; den Instanz-Lauf zählt Instances.lua über OnIncrement.
+-- Stats kennt die Quellen der Bereiche nicht selbst: Zeitquellen und den Instanz-Bereich melden PlayedTime.lua,
+-- Session.lua und Instances.lua über Stats.RegisterScope an (keine Abhängigkeit nach oben).
 local _, ns = ...
 
 local Stats = {}
@@ -54,27 +56,45 @@ Stats.ITEMS_LOOTED = "itemsLooted"       -- erbeutete Gegenstände nach Anzahl (
 -- Alle Ausgaben-Zähler (Summe = Ausgaben gesamt)
 Stats.SPENDING = { Stats.SPENT_REPAIR, Stats.SPENT_MERCHANT, Stats.SPENT_TAXI, Stats.SPENT_TRAINER, Stats.SPENT_OTHER }
 
-local NO_COUNTERS = {}  -- Instanz-Bereich ohne laufenden Lauf (nie beschrieben)
+local NO_COUNTERS = {}  -- Bereich ohne Zähler (Instanz ohne laufenden Lauf; nie beschrieben)
+
+local function always() return true end
+local function noCounters() return NO_COUNTERS end
+local function noSeconds() return 0 end
+
+-- Bereich -> { counters() -> Tabelle, seconds() -> Sekunden oder nil, isOpen(), isCounting() }
+local scopes = {}
+
+-- Bereich anmelden oder ergänzen: fields = { counters, seconds, isOpen, isCounting } (fehlende bleiben, wie sie sind;
+-- ohne Angabe: keine Zähler, 0 Sekunden, immer offen und zählend)
+function Stats.RegisterScope(scope, fields)
+  local definition = scopes[scope] or
+    { counters = noCounters, seconds = noSeconds, isOpen = always, isCounting = always }
+  for key, fn in pairs(fields) do definition[key] = fn end
+  scopes[scope] = definition
+end
+
+Stats.RegisterScope(Stats.LEVEL, { counters = function() return ns.character.currentLevel.counters end })
+Stats.RegisterScope(Stats.SESSION, { counters = function() return ns.character.currentSession.counters end })
+
+-- Unbekannte Bereiche zählen wie das Level (wie bisher)
+local function definitionOf(scope)
+  return scopes[scope] or scopes[Stats.LEVEL]
+end
 
 local function countersOf(scope)
-  if scope == Stats.SESSION then
-    return ns.character.currentSession.counters
-  elseif scope == Stats.INSTANCE then
-    local run = ns.Instances.GetCurrentRun()
-    return run and run.stats or NO_COUNTERS
-  end
-  return ns.character.currentLevel.counters
+  return definitionOf(scope).counters()
 end
 
 -- Zählt der Bereich gerade mit? Level und Session immer, die Instanz nur bei laufender Lauf-Uhr
 -- (draußen steht der Lauf still). Noch nicht gebuchte Zeiten gehören nur dann dazu.
 function Stats.IsCounting(scope)
-  return scope ~= Stats.INSTANCE or ns.Instances.IsRunning()
+  return definitionOf(scope).isCounting()
 end
 
 -- Gibt es den Bereich gerade? Level und Session immer, die Instanz nur mit offenem Lauf.
 function Stats.IsOpen(scope)
-  return scope ~= Stats.INSTANCE or ns.Instances.GetCurrentRun() ~= nil
+  return definitionOf(scope).isOpen()
 end
 
 function Stats.Get(scope, counter)
@@ -119,13 +139,7 @@ end
 
 -- Gespielte Sekunden im Bereich (Level: vom Server, nil bis zur ersten Antwort)
 function Stats.GetSeconds(scope)
-  if scope == Stats.SESSION then
-    return ns.Session.GetSeconds()
-  elseif scope == Stats.INSTANCE then
-    local run = ns.Instances.GetCurrentRun()
-    return run and ns.Instances.GetRunSeconds(run) or 0
-  end
-  return ns.PlayedTime.GetLevelSeconds()
+  return definitionOf(scope).seconds()
 end
 
 -- Gewonnene XP im Bereich. Für das Level ist UnitXP exakt (zählt ab Levelbeginn,

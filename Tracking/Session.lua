@@ -23,6 +23,9 @@ function Session.GetSeconds()
   return current().seconds + (GetTime() - loginTime)
 end
 
+-- Zeitquelle des Session-Bereichs (Stats.GetSeconds)
+ns.Stats.RegisterScope(ns.Stats.SESSION, { seconds = Session.GetSeconds })
+
 -- Historien-Eintrag aus einer beendeten Session (Form wie in History.lua beschrieben)
 function Session.ToRecord(session)
   return {
