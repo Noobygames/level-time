@@ -1101,6 +1101,9 @@ ns.locales = {
     SECTION_PERSONAL_RECORDS = "Persönliche Rekorde",
     ANNOUNCE_RECORDS_TOGGLE = "Neue Rekorde melden",
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
+    COMFORT_PAGE_QUESTS = "Quests",
+    QUEST_MARK_PROGRESS_TOGGLE = "Zielstand am Symbol",
+    QUEST_MARK_PROGRESS_TOGGLE_TIP = "Zeigt links vom Quest-Symbol den Stand des ersten offenen Ziels, z.B. 3/8. Gelesen aus den Questzeilen des Tooltips (Retail und WoW Forever; Classic nur, wenn der Tooltip dort Questziele nennt) und nur nach Änderungen am Questlog neu.",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2195,6 +2198,9 @@ ns.locales = {
     SECTION_PERSONAL_RECORDS = "Personal records",
     ANNOUNCE_RECORDS_TOGGLE = "Announce new records",
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
+    COMFORT_PAGE_QUESTS = "Quests",
+    QUEST_MARK_PROGRESS_TOGGLE = "Progress next to the mark",
+    QUEST_MARK_PROGRESS_TOGGLE_TIP = "Shows the count of the first open objective left of the quest mark, e.g. 3/8. Read from the quest lines of the unit tooltip (Retail and WoW Forever; Classic only if its tooltip lists quest objectives) and refreshed only when the quest log changes.",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3289,6 +3295,9 @@ ns.locales = {
     SECTION_PERSONAL_RECORDS = "Records personnels",
     ANNOUNCE_RECORDS_TOGGLE = "Annoncer les records",
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
+    COMFORT_PAGE_QUESTS = "Quêtes",
+    QUEST_MARK_PROGRESS_TOGGLE = "Progression à côté du marqueur",
+    QUEST_MARK_PROGRESS_TOGGLE_TIP = "Affiche à gauche du marqueur de quête l'état du premier objectif ouvert, p. ex. 3/8. Lu dans les lignes de quête de l'infobulle (Retail et WoW Forever ; Classic seulement si l'infobulle y indique les objectifs) et mis à jour seulement quand le journal de quêtes change.",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4383,6 +4392,9 @@ ns.locales = {
     SECTION_PERSONAL_RECORDS = "Récords personales",
     ANNOUNCE_RECORDS_TOGGLE = "Anunciar récords",
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Aviso y línea de chat al batir un récord personal: más PX en 60 minutos, mejor PX/h de sesión (desde 30 min), mayor ganancia de PX, mejor instancia y nivel más rápido. Los récords cuentan para todos los personajes y aparecen en el historial.",
+    COMFORT_PAGE_QUESTS = "Misiones",
+    QUEST_MARK_PROGRESS_TOGGLE = "Progreso junto al marcador",
+    QUEST_MARK_PROGRESS_TOGGLE_TIP = "Muestra a la izquierda del marcador de misión el progreso del primer objetivo abierto, p. ej. 3/8. Se lee de las líneas de misión del tooltip (Retail y WoW Forever; Classic solo si su tooltip muestra objetivos) y solo se actualiza cuando cambia el registro de misiones.",
   },
 }
 

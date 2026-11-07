@@ -2298,3 +2298,24 @@ Vorher (Top-Zeilen oder GetAddOnCPUUsage):
 Nachher (Top-Zeilen):
 Fehler:
 ```
+
+### 112. Zielstand am Quest-Symbol (Roadmap 340)
+
+- [ ] geprüft
+
+Komfort > Quests > Kill-Quest-Markierung: „Kill-Quest-Mobs markieren“ und „Zielstand am Symbol“ an, Namensplaketten an. Eine Quest „töte 8 X“ annehmen und zu den Gegnern gehen.
+
+1. Links vom Quest-Symbol steht der Stand, z.B. „0/8“; nach jedem Kill steigt er, nach dem letzten verschwindet das Symbol.
+2. Einen Questgegner anvisieren, `/lt debug log`, `/lt debug check`, danach `make debuglog` (Eintrag `quests.unitTooltip`: Zeilentypen, Texte, `completed`, gedeuteter Stand).
+3. Classic Era/TBC: steht im Tooltip eines Questgegners überhaupt eine Questzeile? Wenn nicht, bleibt der Zähler leer (dann kommt er später aus gelernten Daten).
+
+**Erwartet:** Zähler stimmt mit dem Questlog überein, kein Flackern, keine Lua-Fehler; im Kampf in Instanzen (geheime Zeilen) kein Zähler, aber auch kein Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zähler sichtbar und richtig (ja/nein):
+Tooltip-Zeilen laut Debug-Log (Typen/Text):
+Fehler:
+```

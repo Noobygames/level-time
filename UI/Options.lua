@@ -589,19 +589,6 @@ addToggles({
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
-if ns.QuestMarks.IsAvailable() then
-  addSection("SECTION_QUEST_MARKS")
-  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks") })
-  addSlider({
-    label = "QUEST_MARK_SCALE",
-    min = toPercent(ns.QuestMarks.MIN_SCALE),
-    max = toPercent(ns.QuestMarks.MAX_SCALE),
-    step = 5,
-    get = function(db) return toPercent(db.questMarkScale) end,
-    set = function(value) ns.Set("questMarkScale", value / 100) end,
-    format = percent,
-  })
-end
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
 local LootSparkles = ns.LootSparkles
 if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
@@ -625,6 +612,8 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     })
   end
 end
+-- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
+addSubPage("COMFORT_PAGE_QUESTS")
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
@@ -635,6 +624,19 @@ builder.AddButtonRow({
   { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
   { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
 })
+if ns.QuestMarks.IsAvailable() then
+  addSection("SECTION_QUEST_MARKS")
+  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
+  addSlider({
+    label = "QUEST_MARK_SCALE",
+    min = toPercent(ns.QuestMarks.MIN_SCALE),
+    max = toPercent(ns.QuestMarks.MAX_SCALE),
+    step = 5,
+    get = function(db) return toPercent(db.questMarkScale) end,
+    set = function(value) ns.Set("questMarkScale", value / 100) end,
+    format = percent,
+  })
+end
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({

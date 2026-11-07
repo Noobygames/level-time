@@ -67,14 +67,68 @@ function QuestLog.RewardXp(questID)
   return type(xp) == "number" and xp or nil
 end
 
--- Alle Quests im Log (ohne Überschriften) mit Quest-ID
+-- Titel einer Überschrift (Zone, Kategorie) an Position index; nil für Quests und Unlesbares
+local function headerTitle(index)
+  if useInfoApi() then
+    local info = C_QuestLog.GetInfo(index)
+    if type(info) ~= "table" or readable(info.isHeader) ~= true then return nil end
+    return readable(info.title)
+  elseif GetQuestLogTitle then
+    local title, _, _, isHeader = GetQuestLogTitle(index)
+    if readable(isHeader) then return readable(title) end
+  end
+  return nil
+end
+
+-- Alle Quests im Log (ohne Überschriften) mit Quest-ID; entry.header = Titel der Überschrift darüber (Zone)
 function QuestLog.Entries()
-  local entries = {}
+  local entries, header = {}, nil
   for index = 1, QuestLog.Count() do
     local entry = QuestLog.Entry(index)
-    if entry and type(entry.questID) == "number" and entry.questID ~= 0 then table.insert(entries, entry) end
+    if entry then
+      if type(entry.questID) == "number" and entry.questID ~= 0 then
+        entry.header = header
+        table.insert(entries, entry)
+      end
+    else
+      header = headerTitle(index) or header
+    end
   end
   return entries
+end
+
+-- "Durchnässte Säge: 0/1" -> "durchnässte säge" (klein, ohne Zähler, Doppelpunkt und Spiegelstrich); zum Vergleich
+-- von Zieltexten mit Namen von Gegnern, Objekten und Gegenständen
+function QuestLog.NormalizeObjective(text)
+  if type(text) ~= "string" then return "" end
+  text = text:lower():gsub("%d+%s*/%s*%d+", ""):gsub("%d+%s*%%", "")
+  return (text:gsub("^[%s:%-]+", ""):gsub("[%s:%-]+$", ""))
+end
+
+-- Stand aus dem Zieltext ("Wolf getötet: 3/8" bzw. "3/8 Wolf getötet"), falls die Zahlen fehlen
+local function countsFromText(text)
+  if type(text) ~= "string" then return nil, nil end
+  local have, need = text:match("(%d+)%s*/%s*(%d+)")
+  return tonumber(have), tonumber(need)
+end
+
+-- Ziele einer Quest (C_QuestLog.GetQuestObjectives, alle Clients; ohne Questdaten evtl. leer):
+-- { index, text, name (NormalizeObjective), kind (objective.type: "monster", "item", "object", ...), finished,
+-- have, need }; geheime Felder werden nil, have/need notfalls aus dem Text
+function QuestLog.Objectives(questID)
+  local list = {}
+  if type(questID) ~= "number" or not (C_QuestLog and C_QuestLog.GetQuestObjectives) then return list end
+  local objectives = readable(C_QuestLog.GetQuestObjectives(questID))
+  if type(objectives) ~= "table" then return list end
+  for index, objective in ipairs(objectives) do
+    local text = readable(objective.text)
+    local have, need = readable(objective.numFulfilled), readable(objective.numRequired)
+    if type(have) ~= "number" or type(need) ~= "number" then have, need = countsFromText(text) end
+    local finished = readable(objective.finished)
+    list[index] = { index = index, text = text, name = QuestLog.NormalizeObjective(text),
+      kind = readable(objective.type), finished = finished, have = have, need = need }
+  end
+  return list
 end
 
 -- Eintrag zu einer Quest-ID oder nil

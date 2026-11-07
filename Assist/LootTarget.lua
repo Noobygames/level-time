@@ -93,24 +93,14 @@ end
 -- Quest-Objekte
 ---------------------------------------------------------------------------
 local objectiveTexts  -- offene Questziele, klein geschrieben ohne Zähler; nil = neu lesen
-
--- "Durchnässte Säge: 0/1" -> "durchnässte säge"
-local function normalize(text)
-  text = text:lower():gsub("%d+%s*/%s*%d+", "")
-  return (text:gsub("^[%s:%-]+", ""):gsub("[%s:%-]+$", ""))
-end
+local normalize = ns.QuestLog.NormalizeObjective
 
 local function readObjectives()
   objectiveTexts = {}
-  if not (C_QuestLog and C_QuestLog.GetQuestObjectives) then return end
   for _, entry in ipairs(ns.QuestLog.Entries()) do
-    local objectives = read(C_QuestLog.GetQuestObjectives, entry.questID)
-    for _, objective in ipairs(type(objectives) == "table" and objectives or {}) do
-      local text = objective.text
-      if not ns.IsSecret(text) and not ns.IsSecret(objective.finished) and objective.finished ~= true
-        and type(text) == "string" then
-        text = normalize(text)
-        if #text >= MIN_OBJECTIVE_LENGTH then table.insert(objectiveTexts, text) end
+    for _, objective in ipairs(ns.QuestLog.Objectives(entry.questID)) do
+      if objective.finished == false and #objective.name >= MIN_OBJECTIVE_LENGTH then
+        table.insert(objectiveTexts, objective.name)
       end
     end
   end
