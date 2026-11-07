@@ -1,10 +1,10 @@
-# CurseForge listing: Stream Goal
+# CurseForge listing: Level Time Goals
 
 Values for the CurseForge project form.
 
 ## General
 
-- **Project name:** Stream Goal
+- **Project name:** Level Time Goals
 - **Logo:** `logo.png` (512x512, own artwork, no Blizzard assets; regenerate with `make artwork`)
 - **Summary:** Set goals for your stream (level, kills, loot, battleground wins) and show them as live cards on screen, with a history. Needs Level Time.
 - **Class:** Addons

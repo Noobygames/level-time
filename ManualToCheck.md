@@ -1311,7 +1311,7 @@ Pause wirkt (ja/nein):
 Fehler:
 ```
 
-### 61. Stream Goal (Roadmap 246)
+### 61. Level Time Goals (Roadmap 246)
 
 - [ ] geprüft
 
@@ -1322,7 +1322,7 @@ dann Level-Up bzw. Item looten. Im Formular „Item“ ein Item per Shift-Klick 
 **Erwartet:** Karten rechts oben mit Titel, „x / y“ und Balken, Position per „Verschieben“ änderbar. Beim Erreichen
 Einblendung „Ziel erreicht!“ wie bei Level Time plus Chatzeile; das Ziel erscheint in der Historie. Sieg im
 Schlachtfeld zählt genau einmal (auch in Classic Era, Retail, Forever); Niederlage, Unentschieden und Arena zählen nicht.
-Shift-Klick fügt den Link ein. Ohne Level Time lädt Stream Goal nicht (Abhängigkeit).
+Shift-Klick fügt den Link ein. Ohne Level Time lädt Level Time Goals nicht (Abhängigkeit).
 
 **Antwort:**
 

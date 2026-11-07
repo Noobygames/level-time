@@ -1,4 +1,4 @@
--- Stream Goal: eigene Ziele mit freiem Text, mit oder ohne Zähler, selbst gezählt über Karte, Fenster und Befehl.
+-- Level Time Goals: eigene Ziele mit freiem Text, mit oder ohne Zähler, selbst gezählt über Karte, Fenster und Befehl.
 local Goals = streamGoal.Goals
 local Kinds = streamGoal.Kinds
 local L = streamGoal.L

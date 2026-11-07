@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-// Zeichnung für Stream Goal: goldener Ring wie bei Level Time, darin eine Zielflagge auf einem Hügel.
+// Zeichnung für Level Time Goals: goldener Ring wie bei Level Time, darin eine Zielflagge auf einem Hügel.
 var (
 	flagColor     = rgb{0.92, 0.27, 0.22}
 	flagColorDark = rgb{0.68, 0.14, 0.14}

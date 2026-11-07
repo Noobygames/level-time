@@ -1,4 +1,4 @@
--- Stream Goal: Item-Ziele zeigen das Symbol und den Tooltip des Items und zählen auch Hergestelltes.
+-- Level Time Goals: Item-Ziele zeigen das Symbol und den Tooltip des Items und zählen auch Hergestelltes.
 local Goals = streamGoal.Goals
 
 local BOOTS_ID, BOOTS_ICON = 2315, 132539

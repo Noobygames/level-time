@@ -1,4 +1,4 @@
--- Stream Goal: Ziele anlegen, Fortschritt je Zielart, Abschluss mit Meldung, Historie, Befehle, Fenster.
+-- Level Time Goals: Ziele anlegen, Fortschritt je Zielart, Abschluss mit Meldung, Historie, Befehle, Fenster.
 local Goals = streamGoal.Goals
 local L = streamGoal.L
 
