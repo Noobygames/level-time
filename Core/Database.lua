@@ -691,6 +691,18 @@ function Database.NewCounters()
   return applyDefaults({}, COUNTER_DEFAULTS)
 end
 
+-- Erster Start des Addons auf diesem Account (LevelTimerStatsDB.introShown noch nicht gesetzt)?
+function Database.IsFirstStart()
+  return not LevelTimerStatsDB.introShown
+end
+
+-- Wie IsFirstStart, merkt sich den Start aber: true genau einmal
+function Database.TakeFirstStart()
+  if not Database.IsFirstStart() then return false end
+  LevelTimerStatsDB.introShown = true
+  return true
+end
+
 -- Flache Kopie eines Zählersatzes (Stats.Snapshot, Stand eines Instanz-Laufs)
 function Database.CopyCounters(counters)
   local copy = {}

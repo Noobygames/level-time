@@ -229,6 +229,7 @@ Speedrun\SpeedrunViews.lua
 UI\QuestViews.lua
 UI\RecapWindow.lua
 UI\StreamMode.lua
+Lib\MinimapButton.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
@@ -238,4 +239,5 @@ UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
 UI\WelcomeCard.lua
+Lib\SlashCommands.lua
 Core\Commands.lua

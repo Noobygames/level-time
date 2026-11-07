@@ -145,23 +145,16 @@ local commands = {
   end,
 }
 
-SLASH_LEVELTIMER1 = "/leveltimer"
-SLASH_LEVELTIMER2 = "/lt"
--- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30")
-SlashCmdList.LEVELTIMER = function(input)
-  local name, argument = strtrim(input or ""):match("^(%S*)%s*(.-)$")
-  local command = commands[name:lower()]
-  if command then
-    command(argument)
-  else
+-- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30"; Lib/SlashCommands.lua)
+ns.SlashCommands.Register({
+  id = ns.ADDON_ID:upper(), names = { "/leveltimer", "/lt" }, commands = commands,
+  onUnknown = function(name)
     if name ~= "" then ns.Print(L.COMMAND_UNKNOWN) end
     printHelp()
-  end
-end
+  end,
+})
 
 -- Einmaliger Hinweis beim ersten Start (account-weit), damit man die Bedienung findet
 ns.OnLogin(function()
-  if LevelTimerStatsDB.introShown then return end
-  LevelTimerStatsDB.introShown = true
-  ns.Print(L.INTRO)
+  if ns.Database.TakeFirstStart() then ns.Print(L.INTRO) end
 end)

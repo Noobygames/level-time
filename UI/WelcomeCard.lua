@@ -1,6 +1,6 @@
 -- Willkommenskarte beim ersten Start (Roadmap 363): Voreinstellung der Statistik-Zeilen, Layout des Hauptfensters und
--- der Weg zum Edit-Modus, statt nur einer Chatzeile. Einmal account-weit (LevelTimerStatsDB.introShown, gesetzt von
--- Commands.lua, das nach dieser Datei lädt); später wieder über /lt welcome. Alles wirkt sofort und ist in den
+-- der Weg zum Edit-Modus, statt nur einer Chatzeile. Einmal account-weit (Database.IsFirstStart; gemerkt von
+-- Commands.lua über Database.TakeFirstStart, das nach dieser Datei lädt); später wieder über /lt welcome. Alles wirkt sofort und ist in den
 -- Einstellungen änderbar.
 local _, ns = ...
 local L = ns.L
@@ -136,6 +136,6 @@ end)
 
 -- Erster Start: Karte statt nur der Willkommenszeile (Commands.lua merkt sich den ersten Start danach)
 ns.OnLogin(function()
-  if LevelTimerStatsDB.introShown then return end
+  if not ns.Database.IsFirstStart() then return end
   WelcomeCard.Show()
 end)
