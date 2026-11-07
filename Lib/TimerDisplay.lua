@@ -33,6 +33,7 @@ function TimerDisplay.Create(config)
   local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
   local override  -- Vorschau oder Edit-Modus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
+  local faded = false  -- Einblenden fertig (Alpha 1), solange der Zustand steht
 
   local function remainingOf(state)
     if state.frozen then return state.frozen end
@@ -53,8 +54,11 @@ function TimerDisplay.Create(config)
       end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
+    local pulsing = current.kind == config.pulseKind
+    if faded and not pulsing then return end  -- eingeblendet und ohne Pulsieren: Alpha steht schon auf 1
     local alpha = math.min(1, (now - shownAt) / FADE_IN_SECONDS)
-    if current.kind == config.pulseKind then alpha = alpha * (0.8 + 0.2 * math.sin(now * PULSE_SPEED)) end
+    faded = alpha >= 1
+    if pulsing then alpha = alpha * (0.8 + 0.2 * math.sin(now * PULSE_SPEED)) end
     frame:SetAlpha(alpha)
   end
 
@@ -80,6 +84,7 @@ function TimerDisplay.Create(config)
     current = state
     setCard(state)
     shownAt = GetTime()
+    faded = false
     frame:SetAlpha(0)
     frame:Show()
     refresh()
@@ -123,6 +128,12 @@ function TimerDisplay.Create(config)
       expiration = state.remaining and GetTime() + state.remaining or nil,
       duration = state.duration,
     })
+  end
+
+  -- Art des gezeigten echten Zustands: nil = nichts, "override" = Vorschau oder Edit-Modus
+  function Display.ShownKind()
+    if override then return "override" end
+    return current and current.kind or nil
   end
 
   function Display.ShowDone(spellId, title)

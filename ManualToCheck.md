@@ -1966,3 +1966,49 @@ Unsichtbare Buffs klickbar (ja/nein):
 Kampf wartet (ja/nein):
 Fehler:
 ```
+
+### 137. Schlafsack-Hinweis (Roadmap 375, WoW Forever)
+
+- [ ] geprüft
+
+Einstellungen > Hinweise: „Hinweis: Gut erholt fehlt (Schlafsack)“ an, „Gemütlicher Schlafsack“ in der Tasche, unter Maximallevel, draußen und ohne „Gut erholt“. Datenteil: `/lt debug remind` (Zeile „well rested missing …“).
+
+1. Nach spätestens 2 s erscheint die Hinweis-Karte „Im Schlafsack ausruhen für 3 % XP-Bonus.“ mit dem Symbol des Schlafsacks (nicht dem allgemeinen Taschen-Symbol).
+
+**Antwort:**
+
+```text
+Karte mit Schlafsack-Symbol (ja/nein):
+Zeile von /lt debug remind:
+Fehler:
+```
+
+### 138. Profiler-Vergleich nach Performance-Runde 2 (Roadmap 371-382)
+
+- [ ] geprüft
+
+Gleiche Art Sitzung wie beim letzten Lauf (WoW Forever, leveln mit Quest-Knöpfen, Lagerfeuer, Buff-Hinweisen, Beute-Glitzer, Debug-Log an), etwa 30 Minuten:
+
+```
+/lt debug perf reset
+```
+
+```
+/lt debug perf on
+```
+
+Nach der Sitzung:
+
+```
+/lt debug perf report 25
+```
+
+**Erwartet (vorher → Ziel):** `task QuestItemButton.lua` 43,7 MB Müll → unter 1 MB; `task CampFire.lua` 6,8 MB → deutlich weniger; `task QuestWatch.lua` 5,8 MB → weniger; `task BuffReminder.lua` max 7 ms → unter 2 ms; `call Options.lua` und `call ActionBars.lua` je Apply → fast nichts bei geschlossenem bzw. fremdem Apply; `event CVAR_UPDATE` 737 → deutlich weniger; `onupdate TimerWindow` deutlich unter 3,2 s; `onupdate DeathMap`/`QuestMap` ohne 31-ms-Spitzen; kein „kills line for <Spieler>“ und keine Serien „icon … INV_Misc_Note_01“ im Debug-Log.
+
+**Antwort:**
+
+```text
+Bericht (/lt debug perf report 25):
+Sitzungsdauer:
+Fehler:
+```

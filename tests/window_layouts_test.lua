@@ -174,8 +174,22 @@ end
 addon.Set("showLevelEta", false)
 wow.update(0.3)
 computed.count = 0
+wow.advance(1)
 wow.update(0.3)
 expect("Prognose einmal je Takt", computed.count, 1)
+-- Roadmap 380: innerhalb derselben Sekunde ohne Ereignis keine Werte lesen; viele Frames, wenige Takte
+computed.count = 0
+for _ = 1, 60 do wow.update(0.016) end
+expect("gleiche Sekunde, kein Ereignis: nichts gelesen", computed.count, 0)
+for _ = 1, 10 do
+  wow.advance(0.25)
+  for _ = 1, 16 do wow.update(0.016) end
+end
+expectTrue("2,5 s mit 160 Frames: höchstens drei Takte lesen", computed.count <= 3)
+computed.count = 0
+wow.fire("PLAYER_XP_UPDATE", "player")
+wow.update(0.3)
+expect("Ereignis: sofort gelesen", computed.count, 1)
 -- Außerhalb eines Takts rechnet sie immer neu (Ereignisse dürfen nichts Veraltetes sehen)
 computed.count = 0
 addon.Forecast.SecondsToLevel(60)

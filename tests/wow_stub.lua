@@ -1083,6 +1083,7 @@ C_Item = {
     if not icon then return nil end
     return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
   end,
+  GetItemIconByID = function(itemID) return state.itemIcons[itemID] end,
   -- Itemlevel je itemID: state.itemLevels
   GetDetailedItemLevelInfo = function(item)
     local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item

@@ -92,12 +92,22 @@ end
 ---------------------------------------------------------------------------
 -- Anwenden
 ---------------------------------------------------------------------------
+-- Nur bei geänderten eigenen Einstellungen (Roadmap 376): jedes Apply (jede Einstellung, Profilwechsel) fasste sonst
+-- rund 100 Tasten- und Makrotexte an. Blizzard ändert die Transparenz dieser Texte nicht, die Knöpfe bleiben dieselben.
+local applied = {}
+
 function ActionBars.Apply(db)
-  for _, button in ipairs(ActionBars.Buttons()) do
-    setAlpha(button.HotKey, db.hideKeybindText, HIDDEN)
-    setAlpha(button.Name, db.hideMacroText, HIDDEN)
+  local hotKeys, macros, range = db.hideKeybindText and true or false, db.hideMacroText and true or false,
+    db.rangeColor and true or false
+  if applied.hotKeys == hotKeys and applied.macros == macros and applied.range == range then return end
+  if applied.hotKeys ~= hotKeys or applied.macros ~= macros then
+    for _, button in ipairs(ActionBars.Buttons()) do
+      setAlpha(button.HotKey, hotKeys, HIDDEN)
+      setAlpha(button.Name, macros, HIDDEN)
+    end
   end
-  if db.rangeColor then hookRange() else clearRange() end
+  applied.hotKeys, applied.macros, applied.range = hotKeys, macros, range
+  if range then hookRange() else clearRange() end
 end
 
 ns.RegisterApply(ActionBars.Apply)

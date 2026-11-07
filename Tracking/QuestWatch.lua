@@ -53,28 +53,44 @@ local function rose(objective, old)
   return objective.have ~= nil and old.have ~= nil and objective.have > old.have
 end
 
--- Stand einer Quest einlesen und Änderungen gegenüber dem letzten Stand melden
+-- Stand einer Quest einlesen und Änderungen gegenüber dem letzten Stand melden. Der Stand je Quest und Ziel wird an
+-- Ort und Stelle fortgeschrieben (Roadmap 373: keine neuen Tabellen je Durchlauf); gemeldet wird vor dem Überschreiben,
+-- old ist also noch der letzte Stand.
 local function update(quest)
   local questID = quest.questID
-  local old = seen and states[questID] or nil
+  local state = states[questID]
+  local known = seen and state ~= nil
+  if not state then
+    state = { objectives = {} }
+    states[questID] = state
+  end
+  local wasComplete, wasReady = state.complete, state.ready
   local objectives = QuestLog.Objectives(questID)
-  local state = { objectives = {}, complete = #objectives > 0, ready = quest.ready == true }
+  local stored = state.objectives
+  local complete = #objectives > 0
   for index, objective in ipairs(objectives) do
+    local old = stored[index]
     if objective.finished == nil then
-      state.complete = false
+      complete = false
+      stored[index] = false  -- unlesbar: beim nächsten Mal kein Vergleich (wie ohne Stand)
     else
-      state.objectives[index] = { finished = objective.finished, have = objective.have }
-      state.complete = state.complete and objective.finished
-      if old and rose(objective, old.objectives[index]) then emit("onObjective", quest, objective, old.objectives[index]) end
+      complete = complete and objective.finished
+      if known and old and rose(objective, old) then emit("onObjective", quest, objective, old) end
+      if old then
+        old.finished, old.have = objective.finished, objective.have
+      else
+        stored[index] = { finished = objective.finished, have = objective.have }
+      end
     end
   end
-  states[questID] = state
+  for index = #stored, #objectives + 1, -1 do stored[index] = nil end
+  state.complete, state.ready = complete, quest.ready == true
   if accepted[questID] then
     accepted[questID] = nil
     emit("onAccepted", quest)
   end
-  if old and not old.complete and state.complete then emit("onComplete", quest) end
-  if old and not old.ready and state.ready then emit("onReady", quest) end
+  if known and not wasComplete and state.complete then emit("onComplete", quest) end
+  if known and not wasReady and state.ready then emit("onReady", quest) end
 end
 
 function QuestWatch.Scan()

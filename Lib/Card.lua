@@ -5,7 +5,7 @@
 --   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
 --   card.SetTime("42 s"); card.SetFraction(0.7)
 -- card.frame ist der Rahmen (Position, Skalierung, Ein-/Ausblenden macht der Aufrufer); card.frame.title,
--- .body und .time sind die Textfelder.
+-- .body und .time sind die Textfelder, .icon das Symbol.
 local _, ns = ...
 
 local Card = {}
@@ -61,7 +61,7 @@ function Card.Create(name)
   local timeText = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("huge"))
   timeText:SetJustifyH("LEFT")
   timeText:SetTextColor(1, 1, 1)
-  frame.title, frame.body, frame.time = title, body, timeText
+  frame.title, frame.body, frame.time, frame.icon = title, body, timeText, icon
 
   local barBack = frame:CreateTexture(nil, "ARTWORK")
   barBack:SetColorTexture(unpack(BAR_BACK_COLOR))
@@ -85,6 +85,7 @@ function Card.Create(name)
   end
 
   local hasIcon, hasBody, hasTime = false, false, false
+  local shownIcon, shownTexture  -- zuletzt gesetztes Symbol (icon bzw. texture aus card.Set)
 
   local function layout()
     local textLeft = ACCENT_WIDTH + PADDING + (hasIcon and ICON_SIZE + ICON_GAP or 0)
@@ -120,7 +121,11 @@ function Card.Create(name)
     title:SetTextColor(r, g, b)
     hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)
-    if hasIcon then
+    -- Gleiches Symbol wie beim letzten Mal: nicht neu auflösen und setzen (Roadmap 382; Level Time Goals baut seine
+    -- Karten bei jedem Apply und Fortschritt neu, Quest-Einblendungen kommen in Serien mit demselben Symbol)
+    local sameIcon = hasIcon and spec.texture == shownTexture and spec.icon == shownIcon and icon:GetTexture() ~= nil
+    shownTexture, shownIcon = spec.texture, spec.icon
+    if hasIcon and not sameIcon then
       local texture = spec.texture or iconTexture(spec.icon)
       icon:SetTexture(texture)
       -- Fehlt die Textur im Client, zeigt er ein grünes Quadrat; das Log zeigt, was aufgelöst wurde (Roadmap 237, 244)

@@ -31,10 +31,19 @@ expect("Buff-Hinweis sieht es", addon.BuffReminder.IsFoodMissing(), true)
 -- Sicherheitsnetz: höchstens MAX_SNAPSHOT_AGE alt, auch ohne Event
 local before = scan.calls
 Auras.Snapshot()
+local version = Auras.Version()
 expect("frisch: kein Scan", scan.calls, before)
 wow.advance(Auras.MAX_SNAPSHOT_AGE + 0.1)
 Auras.Snapshot()
 expect("zu alt: neu gelesen", scan.calls, before + 1)
+expect("neu gelesen, aber gleich: Stand bleibt", Auras.Version(), version)
+wow.state.buffs = { { spellId = 19705, name = "Satt", duration = 0, expirationTime = 0 } }
+Auras.Snapshot()
+expectTrue("anderer Buff: neuer Stand", Auras.Version() > version)
+version = Auras.Version()
+wow.state.buffs = {}
+Auras.Snapshot()
+expectTrue("Buff weg: neuer Stand", Auras.Version() > version)
 
 -- Gesperrte Auren (Kampf in Retail/Forever): kein Schnappschuss, danach kein veralteter Stand
 wow.state.aurasSecret = true

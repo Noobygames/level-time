@@ -53,7 +53,7 @@ local layer = ns.MapPins.Create({
   name = "LevelTimerQuestMap",
   label = "QuestMap",
   points = QuestMap.PointsOn,
-  revision = function() return ns.QuestNpcs.Revision() .. ":" .. logRevision end,
+  revision = function() return ns.QuestNpcs.Revision(), logRevision end,
   onEnter = showTooltip,
 })
 

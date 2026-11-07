@@ -232,11 +232,16 @@ function QuestMobs.ForItem(itemID)
   return index().items[itemID]
 end
 
--- Namen aller Gegner offener Ziele (für den Zielknopf), alphabetisch
+-- Namen aller Gegner offener Ziele (für den Zielknopf), alphabetisch. Dieselbe Liste, bis der Index neu entsteht
+-- (nicht verändern; eine neue Liste heißt: geändert)
+local mobNames, mobNamesOf
 function QuestMobs.OpenMobNames()
+  local current = index()
+  if mobNamesOf == current then return mobNames end
   local names = {}
-  for name in pairs(index().mobs) do table.insert(names, name) end
+  for name in pairs(current.mobs) do table.insert(names, name) end
   table.sort(names)
+  mobNames, mobNamesOf = names, current
   return names
 end
 
