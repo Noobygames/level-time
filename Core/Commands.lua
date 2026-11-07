@@ -38,10 +38,11 @@ local commands = {
     ns.Print(L.RESET_DONE)
   end,
   edit = function() ns.EditMode.Toggle() end,
+  welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
   bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
-  resetinstance = function() ns.ConfirmInstanceReset() end,
+  resetinstance = function() ns.Instances.ConfirmReset() end,
   recap = function() ns.ToggleRecap() end,
   -- /lt copy: Zeilen des aktuellen Chatfensters zum Kopieren (ChatCopy.lua)
   copy = function() ns.ChatCopy.ShowCurrent() end,
@@ -144,23 +145,16 @@ local commands = {
   end,
 }
 
-SLASH_LEVELTIMER1 = "/leveltimer"
-SLASH_LEVELTIMER2 = "/lt"
--- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30")
-SlashCmdList.LEVELTIMER = function(input)
-  local name, argument = strtrim(input or ""):match("^(%S*)%s*(.-)$")
-  local command = commands[name:lower()]
-  if command then
-    command(argument)
-  else
+-- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30"; Lib/SlashCommands.lua)
+ns.SlashCommands.Register({
+  id = ns.ADDON_ID:upper(), names = { "/leveltimer", "/lt" }, commands = commands,
+  onUnknown = function(name)
     if name ~= "" then ns.Print(L.COMMAND_UNKNOWN) end
     printHelp()
-  end
-end
+  end,
+})
 
 -- Einmaliger Hinweis beim ersten Start (account-weit), damit man die Bedienung findet
 ns.OnLogin(function()
-  if LevelTimerStatsDB.introShown then return end
-  LevelTimerStatsDB.introShown = true
-  ns.Print(L.INTRO)
+  if ns.Database.TakeFirstStart() then ns.Print(L.INTRO) end
 end)

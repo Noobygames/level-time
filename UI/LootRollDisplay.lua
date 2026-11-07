@@ -237,18 +237,17 @@ function LootRollDisplay.RowOf(frame)
   return rows[frame]
 end
 
-card = ns.Card.Create("LevelTimerLootRolls")
+card = ns.Card.Create(ns.GlobalName("LootRolls"))
 card.frame:SetFrameStrata("DIALOG")
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
-  settingsPage = "COMFORT_PAGE_SYSTEM",
+  settingsPage = "COMFORT_PAGE_SYSTEM", clickable = true,
   preview = function(on)
     previewing = on and true or false
     LootRollDisplay.Refresh()
   end,
   hide = function()
-    ns.db.lootRollCounts = false
-    ns.ApplySettings()
+    ns.SetBatch(function(db) db.lootRollCounts = false end)
   end,
 })
 

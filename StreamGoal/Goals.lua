@@ -1,22 +1,24 @@
 -- Ziel-Modell: anlegen, Fortschritt buchen, abschließen, abbrechen, Historie. Welche Zielarten es gibt, steht in
 -- Kinds.lua; welche Ereignisse sie füttern, in Tracking.lua.
 --
--- Ziel: { id, kind, character, createdAt, target, start, progress, params, status, finishedAt }
+-- Ziel: { id, kind, character, createdAt, target, start, progress, params, status, finishedAt, source }
 --   character = Schlüssel "Name-Realm" von Level Time; ein Ziel läuft nur, solange dieser Charakter eingeloggt ist.
 --   start/progress: Zählerstand beim Anlegen und jetzt (Level: das Level, sonst 0 und gezählte Stücke).
---   status: "active", "done" oder "cancelled"; finishedAt = Zeitpunkt des Abschlusses (Historie).
+--   status: "active", "done", "cancelled" oder "failed"; finishedAt = Zeitpunkt des Abschlusses (Historie).
 -- Zielarten mit manual = true zählt der Spieler selbst (Klick auf die Karte, Fenster, /sg count), siehe Goals.Step.
 local _, ns = ...
 local LT = ns.LT
+local L = ns.L
 
 local Goals = {}
 ns.Goals = Goals
 
-Goals.ACTIVE, Goals.DONE, Goals.CANCELLED = "active", "done", "cancelled"
+Goals.ACTIVE, Goals.DONE, Goals.CANCELLED, Goals.FAILED = "active", "done", "cancelled", "failed"
 Goals.MAX_ACTIVE = 6    -- gleichzeitig laufende Ziele je Charakter (so viele Zeilen zeigt das Fenster)
 Goals.MAX_HISTORY = 500  -- abgeschlossene Ziele; die ältesten fallen weg
 
 local kinds = {}
+local kindOrder = {}  -- Reihenfolge der Anmeldung = Reihenfolge der Reiter im Fenster
 local listeners = {}
 
 -- Laufende Ziele des eingeloggten Charakters, insgesamt und je Art: jeder Kill und jede Beute fragt danach, die Liste
@@ -37,30 +39,45 @@ local function index()
     and cached.stamp == stamp then
     return cached
   end
-  local list, byKind, byId = {}, {}, {}
+  local list, byKind, byId, slots = {}, {}, {}, 0
   for _, goal in ipairs(goals) do
     byId[goal.id] = byId[goal.id] or goal
     if goal.status == Goals.ACTIVE and goal.character == LT.characterKey then
       table.insert(list, goal)
       byKind[goal.kind] = byKind[goal.kind] or {}
       table.insert(byKind[goal.kind], goal)
+      if not goal.cell then slots = slots + 1 end
     end
   end
   active = { goals = goals, count = #goals, character = LT.characterKey, stamp = stamp, list = list,
-    byKind = byKind, byId = byId }
+    byKind = byKind, byId = byId, slots = slots }
   return active
 end
 
 -- Zielart anmelden; def siehe Kinds.lua
 function Goals.RegisterKind(name, def)
+  if not kinds[name] then table.insert(kindOrder, name) end
+  def.name = name
   kinds[name] = def
+end
+
+-- Namen aller Zielarten in Anmelde-Reihenfolge (nicht verändern), auch der im Client nicht verfügbaren
+function Goals.KindOrder()
+  return kindOrder
+end
+
+-- Gibt es die Art in diesem Client? def.available() optional (z.B. Erfolge nicht in Classic Era)
+function Goals.IsAvailable(kind)
+  local def = kinds[kind]
+  return def ~= nil and (not def.available or def.available() and true or false)
 end
 
 function Goals.GetKind(name)
   return kinds[name]
 end
 
--- Auf Änderungen reagieren: listener(event, goal) mit event = "added", "progress", "done" oder "cancelled"
+-- Auf Änderungen reagieren: listener(event, goal) mit event = "added", "progress", "changed", "done", "cancelled",
+-- "failed" oder "removed" (Aufräumen, goal = nil)
 function Goals.OnChange(listener)
   table.insert(listeners, listener)
 end
@@ -72,17 +89,62 @@ local function notify(event, goal)
   end
 end
 
--- Neues Ziel für den eingeloggten Charakter. Rückgabe: Ziel, oder nil und eine Fehlermeldung (übersetzt)
-function Goals.Create(kind, params, target)
-  local def = kinds[kind]
-  if not def then return nil, string.format(ns.L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
-  params = params or {}
-  if def.prepare then target = def.prepare(params, target) end
-  local err = def.validate(params, target)
-  if err then return nil, err end
-  if #Goals.Active() >= Goals.MAX_ACTIVE then return nil, string.format(ns.L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
+-- Flache Kopie mit nur Texten, Zahlen und Wahrheitswerten (Eingaben, Vorlagen, Import); andere Werte fallen weg
+function Goals.CopyFlat(values)
+  local copy = {}
+  for key, value in pairs(values or {}) do
+    local kind = type(value)
+    if type(key) == "string" and (kind == "string" or kind == "number" or kind == "boolean") then copy[key] = value end
+  end
+  return copy
+end
 
-  local start = def.initial and def.initial() or 0
+-- Zusätze, die jede Zielart haben kann (Frist, Belohnung, Punkte): Goals.RegisterExtra(name, { fields = Formularfelder
+-- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras),
+-- line(goal) optional: Zeile auf der Karte });
+-- extras = Tabelle aus Formular oder Befehl (Felder je Zusatz)
+local extraHandlers = {}
+local extraFields = {}
+
+function Goals.RegisterExtra(name, handler)
+  handler.name = name
+  table.insert(extraHandlers, handler)
+  for _, field in ipairs(handler.fields or {}) do table.insert(extraFields, field) end
+end
+
+-- Formularfelder aller Zusätze (nicht verändern)
+function Goals.ExtraFields()
+  return extraFields
+end
+
+local function validateExtras(extras)
+  for _, handler in ipairs(extraHandlers) do
+    local err = handler.validate(extras)
+    if err then return err end
+  end
+end
+
+-- Belegte Plätze (höchstens MAX_ACTIVE): laufende Ziele ohne Felder eines Bingo-Scheins (goal.cell)
+function Goals.UsedSlots()
+  return index().slots
+end
+
+-- Neues Ziel für den eingeloggten Charakter; extras optional (Goals.RegisterExtra), parent optional: Feld eines
+-- Bingo-Scheins (goal.parentId, goal.cell; belegt keinen Platz). Rückgabe: Ziel, oder nil und Fehlertext (übersetzt)
+function Goals.Create(kind, params, target, extras, parent)
+  local def = kinds[kind]
+  if not def or not Goals.IsAvailable(kind) then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
+  params = params or {}
+  extras = extras or {}
+  local source = { kind = kind, params = Goals.CopyFlat(params), target = target, extras = Goals.CopyFlat(extras) }
+  if def.prepare then target = def.prepare(params, target) end
+  local err = def.validate(params, target) or validateExtras(extras)
+  if err then return nil, err end
+  if not parent and Goals.UsedSlots() >= Goals.MAX_ACTIVE then
+    return nil, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE)
+  end
+
+  local start = def.initial and def.initial(params) or 0
   local goal = {
     id = ns.db.nextId,
     kind = kind,
@@ -93,12 +155,28 @@ function Goals.Create(kind, params, target)
     progress = start,
     params = params,
     status = Goals.ACTIVE,
+    source = source,  -- Eingabe vor prepare: daraus baut Packs.lua Vorlagen und Export
   }
+  -- Bestands-Ziele (Gold besitzen, Items in den Taschen): der Stand ist der Bestand, schon erreicht = kein Ziel
+  if def.current then
+    local now = def.current(goal) or 0
+    if now >= target then return nil, L.SG_ERR_ALREADY_REACHED end
+    goal.progress = now
+    if def.startAtCurrent then goal.start = now end
+  end
+  for _, handler in ipairs(extraHandlers) do handler.apply(goal, extras) end
+  if parent then goal.parentId, goal.cell = parent.id, true end
   ns.db.nextId = goal.id + 1
   table.insert(ns.db.goals, goal)
   changed()
+  if def.afterCreate then def.afterCreate(goal) end  -- z.B. Bingo legt seine Felder an
   notify("added", goal)
   return goal
+end
+
+-- Ein Zusatz (Frist, Belohnung) wurde nachträglich geändert: Anzeigen neu aufbauen
+function Goals.Changed(goal)
+  notify("changed", goal)
 end
 
 function Goals.Get(id)
@@ -129,6 +207,24 @@ end
 
 function Goals.Title(goal)
   return kinds[goal.kind].title(goal)
+end
+
+-- Zweite Zeile der Karte (nil = keine): Zeile der Art, darunter die der Zusätze (line(goal) einer Anmeldung)
+function Goals.Body(goal)
+  local def = kinds[goal.kind]
+  local body = def.body and def.body(goal) or nil
+  for _, handler in ipairs(extraHandlers) do
+    local line = handler.line and handler.line(goal)
+    if line then body = body and (body .. "\n" .. line) or line end
+  end
+  return body
+end
+
+-- Stand als Text "12 / 100"; Arten mit eigener Einheit (Gold) formatieren selbst
+function Goals.CountText(goal)
+  local def = kinds[goal.kind]
+  if def.countText then return def.countText(goal) end
+  return string.format("%d / %d", goal.progress, goal.target)
 end
 
 -- Zeigt das Ziel einen Zählerstand "4 / 5"? Nein bei Arten, die nur erledigt oder offen sind (eigenes Ziel ohne Zähler)
@@ -164,6 +260,20 @@ local function finish(goal, status)
   notify(status, goal)
 end
 
+-- Erreicht ohne Zählerereignis (Regel bis zum Ende der Frist gehalten)
+function Goals.Complete(goal)
+  if goal.status ~= Goals.ACTIVE then return end
+  goal.progress = math.max(goal.progress, goal.target)
+  finish(goal, Goals.DONE)
+end
+
+-- Gescheitert (Frist abgelaufen, Regel gebrochen); reason = Text für Historie und Meldung (optional)
+function Goals.Fail(goal, reason)
+  if goal.status ~= Goals.ACTIVE then return end
+  goal.failReason = reason
+  finish(goal, Goals.FAILED)
+end
+
 function Goals.Cancel(id)
   local goal = Goals.Get(id)
   if not goal or goal.status ~= Goals.ACTIVE then return nil end
@@ -188,11 +298,22 @@ end
 function Goals.Step(id, delta)
   local goal = Goals.Get(id)
   if not goal or goal.status ~= Goals.ACTIVE or goal.character ~= LT.characterKey then
-    return nil, string.format(ns.L.SG_ERR_NO_GOAL, tostring(id or "?"))
+    return nil, string.format(L.SG_ERR_NO_GOAL, tostring(id or "?"))
   end
-  if not Goals.IsManual(goal) then return nil, string.format(ns.L.SG_ERR_NOT_MANUAL, goal.id) end
-  advance(goal, math.max(goal.start, goal.progress + delta))
+  if not Goals.IsManual(goal) then return nil, string.format(L.SG_ERR_NOT_MANUAL, goal.id) end
+  local step = kinds[goal.kind].step
+  advance(goal, step and step(goal, delta) or math.max(goal.start, goal.progress + delta))
   return goal
+end
+
+-- Ziel (Stand und/oder Ziel) neu bewerten, z.B. eine Checkliste nach einem neuen Teilziel; schließt bei Erreichen ab
+function Goals.Update(goal, progress)
+  if goal.status ~= Goals.ACTIVE then return end
+  if progress == goal.progress then
+    notify("changed", goal)
+    return
+  end
+  advance(goal, progress)
 end
 
 -- amount dazuzählen bei allen laufenden Zielen dieser Art, für die matches(goal) stimmt. Abschließen baut den Index
@@ -211,3 +332,72 @@ function Goals.Set(kind, value)
     if goal.status == Goals.ACTIVE then advance(goal, value) end
   end
 end
+
+-- Stand je Ziel setzen: valueOf(goal) -> neuer Stand oder nil (unverändert), z.B. Bestand in den Taschen je Item
+function Goals.SetEach(kind, valueOf)
+  for _, goal in ipairs(index().byKind[kind] or NO_GOALS) do
+    if goal.status == Goals.ACTIVE then
+      local value = valueOf(goal)
+      if value then advance(goal, value) end
+    end
+  end
+end
+
+-- Läuft gerade ein Ziel dieser Art? (Erfassung meldet sich nur dann für teure Ereignisse an)
+function Goals.HasActive(kind)
+  return (index().byKind[kind] or NO_GOALS)[1] ~= nil
+end
+
+---------------------------------------------------------------------------
+-- Aufräumen (Einstellungen > Daten)
+---------------------------------------------------------------------------
+-- Gehört das Ziel einem Charakter, den Level Time nicht mehr kennt (gelöscht)?
+local function isOrphan(goal, characters)
+  return characters[goal.character] == nil
+end
+
+-- Ziele (laufende und Historie) von Charakteren, die es in Level Time nicht mehr gibt
+function Goals.CountOrphans()
+  local characters = LT.Database.GetCharacters()
+  local count = 0
+  for _, goal in ipairs(ns.db.goals) do
+    if isOrphan(goal, characters) then count = count + 1 end
+  end
+  return count
+end
+
+local function removeWhere(predicate)
+  local kept, removed = {}, 0
+  for _, goal in ipairs(ns.db.goals) do
+    if predicate(goal) then removed = removed + 1 else table.insert(kept, goal) end
+  end
+  if removed == 0 then return 0 end
+  ns.db.goals = kept
+  changed()
+  for _, listener in ipairs(listeners) do LT.SafeCall(listener, "removed") end
+  return removed
+end
+
+function Goals.RemoveOrphans()
+  local characters = LT.Database.GetCharacters()
+  return removeWhere(function(goal) return isOrphan(goal, characters) end)
+end
+
+-- Ganze Historie (abgeschlossene, abgebrochene, gescheiterte Ziele aller Charaktere) löschen
+function Goals.ClearHistory()
+  return removeWhere(function(goal) return goal.status ~= Goals.ACTIVE end)
+end
+
+-- Level Time löscht einen Charakter (Historie > Löschen): seine laufenden Ziele gelten als abgebrochen, sonst
+-- blieben sie unsichtbar aktiv (Roadmap 312)
+LT.Database.OnCharacterDeleted(function(characterKey)
+  if not ns.db then return end
+  for _, goal in ipairs(ns.db.goals) do
+    if goal.character == characterKey and goal.status == Goals.ACTIVE then
+      goal.status = Goals.CANCELLED
+      goal.finishedAt = time()
+      goal.orphaned = true
+    end
+  end
+  changed()
+end)

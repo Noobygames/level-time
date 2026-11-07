@@ -5,6 +5,14 @@
 --   minimapHideZoomButtons  Zoom-Knöpfe MinimapZoomIn/MinimapZoomOut (Classic) unsichtbar und nicht klickbar (Alpha 0,
 --                           Maus aus). Retail/Forever zeigen sie nur beim Überfahren, dort fehlt der Schalter.
 --   minimapHideCalendar     Kalender- bzw. Tageszeit-Knopf an der Minimap (GameTimeFrame) unsichtbar und nicht klickbar.
+--   minimapSquare           Eckige Minimap: Maske Interface\ChatFrame\ChatFrameBackground (Minimap:SetMaskTexture, alle
+--                           Clients), runde Ränder (MinimapBorder, MinimapBorderTop, MinimapCompassTexture,
+--                           MinimapCompassTextureUnderlay) per Alpha 0; GetMinimapShape() meldet "SQUARE" für andere
+--                           Addons (nur wenn kein anderes Addon die Funktion definiert). Setzt Blizzard die Maske neu
+--                           (Forever beim Drehen der Minimap), zieht ein Post-Hook nach. Zurück: Forever ruft Blizzards
+--                           MinimapCluster:UpdateMinimapConfig() (setzt Maske und Rahmen selbst), sonst die runde
+--                           Standardmaske des Clients (ROUND_MASKS; der Client hat kein GetMaskTexture).
+--                           Größe ist übersprungen: alle vier Clients haben dafür die Edit-Mode-Einstellung "Größe".
 -- Die Minimap ist kein geschützter Frame; Blizzards Skripte werden nicht ersetzt (HookScript, nur wenn keins da ist).
 local _, ns = ...
 
@@ -58,7 +66,71 @@ local function applyWheel(enabled)
   setWheel(Minimap, enabled, true)
 end
 
+---------------------------------------------------------------------------
+-- Eckige Minimap
+---------------------------------------------------------------------------
+MinimapTweaks.SQUARE_MASK = "Interface\\ChatFrame\\ChatFrameBackground"
+-- Runde Standardmaske ohne eigene Blizzard-Funktion zum Zurücksetzen (Pfade wie in verbreiteten Minimap-Addons,
+-- im Spiel zu prüfen)
+MinimapTweaks.ROUND_MASKS = { retail = "Interface\\Masks\\CircleMaskScalable", classic = "Textures\\MinimapMask" }
+MinimapTweaks.BORDER_NAMES = { "MinimapBorder", "MinimapBorderTop", "MinimapCompassTexture",
+  "MinimapCompassTextureUnderlay" }
+
+local setAlpha = ns.Overrides.Alpha()
+local squareActive, writingMask, maskHooked = false, false, false
+
+local function setMask(mask)
+  writingMask = true
+  Minimap:SetMaskTexture(mask)
+  writingMask = false
+end
+
+function MinimapTweaks.CanSquare()
+  return Minimap ~= nil and Minimap.SetMaskTexture ~= nil
+end
+
+function MinimapTweaks.IsSquare()
+  return squareActive
+end
+
+local function restoreRound()
+  local cluster = MinimapCluster
+  if ns.Client.IsForever() and cluster and cluster.UpdateMinimapConfig then
+    cluster:UpdateMinimapConfig()
+  else
+    setMask(ns.Client.IsRetail() and MinimapTweaks.ROUND_MASKS.retail or MinimapTweaks.ROUND_MASKS.classic)
+  end
+end
+
+-- Andere Addons (Minimap-Knöpfe) fragen die Form über diese globale Funktion ab
+local function provideShape()
+  if GetMinimapShape == nil then
+    GetMinimapShape = function() return squareActive and "SQUARE" or "ROUND" end
+  end
+end
+
+local function applySquare(enabled)
+  if not MinimapTweaks.CanSquare() then return end
+  if enabled and not maskHooked then
+    maskHooked = true
+    hooksecurefunc(Minimap, "SetMaskTexture", function()
+      if squareActive and not writingMask then setMask(MinimapTweaks.SQUARE_MASK) end
+    end)
+  end
+  if enabled then provideShape() end
+  for _, name in ipairs(MinimapTweaks.BORDER_NAMES) do setAlpha(_G[name], enabled, HIDDEN) end
+  if enabled then
+    squareActive = true
+    setMask(MinimapTweaks.SQUARE_MASK)
+  elseif squareActive then
+    squareActive = false
+    restoreRound()
+    ns.Debug("comfort", "minimap mask restored")
+  end
+end
+
 ns.RegisterApply(function(db)
+  applySquare(db.minimapSquare)
   applyWheel(db.minimapWheelZoom)
   for _, button in ipairs(MinimapTweaks.ZoomButtons()) do
     setHidden(button, db.minimapHideZoomButtons, HIDDEN, false)

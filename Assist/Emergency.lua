@@ -104,7 +104,7 @@ end
 
 local function edgeFrame()
   if edge then return edge end
-  edge = CreateFrame("Frame", "LevelTimerEmergency", UIParent)
+  edge = CreateFrame("Frame", ns.GlobalName("Emergency"), UIParent)
   edge:SetAllPoints(UIParent)
   edge:SetFrameStrata("BACKGROUND")
   local sides = {

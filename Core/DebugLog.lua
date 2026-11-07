@@ -164,7 +164,7 @@ end
 
 local function addonVersion()
   local getMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
-  return getMetadata and getMetadata("LevelTimer", "Version") or "?"
+  return getMetadata and getMetadata(ns.ADDON_ID, "Version") or "?"
 end
 
 local function writeHeader(reason)

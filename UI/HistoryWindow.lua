@@ -27,15 +27,16 @@ local CLOSE_BUTTON_GAP = 28  -- Platz für den Schließen-Knopf oben rechts
 local TAB_GAP = 12
 local SUBTAB_GAP = 10
 local UPDATE_INTERVAL = 1  -- Sekunden; hält laufende Einträge aktuell
+local NAME_COLOR = { 1, 1, 1 }  -- Charaktername ohne bekannte Klasse
 
-local panel = Widgets.CreatePanel("LevelTimerHistory", 0.95)
+local panel = Widgets.CreatePanel(ns.GlobalName("History"), 0.95)
 panel:SetWidth(HistoryWindow.CONTENT_WIDTH + 2 * MARGIN)  -- Höhe hängt von den Unterreiter-Zeilen ab (refresh)
 panel:SetPoint("CENTER", UIParent, "CENTER", 40, -40)  -- versetzt zu den Einstellungen
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
-table.insert(UISpecialFrames, "LevelTimerHistory")  -- mit ESC schließen
+table.insert(UISpecialFrames, ns.GlobalName("History"))  -- mit ESC schließen
 
 Widgets.CreateCloseButton(panel)
 
@@ -49,6 +50,7 @@ content:SetSize(HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
 local entries = {}
 local entriesByGroup = {}
 local selectedEntry
+local entryTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
 local selectedCharacter  -- Schlüssel "Name-Realm"; nil = eingeloggter Charakter
 local rendered = {}      -- zuletzt angezeigte Ansicht und Charakter (Wechsel setzt den Bildlauf zurück)
 local refresh            -- unten definiert
@@ -74,16 +76,15 @@ local function restoreView()
 end
 
 local function createEntry(tabKey)
-  local entry = { tab = tabKey, members = {} }
-  entry.tabButton = Widgets.CreateTab(panel, "GameFontNormal", function()
+  -- Unterreiter von links nach rechts, bei Platzmangel in die nächste Zeile (Position setzt layoutSubtabs, weil die
+  -- Breite von der Sprache abhängt)
+  local entry = { tab = tabKey, members = {}, subtabs = ns.TabStrip.New(panel, {
+    font = "GameFontHighlightSmall", left = MARGIN, top = SUBTABS_TOP, gap = SUBTAB_GAP,
+    maxWidth = HistoryWindow.CONTENT_WIDTH, rowHeight = SUBTAB_ROW_HEIGHT,
+  }) }
+  entry.tabButton = entryTabs:Add(function()
     selectView(entry, entry.selected)
   end)
-  local previous = entries[#entries]
-  if previous then
-    entry.tabButton:SetPoint("LEFT", previous.tabButton, "RIGHT", TAB_GAP, 0)
-  else
-    entry.tabButton:SetPoint("TOPLEFT", MARGIN, TABS_TOP)
-  end
   table.insert(entries, entry)
   selectedEntry = selectedEntry or entry
   return entry
@@ -105,8 +106,7 @@ function HistoryWindow.AddView(view)
     if view.group then entriesByGroup[view.group] = entry end
   end
 
-  -- Position setzt layoutSubtabs, weil die Breite von der Sprache abhängt
-  view.subtabButton = Widgets.CreateTab(panel, "GameFontHighlightSmall", function()
+  view.subtabButton = entry.subtabs:Add(function()
     selectView(entry, view)
   end)
 
@@ -138,146 +138,52 @@ local nextButton = Widgets.CreateButton(panel, ARROW_SIZE, ARROW_SIZE, function(
 nextButton:SetText(">")
 nextButton:SetPoint("TOPRIGHT", -MARGIN, CHARACTER_ROW_TOP + 4)
 
----------------------------------------------------------------------------
--- Liste aller Charaktere: Klick auf den Namen. Mehr als MENU_ROWS Einträge scrollen mit dem Mausrad.
----------------------------------------------------------------------------
-local MENU_ROWS = 12
-local MENU_ROW_HEIGHT = 18
-local MENU_PADDING = 8
-local MENU_ALPHA = 0.98
-
-local menu = CreateFrame("Frame", "LevelTimerHistoryMenu", panel, "BackdropTemplate")
-menu:SetFrameStrata("FULLSCREEN_DIALOG")
-menu:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-local menuR, menuG, menuB = ns.Theme.RGB("background")
-menu:SetBackdropColor(menuR, menuG, menuB, MENU_ALPHA)
-menu:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
-menu:EnableMouse(true)
-menu:EnableMouseWheel(true)
-menu:Hide()
-table.insert(UISpecialFrames, "LevelTimerHistoryMenu")
-
--- Unsichtbarer Fänger hinter dem Menü: ein Klick irgendwo im Fenster schließt es
-local menuCatcher = CreateFrame("Button", nil, panel)
-menuCatcher:SetAllPoints(panel)
-menuCatcher:SetFrameStrata("FULLSCREEN_DIALOG")
-menuCatcher:SetFrameLevel(menu:GetFrameLevel() - 1)
-menuCatcher:SetScript("OnClick", function() menu:Hide() end)
-menuCatcher:Hide()
-menu:HookScript("OnShow", function() menuCatcher:Show() end)
-menu:HookScript("OnHide", function() menuCatcher:Hide() end)
-
-local menuRows = {}
-local menuOffset = 0
-
-local function refreshMenu()
-  local keys = History.GetCharacterKeys()
-  menuOffset = math.max(0, math.min(menuOffset, #keys - MENU_ROWS))
-  local shown = math.min(#keys, MENU_ROWS)
-  local widest = 0
-  for i = 1, shown do
-    local row = menuRows[i]
-    if not row then
-      row = Widgets.CreateTab(menu, "GameFontHighlight", function(self)
-        selectedCharacter = self.characterKey
-        menu:Hide()
-        refresh()
-      end)
-      row:SetPoint("TOPLEFT", MENU_PADDING, -MENU_PADDING - (i - 1) * MENU_ROW_HEIGHT)
-      row:SetPoint("TOPRIGHT", -MENU_PADDING, -MENU_PADDING - (i - 1) * MENU_ROW_HEIGHT)
-      menuRows[i] = row
-    end
-    local key = keys[i + menuOffset]
-    row.characterKey = key
-    row:SetLabel(History.DisplayName(key))
-    local character = History.GetCharacter(key)
-    local classColor = RAID_CLASS_COLORS and character.class and RAID_CLASS_COLORS[character.class]
-    local r, g, b = 1, 1, 1
-    if classColor then r, g, b = classColor.r, classColor.g, classColor.b end
-    row.label:SetTextColor(r, g, b)
-    row:Show()
-    widest = math.max(widest, row:GetWidth())
-  end
-  for i = shown + 1, #menuRows do menuRows[i]:Hide() end
-  menu:SetSize(widest + 2 * MENU_PADDING, shown * MENU_ROW_HEIGHT + 2 * MENU_PADDING)
-end
-
-menu:SetScript("OnMouseWheel", function(_, delta)
-  menuOffset = menuOffset - delta
-  refreshMenu()
-end)
+-- Liste aller Charaktere (UI/CharacterMenu.lua): Klick auf den Namen
+local menu = ns.CharacterMenu.Create(panel, {
+  name = ns.GlobalName("HistoryMenu"), anchor = characterName,
+  onSelect = function(characterKey)
+    selectedCharacter = characterKey
+    refresh()
+  end,
+})
 
 local nameButton = CreateFrame("Button", nil, panel)
 nameButton:SetAllPoints(characterName)
-nameButton:SetScript("OnClick", function()
-  if menu:IsShown() then
-    menu:Hide()
-    return
-  end
-  refreshMenu()
-  menu:ClearAllPoints()
-  menu:SetPoint("TOP", characterName, "BOTTOM", 0, -4)
-  menu:Show()
-end)
+nameButton:SetScript("OnClick", function() menu.Toggle() end)
 Widgets.AttachTooltip(nameButton, function() return L.HISTORY end, function() return L.HISTORY_CHARACTER_LIST_TIP end)
 panel:HookScript("OnHide", function()
-  menu:Hide()
+  menu.Hide()
 end)
 
 ---------------------------------------------------------------------------
 -- Daten des gewählten Charakters löschen (mit Rückfrage)
 ---------------------------------------------------------------------------
-local DELETE_POPUP = "LEVELTIMER_DELETE_CHARACTER"
+local DELETE_POPUP = ns.PopupKey("DELETE_CHARACTER")
 
-StaticPopupDialogs[DELETE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, characterKey)
-    ns.DeleteCharacter(characterKey)
-    refresh()
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,  -- eigener Platz, kollidiert nicht mit Blizzard-Dialogen
-}
+local confirmDelete = Widgets.ConfirmPopup(DELETE_POPUP, "DELETE_CHARACTER_CONFIRM", function(characterKey)
+  ns.DeleteCharacter(characterKey)
+  refresh()
+end)
 
 local deleteButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT, function()
-  local character = History.GetCharacter(selectedCharacter)
-  StaticPopupDialogs[DELETE_POPUP].text = L.DELETE_CHARACTER_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(DELETE_POPUP, History.DisplayName(selectedCharacter), nil, selectedCharacter)
+  confirmDelete(History.DisplayName(selectedCharacter), selectedCharacter)
 end)
 deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
 
 local function showCharacterName(characterKey)
   local character = History.GetCharacter(characterKey)
   characterName:SetText(string.format(L.HISTORY_CHARACTER, History.DisplayName(characterKey), character.currentLevel.level))
-  local classColor = RAID_CLASS_COLORS and character.class and RAID_CLASS_COLORS[character.class]
-  if classColor then
-    characterName:SetTextColor(classColor.r, classColor.g, classColor.b)
-  else
-    characterName:SetTextColor(1, 1, 1)
-  end
+  characterName:SetTextColor(unpack(ns.Theme.ClassColor(character.class, NAME_COLOR)))
 end
 
 ---------------------------------------------------------------------------
 -- Aufbau
 ---------------------------------------------------------------------------
 
--- Unterreiter einer Gruppe von links nach rechts, bei Platzmangel in die nächste Zeile.
--- Erwartet gesetzte Beschriftungen (Breite); gibt die Zahl der Zeilen zurück.
+-- Unterreiter einer Gruppe in Zeilen (TabStrip mit Umbruch). Erwartet gesetzte Beschriftungen (Breite); gibt die Zahl
+-- der Zeilen zurück.
 local function layoutSubtabs(entry)
-  local x, row = 0, 0
-  for _, view in ipairs(entry.members) do
-    local width = view.subtabButton:GetWidth()
-    if x > 0 and x + width > HistoryWindow.CONTENT_WIDTH then
-      x, row = 0, row + 1
-    end
-    view.subtabButton:ClearAllPoints()
-    view.subtabButton:SetPoint("TOPLEFT", MARGIN + x, SUBTABS_TOP - row * SUBTAB_ROW_HEIGHT)
-    x = x + width + SUBTAB_GAP
-  end
-  return row + 1
+  return entry.subtabs:Layout()
 end
 
 -- Inhalt unter die Unterreiter. Platz für die meisten Zeilen aller Gruppen, damit das Fenster

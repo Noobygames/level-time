@@ -8,6 +8,12 @@ local function clickCard(index, mouseButton)
   local card = _G["StreamGoalCard" .. index]
   card._scripts.OnMouseUp(card, mouseButton or "LeftButton")
 end
+-- Shift+Linksklick zählt eins zurück
+local function shiftClickCard(index)
+  wow.state.shiftDown = true
+  clickCard(index)
+  wow.state.shiftDown = false
+end
 
 wow.login({ level = 10, zone = "Orgrimmar" })
 
@@ -39,12 +45,20 @@ clickCard(1)
 clickCard(1)
 expect("drei Klicks", quests.progress, 3)
 expect("Karte aktualisiert", StreamGoalCard1.time._text, "3 / 5")
-clickCard(1, "RightButton")
-expect("Rechtsklick zählt zurück", quests.progress, 2)
-clickCard(1, "RightButton")
-clickCard(1, "RightButton")
-clickCard(1, "RightButton")
+shiftClickCard(1)
+expect("Shift+Linksklick zählt zurück", quests.progress, 2)
+shiftClickCard(1)
+shiftClickCard(1)
+shiftClickCard(1)
 expect("nie unter 0", quests.progress, 0)
+
+-- Rechtsklick: Einstellungen der Anzeige statt Zählen; zweiter Rechtsklick schließt sie
+clickCard(1, "RightButton")
+expect("Rechtsklick zählt nicht", quests.progress, 0)
+expect("Rechtsklick öffnet Einstellungen", StreamGoalOptions:IsShown(), true)
+expect("Unterseite Tracker", select(2, streamGoal.Options.builder.CurrentPage()), "SG_OPTIONS_PAGE_TRACKER")
+clickCard(1, "RightButton")
+expect("zweiter Rechtsklick schließt", StreamGoalOptions:IsShown(), false)
 
 SlashCmdList.STREAMGOAL("count " .. quests.id .. " 4")
 expect("Befehl zählt um 4", quests.progress, 4)
@@ -82,8 +96,8 @@ expect("ohne Zähler", Goals.HasCount(todo), false)
 expect("Ziel 1 Schritt", todo.target, 1)
 SlashCmdList.STREAMGOAL("list")
 expect("Liste ohne Stand", lastPrint():find("(0 / 1)", 1, true), nil)
-clickCard(1, "RightButton")
-expect("Rechtsklick ändert nichts", todo.status, Goals.ACTIVE)
+shiftClickCard(1)
+expect("Shift+Linksklick hakt nicht ab", todo.status, Goals.ACTIVE)
 clickCard(1)
 expect("Linksklick hakt ab", todo.status, Goals.DONE)
 

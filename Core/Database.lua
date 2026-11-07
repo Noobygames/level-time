@@ -21,6 +21,9 @@ local SETTINGS_DEFAULTS = {
   themeFont = "",        -- "" = Schrift des Clients, sonst Name aus Theme.FontChoices
   themeFontSize = 0,     -- Versatz in Punkten auf alle Schriften der Anzeigen
   themeOutline = "none", -- "none", "outline" oder "thick"
+  themeMinFontSize = 0,  -- Untergrenze der effektiven Schriftgröße in Punkten (0 = aus, Theme.MIN_READABLE_SIZES)
+  themeBarTexture = "",  -- "" = einfarbig, sonst Schlüssel aus Theme.BarTextureChoices
+  valueColors = false,   -- XP/h-Werte nach Vergleich mit dem Schnitt färben (Roadmap 361)
   showTimer = true,
   showXpBar = true,
   -- Anordnung des Hauptfensters (UI/Layouts/): "table", "bar", "compact", "text", "clock", "xpbar", "tiles"
@@ -157,11 +160,14 @@ local SETTINGS_DEFAULTS = {
   -- annehmen, per Flüster-Stichwort einladen
   declineSharedQuests = false, blockFriendRequests = false, acceptFriendInvites = false, inviteFromWhisper = false,
   inviteKeyword = "inv",
+  friendlyCommunities = false,  -- Mitglieder eigener Communities gelten als Freunde (Friends.lua)
   inviteInfo = false,  -- Chatzeile mit Level, Rasse und Klasse bei Gruppeneinladungen (InviteInfo.lua)
   chatCopyButton = false,   -- Button zum Kopieren an jedem Chatfenster (ChatCopy.lua)
   -- Chatfenster (ChatWindows.lua), letzter Chat nach /reload (ChatHistory.lua), Spam-Filter (ChatFilter.lua)
   hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,
   restoreChat = false, filterDrunkSpam = false, filterSpellLinks = false,
+  unclampChat = false,      -- Chatfenster bis an den Bildschirmrand (ChatWindows.lua)
+  chatFontOverride = false, chatFontSize = 14,  -- eigene Chat-Schriftgröße für alle Fenster (ChatFontSize.lua)
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
@@ -175,13 +181,9 @@ local SETTINGS_DEFAULTS = {
   questLeftovers = false,     -- Gegenstände erledigter Quests als Verkaufsvorschlag (QuestLeftovers.lua)
   questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
-  -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
-  -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken
-  lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
-  lootSparkleCorpses = false, lootSparkleScale = 1,
-  -- Beute-Würfe (LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im Tooltip,
-  -- Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
-  lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false,
+  -- Beute-Glitzer (lootSparkle*) und Beute-Würfe (lootRoll*) melden ihre Standardwerte selbst an
+  -- (Database.RegisterDefaults in Assist/LootSparkles.lua und Tracking/LootRolls.lua)
+  questTextResize = false, questTextSize = 14,  -- Größe der Quest-Schriften (QuestTextSize.lua)
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
   questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)
@@ -191,14 +193,26 @@ local SETTINGS_DEFAULTS = {
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
+  -- schwarze Bildschirmränder über der Spielwelt (ScreenBorders.lua), Größen in UI-Einheiten
+  screenBorders = false, screenBorderTop = 0, screenBorderBottom = 0, screenBorderSides = 0,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
   hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
+  infoCards = false,  -- Taste zeigt Name, ID und Wowhead-Link des Tooltips (InfoCard.lua)
+  dressUpButtons = false,  -- Knöpfe "Ausziehen" und "Wappenrock" in der Anprobe (DressUp.lua)
+  classColorPlayerFrame = false,  -- Namenshintergrund des Spielerrahmens in Klassenfarbe (ClassColors.lua)
+  playerChain = "off",  -- Drache am Spielerrahmen: off/elite/rare/rareelite (PlayerChain.lua)
+  druidManaBar = false,  -- Manaleiste in Druiden-Gestalten, Classic (DruidManaBar.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
   tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
+  tooltipGuildRank = false,  -- Gildenrang im Tooltip (Tooltip.lua)
+  tooltipScale = 1,  -- Größe der Tooltips, 1 = Blizzard (Tooltip.lua)
+  tooltipAnchor = "default",  -- Welt-Tooltips am Mauszeiger: default/cursor/cursorLeft/cursorRight (Tooltip.lua)
   deathMap = false,  -- Todespunkte auf der Weltkarte (DeathMap.lua)
   minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
+  readyTimer = false,  -- Restzeit bei Bereitschaftscheck und Schlachtfeld-Einladung (ReadyTimer.lua)
+  minimapSquare = false,  -- eckige Minimap (MinimapTweaks.lua)
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)
   levelUpHideBlizzard = true,
@@ -239,6 +253,8 @@ local SETTINGS_DEFAULTS = {
   showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
   showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
+  optionsAdvanced = true,
+  splitListHeader = true,  -- Kopfzeile Level / Zeit / ± über der Split-Liste (UX 215)  -- Einstellungsfenster: alle Bausteine; false = Modus "Einfach" (Roadmap 402)
 }
 
 -- Zähler für Level und Session gleichermaßen. Schlüssel siehe Stats.lua.
@@ -313,6 +329,22 @@ local CHARACTER_DEFAULTS = {
 -- Migrationen für die Daten eines Charakters, Schlüssel = Zielversion.
 -- Laufen auch für frische (leere) Daten und müssen daher fehlende Felder vertragen.
 Database.CHARACTER_SCHEMA_VERSION = 5
+
+-- Tageseintrag für die Migrationen v4/v5, ohne Fachmodul (Daily.lua lädt später und gehört zur Historie). Form und
+-- Schlüssel wie Daily.Entry/Daily.DayKey zum Zeitpunkt der Migration; Daily ergänzt später fehlende Felder.
+local MIGRATION_DAY_FIELDS = { seconds = 0, kills = 0, deaths = 0, xp = 0, moneyIn = 0, moneyOut = 0 }
+local DAY_KEY_FORMAT = "%Y-%m-%d"
+
+local function migrationDayEntry(dailyStats, timestamp)
+  local key = date(DAY_KEY_FORMAT, timestamp)
+  local entry = dailyStats[key] or {}
+  for field, default in pairs(MIGRATION_DAY_FIELDS) do
+    entry[field] = entry[field] or default
+  end
+  dailyStats[key] = entry
+  return entry
+end
+
 local characterMigrations = {
   [2] = function(data)  -- kills (nur PvE) -> counters.pveKills
     data.counters = data.counters or {}
@@ -328,7 +360,7 @@ local characterMigrations = {
     data.dailyStats = data.dailyStats or {}
     for _, session in ipairs(data.sessionHistory or {}) do
       if session.startedAt and session.seconds then
-        local entry = ns.Daily.Entry(data.dailyStats, session.startedAt)
+        local entry = migrationDayEntry(data.dailyStats, session.startedAt)
         entry.seconds = entry.seconds + session.seconds
       end
     end
@@ -336,11 +368,11 @@ local characterMigrations = {
   [5] = function(data)  -- Tageswerte zählen Kills und Tode: aus dem vorhandenen Journal übernehmen
     data.dailyStats = data.dailyStats or {}
     for _, kill in ipairs(data.killLog or {}) do
-      local entry = ns.Daily.Entry(data.dailyStats, kill.time)
+      local entry = migrationDayEntry(data.dailyStats, kill.time)
       entry.kills = entry.kills + 1
     end
     for _, death in ipairs(data.deathLog or {}) do
-      local entry = ns.Daily.Entry(data.dailyStats, death.time)
+      local entry = migrationDayEntry(data.dailyStats, death.time)
       entry.deaths = entry.deaths + 1
     end
   end,
@@ -415,31 +447,9 @@ local settingsMigrations = {
   end,
 }
 
--- Die Version wird nie gesenkt: nach einem Downgrade (ältere Addon-Version) liefen nicht wiederholbare
--- Migrationen beim nächsten Upgrade sonst ein zweites Mal
-local function migrate(data, migrations, targetVersion)
-  local version = data.schemaVersion or 1
-  if version >= targetVersion then return end
-  for nextVersion = version + 1, targetVersion do
-    if migrations[nextVersion] then
-      migrations[nextVersion](data)
-    end
-  end
-  data.schemaVersion = targetVersion
-end
-
--- Fehlende Werte aus den Defaults ergänzen (auch verschachtelt)
-local function applyDefaults(data, defaults)
-  for key, value in pairs(defaults) do
-    if type(value) == "table" then
-      if type(data[key]) ~= "table" then data[key] = {} end
-      applyDefaults(data[key], value)
-    elseif data[key] == nil then
-      data[key] = value
-    end
-  end
-  return data
-end
+-- Migrationen und Defaults allgemein in Lib/Migrate.lua
+local migrate = ns.Migrate.Run
+local applyDefaults = ns.Migrate.ApplyDefaults
 
 local function isFiniteNumber(value)
   return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -469,6 +479,7 @@ end
 local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   themeFontSize = { -4, 8 },
+  themeMinFontSize = { 0, 12 },
   splitListRows = { 3, 15 },
   tileColumns = { 1, 6 },
   xpbarWidth = { 200, 1200 },
@@ -487,7 +498,6 @@ local SETTING_RANGES = {
   levelUpDuration = { 3, 20 },
   campHintPause = { 1, 30 },
   questMarkScale = { 0.5, 2 },
-  lootSparkleScale = { 0.5, 2 },
   weatherDensity = { 0, 3 },
 }
 
@@ -654,12 +664,64 @@ end
 Database.SanitizeSettings = sanitizeSettings
 
 -- Fehlende Einstellungen mit Defaults füllen (z.B. nach dem Laden eines Profils)
+-- Tiefe Kopie (Tabellen der Einstellungen), andere Werte unverändert
+function Database.CopyValue(value)
+  if type(value) ~= "table" then return value end
+  local copy = {}
+  for key, inner in pairs(value) do copy[key] = Database.CopyValue(inner) end
+  return copy
+end
+
+-- Standardwert einer Einstellung als eigene Kopie (Zurücksetzen je Unterseite der Einstellungen)
+function Database.SettingDefault(key)
+  return Database.CopyValue(SETTINGS_DEFAULTS[key])
+end
+
 function Database.ApplySettingDefaults(settings)
   return applyDefaults(settings, SETTINGS_DEFAULTS)
 end
 
 function Database.NewCounters()
   return applyDefaults({}, COUNTER_DEFAULTS)
+end
+
+-- Module melden eigene Standardwerte beim Laden an (vor dem Login, also vor Database.Load):
+-- defaults = { settings = { Schlüssel = Standard }, ranges = { Schlüssel = { min, max } }, counters = { ... } }.
+-- Ein Schlüssel darf nur einmal vorkommen (hier oder in einem Modul); doppelt ist ein Fehler beim Laden.
+function Database.RegisterDefaults(defaults)
+  for key, value in pairs(defaults.settings or {}) do
+    assert(SETTINGS_DEFAULTS[key] == nil, "setting default registered twice: " .. key)
+    SETTINGS_DEFAULTS[key] = value
+  end
+  for key, range in pairs(defaults.ranges or {}) do
+    assert(SETTING_RANGES[key] == nil, "setting range registered twice: " .. key)
+    SETTING_RANGES[key] = range
+  end
+  for key, value in pairs(defaults.counters or {}) do
+    assert(COUNTER_DEFAULTS[key] == nil, "counter default registered twice: " .. key)
+    COUNTER_DEFAULTS[key] = value
+  end
+end
+
+-- Erster Start des Addons auf diesem Account (LevelTimerStatsDB.introShown noch nicht gesetzt)?
+function Database.IsFirstStart()
+  return not LevelTimerStatsDB.introShown
+end
+
+-- Wie IsFirstStart, merkt sich den Start aber: true genau einmal
+function Database.TakeFirstStart()
+  if not Database.IsFirstStart() then return false end
+  LevelTimerStatsDB.introShown = true
+  return true
+end
+
+-- Flache Kopie eines Zählersatzes (Stats.Snapshot, Stand eines Instanz-Laufs)
+function Database.CopyCounters(counters)
+  local copy = {}
+  for counter, value in pairs(counters) do
+    copy[counter] = value
+  end
+  return copy
 end
 
 function Database.CharacterKey(name, realm)

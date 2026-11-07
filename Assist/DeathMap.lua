@@ -58,7 +58,7 @@ local function showTooltip(pin, point)
 end
 
 local layer = ns.MapPins.Create({
-  name = "LevelTimerDeathMap",
+  name = ns.GlobalName("DeathMap"),
   label = "DeathMap",
   points = points,
   revision = ns.Journal.RevisionOf("deathLog"),

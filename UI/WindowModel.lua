@@ -20,8 +20,8 @@ local WindowModel = {
 }
 ns.WindowModel = WindowModel
 
-local NO_VALUE = "-"    -- Zeilen ohne Bereich (Instanz-Reiter ohne Lauf)
-local PENDING = "..."   -- Spielzeit, solange /played noch nicht geantwortet hat
+local NO_VALUE = Format.NO_VALUE  -- Zeilen ohne Bereich (Instanz-Reiter ohne Lauf)
+local PENDING = Format.PENDING    -- Spielzeit, solange /played noch nicht geantwortet hat
 local LIST_SEPARATOR = ","
 
 ---------------------------------------------------------------------------
@@ -227,6 +227,13 @@ end
 
 -- Werte für den Takt lesen; source = WindowModel.VISIBLE oder CHOSEN (vom Layout), alwaysXpBar = Balken auch ohne
 -- showXpBar (Layout "xpbar"). Gibt das Modell zurück.
+-- Spielzeit des Bereichs: ohne Bereich (Instanz ohne Lauf) ein Hinweis, vor der ersten /played-Antwort ein Platzhalter
+local function scopeTimeText(open, seconds)
+  if not open then return L.INSTANCE_NONE end
+  if not seconds then return PENDING end
+  return Format.Clock(seconds)
+end
+
 function Model:Build(db, source, alwaysXpBar)
   local leveling = ns.Experience.IsLeveling()
   if self.dirty or source ~= self.source or leveling ~= self.leveling or ns.level ~= self.level then
@@ -245,7 +252,7 @@ function Model:Build(db, source, alwaysXpBar)
 
   local seconds = Stats.GetSeconds(scope)
   self.time.seconds = seconds
-  self.time.text = not open and L.INSTANCE_NONE or seconds and Format.Clock(seconds) or PENDING
+  self.time.text = scopeTimeText(open, seconds)
 
   for _, row in ipairs(self.rows) do
     row.value = open and row.definition.value(scope) or NO_VALUE

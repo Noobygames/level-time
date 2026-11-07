@@ -18,9 +18,7 @@ local REFERENCE_COLOR = { 1, 1, 1 }
 local FALLBACK_COLOR = { 0.6, 0.8, 1 }
 
 local function classColor(class)
-  local color = RAID_CLASS_COLORS and class and RAID_CLASS_COLORS[class]
-  if color then return { color.r, color.g, color.b } end
-  return FALLBACK_COLOR
+  return ns.Theme.ClassColor(class, FALLBACK_COLOR)
 end
 
 -- Abgeschlossene Level aufsteigend

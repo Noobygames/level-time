@@ -15,7 +15,7 @@ local MARGIN = 16
 local CONTENT_TOP = -44
 local ROW_HEIGHT = 18
 local COLUMN_GAP = 24
-local NO_VALUE = "-"
+local NO_VALUE = Format.NO_VALUE
 local BACKGROUND_ALPHA = 0.95  -- ohne Chroma-Hintergrund fast deckend, unabhängig von bgAlpha des Zeitfensters
 local UPDATE_INTERVAL = 1      -- s: offene Karte zählt mit (Zeit, XP, Kills)
 
@@ -85,13 +85,13 @@ end
 ---------------------------------------------------------------------------
 -- Fenster
 ---------------------------------------------------------------------------
-local panel = Widgets.CreatePanel("LevelTimerRecap", BACKGROUND_ALPHA)
+local panel = Widgets.CreatePanel(ns.GlobalName("Recap"), BACKGROUND_ALPHA)
 panel:SetPoint("CENTER", UIParent, "CENTER", -40, -40)  -- versetzt zu den Einstellungen
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
-table.insert(UISpecialFrames, "LevelTimerRecap")  -- mit ESC schließen
+table.insert(UISpecialFrames, ns.GlobalName("Recap"))  -- mit ESC schließen
 Widgets.CreateCloseButton(panel)
 
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")

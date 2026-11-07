@@ -17,10 +17,37 @@ Core.lua
 Goals.lua
 Kinds.lua
 
+# Weitere Zielarten: je Datei Art, Formular, Befehl und Erfassung
+Kinds\Gold.lua
+Kinds\Quests.lua
+Kinds\Skill.lua
+Kinds\Owned.lua
+Kinds\Explore.lua
+Kinds\Achievement.lua
+Kinds\Honor.lua
+Kinds\Rule.lua
+Kinds\Checklist.lua
+Kinds\Dungeon.lua
+Kinds\Reputation.lua
+Kinds\Bingo.lua
+
+# Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Vorlagen
+Deadlines.lua
+Packs.lua
+Recurring.lua
+Rewards.lua
+
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
 
-# Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Befehle
+# Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
 Tracker.lua
+BingoView.lua
+Wheel.lua
 Manager.lua
+PacksView.lua
+Options.lua
 Commands.lua
+
+# Debug-Checks für offene Fragen im Spiel (/lt debug check)
+DebugChecks.lua

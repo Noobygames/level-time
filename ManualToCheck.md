@@ -137,10 +137,17 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **149. Lesbarkeit und Balken, Datenteil (Roadmap 361)**: check `361.readability` (Untergrenze, kleinste Größe, effektive kleinste Schrift je Anzeige, Balkenpfad und geladene Textur, LibSharedMedia-Balken)
+- **144. Blizzard-Einstellungsmenü, Datenteil (Roadmap 403)**: check `403.blizzardSettings` (Settings/InterfaceOptions vorhanden, Kategorie-ID, Strata von SettingsPanel und unserem Fenster), event `ADDON_ACTION_BLOCKED`
 - **132. Flugzeiten-Schätzung, Datenteil (Roadmap 370)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 - **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
 - **134. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
 - **135. Sichtbarkeitsregeln, Datenteil (Roadmap 362)**: check `362.visibility` (Regel, Kampf, Instanz, Leveln, `IsMouseOver`, Alpha und Sichtbarkeit beider Rahmen) im Kampf, in einer Instanz und mit der Maus über dem Fenster
+- **173. Berufs-Ziel, Datenteil (Roadmap 297)**: check `297.goals.skills` (Format `SKILL_RANK_UP`, Classic-Fertigkeitsliste, Berufe mit Wert aus `GetProfessions`)
+- **175./176. Erkundung und Ehre, Datenteil (Roadmap 307, 309)**: check `307.goals.formats` (Formate `ERR_ZONE_EXPLORED`/`_XP`, `COMBATLOG_HONORGAIN`/`_NO_RANK`/`COMBATLOG_HONORAWARD`, Erfolgs-API vorhanden), debug `goal:tracking` (discovered …, honor …)
+- **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
+- **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
+- **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
 
 ---
 
@@ -2093,5 +2100,614 @@ Liste lesbar und oben (ja/nein):
 Hervorhebung sitzt richtig (ja/nein):
 Scrollen zum Treffer (ja/nein):
 Tastatur ok (ja/nein):
+Fehler:
+```
+
+### 150. Chat bis an den Rand und eigene Schriftgröße (Roadmap 329, Schritt 3c)
+
+- [ ] geprüft
+
+Komfort > Chat: „Chat bis an den Rand“, „Eigene Chat-Schriftgröße“ mit Regler.
+
+1. Rand an: Chatfenster lässt sich ganz an den linken und unteren Bildschirmrand ziehen; aus: der alte Abstand gilt
+   wieder (Fenster springt beim nächsten Ziehen zurück).
+2. Schriftgröße an, Regler auf 10 und 26: alle Chatfenster (auch Kampflog) ändern sich sofort; Rechtsklick auf einen
+   Reiter > Schriftgröße zeigt Blizzards Menü weiter normal.
+3. /reload: Größe bleibt; ausschalten: jedes Fenster bekommt seine vorherige Größe zurück.
+### 143. Rechtsklick auf Anzeigen öffnet ihre Einstellungen (Roadmap 404)
+
+- [ ] geprüft
+
+Außerhalb des Edit-Modus nacheinander rechtsklicken: Hauptfenster (und Level-/Session-Reiter), Split-Liste
+(`/lt splits`), Flug-Anzeige während eines Flugs, Essen-/Lagerfeuer-Anzeige (Vorschau in den Einstellungen),
+Level-Up-Fenster (Vorschau), Beute-Wurf-Karte (falls sichtbar).
+
+1. Jede Anzeige öffnet die Einstellungen auf ihrer eigenen Unterseite; ein zweiter Rechtsklick schließt sie.
+2. Linksklick auf das Level-Up-Fenster schließt es weiter; Ziehen von Hauptfenster/Split-Liste geht weiter.
+3. Die Einblendung (Level-Up-Banner, Warnungen) bleibt klickdurchlässig: Klick durch sie auf einen Gegner wählt ihn.
+4. Flug-/Essen-Anzeige: schluckt sie Klicks, die stören (z.B. auf Gegner hinter ihr)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rand ok (ja/nein):
+Schriftgröße ok, auch nach /reload (ja/nein):
+Fehler:
+```
+
+### 151. Tooltip am Mauszeiger, Größe, Gildenrang (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Tooltip: „Tooltip in der Welt“, „Tooltip-Größe“, „Gildenrang im Tooltip“.
+
+1. „Mauszeiger“: Tooltip von Gegnern, NPCs und Objekten (Briefkasten, Erz) folgt dem Zeiger; Tooltips an
+   Aktionsknöpfen und Taschen bleiben, wo sie waren. „Links/Rechts vom Zeiger“ ebenso.
+2. Größe 150 %: Gegenstands-Tooltip und Vergleichs-Tooltip größer, Link im Chat anklicken (ItemRefTooltip) auch;
+   zurück auf 100 %: wie vorher.
+3. Gildenrang: Spieler einer Gilde überfahren, hinter dem Gildennamen steht „(Rang)“; eigene Gilde ebenso.
+richtige Unterseite je Anzeige (ja/nein, welche nicht):
+Einblendung klickdurchlässig (ja/nein):
+Timer-Anzeigen stören (ja/nein):
+Fehler:
+```
+
+### 144. Eintrag im Blizzard-Einstellungsmenü (Roadmap 403)
+
+- [ ] geprüft
+
+Esc > Optionen > Reiter „AddOns“ > „Level Time“.
+
+1. Seite zeigt Titel, Kurztext (umbricht, nicht abgeschnitten) und den Button „Level-Time-Einstellungen öffnen“.
+2. Button: unser Fenster öffnet über dem Blizzard-Menü (nicht dahinter); Esc schließt erst unser Fenster, dann das Menü.
+3. Danach im Blizzard-Menü eine Einstellung ändern und „Schließen“: keine Meldung „Aktion blockiert“/kein Taint
+   (BugSack leer), Tastenbelegungen bleiben gespeichert.
+4. Französisch/Spanisch: Button-Text passt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Anker richtig, nur Welt-Tooltips (ja/nein):
+Größe ok (ja/nein):
+Gildenrang sichtbar (ja/nein):
+Fehler:
+```
+
+### 152. Eckige Minimap (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Minimap: „Eckige Minimap“.
+
+1. An: Minimap eckig, runder Rahmen weg, Kartenrand sauber; Addon-Knöpfe (LibDBIcon) sitzen am eckigen Rand.
+2. Forever: Minimap drehen (Interface-Einstellung) bleibt eckig.
+3. Aus: wieder rund mit Rahmen (Retail: Maske `Interface\Masks\CircleMaskScalable`, Classic `Textures\MinimapMask`
+   ungeprüft; Forever nutzt Blizzards UpdateMinimapConfig).
+Eintrag vorhanden (ja/nein):
+Fenster liegt oben (ja/nein):
+Taint/Fehler beim Schließen (ja/nein):
+Fehler:
+```
+
+### 145. Standard je Kategorie (Roadmap 405)
+
+- [ ] geprüft
+
+`/lt`, z.B. Einblendungen > Stil & Position: Stil, Dauer, Ton, Größe ändern.
+
+1. Unter der Seitenleiste steht „Standard“ (nicht über einem Eintrag, nicht abgeschnitten, auch in fr/es).
+2. Klick: Rückfrage nennt „Stil & Position“; Ja setzt nur diese Werte zurück (Ereignisse-Schalter bleiben), Chatzeile.
+3. „Rückgängig“ erscheint darunter und stellt die Werte wieder her; danach verschwindet es.
+4. Allgemein > Sprache & Minimap: „Standard“ zeigt den Minimap-Button wieder, seine Position am Rand bleibt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+eckig ok (ja/nein):
+wieder rund nach Aus (ja/nein):
+Fehler:
+```
+
+### 153. Questtext-Größe (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Quest-Anzeige: „Questtext-Größe ändern“, Regler.
+
+1. Questgeber ansprechen: Text, Ziele und Überschrift in der Reglergröße, nichts abgeschnitten.
+2. Questlog (Classic: Questlog-Fenster, Retail/Forever: Kartenquests) ebenso.
+3. Aus: Blizzards Größen sofort zurück.
+Buttons gut platziert (ja/nein):
+nur die Kategorie zurückgesetzt (ja/nein):
+Rückgängig ok (ja/nein):
+Fehler:
+```
+
+### 146. Einklappbare Abschnitte (Roadmap 406)
+
+- [ ] geprüft
+
+`/lt` > Komfort > Ausblenden und Komfort > Quests.
+
+1. Ausblenden zeigt die Blizzard-Elemente in Gruppen (Einheitenrahmen, Minimap/Buffs/Tracker, Aktionsleisten, Weitere).
+2. Klick auf eine Überschrift („-“ davor) klappt sie ein („+“), die Gruppen darunter rücken ohne Lücke hoch.
+3. Suche nach einem Element einer eingeklappten Gruppe (z.B. „Zielrahmen“): Gruppe klappt auf, Treffer hervorgehoben.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Größe wirkt (ja/nein):
+Fehler:
+```
+
+### 154. Bildschirmränder (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Bildschirmränder.
+
+1. An, oben 60, unten 80, seitlich 40: schwarze Balken, Aktionsleisten und Chat liegen darüber.
+2. Klicks auf die Spielwelt im Balkenbereich gehen weiter (Maus aus).
+3. Alt+Z (Oberfläche aus): Balken verschwinden mit.
+Gruppen sinnvoll (ja/nein):
+Einklappen ohne Lücken/Überlappung (ja/nein):
+Fehler:
+```
+
+### 147. Einfach/Erweitert (Roadmap 402)
+
+- [ ] geprüft
+
+`/lt`, Haken „Erweitert“ oben rechts neben dem X.
+
+1. Haken und Beschriftung überlappen weder Titel noch X (auch fr/es).
+2. Haken aus: z.B. Hinweise > Erinnerungen ohne Intervall-Regler, die Bausteine darunter rücken ohne Lücke nach;
+   Statistiken: „Reihenfolge“ und „Berechnung“ fehlen in der Seitenleiste, die übrigen rücken hoch.
+3. Suche „Leerlauf“: Treffer schaltet den Haken wieder an und zeigt die Seite.
+4. Haken bleibt nach /reload, wie er war.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Balken unter der Oberfläche (ja/nein):
+Klicks gehen durch (ja/nein):
+Fehler:
+```
+
+### 155. Bereit-Timer (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > System > „Bereit-Timer“.
+
+1. In einer Gruppe einen Bereitschaftscheck starten lassen: unter Blizzards Fenster „Bereitschaftscheck: 30 s“, zählt
+   herunter, verschwindet nach Antwort/Ende.
+2. Schlachtfeld-Warteschlange bis zur Einladung: „Schlachtfeld betreten: 1:25“ oben in der Mitte.
+Platz oben rechts ok (ja/nein):
+Seiten ohne Lücken (ja/nein):
+Fehler:
+```
+
+### 148. Willkommenskarte (Roadmap 363)
+
+- [ ] geprüft
+
+Neuer Account-Stand (oder `/lt welcome`).
+
+1. Beim ersten Start mittig eine Karte mit drei Schritten; Texte nicht abgeschnitten (auch fr/es), Buttons in einer Zeile.
+2. Voreinstellung und Layout ändern das Hauptfenster sofort, das gewählte Layout ist hervorgehoben.
+3. „Position anpassen“ schließt die Karte und startet den Edit-Modus; Esc schließt die Karte.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bereitschaftscheck (ja/nein):
+Schlachtfeld (ja/nein):
+Fehler:
+```
+
+### 156. Spielerrahmen in Classic: Klassenfarbe, Drache, Druiden-Mana (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Classic Era/Anniversary. Komfort > Fenster > Einheitenrahmen.
+
+1. „Klassenfarbe am Spielerrahmen“: farbiger Balken hinter dem Namen, gleiche Lage wie beim Ziel (gespiegelt).
+2. „Rahmen am Spieler“ Elite/Rar/Rar-Elite: Drache sitzt passend um den Rahmen (keine doppelten Kanten, Porträt
+   frei); Aus: Blizzards Rahmen.
+3. Druide: „Druiden-Manaleiste“, in Bär/Katze schmale Manaleiste unter der Wut-/Energieleiste mit Zahl; in
+   Normalgestalt weg.
+
+**Antwort:**
+
+```text
+Client (Era/TBC):
+Namenshintergrund sitzt (ja/nein):
+Drache sitzt (ja/nein, Versatz?):
+Manaleiste ok (ja/nein):
+Fehler:
+```
+
+### 157. Anprobe-Knöpfe und Flugkarte verschieben (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Charakterfenster: „Anprobe-Knöpfe“; Komfort > Oberfläche: „Fenster verschieben“.
+
+1. Strg+Klick auf ein Ausrüstungsteil: Anprobe offen, links neben „Zurücksetzen“ „Ausziehen“ und „Wappenrock“.
+   Beide wirken auf das Modell; „Zurücksetzen“ zieht wieder an.
+2. Retail/Forever: Flugmeister, Flugkarte am Rand ziehen und mit Strg+Mausrad skalieren; Flugpunkte bleiben klickbar.
+Karte lesbar (ja/nein):
+Schritte wirken (ja/nein):
+Fehler:
+```
+
+### 149. Mindestschrift, Balkentexturen, Farbe nach Wert (Roadmap 361)
+
+- [ ] geprüft
+
+`/lt` > Allgemein > Aussehen.
+
+1. Mindestschriftgröße 10 pt, Schriftgröße -4: alle Anzeigen bleiben lesbar; Hauptfenster per Mausrad im Edit-Modus
+   lässt sich nicht kleiner ziehen, als die Schrift erlaubt.
+2. Balkentextur: Verlauf, Glanz, Blizzard nacheinander; XP-Balken und der Zeitbalken einer Karte (Essen/Flug-Vorschau)
+   ändern sich, Farben bleiben (Akzent, Erholung blau). Mit einem Addon, das LibSharedMedia lädt: dessen Balken in der Liste.
+3. Farbe nach Wert an: XP/h grün/rot je nach Schnitt der letzten Level; Theme „Farbsehschwäche“: blau/orange.
+4. Split-Liste mit Vergleich: „Gesamt“ hellgrün, wenn man vorn liegt, das laufende Level aber langsamer läuft.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Anprobe-Knöpfe ok (ja/nein):
+Flugkarte verschiebbar, Punkte klickbar (ja/nein):
+Fehler:
+```
+
+### 158. Infokarte und Communities als Freunde (Roadmap 329, Schritt 3c/4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Tooltip „Infokarten“, Taste unter Tastaturbelegung > AddOns > Level Time „Infokarte“;
+Komfort > Sozial „Communities als Freunde“.
+
+1. Gegenstand in der Tasche, Zauber im Zauberbuch, NPC in der Welt überfahren und Taste drücken: Kopierfenster mit
+   Name, Art, ID und Wowhead-Link (Forever: Classic-Link, prüfen, ob der Link passt).
+2. Mitglied einer Charakter-Community lädt in eine Gruppe ein (mit „Gruppe von Freunden annehmen“): wird angenommen.
+Schrift lesbar, Grenze greift (ja/nein):
+Texturen sehen gut aus (ja/nein, welche nicht):
+Farben verständlich (ja/nein):
+Fehler:
+```
+
+### 159. Tabellenköpfe, Split-Kopfzeile, Unterstrich und Legende (Roadmap 203, 215, 216)
+
+- [ ] geprüft
+
+1. `/lt history` auf Französisch und Spanisch: Kills, Tode, Quests, Level: kein Spaltenkopf abgeschnitten
+   („Rare-Elite“, „Muertes“, „Misiones“, „Victimes“, „Abatidos“); Tabelle nicht breiter als vorher.
+2. Split-Liste: oben „Level / Zeit / ±“ in leiser Farbe, Spalten darunter bündig; Maus über der Liste zeigt den Tooltip.
+3. Aktive Reiter (Optionen, Seitenleiste, Historie, Hauptfenster) haben einen feinen Strich unter dem Text.
+4. Historie > Diagramme (Zeit je Level, Kills je Tag): rechts oben „laufend / heute“ mit blauem Feld.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Infokarte ok, Link passt (ja/nein):
+Community-Einladung angenommen (ja/nein):
+Köpfe vollständig (ja/nein, welche nicht):
+Kopfzeile ok (ja/nein):
+Unterstrich und Legende sichtbar (ja/nein):
+Fehler:
+```
+
+## Level Time Goals (Roadmap 295-312)
+
+### 170. Einstellungen, Tracker und Fenster im Look von Level Time (Roadmap 312)
+
+- [ ] geprüft
+
+1. `/sg options`: Fenster mit Seitenleiste Tracker / Meldungen / Daten, Suche oben links findet „Karten höchstens“;
+   jedes Steuerelement hat einen Tooltip; Texte auf Französisch und Spanisch nicht abgeschnitten.
+2. „Karten höchstens“ 2 bei vier Zielen: zwei Karten, darunter „+2 weitere Ziele“; Kartenfarbe „Akzentfarbe“ färbt
+   alle Karten in der Akzentfarbe des Level-Time-Themes, Theme-Wechsel in Level Time färbt live mit.
+3. Rechtsklick auf eine Karte öffnet die Unterseite Tracker, zweiter Rechtsklick schließt; Linksklick auf ein eigenes
+   Ziel +1, Shift+Linksklick -1.
+4. `/lt edit` ohne Ziele: Beispielkarte; Rechtsklick > „Einstellungen“ öffnet die Goals-Einstellungen (nicht die von
+   Level Time).
+5. `/sg`: Reiter der Zielarten brechen bei Platzmangel in eine zweite Zeile um, Beschriftungen und Felder stehen bündig;
+   „Abbrechen“ fragt nach; Fußzeile „Einstellungen“ und „Verschieben“.
+6. Daten: Charakter in `/lt history` löschen, dann „Ziele gelöschter Charaktere entfernen“ (Rückfrage, Zähler sinkt).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Einstellungen und Suche ok (ja/nein):
+Kartenzahl und Farben ok (ja/nein):
+Rechtsklick/Shift-Klick ok (ja/nein):
+Edit-Modus Einstellungen ok (ja/nein):
+Fenster-Layout fr/es ok (ja/nein):
+Fehler:
+```
+
+### 171. Gold-Ziel (Roadmap 295)
+
+- [ ] geprüft
+
+1. `/sg add gold 1`: Gegner looten, Quest abgeben, beim Händler verkaufen: Karte zählt „0g / 1g“ hoch, Ausgaben senken
+   nichts.
+2. `/sg add gold <Bestand+1> own`: Karte zeigt den Bestand, Kauf beim Händler senkt ihn, Verkauf hebt ihn.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Verdienen zählt (ja/nein):
+Besitzen folgt dem Bestand (ja/nein):
+Fehler:
+```
+
+### 172. Quest-Ziele (Roadmap 296)
+
+- [ ] geprüft
+
+1. Quest im Questlog per Shift-Klick in das Feld „Quest-IDs oder Links“ (`/sg`, Reiter Quests, „Bestimmte Quests“):
+   Link landet im Feld, Karte zeigt den Questnamen; Abgabe hakt ab.
+2. Kette aus drei Quest-IDs, die erste schon erledigt: Karte startet bei 1 / 3 und nennt die nächste Quest.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Link per Shift-Klick (ja/nein):
+Schon erledigte Quest erkannt (ja/nein):
+Fehler:
+```
+
+### 173. Berufs-Ziel (Roadmap 297)
+
+- [ ] geprüft
+
+1. `/sg add skill <aktuell+2> <Beruf>`: Karte startet beim aktuellen Wert (Retail/Forever: Hauptberufe, Kochen, Angeln),
+   Fertigkeit steigern zählt mit.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Startwert stimmt (ja/nein):
+Steigen zählt (ja/nein):
+Fehler:
+```
+
+### 174. Items besitzen (Roadmap 298)
+
+- [ ] geprüft
+
+1. `/sg add owned <Link> 20`: Karte zeigt den Bestand mit Item-Symbol; looten, kaufen, verkaufen, Bank-Fach räumen
+   ändern den Stand; mit „Bank mitzählen“ nach einmal Bank öffnen auch die Bank.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bestand folgt (ja/nein):
+Bank mitgezählt (ja/nein):
+Fehler:
+```
+
+### 175. Erkundung und Zonen (Roadmap 307)
+
+- [ ] geprüft
+
+1. `/sg add explore 2`, zwei neue Gebiete entdecken (auch auf Max-Level ohne XP): Karte zählt je Gebiet genau eins.
+2. `/sg add explore <Nachbarzone>`: beim Betreten abgehakt; in der Zone selbst angelegt: Meldung „schon erreicht“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Entdecken zählt einmal je Gebiet (ja/nein, doppelt/gar nicht):
+Zone erreicht (ja/nein):
+Fehler:
+```
+
+### 176. Erfolge und Ehre (Roadmap 309)
+
+- [ ] geprüft
+
+1. Retail/Forever: Erfolg per Shift-Klick im Erfolgsfenster in das Feld (`/sg`, Reiter Erfolg): Karte mit Erfolgssymbol,
+   Stand aus den Kriterien, Abschluss beim Erreichen. Classic Era/TBC: kein Reiter „Erfolg“.
+2. `/sg add honor 100` auf dem Schlachtfeld: Siege und Bonusehre zählen; Retail: zählt die Karte überhaupt
+   (sonst Chatzeilen von CHAT_MSG_COMBAT_HONOR_GAIN notieren)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Erfolg-Fortschritt stimmt (ja/nein):
+Ehre zählt (ja/nein, Chatzeile):
+Fehler:
+```
+
+### 177. Fristen (Roadmap 299)
+
+- [ ] geprüft
+
+1. `/sg`, Kills 5 mit Frist „2m“: Karte zeigt „0 / 5  noch 00h 02m 00s“ und zählt jede Sekunde herunter; nach Ablauf
+   rote Einblendung „Ziel gescheitert“, Historie „Gescheitert“ in Rot.
+2. `/sg deadline <Nr> 10m played`, ausloggen und 5 Minuten warten: nach dem Login stimmt die Restzeit (Spielzeit läuft
+   ausgeloggt nicht).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Countdown flüssig und lesbar (ja/nein):
+Scheitern mit Einblendung (ja/nein):
+Spielzeit-Frist stimmt nach Login (ja/nein):
+Fehler:
+```
+
+### 178. Regel-Ziele (Roadmap 300)
+
+- [ ] geprüft
+
+1. `/sg add rule nopotion`, einen Heiltrank trinken: Ziel scheitert mit „Heiltrank benutzt“ (Classic/TBC; Retail und
+   Forever: `/lt debug check` zeigt unter `300.goals.potionSpells`, welche IDs der Client kennt).
+2. `/sg add rule naked` ohne Rüstung, ein Rüstungsteil anlegen und sofort wieder ablegen: hält; anbehalten: scheitert
+   nach etwa 10 s.
+3. `/sg add rule notaxi`, Flugmeister: spätestens 10 s nach dem Abflug „Flugpunkt benutzt“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Heiltrank erkannt (ja/nein, Trank):
+Nackt mit Schonfrist (ja/nein):
+Flug erkannt (ja/nein):
+Fehler:
+```
+
+### 179. Checkliste mit Teilzielen (Roadmap 304)
+
+- [ ] geprüft
+
+1. `/sg add list Holz; Boss; Ruf`, dann `/sg add kills 3` und `/sg sub <Liste> <Kills>`: eine Karte mit vier Zeilen und
+   Häkchen-Symbolen (keine grünen Quadrate), die Kills-Karte verschwindet; Zeilen umbrechen sauber.
+2. Klick hakt ab, Shift+Klick nimmt zurück; drei Kills: Zeile grün, Liste erreicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Symbole sichtbar (ja/nein):
+Teilziel zählt (ja/nein):
+Fehler:
+```
+
+### 180. Vorlagen und Pakete (Roadmap 301)
+
+- [ ] geprüft
+
+1. `/sg`, Reiter „Vorlagen“: drei fertige Pakete, Buttons in einer Zeile (auch fr/es); „Übernehmen“ legt die Ziele an.
+2. Laufende Ziele unter einem Namen speichern, „Teilen“: Text kopieren, auf einem anderen Charakter „Importieren“ und
+   einfügen: Paket erscheint, „Übernehmen“ legt dieselben Ziele an.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Reiter-Layout ok (ja/nein):
+Teilen/Importieren ok (ja/nein):
+Fehler:
+```
+
+### 181. Wiederkehrende Ziele (Roadmap 310)
+
+- [ ] geprüft
+
+1. Tägliches Ziel anlegen und erreichen; nach Mitternacht (oder am nächsten Tag beim Login) ist es neu da, die Karte
+   zeigt „Täglich · Serie 1“.
+2. Einen Tag auslassen: das alte steht in der Historie als „Gescheitert (Zeitraum vorbei)“, Serie wieder 0.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Erneuert nach Mitternacht/Login (ja/nein):
+Serie stimmt (ja/nein):
+Fehler:
+```
+
+### 182. Boss-Ziele (Roadmap 302)
+
+- [ ] geprüft
+
+1. `/sg add boss 1 <Name des ersten Bosses>` in einem Dungeon: Sieg hakt ab, ein Wipe nicht; mit Instanz-Feld zählt
+   nur diese Instanz. Classic Era/TBC: kommt ENCOUNTER_END bei Dungeon-Bossen (sonst `/lt debug log` Zeilen notieren)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Boss gezählt (ja/nein):
+Fehler:
+```
+
+### 183. Ruf-Ziele (Roadmap 303)
+
+- [ ] geprüft
+
+1. `/sg add rep <nächste Stufe> <Fraktion>`: Karte zeigt „Stufe jetzt > Ziel“, der Balken wächst mit jedem Rufgewinn;
+   Forever: findet `C_Reputation` die Fraktion?
+2. `/sg add rep 500 <Fraktion>`: Quest der Fraktion abgeben zählt die Rufmenge.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Stufe und Balken stimmen (ja/nein):
+Ruf gewinnen zählt (ja/nein):
+Fehler:
+```
+
+### 184. Belohnung und Punkte (Roadmap 308)
+
+- [ ] geprüft
+
+1. Ziel mit Belohnung „Zuschauer wählen die Zone“ und 25 Punkten: Karte zeigt die Zeile unter dem Titel, die
+   Einblendung beim Erreichen nennt sie; Historie unten „… · 25 Punkte“.
+2. `/sg`: Formular mit allen Zusätzen (Frist, Wiederholen, Belohnung, Punkte) passt ins Fenster, auch auf Französisch.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Belohnung auf Karte und Einblendung (ja/nein):
+Formular passt (ja/nein):
+Fehler:
+```
+
+### 185. Bingo (Roadmap 305)
+
+- [ ] geprüft
+
+1. `/sg bingo 3`: Raster mit neun Feldern neben dem Tracker, Texte lesbar (zwei, drei Zeilen je Feld, auch fr/es);
+   Kills/Quests haken sich selbst ab und färben das Feld grün, eigene Felder per Klick.
+2. Volle Reihe: „BINGO!“-Einblendung, Raster verschwindet; mit „BINGO in den Gruppenchat“ in einer Gruppe eine Zeile.
+3. `/sg bingo 5`: 5×5 mit „FREI“ in der Mitte passt auf den Bildschirm; `/lt edit` zeigt den Beispielschein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Raster lesbar (ja/nein):
+BINGO und Ansage (ja/nein):
+Fehler:
+```
+
+### 186. Glücksrad (Roadmap 306)
+
+- [ ] geprüft
+
+1. `/sg wheel`: Karte links neben dem Tracker wechselt etwa zwei Sekunden lang die Titel und bleibt grün beim Ergebnis
+   stehen; das Ziel erscheint im Tracker. `/sg wheel reroll` ersetzt es, bis keine Neuwürfe mehr übrig sind.
+2. „Bei jedem Level-Up drehen“ an: Level-Up dreht automatisch.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Animation flüssig (ja/nein):
+Neuwürfe und Level-Up ok (ja/nein):
 Fehler:
 ```

@@ -51,7 +51,7 @@ local function paint(overlay)
 end
 
 local function createOverlay(entry)
-  local overlay = CreateFrame("Frame", "LevelTimerBlizzardEdit_" .. entry.id, UIParent)
+  local overlay = CreateFrame("Frame", ns.GlobalName("BlizzardEdit_") .. entry.id, UIParent)
   overlay.entry = entry
   overlay:SetFrameStrata(STRATA)
   overlay:EnableMouse(true)  -- im Modus keine Klicks auf das Element darunter

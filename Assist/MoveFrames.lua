@@ -2,7 +2,8 @@
 -- lassen sich mit der linken Maustaste an eine andere Stelle ziehen. Die Position wird gemerkt und beim
 -- nächsten Öffnen wiederhergestellt (Einstellung moveFrames im Reiter "Komfort", aus).
 -- Im Kampf wird nichts verschoben: geschützte Fenster dürfen dann nicht angefasst werden.
--- Fenster, die ein Blizzard-Addon erst später lädt (Talente, Auktionshaus, ...), kommen über ADDON_LOADED dazu.
+-- Fenster, die ein Blizzard-Addon erst später lädt (Talente, Auktionshaus, Flugkarte FlightMapFrame in
+-- Retail/Forever, ...), kommen über ADDON_LOADED dazu. Die Classic-Flugkarte (TaxiFrame) ist von Anfang an da.
 -- Größe (Roadmap 266, wie BlizzMove): Strg+Mausrad skaliert ein verschobenes Fenster in SCALE_STEP-Schritten,
 -- Strg+Rechtsklick setzt es auf 1 zurück; gemerkt in movedFrameScales und beim Öffnen wie die Position gesetzt.
 -- Geschützte Fenster (IsProtected) werden im Kampf nicht skaliert.
@@ -18,7 +19,7 @@ MoveFrames.FRAME_NAMES = {
   "MerchantFrame", "GossipFrame", "QuestFrame", "TradeFrame", "MailFrame", "BankFrame", "ClassTrainerFrame",
   "TradeSkillFrame", "CraftFrame", "AuctionFrame", "AuctionHouseFrame", "InspectFrame", "LootFrame",
   "GuildFrame", "PVEFrame", "LFGParentFrame", "CollectionsJournal", "ProfessionsFrame", "PetStableFrame",
-  "TaxiFrame", "TabardFrame", "MacroFrame", "ItemTextFrame",
+  "TaxiFrame", "FlightMapFrame", "TabardFrame", "MacroFrame", "ItemTextFrame",
 }
 
 MoveFrames.MIN_SCALE = 0.5

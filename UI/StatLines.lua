@@ -10,18 +10,31 @@ local Stats = ns.Stats
 local Experience = ns.Experience
 local DeathCounter = ns.DeathCounter
 
-local NO_VALUE = "-"
+local NO_VALUE = Format.NO_VALUE
 -- Tode rot (Theme-Farbe bad), damit sie (z.B. im Stream) auffallen (Einstellung highlightDeaths)
-local PENDING = "..."  -- noch nicht aussagekräftig (z.B. /played hat noch nicht geantwortet)
+local PENDING = Format.PENDING  -- noch nicht aussagekräftig (z.B. /played hat noch nicht geantwortet)
 
 local function counter(name)
   return function(scope) return tostring(Stats.Get(scope, name)) end
 end
 
+-- Farbe nach Wert (Einstellung valueColors, Roadmap 361): über dem Vergleichswert gut, darunter schlecht, dazwischen
+-- (VALUE_TOLERANCE) ungefärbt; Farben aus dem Theme (Farbsehschwäche: Blau/Orange)
+local VALUE_TOLERANCE = 0.1
+local function compared(text, value, reference)
+  if not ns.db.valueColors or not value or not reference or reference <= 0 then return text end
+  local ratio = value / reference
+  if ratio >= 1 + VALUE_TOLERANCE then return ns.Theme.Hex("good") .. text .. "|r" end
+  if ratio <= 1 - VALUE_TOLERANCE then return ns.Theme.Hex("bad") .. text .. "|r" end
+  return text
+end
+
+-- XP/h des Bereichs, gefärbt gegen den Schnitt der letzten Level
 local function xpRate(scope)
   if not Experience.IsLeveling() then return NO_VALUE end
   local rate = Experience.GetRatePerHour(scope)
-  return rate and Format.Number(rate) or PENDING
+  if not rate then return PENDING end
+  return compared(Format.Number(rate), rate, ns.db.valueColors and ns.Forecast.AverageLevelXpRate() or nil)
 end
 
 -- Anzahl je Stunde im Bereich (Kills, Gegenstände), über dieselbe Spielzeit wie XP/h (ohne AFK/Leerlauf, wenn eingestellt)
@@ -33,10 +46,12 @@ local function perHour(counterName)
 end
 
 -- Unabhängig vom Bereich: Rate der letzten Minuten
+-- gefärbt gegen die XP/h des laufenden Levels (schneller oder langsamer als bisher in diesem Level)
 local function recentXpRate()
   if not Experience.IsLeveling() then return NO_VALUE end
   local rate = ns.RecentXpRate.Get()
-  return rate and Format.Number(rate) or PENDING
+  if not rate then return PENDING end
+  return compared(Format.Number(rate), rate, ns.db.valueColors and Experience.GetRatePerHour(Stats.LEVEL) or nil)
 end
 
 -- Unabhängig vom Bereich: Summe bzw. hochgerechnete Rate eines Zählers in den letzten 15 Minuten (RecentCounts.lua)
@@ -103,11 +118,6 @@ local function deaths(scope)
     text = ns.Theme.Hex("bad") .. text .. "|r"
   end
   return text
-end
-
--- Split: "-1m 05s" grün (schneller), "+3m 12s" rot (langsamer), "-" ohne Vergleich
-local function splitText(getDelta)
-  return function() return Format.SplitDelta(getDelta()) end
 end
 
 -- Session-Ziel: "Level 30: 45 %, 1h 20m" bzw. "Level 30 erreicht"
@@ -240,7 +250,7 @@ ns.STAT_LINES = {
     rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
     { label = "ROW_SPLIT_LEVEL", value = function() return ns.Splits.CurrentDeltaText() end },
-    { label = "ROW_SPLIT_TOTAL", value = splitText(ns.Splits.GetTotalDelta) },
+    { label = "ROW_SPLIT_TOTAL", value = function() return ns.Splits.TotalDeltaText() end },
   } },
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
   { setting = "showPveKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVE_KILLS",
@@ -326,7 +336,9 @@ ns.STAT_LINES = {
   } },
 }
 
--- Gruppen für die Einstellungen (Reihenfolge der Abschnitte); jede Stat-Zeile nennt ihre group
+-- Gruppen für die Einstellungen: nur die Reihenfolge der Abschnitte (weicht von der Reihenfolge der Zeilen ab);
+-- jede Stat-Zeile nennt ihre group. Dass jede group hier steht und jede Gruppe Zeilen hat, prüft
+-- tests/stat_presets_test.lua, ebenso, dass die Voreinstellungen nur vorhandene Stat-Einstellungen nennen.
 ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_LOOT", "STAT_GROUP_INSTANCE",
   "STAT_GROUP_TIME_MONEY" }
 
@@ -345,14 +357,16 @@ ns.STAT_PRESETS = {
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im
 -- Profil), damit "Rückgängig" ihn auch nach /reload wiederherstellt
 function ns.ApplyStatPreset(preset)
-  local on, backup = {}, {}
+  local on = {}
   for _, setting in ipairs(preset.settings) do on[setting] = true end
-  for _, stat in ipairs(ns.STAT_LINES) do
-    backup[stat.setting] = ns.db[stat.setting] and true or false
-    ns.db[stat.setting] = on[stat.setting] or false
-  end
-  ns.db.presetBackup = backup
-  ns.ApplySettings()
+  ns.SetBatch(function(db)
+    local backup = {}
+    for _, stat in ipairs(ns.STAT_LINES) do
+      backup[stat.setting] = db[stat.setting] and true or false
+      db[stat.setting] = on[stat.setting] or false
+    end
+    db.presetBackup = backup
+  end)
   ns.Print(string.format(ns.L.PRESET_APPLIED, ns.L[preset.label]) .. " " .. ns.L.PRESET_APPLIED_UNDO)
 end
 
@@ -363,11 +377,12 @@ function ns.UndoStatPreset()
     ns.Print(ns.L.PRESET_NOTHING_TO_UNDO)
     return false
   end
-  for _, stat in ipairs(ns.STAT_LINES) do
-    if backup[stat.setting] ~= nil then ns.db[stat.setting] = backup[stat.setting] end
-  end
-  ns.db.presetBackup = nil
-  ns.ApplySettings()
+  ns.SetBatch(function(db)
+    for _, stat in ipairs(ns.STAT_LINES) do
+      if backup[stat.setting] ~= nil then db[stat.setting] = backup[stat.setting] end
+    end
+    db.presetBackup = nil
+  end)
   ns.Print(ns.L.PRESET_UNDONE)
   return true
 end

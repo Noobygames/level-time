@@ -7,7 +7,6 @@
 -- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
 local _, ns = ...
-local L = ns.L
 local Widgets = ns.Widgets
 local Format = ns.Format
 
@@ -59,6 +58,51 @@ local function createRow(parent, columns, fontObject)
   return row
 end
 
+-- Spaltenbreiten aus den Kopftexten der gewählten Sprache (UX 203): jede Spalte mindestens so breit wie ihr Kopf samt
+-- Sortierzeichen; was zusätzlich gebraucht wird, geben die Spalten mit Spielraum über ihrem Kopf anteilig ab, damit
+-- die Tabelle ihre Gesamtbreite behält. Rückgabe: Breite je Spalte
+local SORT_MARKER_WIDTH = 10  -- Platz für "v "/"^ " vor dem Kopf
+
+local function fittedWidths(columns, headerCells)
+  local widths, needs, total, extra = {}, {}, 0, 0
+  for i, column in ipairs(columns) do
+    local need = math.ceil(headerCells[i]:GetStringWidth() or 0) + CELL_GAP + SORT_MARKER_WIDTH
+    needs[i] = need
+    widths[i] = math.max(column.width, need)
+    extra = extra + widths[i] - column.width
+    total = total + column.width
+  end
+  if extra <= 0 then return widths end
+  local slack = 0
+  for i in ipairs(columns) do slack = slack + math.max(0, widths[i] - needs[i]) end
+  local share = slack > 0 and math.min(1, extra / slack) or 0
+  local roomiest, sum = nil, 0
+  for i in ipairs(columns) do
+    local spare = math.max(0, widths[i] - needs[i])
+    widths[i] = widths[i] - math.floor(spare * share)
+    sum = sum + widths[i]
+    if not roomiest or widths[i] - needs[i] > widths[roomiest] - needs[roomiest] then roomiest = i end
+  end
+  -- Rundungsrest nimmt die Spalte mit dem meisten Spielraum
+  local overshoot = sum - total
+  if overshoot > 0 and widths[roomiest] - overshoot >= needs[roomiest] then
+    widths[roomiest] = widths[roomiest] - overshoot
+  end
+  return widths
+end
+
+-- Zellen einer Zeile auf neue Spaltenbreiten setzen
+local function placeCells(row, widths)
+  local x = 0
+  for i, cell in ipairs(row.cells) do
+    cell:ClearAllPoints()
+    cell:SetPoint("LEFT", x, 0)
+    cell:SetWidth(widths[i] - CELL_GAP)
+    x = x + widths[i]
+  end
+  row:SetWidth(x)
+end
+
 local function fillRow(row, cells, color)
   for i, cell in ipairs(row.cells) do
     cell:SetText(cells[i] or "")
@@ -96,9 +140,18 @@ local TableOrder = ns.TableOrder
 --   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS,
 --   appendOnly optional: records() liefert älteste zuerst dieselbe Liste, die nur hinten wächst (oder eine neue);
 --   angezeigt neueste zuerst, ohne Kopie und mit Zwischenspeicher je Eintrag (TableOrder.NewAppendOnly). footer
---   bekommt dann records = nil, nur count. Einträge ändern sich nicht, außer edits() optional meldet es }
+--   bekommt dann records = nil, nur count. Einträge ändern sich nicht, außer edits() optional meldet es,
+--   locale, language(), export optional: Texte, gewählte Sprache (Teil der Zwischenspeicher-Schlüssel) und das
+--   Export-Fenster (ToCsv, Show); ohne Angabe die von Level Time }
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
+local function addonLanguage()
+  return ns.db and ns.db.language or ""
+end
+
 function TableView.Create(definition)
+  local L = definition.locale or ns.L
+  local language = definition.language or addonLanguage
+  local export = definition.export or ns.Export
   local columns = definition.columns
   local rowColor = definition.rowColor or defaultRowColor
 
@@ -202,7 +255,7 @@ function TableView.Create(definition)
     local scrollBar
     local lastSignature, lastLive, lastCharacterKey, lastApplyAt = nil, nil, nil, 0  -- siehe Render
     local function scrollTo(offset)
-      frame.offset = math.max(0, math.min(offset, visibleCount() - visibleRows))
+      frame.offset = Widgets.ClampOffset(offset, visibleCount(), visibleRows)
       scrollBar:SetOffsetSilently(frame.offset)
       draw()
     end
@@ -216,7 +269,30 @@ function TableView.Create(definition)
       scrollTo(frame.offset - delta * WHEEL_STEP)
     end)
 
+    local headerButtons = {}  -- unten angelegt: Klick sortiert
+    local fittedLanguage      -- Sprache, für die die Spaltenbreiten gelten
+
+    -- Spalten an die Kopftexte anpassen, wenn sich die Sprache geändert hat (nicht je Aktualisierung)
+    local function fitColumns()
+      local current = language()
+      if fittedLanguage == current then return end
+      fittedLanguage = current
+      for i, column in ipairs(columns) do headerRow.cells[i]:SetText(L[column.header]) end
+      local widths = fittedWidths(columns, headerRow.cells)
+      for _, row in ipairs(rows) do placeCells(row, widths) end
+      placeCells(headerRow, widths)
+      placeCells(footerRow, widths)
+      local x = 0
+      for i, button in ipairs(headerButtons) do
+        button:ClearAllPoints()
+        button:SetPoint("TOPLEFT", x, 0)
+        button:SetSize(widths[i], ROW_HEIGHT)
+        x = x + widths[i]
+      end
+    end
+
     local function showHeaders()
+      fitColumns()
       for i, column in ipairs(columns) do
         local marker = ""
         if sort and sort.index == i then
@@ -234,7 +310,7 @@ function TableView.Create(definition)
     -- Stand, bei dessen Änderung appendOnly-Zwischenspeicher verfallen: Sprache (Texte) und nachgetragene Werte
     local function cacheEpoch()
       local edits = definition.edits and definition.edits() or ""
-      return (ns.db and ns.db.language or "") .. ":" .. edits
+      return language() .. ":" .. edits
     end
 
     -- Filter und Sortierung auf alle Einträge anwenden und neu zeichnen
@@ -271,6 +347,9 @@ function TableView.Create(definition)
       headerButton:SetPoint("TOPLEFT", x, 0)
       headerButton:SetSize(column.width, ROW_HEIGHT)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
+      -- Voller Kopftext, falls er trotz allem abgeschnitten ist
+      Widgets.AttachTooltip(headerButton, function() return L[column.header] end)
+      headerButtons[i] = headerButton
       x = x + column.width
     end
 
@@ -303,11 +382,11 @@ function TableView.Create(definition)
         end
         table.insert(rowsText, cells)
       end
-      return ns.Export.ToCsv(headers, rowsText, L.CSV_SEPARATOR)
+      return export.ToCsv(headers, rowsText, L.CSV_SEPARATOR)
     end
 
     local exportButton = Widgets.CreateButton(frame, EXPORT_BUTTON_WIDTH, FILTER_HEIGHT + 2, function()
-      ns.Export.Show(L[definition.tab], frame:BuildCsv())
+      export.Show(L[definition.tab], frame:BuildCsv())
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
 
@@ -346,7 +425,7 @@ function TableView.Create(definition)
       -- laufende Eintrag (live), ersetzt updateLive ihn, wo das reicht.
       local newest = allRecords[definition.appendOnly and #allRecords or 1]
       local freshness = definition.revision and definition.revision() or math.floor(GetTime() / REFRESH_SECONDS)
-      local signature = table.concat({ characterKey or "", ns.db and ns.db.language or "", #allRecords,
+      local signature = table.concat({ characterKey or "", language(), #allRecords,
         newest and (newest.time or newest.startedAt or 0) or 0, freshness }, ":")
       local live = table.concat({ newest and newest.seconds or 0, newest and newest.xp or 0 }, ":")
       local urgent = selectionChanged or force or characterKey ~= lastCharacterKey

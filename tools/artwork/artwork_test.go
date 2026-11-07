@@ -65,3 +65,19 @@ func TestGlintIsBrightInTheMiddleAndTransparentAtTheEdges(t *testing.T) {
 		t.Errorf("Strahl fehlt: auf der Achse %d, daneben %d", on, off)
 	}
 }
+
+func TestBarTextures(t *testing.T) {
+	for name, brightness := range barKinds {
+		bar := renderBar(brightness)
+		if bar.Bounds().Dx() != barTextureWidth || bar.Bounds().Dy() != barTextureHeight {
+			t.Errorf("%s: falsche Größe %v", name, bar.Bounds())
+		}
+		if a := bar.NRGBAAt(0, barTextureHeight/2).A; a != 255 {
+			t.Errorf("%s: nicht deckend (%d)", name, a)
+		}
+	}
+	smooth := renderBar(barKinds["BarSmooth"])
+	if top, bottom := smooth.NRGBAAt(0, 0).R, smooth.NRGBAAt(0, barTextureHeight-1).R; top <= bottom {
+		t.Errorf("BarSmooth: oben %d nicht heller als unten %d", top, bottom)
+	}
+}

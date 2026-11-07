@@ -1,0 +1,16 @@
+-- Bildschirmränder (screenBorders): eigener Rahmen unter der Oberfläche, Größen je Kante, aus = versteckt
+wow.login()
+expect("aus: kein Rahmen", addon.ScreenBorders.Frame(), nil)
+
+addon.Set("screenBorderTop", 40)
+addon.Set("screenBorderSides", 500)
+addon.Set("screenBorders", true)
+local frame = addon.ScreenBorders.Frame()
+expectTrue("Rahmen sichtbar", frame:IsShown())
+expect("Maus aus", frame:IsMouseEnabled(), false)
+local edges = addon.ScreenBorders.Edges()
+expect("oben 40", edges.top:GetHeight(), 40)
+expect("seitlich begrenzt", edges.left:GetWidth(), addon.ScreenBorders.MAX_SIZE)
+expect("unten 0 = aus", edges.bottom:IsShown(), false)
+addon.Set("screenBorders", false)
+expect("aus: versteckt", frame:IsShown(), false)

@@ -85,7 +85,7 @@ local function update()
 end
 
 local function create()
-  frame = CreateFrame("Frame", "LevelTimerCorpseArrow", UIParent)
+  frame = CreateFrame("Frame", ns.GlobalName("CorpseArrow"), UIParent)
   frame:SetSize(ARROW_SIZE, ARROW_SIZE)
   frame:SetPoint(DEFAULT_POSITION[1], UIParent, DEFAULT_POSITION[2], DEFAULT_POSITION[3], DEFAULT_POSITION[4])
   frame.arrow = frame:CreateTexture(nil, "OVERLAY")

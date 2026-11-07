@@ -32,7 +32,7 @@ local COLUMN_GAP = 12
 local MIN_WIDTH = 140
 local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
 
-local panel = Widgets.CreatePanel("LevelTimerSplits", 0.8)
+local panel = Widgets.CreatePanel(ns.GlobalName("Splits"), 0.8)
 panel:Hide()
 
 local title = panel:CreateFontString(nil, "OVERLAY", Theme.Font("label"))
@@ -121,7 +121,7 @@ function SplitList.BuildFooterLines()
   local lines = {}
   if db.splitListShowCustom then SplitList.AddCustomSplitLines(lines) end
   if db.splitListShowTotal then
-    table.insert(lines, { L.SPLIT_LIST_TOTAL, "", Format.SplitDelta(Splits.GetTotalDelta()) })
+    table.insert(lines, { L.SPLIT_LIST_TOTAL, "", Splits.TotalDeltaText() })
   end
   if db.splitListShowPlayed then
     local played = ns.PlayedTime.GetTotalSeconds()
@@ -202,11 +202,19 @@ local function renderLines()
   local changed = setText(title,
     friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
   local lines = SplitList.BuildLines()
+  -- Kopfzeile (UX 215, Einstellung splitListHeader): Spalten benannt, leise gefärbt
+  local offset = 0
+  if ns.db.splitListHeader then
+    offset = 1
+    local muted = Theme.Hex("muted")
+    changed = setCells(getRow(1), muted .. L.SPLIT_LIST_HEADER_LEVEL .. "|r", muted .. L.SPLIT_LIST_HEADER_TIME .. "|r",
+      muted .. L.SPLIT_LIST_HEADER_DELTA .. "|r", friend and (muted .. L.SPLIT_LIST_HEADER_FRIEND .. "|r") or "") or changed
+  end
   for i, line in ipairs(lines) do
-    changed = setCells(getRow(i), tostring(line.level),
+    changed = setCells(getRow(offset + i), tostring(line.level),
       line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText) or changed
   end
-  local used = #lines
+  local used = offset + #lines
   for _, line in ipairs(SplitList.BuildFooterLines()) do
     used = used + 1
     changed = setCells(getRow(used), line[1], line[2], line[3]) or changed
@@ -245,8 +253,11 @@ ns.Frames.Register({
   hide = function() ns.Set("showSplitList", false) end,
 })
 
-panel:SetScript("OnMouseUp", function(_, mouseButton)
-  if mouseButton == "RightButton" then ns.ToggleOptions() end
+-- Tooltip: was die Spalten bedeuten und wogegen verglichen wird (UX 215)
+Widgets.AttachTooltip(panel, function() return L.SPLIT_LIST_TITLE end, function()
+  if ns.EditMode and ns.EditMode.IsActive() then return nil end
+  return string.format(L.SPLIT_LIST_TIP, L["COMPARE_CHOICE_" .. (ns.db.splitComparison == ns.Splits.BEST and "BEST"
+    or ns.db.splitComparison == ns.Splits.PERSONAL_BEST and "PB" or "RUN")])
 end)
 
 -- Ziehgriff unten rechts ändert die eigene Größe, wie beim Hauptfenster

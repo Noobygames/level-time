@@ -55,6 +55,19 @@ local function recentXpRate()
   return Experience.CalculateRate(xp, seconds)
 end
 
+-- XP/h der letzten abgeschlossenen Level (ohne das laufende); nil ohne abgeschlossenes Level. Vergleichswert der
+-- XP/h-Zeile bei valueColors, je Anzeige-Takt einmal
+local function averageLevelXpRate()
+  local xp, seconds = 0, 0
+  for _, record in ipairs(recentCompletedLevels()) do
+    xp = xp + (record.xp or 0)
+    seconds = seconds + rateSeconds(record)
+  end
+  if seconds <= 0 then return nil end
+  return Experience.CalculateRate(xp, seconds)
+end
+Forecast.AverageLevelXpRate = ns.TickCache.Memo(averageLevelXpRate)
+
 -- Weitere Level nach dem aktuellen bis targetLevel: aus der XP-Tabelle, sonst aus den Level-Zeiten
 local function secondsForLaterLevels(targetLevel, remaining)
   local xp = XpTable.XpBetween(ns.level + 1, targetLevel)

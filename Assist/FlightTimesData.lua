@@ -12,12 +12,13 @@ ns.FlightTimesData = {
         ["23>29"] = 261,
         ["25>77"] = 91,
         ["29>25"] = 150,
+        ["58>22"] = 411,
         ["80>22"] = 251,
         ["80>23"] = 211,
         ["80>25"] = 70,
         ["80>29"] = 219,
       },
-      factor = { offset = 33.052, perUnit = 920.998, samples = 7 },
+      factor = { offset = 7.48, perUnit = 1116.417, samples = 8 },
     },
     names = {
       ["Crossroads, Brachland > Camp Taurajo, Brachland"] = 91,
@@ -31,6 +32,7 @@ ns.FlightTimesData = {
       ["Tarrens Mühle, Hillsbrad > Hammerfall, Arathi"] = 119,
       ["Tarrens Mühle, Hillsbrad > Undercity, Tirisfal"] = 140,
       ["Undercity, Tirisfal > Tarrens Mühle, Hillsbrad"] = 141,
+      ["Zoram'gar-Außenposten, Ashenvale > Thunder Bluff, Mulgore"] = 411,
     },
   },
 }

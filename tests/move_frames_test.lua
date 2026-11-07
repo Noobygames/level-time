@@ -52,6 +52,10 @@ expect("kein Ziehen: nichts gespeichert", LevelTimerDB.movedFrames, nil)
 local talents = blizzardFrame("PlayerTalentFrame")
 wow.fire("ADDON_LOADED", "Blizzard_TalentUI")
 expectTrue("spät geladenes Fenster eingehängt", talents._scripts.OnDragStart ~= nil)
+-- Flugkarte in Retail/Forever (Blizzard_FlightMap lädt erst am Flugmeister)
+local flightMap = blizzardFrame("FlightMapFrame")
+wow.fire("ADDON_LOADED", "Blizzard_FlightMap")
+expectTrue("Flugkarte eingehängt", flightMap._scripts.OnDragStart ~= nil)
 
 -- Ausgeschaltet: Ziehen tut nichts mehr
 addon.Set("moveFrames", false)

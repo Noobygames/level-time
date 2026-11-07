@@ -16,7 +16,7 @@ See how your leveling is really going. Level Time tracks play time, XP per hour,
 - Alerts and reminders: rare/elite kills, epic loot, near deaths, missing food/class buffs, full bags, low durability, breath, breaks, instance limit
 - Healer callouts to your group: low mana, crowd control, aggro
 - Comfort features in the spirit of Leatrix Plus (own code, all off by default): automation, social, chat, interface, frames, system, loot roll counters, flight times
-- Settings with a sidebar per tab and a search box
+- Settings with a sidebar per tab, a search box, simple/advanced mode, reset per page, a welcome card on first start and an entry under Options > AddOns; right-click any display to open its settings
 - Quest helpers: quest levels, progress on quest markers, learned quest mobs and NPCs with map pins, quest item and target buttons, quest XP on the XP bar, reward hints, loot sparkles
 - Stream-friendly: stream mode, chroma-key background for OBS, hidden names, session recap card
 
@@ -37,7 +37,7 @@ A small, movable window shows one scope at a time: **Level N | Session | Instanc
 - **Calculation**: XP/h without AFK time, idle time without XP can be left out (off by default), average for kills/quests to level adjustable
 - **Layouts**: table, info bar (one line), compact (time, XP bar and up to 3 values you choose), text only (no background, outlined, great for OBS), clock (big play time), slim XP bar with text always/on hover/never, tiles grid
 - **Visibility rules** for the window and the split list: always, out of combat, in combat, in instances only, hidden at max level, on mouseover; fade to any transparency instead of hiding
-- **Look**: themes Classic, Flat, Minimal and Colorblind, accent color, font, size and outline for every Level Time display
+- **Look**: themes Classic, Flat, Minimal and Colorblind, accent color, font, size, outline, minimum font size, bar textures (own, Blizzard or LibSharedMedia) and optional value colors (XP/h against your average) for every Level Time display
 - **Edit mode** (`/lt edit`, Shift-right-click on the minimap button): all displays at once with sample data; drag, mouse wheel to scale, arrow keys to nudge, grid and snapping, right-click menu. `/lt reset` and lock apply to every display
 - **Level-up summary** in chat (on by default), optional announcement to party or guild
 - At login (on by default): a chat line about your last session, and which alts have become fully rested (estimated)
@@ -103,13 +103,13 @@ Alerts and warnings appear as cards with icon, sharing one queue, size, duration
 Settings tab "Comfort" with a sidebar like Leatrix Plus (all settings tabs have sidebars now, plus a search box). Everything is off by default; hold Shift to skip an automation once.
 
 - **Automation**: repair automatically (guild bank first where available), sell junk, "Train all" button at trainers (not Retail); accept quests, accept shared quests, turn in quests, pick the most valuable reward, skip single-option gossip, own "never automatic" list (gray, PvP, repeatable and paid quests stay manual); accept summons (after 10 s), accept resurrections, release in battlegrounds
-- **Social**: decline trades, group invites, guild invites, duels and shared quests, block Battle.net friend requests; accept groups from friends and guild, invites with details in chat, invite on a whispered keyword
-- **Chat**: copy button on every chat window (or `/lt copy`), keep chat after `/reload`, hide drunk messages, hide spell links in combat, one group color; hide combat log tab, hide chat buttons, input box at the top, arrow keys without Alt, no chat fade
-- **Interface**: hide error messages and zone text; hide keybind and macro text, red when out of range; hide boss banner, event toasts, alerts, stance bar, rest animation and portrait numbers (where the client has them); move and scale Blizzard windows (Ctrl+mouse wheel); kill-quest markers on nameplates; loot sparkles; quest levels, quest item button, quest mob target button
-- **Frames**: durability and volume slider in the character frame, class colors on target and focus, tooltip with class colors and the unit's target, hide tooltips in combat, kills to level in the tooltip, minimap wheel zoom and hidden zoom/calendar buttons, coordinates and your deaths on the world map
+- **Social**: community members count as friends; decline trades, group invites, guild invites, duels and shared quests, block Battle.net friend requests; accept groups from friends and guild, invites with details in chat, invite on a whispered keyword
+- **Chat**: copy button on every chat window (or `/lt copy`), chat font size for all windows, chat windows up to the screen edge, keep chat after `/reload`, hide drunk messages, hide spell links in combat, one group color; hide combat log tab, hide chat buttons, input box at the top, arrow keys without Alt, no chat fade
+- **Interface**: black screen borders, quest text size; hide error messages and zone text; hide keybind and macro text, red when out of range; hide boss banner, event toasts, alerts, stance bar, rest animation and portrait numbers (where the client has them); move and scale Blizzard windows (Ctrl+mouse wheel); kill-quest markers on nameplates; loot sparkles; quest levels, quest item button, quest mob target button
+- **Frames**: undress and tabard buttons in the dressing room, durability and volume slider in the character frame, square minimap, tooltip at the cursor, tooltip size, guild rank in tooltips, info card with ID and Wowhead link, class color, elite/rare dragon and druid mana bar on the Classic player frame, class colors on target and focus, tooltip with class colors and the unit's target, hide tooltips in combat, kills to level in the tooltip, minimap wheel zoom and hidden zoom/calendar buttons, coordinates and your deaths on the world map
 - **Hide Blizzard UI**: player, target, focus, party, pet, boss and arena frames, cast bar, minimap, buffs, quest tracker, chat windows, action bars, micro menu, bag bar, XP and reputation bar and more. Toggle each one right on the element in edit mode or in the list; only made invisible and unclickable (no taint), never in combat
 - **Loot rolls**: counters for Need, Greed, Pass (and Disenchant/Transmog) plus still deciding under Blizzard's roll frames, names in the tooltip, optional result line in chat and in the loot journal
-- **System**: faster looting, loot without confirmation, delete without typing, skip movies quickly, zoom out further, no drunken haze, no screen effects, weather density, silence emotes while resting, mute spell fizzle / city bells / mechanostriders, nameplates only in combat, remove raid restrictions, alphabetical addon list
+- **System**: time left for ready checks and battleground invitations, faster looting, loot without confirmation, delete without typing, skip movies quickly, zoom out further, no drunken haze, no screen effects, weather density, silence emotes while resting, mute spell fizzle / city bells / mechanostriders, nameplates only in combat, remove raid restrictions, alphabetical addon list
 
 Every change to game settings (CVars, chat colors, Blizzard frames) is reversible: turning a feature off restores your previous value.
 
@@ -157,6 +157,7 @@ Addons cannot write files, so copying text is the only way out of the game.
 | `/lt show` / `/lt hide` | Show or hide the window |
 | `/lt lock` / `/lt unlock` | Lock or unlock window position and size |
 | `/lt edit` | Edit mode: move, scale and hide all displays and Blizzard UI elements |
+| `/lt welcome` | Show the welcome card again |
 | `/lt reset` | Reset position and size of every display |
 | `/lt compact` | Switch between the compact and the table layout |
 | `/lt bar` | Switch between the bar and the table layout |

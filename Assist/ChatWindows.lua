@@ -10,6 +10,9 @@
 --   chatEditBoxTop    Eingabezeile über den Reitern statt unter dem Fenster (Anker des EditBox).
 --   chatArrowKeys     Pfeiltasten bewegen den Cursor in der Eingabezeile ohne Alt (EditBox:SetAltArrowKeyMode).
 --   noChatFade        Text verblasst nicht (ScrollingMessageFrame:SetFading).
+--   unclampChat       Fenster bis an den Bildschirmrand ziehen: Klemm-Abstände 0 (SetClampRectInsets; Classic setzt
+--                     -35/35/26/-50 in FloatingChatFrame.lua und nach FloatingChatFrame_UpdateBackgroundAnchors neu,
+--                     dort per hooksecurefunc nachgezogen). Am Bildschirm geklemmt bleibt das Fenster.
 -- Fenster: ns.ChatFrames() und temporäre Fenster (Flüstern, Haustierkampf) aus Blizzards Liste CHAT_FRAMES; neue
 -- temporäre Fenster nach FCF_OpenTemporaryWindow. Keins der Fenster ist geschützt, im Kampf geht es daher auch.
 local _, ns = ...
@@ -79,6 +82,15 @@ local setTabHidden = override(
 
 local holder = ns.Overrides.HiddenParent
 
+local NO_INSETS = 0
+local setClampInsets = override(
+  function(chatFrame) return chatFrame:GetClampRectInsets() end,
+  function(chatFrame, left, right, top, bottom) chatFrame:SetClampRectInsets(left, right, top, bottom) end)
+
+local function applyClamp(chatFrame, enabled)
+  setClampInsets(chatFrame, enabled, NO_INSETS, NO_INSETS, NO_INSETS, NO_INSETS)
+end
+
 local function editBoxOf(chatFrame)
   return chatFrame.editBox or (chatFrame.GetName and _G[(chatFrame:GetName() or "") .. "EditBox"])
 end
@@ -102,6 +114,7 @@ local function applyToChatFrame(chatFrame, db)
   setAltArrows(editBox, db.chatArrowKeys, false)
   setPoints(editBox, db.chatEditBoxTop, editBox and topPoints(chatFrame))
   setParent(chatFrame.buttonFrame, db.hideChatButtons, holder())
+  applyClamp(chatFrame, db.unclampChat)
 end
 
 ---------------------------------------------------------------------------
@@ -138,11 +151,22 @@ end
 -- Anwenden
 ---------------------------------------------------------------------------
 local temporaryHooked = false
+local anchorsHooked = false
+
+-- Classic setzt die Klemm-Abstände beim Neuanordnen des Hintergrunds neu (Bildlaufleiste)
+local function hookBackgroundAnchors()
+  if anchorsHooked or not FloatingChatFrame_UpdateBackgroundAnchors then return end
+  anchorsHooked = true
+  hooksecurefunc("FloatingChatFrame_UpdateBackgroundAnchors", function(chatFrame)
+    if ns.db and ns.db.unclampChat then applyClamp(chatFrame, true) end
+  end)
+end
 
 function ChatWindows.Apply(db)
   for _, chatFrame in ipairs(ChatWindows.All()) do applyToChatFrame(chatFrame, db) end
   for _, name in ipairs(ChatWindows.BUTTONS) do setParent(_G[name], db.hideChatButtons, holder()) end
   if db.hideCombatLogTab then hookDockUpdates() end
+  if db.unclampChat then hookBackgroundAnchors() end
   applyCombatLogTab()
   leaveCombatLog()
   -- Neue temporäre Fenster (z.B. Flüstern in eigenem Fenster) bekommen dieselben Einstellungen

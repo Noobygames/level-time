@@ -1,7 +1,7 @@
 -- Baukasten für Einstellungsfenster mit Reitern: legt Steuerelemente von oben nach unten auf der
 -- aktuellen Seite an und hält sie aktuell.
 -- Jedes Steuerelement registriert eine refresh(db)-Funktion; Refresh(db) (nach jeder Änderung über
--- ns.Set/ns.ApplySettings) zeigt den aktuellen Stand und die gewählte Sprache.
+-- host.set/host.apply) zeigt den aktuellen Stand und die gewählte Sprache.
 -- Schalter mit available() == false (z.B. nur in WoW Forever) werden gar nicht angelegt.
 -- Abhängige Bausteine: enabled(db) optional bei Schaltern, Reglern, Auswahlzeilen und Zyklus-Buttons; false = ausgegraut
 -- und nicht bedienbar (z.B. Einstellungen eines anderen Layouts), geprüft bei jedem Refresh.
@@ -13,12 +13,32 @@
 -- Suche (oben links): jeder Baustein, jede Überschrift, Seite und Unterseite kommt in einen Suchindex (Beschriftung
 -- und Tooltip-Text in der gewählten Sprache); ein Treffer zeigt Reiter und Unterseite, scrollt hin und hebt ihn kurz
 -- hervor. Gesucht wird nur beim Tippen (linear über alle Einträge, ein paar hundert).
+-- Zeilen (Roadmap 402, 405, 406): jeder Add*-Aufruf ist ein Eintrag seiner Seite (Höhe, Anker, Widgets, Abschnitt).
+-- Ausgeblendete Einträge (advanced = true im Modus "Einfach", eingeklappter Abschnitt) verschieben die folgenden um
+-- ihre Höhe nach oben (relayout); Unterseiten ohne sichtbaren Eintrag fallen aus der Seitenleiste.
+-- Zurücksetzen je Unterseite: Bausteine mit setting (Schlüssel in den Einstellungen) oder reset = { get, set, default } liefern,
+-- was der Button "Standard" unter der Seitenleiste zurücksetzt (Rückfrage, danach "Rückgängig").
+-- Anbindung an das Addon (Sprache, Einstellungen, Chat) über einen host (OptionsBuilder.New({ host }), Toggle);
+-- ohne Angabe gilt Level Time (DEFAULT_HOST).
 local _, ns = ...
-local L = ns.L
 local Widgets = ns.Widgets
 
 local OptionsBuilder = {}
 ns.OptionsBuilder = OptionsBuilder
+
+-- host = { L = Texte, db() -> Einstellungen, set(key, value), apply(), default(key) -> Standardwert,
+--          copy(value) -> Kopie eines Werts (Rückgängig), print(message) }
+local DEFAULT_HOST = {
+  L = ns.L,
+  db = function() return ns.db end,
+  set = function(key, value) ns.Set(key, value) end,
+  apply = function() ns.ApplySettings() end,
+  default = function(key) return ns.Database.SettingDefault(key) end,
+  copy = function(value) return ns.Database.CopyValue(value) end,
+  print = function(message) ns.Print(message) end,
+}
+OptionsBuilder.DEFAULT_HOST = DEFAULT_HOST
+local L = DEFAULT_HOST.L  -- statische Helfer (Localized); im Fenster gilt host.L
 
 local MIN_WIDTH = 320
 local MARGIN = 16
@@ -32,9 +52,8 @@ local SCROLL_STEP = 40               -- Pixel je Mausrad-Raste
 local MAX_SCREEN_FRACTION = 0.9      -- höher als dieser Anteil des Bildschirms wird das Fenster nicht
 local BUTTON_ROW_GAP = 6          -- Abstand zwischen Buttons einer Zeile
 local BUTTON_ROW_MIN_WIDTH = 60
-local BUTTON_TEXT_PADDING = 24   -- Rand im Button links und rechts zusammen
+local BUTTON_TEXT_PADDING = Widgets.BUTTON_TEXT_PADDING  -- Rand im Button links und rechts zusammen
 local FOOTER_COLUMN_GAP = 8     -- Abstand zwischen den beiden Button-Spalten unten
-local FOOTER_TEXT_PADDING = 24  -- Rand im Button links und rechts zusammen
 local COLUMN_GAP = 12        -- Mindestabstand zwischen einer Beschriftung und der rechten Spalte
 local ROW_SECTION = 24
 local ROW_CHECKBOX = 26
@@ -69,6 +88,11 @@ local SEARCH_WHERE_GAP = 12     -- Abstand zwischen Beschriftung und "Reiter > U
 local HIGHLIGHT_PADDING = 3      -- Rand der Hervorhebung um einen gefundenen Baustein
 local HIGHLIGHT_SECONDS = 2
 local HIGHLIGHT_ALPHA = 0.3
+local SIDEBAR_BUTTON_GAP = 12      -- Abstand zwischen Seitenleiste und "Standard"
+local SIDEBAR_BUTTON_MIN_WIDTH = 80
+local MODE_RIGHT = 32              -- Schalter "Erweitert": Platz für den Schließen-Knopf rechts daneben
+local MODE_TOP = SEARCH_TOP + 1
+local COLLAPSED_MARK, EXPANDED_MARK = "+", "-"  -- vor einklappbaren Überschriften
 
 -- Für eigene Bausteine des Fensters (z.B. Profil-Liste)
 OptionsBuilder.MARGIN = MARGIN
@@ -79,14 +103,33 @@ local ROW_BUTTON = OptionsBuilder.ROW_BUTTON
 local BUTTON_HEIGHT = OptionsBuilder.BUTTON_HEIGHT
 local CHOOSER_TAB_GAP = OptionsBuilder.CHOOSER_TAB_GAP
 
--- Schalter für eine Einstellung in ns.db; available() optional (z.B. nur in WoW Forever)
-function OptionsBuilder.Toggle(label, key, available)
+-- Schalter für eine Einstellung; available() optional (z.B. nur in WoW Forever), host optional (Standard: Level Time)
+function OptionsBuilder.Toggle(label, key, available, host)
+  host = host or DEFAULT_HOST
   return {
     label = label,
     get = function(db) return db[key] end,
-    set = function(checked) ns.Set(key, checked) end,
+    set = function(checked) host.set(key, checked) end,
     available = available,
+    setting = key,  -- Zurücksetzen je Unterseite
   }
+end
+
+-- Zurücksetzen eines Bausteins: Schlüssel in den Einstellungen (Standard aus host.default) oder eigene Funktionen
+-- reset = { get() -> Wert, set(Wert), default() -> Wert }. Liste, da ein Baustein mehrere Einstellungen tragen kann.
+local function resetsOf(definition, host)
+  local list = {}
+  if not definition then return list end
+  local keys = definition.resetKeys or (definition.setting and { definition.setting }) or {}
+  for _, key in ipairs(keys) do
+    table.insert(list, {
+      get = function() return host.copy(host.db()[key]) end,
+      set = function(value) host.db()[key] = value end,
+      default = function() return host.default(key) end,
+    })
+  end
+  if definition.reset then table.insert(list, definition.reset) end
+  return list
 end
 
 -- Text aus den Locales zum Zeitpunkt der Anzeige (Sprachwechsel live)
@@ -94,9 +137,11 @@ function OptionsBuilder.Localized(key)
   return function() return L[key] end
 end
 
--- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text }
+-- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text, host (optional, siehe DEFAULT_HOST) }
 function OptionsBuilder.New(options)
   local builder = {}
+  local host = options.host or DEFAULT_HOST
+  local L = host.L
 
   local panel = Widgets.CreatePanel(options.name, options.alpha)
   panel:SetWidth(MIN_WIDTH)  -- wächst mit den Texten der gewählten Sprache (fitWidth)
@@ -120,6 +165,7 @@ function OptionsBuilder.New(options)
   local toggleCells = {}    -- { checkbox, column, y } aller Schalter; Spaltenbreite setzt fitWidth
   local chooserRows = {}    -- { label, tabs } je Auswahlzeile; Breite prüft fitWidth
   local page                -- Seite, auf der die Bausteine gerade anlegen
+  local wantedHeight        -- Höhe der längsten Seite (Finish); begrenzt auf maxPanelHeight
 
   local function addRefresher(refresh, owner)
     table.insert(refreshers, { run = refresh, owner = owner })
@@ -147,6 +193,7 @@ function OptionsBuilder.New(options)
   -- Reiter: je Reiter eine Seite über das ganze Fenster; Steuerelemente hängen an ihrer Seite
   -------------------------------------------------------------------------
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
+  local pageTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
   local nextRowY = CONTENT_TOP
   local sidebars = {}       -- { startY, entries = { { button, frame, bottom } } } je Seite mit Unterseiten
   local sidebar             -- Seitenleiste, deren Unterseiten gerade angelegt werden
@@ -154,6 +201,39 @@ function OptionsBuilder.New(options)
   local shownTab            -- gezeigter Reiter; bleibt beim Schließen erhalten (zuletzt offene Seite)
 
   local catchUp  -- unten definiert: verborgene Seiten nachholen, die jetzt sichtbar sind
+
+  -------------------------------------------------------------------------
+  -- Einträge je Seite: { owner, startY, height, anchors = { { widget, y, stretch } }, widgets, section, advanced,
+  -- resets, cells (Schalter), shift (aktueller Versatz nach oben), hidden }
+  -------------------------------------------------------------------------
+  local itemsOf = {}           -- [Seite] = { Eintrag, ... } in Reihenfolge
+  local currentItem            -- Eintrag, der gerade angelegt wird
+  local sectionOf = {}         -- [Seite] = Abschnitts-Eintrag, unter dem neue Einträge landen
+  local collapsed = {}         -- [Abschnitts-Eintrag] = true: eingeklappt (nur bis /reload)
+
+  local function beginItem(definition, isSection)
+    local item = {
+      owner = page, startY = nextRowY, anchors = {}, widgets = {}, shift = 0, placedShift = 0, hidden = false,
+      advanced = definition and definition.advanced or false, resets = resetsOf(definition, host),
+      section = not isSection and sectionOf[page] or nil, isSection = isSection,
+    }
+    itemsOf[page] = itemsOf[page] or {}
+    table.insert(itemsOf[page], item)
+    if isSection then sectionOf[page] = item end
+    currentItem = item
+    return item
+  end
+
+  local function endItem()
+    currentItem.height = currentItem.startY - nextRowY
+    currentItem = nil
+  end
+
+  -- Widget gehört zum laufenden Eintrag (wird mit ihm aus- und eingeblendet)
+  local function track(widget)
+    if currentItem then table.insert(currentItem.widgets, widget) end
+    return widget
+  end
 
   local function showPage(selected)
     shownTab = selected
@@ -166,9 +246,7 @@ function OptionsBuilder.New(options)
 
   -- Seite nach oben scrollen bzw. so weit, dass die Zeile y oben steht (Inhalt in Fensterkoordinaten, s. AddPage)
   local function scrollTo(tab, y)
-    local scroll = tab.scroll
-    local target = -SCROLL_TOP + (CONTENT_TOP - (y or CONTENT_TOP))
-    scroll:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(scroll:GetVerticalScrollRange(), target)))
+    tab.scroll:ScrollTo(-SCROLL_TOP + (CONTENT_TOP - (y or CONTENT_TOP)))
   end
 
   -- Unterseite wählen; der Reiter springt nach oben, weil Unterseiten verschieden lang sind
@@ -178,6 +256,7 @@ function OptionsBuilder.New(options)
       entry.frame:SetShown(entry == selected)
       entry.button:SetActive(entry == selected)
     end
+    if bar.updateButtons then bar.updateButtons() end
     scrollTo(bar.tab)
     catchUp()
   end
@@ -235,11 +314,17 @@ function OptionsBuilder.New(options)
   local searchEntries = {}
   local localized = OptionsBuilder.Localized
 
-  local function index(title, tipKey, left, right, y)
+  local function index(title, tipKey, left, right, y, cell)
     table.insert(searchEntries, {
       title = title, tipKey = tipKey, left = left, right = right or left, parent = page, y = y or nextRowY,
-      tab = currentTab, sub = currentSub,
+      tab = currentTab, sub = currentSub, item = currentItem, cell = cell,
     })
+  end
+
+  -- Aktuelle Zeile eines Treffers (Einträge können nach oben gerückt sein)
+  local function entryY(entry)
+    if entry.cell then return entry.cell.y end
+    return entry.y + (entry.item and entry.item.shift or 0)
   end
 
   local function contains(text, needle)
@@ -265,6 +350,7 @@ function OptionsBuilder.New(options)
 
   -- Wo ein Treffer liegt: "Reiter > Unterseite"
   function builder.WhereOf(entry)
+    if entry.where then return entry.where() end
     local where = L[entry.tab.key]
     if entry.sub then where = where .. " > " .. L[entry.sub.key] end
     return where
@@ -293,10 +379,13 @@ function OptionsBuilder.New(options)
   end
 
   -- Treffer zeigen: Reiter, Unterseite, Zeile oben im sichtbaren Bereich, kurz hervorgehoben
+  local unhide  -- unten definiert: Eintrag sichtbar machen (Modus "Erweitert", Abschnitt aufklappen)
+
   function builder.Reveal(entry)
+    unhide(entry)
     if entry.sub then builder.ShowPage(entry.sub.key) else showPage(entry.tab) end
     if entry.isPage then return end
-    scrollTo(entry.tab, entry.y)
+    scrollTo(entry.tab, entryY(entry))
     showHighlight(entry)
   end
 
@@ -429,26 +518,11 @@ function OptionsBuilder.New(options)
     -- Jede Seite scrollt: Inhalt (frame) in einem Scrollbereich zwischen Reitern und Buttons. Die Inhaltskoordinaten
     -- bleiben die des Fensters (y ab Fensteroberkante); der Bereich beginnt bei SCROLL_TOP, daher steht er
     -- ruhend um -SCROLL_TOP verschoben.
-    local scroll = CreateFrame("ScrollFrame", nil, panel)
+    local scroll = Widgets.CreateScrollArea(panel, { step = SCROLL_STEP, top = -SCROLL_TOP, keepInRange = true })
     local entry = { key = labelKey, scroll = scroll, frame = CreateFrame("Frame", nil, scroll) }
     currentTab, currentSub = entry, nil
     scroll:SetScrollChild(entry.frame)
-    scroll:EnableMouseWheel(true)
-    scroll:SetScript("OnMouseWheel", function(self, delta)
-      local target = self:GetVerticalScroll() - delta * SCROLL_STEP
-      self:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(self:GetVerticalScrollRange(), target)))
-    end)
-    scroll:SetScript("OnScrollRangeChanged", function(self, _, yRange)
-      local current = self:GetVerticalScroll()
-      self:SetVerticalScroll(math.max(-SCROLL_TOP, math.min(yRange, current)))
-    end)
-    entry.tabButton = Widgets.CreateTab(panel, "GameFontNormal", function() showPage(entry) end)
-    local previous = pages[#pages]
-    if previous then
-      entry.tabButton:SetPoint("LEFT", previous.tabButton, "RIGHT", TAB_GAP, 0)
-    else
-      entry.tabButton:SetPoint("TOPLEFT", MARGIN, TABS_TOP)
-    end
+    entry.tabButton = pageTabs:Add(function() showPage(entry) end)
     table.insert(pages, entry)
     page = entry.frame
     nextRowY = CONTENT_TOP
@@ -481,6 +555,8 @@ function OptionsBuilder.New(options)
     addRefresher(function() setMeasuredText(entry.button, "SetLabel", L[labelKey]) end, bar.parent)
   end
 
+  local createSidebarButtons  -- unten definiert: "Standard" und "Rückgängig" unter der Seitenleiste
+
   -- Unterseiten abschließen: weiter auf der Seite unter der längsten Unterseite bzw. der Seitenleiste
   function builder.FinishSubPages()
     local entries = sidebar.entries
@@ -489,6 +565,7 @@ function OptionsBuilder.New(options)
     for _, entry in ipairs(entries) do lowest = math.min(lowest, entry.bottom) end
     page = sidebar.parent
     nextRowY = lowest
+    createSidebarButtons(sidebar)
     showSubPage(sidebar, entries[1])
     sidebar, currentSub = nil, nil
   end
@@ -520,20 +597,40 @@ function OptionsBuilder.New(options)
   function builder.AddRow(widget, height, stretch)
     widget:SetPoint("TOPLEFT", MARGIN, nextRowY)
     if stretch then widget:SetPoint("TOPRIGHT", -MARGIN, nextRowY) end
+    if currentItem then
+      table.insert(currentItem.anchors, { widget = widget, y = nextRowY, stretch = stretch })
+      track(widget)
+    end
     nextRowY = nextRowY - height
   end
   local addRow = builder.AddRow
 
-  function builder.AddSection(labelKey)
+  -- Abschnitt; options = { collapsible = true (Klick klappt ein/aus), advanced = true } optional
+  function builder.AddSection(labelKey, options)
+    local item = beginItem(options, true)
     if nextRowY ~= CONTENT_TOP then nextRowY = nextRowY - SECTION_GAP end
     local header = Widgets.CreateSectionHeader(page)
     index(localized(labelKey), nil, header)
     addRow(header, ROW_SECTION, true)
-    onRefresh(function() header:SetText(L[labelKey]) end)
+    local collapsible = options and options.collapsible
+    local function text()
+      if not collapsible then return L[labelKey] end
+      return (collapsed[item] and COLLAPSED_MARK or EXPANDED_MARK) .. " " .. L[labelKey]
+    end
+    if collapsible then
+      item.collapsible = true
+      header:EnableMouse(true)
+      header:SetScript("OnMouseUp", function() builder.SetCollapsed(item, not collapsed[item]) end)
+      addTooltip(header, "SECTION_COLLAPSE_TIP", localized(labelKey))
+      item.refreshHeader = function() header:SetText(text()) end
+    end
+    onRefresh(function() header:SetText(text()) end)
+    endItem()
   end
 
-  -- slider = { label, min, max, step, get(db) -> Wert, set(Wert), format(Wert) -> Anzeigetext }
+  -- slider = { label, min, max, step, get(db) -> Wert, set(Wert), format(Wert) -> Anzeigetext, setting/reset optional }
   function builder.AddSlider(slider)
+    beginItem(slider)
     local control = Widgets.CreateSlider(page, slider.min, slider.max, slider.step, slider.set)
     index(localized(slider.label), slider.label .. "_TIP", control)
     addRow(control, ROW_SLIDER, true)
@@ -544,25 +641,33 @@ function OptionsBuilder.New(options)
       control:SetValueSilently(value, slider.format(value))
       applyEnabled(slider.enabled, db, control, control.slider)
     end)
+    endItem()
   end
 
   -- Checkboxen in zwei Spalten; toggle = { label, get(db) -> bool, set(checked), available() optional,
-  --   text() optional statt L[label], z.B. für Beschriftungen mit Werten, tip = Locale-Key optional }
+  --   text() optional statt L[label], z.B. für Beschriftungen mit Werten, tip = Locale-Key optional,
+  --   advanced optional (nur im Modus "Erweitert"), setting/reset optional (Zurücksetzen) }
+  -- Ein ausgeblendeter Schalter (advanced) rückt die folgenden der Gruppe nach (relayout)
   function builder.AddToggles(allToggles)
     local toggles = {}
     for _, toggle in ipairs(allToggles) do
       if not toggle.available or toggle.available() then table.insert(toggles, toggle) end
     end
+    local item = beginItem(nil)
+    item.cells = {}
     for i, toggle in ipairs(toggles) do
       local column = (i - 1) % 2
       local row = math.floor((i - 1) / 2)
       local checkbox = Widgets.CreateCheckbox(page, toggle.set)
       local y = nextRowY - row * ROW_CHECKBOX
-      table.insert(toggleCells, { checkbox = checkbox, column = column, y = y })
+      local cell = { checkbox = checkbox, column = column, y = y, advanced = toggle.advanced }
+      table.insert(toggleCells, cell)
+      table.insert(item.cells, cell)
+      for _, reset in ipairs(resetsOf(toggle, host)) do table.insert(item.resets, reset) end
       local tipKey = toggle.tip or (toggle.label .. "_TIP")
       local function title() return checkbox.label:GetText() end
       addTooltip(checkbox, tipKey, title)
-      index(title, tipKey, checkbox, checkbox.label, y)
+      index(title, tipKey, checkbox, checkbox.label, y, cell)
       onRefresh(function(db)
         checkbox:SetChecked(toggle.get(db))
         applyEnabled(toggle.enabled, db, checkbox)
@@ -573,11 +678,14 @@ function OptionsBuilder.New(options)
       end)
     end
     nextRowY = nextRowY - math.ceil(#toggles / 2) * ROW_CHECKBOX
+    endItem()
   end
 
-  -- Eine Zeile gleich breiter Buttons: buttons = { { label = Locale-Key, onClick }, ... }; Tooltip aus <label>_TIP
+  -- Eine Zeile gleich breiter Buttons: buttons = { { label = Locale-Key, onClick }, ... }; Tooltip aus <label>_TIP;
+  -- options = { advanced } optional
   local buttonRows = {}
-  function builder.AddButtonRow(buttons)
+  function builder.AddButtonRow(buttons, options)
+    beginItem(options)
     local row = CreateFrame("Frame", nil, page)
     row:SetHeight(BUTTON_HEIGHT)
     addRow(row, ROW_BUTTON, true)
@@ -600,14 +708,18 @@ function OptionsBuilder.New(options)
       for _, button in ipairs(widgets) do button:SetWidth(math.max(BUTTON_ROW_MIN_WIDTH, each)) end
     end)
     table.insert(buttonRows, widgets)
+    endItem()
   end
 
-  function builder.AddButton(labelKey, onClick)
+  -- options = { advanced } optional
+  function builder.AddButton(labelKey, onClick, options)
+    beginItem(options)
     local button = Widgets.CreateButton(page, MIN_WIDTH - 2 * MARGIN, BUTTON_HEIGHT, onClick)
     index(localized(labelKey), labelKey .. "_TIP", button)
     addRow(button, ROW_BUTTON, true)
     addTooltip(button, labelKey .. "_TIP", localized(labelKey))
     onRefresh(function() button:SetText(L[labelKey]) end)
+    endItem()
   end
 
   -- Buttons unten auf allen Reitern in zwei Spalten, Zeilen von unten nach oben
@@ -631,17 +743,19 @@ function OptionsBuilder.New(options)
     addRefresher(function() setMeasuredText(button, "SetText", L[labelKey]) end, nil)
   end
 
-  -- Auswahl als Zeile von Reitern: chooser = { label = Locale-Key, setting, choices = { { value, name() }, ... } }
+  -- Auswahl als Zeile von Reitern: chooser = { label = Locale-Key, setting, choices = { { value, name() }, ... },
+  -- advanced optional }
   function builder.AddChooser(chooser)
+    beginItem(chooser)
     local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     addRow(label, 0)
     local row = { label = label, tabs = {} }
     table.insert(chooserRows, row)
     local anchor = label
     for _, choice in ipairs(chooser.choices) do
-      local tab = Widgets.CreateTab(page, "GameFontHighlight", function()
-        ns.Set(chooser.setting, choice.value)
-      end)
+      local tab = track(Widgets.CreateTab(page, "GameFontHighlight", function()
+        host.set(chooser.setting, choice.value)
+      end))
       tab:SetPoint("LEFT", anchor, "RIGHT", CHOOSER_TAB_GAP, 0)
       anchor = tab
       table.insert(row.tabs, tab)
@@ -655,24 +769,26 @@ function OptionsBuilder.New(options)
     index(localized(chooser.label), chooser.label .. "_TIP", label, row.tabs[#row.tabs])
     nextRowY = nextRowY - ROW_CHOOSER
     onRefresh(function() setMeasuredText(label, "SetText", L[chooser.label]) end)
+    endItem()
   end
 
   -- Auswahl aus einer langen oder veränderlichen Liste als ein Button hinter der Beschriftung: Linksklick nächster,
   -- Rechtsklick voriger Eintrag. cycle = { label = Locale-Key, choices() -> { { key, name } }, get(db) -> key,
-  -- set(key), nameOf(key) -> Text für die Anzeige }; Tooltip aus <label>_TIP
+  -- set(key), nameOf(key) -> Text für die Anzeige, setting/reset/advanced optional }; Tooltip aus <label>_TIP
   function builder.AddCycleButton(cycle)
+    beginItem(cycle)
     local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     addRow(label, 0)
-    local button = Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function(_, mouseButton)
+    local button = track(Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function(_, mouseButton)
       local choices = cycle.choices()
-      local current = cycle.get(ns.db)
+      local current = cycle.get(host.db())
       local index = 1
       for i, choice in ipairs(choices) do
         if choice.key == current then index = i end
       end
       local step = mouseButton == "RightButton" and -1 or 1
       cycle.set(choices[(index - 1 + step) % #choices + 1].key)
-    end)
+    end))
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     button:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP, 0)
     addTooltip(button, cycle.label .. "_TIP", localized(cycle.label))
@@ -686,14 +802,16 @@ function OptionsBuilder.New(options)
       end
       applyEnabled(cycle.enabled, db, label, button)
     end)
+    endItem()
   end
 
-  -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional };
-  -- übernommen mit Enter oder beim Verlassen des Felds, Esc verwirft; Tooltip aus <label>_TIP
+  -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional,
+  -- setting/advanced optional }; übernommen mit Enter oder beim Verlassen des Felds, Esc verwirft; Tooltip aus <label>_TIP
   function builder.AddTextInput(input)
+    beginItem(input)
     local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     addRow(label, 0)
-    local box = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
+    local box = track(CreateFrame("EditBox", nil, page, "InputBoxTemplate"))
     box:SetSize(input.width or TEXT_INPUT_WIDTH, BUTTON_HEIGHT)
     box:SetAutoFocus(false)
     box:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP + TEXT_INPUT_BORDER, 0)
@@ -715,24 +833,27 @@ function OptionsBuilder.New(options)
       current = input.get(db) or ""
       if not box:HasFocus() then box:SetText(current) end
     end)
+    endItem()
   end
 
-  function builder.AddHint(labelKey)
+  -- options = { advanced } optional
+  function builder.AddHint(labelKey, options)
+    beginItem(options)
     local hint = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
     hint:SetJustifyH("LEFT")
     addRow(hint, ROW_HINT, true)
     onRefresh(function() hint:SetText(L[labelKey]) end)
+    endItem()
   end
 
-  -- Nach dem letzten Baustein: Höhe für die längste Seite, damit das Fenster beim Reiterwechsel
-  -- nicht springt; erste Seite zeigen
   -- Höher als der Bildschirm wird das Fenster nicht; der Rest scrollt (Mausrad)
-  local wantedHeight
   local function maxPanelHeight()
     return math.floor(UIParent:GetHeight() * MAX_SCREEN_FRACTION / panel:GetScale())
   end
 
+  -- Nach dem letzten Baustein: Höhe für die längste Seite, damit das Fenster beim Reiterwechsel
+  -- nicht springt; erste Seite zeigen
   function builder.Finish()
     local lowestBottom = CONTENT_TOP
     for _, entry in ipairs(pages) do
@@ -747,6 +868,14 @@ function OptionsBuilder.New(options)
       entry.scroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, footerHeight)
       entry.frame:SetHeight(-lowestBottom + FOOTER_GAP)
       entry.scroll:SetVerticalScroll(-SCROLL_TOP)
+    end
+    -- Schalter "Erweitert" in der Suche: liegt über allen Reitern, Treffer zeigt den ersten
+    if builder.modeCheckbox then
+      table.insert(searchEntries, {
+        title = localized(options.advanced.label), tipKey = options.advanced.label .. "_TIP",
+        left = builder.modeCheckbox, right = builder.modeCheckbox.label, parent = panel, y = CONTENT_TOP,
+        tab = pages[1], where = options.title,
+      })
     end
     showPage(pages[1])
   end
@@ -777,29 +906,25 @@ function OptionsBuilder.New(options)
     return widest
   end
 
-  local function tabRowWidth()
-    local width = 0
-    for i, entry in ipairs(pages) do
-      width = width + entry.tabButton:GetWidth() + (i > 1 and TAB_GAP or 0)
-    end
-    return width
-  end
-
   -- Versatz der Unterseiten: breitester Eintrag der Seitenleiste plus Abstand (0 ohne Unterseiten)
   local function sidebarOffset()
     local widest = 0
     for _, bar in ipairs(sidebars) do
       for _, entry in ipairs(bar.entries) do widest = math.max(widest, entry.button:GetWidth()) end
+      widest = math.max(widest, bar.resetButton:GetWidth(), bar.undoButton:GetWidth())
     end
     return widest > 0 and widest + SIDEBAR_GAP or 0
+  end
+
+  -- Platz, den ein Button für seinen Text braucht
+  local function fitButton(button)
+    return button:GetTextWidth() + BUTTON_TEXT_PADDING
   end
 
   -- Beide Button-Spalten sind gleich breit: so breit wie der längste Text, doppelt plus Abstand
   local function footerWidth()
     local widest = 0
-    for _, button in ipairs(footerButtons) do
-      widest = math.max(widest, button:GetTextWidth() + FOOTER_TEXT_PADDING)
-    end
+    for _, button in ipairs(footerButtons) do widest = math.max(widest, fitButton(button)) end
     return 2 * widest + FOOTER_COLUMN_GAP
   end
 
@@ -808,7 +933,7 @@ function OptionsBuilder.New(options)
     local widest = 0
     for _, widgets in ipairs(buttonRows) do
       local width = BUTTON_ROW_GAP * (#widgets - 1)
-      for _, button in ipairs(widgets) do width = width + button:GetTextWidth() + BUTTON_TEXT_PADDING end
+      for _, button in ipairs(widgets) do width = width + fitButton(button) end
       widest = math.max(widest, width)
     end
     return widest
@@ -831,7 +956,7 @@ function OptionsBuilder.New(options)
     end
     -- Titel steht mittig: links und rechts je Platz für das Suchfeld
     local titleRow = title:GetStringWidth() + 2 * (SEARCH_WIDTH + TEXT_INPUT_BORDER + MARGIN)
-    local content = math.max(offset + 2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth(),
+    local content = math.max(offset + 2 * column, widestChooserRow(), pageTabs:Width(), footerWidth(), buttonRowsWidth(),
       titleRow)
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end
@@ -850,11 +975,277 @@ function OptionsBuilder.New(options)
     if wantedHeight then panel:SetHeight(math.min(wantedHeight, maxPanelHeight())) end
   end
 
+  -------------------------------------------------------------------------
+  -- Zeilen neu anordnen (Modus "Einfach", eingeklappte Abschnitte): ausgeblendete Einträge rücken die folgenden um
+  -- ihre Höhe nach oben; nur bei Moduswechsel und Klick auf einen Abschnitt, nie im Takt
+  -------------------------------------------------------------------------
+  local advancedShown = true  -- zuletzt angewendeter Modus (ohne Schalter immer "Erweitert")
+  local hasShownItems = {}    -- [Seite] = false: kein sichtbarer Eintrag (fällt aus der Seitenleiste)
+
+  local function isAdvanced(db)
+    if not options.advanced or not db then return true end
+    return options.advanced.get(db) and true or false
+  end
+
+  local function setItemHidden(item, hidden)
+    if item.hidden == hidden then return end
+    item.hidden = hidden
+    for _, widget in ipairs(item.widgets) do widget:SetShown(not hidden) end
+    if item.cells then
+      for _, cell in ipairs(item.cells) do cell.checkbox:SetShown(not hidden and not cell.modeHidden) end
+    end
+  end
+
+  -- Schalter einer Gruppe: ausgeblendete fallen weg, die übrigen rücken in zwei Spalten nach; Rückgabe: Höhe
+  local function layoutCells(item, top)
+    local shown = 0
+    for _, cell in ipairs(item.cells) do
+      cell.checkbox:SetShown(not item.hidden and not cell.modeHidden)
+      if not cell.modeHidden then
+        cell.column = shown % 2
+        cell.y = top - math.floor(shown / 2) * ROW_CHECKBOX
+        shown = shown + 1
+      end
+    end
+    layoutStale = true  -- fitWidth setzt die Schalter an ihre (neuen) Zeilen
+    return math.ceil(shown / 2) * ROW_CHECKBOX
+  end
+
+  -- Sichtbarkeit nach Modus: advanced-Einträge und -Schalter nur im Modus "Erweitert"; ein Abschnitt fällt weg, wenn
+  -- alle seine Einträge weggefallen sind
+  local function applyMode(list)
+    local sectionHasShown = {}
+    for _, item in ipairs(list) do
+      item.modeHidden = item.advanced and not advancedShown
+      if item.cells and not item.modeHidden then
+        local any = false
+        for _, cell in ipairs(item.cells) do
+          cell.modeHidden = cell.advanced and not advancedShown or false
+          any = any or not cell.modeHidden
+        end
+        item.modeHidden = not any and #item.cells > 0
+      elseif item.cells then
+        for _, cell in ipairs(item.cells) do cell.modeHidden = true end
+      end
+      if item.section and not item.modeHidden then sectionHasShown[item.section] = true end
+    end
+    for _, item in ipairs(list) do
+      if item.isSection and not item.modeHidden then
+        local hasItems = false
+        for _, other in ipairs(list) do
+          if other.section == item then hasItems = true end
+        end
+        if hasItems and not sectionHasShown[item] then item.modeHidden = true end
+      end
+    end
+  end
+
+  local function relayout(owner)
+    local list = itemsOf[owner]
+    if not list then return end
+    applyMode(list)
+    local shift = 0
+    local shownCount = 0
+    for _, item in ipairs(list) do
+      local hidden = item.modeHidden or (item.section ~= nil and collapsed[item.section] == true)
+      setItemHidden(item, hidden)
+      item.shift = shift
+      if hidden then
+        shift = shift + item.height
+      else
+        if not item.isSection then shownCount = shownCount + 1 end
+        if item.placedShift ~= shift then
+          item.placedShift = shift
+          for _, anchor in ipairs(item.anchors) do
+            anchor.widget:ClearAllPoints()
+            anchor.widget:SetPoint("TOPLEFT", MARGIN, anchor.y + shift)
+            if anchor.stretch then anchor.widget:SetPoint("TOPRIGHT", -MARGIN, anchor.y + shift) end
+          end
+        end
+        if item.cells then shift = shift + item.height - layoutCells(item, item.startY + shift) end
+      end
+      if item.refreshHeader then item.refreshHeader() end
+    end
+    hasShownItems[owner] = shownCount > 0
+  end
+
+  -- Seitenleiste: Unterseiten ohne sichtbaren Eintrag fallen weg; darunter "Standard" und "Rückgängig"
+  local function relayoutSidebar(bar)
+    local row = 0
+    local firstShown
+    for _, entry in ipairs(bar.entries) do
+      local shown = hasShownItems[entry.frame] ~= false
+      entry.button:SetShown(shown)
+      if shown then
+        entry.button:ClearAllPoints()
+        entry.button:SetPoint("TOPLEFT", MARGIN, bar.startY - row * SIDEBAR_ROW)
+        row = row + 1
+        firstShown = firstShown or entry
+      end
+    end
+    local y = bar.startY - row * SIDEBAR_ROW - SIDEBAR_BUTTON_GAP
+    bar.resetButton:ClearAllPoints()
+    bar.resetButton:SetPoint("TOPLEFT", MARGIN, y)
+    bar.undoButton:ClearAllPoints()
+    bar.undoButton:SetPoint("TOPLEFT", MARGIN, y - ROW_BUTTON)
+    if bar.shown and hasShownItems[bar.shown.frame] == false and firstShown then showSubPage(bar, firstShown) end
+  end
+
+  local function relayoutAll()
+    for owner in pairs(itemsOf) do relayout(owner) end
+    for _, bar in ipairs(sidebars) do relayoutSidebar(bar) end
+  end
+
+  -- Modus der Einstellungen angleichen (nach jedem Apply; neu angeordnet wird nur bei einem Wechsel)
+  local function syncMode(db)
+    local wanted = isAdvanced(db)
+    if wanted == advancedShown then return end
+    advancedShown = wanted
+    relayoutAll()
+  end
+
+  -- Abschnitt ein- oder ausklappen (Klick auf die Überschrift, Suche)
+  function builder.SetCollapsed(item, isCollapsed)
+    collapsed[item] = isCollapsed and true or nil
+    relayout(item.owner)
+    for _, bar in ipairs(sidebars) do relayoutSidebar(bar) end
+    finishRefresh()
+  end
+
+  function builder.IsCollapsed(item)
+    return collapsed[item] == true
+  end
+
+  -- Abschnitts-Eintrag zu einer Überschrift (Locale-Key) auf einer Unterseite oder Seite (Tests, Suche)
+  function builder.SectionOf(labelKey)
+    for _, entry in ipairs(searchEntries) do
+      if entry.item and entry.item.isSection and entry.title() == L[labelKey] then return entry.item end
+    end
+  end
+
+  -- Gefundener Eintrag ist ausgeblendet: Modus "Erweitert" bzw. Abschnitt aufklappen
+  function unhide(entry)
+    local item = entry.item
+    if not item then return end
+    if item.modeHidden or (entry.cell and entry.cell.modeHidden) then options.advanced.set(true) end
+    if item.section and collapsed[item.section] then builder.SetCollapsed(item.section, false) end
+    if item.isSection and collapsed[item] then builder.SetCollapsed(item, false) end
+  end
+
+  -- Für Tests: wird der Baustein gerade angezeigt (nicht per Modus oder Einklappen weg)?
+  function builder.IsEntryShown(entry)
+    if not entry.item then return true end
+    return not entry.item.hidden and not (entry.cell and entry.cell.modeHidden)
+  end
+
+  -------------------------------------------------------------------------
+  -- Zurücksetzen je Unterseite (Roadmap 405): Werte vorher merken (bis /reload), Standard setzen, ein Apply
+  -------------------------------------------------------------------------
+  local backups = {}  -- [Unterseiten-Eintrag] = { { reset, value }, ... }
+  local RESET_POPUP = options.name .. "_RESET_PAGE"
+
+  local function resetsOfPage(entry)
+    local list = {}
+    for _, item in ipairs(itemsOf[entry.frame] or {}) do
+      for _, reset in ipairs(item.resets) do table.insert(list, reset) end
+    end
+    return list
+  end
+
+  local function subPageEntry(labelKey)
+    for _, bar in ipairs(sidebars) do
+      for _, entry in ipairs(bar.entries) do
+        if entry.key == labelKey then return entry end
+      end
+    end
+  end
+
+  -- Unterseite (Locale-Key) auf Standard; false = unbekannt oder nichts zurückzusetzen
+  function builder.ResetPage(labelKey)
+    local entry = subPageEntry(labelKey)
+    local resets = entry and resetsOfPage(entry) or {}
+    if #resets == 0 then return false end
+    local backup = {}
+    for i, reset in ipairs(resets) do backup[i] = { reset = reset, value = reset.get() } end
+    for _, reset in ipairs(resets) do reset.set(reset.default()) end
+    backups[entry] = backup
+    host.print(string.format(L.OPTIONS_RESET_DONE, L[entry.key]))
+    host.apply()
+    return true
+  end
+
+  -- Letztes Zurücksetzen dieser Unterseite rückgängig machen
+  function builder.UndoReset(labelKey)
+    local entry = subPageEntry(labelKey)
+    local backup = entry and backups[entry]
+    if not backup then return false end
+    for _, saved in ipairs(backup) do saved.reset.set(saved.value) end
+    backups[entry] = nil
+    host.print(string.format(L.OPTIONS_RESET_UNDONE, L[entry.key]))
+    host.apply()
+    return true
+  end
+
+  -- Schlüssel, die "Standard" auf einer Unterseite zurücksetzt (Tests)
+  function builder.ResetCount(labelKey)
+    local entry = subPageEntry(labelKey)
+    return entry and #resetsOfPage(entry) or 0
+  end
+
+  local confirmReset = Widgets.ConfirmPopup(RESET_POPUP, "OPTIONS_RESET_CONFIRM", function(labelKey) builder.ResetPage(labelKey) end)
+
+  function createSidebarButtons(bar)
+    bar.resetButton = Widgets.CreateButton(bar.parent, SIDEBAR_BUTTON_MIN_WIDTH, BUTTON_HEIGHT, function()
+      local entry = bar.shown
+      if not entry then return end
+      confirmReset(L[entry.key], entry.key)
+    end)
+    bar.undoButton = Widgets.CreateButton(bar.parent, SIDEBAR_BUTTON_MIN_WIDTH, BUTTON_HEIGHT, function()
+      if bar.shown then builder.UndoReset(bar.shown.key) end
+    end)
+    addTooltip(bar.resetButton, "OPTIONS_RESET_PAGE_TIP", localized("OPTIONS_RESET_PAGE"))
+    addTooltip(bar.undoButton, "OPTIONS_RESET_UNDO_TIP", localized("OPTIONS_RESET_UNDO"))
+    function bar.updateButtons()
+      local entry = bar.shown
+      bar.resetButton:SetShown(entry ~= nil and #resetsOfPage(entry) > 0)
+      bar.undoButton:SetShown(entry ~= nil and backups[entry] ~= nil)
+    end
+    addRefresher(function()
+      if setMeasuredText(bar.resetButton, "SetText", L.OPTIONS_RESET_PAGE) then
+        Widgets.SetButtonText(bar.resetButton, L.OPTIONS_RESET_PAGE, SIDEBAR_BUTTON_MIN_WIDTH)
+      end
+      if setMeasuredText(bar.undoButton, "SetText", L.OPTIONS_RESET_UNDO) then
+        Widgets.SetButtonText(bar.undoButton, L.OPTIONS_RESET_UNDO, SIDEBAR_BUTTON_MIN_WIDTH)
+      end
+      bar.updateButtons()
+    end, bar.parent)
+    relayoutSidebar(bar)
+  end
+
+  -------------------------------------------------------------------------
+  -- Schalter "Erweitert" oben rechts neben dem Schließen-Knopf (Roadmap 402)
+  -------------------------------------------------------------------------
+  if options.advanced then
+    local mode = Widgets.CreateCheckbox(panel, function(checked) options.advanced.set(checked) end)
+    builder.modeCheckbox = mode
+    addTooltip(mode, options.advanced.label .. "_TIP", localized(options.advanced.label))
+    addRefresher(function(db)
+      mode:SetChecked(isAdvanced(db))
+      if setMeasuredText(mode.label, "SetText", L[options.advanced.label]) then
+        mode:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + mode.label:GetStringWidth()), 0, 0)
+        mode:ClearAllPoints()
+        mode:SetPoint("TOPRIGHT", -(MODE_RIGHT + Widgets.CHECKBOX_LABEL_GAP + mode.label:GetStringWidth()), MODE_TOP)
+      end
+    end, nil)
+  end
+
+
   -- Alle Steuerelemente, auch auf verborgenen Seiten (Öffnen, Sprachwechsel, Profilliste)
   function builder.Refresh(db)
     refreshPending = false
     refreshedLanguage = db.language
     for owner in pairs(stale) do stale[owner] = nil end
+    syncMode(db)
     setMeasuredText(title, "SetText", options.title())  -- Breite zählt für das Suchfeld daneben (fitWidth)
     placeholder:SetText(L.OPTIONS_SEARCH)
     for _, refresher in ipairs(refreshers) do
@@ -865,6 +1256,7 @@ function OptionsBuilder.New(options)
 
   -- Nur die sichtbaren; verborgene Seiten merken sich, dass sie beim Zeigen nachholen müssen
   local function refreshVisible(db)
+    syncMode(db)
     setMeasuredText(title, "SetText", options.title())
     for _, refresher in ipairs(refreshers) do
       local owner = refresher.owner
@@ -878,12 +1270,12 @@ function OptionsBuilder.New(options)
   end
 
   function catchUp()
-    if not next(stale) or not ns.db or not panel:IsShown() then return end
+    if not next(stale) or not host.db() or not panel:IsShown() then return end
     local done
     for _, refresher in ipairs(refreshers) do
       local owner = refresher.owner
       if owner and stale[owner] and owner:IsVisible() then
-        refresher.run(ns.db)
+        refresher.run(host.db())
         done = done or {}
         done[owner] = true
       end
@@ -907,7 +1299,7 @@ function OptionsBuilder.New(options)
   end
 
   panel:SetScript("OnShow", function()
-    if refreshPending and ns.db then builder.Refresh(ns.db) else catchUp() end
+    if refreshPending and host.db() then builder.Refresh(host.db()) else catchUp() end
   end)
 
   return builder

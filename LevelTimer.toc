@@ -15,8 +15,14 @@
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
 # Grundlagen: Sprachen, Kern (Core), allgemeine Helfer (Lib)
-Locales\Locales.lua
+Locales\Core.lua
+Locales\deDE.lua
+Locales\enUS.lua
+Locales\frFR.lua
+Locales\esES.lua
+Lib\Migrate.lua
 Core\Database.lua
+Lib\Lifecycle.lua
 Core\LevelTimer.lua
 Core\Client.lua
 Core\DebugLog.lua
@@ -29,6 +35,7 @@ Lib\RecentCounter.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
 Lib\RecordCodec.lua
+Lib\ProfileStore.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\GroupChat.lua
@@ -43,6 +50,7 @@ Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
+Lib\TabStrip.lua
 Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
@@ -118,6 +126,8 @@ UI\StatLines.lua
 UI\LevelUpSummary.lua
 UI\SessionCompare.lua
 UI\Alerts.lua
+UI\AlertTriggers.lua
+UI\AlertPosition.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
@@ -156,11 +166,13 @@ Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua
+Assist\ScreenBorders.lua
 Assist\Camera.lua
 Assist\SkipDialogs.lua
 Assist\Declines.lua
 Assist\ChatCopy.lua
 Assist\ChatWindows.lua
+Assist\ChatFontSize.lua
 Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
@@ -170,6 +182,7 @@ Assist\LootSparkles.lua
 Assist\LootRollReport.lua
 UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
+Assist\QuestTextSize.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua
 Assist\QuestLeftovers.lua
@@ -177,7 +190,11 @@ Assist\ActionBars.lua
 Assist\Emergency.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
+Assist\DressUp.lua
+Assist\InfoCard.lua
 Assist\ClassColors.lua
+Assist\PlayerChain.lua
+Assist\DruidManaBar.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
 Assist\BlizzardHide.lua
@@ -189,6 +206,7 @@ Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua
 Assist\RaidRestrictions.lua
+Assist\ReadyTimer.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
 UI\WindowModel.lua
@@ -201,12 +219,14 @@ UI\Layouts\XpBar.lua
 UI\Layouts\Tiles.lua
 UI\DisplayVisibility.lua
 UI\TimerWindow.lua
+UI\InstanceReset.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
 Lib\Export.lua
 Lib\TableOrder.lua
 Lib\TableView.lua
 Lib\OptionsBuilder.lua
+UI\CharacterMenu.lua
 UI\HistoryWindow.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
@@ -214,11 +234,16 @@ Speedrun\SpeedrunViews.lua
 UI\QuestViews.lua
 UI\RecapWindow.lua
 UI\StreamMode.lua
+Lib\MinimapButton.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\ExternalOptions.lua
+UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
+UI\WelcomeCard.lua
+Lib\SlashCommands.lua
 Core\Commands.lua

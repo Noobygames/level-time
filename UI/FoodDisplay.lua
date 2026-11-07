@@ -20,7 +20,7 @@ local function eatingSpell() return ns.FoodTimer.EATING_SPELL_ID end
 local function wellFedSpell() return ns.FoodTimer.WELL_FED_SPELL_ID end
 
 local FoodDisplay = ns.TimerDisplay.Create({
-  name = "LevelTimerFood",
+  name = ns.GlobalName("Food"),
   default = { "TOP", "TOP", 0, -300 },  -- unter der Lagerfeuer-Anzeige
   id = "food", label = "EDIT_FRAME_FOOD", soundKey = "foodSound",
   toggleKey = "foodTimer",

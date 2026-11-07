@@ -10,6 +10,9 @@ local SECONDS_PER_DAY = 86400
 local COPPER_PER_SILVER = 100
 local COPPER_PER_GOLD = 10000
 
+Format.NO_VALUE = "-"    -- Platzhalter für Werte, die es (noch) nicht gibt
+Format.PENDING = "..."   -- Platzhalter für Werte, die noch kommen (z.B. /played hat noch nicht geantwortet)
+
 local function splitDuration(totalSeconds)
   totalSeconds = math.floor(totalSeconds)
   return math.floor(totalSeconds / SECONDS_PER_DAY),
@@ -60,13 +63,20 @@ end
 -- Hervorhebungen einer Split-Abweichung statt grün/rot
 Format.SPLIT_GOLD = "gold"
 Format.SPLIT_EVEN = "even"
-local STYLE_COLORS = { [Format.SPLIT_GOLD] = "best", [Format.SPLIT_EVEN] = "neutral" }
+Format.SPLIT_AHEAD_LOSING = "aheadLosing"    -- gesamt vorn, das laufende Level verliert (LiveSplit, Roadmap 361)
+Format.SPLIT_BEHIND_GAINING = "behindGaining" -- gesamt hinten, das laufende Level holt auf
+local STYLE_COLORS = {
+  [Format.SPLIT_GOLD] = "best", [Format.SPLIT_EVEN] = "neutral",
+  [Format.SPLIT_AHEAD_LOSING] = "goodLosing", [Format.SPLIT_BEHIND_GAINING] = "badGaining",
+}
 
 -- Split-Abweichung farbig: grün schneller, rot langsamer, style = Format.SPLIT_GOLD/SPLIT_EVEN hebt
 -- hervor; "-" ohne Vergleichswert
 function Format.SplitDelta(seconds, style)
   if not seconds then return "-" end
-  local ahead = (ns.db and ns.db.windowBackground == "green") and "goodOnChroma" or "good"
+  local onGreen = ns.db and ns.db.windowBackground == "green"
+  local ahead = onGreen and "goodOnChroma" or "good"
+  if style == Format.SPLIT_AHEAD_LOSING and onGreen then style = nil end  -- helles Grün verschwände im Chroma-Grün
   local color = STYLE_COLORS[style] or (seconds < 0 and ahead or "bad")
   return ns.Theme.Hex(color) .. Format.SignedDuration(seconds) .. "|r"
 end

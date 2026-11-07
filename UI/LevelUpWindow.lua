@@ -41,7 +41,7 @@ local THEME_COLORS = {
   horde = { background = { 0.15, 0.03, 0.03 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
 }
 
-local frame = CreateFrame("Frame", "LevelTimerLevelUp", UIParent)
+local frame = CreateFrame("Frame", ns.GlobalName("LevelUp"), UIParent)
 frame:SetFrameStrata("FULLSCREEN_DIALOG")
 frame:SetClampedToScreen(true)
 frame:Hide()
@@ -365,7 +365,8 @@ end)
 ---------------------------------------------------------------------------
 -- Vorschau und Edit-Modus; Position und Größe über Lib/Frames.lua
 ---------------------------------------------------------------------------
--- Linksklick schließt das Fenster (im Edit-Modus liegt dessen Fläche darüber)
+-- Linksklick schließt das Fenster, Rechtsklick öffnet seine Einstellungen (Lib/Frames.lua; im Edit-Modus liegt dessen
+-- Fläche darüber)
 frame:EnableMouse(true)
 frame:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "LeftButton" and override ~= MOVING then hide() end

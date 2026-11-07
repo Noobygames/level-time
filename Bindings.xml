@@ -2,4 +2,7 @@
 	<Binding name="LEVELTIMER_CUSTOM_SPLIT" header="LEVELTIMER" category="ADDONS">
 		LevelTimer_CustomSplit()
 	</Binding>
+	<Binding name="LEVELTIMER_INFO_CARD" category="ADDONS">
+		LevelTimer_InfoCard()
+	</Binding>
 </Bindings>

@@ -10,6 +10,16 @@ for _, line in ipairs(addon.STAT_LINES) do
 end
 for group, count in pairs(known) do expectTrue("Gruppe nicht leer: " .. group, count > 0) end
 
+-- Roadmap 228: Voreinstellungen nennen nur Einstellungen, die es als Stat-Zeile gibt (Tippfehler fielen sonst nicht auf)
+local statSettings = {}
+for _, line in ipairs(addon.STAT_LINES) do statSettings[line.setting] = true end
+for _, entry in ipairs(addon.STAT_PRESETS) do
+  expectTrue("Voreinstellung mit Text: " .. entry.label, addon.L[entry.label] ~= entry.label)
+  for _, setting in ipairs(entry.settings) do
+    expectTrue("Voreinstellung " .. entry.label .. " kennt " .. setting, statSettings[setting] == true)
+  end
+end
+
 -- Voreinstellung: genau die genannten Zeilen sind an
 local preset = addon.STAT_PRESETS[1]
 addon.ApplyStatPreset(preset)
@@ -44,7 +54,7 @@ wow.logout()
 wow.login({ level = 10 })
 SlashCmdList.LEVELTIMER("config")
 wow.click(addon.L.STATISTICS)
-expectTrue("Button Rückgängig", wow.click(addon.L.PRESET_UNDO))
+expectTrue("Button Rückgängig", wow.clickOption("PRESET_UNDO"))  -- "Rückgängig" gibt es auch unter der Seitenleiste
 expect("Geld wieder an", LevelTimerDB.showMoney, true)
 expect("Erholung wieder an", LevelTimerDB.showRested, true)
 expect("Zwischenstand verworfen", LevelTimerDB.presetBackup, nil)

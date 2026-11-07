@@ -185,10 +185,12 @@ Splits.GetTotalDelta = ns.TickCache.Memo(totalDelta)
 function Splits.SetReferenceRun(run)
   local times = {}
   for level, seconds in pairs(run.times) do times[level] = seconds end
-  ns.db.splitReference = { id = run.id, name = run.name, times = times }
   caches = {}  -- auch bei gleicher Wahl neu lesen (der Lauf kann sich seit dem letzten Mal geändert haben)
-  ns.db.splitComparison = Splits.RUN
-  ns.ApplySettings()  -- immer: der gewählte Lauf ist neu, auch wenn splitComparison schon RUN war
+  -- Apply immer: der gewählte Lauf ist neu, auch wenn splitComparison schon RUN war
+  ns.SetBatch(function(db)
+    db.splitReference = { id = run.id, name = run.name, times = times }
+    db.splitComparison = Splits.RUN
+  end)
 end
 
 -- Lauf per Name wählen; false ohne Treffer
@@ -232,6 +234,21 @@ end
 -- Abweichung eines abgeschlossenen Levels als Text, Gold-Splits lila, im Toleranzband gelb
 function Splits.LevelDeltaText(level)
   return deltaText(Splits.GetLevelDelta(level), Splits.GetReference(level), Splits.IsGoldSplit(level))
+end
+
+-- Summe aller Abweichungen; kippt das laufende Level gegen den Gesamtstand, heller (LiveSplit: vorn und verliert,
+-- hinten und holt auf); im Toleranzband des laufenden Levels wie gewohnt gelb
+function Splits.TotalDeltaText()
+  local total, current = Splits.GetTotalDelta(), Splits.GetCurrentDelta()
+  local style
+  if total and current and not Splits.IsWithinTolerance(current, Splits.GetReference(ns.level)) then
+    if total < 0 and current > 0 then
+      style = Format.SPLIT_AHEAD_LOSING
+    elseif total > 0 and current < 0 then
+      style = Format.SPLIT_BEHIND_GAINING
+    end
+  end
+  return Format.SplitDelta(total, style)
 end
 
 function Splits.CurrentDeltaText()
