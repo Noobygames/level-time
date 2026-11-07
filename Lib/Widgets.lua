@@ -298,7 +298,7 @@ function Widgets.SetButtonText(button, text, minWidth)
 end
 
 -- Rückfrage Ja/Nein über StaticPopup, Text aus L[textKey] in der Sprache zur Anzeigezeit (Roadmap 218).
--- Rückgabe: show(textArg, data); onAccept(data) bekommt data aus show
+-- Rückgabe: show(textArg, data, textArg2); onAccept(data) bekommt data aus show, textArg2 = zweiter Platzhalter
 function Widgets.ConfirmPopup(name, textKey, onAccept)
   StaticPopupDialogs[name] = {
     button1 = YES or "Yes",
@@ -309,9 +309,9 @@ function Widgets.ConfirmPopup(name, textKey, onAccept)
     hideOnEscape = true,
     preferredIndex = 3,  -- eigener Platz, kollidiert nicht mit Blizzard-Dialogen
   }
-  return function(textArg, data)
+  return function(textArg, data, textArg2)
     StaticPopupDialogs[name].text = ns.L[textKey]
-    StaticPopup_Show(name, textArg, nil, data)
+    StaticPopup_Show(name, textArg, textArg2, data)
   end
 end
 

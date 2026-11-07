@@ -83,15 +83,9 @@ local function abandonNext(questIDs)
   if #questIDs > 0 then C_Timer.After(ABANDON_STEP, function() ns.SafeCall(abandonNext, questIDs) end) end
 end
 
-StaticPopupDialogs[CONFIRM_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, questIDs) abandonNext(questIDs) end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmAbandon = ns.Widgets.ConfirmPopup(CONFIRM_POPUP, "QUEST_CLEANUP_CONFIRM", function(questIDs)
+  abandonNext(questIDs)
+end)
 
 -- Rückfrage mit den Namen; abgebrochen wird erst beim Bestätigen
 function QuestCleanup.Confirm()
@@ -106,8 +100,7 @@ function QuestCleanup.Confirm()
     if index <= MAX_LISTED then names[index] = entry.title or tostring(entry.questID) end
   end
   if #gray > MAX_LISTED then table.insert(names, "...") end
-  StaticPopupDialogs[CONFIRM_POPUP].text = L.QUEST_CLEANUP_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(CONFIRM_POPUP, #gray, table.concat(names, "\n"), questIDs)
+  confirmAbandon(#gray, questIDs, table.concat(names, "\n"))  -- Text in der aktuellen Sprache
 end
 
 local function refreshButton()
