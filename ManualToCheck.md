@@ -2141,3 +2141,24 @@ Fenster liegt oben (ja/nein):
 Taint/Fehler beim Schließen (ja/nein):
 Fehler:
 ```
+
+### 145. Standard je Kategorie (Roadmap 405)
+
+- [ ] geprüft
+
+`/lt`, z.B. Einblendungen > Stil & Position: Stil, Dauer, Ton, Größe ändern.
+
+1. Unter der Seitenleiste steht „Standard“ (nicht über einem Eintrag, nicht abgeschnitten, auch in fr/es).
+2. Klick: Rückfrage nennt „Stil & Position“; Ja setzt nur diese Werte zurück (Ereignisse-Schalter bleiben), Chatzeile.
+3. „Rückgängig“ erscheint darunter und stellt die Werte wieder her; danach verschwindet es.
+4. Allgemein > Sprache & Minimap: „Standard“ zeigt den Minimap-Button wieder, seine Position am Rand bleibt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Buttons gut platziert (ja/nein):
+nur die Kategorie zurückgesetzt (ja/nein):
+Rückgängig ok (ja/nein):
+Fehler:
+```

@@ -165,6 +165,21 @@ function Frames.SetScale(id, scale)
   ns.RequestApply()
 end
 
+-- Gespeicherte eigene Größe (nil = Standard bzw. die des Hauptfensters); für Zurücksetzen und Rückgängig in den
+-- Einstellungen, die Position bleibt dabei stehen
+function Frames.GetStoredScale(id)
+  local entry = entryOf(registry[id])
+  return entry and entry.scale
+end
+
+function Frames.SetStoredScale(id, scale)
+  local reg = registry[id]
+  if blocked(reg) then return end
+  ensureEntry(reg).scale = scale and Frames.ClampScale(scale) or nil
+  rescale(reg, Frames.GetScale(id))
+  ns.RequestApply()
+end
+
 -- Position übernehmen, wie sie der Rahmen gerade hat (nach dem Ziehen)
 function Frames.SavePosition(id)
   savePosition(registry[id])

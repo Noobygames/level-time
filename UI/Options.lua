@@ -243,6 +243,7 @@ local function addThemeSection()
   addChooser({ label = "THEME_ACCENT", setting = "themeAccent", choices = accents })
   builder.AddCycleButton({
     label = "THEME_FONT",
+    setting = "themeFont",
     choices = Theme.FontChoices,
     get = function(db) return db.themeFont end,
     set = function(key) ns.Set("themeFont", key) end,
@@ -250,6 +251,7 @@ local function addThemeSection()
   })
   addSlider({
     label = "THEME_FONT_SIZE",
+    setting = "themeFontSize",
     min = Theme.MIN_FONT_OFFSET,
     max = Theme.MAX_FONT_OFFSET,
     step = 1,
@@ -268,6 +270,7 @@ end
 local function addVisibilityCycle(label, setting)
   builder.AddCycleButton({
     label = label,
+    setting = setting,
     choices = function()
       local choices = {}
       for i, mode in ipairs(ns.DisplayVisibility.MODES) do choices[i] = { key = mode } end
@@ -309,6 +312,7 @@ local function addDisplaySection()
   for index = 1, WindowModel.MAX_CHOSEN_ROWS do
     builder.AddCycleButton({
       label = "CHOSEN_ROW_" .. index,
+      setting = "compactRows",
       choices = rowChoices,
       get = function(db) return WindowModel.ChosenRowKey(db, index) end,
       set = function(key) WindowModel.SetChosenRow(ns.db, index, key) end,
@@ -321,6 +325,7 @@ local function addDisplaySection()
   addToggles({ textToggle })
   addSlider({
     label = "TILE_COLUMNS",
+    setting = "tileColumns",
     min = Layouts.Tiles.MIN_COLUMNS,
     max = Layouts.Tiles.MAX_COLUMNS,
     step = 1,
@@ -334,6 +339,7 @@ local function addDisplaySection()
   addChooser({ label = "XPBAR_TEXT", setting = "xpbarText", choices = textModes, enabled = layoutIs("xpbar") })
   addSlider({
     label = "XPBAR_WIDTH",
+    setting = "xpbarWidth",
     min = Layouts.XpBar.MIN_WIDTH,
     max = Layouts.XpBar.MAX_WIDTH,
     step = 20,
@@ -349,6 +355,7 @@ local function addVisibilitySection()
   addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
   addSlider({
     label = "FADE_ALPHA",
+    setting = "fadeAlpha",
     min = 0,
     max = 100,
     step = 5,
@@ -372,6 +379,7 @@ local function addRowOrderSection()
   addSection("SECTION_ROW_ORDER")
   builder.AddCycleButton({
     label = "ROW_ORDER_STAT",
+    setting = "rowOrder",
     choices = function()
       local list = {}
       for i, stat in ipairs(WindowModel.ShownStats(ns.db)) do list[i] = { key = stat.setting, label = stat.label } end
@@ -414,6 +422,8 @@ local function addFrameScaleSlider(label, id)
     get = function() return toPercent(Frames.GetScale(id)) end,
     set = function(value) Frames.SetScale(id, value / 100) end,
     format = percent,
+    reset = { get = function() return Frames.GetStoredScale(id) end, set = function(scale) Frames.SetStoredScale(id, scale) end,
+      default = function() return nil end },
   })
 end
 
@@ -425,12 +435,20 @@ end
 -- sich nach der längsten Unterseite. Kategorie-Namen: OPTIONS_PAGE_* (Komfort: COMFORT_PAGE_*).
 local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
 
+-- Minimap-Button an/aus (Zurücksetzen je Unterseite): nur hide, nicht die Position am Rand
+local minimapReset = {
+  get = function() return ns.db.minimap.hide end,
+  set = function(hidden) ns.db.minimap.hide = hidden end,
+  default = function() return ns.Database.SettingDefault("minimap").hide end,
+}
+
 -- Allgemein: Hauptfenster, Layout, Aussehen, Sprache und Minimap, Stream
 addPage("SECTION_GENERAL")
 addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
 addSlider({
   label = "BG_OPACITY",
+  setting = "bgAlpha",
   min = 0,
   max = 100,
   step = 5,
@@ -456,7 +474,7 @@ addSubPage("SECTION_LANGUAGE")
 addLanguageChooser()
 addToggles({
   { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(not checked) end },
+    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 -- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
 addSubPage("OPTIONS_TAB_STREAM")
@@ -467,7 +485,7 @@ addToggles({
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
   -- Abkürzung zu "Minimap-Button anzeigen" (Sprache & Minimap), umgekehrt formuliert
   { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(checked) end },
+    set = function(checked) ns.SetMinimapHidden(checked) end, reset = minimapReset },
 })
 addBackgroundChooser()
 finishSubPages()
@@ -508,6 +526,7 @@ addSubPage("OPTIONS_PAGE_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
 addSlider({
   label = "IDLE_LIMIT",
+  setting = "idleMinutes",
   min = ns.TimeBreakdown.MIN_IDLE_MINUTES,
   max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
   step = 1,
@@ -517,6 +536,7 @@ addSlider({
 })
 addSlider({
   label = "TO_LEVEL_SAMPLES",
+  setting = "toLevelSamples",
   min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
   step = 5,
@@ -562,6 +582,7 @@ if #classReminders > 0 then
 end
 addSlider({
   label = "REMINDER_INTERVAL",
+  setting = "reminderInterval",
   min = ns.BuffReminder.MIN_INTERVAL,
   max = ns.BuffReminder.MAX_INTERVAL,
   step = 1,
@@ -573,6 +594,7 @@ addSlider({
 addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
 addSlider({
   label = "BREAK_MINUTES",
+  setting = "breakMinutes",
   min = ns.BreakReminder.MIN_MINUTES,
   max = ns.BreakReminder.MAX_MINUTES,
   step = 15,
@@ -594,6 +616,7 @@ addToggles({
 })
 addSlider({
   label = "WARN_BREATH_BELOW",
+  setting = "breathWarnSeconds",
   min = ns.BreathWarning.MIN_SECONDS,
   max = ns.BreathWarning.MAX_SECONDS,
   step = 1,
@@ -605,6 +628,7 @@ addSlider({
 if ns.GearWarnings.ShowsAmmoOptions() then
   addSlider({
     label = "WARN_AMMO_BELOW",
+    setting = "ammoLow",
     min = ns.GearWarnings.MIN_AMMO,
     max = ns.GearWarnings.MAX_AMMO,
     step = 20,
@@ -614,6 +638,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_CRITICAL_BELOW",
+    setting = "ammoCritical",
     min = 0,
     max = ns.GearWarnings.MAX_CRITICAL_AMMO,
     step = 10,
@@ -623,6 +648,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_REPEAT",
+    setting = "ammoRepeat",
     min = 0,
     max = ns.GearWarnings.MAX_AMMO_REPEAT,
     step = 1,
@@ -643,6 +669,7 @@ addToggles({
 })
 addSlider({
   label = "LOW_MANA_BELOW",
+  setting = "lowManaPercent",
   min = ns.ManaCallout.MIN_PERCENT,
   max = ns.ManaCallout.MAX_PERCENT,
   step = 5,
@@ -675,6 +702,7 @@ addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
 addFrameScaleSlider("ALERT_SCALE", "alert")
 addSlider({
   label = "ALERT_DURATION",
+  setting = "alertDuration",
   min = Alerts.MIN_DURATION,
   max = Alerts.MAX_DURATION,
   step = 1,
@@ -699,6 +727,7 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
 addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
 addSlider({
   label = "LEVEL_UP_DURATION",
+  setting = "levelUpDuration",
   min = ns.LevelUpWindow.MIN_DURATION,
   max = ns.LevelUpWindow.MAX_DURATION,
   step = 1,
@@ -728,6 +757,7 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
     })
     addSlider({
       label = "CAMP_HINT_PAUSE",
+      setting = "campHintPause",
       min = ns.CampFire.MIN_HINT_PAUSE,
       max = ns.CampFire.MAX_HINT_PAUSE,
       step = 1,
@@ -794,6 +824,7 @@ addToggles({
 })
 builder.AddTextInput({
   label = "INVITE_KEYWORD",
+  setting = "inviteKeyword",
   get = function(db) return db.inviteKeyword end,
   set = function(text) ns.Set("inviteKeyword", strtrim(text)) end,
 })
@@ -856,6 +887,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
   if LootSparkles.CanSoftTarget() then
     addSlider({
       label = "LOOT_SPARKLE_SCALE",
+      setting = "lootSparkleScale",
       min = toPercent(ns.LootSparkle.MIN_SCALE),
       max = toPercent(ns.LootSparkle.MAX_SCALE),
       step = 5,
@@ -883,6 +915,7 @@ addToggles({
 })
 builder.AddTextInput({
   label = "QUEST_EXCLUDE",
+  setting = "questExclude",
   width = QUEST_EXCLUDE_WIDTH,
   get = function(db) return db.questExclude end,
   set = function(text) ns.Set("questExclude", strtrim(text)) end,
@@ -916,6 +949,7 @@ if ns.QuestMarks.IsAvailable() then
   addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
   addSlider({
     label = "QUEST_MARK_SCALE",
+    setting = "questMarkScale",
     min = toPercent(ns.QuestMarks.MIN_SCALE),
     max = toPercent(ns.QuestMarks.MAX_SCALE),
     step = 5,
@@ -990,6 +1024,7 @@ addToggles({
 })
 addSlider({
   label = "WEATHER_DENSITY",
+  setting = "weatherDensity",
   min = ns.ScreenEffects.MIN_WEATHER,
   max = ns.ScreenEffects.MAX_WEATHER,
   step = 1,
@@ -1022,6 +1057,7 @@ addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
 addSlider({
   label = "SPLIT_LIST_ROWS",
+  setting = "splitListRows",
   min = ns.SplitList.MIN_ROWS,
   max = ns.SplitList.MAX_ROWS,
   step = 1,
@@ -1040,6 +1076,7 @@ addToggles({
 })
 addSlider({
   label = "SPLIT_TOLERANCE",
+  setting = "splitTolerancePercent",
   min = 0,
   max = ns.Splits.MAX_TOLERANCE_PERCENT,
   step = 1,
@@ -1058,6 +1095,7 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
   table.insert(recordToggles, {
     text = function() return string.format(L.WORLD_RECORD_ROW, label) end,
     tip = "RECORD_BRACKET_TIP",
+    setting = "recordBrackets",
     get = function(db) return db.recordBrackets[label] ~= false end,
     set = function(checked)
       ns.db.recordBrackets[label] = checked

@@ -654,6 +654,19 @@ end
 Database.SanitizeSettings = sanitizeSettings
 
 -- Fehlende Einstellungen mit Defaults füllen (z.B. nach dem Laden eines Profils)
+-- Tiefe Kopie (Tabellen der Einstellungen), andere Werte unverändert
+function Database.CopyValue(value)
+  if type(value) ~= "table" then return value end
+  local copy = {}
+  for key, inner in pairs(value) do copy[key] = Database.CopyValue(inner) end
+  return copy
+end
+
+-- Standardwert einer Einstellung als eigene Kopie (Zurücksetzen je Unterseite der Einstellungen)
+function Database.SettingDefault(key)
+  return Database.CopyValue(SETTINGS_DEFAULTS[key])
+end
+
 function Database.ApplySettingDefaults(settings)
   return applyDefaults(settings, SETTINGS_DEFAULTS)
 end
