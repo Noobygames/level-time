@@ -954,6 +954,11 @@ addToggles({
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
   toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
 })
+local tooltipAnchors = {}
+for _, value in ipairs(ns.Tooltip.ANCHOR_ORDER) do
+  table.insert(tooltipAnchors, { value = value, name = localized("TOOLTIP_ANCHOR_" .. value:upper()) })
+end
+addChooser({ label = "TOOLTIP_ANCHOR", setting = "tooltipAnchor", choices = tooltipAnchors })
 -- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
 local MinimapTweaks = ns.MinimapTweaks
 addSection("SECTION_MINIMAP")

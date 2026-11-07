@@ -200,6 +200,7 @@ local SETTINGS_DEFAULTS = {
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
   tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
+  tooltipAnchor = "default",  -- Welt-Tooltips am Mauszeiger: default/cursor/cursorLeft/cursorRight (Tooltip.lua)
   deathMap = false,  -- Todespunkte auf der Weltkarte (DeathMap.lua)
   minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
   levelUpSummary = true,

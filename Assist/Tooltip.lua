@@ -6,6 +6,10 @@
 --   tooltipKillsToLevel  Zeile "Kills bis Level-Up: 12" an angreifbaren Gegnern (MobXp.lua, Roadmap 274), gefärbt nach
 --                        Stufenabstand wie Blizzards Gegnerfarben (GetCreatureDifficultyColor, alle Clients), "~" =
 --                        nach der Formel geschätzt.
+--   tooltipAnchor        Welt-Tooltips (Standardanker mit UIParent als Besitzer: Einheiten und Objekte der Spielwelt)
+--                        am Mauszeiger statt in der Ecke: "cursor", "cursorLeft", "cursorRight"; "default" = Blizzard.
+--                        Post-Hook auf GameTooltip_SetDefaultAnchor (SharedTooltipTemplates.lua in allen Clients,
+--                        Classic zusätzlich GameTooltip.lua) setzt danach nur SetOwner neu; Blizzards Funktion bleibt.
 -- Anschluss: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit) in allen Clients mit dem Tooltip-
 -- Datensystem (Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua: Post-Calls laufen vor tooltip:Show(), auch in
 -- Classic Era); sonst OnTooltipSetUnit. Verstecken im Kampf über HookScript("OnShow"), weil der Post-Call vor
@@ -114,6 +118,30 @@ function Tooltip.ShouldHide(tooltip)
   return ns.IsSecret(unit) or unit ~= nil
 end
 
+-- Ankerarten je Einstellung (GameTooltip:SetOwner, warcraft.wiki.gg API_GameTooltip_SetOwner)
+Tooltip.DEFAULT_ANCHOR = "default"
+Tooltip.ANCHORS = {
+  cursor = "ANCHOR_CURSOR",
+  cursorLeft = "ANCHOR_CURSOR_LEFT",
+  cursorRight = "ANCHOR_CURSOR_RIGHT",
+}
+Tooltip.ANCHOR_ORDER = { Tooltip.DEFAULT_ANCHOR, "cursor", "cursorLeft", "cursorRight" }
+
+-- Nur Welt-Tooltips: Blizzard übergibt UIParent als Besitzer; Tooltips an Knöpfen und Fenstern behalten ihren Platz
+function Tooltip.OnDefaultAnchor(tooltip, parent)
+  local anchor = ns.db and Tooltip.ANCHORS[ns.db.tooltipAnchor]
+  if not anchor or tooltip ~= GameTooltip or parent ~= UIParent then return end
+  tooltip:SetOwner(parent, anchor)
+end
+
+local anchorHooked = false
+
+local function hookAnchor()
+  if anchorHooked or not GameTooltip_SetDefaultAnchor then return end
+  anchorHooked = true
+  hooksecurefunc("GameTooltip_SetDefaultAnchor", Tooltip.OnDefaultAnchor)
+end
+
 local hooked = false
 
 local function hook()
@@ -134,6 +162,7 @@ local function hook()
 end
 
 ns.RegisterApply(function(db)
+  if Tooltip.ANCHORS[db.tooltipAnchor] then hookAnchor() end
   if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat or db.tooltipKillsToLevel
     or db.questLearning then hook() end
 end)
