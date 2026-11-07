@@ -74,6 +74,22 @@ Camp.Check()
 tick()
 expectTrue("nach 20 s noch 40 s", shownText(string.format(L.SECONDS_SHORT, 40)))
 
+-- Ohne Aura-Änderung arbeitet die Prüfung nicht (Roadmap 372): kein neuer Zustand, keine Anzeige-Aufrufe
+local shows = { count = 0 }
+local show = Display.Show
+Display.Show = function(...)
+  shows.count = shows.count + 1
+  return show(...)
+end
+for _ = 1, 10 do
+  wow.advance(0.5)
+  Camp.Check()
+end
+expect("Countdown ohne Änderung: Anzeige nicht angefasst", shows.count, 0)
+tick()
+expectTrue("Countdown läuft in der Anzeige weiter", shownText(string.format(L.SECONDS_SHORT, 35)))
+Display.Show = show
+
 -- Countdown vorbei, Lagervorteile erneuert: kurz "aktiv", mit Ton wenn gewünscht
 addon.Set("campSound", true)
 wow.advance(40)

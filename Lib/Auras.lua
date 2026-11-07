@@ -24,6 +24,13 @@ end
 local snapshot = { list = {}, byName = {}, bySpellId = {} }
 local snapshotValid = false
 local snapshotAt
+-- Stand des Schnappschusses (Roadmap 372): steigt nur, wenn sich Buffs (Spell-ID, Ablaufzeit, Stapel) oder die
+-- Lesbarkeit geändert haben, nicht bei jedem Neu-Lesen nach MAX_SNAPSHOT_AGE. Wer nur bei Änderungen arbeiten will,
+-- vergleicht Auras.Version() nach Auras.Snapshot().
+local version = 0
+local signature = {}   -- Spell-ID, Ablaufzeit und Stapel je Buff des letzten Stands, flach hintereinander
+local signatureLength = 0
+local readableBefore
 
 local function clear(map)
   for key in pairs(map) do map[key] = nil end
@@ -31,6 +38,33 @@ end
 
 function Auras.Invalidate()
   snapshotValid = false
+end
+
+function Auras.Version()
+  return version
+end
+
+local SECRET = {}  -- Platzhalter für geheime Werte (nicht vergleichbar); Änderungen daran bleiben unbemerkt
+
+local function comparable(value)
+  if ns.IsSecret(value) then return SECRET end
+  return value
+end
+
+-- Hat sich der eingelesene Stand gegenüber dem letzten geändert? Merkt sich dabei den neuen.
+local function updateSignature(list)
+  local changed = #list * 3 ~= signatureLength
+  local slot = 0
+  for index = 1, #list do
+    local aura = list[index]
+    local a, b, c = aura.spellId, comparable(aura.expirationTime), comparable(aura.applications)
+    if signature[slot + 1] ~= a or signature[slot + 2] ~= b or signature[slot + 3] ~= c then changed = true end
+    signature[slot + 1], signature[slot + 2], signature[slot + 3] = a, b, c
+    slot = slot + 3
+  end
+  for index = signatureLength, slot + 1, -1 do signature[index] = nil end
+  signatureLength = slot
+  return changed
 end
 
 -- Alle Buffs einlesen; false, wenn der Client sie verbirgt (Beschränkung beginnt mitten im Lesen, geheime Werte)
@@ -52,15 +86,25 @@ local function readBuffs()
   return true
 end
 
+local function noteReadable(readable)
+  if readable ~= readableBefore then
+    readableBefore = readable
+    version = version + 1
+  end
+end
+
 -- Schnappschuss der Buffs oder nil, wenn der Client Auren verbirgt
 function Auras.Snapshot()
   if not C_UnitAuras or not C_UnitAuras.GetAuraDataByIndex or Auras.Restricted() then
     snapshotValid = false
+    noteReadable(false)
     return nil
   end
   if snapshotValid and GetTime() - snapshotAt <= Auras.MAX_SNAPSHOT_AGE then return snapshot end
   snapshotValid = readBuffs()
   snapshotAt = GetTime()
+  noteReadable(snapshotValid)
+  if snapshotValid and updateSignature(snapshot.list) then version = version + 1 end
   return snapshotValid and snapshot or nil
 end
 
