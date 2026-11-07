@@ -2532,3 +2532,22 @@ Erfolg-Fortschritt stimmt (ja/nein):
 Ehre zählt (ja/nein, Chatzeile):
 Fehler:
 ```
+
+### 177. Fristen (Roadmap 299)
+
+- [ ] geprüft
+
+1. `/sg`, Kills 5 mit Frist „2m“: Karte zeigt „0 / 5  noch 00h 02m 00s“ und zählt jede Sekunde herunter; nach Ablauf
+   rote Einblendung „Ziel gescheitert“, Historie „Gescheitert“ in Rot.
+2. `/sg deadline <Nr> 10m played`, ausloggen und 5 Minuten warten: nach dem Login stimmt die Restzeit (Spielzeit läuft
+   ausgeloggt nicht).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Countdown flüssig und lesbar (ja/nein):
+Scheitern mit Einblendung (ja/nein):
+Spielzeit-Frist stimmt nach Login (ja/nein):
+Fehler:
+```

@@ -26,6 +26,9 @@ Kinds\Explore.lua
 Kinds\Achievement.lua
 Kinds\Honor.lua
 
+# Zusätze jeder Zielart: Frist
+Deadlines.lua
+
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
 

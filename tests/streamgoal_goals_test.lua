@@ -205,7 +205,7 @@ local availableKinds = 0
 for _, kind in ipairs(Goals.KindOrder()) do
   if Goals.IsAvailable(kind) then availableKinds = availableKinds + 1 end
 end
-expect("Hilfe nennt jede verfügbare Zielart", #wow.printed - printedBefore, 1 + availableKinds)
+expect("Hilfe nennt jede verfügbare Zielart", #wow.printed - printedBefore, 1 + availableKinds + #streamGoal.EXTRA_USAGES)
 expect("Hilfe mit Syntax", wow.printed[printedBefore + 2]:find(L.SG_USAGE_LEVEL, 1, true) ~= nil, true)
 
 ---------------------------------------------------------------------------

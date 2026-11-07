@@ -1,6 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -11,13 +11,17 @@ local Format = ns.LT.Format
 
 local DEFAULT_STEP = 1
 
--- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax
+-- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
+ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE" }
+
+-- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
   ns.Print(L.SG_HELP)
   for _, kind in ipairs(Goals.KindOrder()) do
     local usage = Goals.GetKind(kind).usage
     if usage and Goals.IsAvailable(kind) then ns.Print("  " .. L[usage]) end
   end
+  for _, usage in ipairs(ns.EXTRA_USAGES) do ns.Print("  " .. L[usage]) end
 end
 
 local function add(rest)
@@ -72,6 +76,32 @@ local function cancel(argument)
   end
 end
 
+-- Laufendes Ziel des Charakters nach Nummer; sonst Meldung und nil
+local function ownActiveGoal(id)
+  local goal = Goals.Get(tonumber(id))
+  if goal and goal.status == Goals.ACTIVE and goal.character == ns.LT.characterKey then return goal end
+  ns.Print(string.format(L.SG_ERR_NO_GOAL, id ~= "" and id or "?"))
+end
+
+-- Frist setzen oder entfernen: "deadline 3 2h", "deadline 3 5h played", "deadline 3 off"
+local function deadline(argument)
+  local id, duration, mode = argument:match("^(%S*)%s*(%S*)%s*(%S*)")
+  local goal = ownActiveGoal(id)
+  if not goal then return end
+  if duration:lower() == "off" then
+    ns.Deadlines.Set(goal, nil)
+  else
+    local seconds = ns.Deadlines.ParseDuration(duration)
+    local played = mode:lower() == ns.Deadlines.PLAYED
+    if not seconds or not ns.Deadlines.Set(goal, seconds, played and ns.Deadlines.PLAYED or ns.Deadlines.REAL) then
+      ns.Print(seconds and L.SG_ERR_PLAYED_UNKNOWN or L.SG_ERR_DEADLINE)
+      return
+    end
+  end
+  Goals.Changed(goal)
+  ns.Print(goalLine(goal) .. (ns.Deadlines.Text(goal) and ("  " .. ns.Deadlines.Text(goal)) or ""))
+end
+
 local function toggleTracker()
   local shown = not ns.db.settings.showTracker
   Tracker.SetShown(shown)
@@ -89,6 +119,7 @@ local commands = {
   list = list,
   cancel = cancel,
   count = count,
+  deadline = deadline,
   tracker = toggleTracker,
   scale = scale,
   options = function() ns.Options.Toggle() end,

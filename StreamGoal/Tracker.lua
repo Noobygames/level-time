@@ -130,9 +130,17 @@ local function stack(count, hidden)
   frame:SetSize(width, height)
 end
 
+-- Große Zeile der Karte: Stand "4 / 10" und/oder Restzeit der Frist; nil = keine
+local function timeLine(goal)
+  local count = Goals.HasCount(goal) and Goals.CountText(goal) or nil
+  local left = ns.Deadlines.Text(goal)
+  if count and left then return count .. "  " .. left end
+  return count or left
+end
+
 local function fillCard(card, goal)
   local def = Goals.GetKind(goal.kind)
-  local counted = Goals.HasCount(goal)
+  local line = timeLine(goal)
   card.goal = goal
   card.Set({
     color = Tracker.ColorOf(goal),
@@ -140,12 +148,22 @@ local function fillCard(card, goal)
     texture = def.texture and def.texture(goal) or nil,
     title = Goals.Title(goal),
     body = Goals.Body(goal),
-    time = counted,
+    time = line ~= nil,
   })
-  if counted then card.SetTime(Goals.CountText(goal)) end
+  if line then card.SetTime(line) end
   updateCardMouse(card)
   card.frame:Show()
 end
+
+-- Jede Sekunde nur die Restzeiten der gezeigten Karten (Texte, kein Neuaufbau)
+function Tracker.UpdateTimes()
+  if not frame:IsShown() then return end
+  for _, card in ipairs(cards) do
+    local goal = card.goal
+    if goal and goal.deadline and card.frame:IsShown() then card.SetTime(timeLine(goal) or "") end
+  end
+end
+LT.Every(1, Tracker.UpdateTimes, ns.Deadlines.Any)
 
 -- Karten neu aufbauen: Inhalt aus den Zielen, gleiche Breite, untereinander
 function Tracker.Refresh()
@@ -227,8 +245,22 @@ local function announceDone(goal)
   })
 end
 
+-- Gescheitert (Frist, Regel): Chatzeile und Einblendung in der Warnfarbe, ohne Ton
+local function announceFailed(goal)
+  local settings = ns.db.settings
+  local title = Goals.Title(goal)
+  if settings.doneChat then ns.Print(string.format(L.SG_CHAT_FAILED, title, goal.failReason or "")) end
+  if not settings.doneAlert then return end
+  local def = Goals.GetKind(goal.kind)
+  Alerts.Show(title, Theme.COLORS.bad, {
+    notice = { icon = def.icon, texture = def.texture and def.texture(goal) or nil, title = L.SG_NOTICE_FAILED,
+      body = goal.failReason and (title .. "\n" .. goal.failReason) or title },
+  })
+end
+
 Goals.OnChange(function(event, goal)
   if event == "done" then announceDone(goal) end
+  if event == "failed" then announceFailed(goal) end
   Tracker.Refresh()
 end)
 

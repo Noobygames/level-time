@@ -21,7 +21,7 @@ ns.Manager = Manager
 
 local MARGIN = 16
 local CONTENT_WIDTH = 600
-local PAGE_HEIGHT = 420
+local PAGE_HEIGHT = 480
 local PAGE_TOP = -66
 local FOOTER_HEIGHT = 34
 local ROW = 26                  -- Höhe einer Formularzeile
@@ -136,9 +136,8 @@ local function createChoice(parent, field, form)
   return button
 end
 
-local function buildForm(kind)
-  local def = Goals.GetKind(kind)
-  local spec = def.form or {}
+-- Formular aus einer Beschreibung { amount, fields } (Zielart oder Zusätze)
+local function buildForm(spec)
   local form = { frame = CreateFrame("Frame", nil, goalsPage), rows = {}, choices = {}, spec = spec }
   form.frame:SetSize(CONTENT_WIDTH, 1)
   form.frame:Hide()
@@ -169,14 +168,16 @@ local function buildForm(kind)
     y = y - ROW
   end
   form.height = -y
-  forms[kind] = form
   return form
 end
 
 for _, kind in ipairs(Goals.KindOrder()) do
   kindTabs[kind] = Widgets.CreateTab(goalsPage, Theme.Font("body"), function() Manager.SelectKind(kind) end)
-  buildForm(kind)
+  forms[kind] = buildForm(Goals.GetKind(kind).form or {})
 end
+-- Zusätze (Frist, Belohnung, Punkte) unter dem Formular jeder Art
+local extrasForm = buildForm({ fields = Goals.ExtraFields() })
+extrasForm.frame:Show()
 
 -- Reiter hinter den vorigen setzen oder in die nächste Zeile, wenn er nicht mehr passt
 local function placeKindTab(tab, kind, left, row)
@@ -272,7 +273,8 @@ end
 function Manager.AddFromForm()
   local form = forms[selectedKind]
   local params, target = readForm(form)
-  local goal, err = Goals.Create(selectedKind, params, target)
+  local extras = readForm(extrasForm)
+  local goal, err = Goals.Create(selectedKind, params, target, extras)
   if not goal then
     errorText:SetText(err or "")
     return nil
@@ -280,6 +282,7 @@ function Manager.AddFromForm()
   errorText:SetText("")
   ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal)))
   clearForm(form)
+  clearForm(extrasForm)
   return goal
 end
 
@@ -293,6 +296,9 @@ local function insertLinkIntoField(link)
   for _, row in ipairs(forms[selectedKind].rows) do
     local field = row.field
     if field and field.links and row.widget:HasFocus() then row.widget:Insert(link) end
+  end
+  for _, row in ipairs(extrasForm.rows) do
+    if row.box and row.widget:HasFocus() then row.widget:Insert(link) end
   end
 end
 if ChatFrameUtil and ChatFrameUtil.InsertLink then
@@ -350,8 +356,10 @@ end
 -- "#3  Text  (4 / 5)"; ohne Zähler nur Nummer und Text
 local function activeLabel(goal)
   local label = string.format("#%d  %s", goal.id, Goals.Title(goal))
-  if not Goals.HasCount(goal) then return label end
-  return string.format("%s  (%s)", label, Goals.CountText(goal))
+  if Goals.HasCount(goal) then label = string.format("%s  (%s)", label, Goals.CountText(goal)) end
+  local left = ns.Deadlines.Text(goal)
+  if left then label = label .. "  " .. left end
+  return label
 end
 
 local function hideRow(row)
@@ -468,8 +476,10 @@ end
 
 -- Feld des Formulars der gewählten Art (Tests): param oder "amount" für die Zahl
 function Manager.FormWidget(param)
-  for _, row in ipairs(forms[selectedKind].rows) do
-    if (row.field and row.field.param or "amount") == param then return row.widget end
+  for _, form in ipairs({ forms[selectedKind], extrasForm }) do
+    for _, row in ipairs(form.rows) do
+      if (row.field and row.field.param or "amount") == param then return row.widget end
+    end
   end
 end
 
@@ -483,10 +493,14 @@ local function layoutGoalsPage()
     form.frame:SetShown(kind == selectedKind)
     kindTabs[kind]:SetActive(kind == selectedKind)
   end
+  refreshForm(extrasForm, labelWidth)
   local form = forms[selectedKind]
   form.frame:ClearAllPoints()
   form.frame:SetPoint("TOPLEFT", 0, formTop)
-  local addY = formTop - form.height - 4
+  local extrasTop = formTop - form.height
+  extrasForm.frame:ClearAllPoints()
+  extrasForm.frame:SetPoint("TOPLEFT", 0, extrasTop)
+  local addY = extrasTop - extrasForm.height - 4
   addButton:ClearAllPoints()
   addButton:SetPoint("TOPRIGHT", 0, addY)
   Widgets.SetButtonText(addButton, L.SG_FORM_ADD, ADD_MIN_WIDTH)

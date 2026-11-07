@@ -75,7 +75,8 @@ function Goals.GetKind(name)
   return kinds[name]
 end
 
--- Auf Änderungen reagieren: listener(event, goal) mit event = "added", "progress", "done" oder "cancelled"
+-- Auf Änderungen reagieren: listener(event, goal) mit event = "added", "progress", "changed", "done", "cancelled",
+-- "failed" oder "removed" (Aufräumen, goal = nil)
 function Goals.OnChange(listener)
   table.insert(listeners, listener)
 end
@@ -87,13 +88,39 @@ local function notify(event, goal)
   end
 end
 
--- Neues Ziel für den eingeloggten Charakter. Rückgabe: Ziel, oder nil und eine Fehlermeldung (übersetzt)
-function Goals.Create(kind, params, target)
+-- Zusätze, die jede Zielart haben kann (Frist, Belohnung, Punkte): Goals.RegisterExtra(name, { fields = Formularfelder
+-- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras) });
+-- extras = Tabelle aus Formular oder Befehl (Felder je Zusatz)
+local extraHandlers = {}
+local extraFields = {}
+
+function Goals.RegisterExtra(name, handler)
+  handler.name = name
+  table.insert(extraHandlers, handler)
+  for _, field in ipairs(handler.fields or {}) do table.insert(extraFields, field) end
+end
+
+-- Formularfelder aller Zusätze (nicht verändern)
+function Goals.ExtraFields()
+  return extraFields
+end
+
+local function validateExtras(extras)
+  for _, handler in ipairs(extraHandlers) do
+    local err = handler.validate(extras)
+    if err then return err end
+  end
+end
+
+-- Neues Ziel für den eingeloggten Charakter; extras optional (Goals.RegisterExtra). Rückgabe: Ziel, oder nil und
+-- eine Fehlermeldung (übersetzt)
+function Goals.Create(kind, params, target, extras)
   local def = kinds[kind]
   if not def or not Goals.IsAvailable(kind) then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
   params = params or {}
+  extras = extras or {}
   if def.prepare then target = def.prepare(params, target) end
-  local err = def.validate(params, target)
+  local err = def.validate(params, target) or validateExtras(extras)
   if err then return nil, err end
   if #Goals.Active() >= Goals.MAX_ACTIVE then return nil, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
 
@@ -115,11 +142,17 @@ function Goals.Create(kind, params, target)
     if now >= target then return nil, L.SG_ERR_ALREADY_REACHED end
     goal.progress = now
   end
+  for _, handler in ipairs(extraHandlers) do handler.apply(goal, extras) end
   ns.db.nextId = goal.id + 1
   table.insert(ns.db.goals, goal)
   changed()
   notify("added", goal)
   return goal
+end
+
+-- Ein Zusatz (Frist, Belohnung) wurde nachträglich geändert: Anzeigen neu aufbauen
+function Goals.Changed(goal)
+  notify("changed", goal)
 end
 
 function Goals.Get(id)
@@ -196,6 +229,13 @@ local function finish(goal, status)
   changed()
   trimHistory()
   notify(status, goal)
+end
+
+-- Gescheitert (Frist abgelaufen, Regel gebrochen); reason = Text für Historie und Meldung (optional)
+function Goals.Fail(goal, reason)
+  if goal.status ~= Goals.ACTIVE then return end
+  goal.failReason = reason
+  finish(goal, Goals.FAILED)
 end
 
 function Goals.Cancel(id)
