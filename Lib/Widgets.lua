@@ -149,12 +149,21 @@ function Widgets.CreateSlider(parent, minValue, maxValue, step, onChange)
   return container
 end
 
--- Reiter als schlichter Text-Button; der aktive Reiter ist hervorgehoben
+-- Reiter als schlichter Text-Button; der aktive Reiter ist hervorgehoben: Farbe und Unterstrich (UX 216, damit er
+-- sich nicht nur durch die Farbe unterscheidet)
+local TAB_UNDERLINE_HEIGHT = 1
+local TAB_UNDERLINE_INSET = 2
+
 function Widgets.CreateTab(parent, fontObject, onClick)
   local tab = CreateFrame("Button", nil, parent)
   tab.label = tab:CreateFontString(nil, "OVERLAY", fontObject)
   tab.label:SetPoint("CENTER")
   tab:SetScript("OnClick", onClick)
+  tab.underline = tab:CreateTexture(nil, "OVERLAY")
+  tab.underline:SetHeight(TAB_UNDERLINE_HEIGHT)
+  tab.underline:SetPoint("TOPLEFT", tab.label, "BOTTOMLEFT", 0, -TAB_UNDERLINE_INSET)
+  tab.underline:SetPoint("TOPRIGHT", tab.label, "BOTTOMRIGHT", 0, -TAB_UNDERLINE_INSET)
+  tab.underline:Hide()
 
   function tab:SetLabel(text)
     self.label:SetText(text)
@@ -165,6 +174,9 @@ function Widgets.CreateTab(parent, fontObject, onClick)
   function tab:SetActive(active)
     local color = active and Widgets.COLORS.highlight or INACTIVE_TAB_COLOR
     self.label:SetTextColor(unpack(color))
+    local r, g, b = unpack(Widgets.COLORS.highlight)
+    self.underline:SetColorTexture(r, g, b, 1)
+    self.underline:SetShown(active and true or false)
   end
 
   return tab
