@@ -926,6 +926,19 @@ addToggles({
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
 })
+if ns.QuestTextSize.IsAvailable() then
+  addToggles({ toggle("QUEST_TEXT_RESIZE", "questTextResize") })
+  addSlider({
+    label = "QUEST_TEXT_SIZE",
+    min = ns.QuestTextSize.MIN,
+    max = ns.QuestTextSize.MAX,
+    step = 1,
+    get = function(db) return db.questTextSize end,
+    set = function(value) ns.SetDeferred("questTextSize", value) end,
+    format = function(value) return tostring(value) end,
+    enabled = function(db) return db.questTextResize end,
+  })
+end
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
   addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })

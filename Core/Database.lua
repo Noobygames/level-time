@@ -185,6 +185,7 @@ local SETTINGS_DEFAULTS = {
   -- Beute-Würfe (LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im Tooltip,
   -- Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
   lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false,
+  questTextResize = false, questTextSize = 14,  -- Größe der Quest-Schriften (QuestTextSize.lua)
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
   questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)

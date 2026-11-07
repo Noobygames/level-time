@@ -455,6 +455,9 @@ function CreateFont(name)
 end
 GameFontNormal, GameFontHighlight, GameFontNormalSmall = newFont(), newFont(), newFont()
 GameFontHighlightSmall, GameFontNormalHuge = newFont(), newFont()
+-- Quest-Schriften (Blizzard_Fonts_Shared/Shared, alle Clients)
+QuestFont, QuestFontLeft, QuestFontNormalSmall = newFont(), newFont(), newFont()
+QuestTitleFont, QuestTitleFontBlackShadow = newFont(), newFont()
 -- Fehlerfenster und Zonentext; UIErrorsFrame merkt Meldungen in _messages
 UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
 UIErrorsFrame._events.UI_ERROR_MESSAGE = true
