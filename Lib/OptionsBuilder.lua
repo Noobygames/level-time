@@ -334,6 +334,7 @@ function OptionsBuilder.New(options)
 
   -- Wo ein Treffer liegt: "Reiter > Unterseite"
   function builder.WhereOf(entry)
+    if entry.where then return entry.where() end
     local where = L[entry.tab.key]
     if entry.sub then where = where .. " > " .. L[entry.sub.key] end
     return where
@@ -867,6 +868,14 @@ function OptionsBuilder.New(options)
       entry.scroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, footerHeight)
       entry.frame:SetHeight(-lowestBottom + FOOTER_GAP)
       entry.scroll:SetVerticalScroll(-SCROLL_TOP)
+    end
+    -- Schalter "Erweitert" in der Suche: liegt über allen Reitern, Treffer zeigt den ersten
+    if builder.modeCheckbox then
+      table.insert(searchEntries, {
+        title = localized(options.advanced.label), tipKey = options.advanced.label .. "_TIP",
+        left = builder.modeCheckbox, right = builder.modeCheckbox.label, parent = panel, y = CONTENT_TOP,
+        tab = pages[1], where = options.title,
+      })
     end
     showPage(pages[1])
   end

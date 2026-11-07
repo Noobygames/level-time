@@ -20,11 +20,23 @@ local builder = Builder.New({
   name = "LevelTimerOptions",
   alpha = 0.95,
   title = function() return ns.DISPLAY_NAME .. " - " .. L.SETTINGS end,
+  -- Schalter "Erweitert" oben rechts: aus = selten genutzte Bausteine verborgen
+  advanced = {
+    label = "OPTIONS_ADVANCED",
+    get = function(db) return db.optionsAdvanced end,
+    set = function(on) ns.Set("optionsAdvanced", on) end,
+  },
 })
 local addPage, finishPage, addSection, addSlider = builder.AddPage, builder.FinishPage, builder.AddSection, builder.AddSlider
 local addToggles, addButton, addFooterButton = builder.AddToggles, builder.AddButton, builder.AddFooterButton
 local addChooser, addHint = builder.AddChooser, builder.AddHint
 local toggle, localized = Builder.Toggle, Builder.Localized
+
+-- Baustein nur im Modus "Erweitert" (Roadmap 402): selten gebraucht, für Feineinstellungen
+local function advanced(definition)
+  definition.advanced = true
+  return definition
+end
 
 -- Sprachnamen stehen immer in der eigenen Sprache
 local function addLanguageChooser()
@@ -243,6 +255,7 @@ local function addThemeSection()
   addChooser({ label = "THEME_ACCENT", setting = "themeAccent", choices = accents })
   builder.AddCycleButton({
     label = "THEME_FONT",
+    advanced = true,
     setting = "themeFont",
     choices = Theme.FontChoices,
     get = function(db) return db.themeFont end,
@@ -263,7 +276,7 @@ local function addThemeSection()
   for i, key in ipairs(Theme.OUTLINE_ORDER) do
     outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
   end
-  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = true })
 end
 
 -- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige
@@ -322,9 +335,11 @@ local function addDisplaySection()
   end
   local textToggle = toggle("TEXT_LABELS", "textLabels")
   textToggle.enabled = layoutIs("text")
+  textToggle.advanced = true
   addToggles({ textToggle })
   addSlider({
     label = "TILE_COLUMNS",
+    advanced = true,
     setting = "tileColumns",
     min = Layouts.Tiles.MIN_COLUMNS,
     max = Layouts.Tiles.MAX_COLUMNS,
@@ -339,6 +354,7 @@ local function addDisplaySection()
   addChooser({ label = "XPBAR_TEXT", setting = "xpbarText", choices = textModes, enabled = layoutIs("xpbar") })
   addSlider({
     label = "XPBAR_WIDTH",
+    advanced = true,
     setting = "xpbarWidth",
     min = Layouts.XpBar.MIN_WIDTH,
     max = Layouts.XpBar.MAX_WIDTH,
@@ -355,6 +371,7 @@ local function addVisibilitySection()
   addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
   addSlider({
     label = "FADE_ALPHA",
+    advanced = true,
     setting = "fadeAlpha",
     min = 0,
     max = 100,
@@ -376,9 +393,10 @@ local function addRowOrderSection()
     end
     return shown[1] and shown[1].setting or ""
   end
-  addSection("SECTION_ROW_ORDER")
+  addSection("SECTION_ROW_ORDER", { advanced = true })
   builder.AddCycleButton({
     label = "ROW_ORDER_STAT",
+    advanced = true,
     setting = "rowOrder",
     choices = function()
       local list = {}
@@ -408,7 +426,7 @@ local function addRowOrderSection()
     { label = "ROW_ORDER_UP", onClick = move(-1) },
     { label = "ROW_ORDER_DOWN", onClick = move(1) },
     { label = "ROW_ORDER_RESET", onClick = function() ns.Set("rowOrder", "") end },
-  })
+  }, { advanced = true })
 end
 
 -- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
@@ -461,8 +479,8 @@ addToggles({
   toggle("LOCK_FRAME", "locked"),
   toggle("SHOW_XP_BAR", "showXpBar"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
-  toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
-  toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end),
+  advanced(toggle("QUEST_XP_ON_BAR", "questXpOnBar")),
+  advanced(toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end)),
 })
 addVisibilitySection()
 addHint("OPTIONS_HINT")
@@ -523,9 +541,10 @@ end
 addSubPage("OPTIONS_PAGE_ROW_ORDER")
 addRowOrderSection()
 addSubPage("OPTIONS_PAGE_CALCULATION")
-addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
+addToggles({ advanced(toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk")) })
 addSlider({
   label = "IDLE_LIMIT",
+  advanced = true,
   setting = "idleMinutes",
   min = ns.TimeBreakdown.MIN_IDLE_MINUTES,
   max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
@@ -536,6 +555,7 @@ addSlider({
 })
 addSlider({
   label = "TO_LEVEL_SAMPLES",
+  advanced = true,
   setting = "toLevelSamples",
   min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
@@ -582,6 +602,7 @@ if #classReminders > 0 then
 end
 addSlider({
   label = "REMINDER_INTERVAL",
+  advanced = true,
   setting = "reminderInterval",
   min = ns.BuffReminder.MIN_INTERVAL,
   max = ns.BuffReminder.MAX_INTERVAL,
@@ -594,6 +615,7 @@ addSlider({
 addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
 addSlider({
   label = "BREAK_MINUTES",
+  advanced = true,
   setting = "breakMinutes",
   min = ns.BreakReminder.MIN_MINUTES,
   max = ns.BreakReminder.MAX_MINUTES,
@@ -616,6 +638,7 @@ addToggles({
 })
 addSlider({
   label = "WARN_BREATH_BELOW",
+  advanced = true,
   setting = "breathWarnSeconds",
   min = ns.BreathWarning.MIN_SECONDS,
   max = ns.BreathWarning.MAX_SECONDS,
@@ -638,6 +661,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_CRITICAL_BELOW",
+    advanced = true,
     setting = "ammoCritical",
     min = 0,
     max = ns.GearWarnings.MAX_CRITICAL_AMMO,
@@ -648,6 +672,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_REPEAT",
+    advanced = true,
     setting = "ammoRepeat",
     min = 0,
     max = ns.GearWarnings.MAX_AMMO_REPEAT,
@@ -669,6 +694,7 @@ addToggles({
 })
 addSlider({
   label = "LOW_MANA_BELOW",
+  advanced = true,
   setting = "lowManaPercent",
   min = ns.ManaCallout.MIN_PERCENT,
   max = ns.ManaCallout.MAX_PERCENT,
@@ -702,6 +728,7 @@ addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
 addFrameScaleSlider("ALERT_SCALE", "alert")
 addSlider({
   label = "ALERT_DURATION",
+  advanced = true,
   setting = "alertDuration",
   min = Alerts.MIN_DURATION,
   max = Alerts.MAX_DURATION,
@@ -727,6 +754,7 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
 addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
 addSlider({
   label = "LEVEL_UP_DURATION",
+  advanced = true,
   setting = "levelUpDuration",
   min = ns.LevelUpWindow.MIN_DURATION,
   max = ns.LevelUpWindow.MAX_DURATION,
@@ -757,6 +785,7 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
     })
     addSlider({
       label = "CAMP_HINT_PAUSE",
+      advanced = true,
       setting = "campHintPause",
       min = ns.CampFire.MIN_HINT_PAUSE,
       max = ns.CampFire.MAX_HINT_PAUSE,
@@ -842,7 +871,7 @@ addToggles({
   toggle("HIDE_COMBAT_LOG_TAB", "hideCombatLogTab"),
   toggle("HIDE_CHAT_BUTTONS", "hideChatButtons"),
   toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
-  toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
+  advanced(toggle("CHAT_ARROW_KEYS", "chatArrowKeys")),
   toggle("NO_CHAT_FADE", "noChatFade"),
 })
 addSubPage("COMFORT_PAGE_INTERFACE")
@@ -1032,7 +1061,7 @@ addToggles({
   toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
   toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"),
   toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
-  toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal"),
+  advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
 })
 addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls")
 addSection("SECTION_DIALOGS")
@@ -1057,10 +1086,11 @@ addSection("SECTION_GRAPHICS")
 addToggles({
   toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
   toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
-  toggle("SET_WEATHER_DENSITY", "setWeatherDensity"),
+  advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
 })
 addSlider({
   label = "WEATHER_DENSITY",
+  advanced = true,
   setting = "weatherDensity",
   min = ns.ScreenEffects.MIN_WEATHER,
   max = ns.ScreenEffects.MAX_WEATHER,
@@ -1106,13 +1136,14 @@ addSlider({
 addSubPage("OPTIONS_PAGE_COMPARE")
 addSplitComparisonChooser()
 addToggles({
-  toggle("PB_SAME_CLASS", "pbSameClass"),
+  advanced(toggle("PB_SAME_CLASS", "pbSameClass")),
   toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
   toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
   toggle("FRIEND_RACE", "friendRace"),
 })
 addSlider({
   label = "SPLIT_TOLERANCE",
+  advanced = true,
   setting = "splitTolerancePercent",
   min = 0,
   max = ns.Splits.MAX_TOLERANCE_PERCENT,
@@ -1125,7 +1156,7 @@ addSubPage("OPTIONS_PAGE_RECORDS")
 addSection("SECTION_WORLD_RECORDS")
 local recordToggles = {
   toggle("SHOW_WORLD_RECORDS", "showWorldRecords"),
-  toggle("SHOW_RECORDS_AGE", "showRecordsAge"),
+  advanced(toggle("SHOW_RECORDS_AGE", "showRecordsAge")),
 }
 -- Ein Schalter je Abschnitt der Rekord-Daten (1-10, 1-20, ...)
 for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do

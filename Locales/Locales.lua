@@ -1423,6 +1423,8 @@ ns.locales = {
     SECTION_BLIZZ_MINIMAP_BUFFS = "Minimap, Buffs, Tracker",
     SECTION_BLIZZ_BARS = "Aktionsleisten, Menü, Taschen",
     SECTION_BLIZZ_OTHER = "Weitere",
+    OPTIONS_ADVANCED = "Erweitert",
+    OPTIONS_ADVANCED_TIP = "Aus = Modus „Einfach“: selten gebrauchte Feineinstellungen (Rechenregeln, Zeilenreihenfolge, Dauer, Schwellen, Schrift) sind verborgen, leere Kategorien fallen aus der Seitenleiste. Die Suche findet sie trotzdem und schaltet dann auf „Erweitert“.",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2839,6 +2841,8 @@ ns.locales = {
     SECTION_BLIZZ_MINIMAP_BUFFS = "Minimap, buffs, tracker",
     SECTION_BLIZZ_BARS = "Action bars, menu, bags",
     SECTION_BLIZZ_OTHER = "Other",
+    OPTIONS_ADVANCED = "Advanced",
+    OPTIONS_ADVANCED_TIP = "Off = \"Simple\" mode: rarely used fine-tuning (calculation rules, row order, durations, thresholds, font) is hidden and empty categories leave the sidebar. Search still finds them and then switches to \"Advanced\".",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -4255,6 +4259,8 @@ ns.locales = {
     SECTION_BLIZZ_MINIMAP_BUFFS = "Minicarte, buffs, suivi",
     SECTION_BLIZZ_BARS = "Barres d'action, menu, sacs",
     SECTION_BLIZZ_OTHER = "Autres",
+    OPTIONS_ADVANCED = "Avancé",
+    OPTIONS_ADVANCED_TIP = "Désactivé = mode « Simple » : les réglages fins rarement utilisés (calcul, ordre des lignes, durées, seuils, police) sont masqués et les catégories vides quittent la barre latérale. La recherche les trouve quand même et passe alors en « Avancé ».",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -5671,6 +5677,8 @@ ns.locales = {
     SECTION_BLIZZ_MINIMAP_BUFFS = "Minimapa, beneficios, seguimiento",
     SECTION_BLIZZ_BARS = "Barras de acción, menú, bolsas",
     SECTION_BLIZZ_OTHER = "Otros",
+    OPTIONS_ADVANCED = "Avanzado",
+    OPTIONS_ADVANCED_TIP = "Desactivado = modo «Simple»: los ajustes finos poco usados (cálculo, orden de filas, duraciones, umbrales, fuente) se ocultan y las categorías vacías salen de la barra lateral. La búsqueda los sigue encontrando y entonces cambia a «Avanzado».",
   },
 }
 

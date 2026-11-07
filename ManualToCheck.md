@@ -2181,3 +2181,24 @@ Gruppen sinnvoll (ja/nein):
 Einklappen ohne Lücken/Überlappung (ja/nein):
 Fehler:
 ```
+
+### 147. Einfach/Erweitert (Roadmap 402)
+
+- [ ] geprüft
+
+`/lt`, Haken „Erweitert“ oben rechts neben dem X.
+
+1. Haken und Beschriftung überlappen weder Titel noch X (auch fr/es).
+2. Haken aus: z.B. Hinweise > Erinnerungen ohne Intervall-Regler, die Bausteine darunter rücken ohne Lücke nach;
+   Statistiken: „Reihenfolge“ und „Berechnung“ fehlen in der Seitenleiste, die übrigen rücken hoch.
+3. Suche „Leerlauf“: Treffer schaltet den Haken wieder an und zeigt die Seite.
+4. Haken bleibt nach /reload, wie er war.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Platz oben rechts ok (ja/nein):
+Seiten ohne Lücken (ja/nein):
+Fehler:
+```
