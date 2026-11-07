@@ -222,4 +222,5 @@ UI\EditMode.lua
 UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
+UI\WelcomeCard.lua
 Core\Commands.lua

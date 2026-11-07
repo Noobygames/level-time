@@ -2202,3 +2202,22 @@ Platz oben rechts ok (ja/nein):
 Seiten ohne Lücken (ja/nein):
 Fehler:
 ```
+
+### 148. Willkommenskarte (Roadmap 363)
+
+- [ ] geprüft
+
+Neuer Account-Stand (oder `/lt welcome`).
+
+1. Beim ersten Start mittig eine Karte mit drei Schritten; Texte nicht abgeschnitten (auch fr/es), Buttons in einer Zeile.
+2. Voreinstellung und Layout ändern das Hauptfenster sofort, das gewählte Layout ist hervorgehoben.
+3. „Position anpassen“ schließt die Karte und startet den Edit-Modus; Esc schließt die Karte.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Karte lesbar (ja/nein):
+Schritte wirken (ja/nein):
+Fehler:
+```
