@@ -127,6 +127,24 @@ local function forPlayer(unit)
   return unit == "player"
 end
 
+-- CVar-Änderungen fremder Hand (Roadmap 378): eigene stehen schon als ns.Debug("comfort", "cvar ...") im Log,
+-- dieselbe CVar mit demselben Wert innerhalb von CVAR_REPEAT_SECONDS nur einmal
+local CVAR_REPEAT_SECONDS = 5
+local lastCVar = {}  -- [Name] = { value, at }
+
+local function foreignCVarChange(name, value)
+  if ns.CVars.IsWriting() then return false end
+  if type(name) ~= "string" or ns.IsSecret(name) or ns.IsSecret(value) then return true end
+  local now, last = GetTime(), lastCVar[name]
+  if last and last.value == value and now - last.at < CVAR_REPEAT_SECONDS then return false end
+  if last then
+    last.value, last.at = value, now
+  else
+    lastCVar[name] = { value = value, at = now }
+  end
+  return true
+end
+
 -- Beute-Würfe (364): was Client und Historie zu einem Wurf liefern (Würfel-ID gleich der Historie? geheim?)
 local function lootRollStart(rollID)
   return { link = call("GetLootRollItemLink", rollID), info = call("GetLootRollItemInfo", rollID),
@@ -168,7 +186,7 @@ local EVENT_PROBES = {
   { event = "MACRO_ACTION_BLOCKED" },
   { event = "MACRO_ACTION_FORBIDDEN" },
   -- CVars, die wir oder der Spieler ändern (329 Schritt 5, 330)
-  { event = "CVAR_UPDATE" },
+  { event = "CVAR_UPDATE", filter = foreignCVarChange },
   -- Einnahmen und Ausgaben nach Fenster (276): Reihenfolge Schließen gegen PLAYER_MONEY
   { event = "LOOT_OPENED" },
   { event = "LOOT_CLOSED" },
