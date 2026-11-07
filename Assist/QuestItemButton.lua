@@ -304,7 +304,7 @@ local function showTooltip(self)
 end
 
 local function create()
-  holder = CreateFrame("Frame", "LevelTimerQuestItemBar", UIParent)
+  holder = CreateFrame("Frame", ns.GlobalName("QuestItemBar"), UIParent)
   holder:SetSize(BUTTON_SIZE * 2 + GAP, BUTTON_SIZE + LABEL_HEIGHT)
   holder.background = holder:CreateTexture(nil, "BACKGROUND")
   holder.background:SetAllPoints()
@@ -314,11 +314,11 @@ local function create()
   holder.label:SetPoint("TOP", 0, -1)
   holder.label:Hide()
 
-  itemButton = createSecureButton("LevelTimerQuestItemButton", "item")
+  itemButton = createSecureButton(ns.GlobalName("QuestItemButton"), "item")
   itemButton:SetPoint("BOTTOMLEFT", holder, "BOTTOMLEFT", 0, 0)
   itemButton.count = itemButton:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
   itemButton.count:SetPoint("BOTTOMRIGHT", -2, 2)
-  targetButton = createSecureButton("LevelTimerQuestTargetButton", "macro")
+  targetButton = createSecureButton(ns.GlobalName("QuestTargetButton"), "macro")
   targetButton:SetPoint("LEFT", itemButton, "RIGHT", GAP, 0)
   targetButton.icon:SetTexture("Interface\\Icons\\Ability_Hunter_SniperShot")
   for _, button in ipairs({ itemButton, targetButton }) do

@@ -29,7 +29,7 @@ local function formatTime(seconds, state)
 end
 
 local FlightDisplay = ns.TimerDisplay.Create({
-  name = "LevelTimerFlight",
+  name = ns.GlobalName("Flight"),
   default = { "TOP", "TOP", 0, -160 },
   id = "flight", label = "EDIT_FRAME_FLIGHT", soundKey = "flightSound",
   toggleKey = "flightTimer", settingsPage = "OPTIONS_PAGE_FLIGHTS",

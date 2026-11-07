@@ -85,13 +85,13 @@ end
 ---------------------------------------------------------------------------
 -- Fenster
 ---------------------------------------------------------------------------
-local panel = Widgets.CreatePanel("LevelTimerRecap", BACKGROUND_ALPHA)
+local panel = Widgets.CreatePanel(ns.GlobalName("Recap"), BACKGROUND_ALPHA)
 panel:SetPoint("CENTER", UIParent, "CENTER", -40, -40)  -- versetzt zu den Einstellungen
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
-table.insert(UISpecialFrames, "LevelTimerRecap")  -- mit ESC schließen
+table.insert(UISpecialFrames, ns.GlobalName("Recap"))  -- mit ESC schließen
 Widgets.CreateCloseButton(panel)
 
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")

@@ -294,10 +294,12 @@ end)
 
 -- Eigene Fenster und Anzeigen: Sichtbarkeit, Größe, Position (Position nach /reload, Wandern beim Skalieren)
 check("frames.addon", function()
-  return framesByName({ "LevelTimerFrame", "LevelTimerAlert", "LevelTimerNotice", "LevelTimerCamp", "LevelTimerFood",
-    "LevelTimerFlight", "LevelTimerSplits", "LevelTimerLevelUp", "LevelTimerQuestItemBar", "LevelTimerRecap",
-    "LevelTimerMinimapButton", "LevelTimerMapCoordinates", "LevelTimerEmergency", "LevelTimerDeathMap",
-    "LevelTimerOptions", "LevelTimerHistory" })
+  local names = {}
+  for _, suffix in ipairs({ "Frame", "Alert", "Notice", "Camp", "Food", "Flight", "Splits", "LevelUp", "QuestItemBar",
+    "Recap", "MinimapButton", "MapCoordinates", "Emergency", "DeathMap", "Options", "History" }) do
+    names[#names + 1] = ns.GlobalName(suffix)
+  end
+  return framesByName(names)
 end)
 
 -- 238/266: Blizzard-Fenster, die "Fenster verschieben" kennt (Position, Größe nach Öffnen und /reload)
@@ -482,7 +484,7 @@ check("268.questItem.pick", function()
   return { candidates = candidates, pick = pick and { itemId = pick.itemId, questID = pick.questID },
     zoneOnly = ns.db.questButtonsZoneOnly, here = { mapID = here.mapID, zone = here.zone, names = names },
     targets = ns.QuestItem.TargetNames(), canTarget = ns.QuestItem.CanTarget(),
-    buttons = framesByName({ "LevelTimerQuestItemButton", "LevelTimerQuestTargetButton" }) }
+    buttons = framesByName({ ns.GlobalName("QuestItemButton"), ns.GlobalName("QuestTargetButton") }) }
 end)
 
 -- 269: Koordinatentext der Weltkarte und Spielerposition

@@ -72,7 +72,7 @@ local function refresh()
 end
 
 local function create()
-  frame = CreateFrame("Frame", "LevelTimerReadyTimer", UIParent)
+  frame = CreateFrame("Frame", ns.GlobalName("ReadyTimer"), UIParent)
   frame:SetSize(1, 1)
   frame:SetFrameStrata("DIALOG")
   frame:Hide()

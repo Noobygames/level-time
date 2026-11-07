@@ -23,7 +23,7 @@ QuestCleanup.FULL_MARGIN = 2
 local ABANDON_STEP = 0.3     -- Sekunden zwischen zwei Abbrüchen (der Server braucht etwas)
 local MAX_LISTED = 10        -- so viele Namen nennt die Rückfrage
 local BUTTON_WIDTH, BUTTON_HEIGHT = 150, 22
-local CONFIRM_POPUP = "LEVELTIMER_ABANDON_GRAY_QUESTS"
+local CONFIRM_POPUP = ns.PopupKey("ABANDON_GRAY_QUESTS")
 -- Questlog-Fenster je Client, das erste vorhandene bekommt den Knopf
 local LOG_FRAMES = { "QuestLogFrame", "QuestMapFrame", "WorldMapFrame" }
 

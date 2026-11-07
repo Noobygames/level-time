@@ -4,7 +4,7 @@ local L = ns.L
 local RADIUS_OFFSET = 10  -- Abstand des Buttons vom Minimap-Rand
 
 -- Aufbau wie LibDBIcon, damit der Button zu anderen Minimap-Buttons passt
-local button = CreateFrame("Button", "LevelTimerMinimapButton", Minimap)
+local button = CreateFrame("Button", ns.GlobalName("MinimapButton"), Minimap)
 button:SetSize(31, 31)
 button:SetFrameStrata("MEDIUM")
 button:SetFrameLevel(8)

@@ -15,7 +15,7 @@ local RecordCodec = ns.RecordCodec
 local Archive = {}
 ns.JournalArchive = Archive
 
-Archive.ADDON = "LevelTimer_Archive"
+Archive.ADDON = ns.GlobalName("_Archive")
 Archive.INBOX_MAX = 3000    -- so viele Einträge in einem Eingang lösen beim Login das Umziehen aus
 Archive.KEEP_RECENT = 500   -- so viele neueste Einträge bleiben im Eingang
 local SCHEMA_VERSION = 1

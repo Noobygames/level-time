@@ -35,7 +35,7 @@ local function readable(...)
 end
 
 local function create()
-  bar = CreateFrame("StatusBar", "LevelTimerDruidManaBar", PlayerFrame)
+  bar = CreateFrame("StatusBar", ns.GlobalName("DruidManaBar"), PlayerFrame)
   bar:SetHeight(HEIGHT)
   bar:SetPoint("TOPLEFT", PlayerFrameManaBar, "BOTTOMLEFT", 0, -GAP)
   bar:SetPoint("TOPRIGHT", PlayerFrameManaBar, "BOTTOMRIGHT", 0, -GAP)

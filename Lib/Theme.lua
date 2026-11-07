@@ -173,7 +173,7 @@ local defaults = {}  -- Rolle -> { face, size, flags } des Blizzard-Objekts
 local OUTLINED_SUFFIX = "Outline"
 
 local function fontName(role, outlined)
-  return "LevelTimerFont_" .. role .. (outlined and OUTLINED_SUFFIX or "")
+  return ns.GlobalName("Font_") .. role .. (outlined and OUTLINED_SUFFIX or "")
 end
 
 -- Je Rolle zwei Objekte: wie eingestellt und immer mit Kontur (Layout "text" für Streams, Textfelder auf Balken)

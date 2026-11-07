@@ -125,6 +125,6 @@ function Export.New(host)
 end
 
 -- Fenster von Level Time
-local default = Export.New({ name = "LevelTimerExport", L = ns.L, print = function(message) ns.Print(message) end })
+local default = Export.New({ name = ns.GlobalName("Export"), L = ns.L, print = function(message) ns.Print(message) end })
 Export.Show = default.Show
 Export.ShowImport = default.ShowImport

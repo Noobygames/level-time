@@ -58,7 +58,7 @@ end
 local function create()
   local map = WorldMapFrame
   if display or type(map) ~= "table" or not map.CreateFontString then return end
-  display = CreateFrame("Frame", "LevelTimerMapCoordinates", map)
+  display = CreateFrame("Frame", ns.GlobalName("MapCoordinates"), map)
   display:SetSize(1, 1)
   display:SetFrameLevel((map:GetFrameLevel() or 1) + 20)
   display.text = display:CreateFontString(nil, "OVERLAY", "GameFontNormal")

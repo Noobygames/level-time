@@ -14,7 +14,7 @@ local COLOR = { 0, 0, 0, 1 }
 local frame, edges
 
 local function create()
-  frame = CreateFrame("Frame", "LevelTimerScreenBorders", UIParent)
+  frame = CreateFrame("Frame", ns.GlobalName("ScreenBorders"), UIParent)
   frame:SetAllPoints(UIParent)
   frame:SetFrameStrata("BACKGROUND")
   frame:SetFrameLevel(0)

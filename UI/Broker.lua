@@ -94,7 +94,7 @@ ns.OnLogin(function()
   local broker = LibStub and LibStub("LibDataBroker-1.1", true)
   if not broker or dataObject then return end
   library = broker
-  dataObject = broker:NewDataObject("LevelTimer", {
+  dataObject = broker:NewDataObject(ns.ADDON_ID, {
     type = "data source",
     label = ns.DISPLAY_NAME,
     icon = ns.Widgets.ICON,

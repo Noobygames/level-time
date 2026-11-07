@@ -32,7 +32,7 @@ local COLUMN_GAP = 12
 local MIN_WIDTH = 140
 local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
 
-local panel = Widgets.CreatePanel("LevelTimerSplits", 0.8)
+local panel = Widgets.CreatePanel(ns.GlobalName("Splits"), 0.8)
 panel:Hide()
 
 local title = panel:CreateFontString(nil, "OVERLAY", Theme.Font("label"))

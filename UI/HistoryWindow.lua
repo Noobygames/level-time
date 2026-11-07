@@ -29,14 +29,14 @@ local SUBTAB_GAP = 10
 local UPDATE_INTERVAL = 1  -- Sekunden; hält laufende Einträge aktuell
 local NAME_COLOR = { 1, 1, 1 }  -- Charaktername ohne bekannte Klasse
 
-local panel = Widgets.CreatePanel("LevelTimerHistory", 0.95)
+local panel = Widgets.CreatePanel(ns.GlobalName("History"), 0.95)
 panel:SetWidth(HistoryWindow.CONTENT_WIDTH + 2 * MARGIN)  -- Höhe hängt von den Unterreiter-Zeilen ab (refresh)
 panel:SetPoint("CENTER", UIParent, "CENTER", 40, -40)  -- versetzt zu den Einstellungen
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
-table.insert(UISpecialFrames, "LevelTimerHistory")  -- mit ESC schließen
+table.insert(UISpecialFrames, ns.GlobalName("History"))  -- mit ESC schließen
 
 Widgets.CreateCloseButton(panel)
 
@@ -141,7 +141,7 @@ nextButton:SetPoint("TOPRIGHT", -MARGIN, CHARACTER_ROW_TOP + 4)
 
 -- Liste aller Charaktere (UI/CharacterMenu.lua): Klick auf den Namen
 local menu = ns.CharacterMenu.Create(panel, {
-  name = "LevelTimerHistoryMenu", anchor = characterName,
+  name = ns.GlobalName("HistoryMenu"), anchor = characterName,
   onSelect = function(characterKey)
     selectedCharacter = characterKey
     refresh()
@@ -159,7 +159,7 @@ end)
 ---------------------------------------------------------------------------
 -- Daten des gewählten Charakters löschen (mit Rückfrage)
 ---------------------------------------------------------------------------
-local DELETE_POPUP = "LEVELTIMER_DELETE_CHARACTER"
+local DELETE_POPUP = ns.PopupKey("DELETE_CHARACTER")
 
 local confirmDelete = Widgets.ConfirmPopup(DELETE_POPUP, "DELETE_CHARACTER_CONFIRM", function(characterKey)
   ns.DeleteCharacter(characterKey)

@@ -5,6 +5,21 @@ local _, ns = ...
 -- (Ordner, .toc, SavedVariables, Frame-Namen, /lt) bleiben LevelTimer, sonst gingen Daten verloren.
 ns.DISPLAY_NAME = "Level Time"
 
+-- Technische Addon-Id: Grundlage aller globalen Namen (Rahmen, StaticPopup-Schlüssel, LDB-Objekt, Addon-Nachrichten).
+-- Fest statt addonName, damit ein umbenannter Ordner keine gespeicherten Positionen oder Namen ändert.
+ns.ADDON_ID = "LevelTimer"
+local POPUP_PREFIX = ns.ADDON_ID:upper() .. "_"
+
+-- Globaler Rahmenname: "LevelTimer" .. suffix (z.B. GlobalName("Alert") = "LevelTimerAlert")
+function ns.GlobalName(suffix)
+  return ns.ADDON_ID .. suffix
+end
+
+-- Schlüssel in StaticPopupDialogs: "LEVELTIMER_" .. suffix
+function ns.PopupKey(suffix)
+  return POPUP_PREFIX .. suffix
+end
+
 -- Schnittstelle für Schwester-Addons (z.B. StreamGoal, per "## Dependencies: LevelTimer"): der Namespace mit allen
 -- Bausteinen (Card, Widgets, TableView, Alerts, Journal, Format, ...), Events, Login und Level-Up. Die Tabelle ist
 -- dieselbe, die die Module füllen; sie steht beim Laden des anderen Addons vollständig bereit.

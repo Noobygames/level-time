@@ -20,13 +20,13 @@ local BUTTON_GAP = 6
 local TAB_GAP = 10
 local ROW_LABEL_HEIGHT = 16
 
-local panel = Widgets.CreatePanel("LevelTimerWelcome", 0.95)
+local panel = Widgets.CreatePanel(ns.GlobalName("Welcome"), 0.95)
 panel:SetPoint("CENTER", 0, 80)
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
-table.insert(UISpecialFrames, "LevelTimerWelcome")
+table.insert(UISpecialFrames, ns.GlobalName("Welcome"))
 Widgets.CreateCloseButton(panel)
 
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")

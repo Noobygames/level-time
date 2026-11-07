@@ -50,7 +50,7 @@ local function showTooltip(pin, point)
 end
 
 local layer = ns.MapPins.Create({
-  name = "LevelTimerQuestMap",
+  name = ns.GlobalName("QuestMap"),
   label = "QuestMap",
   points = QuestMap.PointsOn,
   revision = function() return ns.QuestNpcs.Revision(), logRevision end,

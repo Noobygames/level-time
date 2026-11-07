@@ -189,7 +189,7 @@ local function canChange(reg)
 end
 
 local function createOverlay(reg)
-  local overlay = CreateFrame("Frame", "LevelTimerEdit_" .. reg.id, UIParent)
+  local overlay = CreateFrame("Frame", ns.GlobalName("Edit_") .. reg.id, UIParent)
   overlay.reg = reg
   overlay:SetFrameStrata("FULLSCREEN_DIALOG")
   overlay:SetAllPoints(reg.frame)
@@ -253,7 +253,7 @@ local function buildGrid()
   if gridBuiltFor == key then return end
   gridBuiltFor = key
   if not grid then
-    grid = CreateFrame("Frame", "LevelTimerEditGrid", UIParent)
+    grid = CreateFrame("Frame", ns.GlobalName("EditGrid"), UIParent)
     grid:SetAllPoints(UIParent)
     grid:SetFrameStrata("BACKGROUND")
     grid.lines = {}
@@ -301,13 +301,13 @@ end
 ---------------------------------------------------------------------------
 -- Leiste oben: Titel, Hinweis, Schalter (XP-Leiste, Blizzard-Elemente), Raster, Alle zurücksetzen, Fertig; Tastatur
 ---------------------------------------------------------------------------
-local toolbar = Widgets.CreatePanel("LevelTimerEditMode", 0.95)
+local toolbar = Widgets.CreatePanel(ns.GlobalName("EditMode"), 0.95)
 toolbar:SetFrameStrata("FULLSCREEN_DIALOG")
 toolbar:SetPoint("TOP", UIParent, "TOP", 0, -40)
 toolbar:SetScript("OnDragStart", toolbar.StartMoving)
 toolbar:SetScript("OnDragStop", toolbar.StopMovingOrSizing)
 toolbar:Hide()
-table.insert(UISpecialFrames, "LevelTimerEditMode")  -- Esc schließt auch ohne Tastatur-Fokus (Rückfall)
+table.insert(UISpecialFrames, ns.GlobalName("EditMode"))  -- Esc schließt auch ohne Tastatur-Fokus (Rückfall)
 toolbar.title = toolbar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 toolbar.title:SetPoint("TOP", 0, -TOOLBAR_PADDING)
 toolbar.hint = toolbar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -422,7 +422,7 @@ toolbar:SetScript("OnHide", function() if active then EditMode.Leave() end end)
 ---------------------------------------------------------------------------
 -- Menü einer Anzeige (Rechtsklick): Größe, Zurücksetzen, Ausblenden, Einstellungen
 ---------------------------------------------------------------------------
-popup = Widgets.CreatePanel("LevelTimerEditPopup", 0.95)
+popup = Widgets.CreatePanel(ns.GlobalName("EditPopup"), 0.95)
 popup:SetFrameStrata("TOOLTIP")
 popup:SetWidth(POPUP_WIDTH)
 popup:Hide()

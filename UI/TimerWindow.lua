@@ -25,7 +25,7 @@ local SETTINGS_PAGE = "OPTIONS_PAGE_WINDOW"  -- Rechtsklick auf Fenster und Reit
 TimerWindow.BACKGROUND_DEFAULT = Theme.BACKGROUND_DEFAULT
 TimerWindow.CHROMA_COLORS = Theme.CHROMA
 
-local window = Widgets.CreatePanel("LevelTimerFrame", 0.8)
+local window = Widgets.CreatePanel(ns.GlobalName("Frame"), 0.8)
 window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereitstehen
 
 -- Reiter wählen den Bereich (Einstellung windowScope): Linksklick wählt ihn, Rechtsklick ruft onRightClick

@@ -32,7 +32,7 @@ end)
 ---------------------------------------------------------------------------
 -- Instanz-Lauf zurücksetzen
 ---------------------------------------------------------------------------
-local RESET_INSTANCE_POPUP = "LEVELTIMER_RESET_INSTANCE"
+local RESET_INSTANCE_POPUP = ns.PopupKey("RESET_INSTANCE")
 
 local confirmInstanceReset = Widgets.ConfirmPopup(RESET_INSTANCE_POPUP, "INSTANCE_RESET_CONFIRM", function()
   if ns.Instances.ResetCurrent() then ns.Print(L.INSTANCE_RESET_DONE) end

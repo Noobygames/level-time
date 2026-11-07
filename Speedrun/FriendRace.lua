@@ -13,7 +13,7 @@ local _, ns = ...
 local L = ns.L
 
 local FriendRace = {
-  PREFIX = "LevelTimer",
+  PREFIX = ns.ADDON_ID,
   MAX_MESSAGE = 240,     -- Grenze 255 Byte, mit Reserve
   SEND_INTERVAL = 1,
   MAX_QUEUE = 50,

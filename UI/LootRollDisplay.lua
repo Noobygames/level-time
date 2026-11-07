@@ -237,7 +237,7 @@ function LootRollDisplay.RowOf(frame)
   return rows[frame]
 end
 
-card = ns.Card.Create("LevelTimerLootRolls")
+card = ns.Card.Create(ns.GlobalName("LootRolls"))
 card.frame:SetFrameStrata("DIALOG")
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,

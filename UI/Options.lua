@@ -13,11 +13,11 @@ local MAX_PROFILE_ROWS = 6     -- so viele Profile listet der Reiter "Profile"
 local ROW_PROFILE = 20
 local PROFILE_NAME_WIDTH = 160
 local PROFILE_SAVE_WIDTH = 120
-local DELETE_PROFILE_POPUP = "LEVELTIMER_DELETE_PROFILE"
+local DELETE_PROFILE_POPUP = ns.PopupKey("DELETE_PROFILE")
 local QUEST_EXCLUDE_WIDTH = 200  -- Eingabefeld für die eigene Sperrliste der Quest-Automatik
 
 local builder = Builder.New({
-  name = "LevelTimerOptions",
+  name = ns.GlobalName("Options"),
   alpha = 0.95,
   title = function() return ns.DISPLAY_NAME .. " - " .. L.SETTINGS end,
   -- Schalter "Erweitert" oben rechts: aus = selten genutzte Bausteine verborgen
@@ -109,7 +109,7 @@ function ns.ConfirmProfileDelete(name)
   confirmProfileDelete(ns.Profiles.DisplayName(name), name)
 end
 
-local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
+local OVERWRITE_PROFILE_POPUP = ns.PopupKey("OVERWRITE_PROFILE")
 local onProfileSaved  -- Rückruf des laufenden Speicherns (leert z.B. das Namensfeld)
 
 local function saveProfile(name)
@@ -1310,7 +1310,7 @@ addFooterButton("EDIT_MODE", function()
 end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
 -- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
-local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
+local NEW_SESSION_POPUP = ns.PopupKey("NEW_SESSION")
 local confirmNewSession = Widgets.ConfirmPopup(NEW_SESSION_POPUP, "NEW_SESSION_CONFIRM", function() ns.StartNewSession() end)
 addFooterButton("NEW_SESSION", function()
   confirmNewSession(ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))

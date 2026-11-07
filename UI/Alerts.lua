@@ -33,7 +33,7 @@ Alerts.REMINDER_COLOR = Alerts.COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer
 Alerts.DEFAULT_POSITION = { "TOP", "TOP", 0, -160 }
 local DEFAULT_POSITION = Alerts.DEFAULT_POSITION
 
-local frame = CreateFrame("Frame", "LevelTimerAlert", UIParent)
+local frame = CreateFrame("Frame", ns.GlobalName("Alert"), UIParent)
 Alerts.frame = frame  -- Banner-Rahmen; an ihm hängen Position und Größe (UI/AlertPosition.lua)
 frame:SetSize(1, 1)
 frame:SetPoint(DEFAULT_POSITION[1], UIParent, DEFAULT_POSITION[2], DEFAULT_POSITION[3], DEFAULT_POSITION[4])
@@ -46,7 +46,7 @@ frame:Hide()
 
 -- Hinweise (Buffs, Taschen, Haltbarkeit, ...) erscheinen als Karte mit Symbol, Titel und Text (Lib/Card.lua) an
 -- derselben Stelle wie das Banner; Größe, Dauer, Position und Warteschlange sind gemeinsam
-local notice = ns.Card.Create("LevelTimerNotice")
+local notice = ns.Card.Create(ns.GlobalName("Notice"))
 notice.frame:SetFrameStrata("HIGH")
 notice.frame:SetPoint("TOP", frame, "TOP")
 Alerts.noticeFrame = notice.frame

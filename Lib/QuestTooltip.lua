@@ -13,7 +13,7 @@ local _, ns = ...
 local QuestTooltip = {}
 ns.QuestTooltip = QuestTooltip
 
-local SCAN_TOOLTIP = "LevelTimerQuestScanTooltip"
+local SCAN_TOOLTIP = ns.GlobalName("QuestScanTooltip")
 
 local cache = {}  -- [Name] = Liste der Ziele (leer = keine Questzeilen)
 
