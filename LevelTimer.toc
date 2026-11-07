@@ -106,6 +106,7 @@ UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
 UI\FlightDisplay.lua
+UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
@@ -140,6 +141,8 @@ Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\LootTarget.lua
+Assist\LootSparkles.lua
 Assist\QuestLevels.lua
 Assist\QuestItemButton.lua
 Assist\ActionBars.lua
