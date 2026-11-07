@@ -254,13 +254,14 @@ function History.Summarize(records)
   return summary
 end
 
--- Läuft vor dem Zurücksetzen der Zähler. UnitXPMax liefert hier noch den Bedarf des alten Levels.
+-- Läuft vor dem Zurücksetzen der Zähler. XP-Bedarf des alten Levels aus Experience.XpMaxOf, weil UnitXPMax hier
+-- schon den des neuen liefern kann (Reihenfolge von PLAYER_XP_UPDATE und PLAYER_LEVEL_UP).
 -- seconds/totalPlayed sind nil, falls /played noch nicht geantwortet hatte.
 ns.OnLevelCompleted(function(completedLevel)
   ns.character.levelHistory[completedLevel] = {
     level = completedLevel,
     seconds = Stats.GetSeconds(Stats.LEVEL),
-    xp = UnitXPMax("player"),
+    xp = ns.Experience.XpMaxOf(completedLevel),
     counters = Stats.Snapshot(Stats.LEVEL),
     completedAt = time(),                           -- Zeitpunkt, an dem das nächste Level erreicht wurde
     totalPlayed = ns.PlayedTime.GetTotalSeconds(),  -- /played gesamt in diesem Moment
