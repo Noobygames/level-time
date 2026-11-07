@@ -15,7 +15,11 @@
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
 # Grundlagen: Sprachen, Kern (Core), allgemeine Helfer (Lib)
-Locales\Locales.lua
+Locales\Core.lua
+Locales\deDE.lua
+Locales\enUS.lua
+Locales\frFR.lua
+Locales\esES.lua
 Lib\Migrate.lua
 Core\Database.lua
 Lib\Lifecycle.lua
