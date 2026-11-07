@@ -177,6 +177,7 @@ UI\HistoryWindow.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
+UI\QuestViews.lua
 UI\RecapWindow.lua
 UI\StreamMode.lua
 UI\MinimapButton.lua

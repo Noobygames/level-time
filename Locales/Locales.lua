@@ -1127,6 +1127,10 @@ ns.locales = {
     WARN_QUEST_LOG_FULL_TOGGLE_TIP = "Hinweis nach einer Annahme, wenn im Questlog höchstens noch zwei Plätze frei sind. Einmal, bis wieder mehr frei ist.",
     QUEST_LOG_FULL_TITLE = "Questlog fast voll",
     QUEST_LOG_FULL = "%d von %d Quests im Log",
+    HISTORY_GROUP_QUESTS = "Quests",
+    HISTORY_TAB_TURN_IN = "Abgabe",
+    HISTORY_LEVEL_SHARE = "% Level",
+    TURN_IN_HINT = "Abgabebereite Quests des eingeloggten Charakters mit XP und Anteil am Level, zum Bündeln vor dem Ruhestein.",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2247,6 +2251,10 @@ ns.locales = {
     WARN_QUEST_LOG_FULL_TOGGLE_TIP = "Notice after accepting a quest when the quest log has at most two free slots left. Once, until more slots are free again.",
     QUEST_LOG_FULL_TITLE = "Quest log nearly full",
     QUEST_LOG_FULL = "%d of %d quests in the log",
+    HISTORY_GROUP_QUESTS = "Quests",
+    HISTORY_TAB_TURN_IN = "Turn-in",
+    HISTORY_LEVEL_SHARE = "% level",
+    TURN_IN_HINT = "Quests of the logged-in character that are ready to turn in, with XP and share of the level, to bundle them before using the hearthstone.",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3367,6 +3375,10 @@ ns.locales = {
     WARN_QUEST_LOG_FULL_TOGGLE_TIP = "Avis après l'acceptation d'une quête quand il reste au plus deux places dans le journal. Une fois, jusqu'à ce qu'il y ait de nouveau plus de place.",
     QUEST_LOG_FULL_TITLE = "Journal presque plein",
     QUEST_LOG_FULL = "%d quêtes sur %d dans le journal",
+    HISTORY_GROUP_QUESTS = "Quêtes",
+    HISTORY_TAB_TURN_IN = "À rendre",
+    HISTORY_LEVEL_SHARE = "% niveau",
+    TURN_IN_HINT = "Quêtes du personnage connecté prêtes à être rendues, avec PX et part du niveau, pour les regrouper avant la pierre de foyer.",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4487,6 +4499,10 @@ ns.locales = {
     WARN_QUEST_LOG_FULL_TOGGLE_TIP = "Aviso tras aceptar una misión cuando quedan como mucho dos huecos libres en el registro. Una vez, hasta que vuelva a haber más sitio.",
     QUEST_LOG_FULL_TITLE = "Registro casi lleno",
     QUEST_LOG_FULL = "%d de %d misiones en el registro",
+    HISTORY_GROUP_QUESTS = "Misiones",
+    HISTORY_TAB_TURN_IN = "Entregar",
+    HISTORY_LEVEL_SHARE = "% nivel",
+    TURN_IN_HINT = "Misiones del personaje conectado listas para entregar, con PX y parte del nivel, para agruparlas antes de la piedra de hogar.",
   },
 }
 

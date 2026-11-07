@@ -2413,3 +2413,25 @@ Blockiert-Fehler (ja/nein):
 Hinweis „fast voll“ (ja/nein):
 Fehler:
 ```
+
+### 117. Abgabe-Übersicht (Roadmap 345)
+
+- [ ] geprüft
+
+Mit mehreren abgabebereiten Quests in verschiedenen Zonen `/lt history` > Quests > Abgabe öffnen.
+
+1. Jede fertige Quest steht mit Zone (Überschrift im Questlog), Level, XP und „% Level“; Fußzeile mit Anzahl, XP-Summe und Summe in Prozent.
+2. Maus über eine Zeile zeigt den Quest-Tooltip des Spiels.
+3. Eine Quest abgeben: sie verschwindet nach spätestens 5 s aus der Liste.
+4. Classic: Quests unter eingeklappten Überschriften fehlen (bekannt); bitte notieren, ob das stört.
+
+**Erwartet:** XP stimmen mit dem Questlog überein, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste und Summen richtig (ja/nein):
+Quest-Tooltip (ja/nein):
+Fehler:
+```
