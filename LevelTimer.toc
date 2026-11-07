@@ -156,6 +156,7 @@ Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua
+Assist\ScreenBorders.lua
 Assist\Camera.lua
 Assist\SkipDialogs.lua
 Assist\Declines.lua

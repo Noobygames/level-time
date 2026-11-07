@@ -195,6 +195,8 @@ local SETTINGS_DEFAULTS = {
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
+  -- schwarze Bildschirmränder über der Spielwelt (ScreenBorders.lua), Größen in UI-Einheiten
+  screenBorders = false, screenBorderTop = 0, screenBorderBottom = 0, screenBorderSides = 0,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
   hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)

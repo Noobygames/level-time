@@ -835,6 +835,39 @@ addToggles({
   toggle("HIDE_ERRORS", "hideErrors"),
   toggle("HIDE_ZONE_TEXT", "hideZoneText"),
 })
+-- Schwarze Ränder über der Spielwelt (unter der Oberfläche)
+addSection("SECTION_SCREEN_BORDERS")
+addToggles({ toggle("SCREEN_BORDERS", "screenBorders") })
+addSlider({
+  label = "SCREEN_BORDER_TOP",
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderTop end,
+  set = function(value) ns.SetDeferred("screenBorderTop", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
+addSlider({
+  label = "SCREEN_BORDER_BOTTOM",
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderBottom end,
+  set = function(value) ns.SetDeferred("screenBorderBottom", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
+addSlider({
+  label = "SCREEN_BORDER_SIDES",
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderSides end,
+  set = function(value) ns.SetDeferred("screenBorderSides", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
 addSection("SECTION_ACTION_BARS")
 addToggles({
   toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
