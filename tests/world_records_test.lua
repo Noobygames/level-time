@@ -68,7 +68,7 @@ expect("Alter in Tagen", WorldRecords.GetAgeDays(), 12)
 
 -- Eigene Größe der Split-Liste
 addon.Set("showSplitList", true)
-addon.Set("splitListScale", 1.4)
+addon.Frames.SetScale("splitList", 1.4)
 expect("eigene Größe", LevelTimerSplits:GetScale(), 1.4)
 
 -- Historie: alle Rekorde, eigene Klasse hervorgehoben

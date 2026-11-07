@@ -27,6 +27,7 @@ expect("neuer Zähler bekommt Default", Stats.Get(Stats.LEVEL, Stats.XP_GAINED),
 expectTrue("Session gestartet", character.currentSession.startedAt ~= nil)
 
 expect("Einstellung bleibt", LevelTimerDB.locked, true)
+expect("alter Schlüssel scale entfernt", LevelTimerDB.scale, nil)
 expect("Kills aus -> PvE aus", LevelTimerDB.showPveKills, false)
 expect("Kills aus -> PvP aus", LevelTimerDB.showPvpKills, false)
 expect("alter Kills-Schalter entfernt", LevelTimerDB.showKills, nil)
@@ -36,7 +37,7 @@ expect("Kills/Quests bis Level-Up: Quests übernimmt", LevelTimerDB.showQuestsTo
 expect("alter Schalter entfernt", LevelTimerDB.showCountToLevel, nil)
 expect("auch im Profil", LevelTimerDB.profiles.Alt.showQuestsToLevel, false)
 expect("neue Einstellung bekommt Default", LevelTimerDB.windowScope, "level")
-expect("Schriftgröße wird zu Fenstergröße", LevelTimerDB.scale, 1.5)
+expect("Schriftgröße wird zu Fenstergröße", LevelTimerDB.frames.main.scale, 1.5)
 expect("alte Schriftgröße entfernt", LevelTimerDB.fontSize, nil)
 
 -- Zweiter Login darf nicht erneut migrieren

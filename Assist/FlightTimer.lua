@@ -1,71 +1,87 @@
--- Flugzeiten (Einstellung flightTimer, Standard an): misst jeden Flug selbst und zeigt beim nächsten Flug derselben
--- Strecke die Restzeit (UI/FlightDisplay.lua) plus eine Chatzeile beim Abflug. Keine mitgelieferten Daten: die
--- erste Strecke wird gemessen ("hint"), danach ist sie bekannt.
+-- Flugzeiten (Einstellung flightTimer): misst jeden Flug selbst und zeigt beim Abflug die Restzeit
+-- (UI/FlightDisplay.lua) plus eine Chatzeile. Woher die Zeit kommt, entscheidet Assist/FlightTimes.lua: eigene
+-- Messung, mitgelieferte Messung, Gegenrichtung oder Schätzung aus der Strecke (dann mit "~" und leiser Farbe).
+-- Ganz ohne Anhaltspunkt wird die Strecke gemessen ("hint").
 -- Ablauf wie Blizzards TaxiFrame (alle Clients; im Spiel geprüft in WoW Forever 1.60.1, Debug-Log):
---   TAXIMAP_OPENED   Start = Knoten mit TaxiNodeGetType(i) == "CURRENT" (TaxiNodeName)
---   TakeTaxiNode(i)  Ziel = TaxiNodeName(i) (hooksecurefunc, kein Eingriff in den Flug)
+--   TAXIMAP_OPENED   Karte lesen (Assist/FlightMap.lua): Start = Knoten vom Typ CURRENT, Positionen, nodeIDs
+--   TakeTaxiNode(i)  Ziel = Slot i (hooksecurefunc, kein Eingriff in den Flug), Strecke über die Teilstrecken
 --   Landung          PLAYER_CONTROL_GAINED, sobald UnitOnTaxi("player") false ist
--- Gespeichert account-weit: LevelTimerStatsDB.flightTimes["Start > Ziel"] = Sekunden (letzte Messung; Namen in der
--- Sprache des Clients). Ein /reload im Flug verliert die Messung, die bekannte Zeit gilt dann ab dem Neuladen nicht.
+-- Ein /reload im Flug verliert die Messung.
 local _, ns = ...
 local L = ns.L
 
 local FlightTimer = {}
 ns.FlightTimer = FlightTimer
 
-local CURRENT_NODE = "CURRENT"
 local MIN_FLIGHT_SECONDS = 5       -- kürzere "Flüge" (abgebrochen) werden nicht gemerkt
 local LANDING_CHECK_SECONDS = 1    -- wie oft im Flug geprüft wird, ob man gelandet ist
 
-local origin       -- Name des Knotens, an dem die Flugkarte offen ist
-local flight       -- { from, to, startedAt, known } während des Flugs
+local map          -- Momentaufnahme der offenen Flugkarte (FlightMap.Read)
+local flight       -- { fromName, toName, map, fromKey, toKey, distance, hops, startedAt, known } während des Flugs
 
-local function times()
-  LevelTimerStatsDB.flightTimes = LevelTimerStatsDB.flightTimes or {}
-  return LevelTimerStatsDB.flightTimes
-end
-
-function FlightTimer.RouteKey(from, to)
-  return from .. " > " .. to
-end
-
--- Bekannte Dauer einer Strecke in Sekunden oder nil
+-- Letzte gemessene Dauer einer Strecke nach Namen (alter Schlüssel) oder nil
 function FlightTimer.Get(from, to)
   if not from or not to then return nil end
-  return times()[FlightTimer.RouteKey(from, to)]
+  return (LevelTimerStatsDB.flightTimes or {})[ns.FlightTimes.LegacyKey(from, to)]
 end
 
-local function currentNode()
-  if not NumTaxiNodes then return nil end
-  for index = 1, NumTaxiNodes() do
-    if TaxiNodeGetType(index) == CURRENT_NODE then return TaxiNodeName(index) end
-  end
-  return nil
+-- Ziel-Slot der offenen Karte als Abfrage für FlightTimes.Lookup (nil ohne Karte oder Startknoten)
+local function queryFor(slot)
+  if not map or not map.current then return nil end
+  local from, to = map.nodes[map.current], map.nodes[slot]
+  if not from or not to then return nil end
+  local distance, hops = ns.FlightMap.Distance(map, map.current, slot)
+  return { map = map.map, fromKey = from.key, toKey = to.key, fromName = from.name, toName = to.name,
+    distance = distance, hops = hops }
+end
+
+-- Bekannte oder geschätzte Dauer zum Slot der offenen Karte: { seconds, source, estimated, origin } oder nil
+function FlightTimer.Lookup(slot)
+  local query = queryFor(slot)
+  return query and ns.FlightTimes.Lookup(query)
+end
+
+local function onMapOpened()
+  map = ns.FlightMap.Read()
+  if not map then return end
+  ns.FlightTimes.Learn(map, function(fromSlot, toSlot) return ns.FlightMap.Distance(map, fromSlot, toSlot) end)
+  ns.Debug("flight", "taxi map %s opened at %s", map.map, map.current and map.nodes[map.current].name)
 end
 
 local function show()
   if not ns.db.flightTimer or not flight then return end
-  if flight.known then
-    local remaining = flight.known - (GetTime() - flight.startedAt)
-    ns.FlightDisplay.Show({ kind = "countdown", spellId = ns.FlightDisplay.ICON, title = flight.to,
-      remaining = math.max(0, remaining), duration = flight.known })
+  local known = flight.known
+  if known then
+    local remaining = known.seconds - (GetTime() - flight.startedAt)
+    ns.FlightDisplay.Show({ kind = "countdown", spellId = ns.FlightDisplay.ICON, title = flight.toName,
+      remaining = math.max(0, remaining), duration = known.seconds, estimated = known.estimated })
   else
-    ns.FlightDisplay.Show({ kind = "hint", spellId = ns.FlightDisplay.ICON, title = flight.to })
+    ns.FlightDisplay.Show({ kind = "hint", spellId = ns.FlightDisplay.ICON, title = flight.toName })
   end
 end
 
-local function onTakeoff(index)
-  local to = TaxiNodeName(index)
-  if not origin or not to or ns.IsSecret(to) then return end
-  flight = { from = origin, to = to, startedAt = GetTime(), known = FlightTimer.Get(origin, to) }
-  ns.Debug("flight", "takeoff %s, known %s", FlightTimer.RouteKey(origin, to), flight.known)
-  if ns.db.flightTimer then
-    if flight.known then
-      ns.Print(string.format(L.FLIGHT_STARTED, to, ns.Format.Duration(flight.known)))
-    else
-      ns.Print(string.format(L.FLIGHT_STARTED_UNKNOWN, to))
-    end
+local function announce()
+  local known = flight.known
+  if not known then
+    ns.Print(string.format(L.FLIGHT_STARTED_UNKNOWN, flight.toName))
+  elseif known.estimated then
+    ns.Print(string.format(L.FLIGHT_STARTED_ESTIMATE, flight.toName, ns.Format.Duration(known.seconds)))
+  else
+    ns.Print(string.format(L.FLIGHT_STARTED, flight.toName, ns.Format.Duration(known.seconds)))
   end
+end
+
+local function onTakeoff(slot)
+  local query = queryFor(slot)
+  if not query then return end
+  flight = query
+  flight.startedAt = GetTime()
+  flight.known = ns.FlightTimes.Lookup(query)
+  ns.Debug("flight", "takeoff %s (%s > %s) on map %s, distance %s, hops %s, source %s, seconds %s, origin %s",
+    ns.FlightMap.RouteKey(tostring(query.fromKey), tostring(query.toKey)), query.fromName, query.toName, query.map,
+    query.distance, query.hops, flight.known and flight.known.source, flight.known and flight.known.seconds,
+    flight.known and flight.known.origin)
+  if ns.db.flightTimer then announce() end
   show()
 end
 
@@ -79,12 +95,13 @@ local function onLanded()
     ns.FlightDisplay.Show(nil)
     return
   end
-  times()[FlightTimer.RouteKey(landed.from, landed.to)] = math.floor(seconds + 0.5)
-  ns.Debug("flight", "landed %s after %s s", FlightTimer.RouteKey(landed.from, landed.to), seconds)
-  if ns.db.flightTimer then ns.FlightDisplay.ShowDone(ns.FlightDisplay.ICON, landed.to) end
+  ns.FlightTimes.Record(landed, math.floor(seconds + 0.5))
+  ns.Debug("flight", "landed %s > %s after %s s (expected %s, %s)", landed.fromName, landed.toName, seconds,
+    landed.known and landed.known.seconds, landed.known and landed.known.source)
+  if ns.db.flightTimer then ns.FlightDisplay.ShowDone(ns.FlightDisplay.ICON, landed.toName) end
 end
 
-ns.RegisterEvent("TAXIMAP_OPENED", function() origin = currentNode() end)
+ns.RegisterEvent("TAXIMAP_OPENED", onMapOpened)
 ns.RegisterEvent("PLAYER_CONTROL_GAINED", onLanded)
 if hooksecurefunc and TakeTaxiNode then hooksecurefunc("TakeTaxiNode", onTakeoff) end
 
@@ -99,5 +116,5 @@ ns.Every(LANDING_CHECK_SECONDS, function()
 end)
 
 ns.OnLogin(function()
-  origin, flight = nil, nil
+  map, flight = nil, nil
 end)

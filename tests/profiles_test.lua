@@ -1,32 +1,34 @@
 -- Einstellungs-Profile: speichern, wechseln, je Charakter merken, teilen, löschen.
 local L = addon.L
 local Profiles = addon.Profiles
+local Frames = addon.Frames
+local function mainScale() return LevelTimerDB.frames.main and LevelTimerDB.frames.main.scale end
 
 wow.login({ name = "Erster" })
 expect("Standard aktiv", Profiles.GetActive(), "Default")
-addon.Set("scale", 1.2)
+Frames.SetScale("main", 1.2)
 
 -- Aktuellen Stand als neues Profil speichern
 SlashCmdList.LEVELTIMER("profile save Stream")
 expect("neues Profil aktiv", Profiles.GetActive(), "Stream")
 addon.Set("windowBackground", "green")
-addon.Set("scale", 1.5)
+Frames.SetScale("main", 1.5)
 
 -- Zurück zum Standard: dessen Werte, Stream behält seine
 SlashCmdList.LEVELTIMER("profile Default")
-expect("Standard: Größe", LevelTimerDB.scale, 1.2)
+expect("Standard: Größe", mainScale(), 1.2)
 expect("Standard: Hintergrund", LevelTimerDB.windowBackground, "default")
 expect("Fenster folgt", LevelTimerFrame:GetScale(), 1.2)
 SlashCmdList.LEVELTIMER("profile Stream")
-expect("Stream: Größe", LevelTimerDB.scale, 1.5)
+expect("Stream: Größe", mainScale(), 1.5)
 expect("Stream: Hintergrund", LevelTimerDB.windowBackground, "green")
 
 -- Profilwechsel setzt das Fenster an die Stelle des Profils, eine Größenänderung danach behält sie
-LevelTimerDB.profiles.Default.pos = { "TOPLEFT", "TOPLEFT", 120, -80 }
+LevelTimerDB.profiles.Default.frames.main = { point = "TOPLEFT", relPoint = "TOPLEFT", x = 120, y = -80, scale = 1.2 }
 SlashCmdList.LEVELTIMER("profile Default")
 local anchor = LevelTimerFrame._points[1]
 expect("Position des Profils", anchor[1] .. " " .. anchor[4] .. " " .. anchor[5], "TOPLEFT 120 -80")
-expect("Position bleibt im Profil", LevelTimerDB.pos[3], 120)
+expect("Position bleibt im Profil", LevelTimerDB.frames.main.x, 120)
 SlashCmdList.LEVELTIMER("profile Stream")
 
 -- Jeder Charakter merkt sich sein Profil
@@ -34,7 +36,7 @@ wow.logout()
 wow.login({ name = "Zweiter" })
 expect("neuer Charakter ohne Wahl: Standardprofil", Profiles.GetActive(), "Default")
 SlashCmdList.LEVELTIMER("profile Default")
-expect("zweiter Charakter: Standard", LevelTimerDB.scale, 1.2)
+expect("zweiter Charakter: Standard", mainScale(), 1.2)
 wow.logout()
 wow.login({ name = "Erster" })
 expect("erster lädt Stream", Profiles.GetActive(), "Stream")
@@ -98,15 +100,15 @@ local bad = addon.Serializer.Encode("profile", { name = "Kaputt", settings = {
 } })
 local badName = Profiles.Import(bad)
 local badSettings = LevelTimerDB.profiles[badName]
-expect("falscher Typ entfernt", badSettings.scale, nil)
+expect("falscher Typ entfernt", badSettings.frames.main, nil)
 expect("gültiger Wert bleibt", badSettings.bgAlpha, 0.5)
 expect("unbekannter Schlüssel entfernt", badSettings.unknownKey, nil)
 expect("verschachtelt geprüft", badSettings.minimap.hide, nil)
 expect("verschachtelt gültig", badSettings.minimap.angle, 90)
-expect("kaputte Position entfernt", badSettings.pos, nil)
-expect("gültige Position bleibt", badSettings.splitListPos[3], 10)
+expect("alte Positions-Schlüssel umgezogen", badSettings.splitListPos, nil)
+expect("gültige Position bleibt", badSettings.frames.splitList.x, 10)
 Profiles.Switch(badName)
-expect("Profil lädt mit Defaults", LevelTimerDB.scale, 1)
+expect("Profil lädt mit Defaults", Frames.GetScale("main"), 1)
 expect("leerer Name abgelehnt", Profiles.Import(addon.Serializer.Encode("profile", { name = "", settings = {} })), nil)
 
 -- Der angezeigte Name des Standardprofils funktioniert auch als Befehl (deDE: "Standard")
@@ -150,9 +152,14 @@ expectTrue("Import 'Standard': wählbar", Profiles.Exists(fromDefaultName))
 local sane = addon.Database.SanitizeSettings({
   pos = { "FOO", "CENTER", 0, 0 }, alertPos = { "CENTER", "CENTER", math.huge, 0 },
   campPos = { "TOP", "TOP", 5, -10 }, splitListScale = 9,
+  frames = { food = { point = "TOP", relPoint = "BAR", x = 1, y = 2, scale = 1.2 }, [5] = { scale = 1 }, flight = "x" },
 })
-expect("unbekannter Anker verworfen", sane.pos, nil)
-expect("unendlicher Offset verworfen", sane.alertPos, nil)
-expect("gültige Position bleibt", sane.campPos[3], 5)
-expect("splitListScale bleibt, begrenzt", sane.splitListScale, 2)
-expect("splitListScale ohne Zahl verworfen", addon.Database.SanitizeSettings({ splitListScale = "groß" }).splitListScale, nil)
+expect("unbekannter Anker verworfen", sane.frames.main, nil)
+expect("unendlicher Offset verworfen", sane.frames.alert, nil)
+expect("gültige Position bleibt", sane.frames.camp.x, 5)
+expect("Größe der Split-Liste bleibt, begrenzt", sane.frames.splitList.scale, 2)
+expect("ungültiger Bezugspunkt: nur die Größe bleibt", sane.frames.food.point, nil)
+expect("ungültiger Bezugspunkt: Größe", sane.frames.food.scale, 1.2)
+expect("Zahl als Id verworfen", sane.frames[5], nil)
+expect("Eintrag ohne Tabelle verworfen", sane.frames.flight, nil)
+expect("Größe ohne Zahl verworfen", addon.Database.SanitizeSettings({ splitListScale = "groß" }).frames, nil)

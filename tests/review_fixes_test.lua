@@ -14,10 +14,10 @@ end
 wow.login({ level = 10 })
 
 -- 177: Migrationen 2 und 3 gelten auch für gespeicherte Profile
-expect("Profil: Schrift zu Größe", LevelTimerDB.profiles.Alt.scale, 0.5)
+expect("Profil: Schrift zu Größe (frames, Migration 6)", LevelTimerDB.profiles.Alt.frames.main.scale, 0.5)
 expect("Profil: Schrift entfernt", LevelTimerDB.profiles.Alt.fontSize, nil)
 expect("Profil: Kills aufgeteilt", LevelTimerDB.profiles.Alt.showPveKills, true)
-expect("Hauptwerte ebenfalls", LevelTimerDB.scale, 2)
+expect("Hauptwerte ebenfalls", LevelTimerDB.frames.main.scale, 2)
 
 -- 173: ein defekter Charakter legt die anderen nicht lahm
 expectTrue("eigener Charakter geladen", addon.character ~= nil)
@@ -28,14 +28,14 @@ clearErrors()
 local clean = addon.Database.SanitizeSettings({
   scale = 0, bgAlpha = 9, reminderInterval = 0, splitListRows = -5, alertScale = 100, alertDuration = 0,
 })
-expect("Größe nach unten begrenzt", clean.scale, 0.5)
+expect("Größe nach unten begrenzt", clean.frames.main.scale, 0.5)
 expect("Deckkraft nach oben begrenzt", clean.bgAlpha, 1)
 expect("Erinnerungsabstand mindestens 1", clean.reminderInterval, 1)
 expect("Zeilenzahl mindestens 3", clean.splitListRows, 3)
-expect("Einblendungsgröße begrenzt", clean.alertScale, 2)
+expect("Einblendungsgröße begrenzt", clean.frames.alert.scale, 2)
 expect("Anzeigedauer mindestens 1", clean.alertDuration, 1)
-expect("unendlich verworfen", addon.Database.SanitizeSettings({ scale = math.huge }).scale, nil)
-expect("NaN verworfen", addon.Database.SanitizeSettings({ scale = 0 / 0 }).scale, nil)
+expect("unendlich verworfen", addon.Database.SanitizeSettings({ scale = math.huge }).frames, nil)
+expect("NaN verworfen", addon.Database.SanitizeSettings({ scale = 0 / 0 }).frames, nil)
 
 -- 178: Profilname, der wie ein Befehl beginnt, bleibt wählbar
 addon.Profiles.SaveAs("save x")

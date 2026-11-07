@@ -50,11 +50,11 @@ SlashCmdList.STREAMGOAL("count " .. quests.id .. " 4")
 expect("Befehl zählt um 4", quests.progress, 4)
 expect("Befehl meldet Stand", lastPrint():find("(4 / 5)", 1, true) ~= nil, true)
 
--- Verschiebemodus: Klicks zählen nicht
-streamGoal.Tracker.mover.SetMoving(true)
+-- Edit-Modus von Level Time: Klicks zählen nicht
+addon.EditMode.Enter()
 clickCard(1)
-expect("kein Zählen beim Verschieben", quests.progress, 4)
-streamGoal.Tracker.mover.SetMoving(false)
+expect("kein Zählen im Edit-Modus", quests.progress, 4)
+addon.EditMode.Leave()
 
 -- Automatische Ziele lassen sich nicht selbst zählen
 SlashCmdList.STREAMGOAL("add kills 10")

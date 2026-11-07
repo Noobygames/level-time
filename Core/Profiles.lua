@@ -43,6 +43,7 @@ local function load(settings)
   for key, value in pairs(settings) do
     if not META_KEYS[key] then ns.db[key] = deepCopy(value) end
   end
+  ns.Database.MoveLegacyKeys(ns.db)  -- Profil aus einer älteren Version (Positionen je Anzeige, Anordnung)
   ns.Database.ApplySettingDefaults(ns.db)
 end
 

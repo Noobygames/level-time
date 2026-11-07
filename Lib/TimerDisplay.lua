@@ -3,13 +3,15 @@
 --   countdown  Restzeit als Zahl und leerlaufender Balken
 --   hint       Hinweis ohne Zeit, pulsiert leicht (config.pulseKind)
 --   done       steht kurz mit "fertig" und verschwindet (endsAt)
--- config: { name, default (Position), scaleKey, posKey, soundKey, minScale, maxScale, colors[kind],
---   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber für den Verschiebemodus), pulseKind,
---   formatTime(remaining) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen.
+-- config: { name, id und label (Edit-Modus, Lib/Frames.lua), default (Position), soundKey, colors[kind],
+--   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber im Edit-Modus), pulseKind,
+--   toggleKey (Einstellung, die "Ausblenden" im Edit-Modus abschaltet), available() optional,
+--   settingsPage optional (Unterseite der Einstellungen, Standard Einblendungen > Timer),
+--   formatTime(remaining, state) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen,
+--   estimated (geschätzte Restzeit: Farbe config.colors.estimated, formatTime sieht den Zustand).
 -- spellId darf auch ein Texturpfad sein (Card nimmt beides).
--- Einstellungen: db[scaleKey], db[posKey] (verschiebbar, Vorschau), db[soundKey] (bei "done").
+-- Einstellungen: db[soundKey] (bei "done"); Position und Größe in db.frames[id].
 local _, ns = ...
-local Widgets = ns.Widgets
 
 local TimerDisplay = {}
 ns.TimerDisplay = TimerDisplay
@@ -30,8 +32,9 @@ function TimerDisplay.Create(config)
 
   local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
   local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
-  local override  -- Vorschau oder Verschiebemodus; solange gesetzt, ignoriert die Anzeige die echten Zustände
+  local override  -- Vorschau oder Edit-Modus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
+  local faded = false  -- Einblenden fertig (Alpha 1), solange der Zustand steht
 
   local function remainingOf(state)
     if state.frozen then return state.frozen end
@@ -47,12 +50,16 @@ function TimerDisplay.Create(config)
       local seconds = math.ceil(remaining)
       if seconds ~= shownSeconds then
         shownSeconds = seconds
-        card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+        card.SetTime(config.formatTime and config.formatTime(seconds, current)
+          or string.format(ns.L.SECONDS_SHORT, seconds))
       end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
+    local pulsing = current.kind == config.pulseKind
+    if faded and not pulsing then return end  -- eingeblendet und ohne Pulsieren: Alpha steht schon auf 1
     local alpha = math.min(1, (now - shownAt) / FADE_IN_SECONDS)
-    if current.kind == config.pulseKind then alpha = alpha * (0.8 + 0.2 * math.sin(now * PULSE_SPEED)) end
+    faded = alpha >= 1
+    if pulsing then alpha = alpha * (0.8 + 0.2 * math.sin(now * PULSE_SPEED)) end
     frame:SetAlpha(alpha)
   end
 
@@ -65,7 +72,7 @@ function TimerDisplay.Create(config)
   local function setCard(state)
     shownSeconds = nil  -- Card.Set misst mit einem Platzhalter-Text, die Zahl kommt danach neu
     card.Set({
-      color = config.colors[state.kind],
+      color = state.estimated and config.colors.estimated or config.colors[state.kind],
       icon = state.spellId,
       title = state.title or config.titleFor(state.kind),
       time = state.kind == "countdown",
@@ -78,6 +85,7 @@ function TimerDisplay.Create(config)
     current = state
     setCard(state)
     shownAt = GetTime()
+    faded = false
     frame:SetAlpha(0)
     frame:Show()
     refresh()
@@ -98,14 +106,15 @@ function TimerDisplay.Create(config)
   end)
 
   -- Zustand aus der Prüfung: nil blendet aus, ein laufender "done" bleibt bis zum Ende stehen.
-  -- state = { kind, spellId, remaining, duration }
+  -- state = { kind, spellId, remaining, duration, title, estimated }
   function Display.Show(state)
     if override then return end
     if not state then
       if not (current and current.kind == "done") then hide() end
       return
     end
-    if current and current.kind == state.kind and current.title == state.title then
+    if current and current.kind == state.kind and current.title == state.title
+      and current.estimated == state.estimated then
       if state.kind == "countdown" then  -- nur nachführen, ohne Neuaufbau
         current.expiration = GetTime() + state.remaining
         current.duration = state.duration
@@ -116,9 +125,16 @@ function TimerDisplay.Create(config)
       kind = state.kind,
       spellId = state.spellId,
       title = state.title,
+      estimated = state.estimated,
       expiration = state.remaining and GetTime() + state.remaining or nil,
       duration = state.duration,
     })
+  end
+
+  -- Art des gezeigten echten Zustands: nil = nichts, "override" = Vorschau oder Edit-Modus
+  function Display.ShownKind()
+    if override then return "override" end
+    return current and current.kind or nil
   end
 
   function Display.ShowDone(spellId, title)
@@ -130,19 +146,9 @@ function TimerDisplay.Create(config)
   end
 
   ---------------------------------------------------------------------------
-  -- Position, Größe, Vorschau
+  -- Vorschau und Edit-Modus; Position und Größe über Lib/Frames.lua
   ---------------------------------------------------------------------------
-  local mover = Widgets.CreateMover(frame, {
-    default = config.default,
-    get = function() return ns.db and ns.db[config.posKey] end,
-    set = function(pos) ns.db[config.posKey] = pos end,
-    onMovingChanged = function(moving)
-      if not moving then
-        override = nil
-        hide()
-      end
-    end,
-  })
+  local editing = false
 
   local function demoState(kind)
     return {
@@ -158,37 +164,33 @@ function TimerDisplay.Create(config)
 
   -- Vorschau: jeder Aufruf zeigt den nächsten Zustand ein paar Sekunden
   function Display.Preview()
-    if mover.IsMoving() then Display.SetMoving(false) end
+    if editing then return end
     previewIndex = previewIndex % #config.previewKinds + 1
     override = demoState(config.previewKinds[previewIndex])
     display(override)
   end
 
-  -- Verschiebemodus: der Countdown steht still (42 s), Ziehen verschiebt, Rechtsklick oder erneuter Aufruf beendet
-  function Display.SetMoving(enabled)
-    enabled = enabled and true or false
-    if enabled == mover.IsMoving() then return end
+  -- Edit-Modus: der Countdown steht still (42 s), bis der Modus endet
+  local function setEditing(enabled)
+    if enabled == editing then return end
+    editing = enabled
     if enabled then
       override = { kind = "countdown", spellId = config.movingSpell(), frozen = DEMO_REMAINING, duration = DEMO_DURATION }
       display(override)
       frame:SetAlpha(1)
+    else
+      override = nil
+      hide()
     end
-    mover.SetMoving(enabled)
   end
 
-  function Display.IsMoving()
-    return mover.IsMoving()
-  end
+  ns.Frames.Register({
+    id = config.id, frame = frame, label = config.label, default = config.default,
+    settingsPage = config.settingsPage or "OPTIONS_TAB_TIMERS", available = config.available, preview = setEditing,
+    hide = config.toggleKey and function() ns.Set(config.toggleKey, false) end or nil,
+  })
 
-  function Display.ResetPosition()
-    mover.Reset()
-  end
-
-  ns.OnLogin(mover.Restore)
-
-  ns.RegisterApply(function(db)
-    mover.SetScale(math.max(config.minScale, math.min(config.maxScale, db[config.scaleKey])))
-    mover.Sync()
+  ns.RegisterApply(function()
     if current then setCard(current) end  -- Sprache kann gewechselt haben
   end)
 

@@ -2,19 +2,20 @@
 -- abgeschlossenen Leveln (Level, Zeit, Abweichung zum Vergleich aus Splits.lua), darunter die Summe
 -- und die gesamte Spielzeit (/played); optional die Speedrun-Rekorde je Abschnitt (WorldRecords.lua).
 -- Einstellungen (Reiter Speedrun): showSplitList (an/aus, /lt splits), splitListRows (Zahl der Level),
--- splitListScale (eigene Größe, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
+-- eigene Größe (frames.splitList.scale, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
 -- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
 -- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
 -- ssfCategory (SSF-Regelhelfer, SsfRules.lua), splitListShowCustom (die letzten eigenen Splits, CustomSplits.lua).
 -- Mit friendRace und einem gehörten Freund (FriendRace.lua) eine vierte Spalte "gegen Freund" je Level.
--- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
+-- Position über Lib/Frames.lua; Hintergrund und Fixieren folgen dem Hauptfenster, Sichtbarkeit splitListVisibility
+-- (UI/DisplayVisibility.lua). Je Takt werden nur geänderte Texte gesetzt; Spalten und Größe nur bei geändertem Text.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
+local Theme = ns.Theme
 local Format = ns.Format
 local Stats = ns.Stats
 local Splits = ns.Splits
-local TimerWindow = ns.TimerWindow
 
 local SplitList = {
   MIN_ROWS = 3,
@@ -25,7 +26,8 @@ ns.SplitList = SplitList
 local UPDATE_INTERVAL = 0.5
 local PADDING_X = 12
 local PADDING_Y = 8
-local ROW_HEIGHT = 14
+local ROW_HEIGHT = 14  -- bei Schriftgröße-Versatz 0 (themeFontSize); wächst mit der Schrift
+local MIN_ROW_HEIGHT = 10
 local COLUMN_GAP = 12
 local MIN_WIDTH = 140
 local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
@@ -33,7 +35,7 @@ local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
 local panel = Widgets.CreatePanel("LevelTimerSplits", 0.8)
 panel:Hide()
 
-local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+local title = panel:CreateFontString(nil, "OVERLAY", Theme.Font("label"))
 title:SetPoint("TOPLEFT", PADDING_X, -PADDING_Y)
 
 -- Zeilen: Level links, Zeit und Abweichung rechtsbündig in eigenen Spalten
@@ -43,10 +45,10 @@ local function getRow(index)
   if rows[index] then return rows[index] end
   local function cell(font) return panel:CreateFontString(nil, "OVERLAY", font) end
   rows[index] = {
-    level = cell("GameFontNormalSmall"),
-    time = cell("GameFontHighlightSmall"),
-    delta = cell("GameFontHighlightSmall"),
-    friend = cell("GameFontHighlightSmall"),
+    level = cell(Theme.Font("label")),
+    time = cell(Theme.Font("small")),
+    delta = cell(Theme.Font("small")),
+    friend = cell(Theme.Font("small")),
   }
   return rows[index]
 end
@@ -143,16 +145,25 @@ function SplitList.BuildFooterLines()
   return lines
 end
 
+local setText = Widgets.SetTextIfChanged
+
+-- true, wenn sich ein Text der Zeile geändert hat
 local function setCells(row, levelText, timeText, deltaText, friendText)
-  row.level:SetText(levelText)
-  row.time:SetText(timeText)
-  row.delta:SetText(deltaText)
-  row.friend:SetText(friendText or "")
+  local changed = setText(row.level, levelText)
+  changed = setText(row.time, timeText) or changed
+  changed = setText(row.delta, deltaText) or changed
+  changed = setText(row.friend, friendText or "") or changed
   for _, fontString in pairs(row) do fontString:Show() end
+  return changed
 end
 
 -- Spalten so breit wie ihr breitester Text, Fenster entsprechend
+local function rowHeight()
+  return math.max(MIN_ROW_HEIGHT, ROW_HEIGHT + (ns.db.themeFontSize or 0))
+end
+
 local function layout(count)
+  local height = rowHeight()
   local levelWidth, timeWidth, deltaWidth, friendWidth = 0, 0, 0, 0
   for i = 1, count do
     levelWidth = math.max(levelWidth, rows[i].level:GetStringWidth())
@@ -164,7 +175,7 @@ local function layout(count)
   local deltaRight = timeRight + COLUMN_GAP + deltaWidth
   local friendSpace = friendWidth > 0 and COLUMN_GAP + friendWidth or 0
   for i = 1, count do
-    local y = -PADDING_Y - i * ROW_HEIGHT
+    local y = -PADDING_Y - i * height
     local row = rows[i]
     row.level:ClearAllPoints()
     row.level:SetPoint("TOPLEFT", PADDING_X, y)
@@ -181,59 +192,67 @@ local function layout(count)
   end
   local width = deltaRight + friendSpace + PADDING_X
   panel:SetSize(math.max(MIN_WIDTH, width, title:GetStringWidth() + 2 * PADDING_X),
-    2 * PADDING_Y + (count + 1) * ROW_HEIGHT)
+    2 * PADDING_Y + (count + 1) * height)
 end
 
-local function render()
+local laidOut = { count = -1, height = 0 }  -- Stand des letzten layout(): Zeilenzahl und Zeilenhöhe
+
+local function renderLines()
   local friend = ns.FriendRace.Current()
-  title:SetText(friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
+  local changed = setText(title,
+    friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
   local lines = SplitList.BuildLines()
   for i, line in ipairs(lines) do
-    setCells(getRow(i), tostring(line.level),
-      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText)
+    changed = setCells(getRow(i), tostring(line.level),
+      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText, line.friendText) or changed
   end
   local used = #lines
   for _, line in ipairs(SplitList.BuildFooterLines()) do
     used = used + 1
-    setCells(getRow(used), line[1], line[2], line[3])
+    changed = setCells(getRow(used), line[1], line[2], line[3]) or changed
   end
   for i = used + 1, #rows do
     for _, fontString in pairs(rows[i]) do fontString:Hide() end
   end
-  layout(used)
+  -- Anker und Größe nur, wenn sich ein Text, die Zahl der Zeilen oder die Schriftgröße geändert hat
+  if changed or used ~= laidOut.count or rowHeight() ~= laidOut.height then
+    laidOut.count, laidOut.height = used, rowHeight()
+    layout(used)
+  end
+end
+
+-- Ein Takt (TickCache: Gesamt-Split und Vergleich nur einmal berechnet)
+local function render()
+  ns.TickCache.Run(renderLines)
 end
 
 ---------------------------------------------------------------------------
--- Position, Ablauf
+-- Position (Lib/Frames.lua; ohne eigene Größe die des Hauptfensters), Ablauf
 ---------------------------------------------------------------------------
-panel:SetScript("OnDragStart", function(self)
-  if not ns.db.locked then self:StartMoving() end
-end)
--- Zuletzt angewendete bzw. gespeicherte Positionstabelle (wie beim Hauptfenster: ein Profilwechsel
--- bringt eine neue Tabelle mit)
-local appliedPos
-local positioned = false  -- schon einmal positioniert (Login)
+local visibility = ns.DisplayVisibility.Attach({
+  frame = panel, setting = "splitListVisibility",
+  enabled = function() return ns.db.showSplitList end,
+})
 
-local function savePosition()
-  local point, _, relativePoint, x, y = panel:GetPoint()
-  ns.db.splitListPos = { point, relativePoint, x, y }
-  appliedPos = ns.db.splitListPos
-end
+ns.Frames.Register({
+  id = "splitList", frame = panel, label = "EDIT_FRAME_SPLITS", default = DEFAULT_POSITION,
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_SPLIT_LIST",
+  fallbackScale = function() return ns.Frames.GetScale("main") end,
+  preview = function(on)
+    visibility:SetEditing(on)
+    if panel:IsShown() then render() end
+  end,
+  hide = function() ns.Set("showSplitList", false) end,
+})
 
-panel:SetScript("OnDragStop", function(self)
-  self:StopMovingOrSizing()
-  savePosition()
-end)
 panel:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "RightButton" then ns.ToggleOptions() end
 end)
 
--- Ziehgriff unten rechts ändert die eigene Größe (splitListScale), wie beim Hauptfenster
-local grip = Widgets.CreateResizeGrip(panel, function(scale)
-  return math.max(TimerWindow.MIN_SCALE, math.min(TimerWindow.MAX_SCALE, scale))
-end, function(scale)
-  savePosition()
-  ns.Set("splitListScale", scale)
+-- Ziehgriff unten rechts ändert die eigene Größe, wie beim Hauptfenster
+local grip = Widgets.CreateResizeGrip(panel, ns.Frames.ClampScale, function(scale)
+  ns.Frames.SavePosition("splitList")
+  ns.Frames.SetScale("splitList", scale)
 end)
 
 local sinceUpdate = 0
@@ -245,36 +264,10 @@ ns.SetUpdateScript(panel, "SplitList", function(_, elapsed)
   grip:UpdateAlpha()  -- nur bei Mauskontakt sichtbar
 end)
 
--- Abstände gelten in der Skalierung der Anzeige, daher vor dem Positionieren skalieren
--- Eigene Größe der Split-Liste; ohne eigene Einstellung die des Hauptfensters
-function SplitList.GetScale(db)
-  return db.splitListScale or db.scale
-end
-
-local function restorePosition(db)
-  appliedPos, positioned = db.splitListPos, true
-  local pos = db.splitListPos or DEFAULT_POSITION
-  panel:SetScale(SplitList.GetScale(db))
-  panel:ClearAllPoints()
-  panel:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-end
-
--- Neue Position (Login, Profil, Zurücksetzen): dorthin. Nur andere Größe: um die linke obere Ecke
--- skalieren, sonst würde die Liste mit den alten Abständen in neuer Skalierung springen.
-local function applyPosition(db)
-  local scale = SplitList.GetScale(db)
-  if not positioned or db.splitListPos ~= appliedPos then
-    restorePosition(db)
-  elseif math.abs(panel:GetScale() - scale) > 0.001 then
-    Widgets.SetScaleKeepingTopLeft(panel, scale)
-    savePosition()
-  end
-end
-
 ns.RegisterApply(function(db)
-  applyPosition(db)
   grip:SetShown(not db.locked)
-  TimerWindow.ApplyBackground(panel, db)
-  panel:SetShown(db.showSplitList)
-  if db.showSplitList then render() end
+  Theme.ApplyBackground(panel, db)
+  laidOut.count = -1  -- Schrift oder Sprache können gewechselt haben
+  visibility:Update()
+  if panel:IsShown() then render() end
 end)

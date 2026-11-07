@@ -388,8 +388,19 @@ end, DebugLog.IsEnabled)
 for _, event in ipairs({ "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE", "PLAYER_REGEN_DISABLED" }) do
   probeEvents.Add(event, nil, function(...) writeCombatSample(event, ...) end)
 end
-probeEvents.Add("UNIT_THREAT_SITUATION_UPDATE", "player", function(...)
-  writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", ...)
+-- Bedrohung (Roadmap 397): nur die Bedrohungslage, und nur wenn sie sich geändert hat; den vollen Kampf-Schnappschuss
+-- schreibt ohnehin der Takt alle COMBAT_SAMPLE_SECONDS (vorher je Event rund 27 KB Müll)
+local lastThreat
+probeEvents.Add("UNIT_THREAT_SITUATION_UPDATE", "player", function()
+  if not DebugLog.IsEnabled() then return end
+  local situation = call("UnitThreatSituation", "player")
+  local onTarget = call("UnitThreatSituation", "player", "target")
+  local key = (ns.IsSecret(situation) and "<secret>" or tostring(situation)) .. "/"
+    .. (ns.IsSecret(onTarget) and "<secret>" or tostring(onTarget))
+  if key == lastThreat then return end
+  lastThreat = key
+  write({ area = "combat", reason = "UNIT_THREAT_SITUATION_UPDATE", threat = { situation = situation,
+    onTarget = onTarget, shouldBeSecret = call("C_Secrets.ShouldUnitThreatStateBeSecret", "player") } })
 end)
 
 -- 300/316: gewirkte Zauber des Spielers, als Zählung je Spell-ID im Schnappschuss (einzeln wären es zu viele Zeilen)
@@ -552,7 +563,9 @@ check("reputation.factions", factions)
 check("skill.professions", professions)
 check("map.position", mapPosition)
 check("map.exploredTextures", function()
-  local textures = C_MapExplorationInfo.GetExploredMapTextures(C_Map.GetBestMapForUnit("player"))
+  local mapID = C_Map.GetBestMapForUnit("player")  -- in Instanzen nil
+  if not mapID then return "no map" end
+  local textures = C_MapExplorationInfo.GetExploredMapTextures(mapID)
   return textures and #textures
 end)
 check("instance.info", instanceInfo)

@@ -51,6 +51,17 @@ addon.Set("hideMacroText", true)
 expect("Tastentext unsichtbar", button1.HotKey:GetAlpha(), 0)
 expect("auch zweite Leiste", button2.HotKey:GetAlpha(), 0)
 expect("Makroname unsichtbar", button1.Name:GetAlpha(), 0)
+-- Andere Einstellungen fassen die Texte nicht an (Roadmap 395)
+local alphaWrites = { count = 0 }
+local setAlpha = button1.HotKey.SetAlpha
+button1.HotKey.SetAlpha = function(...)
+  alphaWrites.count = alphaWrites.count + 1
+  return setAlpha(...)
+end
+for _ = 1, 5 do addon.ApplySettings() end
+addon.Set("alertLevelUp", not addon.db.alertLevelUp)
+expect("fremde Applies: Tastentext unberührt", alphaWrites.count, 0)
+button1.HotKey.SetAlpha = setAlpha
 addon.Set("hideKeybindText", false)
 addon.Set("hideMacroText", false)
 expect("Tastentext zurück", button1.HotKey:GetAlpha(), 1)

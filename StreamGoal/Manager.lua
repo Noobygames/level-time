@@ -297,10 +297,10 @@ local trackerCheck = Widgets.CreateCheckbox(panel, function(checked) Tracker.Set
 trackerCheck:SetPoint("BOTTOMLEFT", MARGIN - 4, 8)
 local soundCheck = Widgets.CreateCheckbox(panel, function(checked) ns.db.settings.sound = checked end)
 local moveButton = Widgets.CreateButton(panel, 90, BOX_HEIGHT + 2, function()
-  Tracker.mover.SetMoving(not Tracker.mover.IsMoving())
+  ns.LT.EditMode.Toggle()  -- Edit-Modus von Level Time: alle Anzeigen verschieben
 end)
 moveButton:SetPoint("BOTTOMRIGHT", -MARGIN - 96, 12)
-local resetButton = Widgets.CreateButton(panel, 90, BOX_HEIGHT + 2, function() Tracker.mover.Reset() end)
+local resetButton = Widgets.CreateButton(panel, 90, BOX_HEIGHT + 2, function() ns.LT.Frames.Reset("streamGoal") end)
 resetButton:SetPoint("BOTTOMRIGHT", -MARGIN, 12)
 
 ---------------------------------------------------------------------------

@@ -13,6 +13,13 @@ local function toggleSetting(key, onText, offText)
   ns.Print(L[ns.db[key] and onText or offText])
 end
 
+-- Anordnung des Hauptfensters umschalten: zum Layout hin, beim zweiten Aufruf zurück zur Tabelle
+local function toggleLayout(layout, onText, offText)
+  local enable = ns.db.windowLayout ~= layout
+  ns.Set("windowLayout", enable and layout or ns.WindowLayouts.DEFAULT)
+  ns.Print(L[enable and onText or offText])
+end
+
 local commands = {
   help = function() printHelp() end,
   [""] = function() ns.ToggleOptions() end,
@@ -27,11 +34,12 @@ local commands = {
     ns.Print(L.UNLOCKED)
   end,
   reset = function()
-    ns.TimerWindow.ResetLayout()
+    ns.Frames.ResetAll()  -- Position und Größe aller Anzeigen
     ns.Print(L.RESET_DONE)
   end,
-  compact = function() toggleSetting("compactMode", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
-  bar = function() toggleSetting("horizontalLayout", "CMD_BAR_ON", "CMD_BAR_OFF") end,
+  edit = function() ns.EditMode.Toggle() end,
+  compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
+  bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
   resetinstance = function() ns.ConfirmInstanceReset() end,
   recap = function() ns.ToggleRecap() end,

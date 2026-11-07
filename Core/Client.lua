@@ -44,3 +44,13 @@ end
 function Client.HasGuildBank()
   return CanGuildBankRepair ~= nil and not Client.IsClassicEra()
 end
+
+-- Flavor wie der Ordner der Installation (_forever_, _classic_era_, _anniversary_, _retail_): Schlüssel der
+-- mitgelieferten Flugzeiten (Assist/FlightTimesData.lua, tools/flights), weil Strecken je Client abweichen können
+function Client.Flavor()
+  if Client.IsForever() then return "forever" end
+  if Client.IsRetail() then return "retail" end
+  if Client.IsBurningCrusade() then return "anniversary" end
+  if Client.IsClassicEra() then return "classic_era" end
+  return "other"
+end

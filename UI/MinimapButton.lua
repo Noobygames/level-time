@@ -57,7 +57,9 @@ button:SetScript("OnDragStop", function(self)
 end)
 
 button:SetScript("OnClick", function(_, mouseButton)
-  if mouseButton == "RightButton" then
+  if mouseButton == "RightButton" and IsShiftKeyDown() then
+    ns.EditMode.Toggle()
+  elseif mouseButton == "RightButton" then
     ns.Set("showTimer", not ns.db.showTimer)
   elseif IsShiftKeyDown() then
     ns.ToggleHistory()
@@ -72,6 +74,7 @@ button:SetScript("OnEnter", function(self)
   GameTooltip:AddLine(L.TOOLTIP_LEFT, 1, 1, 1)
   GameTooltip:AddLine(L.TOOLTIP_SHIFT_LEFT, 1, 1, 1)
   GameTooltip:AddLine(L.TOOLTIP_RIGHT, 1, 1, 1)
+  GameTooltip:AddLine(L.TOOLTIP_SHIFT_RIGHT, 1, 1, 1)
   GameTooltip:AddLine(L.TOOLTIP_DRAG, 1, 1, 1)
   GameTooltip:Show()
 end)

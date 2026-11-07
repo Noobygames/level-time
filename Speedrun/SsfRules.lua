@@ -21,9 +21,8 @@ local SsfRules = {
 ns.SsfRules = SsfRules
 
 local CLOCK_FORMAT = "%Y-%m-%d %H:%M:%S"
-local OVER_LIMIT_COLOR = "|cffff4040"
-local NEAR_LIMIT_COLOR = "|cffffd040"
-local OK_COLOR = "|cff40ff40"
+-- Farben aus Theme.lua (bad/neutral/good), beim Aufruf gelesen: folgen dem Preset (z.B. Farbsehschwäche)
+local function color(name) return ns.Theme.Hex(name) end
 
 -- Fenster, die SSF verbieten (RunCategory.OUTSIDE_HELP_EVENTS): Event -> Text des Hinweises
 local FORBIDDEN_WINDOWS = {
@@ -58,9 +57,9 @@ end
 
 -- Farbe gegen eine Grenze: rot darüber, gelb genau an der Grenze, sonst grün
 local function limitColor(value, limit)
-  if value > limit then return OVER_LIMIT_COLOR end
-  if value == limit then return NEAR_LIMIT_COLOR end
-  return OK_COLOR
+  if value > limit then return color("bad") end
+  if value == limit then return color("neutral") end
+  return color("good")
 end
 
 -- Zeilen für die Split-Liste: { Bezeichnung, Wert, Zusatz }; leer ohne Kategorie
@@ -73,7 +72,7 @@ function SsfRules.BuildLines()
   return {
     { string.format(L.SSF_TITLE, ns.db.ssfCategory), "", "" },
     { L.SSF_RESTED, string.format("%.1f / %d", bars, category.restedBars),
-      bars > category.restedBars and (OVER_LIMIT_COLOR .. L.SSF_OVER .. "|r") or "" },
+      bars > category.restedBars and (color("bad") .. L.SSF_OVER .. "|r") or "" },
     { L.SSF_LOGOUTS, limitColor(logouts, category.logouts) .. logouts .. " / " .. category.logouts .. "|r", "" },
     { L.SSF_INSTANCES, limitColor(instances, limit) .. instances .. " / " .. limit .. "|r", "" },
     { L.SSF_CLOCK, date(CLOCK_FORMAT), "" },

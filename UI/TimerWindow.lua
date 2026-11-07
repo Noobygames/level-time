@@ -1,51 +1,28 @@
--- Anzeigefenster: Reiter "Level | Session | Instanz", Spielzeit im gewählten Bereich, XP-Balken und darunter
--- eine Tabelle der eingeschalteten Stats (Bezeichnung links, Wert rechts).
--- Einstellung "horizontalLayout": dieselben Elemente nebeneinander in einer Zeile (Info-Leiste),
--- der XP-Balken darunter über die ganze Breite.
--- Größe: Ziehgriff unten rechts (erscheint bei Mauskontakt) oder Einstellung "scale" skaliert das ganze Fenster.
--- Rechtsklick öffnet die Einstellungen.
+-- Anzeigefenster: Reiter "Level | Session | Instanz", Spielzeit im gewählten Bereich, XP-Balken und Stat-Zeilen.
+-- Nur Rahmen, Takt, Klicks und das Zusammenstecken: die Daten liefert UI/WindowModel.lua, die Anordnung das Layout aus
+-- der Einstellung windowLayout (UI/Layouts/: table, bar, compact, text, clock, xpbar, tiles).
+-- Ablauf: Struktur (welche Zeilen, Anker, Höhe) nur nach Apply, Level-Up, XP an/aus oder einer neuen Tagesstelle der
+-- Zeit; je Takt (UPDATE_INTERVAL) nur Werte lesen und geänderte Texte setzen, die Breite wächst nur bei geändertem Text.
+-- Größe: Ziehgriff unten rechts (erscheint bei Mauskontakt), Regler oder Edit-Modus (frames.main.scale) skaliert das
+-- ganze Fenster. Rechtsklick öffnet die Einstellungen. Sichtbarkeit: windowVisibility (UI/DisplayVisibility.lua).
 -- Stream-Ansicht: Einstellung "windowBackground" färbt den Hintergrund grün oder magenta ohne Rahmen.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
-local Format = ns.Format
+local Theme = ns.Theme
 local Stats = ns.Stats
+local Layouts = ns.WindowLayouts
 
-local TimerWindow = {
-  MIN_SCALE = 0.5,
-  MAX_SCALE = 2,
-}
+local TimerWindow = {}
 ns.TimerWindow = TimerWindow
 
 local UPDATE_INTERVAL = 0.25          -- Sekunden zwischen zwei Anzeige-Updates
-local PADDING_X = 20
-local PADDING_Y = 8
-local LINE_GAP = 3
-local NO_VALUE = "-"                -- Zeilen ohne Bereich (Instanz-Reiter ohne Lauf)
-local TAB_GAP = 10                    -- Abstand zwischen den Reitern
-local MIN_WIDTH = 160
-local COLUMN_GAP = 16                 -- Mindestabstand zwischen Bezeichnung und Wert
-local TABLE_GAP = 4                   -- Abstand zwischen Zeitanzeige und Tabelle
-local WIDEST_TIME_SUFFIX = "d 00h 00m 00s" -- breiteste Zeit (nach den Tagesziffern), für die Fensterbreite
 local MIN_DAY_DIGITS = 2
 local SECONDS_PER_DAY = 86400
-local TIME_WIDTH_SLACK = 2            -- Reserve, damit die Zeit nicht wegen Rundung abgeschnitten wird
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -120 }
-local DEFAULT_SCALE = 1
-local COMPACT_ROW_SETTING = "showXpRate"  -- einzige Zeile im Kompaktmodus
-local XP_BAR_HEIGHT = 6
-local XP_BAR_BACKGROUND = { 1, 1, 1, 0.1 }
-local XP_BAR_RESTED = { 0.3, 0.55, 1, 0.6 }
-local XP_BAR_QUESTS = { 1, 0.8, 0.2, 0.75 }  -- XP der fertigen Quests (Einstellung questXpOnBar)
--- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key)
-TimerWindow.BACKGROUND_DEFAULT = "default"
-TimerWindow.CHROMA_COLORS = {
-  green = { 0, 1, 0 },
-  magenta = { 1, 0, 1 },
-}
-local BAR_PADDING_X = 10              -- Info-Leiste: Rand links und rechts
-local BAR_ITEM_GAP = 14               -- Info-Leiste: Abstand zwischen zwei Einträgen
-local BAR_LABEL_GAP = 4               -- Info-Leiste: Abstand zwischen Bezeichnung und Wert
+-- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key, Theme.lua)
+TimerWindow.BACKGROUND_DEFAULT = Theme.BACKGROUND_DEFAULT
+TimerWindow.CHROMA_COLORS = Theme.CHROMA
 
 local window = Widgets.CreatePanel("LevelTimerFrame", 0.8)
 window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereitstehen
@@ -53,7 +30,7 @@ window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereits
 -- Reiter wählen den Bereich (Einstellung windowScope)
 -- Linksklick wählt den Bereich, Rechtsklick öffnet wie auf dem Fenster die Einstellungen
 local function createScopeTab(scope)
-  local tab = Widgets.CreateTab(window, "GameFontNormalSmall", function(_, mouseButton)
+  local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
     if mouseButton == "RightButton" then
       ns.ToggleOptions()
     else
@@ -67,7 +44,7 @@ end
 local levelTab = createScopeTab(Stats.LEVEL)
 local sessionTab = createScopeTab(Stats.SESSION)
 
-local instanceTab = Widgets.CreateTab(window, "GameFontNormalSmall")
+local instanceTab = Widgets.CreateTab(window, Theme.Font("label"))
 
 -- Rechtsklick auf den Instanz-Reiter (oder Button/Befehl): Daten des Laufs zurücksetzen, nach Rückfrage
 instanceTab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -83,269 +60,84 @@ Widgets.AttachTooltip(instanceTab, function() return L.TAB_INSTANCE end, functio
 Widgets.AttachTooltip(levelTab, function() return string.format(L.TAB_LEVEL, ns.level) end, function() return L.TAB_LEVEL_TIP end)
 Widgets.AttachTooltip(sessionTab, function() return L.TAB_SESSION end, function() return L.TAB_SESSION_TIP end)
 
-local timeText = window:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-timeText:SetTextColor(unpack(Widgets.COLORS.highlight))
-
--- XP-Balken unter der Zeit: Fortschritt im Level, Erholungs-Bonus als helleres Stück dahinter
-local xpBarBackground = window:CreateTexture(nil, "ARTWORK")
-xpBarBackground:SetColorTexture(unpack(XP_BAR_BACKGROUND))
-xpBarBackground:SetHeight(XP_BAR_HEIGHT)
-local xpBarRested = window:CreateTexture(nil, "ARTWORK", nil, 1)
-xpBarRested:SetColorTexture(unpack(XP_BAR_RESTED))
-xpBarRested:SetPoint("TOPLEFT", xpBarBackground)
-xpBarRested:SetHeight(XP_BAR_HEIGHT)
--- Darüber die XP der abgabebereiten Quests (QuestLogXp.lua), nur mit Einstellung questXpOnBar
-local xpBarQuests = window:CreateTexture(nil, "ARTWORK", nil, 2)
-xpBarQuests:SetColorTexture(unpack(XP_BAR_QUESTS))
-xpBarQuests:SetPoint("TOPLEFT", xpBarBackground)
-xpBarQuests:SetHeight(XP_BAR_HEIGHT)
-local xpBarFill = window:CreateTexture(nil, "ARTWORK", nil, 3)
-xpBarFill:SetColorTexture(unpack(Widgets.COLORS.highlight))
-xpBarFill:SetPoint("TOPLEFT", xpBarBackground)
-xpBarFill:SetHeight(XP_BAR_HEIGHT)
-local xpBarParts = { xpBarBackground, xpBarRested, xpBarFill }
-
--- Tabellenzeilen: Bezeichnung links, Wert rechtsbündig. Je Stat aus ns.STAT_LINES
--- so viele Zeilen wie sie rows hat; stat.setting entscheidet über die Sichtbarkeit.
-local rows = {}
-for _, stat in ipairs(ns.STAT_LINES) do
-  for _, rowDefinition in ipairs(stat.rows) do
-    table.insert(rows, {
-      stat = stat,
-      setting = stat.setting,
-      definition = rowDefinition,
-      label = window:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall"),
-      value = window:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"),
-    })
-  end
-end
-
-local function fontSize(fontString)
-  local _, size = fontString:GetFont()
-  return size
-end
+local elements = ns.WindowElements.New(window, { levelTab, sessionTab, instanceTab })
+elements.dayDigits = MIN_DAY_DIGITS  -- Ziffern der Tage, für die die Zeit Platz hat; wächst bei 100 Tagen und mehr
+local model = ns.WindowModel.New()
 
 ---------------------------------------------------------------------------
 -- Inhalt
 ---------------------------------------------------------------------------
-
-local function growTo(width)
-  if width > window:GetWidth() then
-    window:SetWidth(width)
-  end
-end
-
--- Vertikal: drei Reiter um die Mitte (Session), Level links und Instanz rechts davon
-local function tabsWidth()
-  local side = math.max(levelTab:GetWidth(), instanceTab:GetWidth())
-  return sessionTab:GetWidth() + 2 * (side + TAB_GAP) + 2 * PADDING_X
-end
-
--- Fenster verbreitern, falls Bezeichnung und Wert einer Zeile nicht mehr nebeneinander passen
-local function growToFitRows()
-  if levelTab:IsShown() then
-    growTo(tabsWidth())
-  end
-  for _, row in ipairs(rows) do
-    if row.label:IsShown() then
-      growTo(row.label:GetStringWidth() + COLUMN_GAP + row.value:GetStringWidth() + 2 * PADDING_X)
-    end
-  end
-end
-
--- Info-Leiste: Summe aller sichtbaren Einträge einer Zeile
-local function growToFitLine()
-  local width = 2 * BAR_PADDING_X + timeText:GetWidth()
-  if levelTab:IsShown() then
-    width = width + levelTab:GetWidth() + sessionTab:GetWidth() + instanceTab:GetWidth() + 3 * BAR_ITEM_GAP
-  end
-  for _, row in ipairs(rows) do
-    if row.label:IsShown() then
-      width = width + BAR_ITEM_GAP + row.label:GetStringWidth() + BAR_LABEL_GAP + row.value:GetStringWidth()
-    end
-  end
-  growTo(width)
-end
-
--- Breiten von Fortschritt und Erholungs-Bonus aus XP, Bedarf und Erholungs-Pool
-local function refreshXpBar()
-  if not xpBarBackground:IsShown() then return end
-  local xpMax = UnitXPMax("player")
-  if xpMax <= 0 then return end
-  local paddingX = ns.db.horizontalLayout and BAR_PADDING_X or PADDING_X
-  local barWidth = window:GetWidth() - 2 * paddingX
-  local xp = UnitXP("player")
-  local withRested = math.min(xpMax, xp + (GetXPExhaustion() or 0))
-  xpBarFill:SetWidth(math.max(1, barWidth * xp / xpMax))
-  xpBarRested:SetWidth(math.max(1, barWidth * withRested / xpMax))
-  if xpBarQuests:IsShown() then
-    local withQuests = math.min(xpMax, xp + ns.QuestLogXp.Get())
-    xpBarQuests:SetWidth(math.max(1, barWidth * withQuests / xpMax))
-  end
-end
-
--- Ziffern der Tage, für die die Zeitanzeige Platz hat; wächst bei 100 Tagen und mehr
-local dayDigits = MIN_DAY_DIGITS
-local updateLayout
+local layout           -- aktives Layout
+local builtStructure   -- model.structure beim letzten Aufbau
+local needsBuild = true
+local renders = 0      -- Takte, in denen sich ein Text geändert hat (Tests: kein Neuzeichnen ohne Änderung)
 
 local function digitsOfDays(seconds)
   return #tostring(math.floor((seconds or 0) / SECONDS_PER_DAY))
 end
 
-local function refreshTexts()
-  local scope = ns.db.windowScope
-  levelTab:SetLabel(string.format(L.TAB_LEVEL, ns.level))
-  levelTab:SetActive(scope == Stats.LEVEL)
-  sessionTab:SetLabel(L.TAB_SESSION)
-  sessionTab:SetActive(scope == Stats.SESSION)
-  instanceTab:SetLabel(L.TAB_INSTANCE)
-  instanceTab:SetActive(scope == Stats.INSTANCE)
+local function barValues()
+  return layout.BarValues and layout.BarValues(model) or model.xpBar
+end
 
-  local seconds = Stats.GetSeconds(scope)
-  if digitsOfDays(seconds) > dayDigits then
-    dayDigits = digitsOfDays(seconds)
-    updateLayout(ns.db)
+-- Anker, Höhe und Breite neu (Layoutwechsel, andere Zeilen, Apply)
+local function build(db)
+  local wanted = Layouts.Get(db.windowLayout)
+  if wanted ~= layout then
+    elements:HideAll()
+    layout = wanted
   end
-  local open = Stats.IsOpen(scope)
-  timeText:SetText(not open and L.INSTANCE_NONE or seconds and Format.Clock(seconds) or "...")
-  for _, row in ipairs(rows) do
-    if row.label:IsShown() then
-      row.label:SetText(L[row.definition.label])
-      row.value:SetText(open and row.definition.value(scope) or NO_VALUE)
+  local height = layout.Build(elements, model, db)
+  layout.Render(elements, model, db)
+  window:SetSize(layout.Measure(elements, model, db), height)
+  builtStructure, needsBuild = model.structure, false
+end
+
+-- Ein Takt: Werte lesen; bei neuer Struktur neu aufbauen, sonst nur geänderte Texte setzen
+local function refresh()
+  local db = ns.db
+  if not db then return end
+  ns.TickCache.Run(function()
+    local wanted = Layouts.Get(db.windowLayout)
+    model:Build(db, wanted.source, wanted.alwaysXpBar)
+    if digitsOfDays(model.time.seconds) > elements.dayDigits then
+      elements.dayDigits = digitsOfDays(model.time.seconds)
+      needsBuild = true
     end
-  end
-  if ns.db.horizontalLayout then
-    growToFitLine()
-  else
-    growToFitRows()
-  end
-  refreshXpBar()
-end
-
--- Sichtbarkeit unabhängig von der Anordnung: Kompaktmodus ohne Reiter und nur mit XP/h,
--- XP-Balken nur beim Leveln
-local function updateVisibility(db)
-  local compact = db.compactMode
-  levelTab:SetShown(not compact)
-  sessionTab:SetShown(not compact)
-  instanceTab:SetShown(not compact)
-
-  local showXpBar = db.showXpBar and ns.Experience.IsLeveling()
-  for _, part in ipairs(xpBarParts) do
-    part:SetShown(showXpBar)
-  end
-  xpBarQuests:SetShown(showXpBar and db.questXpOnBar)
-
-  for _, row in ipairs(rows) do
-    local visible = ns.IsStatShown(row.stat, db)
-    if compact then
-      visible = row.setting == COMPACT_ROW_SETTING
+    if needsBuild or wanted ~= layout or model.structure ~= builtStructure then
+      build(db)
+      renders = renders + 1
+    elseif layout.Render(elements, model, db) then
+      renders = renders + 1
+      local width = layout.Measure(elements, model, db)
+      if width > window:GetWidth() then window:SetWidth(width) end
     end
-    row.label:SetShown(visible)
-    row.value:SetShown(visible)
-  end
+    elements.xpBar:Update(barValues())
+  end)
 end
 
--- XP-Balken über die ganze Breite bei Höhe y, gibt die Höhe darunter zurück
-local function placeXpBar(y, paddingX)
-  if not xpBarBackground:IsShown() then return y end
-  xpBarBackground:ClearAllPoints()
-  xpBarBackground:SetPoint("TOPLEFT", window, "TOPLEFT", paddingX, -y)
-  xpBarBackground:SetPoint("TOPRIGHT", window, "TOPRIGHT", -paddingX, -y)
-  return y + XP_BAR_HEIGHT + TABLE_GAP
+-- Struktur neu bilden und gleich zeichnen
+local function rebuild()
+  model:Invalidate()
+  needsBuild = true
+  refresh()
 end
 
--- Vertikal: Reiter, Zeit, XP-Balken und Zeilen untereinander
-local function layoutVertical()
-  local width = math.max(MIN_WIDTH, timeText:GetWidth() + 2 * PADDING_X)
-  timeText:SetJustifyH("CENTER")
-
-  local y = PADDING_Y
-  if levelTab:IsShown() then
-    levelTab:ClearAllPoints()
-    sessionTab:ClearAllPoints()
-    sessionTab:SetPoint("TOP", window, "TOP", 0, -y)
-    levelTab:ClearAllPoints()
-    levelTab:SetPoint("TOPRIGHT", sessionTab, "TOPLEFT", -TAB_GAP, 0)
-    instanceTab:ClearAllPoints()
-    instanceTab:SetPoint("TOPLEFT", sessionTab, "TOPRIGHT", TAB_GAP, 0)
-    y = y + fontSize(levelTab.label) + 4 + LINE_GAP
-  end
-  timeText:ClearAllPoints()
-  timeText:SetPoint("TOP", window, "TOP", 0, -y)
-  y = y + fontSize(timeText) + TABLE_GAP
-  y = placeXpBar(y, PADDING_X)
-
-  for _, row in ipairs(rows) do
-    if row.label:IsShown() then
-      row.label:ClearAllPoints()
-      row.label:SetPoint("TOPLEFT", window, "TOPLEFT", PADDING_X, -y)
-      row.value:ClearAllPoints()
-      row.value:SetPoint("TOPRIGHT", window, "TOPRIGHT", -PADDING_X, -y)
-      y = y + fontSize(row.label) + LINE_GAP
-    end
-  end
-
-  window:SetSize(width, y + PADDING_Y)
+-- Tests: Zahl der Takte mit geändertem Text, Modell und aktives Layout
+function TimerWindow.RenderCount()
+  return renders
 end
 
--- Horizontal (Info-Leiste): alle Einträge an der Mittellinie einer Zeile aneinandergereiht,
--- jeder Eintrag links am rechten Rand des vorigen. Die Breite wächst in refreshTexts mit den Texten.
-local function layoutHorizontal()
-  timeText:SetJustifyH("LEFT")
-  local lineHeight = fontSize(timeText)
-  local centerY = -(PADDING_Y + lineHeight / 2)
-  local previous
-
-  local function chain(element, gap)
-    element:ClearAllPoints()
-    if previous then
-      element:SetPoint("LEFT", previous, "RIGHT", gap, 0)
-    else
-      element:SetPoint("LEFT", window, "TOPLEFT", BAR_PADDING_X, centerY)
-    end
-    previous = element
-  end
-
-  if levelTab:IsShown() then
-    chain(levelTab)
-    chain(sessionTab, BAR_ITEM_GAP)
-    chain(instanceTab, BAR_ITEM_GAP)
-  end
-  chain(timeText, BAR_ITEM_GAP)
-  for _, row in ipairs(rows) do
-    if row.label:IsShown() then
-      chain(row.label, BAR_ITEM_GAP)
-      chain(row.value, BAR_LABEL_GAP)
-    end
-  end
-
-  local y = placeXpBar(PADDING_Y + lineHeight + TABLE_GAP, BAR_PADDING_X)
-  window:SetSize(0, y - TABLE_GAP + PADDING_Y)
+function TimerWindow.Model()
+  return model
 end
 
--- Fenstergröße aus Schriftgrößen berechnen. Alle Maße gelten bei Skalierung 1;
--- SetScale vergrößert das Ergebnis gleichmäßig.
-function updateLayout(db)
-  -- Feste Breite der Zeit, damit nichts springt, wenn sich die Ziffern ändern
-  timeText:SetText(string.rep("0", dayDigits) .. WIDEST_TIME_SUFFIX)
-  timeText:SetWidth(math.ceil(timeText:GetStringWidth()) + TIME_WIDTH_SLACK)
-  updateVisibility(db)
-  if db.horizontalLayout then
-    layoutHorizontal()
-  else
-    layoutVertical()
-  end
+function TimerWindow.Elements()
+  return elements
 end
 
--- Hintergrund aus den Einstellungen (auch für weitere Anzeigen wie die Split-Liste)
-function TimerWindow.ApplyBackground(frame, db)
-  local chroma = TimerWindow.CHROMA_COLORS[db.windowBackground]
-  if chroma then
-    Widgets.SetSolidBackground(frame, chroma)
-  else
-    Widgets.SetDefaultBackground(frame, db.bgAlpha)
-  end
+function TimerWindow.ActiveLayout()
+  return layout and layout.id
 end
 
 ---------------------------------------------------------------------------
@@ -399,102 +191,91 @@ function ns.ConfirmInstanceReset()
 end
 
 ---------------------------------------------------------------------------
--- Position und Größe
+-- Position und Größe (Lib/Frames.lua): ziehbar, solange "Fixieren" aus ist; Größe hält die linke obere Ecke fest
 ---------------------------------------------------------------------------
-local function clampScale(scale)
-  return math.max(TimerWindow.MIN_SCALE, math.min(TimerWindow.MAX_SCALE, scale))
-end
+-- Sichtbarkeit: showTimer und die Regel windowVisibility; im Edit-Modus immer (auch ausgeschaltet)
+local visibility = ns.DisplayVisibility.Attach({
+  frame = window, setting = "windowVisibility",
+  enabled = function() return ns.db.showTimer end,
+  children = { levelTab, sessionTab, instanceTab, elements.xpBar.hover },
+  onHover = function(hovered)
+    elements.hovered = hovered  -- Layout "xpbar": Texte bei Mauskontakt
+    if ns.db and window:IsShown() then refresh() end
+  end,
+})
 
--- Zuletzt angewendete bzw. gespeicherte Positionstabelle. Ein Profilwechsel kopiert db.pos als neue
--- Tabelle; daran erkennt das Apply, dass das Fenster an die Stelle des Profils muss.
-local appliedPos
-
-local function savePosition()
-  local point, _, relativePoint, x, y = window:GetPoint()
-  ns.db.pos = { point, relativePoint, x, y }
-  appliedPos = ns.db.pos
-end
-
--- Gespeicherte Abstände gelten in der Skalierung des Fensters, daher zuerst skalieren
-local function restorePosition()
-  appliedPos = ns.db.pos
-  local pos = ns.db.pos or DEFAULT_POSITION
-  window:SetScale(clampScale(ns.db.scale))
-  window:ClearAllPoints()
-  window:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-end
-
-local function setScaleKeepingTopLeft(scale)
-  Widgets.SetScaleKeepingTopLeft(window, scale)
-end
-
-function TimerWindow.ResetLayout()
-  ns.db.pos = nil
-  ns.db.splitListPos = nil
-  ns.db.scale = DEFAULT_SCALE
-  restorePosition()
-  ns.ApplySettings()
-end
-
-window:SetScript("OnDragStart", function(self)
-  if not ns.db.locked then self:StartMoving() end
-end)
-window:SetScript("OnDragStop", function(self)
-  self:StopMovingOrSizing()
-  savePosition()
-end)
+ns.Frames.Register({
+  id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_WINDOW",
+  preview = function(on)
+    visibility:SetEditing(on)
+  end,
+  hide = function() ns.Set("showTimer", false) end,
+})
 
 window:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "RightButton" then ns.ToggleOptions() end
 end)
 
--- Ziehgriff unten rechts ändert die Größe (Einstellung scale)
-local grip = Widgets.CreateResizeGrip(window, clampScale, function(scale)
-  savePosition()
-  ns.Set("scale", scale)
+-- Ziehgriff unten rechts ändert die Größe; er hat schon um die linke obere Ecke skaliert
+local grip = Widgets.CreateResizeGrip(window, ns.Frames.ClampScale, function(scale)
+  ns.Frames.SavePosition("main")
+  ns.Frames.SetScale("main", scale)
 end)
 
 ---------------------------------------------------------------------------
 -- Ablauf
 ---------------------------------------------------------------------------
+-- Werte lesen (Roadmap 399): einmal je angezeigter Sekunde (die Zeit zeigt Sekunden) und sofort nach Ereignissen,
+-- die Werte ändern (Zähler, XP, Geld, Kampf, Zone); dazwischen prüft der Takt nur zwei Zahlen
 local sinceUpdate = 0
+local refreshedSecond
+local dirty = true
+
+local function markDirty()
+  dirty = true
+end
+TimerWindow.MarkDirty = markDirty
+Stats.OnIncrement(markDirty)
+for _, event in ipairs({ "PLAYER_XP_UPDATE", "UPDATE_EXHAUSTION", "PLAYER_MONEY", "TIME_PLAYED_MSG",
+  "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD",
+  "QUEST_LOG_UPDATE", "PLAYER_FLAGS_CHANGED" }) do
+  ns.RegisterEvent(event, markDirty)
+end
+
 ns.SetUpdateScript(window, "TimerWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0
-  refreshTexts()
+  local second = math.floor(GetTime())
+  if dirty or second ~= refreshedSecond then
+    dirty, refreshedSecond = false, second
+    refresh()
+  end
   -- Ziehgriff nur zeigen, wenn die Maus über dem Fenster ist (oder gerade gezogen wird)
   grip:UpdateAlpha()
 end)
 
-ns.OnLogin(restorePosition)
-
 -- Ob gelevelt wird (XP-Balken, Zeilen), ändert sich auch ohne Einstellung: Max-Level erreicht oder
 -- XP beim Erfahrungsverwalter ab-/angeschaltet
 local function relayout()
-  if not ns.db then return end
-  updateLayout(ns.db)
-  refreshTexts()
+  if ns.db then rebuild() end
 end
 ns.OnLevelStarted(relayout)
 ns.RegisterEvent("ENABLE_XP_GAIN", relayout)
 ns.RegisterEvent("DISABLE_XP_GAIN", relayout)
 
 ns.RegisterApply(function(db)
-  updateLayout(db)
-  refreshTexts()
-  TimerWindow.ApplyBackground(window, db)
-
-  -- Anderes Profil: dessen Position und Größe. Sonst Größe aus den Einstellungen (Regler);
-  -- beim Login ist sie schon gesetzt
-  local scale = clampScale(db.scale)
-  if db.pos ~= appliedPos then
-    restorePosition()
-  elseif math.abs(window:GetScale() - scale) > 0.001 then
-    setScaleKeepingTopLeft(scale)
-    savePosition()
+  local wanted = Layouts.Get(db.windowLayout)
+  -- Layout "text": ohne Grund und Rand (eine Chroma-Farbe bleibt für OBS)
+  Theme.ApplyBackground(window, db, wanted.background == false and 0 or nil)
+  elements:ResetCache()
+  rebuild()
+  for _, fontString in ipairs({ elements.time, elements.big }) do
+    fontString:SetTextColor(Theme.RGB("accent"))  -- Akzentfarbe kann gewechselt haben
   end
+  elements.xpBar.fill:SetColorTexture(Theme.RGB("accent"))
 
   grip:SetShown(not db.locked)
-  window:SetShown(db.showTimer)
+  visibility:Update()
 end)

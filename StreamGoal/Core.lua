@@ -26,7 +26,6 @@ ns.SCHEMA_VERSION = 1
 ns.SETTING_DEFAULTS = {
   showTracker = true,
   sound = true,
-  scale = 1,
 }
 
 local function fillDefaults(target, defaults)
@@ -44,5 +43,14 @@ LT.OnLogin(function()
   db.goals = db.goals or {}
   db.settings = db.settings or {}
   fillDefaults(db.settings, ns.SETTING_DEFAULTS)
+  -- Früher pos = { Punkt, Bezugspunkt, x, y } und scale; jetzt ein Eintrag wie bei Level Time (Lib/Frames.lua)
+  local settings = db.settings
+  if settings.pos ~= nil or settings.scale ~= nil then
+    local pos = type(settings.pos) == "table" and settings.pos or {}
+    settings.frame = settings.frame or LT.Database.SanitizeFrameEntry({
+      point = pos[1], relPoint = pos[2], x = pos[3], y = pos[4], scale = settings.scale,
+    })
+    settings.pos, settings.scale = nil, nil
+  end
   ns.db = db
 end)

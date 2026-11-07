@@ -14,31 +14,52 @@
 --               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
 --               Zweige). SetRaidTarget direkt ist in Retail/Forever für Addons gesperrt; der sichere Knopf geht überall.
+--   Zone        Einstellung questButtonsZoneOnly (Standard an): Item und gelernte Zielnamen nur für Quests der
+--               aktuellen Zone (QuestLog.ZoneStatus: Questkarte, Questlog-Überschrift, gelernte QuestNpcs-Orte).
+--               Unbekannte Zone (Kategorie-Überschrift, fehlende Daten) zählt als "hier", damit nichts zu Unrecht
+--               verschwindet. Sichtbare Questgegner auf Namensplaketten sind ohnehin in der Nähe und bleiben.
+--               Ort und Entscheidungen werden zwischengespeichert und bei Zonenwechsel (ZONE_CHANGED*,
+--               PLAYER_ENTERING_WORLD) bzw. Questlog-Änderung (QUEST_LOG_UPDATE) verworfen.
+-- Aktualisiert wird ereignisgesteuert (Roadmap 390): Questlog, Taschen, Zone, Namensplaketten, Kampfende und
+-- Einstellungen setzen Merker; der Sekundentakt arbeitet nur, wenn ein Merker steht. Die Item-Kandidaten bleiben bis
+-- zur nächsten Questlog- oder Taschenänderung gespeichert (C_QuestLog.GetInfo erzeugt je Eintrag eine Tabelle).
+-- Ohne Ereignis neu gewählt wird nur nach Abstand (Retail/Forever, alle DISTANCE_SECONDS, nur bei mindestens zwei
+-- Kandidaten) und der Zielknopf, solange Plaketten stehen (Gegner sterben, ohne dass die Plakette verschwindet) oder
+-- sich die gelernten Namen ändern; beides ohne neue Tabellen, das Makro entsteht nur bei geänderten Namen.
 -- Attribute, Anzeigen und Verstecken der sicheren Knöpfe nur außerhalb des Kampfs; im Kampf wird es gemerkt und bei
--- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (verschiebbar über Widgets.CreateMover, Position questItemPos) wird
+-- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (Position und Größe über Lib/Frames.lua, Edit-Modus) wird
 -- durch die sicheren Kinder selbst geschützt und deshalb ebenfalls nur außerhalb des Kampfs angefasst.
 -- Klicks: RegisterForClicks("AnyUp", "AnyDown") und useOnKeyDown = false, damit genau ein Klick beim Loslassen auslöst
 -- (SecureActionButton_OnClick in allen Zweigen).
 local _, ns = ...
 local L = ns.L
-local Widgets = ns.Widgets
 
 local QuestItem = {}
 ns.QuestItem = QuestItem
 
 local BUTTON_SIZE = 36
 local GAP = 4
-local LABEL_HEIGHT = 14  -- Griff zum Verschieben über den Knöpfen (nur im Verschiebe-Modus sichtbar)
+local LABEL_HEIGHT = 14  -- Beschriftung über den Knöpfen (nur im Edit-Modus sichtbar)
 local REFRESH_SECONDS = 1
+local DISTANCE_SECONDS = 3     -- Abstand zur Quest neu vergleichen (nur mit mehreren Kandidaten)
 local MAX_MACRO = 255          -- Länge eines Makros
 local MARKER_LINE = "\n/tm [exists,nodead] !8"  -- 8 = Totenkopf
 local DEFAULT_POS = { "CENTER", "CENTER", 0, -180 }
 local MOVE_BACKGROUND = { 0, 0, 0, 0.6 }
 
-local holder, itemButton, targetButton, mover
+local holder, itemButton, targetButton
+local editing = false  -- Edit-Modus: Halter mit Grund und Beschriftung sichtbar
 local shown = { itemId = nil, target = nil, texture = nil }  -- zuletzt gesetzte Attribute und Symbol
 local pending = false                         -- im Kampf aufgeschoben
 local acceptedAt = {}                         -- [questID] = GetTime() der Annahme
+local here                                    -- QuestLog.Here(), bis zum nächsten Zonenwechsel
+local zoneCache = {}                          -- [questID] = { inZone, signals }
+local headers                                 -- [questID] = Questlog-Überschrift, bis zur nächsten Questlog-Änderung
+local candidates                              -- QuestItem.Candidates(), bis zur nächsten Questlog-/Taschenänderung
+local itemDirty, targetDirty = true, true     -- Item bzw. Zielknopf neu bestimmen
+local nextDistanceAt = 0                      -- GetTime(), ab wann der Abstand wieder verglichen wird
+local inZoneCount = 0                         -- Kandidaten der Zone bei der letzten Wahl
+local shownMobNames                           -- zuletzt gelesene QuestMobs.OpenMobNames()-Liste (Identität)
 
 local function readable(value)
   if ns.IsSecret(value) then return nil end
@@ -53,7 +74,8 @@ function QuestItem.CanTarget()
   return ns.QuestMarks.IsAvailable() and ns.QuestMarks.HasClientQuestUnits()
 end
 
--- Quests mit benutzbarem Item: { questID, index, link, itemId, texture }
+-- Quests mit benutzbarem Item, unabhängig von der Zone (QuestLeftovers braucht alle):
+-- { questID, index, header, link, itemId, texture }
 function QuestItem.Candidates()
   local list = {}
   if not GetQuestLogSpecialItemInfo then return list end
@@ -62,10 +84,78 @@ function QuestItem.Candidates()
     link, texture = readable(link), readable(texture)
     local itemId = type(link) == "string" and tonumber(link:match("item:(%d+)"))
     if itemId then
-      table.insert(list, { questID = entry.questID, index = entry.index, link = link, itemId = itemId, texture = texture })
+      table.insert(list, { questID = entry.questID, index = entry.index, header = entry.header, link = link,
+        itemId = itemId, texture = texture })
     end
   end
   return list
+end
+
+local function markAll()
+  itemDirty, targetDirty = true, true
+end
+
+local function forgetZones()
+  here, zoneCache = nil, {}
+  markAll()
+end
+
+local function forgetQuestLog()
+  headers, zoneCache, candidates = nil, {}, nil
+  markAll()
+end
+
+local function forgetItems()
+  candidates = nil
+  itemDirty = true
+end
+
+local function cachedCandidates()
+  if not candidates then candidates = QuestItem.Candidates() end
+  return candidates
+end
+
+function QuestItem.Here()
+  if not here then here = ns.QuestLog.Here() end
+  return here
+end
+
+local function headerOf(questID)
+  if not headers then
+    headers = {}
+    for _, entry in ipairs(ns.QuestLog.Entries()) do headers[entry.questID] = entry.header or false end
+  end
+  return headers[questID] or nil
+end
+
+-- Karten, auf denen Ziele der Quest vorankamen (QuestNpcs, Roadmap 350)
+local function learnedMaps(questID)
+  local record = ns.QuestNpcs.Get(questID)
+  if not (record and record.spots) then return nil end
+  local maps = {}
+  for _, spot in ipairs(record.spots) do
+    if type(spot.mapID) == "number" then maps[#maps + 1] = spot.mapID end
+  end
+  return maps
+end
+
+-- Zone der Quest: true/false, nil = unbekannt; dazu die Einzelhinweise (QuestLog.ZoneStatus)
+function QuestItem.ZoneOf(questID)
+  local cached = zoneCache[questID]
+  if not cached then
+    local status, signals = ns.QuestLog.ZoneStatus(questID, headerOf(questID), QuestItem.Here(), learnedMaps(questID))
+    cached = { inZone = status, signals = signals }
+    zoneCache[questID] = cached
+    ns.Debug("questitem", "quest %s zone %s (map %s, header %s %s, learned %s) player map %s zone %s", questID,
+      status, signals.map, headerOf(questID), signals.header, signals.learned, here.mapID, here.zone)
+  end
+  return cached.inZone, cached.signals
+end
+
+-- Darf die Quest die Knöpfe füllen? Ohne questButtonsZoneOnly immer; unbekannte Zone zählt als hier
+function QuestItem.IsInZone(questID)
+  if not (ns.db and ns.db.questButtonsZoneOnly) then return true end
+  return QuestItem.ZoneOf(questID) ~= false
 end
 
 local function distanceOf(questID)
@@ -74,24 +164,29 @@ local function distanceOf(questID)
   return type(distance) == "number" and distance or nil
 end
 
--- Nächste Quest (Abstand), sonst die zuletzt angenommene, sonst die erste
+-- Nächste Quest der Zone (Abstand), sonst die zuletzt angenommene, sonst die erste
 function QuestItem.Pick()
   local best, bestDistance, bestAccepted
-  for _, candidate in ipairs(QuestItem.Candidates()) do
-    local distance = distanceOf(candidate.questID)
-    local accepted = acceptedAt[candidate.questID] or 0
-    local better
-    if not best then
-      better = true
-    elseif distance and bestDistance then
-      better = distance < bestDistance
-    elseif distance or bestDistance then
-      better = distance ~= nil
-    else
-      better = accepted > bestAccepted
+  local count = 0
+  for _, candidate in ipairs(cachedCandidates()) do
+    if QuestItem.IsInZone(candidate.questID) then
+      count = count + 1
+      local distance = distanceOf(candidate.questID)
+      local accepted = acceptedAt[candidate.questID] or 0
+      local better
+      if not best then
+        better = true
+      elseif distance and bestDistance then
+        better = distance < bestDistance
+      elseif distance or bestDistance then
+        better = distance ~= nil
+      else
+        better = accepted > bestAccepted
+      end
+      if better then best, bestDistance, bestAccepted = candidate, distance, accepted end
     end
-    if better then best, bestDistance, bestAccepted = candidate, distance, accepted end
   end
+  inZoneCount = count
   return best
 end
 
@@ -99,41 +194,74 @@ local function isLivingMob(unit)
   return UnitExists(unit) and readable(UnitIsPlayer(unit)) == false and readable(UnitIsDead(unit)) == false
 end
 
--- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt)
+-- Wiederverwendete Listen des Sekundentakts (keine neuen Tabellen, solange sich nichts ändert)
+local plateList, nameList, seenNames, visibleSet = {}, {}, {}, {}
+
+local function clearList(list)
+  for index = #list, 1, -1 do list[index] = nil end
+end
+
+local function clearSet(set)
+  for key in pairs(set) do set[key] = nil end
+end
+
+-- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt), alphabetisch in plateList
 local function plateNames()
-  local names = {}
-  if not QuestItem.CanTarget() then return names end
+  clearList(plateList)
+  if not QuestItem.CanTarget() then return plateList end
   for unit in pairs(ns.NamePlates.Active()) do
     if isLivingMob(unit) then
       local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
       local name = readable(UnitName(unit))
       if not ns.IsSecret(related) and related == true and type(name) == "string" and name ~= "" then
-        names[#names + 1] = name
+        plateList[#plateList + 1] = name
       end
     end
   end
-  table.sort(names)
-  return names
+  table.sort(plateList)
+  return plateList
 end
 
--- Namen für den Zielknopf: gelernte Gegner offener Ziele, danach die sichtbaren Questgegner (ohne Doppelte)
-function QuestItem.TargetNames()
-  local names, seen = {}, {}
-  local function add(name)
-    if not seen[name] then
-      seen[name] = true
-      names[#names + 1] = name
-    end
+-- Gehört ein gelernter Gegner zu einer offenen Quest dieser Zone? Ohne bekannte Quest: ja
+local function learnedHere(name)
+  local hits = ns.QuestMobs.ForMob(name)
+  if not hits or #hits == 0 then return true end
+  for _, hit in ipairs(hits) do
+    if QuestItem.IsInZone(hit.questID) then return true end
   end
+  return false
+end
+
+local function addName(name)
+  if not seenNames[name] then
+    seenNames[name] = true
+    nameList[#nameList + 1] = name
+  end
+end
+
+-- Wie QuestItem.TargetNames, aber in die wiederverwendete nameList (nicht festhalten)
+local function collectTargetNames()
+  clearList(nameList)
+  clearSet(seenNames)
+  clearSet(visibleSet)
   local visible = plateNames()
-  local visibleSet = {}
   for _, name in ipairs(visible) do visibleSet[name] = true end
+  shownMobNames = nil
   if ns.db.questLearning then
-    for _, name in ipairs(ns.QuestMobs.OpenMobNames()) do
-      if not visibleSet[name] then add(name) end
+    shownMobNames = ns.QuestMobs.OpenMobNames()
+    for _, name in ipairs(shownMobNames) do
+      if not visibleSet[name] and learnedHere(name) then addName(name) end
     end
   end
-  for _, name in ipairs(visible) do add(name) end
+  for _, name in ipairs(visible) do addName(name) end
+  return nameList
+end
+
+-- Namen für den Zielknopf: gelernte Gegner offener Ziele (nur Quests der Zone), danach die sichtbaren Questgegner
+-- (ohne Doppelte); eigene Liste
+function QuestItem.TargetNames()
+  local names = {}
+  for index, name in ipairs(collectTargetNames()) do names[index] = name end
   return names
 end
 
@@ -198,14 +326,19 @@ local function create()
     button:SetScript("OnLeave", function() GameTooltip:Hide() end)
   end
 
-  mover = Widgets.CreateMover(holder, {
-    default = DEFAULT_POS,
-    get = function() return ns.db and ns.db.questItemPos end,
-    set = function(pos) ns.db.questItemPos = pos end,
-    onMovingChanged = function(moving)
-      holder.background:SetShown(moving)
-      holder.label:SetShown(moving)
+  ns.Frames.Register({
+    id = "questItem", frame = holder, label = "EDIT_FRAME_QUEST_ITEM", default = DEFAULT_POS, protected = true,
+    settingsPage = "COMFORT_PAGE_QUEST_DISPLAY",
+    preview = function(on)
+      if inCombat() then return end
+      editing = on
+      holder.background:SetShown(on)
+      holder.label:SetShown(on)
       QuestItem.Refresh()
+    end,
+    hide = function()
+      ns.db.questItemButton, ns.db.questTargetButton = false, false
+      ns.ApplySettings()
     end,
   })
   holder:Hide()
@@ -236,8 +369,26 @@ local function setItem(candidate)
   shown.itemId = itemId
 end
 
+local NO_NAMES = {}
+local builtNames, builtMarker = {}, nil  -- Namen und Marker, aus denen das gezeigte Makro entstand
+
+-- Gleiche Namen und gleicher Marker wie beim letzten Makro? (Vergleich ohne neue Tabellen)
+local function sameNames(names, marker)
+  if marker ~= builtMarker or #names ~= #builtNames then return false end
+  for index = 1, #names do
+    if names[index] ~= builtNames[index] then return false end
+  end
+  return true
+end
+
 local function setTarget(names)
-  local macro, count = QuestItem.TargetMacro(names or {}, ns.db and ns.db.questTargetMarker)
+  names = names or NO_NAMES
+  local marker = ns.db and ns.db.questTargetMarker or false
+  if sameNames(names, marker) then return end
+  clearList(builtNames)
+  for index = 1, #names do builtNames[index] = names[index] end
+  builtMarker = marker
+  local macro, count = QuestItem.TargetMacro(names, marker)
   if macro then
     if macro ~= shown.target then targetButton:SetAttribute("macrotext", macro) end
     targetButton:Show()
@@ -258,28 +409,15 @@ function QuestItem.Refresh()
   end
   pending = false
   local db = ns.db
-  local moving = mover.IsMoving()
   local itemBefore, targetBefore = shown.itemId, shown.target
+  itemDirty, targetDirty = false, false
+  nextDistanceAt = GetTime() + DISTANCE_SECONDS
   setItem(db and db.questItemButton and QuestItem.Pick() or nil)
-  setTarget(db and db.questTargetButton and QuestItem.TargetNames() or nil)
+  setTarget(db and db.questTargetButton and collectTargetNames() or nil)
   if shown.itemId ~= itemBefore or shown.target ~= targetBefore then
     ns.Debug("questitem", "item %s (link %s), target %s", shown.itemId, itemButton.link, shown.target)
   end
-  holder:SetShown(moving or shown.itemId ~= nil or shown.target ~= nil)
-end
-
-function QuestItem.SetMoving(enabled)
-  if not holder or inCombat() then return end
-  mover.SetMoving(enabled)
-end
-
-function QuestItem.IsMoving()
-  return mover ~= nil and mover.IsMoving()
-end
-
-function QuestItem.ResetPosition()
-  if not holder or inCombat() then return end
-  mover.Reset()
+  holder:SetShown(editing or shown.itemId ~= nil or shown.target ~= nil)
 end
 
 create()
@@ -287,15 +425,16 @@ create()
 ns.RegisterEvent("QUEST_ACCEPTED", function(...)
   local questID = readable((select(select("#", ...), ...)))  -- Era: questIndex, questID; Retail/Forever: questID
   if type(questID) == "number" then acceptedAt[questID] = GetTime() end
+  forgetQuestLog()
 end)
 -- Einstellungen anwenden: Text, Position (Profilwechsel) und Knöpfe; im Kampf aufgeschoben
 local function apply()
+  markAll()
   if inCombat() then
     pending = true
     return
   end
   holder.label:SetText(L.QUEST_ITEM_MOVE_LABEL)
-  mover.Sync()
   QuestItem.Refresh()
 end
 
@@ -303,8 +442,47 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if pending then apply() end
 end)
 
-ns.Every(REFRESH_SECONDS, function()
-  if ns.db.questItemButton or ns.db.questTargetButton or (holder and holder:IsShown()) then QuestItem.Refresh() end
-end)
+local function buttonsWanted()
+  return ns.db and (ns.db.questItemButton or ns.db.questTargetButton)
+end
+
+-- Zonenwechsel: Ort neu lesen und die Knöpfe sofort neu bestimmen (im Kampf aufgeschoben)
+local function onZoneChanged()
+  forgetZones()
+  if buttonsWanted() then QuestItem.Refresh() end
+end
+for _, event in ipairs({ "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "PLAYER_ENTERING_WORLD" }) do
+  ns.RegisterEvent(event, onZoneChanged)
+end
+-- Questlog geändert: Überschriften, Kandidaten und Zonen-Entscheidungen verwerfen; die Knöpfe folgen mit dem
+-- Sekundentakt (QUEST_LOG_UPDATE kommt oft mehrmals hintereinander, eingelesen wird höchstens einmal je Takt)
+ns.RegisterEvent("QUEST_LOG_UPDATE", forgetQuestLog)
+ns.RegisterEvent("QUEST_REMOVED", forgetQuestLog)
+ns.RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player", forgetQuestLog)
+-- Taschen: Anzahl auf dem Knopf, Quest-Items können dazukommen oder wegfallen
+ns.RegisterEvent("BAG_UPDATE_DELAYED", forgetItems)
+local function plateChanged() targetDirty = true end
+ns.RegisterEvent("NAME_PLATE_UNIT_ADDED", plateChanged)
+ns.RegisterEvent("NAME_PLATE_UNIT_REMOVED", plateChanged)
+
+-- Ohne Ereignis: nach Abstand neu wählen (nur mit mehreren Kandidaten, wo der Client Abstände kennt)
+local function distanceDue(db)
+  return db.questItemButton and inZoneCount >= 2 and C_QuestLog ~= nil and C_QuestLog.GetDistanceSqToQuest ~= nil
+    and GetTime() >= nextDistanceAt
+end
+
+-- Zielknopf: stehende Plaketten (Gegner sterben, Namen werden lesbar) und neu gelernte Namen
+local function targetMayChange(db)
+  if not db.questTargetButton then return false end
+  if next(ns.NamePlates.Active()) ~= nil and QuestItem.CanTarget() then return true end
+  return db.questLearning and ns.QuestMobs.OpenMobNames() ~= shownMobNames
+end
+
+local function tick()
+  local db = ns.db
+  if itemDirty or targetDirty or distanceDue(db) or targetMayChange(db) then QuestItem.Refresh() end
+end
+
+ns.Every(REFRESH_SECONDS, tick, function() return buttonsWanted() or (holder ~= nil and holder:IsShown()) end)
 
 ns.RegisterApply(apply)

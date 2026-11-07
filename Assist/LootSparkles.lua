@@ -61,6 +61,7 @@ local KIND_SETTINGS = {
 local CONFLICTING_ADDONS = { "ForeverLootSparkles", "Lueur" }
 
 local TICK_SECONDS = 0.2  -- Reichweite und Beute nachprüfen, nur solange ein Glitzern hängt oder erwartet wird
+local PLATE_CLOSE_DELAY = 2  -- Sekunden ohne Interaktionsziel, bis die Plakette wieder auf den Wert des Spielers geht
 local STATE_TICKS = 2     -- so oft muss ein neuer Zustand gesehen werden (kein Flackern am Reichweitenrand)
 local LOCKED_TICKS = 3    -- "gesperrt" vorsichtiger bestätigen
 
@@ -152,7 +153,10 @@ end
 ---------------------------------------------------------------------------
 
 -- Plakette des Interaktionsziels an (open) oder auf den Wert des Spielers zurück
+local closeToken = 0  -- zählt hoch bei jeder Entscheidung; ein verzögertes Schließen gilt nur ohne neuere
+
 local function setPlate(open)
+  closeToken = closeToken + 1
   if open == plateOpen or InCombatLockdown() then return end
   plateOpen = open
   if open then
@@ -160,6 +164,22 @@ local function setPlate(open)
   else
     withWrites(ns.CVars.Restore, PLATE_CVAR)
   end
+end
+
+-- Ohne Interaktionsziel ist keine Plakette zu sehen: Schließen darf warten (Roadmap 397). Wer zwischen zwei
+-- Leichen oder Erzen kurz kein Ziel hat, schaltet die CVar sonst bei jedem Schritt zweimal um (CVAR_UPDATE).
+local function closePlateSoon()
+  if plateOpen ~= true then return setPlate(false) end
+  closeToken = closeToken + 1
+  local token = closeToken
+  C_Timer.After(PLATE_CLOSE_DELAY, function()
+    if token == closeToken then setPlate(false) end
+  end)
+end
+
+local function hasInteractTarget()
+  local exists = UnitExists(LootTarget.UNIT)
+  return ns.IsSecret(exists) or exists == true
 end
 
 local function usablePlate(plate)
@@ -209,7 +229,7 @@ local function evaluate()
   end
   local kind, blocked = LootTarget.Classify(LootTarget.UNIT)
   local wanted = kind ~= nil and ns.db[KIND_SETTINGS[kind]] == true
-  setPlate(wanted)
+  if wanted or hasInteractTarget() then setPlate(wanted) else closePlateSoon() end
   if not wanted then
     release()
     return

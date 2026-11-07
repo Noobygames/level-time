@@ -133,6 +133,14 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **102. Prüfcode für Läufe (Roadmap 290)**: debug `runcheck`, check `290.runs` (Prüfstatus je Lauf), `print` von `/lt runs verify`
 - **105. Rennen gegen Freunde (Roadmap 293)**: debug `friendrace` (send/received), check `293.friendRace`, `284.splitList.lines` (Spalte Freund), `print`, event `ADDON_ACTION_BLOCKED`
 - **106. Meilenstein-Screenshots (Roadmap 294)**: debug `screenshot` (milestone …), events `SCREENSHOT_SUCCEEDED`/`SCREENSHOT_FAILED`, `ADDON_ACTION_BLOCKED`
+- **126. Themes und Schriften, Datenteil (Roadmap 357)**: check `357.theme` (Preset, Schrift je Rolle mit Größe und Flags nach dem Anwenden, LibSharedMedia geladen, Zahl der Schriften)
+- **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
+- **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
+- **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **132. Flugzeiten-Schätzung, Datenteil (Roadmap 370)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
+- **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
+- **134. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
+- **135. Sichtbarkeitsregeln, Datenteil (Roadmap 362)**: check `362.visibility` (Regel, Kampf, Instanz, Leveln, `IsMouseOver`, Alpha und Sichtbarkeit beider Rahmen) im Kampf, in einer Instanz und mit der Maus über dem Fenster
 
 ---
 
@@ -1695,5 +1703,395 @@ Komfort > Quests > Questlog: „Questreste melden“ an, dazu „Questgegner und
 Client (Retail/Era/TBC/Forever):
 Hinweis beim Händler (ja/nein):
 Falsche Vorschläge:
+Fehler:
+```
+
+### 126. Themes, Akzent, Schrift und Kontur (Roadmap 357)
+
+- [ ] geprüft
+
+Allgemein > Aussehen. Hauptfenster, Split-Liste (Speedrun) und eine Einblendung (Einblendungen > Vorschau) sichtbar machen.
+
+1. Stil „Klassisch“: sieht aus wie vor dem Update (goldener Tooltip-Rand, dunkler Grund, Karten ohne Rand).
+2. „Flach“: dunkler Grund mit feinem grauem 1-px-Rand an Fenster, Split-Liste, Einstellungen und Karten; keine Lücken an den Ecken.
+3. „Minimal“: kein Rand, Grund deutlich durchscheinender.
+4. „Farbsehschwäche“: Split-Abweichungen und „Level-Up mit Quests“ blau statt grün, Tode und „langsamer“ orange statt rot.
+5. Akzent Blau/Grün/Lila/Klasse: Zeit, XP-Balken und aktiver Reiter färben sich um, Gold-Elemente (Level-Up) bleiben.
+6. Schriftart durchklicken (Links-/Rechtsklick), Schriftgröße +4 und −2, Kontur dünn/dick: Fenster wächst mit, nichts wird abgeschnitten; mit ElvUI/SharedMedia erscheinen deren Schriften.
+7. Deckkraft 0 (Allgemein > Fenster): kein schwebender Goldrahmen mehr.
+8. Chroma Grün (Stream): weiterhin deckend grün ohne Rand, auch im Stil „Flach“.
+
+**Erwartet:** live ohne /reload, keine Lua-Fehler; ruRU/zh-Clients: „Spiel-Standard“ zeigt alle Zeichen.
+### 127. Positionen nach dem Update (Roadmap 358)
+
+- [ ] geprüft
+
+Vor dem Update: Hauptfenster, Split-Liste, Einblendungen, Level-Up-Fenster und (falls genutzt) Lagerfeuer, Essen, Flug, Quest-Knöpfe und Stream-Goal-Tracker an eigene Stellen mit eigener Größe setzen. Update einspielen, Client neu starten (neue Dateien in der `.toc`).
+
+1. Alle Anzeigen stehen an derselben Stelle in derselben Größe wie vorher.
+2. Ein zweites Profil mit anderen Positionen: Wechsel setzt alle Anzeigen um, zurück ebenso.
+3. `/lt lock`: Hauptfenster und Split-Liste lassen sich nicht mehr ziehen, kein Größengriff; `/lt unlock` wieder.
+4. `/lt reset`: alle Anzeigen springen auf ihre Standardplätze (Hauptfenster oben Mitte, Einblendungen darunter).
+
+**Erwartet:** nichts springt beim Login oder `/reload`, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Positionen übernommen (ja/nein, welche nicht):
+Profilwechsel ok (ja/nein):
+Fehler:
+```
+
+### 128. Edit-Modus (Roadmap 359)
+
+- [ ] geprüft
+
+`/lt edit` (oder „Layout bearbeiten“ unten in den Einstellungen, oder Shift-Rechtsklick auf den Minimap-Knopf).
+
+1. Alle Anzeigen erscheinen mit Beispielinhalt und einer farbigen, beschrifteten Fläche (Name und Größe in %), oben eine Leiste mit Hinweis und Knöpfen; das Raster liegt hinter allem.
+2. Ziehen: die Anzeige folgt der Maus; beim Loslassen rastet sie sichtbar am Raster, an der Bildschirmmitte oder an der Kante einer anderen Anzeige ein; mit gehaltenem Shift nicht.
+3. Mausrad über einer Anzeige ändert ihre Größe in 5-%-Schritten; die Fläche wächst mit.
+4. Anzeige anklicken, dann Pfeiltasten: 1 px je Druck, mit Shift 10 px. Andere Tasten (WASD) bewegen weiter den Charakter.
+5. Rechtsklick: kleines Menü mit Größen-Regler, Zurücksetzen, Ausblenden, Einstellungen (öffnet den passenden Reiter), Schließen.
+6. Esc oder „Fertig“: alles verschwindet, Anzeigen zeigen wieder ihren echten Zustand.
+7. Im Edit-Modus einen Gegner angreifen: der Modus endet mit Chatzeile, kein „Aktion blockiert“.
+8. Retail/Forever: Esc > Bearbeitungsmodus öffnet die Flächen mit, Verlassen schließt sie (Einstellung „Mit Blizzards Bearbeitungsmodus“).
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis, Text der Leiste passt in allen vier Sprachen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ziehen/Einrasten ok (ja/nein):
+Mausrad/Pfeiltasten ok (ja/nein):
+Menü ok (ja/nein):
+Kampf beendet sauber (ja/nein):
+Blizzard-Modus (nur Retail/Forever):
+Zeile unter dem Würfelfenster (ja/nein, überdeckt etwas?):
+Zahlen stimmen (ja/nein):
+Tooltip mit Namen (ja/nein):
+Chatzeile (ja/nein):
+Ersatzkarte (ja/nein/nicht getestet):
+Fehler:
+```
+
+### 129. Beute-Würfe: Zähler, Tooltip, Ersatzkarte (Roadmap 364)
+
+- [ ] geprüft
+
+Komfort > System > Würfeln um Beute: alle vier Schalter an. In einer Gruppe (Dungeon) um grüne oder bessere Beute würfeln.
+
+1. Unter jedem Blizzard-Würfelfenster eine Zeile: Würfel, Münze, Passen-Symbol und Sanduhr mit Zahlen; Entzaubern/Transmog nur, wenn jemand sie wählt. Die Zahlen steigen, während die anderen wählen; die Zeile überdeckt nichts (auch nicht das nächste Würfelfenster).
+2. Maus über einen Zähler: Namen in Klassenfarbe, nach dem Würfeln mit Zahl.
+3. Nach dem Würfeln eine Chatzeile „Gegenstand: Name gewinnt mit 87 (Bedarf). Bedarf 2, Gier 1, Passen 2“; bei „alle gepasst“ eine kurze Zeile.
+4. Eigener Gewinn (selten oder besser): Historie > Beute zeigt in der Spalte „Wurf“ Symbol und Zahl.
+5. Mit einem Addon, das die Würfelfenster ersetzt (z.B. ElvUI-Beutewürfe), oder mehr als vier Würfen gleichzeitig (Retail): die Karte „Würfe“ listet die Gegenstände mit Zählern; im Edit-Modus (`/lt edit`) erscheint sie mit Beispielwürfen und lässt sich verschieben und skalieren.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“, Zähler stimmen mit Blizzards Beute-Historie überein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Klassisch wie vorher (ja/nein):
+Flach/Minimal sauber (ja/nein, was fällt auf):
+Schriften/Kontur ok (ja/nein):
+Fehler:
+```
+
+### 131. Blizzard-XP- und Rufleiste ausblenden (Roadmap 365)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > „Blizzard-XP-Leiste ausblenden“ und „Blizzard-Rufleiste ausblenden“ (eine Fraktion beobachten), dazu der Schalter in der Leiste von `/lt edit`. Vorher und nachher `/lt debug check` (Prüfung `365.blizzardXpBar`).
+
+1. XP-Leiste aus: Blizzards Erfahrungsleiste samt Rahmen und Ruhe-Marke ist weg, Mausover zeigt keinen Tooltip; die Aktionsleisten bleiben, wo sie waren (Lücke darüber).
+2. Rufleiste aus: die Leiste der beobachteten Fraktion ist weg, die XP-Leiste bleibt (wenn sie an ist).
+3. Im Kampf umschalten: ändert sich erst nach dem Kampf, kein „Aktion blockiert“.
+4. Wieder an: beide Leisten sehen aus wie vorher (Rahmen, Text bei Mausover, Ruhe-Marke).
+5. Retail/Forever: Esc > Bearbeitungsmodus, die Leisten verschieben: kein Taint-Hinweis, nach dem Verlassen bleiben ausgeblendete Leisten unsichtbar.
+6. Level-Up auf Max-Level oder andere Fraktion beobachten: Blizzard wechselt die Leiste im Behälter, der Rahmen folgt (bleibt nicht leer stehen).
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis; Classic: ob die Lücke über der Hauptleiste stört (Blizzard zeigt die Max-Level-Leiste nicht, weil der Behälter weiter da ist).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+XP-Leiste weg (ja/nein):
+Rufleiste weg (ja/nein):
+Kampf wartet (ja/nein):
+Zurück wie vorher (ja/nein):
+Lücke stört (ja/nein):
+Fehler:
+```
+
+### 132. Flugzeiten im Tooltip und geschätzte Restzeit (Roadmap 370)
+
+- [ ] geprüft
+
+Einstellungen > Timer > Flüge: „Flugzeiten“ und „Flugzeit im Tooltip“ an. Einen Flugmeister ansprechen.
+
+1. Maus auf ein Ziel der Flugkarte: unter Name und Preis steht „Flugzeit 2:21 (dein Flug)“ (blau) bei schon geflogenen Strecken, „~2:20 (geschätzt)“ (grau) bei anderen, sobald auf dieser Karte einmal geflogen wurde; nichts am eigenen Standort. Die Zeile passt in den Tooltip, kein doppelter Tooltip, kein Flackern.
+2. Retail/Forever mit der großen Flugkarte (Weltkarten-Stil): dasselbe auf den Flugpunkt-Symbolen.
+3. Eine nie geflogene Strecke abfliegen: die Flug-Anzeige zeigt die Restzeit grau mit „~“ (z.B. „~2:20“) und läuft herunter; nach der Landung dieselbe Strecke noch einmal: normale Farbe, ohne „~“.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“ beim Abflug über die Flugkarte, Text passt in allen vier Sprachen.
+
+### 136. Quest-Knöpfe nur in der Zone der Quest (Roadmap 366)
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Item-Knopf“, „Questgegner-Zielknopf“ und „Quest-Knöpfe nur in der Zone der Quest“ an. Zwei Quests mit benutzbarem Gegenstand aus verschiedenen Zonen im Log. Datenteil per Debug-Log: debug `questitem` (quest … zone …), check `268.questItem.pick` (`here`, `inZone` und `zoneSignals` je Kandidat).
+
+1. In der Zone der ersten Quest: der Knopf zeigt deren Gegenstand, nicht den der anderen Zone.
+2. In die andere Zone reisen (oder fliegen): der Knopf wechselt beim Zonenwechsel ohne Verzögerung zum anderen Gegenstand; im Kampf erst danach.
+3. In einer Zone ohne passende Quest: Knopf weg (Klassen- oder Saisonquests mit Gegenstand bleiben sichtbar).
+4. In einer Höhle oder einem Gebäude mit eigener Karte (z.B. Mine): der Knopf bleibt wie in der Zone darüber.
+5. Schalter aus: der Knopf zeigt wieder die nächste bzw. zuletzt angenommene Quest wie vorher.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“; nichts verschwindet, was in der Zone gebraucht wird.
+### 137. Blizzard-Oberfläche ausblenden (Roadmap 371)
+
+- [ ] geprüft
+
+`/lt edit`: über jedem Blizzard-Element liegt eine graue Fläche mit Namen und Haken „Ausgeblendet“; dazu Komfort >
+Oberfläche > „Blizzard-Oberfläche“. Vorher und nachher `/lt debug check` (Prüfung `371.blizzardFrames`).
+
+1. Edit-Modus: Flächen über Spieler-, Ziel-, Gruppenrahmen, Minimap, Uhr, Buffs, Tracker, Chat, Aktionsleisten,
+   Mikromenü, Taschen; kleine Flächen (Uhr, Gebietsname) liegen über der Minimap und sind anklickbar.
+2. Haken setzen: das Element verschwindet, die Fläche wird dunkel und heißt „… (ausgeblendet)“; Haken weg: es sieht
+   aus wie vorher (Deckkraft, Maus, Tooltip).
+3. Ausgeblendete Aktionsleiste: Tasten wirken weiter, unsichtbare Knöpfe lassen sich nicht anklicken.
+4. Minimap ganz aus: ist die Karte selbst weg oder bleibt sie sichtbar (Rahmen weg, Karte da)?
+5. Zauberleiste aus: beim Zaubern nichts zu sehen, auch kein kurzes Aufblitzen am Ende?
+6. Buffs/Gruppenrahmen aus, dann neue Buffs bekommen bzw. Gruppe wechseln: lassen sich unsichtbare Buff-Symbole
+   rechtsklicken (Buff weg)?
+7. Im Kampf in den Optionen umschalten: ändert sich erst nach dem Kampf, kein „Aktion blockiert“.
+8. Retail/Forever: Esc > Bearbeitungsmodus mit ausgeblendeten Elementen öffnen und schließen: kein Taint-Hinweis,
+   ausgeblendete bleiben unsichtbar; Deckkraft im Blizzard-Edit-Mode ändern und danach wieder einblenden: Blizzards
+   Deckkraft gilt.
+9. Schalter „Blizzard-Elemente zeigen“ in der Leiste aus: die grauen Flächen verschwinden, unsere Anzeigen bleiben.
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis (`ADDON_ACTION_BLOCKED` im Debug-Log).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltip-Zeile gemessen/geschätzt ok (ja/nein):
+Große Flugkarte (nur Retail/Forever):
+Anzeige grau mit ~, danach normal (ja/nein):
+Fehler:
+```
+
+### 142. Kills und Beute je Stunde (Roadmap 382)
+
+- [ ] geprüft
+
+Statistiken > Voreinstellung „Farmen“ (oder einzeln: Kämpfe > Kills/h und Kills der letzten 15 min, Beute >
+Gegenstände erbeutet und Gegenstände der letzten 15 min). 15 Minuten farmen, dabei einmal beim Händler etwas kaufen.
+
+1. Reiter Level/Session/Instanz: Kills/h und Gegenstände/h ändern sich je Reiter; mit „XP/h ohne AFK“ und kurzem AFK
+   steigen sie wie XP/h.
+2. Kills (15 min) zählt jeden Kill sofort, nach einer Pause fallen alte Kills heraus (Zahl sinkt ohne Kill).
+3. Ein Stapel (z.B. 5 Leinenstoff) zählt 5; graue Beute zählt; Beute anderer Gruppenmitglieder zählt nicht.
+4. Kauf beim Händler: Gegenstände bleiben gleich; Questbelohnung zählt.
+5. Layout Leiste und Kacheln, Sprache Französisch/Spanisch: Kurzlabels lesbar, nichts abgeschnitten.
+6. Historie > Sessions und Level: Spalten Kills/h und Items/h passen in die Breite.
+
+**Erwartet:** keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Raten je Reiter ok (ja/nein):
+15 min gleitet (ja/nein):
+Stapel/Kauf richtig (ja/nein):
+Beute in Instanzen gezählt (ja/nein):
+Layouts/Spalten passen (ja/nein):
+Fehler:
+```
+
+### 133. Layouts des Hauptfensters (Roadmap 360)
+
+- [ ] geprüft
+
+Einstellungen > Allgemein > Anzeige: jedes Layout einmal wählen (am besten im Edit-Modus, `/lt edit`), in Deutsch und Französisch.
+
+1. Tabelle: sieht aus wie vor dem Update (Reiter, Zeit, XP-Balken, Zeilen).
+2. Leiste (`/lt bar`): eine Zeile mit Kurzbezeichnungen („Niveau“ statt „Prochain niveau dans“), XP-Balken darunter.
+3. Kompakt (`/lt compact`): Zeit, Balken und die drei gewählten Werte („Wert 1–3“); ohne Wahl nur Zeit und Balken.
+4. Text: kein Grund, kein Rand, Schrift mit Kontur, gut lesbar über hellem und dunklem Gelände; mit Hintergrund „Grün“ deckend grün (OBS).
+5. Uhr: große Zeit, darunter die gewählten Werte in einer Zeile.
+6. XP-Balken: schmaler Balken mit Level/Prozent links, Zeit in der Mitte, Werten rechts; „Texte auf dem Balken: Maus“ zeigt sie nur beim Überfahren; Breite per Regler.
+7. Kacheln: Raster mit Zeit-Kachel zuerst, Spaltenzahl per Regler; Kacheln gleich breit, nichts ragt über den Rand.
+8. Nicht passende Einstellungen (z.B. Spalten bei Tabelle) sind ausgegraut.
+9. Statistiken > Reihenfolge der Zeilen: Zeile wählen, „Nach oben/unten“ verschiebt sie sofort im Fenster.
+
+**Erwartet:** keine Lua-Fehler, kein abgeschnittener Text, kein Springen der Breite im Sekundentakt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Layouts ok (je Layout ja/nein):
+Text-Layout lesbar (ja/nein):
+Reihenfolge ok (ja/nein):
+Fehler:
+```
+
+### 134. XP-Tooltip (Roadmap 360)
+
+- [ ] geprüft
+
+Maus auf den XP-Balken (Tabelle, Leiste, Kompakt, Uhr, Kacheln und Layout XP-Balken), einmal mit und einmal ohne Erholung.
+
+1. Tooltip unter dem Balken: „XP: 12.345 / 31.700 (38,9 %)“, „Bis zum Level-Up“, Erholungs-XP mit Anteil am Level und wie viel vom Rest sie deckt, fertige Quests (wenn welche abgabebereit sind).
+2. Während der Tooltip offen ist, einen Gegner töten: die Zahlen ändern sich sofort.
+3. Fenster lässt sich auch über dem Balken ziehen, Rechtsklick auf den Balken öffnet die Einstellungen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltip ok (ja/nein):
+Aktualisiert beim Kill (ja/nein):
+Ziehen über dem Balken (ja/nein):
+Fehler:
+```
+
+### 135. Sichtbarkeitsregeln (Roadmap 362)
+
+- [ ] geprüft
+
+Allgemein > Anzeige > „Fenster sichtbar“ und Speedrun > „Split-Liste sichtbar“, „Abgeblendet“ auf 30 % und auf 0 %.
+
+1. „Nicht im Kampf“: im Kampf blendet das Fenster ab (bzw. verschwindet bei 0 %), danach wieder voll.
+2. „Nur in Instanzen“: draußen ab, im Dungeon voll.
+3. „Bei Mauskontakt“: nur beim Überfahren voll sichtbar, auch über den Reitern; bei 0 % unsichtbar, aber per Maus auffindbar.
+4. Im Edit-Modus sind beide Anzeigen immer voll da.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Regeln ok (ja/nein):
+Maus über Reitern bleibt sichtbar (ja/nein):
+Richtiger Gegenstand je Zone (ja/nein):
+Wechsel beim Zonenwechsel (ja/nein):
+Fremde Zone: Knopf weg (ja/nein):
+Höhle/Gebäude ok (ja/nein):
+Fehlt etwas zu Unrecht (welche Quest, Überschrift im Log):
+Flächen richtig (ja/nein, welche fehlen):
+Ausblenden und zurück (ja/nein):
+Minimap-Karte weg (ja/nein):
+Zauberleiste blitzt (ja/nein):
+Unsichtbare Buffs klickbar (ja/nein):
+Kampf wartet (ja/nein):
+Fehler:
+```
+
+### 139. Schlafsack-Hinweis (Roadmap 394, WoW Forever)
+
+- [ ] geprüft
+
+Einstellungen > Hinweise: „Hinweis: Gut erholt fehlt (Schlafsack)“ an, „Gemütlicher Schlafsack“ in der Tasche, unter Maximallevel, draußen und ohne „Gut erholt“. Datenteil: `/lt debug remind` (Zeile „well rested missing …“).
+
+1. Nach spätestens 2 s erscheint die Hinweis-Karte „Im Schlafsack ausruhen für 3 % XP-Bonus.“ mit dem Symbol des Schlafsacks (nicht dem allgemeinen Taschen-Symbol).
+
+**Antwort:**
+
+```text
+Karte mit Schlafsack-Symbol (ja/nein):
+Zeile von /lt debug remind:
+Fehler:
+```
+
+### 138. Profiler-Vergleich nach Performance-Runde 2 (Roadmap 390-401)
+
+- [ ] geprüft
+
+Gleiche Art Sitzung wie beim letzten Lauf (WoW Forever, leveln mit Quest-Knöpfen, Lagerfeuer, Buff-Hinweisen, Beute-Glitzer, Debug-Log an), etwa 30 Minuten:
+
+```
+/lt debug perf reset
+```
+
+```
+/lt debug perf on
+```
+
+Nach der Sitzung:
+
+```
+/lt debug perf report 25
+```
+
+**Erwartet (vorher → Ziel):** `task QuestItemButton.lua` 43,7 MB Müll → unter 1 MB; `task CampFire.lua` 6,8 MB → deutlich weniger; `task QuestWatch.lua` 5,8 MB → weniger; `task BuffReminder.lua` max 7 ms → unter 2 ms; `call Options.lua` und `call ActionBars.lua` je Apply → fast nichts bei geschlossenem bzw. fremdem Apply; `event CVAR_UPDATE` 737 → deutlich weniger; `onupdate TimerWindow` deutlich unter 3,2 s; `onupdate DeathMap`/`QuestMap` ohne 31-ms-Spitzen; kein „kills line for <Spieler>“ und keine Serien „icon … INV_Misc_Note_01“ im Debug-Log.
+
+**Antwort:**
+
+```text
+Bericht (/lt debug perf report 25):
+Sitzungsdauer:
+Fehler:
+```
+
+### 140. Einstellungen in Kategorien (Roadmap 380)
+
+- [ ] geprüft
+
+`/lt` öffnen, in Deutsch, Französisch und Spanisch (Allgemein > Sprache & Minimap).
+
+1. Reiter: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle außer Profile mit
+   Seitenleiste links, Inhalt rechts daneben, nichts überlappt (auch die rechte Schalter-Spalte nicht).
+2. Jede Kategorie einmal anklicken: das Fenster springt nicht in der Höhe, keine Seite braucht Scrollen (außer bei
+   kleinem Bildschirm/hoher UI-Skalierung), beim Kategoriewechsel steht die Seite oben.
+3. Komfort > Quests: Quest-Automatik, Questfortschritt, „Questlog fast voll“ und die Quest-Einblendungen stehen dort;
+   Allgemein > Stream und Einblendungen > Timer/Flüge funktionieren wie vorher.
+4. Edit-Modus (`/lt edit`): Rechtsklick auf Split-Liste, Einblendung, Level-Up-Fenster, Flug-Anzeige > „Einstellungen“
+   öffnet die passende Kategorie.
+5. Fenster schließen und wieder öffnen: dieselbe Kategorie ist noch gewählt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Sprache(n):
+Überlappungen (wo):
+Höhe/Scrollen ok (ja/nein):
+Sprünge aus dem Edit-Modus ok (ja/nein):
+Fehler:
+```
+
+### 141. Suche in den Einstellungen (Roadmap 381)
+
+- [ ] geprüft
+
+`/lt`, Suchfeld oben links („Suchen …“).
+
+1. „Repar“ tippen: Liste unter dem Feld mit „Automatisch reparieren — Komfort > Automatik“ usw., über Reitern und
+   Inhalt, nicht abgeschnitten; Mausrad/Klicks gehen nicht durch die Liste auf die Schalter darunter.
+2. Treffer anklicken: Reiter und Kategorie wechseln, der Schalter ist kurz hell hinterlegt (Fläche über Kästchen und
+   Text, nicht verrutscht), nach 2 s weg.
+3. Tiefe Einstellung (z.B. „Atem“, „Munition“ als Jäger) mit Enter: Seite scrollt so, dass sie oben steht.
+4. Ein Wort nur aus einem Tooltip (z.B. „Gruppenchat“): Treffer erscheinen hinter den Beschriftungs-Treffern.
+5. Esc im Feld leert es und schließt die Liste; Esc danach schließt das Fenster. Tippen in das Feld löst keine
+   Tastenbelegungen aus (Bewegen, Zauber).
+6. Französisch/Spanisch: Feld und Titel überlappen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste lesbar und oben (ja/nein):
+Hervorhebung sitzt richtig (ja/nein):
+Scrollen zum Treffer (ja/nein):
+Tastatur ok (ja/nein):
 Fehler:
 ```

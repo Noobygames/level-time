@@ -44,6 +44,18 @@ local function counterColumn(header, name, width)
   return { header = header, width = width, value = function(r) return counter(r, name) end }
 end
 
+-- Anzahl je Stunde eines Eintrags (Kills, Gegenstände), über dieselbe Spielzeit wie XP/h (Experience.CountRate)
+local function recordCountRate(r, name)
+  return Experience.CountRate(counter(r, name), Experience.RecordRateSeconds(r))
+end
+
+local function perHourColumn(header, name, width)
+  return { header = header, width = width, value = function(r)
+    local rate = recordCountRate(r, name)
+    return rate and Format.Number(rate) or "-"
+  end, sort = function(r) return recordCountRate(r, name) end }
+end
+
 local function goldColumn(width)
   return { header = "HISTORY_GOLD", width = width, value = function(r)
     return Format.Gold(counter(r, Stats.MONEY_EARNED))
@@ -83,7 +95,9 @@ local LEVEL_COLUMNS = {
   durationColumn(62),
   xpRateColumn(52),
   counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 40),
+  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 48),
   counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 40),
+  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 48),
   counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
   counterColumn("HISTORY_QUESTS", Stats.QUESTS, 48),
   goldColumn(56),
@@ -144,7 +158,9 @@ local SESSION_COLUMNS = {
     sort = function(r) return r.startLevel and (r.startLevel + (r.endLevel or r.startLevel) / 1000) end },
   xpRateColumn(48),
   counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 36),
+  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 48),
   counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 36),
+  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 48),
   counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
   counterColumn("HISTORY_QUESTS", Stats.QUESTS, 44),
   goldColumn(52),
@@ -222,6 +238,11 @@ local LOOT_COLUMNS = {
   { header = "HISTORY_ITEM", width = 180, align = LEFT, value = function(r) return r.link or r.name or "" end },
   { header = "HISTORY_QUANTITY", width = 40, value = function(r) return r.quantity or 1 end },
   { header = "HISTORY_SOURCE", width = 130, align = LEFT, value = function(r) return r.source or "-" end },
+  -- Gewonnener Wurf (lootRollJournal): Symbol der Wahl und Zahl
+  { header = "HISTORY_ROLL", width = 50, value = function(r)
+      if not r.rollChoice then return "-" end
+      return ns.LootRollDisplay.IconText(r.rollChoice, 12) .. " " .. (r.roll or "")
+    end, sort = function(r) return r.roll end },
   levelColumn(40),
 }
 

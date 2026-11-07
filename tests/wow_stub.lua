@@ -135,6 +135,10 @@ local frameMethods = {
   SetHeight = function(self, height) self._height = height end,
   GetFrameLevel = function(self) return rawget(self, "_level") or 1 end,
   SetFrameLevel = function(self, level) self._level = level end,
+  -- Scrollbereiche: Position wird gemerkt; Bereich = frame._scrollRange (Standard groß genug für jede Seite)
+  SetVerticalScroll = function(self, offset) self._verticalScroll = offset end,
+  GetVerticalScroll = function(self) return rawget(self, "_verticalScroll") or 0 end,
+  GetVerticalScrollRange = function(self) return rawget(self, "_scrollRange") or 10000 end,
   GetAlpha = function(self) return rawget(self, "_alpha") or 1 end,
   SetAlpha = function(self, alpha) self._alpha = alpha end,
   GetScale = function(self) return self._scale end,
@@ -163,13 +167,20 @@ local frameMethods = {
   GetVertexColor = function(self) return unpack(rawget(self, "_vertexColor") or { 1, 1, 1, 1 }) end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
+  SetColorTexture = function(self, r, g, b, a) self._colorTexture = { r, g, b, a or 1 } end,
+  SetTextColor = function(self, r, g, b, a) self._textColor = { r, g, b, a or 1 } end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
   SetPoint = function(self, ...) table.insert(self._points, { ... }) end,
   ClearAllPoints = function(self) self._points = {} end,
   GetCenter = function() return 0, 0 end,
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
-  GetParent = function(self) return self._parent end,
+  -- Sichtbar = gezeigt samt aller Eltern (UIParent gilt als sichtbar)
+  IsVisible = function(self)
+    local parent = rawget(self, "_parent")
+    return self._shown and (parent == nil or parent == UIParent or parent:IsVisible()) or false
+  end,
+  GetParent = function(self) return rawget(self, "_parent") end,
   -- Wie im Client: OnShow beim Wechsel von versteckt zu gezeigt
   Show = function(self)
     local wasShown = self._shown
@@ -185,6 +196,7 @@ local frameMethods = {
   end,
   SetShown = function(self, shown) self._shown = shown and true or false end,
   SetText = function(self, text) self._text = tostring(text) end,
+  SetFontObject = function(self, font) self._fontObject = font end,
   GetText = function(self) return self._text end,
   SetFocus = function(self) wow.focus = self end,
   ClearFocus = function(self) if wow.focus == self then wow.focus = nil end end,
@@ -264,7 +276,12 @@ local function newFrame()
     _shown = true, _scripts = {}, _events = {}, _text = "",
     _width = 200, _height = 100, _scale = 1, _checked = false, _normalTexture = "", _points = {},
   }
-  frame.CreateFontString = function() return newFrame() end
+  -- Font-Objekt (Name) gemerkt: frame._fontObject, auch nach SetFontObject
+  frame.CreateFontString = function(_, _, _, font)
+    local fontString = newFrame()
+    fontString._fontObject = font
+    return fontString
+  end
   frame.CreateTexture = function() return newFrame() end
   frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
@@ -324,6 +341,19 @@ function wow.click(text, last)
     local caption = label and label._text or frame._text
     if caption == text and frame._scripts.OnClick then
       frame._scripts.OnClick(frame, "LeftButton")
+      return true
+    end
+  end
+  return false
+end
+
+-- Steuerelement der Einstellungen zu einem Locale-Key klicken, eindeutig über den Suchindex (Tooltip <KEY>_TIP),
+-- auch wenn mehrere Buttons denselben Text haben (z.B. "Vorschau")
+function wow.clickOption(labelKey)
+  for _, entry in ipairs(addon.OptionsWindow.Search(addon.L[labelKey])) do
+    local onClick = entry.tipKey == labelKey .. "_TIP" and entry.left._scripts.OnClick
+    if onClick then
+      onClick(entry.left, "LeftButton")
       return true
     end
   end
@@ -407,6 +437,23 @@ CreateFrame = function(_, name, parent)
   return frame
 end
 UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), newFrame(), newFrame()
+-- Font-Objekte: CreateFont legt ein benanntes an; SetFont/GetFont merken Schrift, Größe und Flags, CopyFontObject
+-- übernimmt sie (Blizzards Objekte haben im Stub FRIZQT__ in 12)
+local function newFont()
+  local font = newFrame()
+  font._font = { "Fonts\FRIZQT__.TTF", 12, "" }
+  font.SetFont = function(self, face, size, flags) self._font = { face, size, flags } end
+  font.GetFont = function(self) return unpack(self._font) end
+  font.CopyFontObject = function(self, source) self._font = { source:GetFont() } end
+  return font
+end
+function CreateFont(name)
+  local font = newFont()
+  if name then _G[name] = font end
+  return font
+end
+GameFontNormal, GameFontHighlight, GameFontNormalSmall = newFont(), newFont(), newFont()
+GameFontHighlightSmall, GameFontNormalHuge = newFont(), newFont()
 -- Fehlerfenster und Zonentext; UIErrorsFrame merkt Meldungen in _messages
 UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
 UIErrorsFrame._events.UI_ERROR_MESSAGE = true
@@ -439,8 +486,28 @@ TRANSFER_ABORT_TOO_MANY_INSTANCES = "Ihr habt in letzter Zeit zu viele Instanzen
 LOOT_ITEM_SELF = "Ihr erhaltet Beute: %s."
 LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
+LOOT_ITEM_PUSHED_SELF_MULTIPLE = "Ihr erhaltet einen Gegenstand: %sx%d."
 LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
 LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
+-- Würfeln um Beute wie im deutschen Classic-Era-Client (Ketho/BlizzardInterfaceResources classic_era deDE)
+LOOT_ROLL_ALL_PASSED = "|HlootHistory:%d|h[Beute]|h: Alle haben gepasst auf: %s"
+LOOT_ROLL_DISENCHANT = "%s hat für '%s' Entzauberung gewählt."
+LOOT_ROLL_DISENCHANT_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Entzauberung gewählt."
+LOOT_ROLL_GREED = "|HlootHistory:%d|h[Beute]|h: %s hat für %s Gier ausgewählt"
+LOOT_ROLL_GREED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Gier ausgewählt"
+LOOT_ROLL_LOST_ROLL = "|HlootHistory:%d|h[Beute]|h: Ihr habt %s - %d gewürfelt auf: %s"
+LOOT_ROLL_NEED = "|HlootHistory:%d|h[Beute]|h: %s hat für %s Bedarf ausgewählt"
+LOOT_ROLL_NEED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Bedarf ausgewählt"
+LOOT_ROLL_PASSED = "|HlootHistory:%d|h[Beute]|h: %s passt auf: %s"
+LOOT_ROLL_PASSED_AUTO = "|HlootHistory:%d|h[Beute]|h: %s passt automatisch auf %s, weil er den Gegenstand nicht benutzen kann."
+LOOT_ROLL_PASSED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt gepasst auf: %s"
+LOOT_ROLL_ROLLED_GREED = "|HlootHistory:%d|h[Beute]|h: Wurf für Gier: %d für %s von %s"
+LOOT_ROLL_ROLLED_NEED = "|HlootHistory:%d|h[Beute]|h: Wurf für Bedarf: %d für %s von %s"
+LOOT_ROLL_STARTED = "|HlootHistory:%d|h[Beute]|h: %s"
+LOOT_ROLL_WON = "|HlootHistory:%d|h[Beute]|h: %s gewinnt: %s"
+LOOT_ROLL_WON_NO_SPAM_NEED = "|HlootHistory:%d|h[Beute]|h: %s hat gewonnen: %s |cff818181(Bedarf - %d)|r"
+LOOT_ROLL_YOU_WON = "|HlootHistory:%d|h[Beute]|h: Ihr gewinnt: %s"
+LOOT_ROLL_YOU_WON_NO_SPAM_NEED = "|HlootHistory:%d|h[Beute]|h: Ihr habt gewonnen: %s |cff818181(Bedarf - %d)|r"
 -- Rufmeldungen (Retail-Form; Classic: "Your %s reputation has increased by %d.")
 FACTION_STANDING_INCREASED = "Euer Ruf bei der Fraktion '%s' hat sich um %d verbessert."
 FACTION_STANDING_INCREASED_ACCOUNT_WIDE = "Der Ruf Eurer Kriegsmeute bei der Fraktion '%s' hat sich um %d verbessert."
@@ -750,14 +817,82 @@ function AcceptResurrect() comfortAction("acceptResurrect") end
 function RepopMe() comfortAction("repop") end
 C_DeathInfo = { GetSelfResurrectOptions = function() return state.selfResurrect or {} end }
 -- Beute: state.lootSlots = Anzahl; LootSlot merkt den Platz
--- Flugkarte: state.taxiNodes = { { name, type } } (type "CURRENT", "REACHABLE", ...)
+-- Flugkarte: state.taxiNodes = { { name, type, x, y, id, hops } } (type "CURRENT", "REACHABLE", ...; x/y wie
+-- TaxiNodePosition; id = nodeID aus C_TaxiMap.GetAllTaxiNodes, ohne id liefert der Client den Knoten dort nicht;
+-- hops = { { vonSlot, nachSlot }, ... } Teilstrecken, Standard eine direkte vom CURRENT-Knoten); state.taxiMapID
 function NumTaxiNodes() return #(state.taxiNodes or {}) end
 function TaxiNodeName(index) return state.taxiNodes[index].name end
 function TaxiNodeGetType(index) return state.taxiNodes[index].type end
+function TaxiNodePosition(index) local node = state.taxiNodes[index]; return node.x or 0, node.y or 0 end
 function TakeTaxiNode() end
+function GetTaxiMapID() return state.taxiMapID or 0 end
+local function taxiHops(index)
+  local node = state.taxiNodes[index]
+  if node.hops then return node.hops end
+  for slot, other in ipairs(state.taxiNodes) do
+    if other.type == "CURRENT" then return { { slot, index } } end
+  end
+  return {}
+end
+function GetNumRoutes(index) return #taxiHops(index) end
+function TaxiGetNodeSlot(index, hop, source)
+  local part = taxiHops(index)[hop]
+  return source and part[1] or part[2]
+end
+C_TaxiMap = {
+  GetAllTaxiNodes = function()
+    local nodes = {}
+    for slot, node in ipairs(state.taxiNodes or {}) do
+      if node.id then table.insert(nodes, { nodeID = node.id, slotIndex = slot, name = node.name }) end
+    end
+    return nodes
+  end,
+}
+-- Blizzards Tooltip der Flugpunkte (TaxiFrame), damit Hooks darauf greifen
+function TaxiNodeOnButtonEnter(button)
+  GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+  GameTooltip:AddLine(TaxiNodeName(button:GetID()))
+end
 function GetNumLootItems() return state.lootSlots or 0 end
 function LootSlot(slot) comfortAction("loot", slot) end
 function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end
+-- Würfeln um Beute: state.lootRolls[rollID] = { link, name, texture, quality }, state.activeLootRolls = { rollID, ... }
+function GetLootRollItemLink(rollID) return ((state.lootRolls or {})[rollID] or {}).link end
+function GetLootRollItemInfo(rollID)
+  local roll = (state.lootRolls or {})[rollID]
+  if not roll then return nil end
+  return roll.texture or 134400, roll.name, 1, roll.quality or 2, false, true, true, false
+end
+function GetActiveLootRollIDs() return state.activeLootRolls or {} end
+function GetLootRollTimeLeft() return 60000 end
+-- Würfel-Historie wie im Client: Classic Era (era_*) das alte C_LootHistory (state.lootHistory = { { rollID, link,
+-- isDone, winnerIdx, players = { { name, class, rollType, roll, isWinner } } } }), sonst das neue je Beute
+-- (state.lootDrops["encounterID:lootListID"] = EncounterLootDropInfo, state.encounterDrops[encounterID] = Liste)
+if state.interface < 20000 then
+  C_LootHistory = {
+    GetNumItems = function() return #(state.lootHistory or {}) end,
+    GetItem = function(index)
+      local item = state.lootHistory[index]
+      return item.rollID, item.link, #item.players, item.isDone == true, item.winnerIdx
+    end,
+    GetPlayerInfo = function(index, playerIndex)
+      local player = state.lootHistory[index].players[playerIndex]
+      return player.name, player.class, player.rollType, player.roll, player.isWinner == true
+    end,
+  }
+else
+  C_LootHistory = {
+    GetSortedInfoForDrop = function(encounterID, lootListID)
+      return (state.lootDrops or {})[encounterID .. ":" .. lootListID]
+    end,
+    GetSortedDropsForEncounter = function(encounterID) return (state.encounterDrops or {})[encounterID] end,
+  }
+end
+-- Blizzards Würfelfenster (GroupLootFrame1..4, versteckt; Tests setzen rollID und zeigen sie)
+for index = 1, 4 do
+  local frame = CreateFrame("Frame", "GroupLootFrame" .. index, UIParent)
+  frame._shown = false
+end
 function ConfirmLootSlot(slot) comfortAction("confirmBind", slot) end
 function RequestTimePlayed() end
 -- Nur C_CurrencyInfo: das globale GetCoinTextureString ist im Client ein Kompatibilitäts-Alias
@@ -966,6 +1101,7 @@ C_Item = {
     if not icon then return nil end
     return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
   end,
+  GetItemIconByID = function(itemID) return state.itemIcons[itemID] end,
   -- Itemlevel je itemID: state.itemLevels
   GetDetailedItemLevelInfo = function(item)
     local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item

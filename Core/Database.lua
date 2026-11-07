@@ -9,14 +9,33 @@ ns.Database = Database
 
 local SETTINGS_DEFAULTS = {
   language = ns.DefaultLanguage(),
-  scale = 1,  -- Größe des Fensters samt Inhalt (siehe TimerWindow.lua)
   bgAlpha = 0.8,
   windowBackground = "default",  -- "default", "green" oder "magenta" (Chroma-Key, siehe TimerWindow.lua)
-  locked = false,
+  locked = false,  -- Anzeigen nur im Edit-Modus verschieben und skalieren (Lib/Frames.lua)
+  editGrid = true,  -- Raster im Edit-Modus (UI/EditMode.lua), daran rastet das Ziehen ein
+  editBlizzardFrames = true,  -- Flächen über Blizzards Elementen im Edit-Modus (UI/BlizzardOverlays.lua)
+  editModeWithBlizzard = true,  -- Edit-Modus zusammen mit Blizzards Bearbeitungsmodus (Retail, WoW Forever)
+  -- Aussehen aller Anzeigen (siehe Theme.lua)
+  theme = "classic",     -- "classic", "flat", "minimal" oder "colorblind"
+  themeAccent = "",      -- "" = Akzent des Presets, sonst Theme.ACCENTS oder "class"
+  themeFont = "",        -- "" = Schrift des Clients, sonst Name aus Theme.FontChoices
+  themeFontSize = 0,     -- Versatz in Punkten auf alle Schriften der Anzeigen
+  themeOutline = "none", -- "none", "outline" oder "thick"
   showTimer = true,
   showXpBar = true,
-  compactMode = false,  -- nur Zeit, XP-Balken und XP/h (siehe TimerWindow.lua)
-  horizontalLayout = false,  -- Fenster als Info-Leiste: alles in einer Zeile (siehe TimerWindow.lua)
+  -- Anordnung des Hauptfensters (UI/Layouts/): "table", "bar", "compact", "text", "clock", "xpbar", "tiles"
+  windowLayout = "table",
+  compactRows = "ROW_XP_RATE",  -- gewählte Werte (Zeilen-Schlüssel, Komma-getrennt, bis 3) für compact/clock/xpbar
+  rowOrder = "",       -- Reihenfolge der Stat-Zeilen (Stat-Einstellungen, Komma-getrennt; UI/WindowModel.lua)
+  tileColumns = 3,     -- Spalten im Layout "tiles"
+  xpbarText = "always",  -- Layout "xpbar": Texte "always", "mouseover" oder "never"
+  xpbarWidth = 400,    -- Layout "xpbar": Breite des Balkens
+  textLabels = true,   -- Layout "text": Bezeichnungen vor den Werten
+  -- Sichtbarkeitsregeln (UI/DisplayVisibility.lua): "always", "outOfCombat", "inCombat", "instanceOnly",
+  -- "hideAtMaxLevel", "mouseover"; sonst auf fadeAlpha abgeblendet
+  windowVisibility = "always",
+  splitListVisibility = "always",
+  fadeAlpha = 0,
   autoInstanceTab = false,  -- beim Betreten einer Instanz zum Reiter Instanz wechseln, beim Verlassen zurück
   historyTab = "",  -- zuletzt gewählter Reiter der Historie (siehe HistoryWindow.lua)
   windowScope = "level",  -- "level", "session" oder "instance" (siehe Stats.lua)
@@ -65,7 +84,6 @@ local SETTINGS_DEFAULTS = {
   alertQuestComplete = false,   -- Quest abgabebereit (QuestCompleteAlert.lua)
   alertQuestObjective = false,  -- einzelnes Questziel erfüllt
   alertStyle = "banner",  -- "text" oder "banner" (siehe Alerts.lua)
-  alertScale = 1,
   alertDuration = 3,      -- Sekunden voll sichtbar
   alertSound = false,
   -- Lagerfeuer in WoW Forever (siehe CampFire.lua, CampDisplay.lua)
@@ -73,16 +91,15 @@ local SETTINGS_DEFAULTS = {
   campHint = true,       -- Hinweis, wenn ein Feuer in der Nähe ist und die Lagervorteile fehlen
   campHintPause = 5,     -- Minuten, bevor der Lagerfeuer-Hinweis wieder erscheinen darf
   campSound = false,     -- Ton, wenn die Lagervorteile da sind
-  campScale = 1,
   foodTimer = true,      -- Essen-Timer (FoodTimer.lua): Restzeit beim Essen, danach "Satt aktiv"
   foodSound = false,     -- Ton, wenn "Satt" da ist
-  foodScale = 1,
   flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
   flightSound = false,   -- Ton bei der Landung
-  flightScale = 1,
+  flightTimeTooltip = true,  -- Flugzeit im Tooltip der Flugkarte (FlightTooltip.lua), nur mit flightTimer
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
+  remindSleepingBag = false,  -- Hinweis, wenn mit Schlafsack in der Tasche "Gut erholt" fehlt (WoW Forever)
   -- Klassen-Hinweise (ClassBuffs.lua), je einer; nur für die eigene Klasse in den Einstellungen
   remindMageArmor = false, remindArcaneIntellect = false, remindFortitude = false, remindInnerFire = false,
   remindShadowform = false, remindDemonArmor = false, remindWarlockPet = false, remindMarkOfTheWild = false,
@@ -162,16 +179,21 @@ local SETTINGS_DEFAULTS = {
   -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken
   lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
   lootSparkleCorpses = false, lootSparkleScale = 1,
+  -- Beute-Würfe (LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im Tooltip,
+  -- Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
+  lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false,
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
   questTargetButton = false, -- Knopf "/targetexact" für Questgegner (Namensplaketten und gelernte Namen)
   questTargetMarker = false, -- derselbe Knopf setzt den Totenkopf auf das Ziel ("/tm !8")
+  questButtonsZoneOnly = true, -- beide Knöpfe nur für Quests der aktuellen Zone (QuestLog.ZoneStatus)
   mapCoordinates = false,    -- Koordinaten von Spieler und Mauszeiger auf der Weltkarte (MapCoordinates.lua)
   emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
+  hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
   tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
@@ -183,7 +205,6 @@ local SETTINGS_DEFAULTS = {
   levelUpTheme = "modern",  -- "modern", "alliance" oder "horde"
   levelUpCompact = false,
   levelUpSound = true,
-  levelUpScale = 1,
   levelUpDuration = 8,
   announceRecords = false,  -- Einblendung und Chatzeile bei einem neuen persönlichen Rekord (PersonalRecords.lua)
   sessionCompareLogin = true,  -- Chatzeile zur letzten Session beim Login (siehe SessionCompare.lua)
@@ -213,6 +234,10 @@ local SETTINGS_DEFAULTS = {
   showSpending = false,  -- Ausgaben nach Art und Schrott-Erlös (siehe MoneyCounter.lua)
   showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
   showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
+  showKillRate = false,    -- Kills (PvE) je Stunde im Bereich
+  showRecentKills = false,  -- Kills der letzten 15 min und Kills/h daraus (siehe RecentCounts.lua)
+  showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
+  showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
 }
 
@@ -255,6 +280,7 @@ local COUNTER_DEFAULTS = {
   incomeTrade = 0,
   incomeOther = 0,
   reputation = 0,
+  itemsLooted = 0,
 }
 
 local CHARACTER_DEFAULTS = {
@@ -321,7 +347,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 5
+local SETTINGS_SCHEMA_VERSION = 7
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -374,6 +400,18 @@ local settingsMigrations = {
       end
       values.showCountToLevel = nil
     end)
+  end,
+  -- Ein Positionssystem (Lib/Frames.lua): xxxPos/xxxScale je Anzeige -> frames[id]. Die Stream-Sicherung verliert
+  -- sie nur (ältere Versionen sicherten dort die Größe; zurückgespielt würde frames sonst alle Positionen ersetzen)
+  [6] = function(settings)
+    forEachSettingsCopy(settings, function(values)
+      Database.MoveLegacyFrameKeys(values)
+      if values == settings.streamBackup then values.frames = nil end
+    end)
+  end,
+  -- Eine Anordnung statt zweier Schalter (windowLayout): horizontalLayout -> "bar", compactMode -> "compact"
+  [7] = function(settings)
+    forEachSettingsCopy(settings, function(values) Database.MoveLegacyLayoutKeys(values) end)
   end,
 }
 
@@ -429,10 +467,12 @@ end
 
 -- Erlaubte Bereiche von Zahlen-Einstellungen (wie die Regler und Fenster sie vorgeben); Importe werden begrenzt
 local SETTING_RANGES = {
-  scale = { 0.5, 2 },
   bgAlpha = { 0, 1 },
-  splitListScale = { 0.5, 2 },
+  themeFontSize = { -4, 8 },
   splitListRows = { 3, 15 },
+  tileColumns = { 1, 6 },
+  xpbarWidth = { 200, 1200 },
+  fadeAlpha = { 0, 1 },
   splitTolerancePercent = { 0, 10 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
@@ -443,29 +483,32 @@ local SETTING_RANGES = {
   breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
-  alertScale = { 0.5, 2 },
   alertDuration = { 1, 10 },
-  levelUpScale = { 0.5, 2 },
   levelUpDuration = { 3, 20 },
   campHintPause = { 1, 30 },
-  campScale = { 0.5, 2 },
-  foodScale = { 0.5, 2 },
-  flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
   lootSparkleScale = { 0.5, 2 },
   weatherDensity = { 0, 3 },
 }
 
 local OPTIONAL_SETTINGS = {
-  splitListScale = isFiniteNumber,  -- eigene Größe der Split-Liste, sonst die des Hauptfensters (SplitList.lua)
-  pos = isPosition,           -- Hauptfenster (TimerWindow.lua)
-  splitListPos = isPosition,  -- Split-Liste (SplitList.lua)
-  alertPos = isPosition,      -- Einblendungen (Alerts.lua); fehlt = oben in der Mitte
-  campPos = isPosition,       -- Lagerfeuer-Anzeige (CampDisplay.lua)
-  foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
-  flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
-  levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
-  questItemPos = isPosition,  -- Quest-Item-Knopf (QuestItemButton.lua)
+  frames = function(value)  -- Position und Größe je Anzeige (Lib/Frames.lua), Id -> Eintrag
+    if type(value) ~= "table" then return false end
+    for id, entry in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
+      value[id] = type(id) == "string" and Database.SanitizeFrameEntry(entry) or nil
+    end
+    return true
+  end,
+  hiddenBlizzardFrames = function(value)  -- ausgeblendete Blizzard-Elemente (BlizzardHide.lua), Id -> true
+    if type(value) ~= "table" then return false end
+    local BlizzardHide = ns.BlizzardHide  -- lädt später; beim Laden der Daten genügt die Form
+    for id, hidden in pairs(value) do  -- unbekannte Ids und andere Werte einzeln entfernen
+      if type(id) ~= "string" or hidden ~= true or (BlizzardHide and not BlizzardHide.IsOwnId(id)) then
+        value[id] = nil
+      end
+    end
+    return true
+  end,
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end
     for name, pos in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
@@ -494,13 +537,85 @@ local OPTIONAL_SETTINGS = {
 
 local sanitizeSettings
 
+-- Ein Eintrag von db.frames: { point, relPoint, x, y, scale }; Position nur vollständig und gültig, Größe begrenzt.
+-- nil, wenn nichts Gültiges bleibt
+local FRAME_SCALE_RANGE = { 0.5, 2 }  -- wie Frames.MIN_SCALE/MAX_SCALE (Lib/Frames.lua lädt später)
+
+function Database.SanitizeFrameEntry(entry)
+  if type(entry) ~= "table" then return nil end
+  local clean = {}
+  if FRAME_POINTS[entry.point] and FRAME_POINTS[entry.relPoint] and isFiniteNumber(entry.x) and isFiniteNumber(entry.y) then
+    clean.point, clean.relPoint, clean.x, clean.y = entry.point, entry.relPoint, entry.x, entry.y
+  end
+  if isFiniteNumber(entry.scale) then
+    clean.scale = math.max(FRAME_SCALE_RANGE[1], math.min(FRAME_SCALE_RANGE[2], entry.scale))
+  end
+  return next(clean) and clean or nil
+end
+
+-- Frühere Schlüssel je Anzeige (Position als { Punkt, Bezugspunkt, x, y } und eigene Größe) -> frames[id]
+local LEGACY_FRAME_KEYS = {
+  { id = "main", pos = "pos", scale = "scale" },
+  { id = "splitList", pos = "splitListPos", scale = "splitListScale" },
+  { id = "alert", pos = "alertPos", scale = "alertScale" },
+  { id = "levelUp", pos = "levelUpPos", scale = "levelUpScale" },
+  { id = "camp", pos = "campPos", scale = "campScale" },
+  { id = "food", pos = "foodPos", scale = "foodScale" },
+  { id = "flight", pos = "flightPos", scale = "flightScale" },
+  { id = "questItem", pos = "questItemPos" },
+}
+
+-- Alte Schlüssel einmal lesen und löschen; ein schon vorhandener Eintrag in frames gewinnt. Läuft in der Migration
+-- (auch für Profile und die Stream-Sicherung), beim Import und beim Laden eines Profils.
+function Database.MoveLegacyFrameKeys(values)
+  for _, legacy in ipairs(LEGACY_FRAME_KEYS) do
+    local pos, scale = values[legacy.pos], legacy.scale and values[legacy.scale]
+    if pos ~= nil or scale ~= nil then
+      local frames = type(values.frames) == "table" and values.frames or {}
+      local existing = frames[legacy.id]
+      local entry = type(existing) == "table" and existing or {}
+      if isPosition(pos) and entry.point == nil then
+        entry.point, entry.relPoint, entry.x, entry.y = pos[1], pos[2], pos[3], pos[4]
+      end
+      if entry.scale == nil then entry.scale = scale end
+      frames[legacy.id] = Database.SanitizeFrameEntry(entry)
+      if next(frames) then values.frames = frames end
+    end
+    values[legacy.pos] = nil
+    if legacy.scale then values[legacy.scale] = nil end
+  end
+end
+
+-- Frühere Schalter der Anordnung (bis Settings-Schema 6) -> windowLayout; ein schon gesetztes windowLayout gewinnt.
+-- Läuft in der Migration, beim Import und beim Laden eines Profils (wie MoveLegacyFrameKeys).
+function Database.MoveLegacyLayoutKeys(values)
+  if values.windowLayout == nil then
+    if values.horizontalLayout == true then
+      values.windowLayout = "bar"
+    elseif values.compactMode == true then
+      values.windowLayout = "compact"
+    end
+  end
+  values.horizontalLayout = nil
+  values.compactMode = nil
+end
+
+-- Alle Umzüge alter Schlüssel (Positionen, Anordnung)
+function Database.MoveLegacyKeys(values)
+  Database.MoveLegacyFrameKeys(values)
+  Database.MoveLegacyLayoutKeys(values)
+end
+
 -- Ein Wert passt, wenn er den Typ des Defaults hat (verschachtelt geprüft) bzw. die Form einer
 -- optionalen Einstellung
 local function sanitizeValue(key, value)
   local default = SETTINGS_DEFAULTS[key]
   if default == nil then
-    if key == "streamBackup" then  -- frühere Werte der Stream-Einstellungen (StreamMode.lua)
-      return type(value) == "table" and sanitizeSettings(value) or nil
+    if key == "streamBackup" then  -- frühere Werte der Stream-Einstellungen (StreamMode.lua), nie Positionen
+      if type(value) ~= "table" then return nil end
+      local backup = sanitizeSettings(value)
+      backup.frames = nil
+      return backup
     end
     local check = OPTIONAL_SETTINGS[key]
     if not (check and check(value)) then return nil end
@@ -527,8 +642,11 @@ end
 
 -- Nur bekannte Einstellungen mit passendem Typ, z.B. aus einem importierten Profil
 function sanitizeSettings(settings)
+  local source = {}  -- Kopie: alte Positions-Schlüssel (Profile älterer Versionen) ziehen nach frames um
+  for key, value in pairs(settings) do source[key] = value end
+  Database.MoveLegacyKeys(source)
   local clean = {}
-  for key, value in pairs(settings) do
+  for key, value in pairs(source) do
     if type(key) == "string" then clean[key] = sanitizeValue(key, value) end
   end
   return clean

@@ -22,7 +22,10 @@ Core\Client.lua
 Core\DebugLog.lua
 Core\DebugProbes.lua
 Core\Profiler.lua
+Lib\Theme.lua
 Lib\Format.lua
+Lib\TickCache.lua
+Lib\RecentCounter.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
 Lib\RecordCodec.lua
@@ -40,6 +43,7 @@ Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
+Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
 Lib\TimerDisplay.lua
@@ -64,11 +68,14 @@ Tracking\DeathPlace.lua
 Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
+Tracking\RecentCounts.lua
 Tracking\QuestCounter.lua
 Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\ItemsLooted.lua
+Tracking\LootRolls.lua
 Tracking\QuestMobs.lua
 Tracking\QuestNpcs.lua
 Tracking\MoneyCounter.lua
@@ -120,7 +127,11 @@ Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
+Assist\FlightTimesData.lua
+Assist\FlightMap.lua
+Assist\FlightTimes.lua
 Assist\FlightTimer.lua
+Assist\FlightTooltip.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua
@@ -156,6 +167,8 @@ Assist\MoveFrames.lua
 Assist\QuestMarks.lua
 Assist\LootTarget.lua
 Assist\LootSparkles.lua
+Assist\LootRollReport.lua
+UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua
@@ -167,6 +180,7 @@ Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
 Assist\QuestMap.lua
@@ -177,6 +191,15 @@ Assist\Sounds.lua
 Assist\RaidRestrictions.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
+UI\WindowModel.lua
+UI\XpTooltip.lua
+UI\WindowElements.lua
+UI\Layouts\Layouts.lua
+UI\Layouts\Bar.lua
+UI\Layouts\Clock.lua
+UI\Layouts\XpBar.lua
+UI\Layouts\Tiles.lua
+UI\DisplayVisibility.lua
 UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
@@ -194,6 +217,8 @@ UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\EditMode.lua
+UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
 Core\Commands.lua

@@ -21,7 +21,8 @@ Coverage.GOOD = 0.95
 Coverage.FAIR = 0.90
 local GAP_SECONDS = 45
 local SAVE_SECONDS = 30
-local COLORS = { good = "|cff40ff40", fair = "|cffffd100", poor = "|cffff4040" }
+-- Theme-Farben je Güte (Theme.lua), beim Aufruf gelesen
+local COLOR_TOKENS = { good = "good", fair = "gold", poor = "bad" }
 
 local checked  -- erste /played-Antwort seit dem Login ausgewertet
 
@@ -95,7 +96,8 @@ end
 -- Quote als farbiger Prozenttext, "-" ohne Wert
 function Coverage.Text(fraction)
   if not fraction then return "-" end
-  local color = fraction >= Coverage.GOOD and COLORS.good or fraction >= Coverage.FAIR and COLORS.fair or COLORS.poor
+  local quality = fraction >= Coverage.GOOD and "good" or fraction >= Coverage.FAIR and "fair" or "poor"
+  local color = ns.Theme.Hex(COLOR_TOKENS[quality])
   return string.format("%s%d%%|r", color, math.floor(fraction * 100))
 end
 

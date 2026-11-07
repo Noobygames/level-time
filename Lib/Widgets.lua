@@ -7,18 +7,13 @@ ns.Widgets = Widgets
 -- Eigenes Addon-Icon (Media/Icon.tga, erzeugt mit "make artwork"); auch als IconTexture in der .toc
 Widgets.ICON = "Interface\\AddOns\\" .. addonName .. "\\Media\\Icon"
 
+-- Kurznamen für Farben aus Theme.lua (dieselben Tabellen, folgen also dem gewählten Preset)
+local Theme = ns.Theme
 Widgets.COLORS = {
-  background = { 0.04, 0.05, 0.1 },
-  border = { 0.72, 0.53, 0.17 },
-  highlight = { 0.96, 0.79, 0.36 },
-  muted = { 0.72, 0.72, 0.72 },  -- Hinweise: lesbar, aber leiser als normaler Text
-}
-
-local PANEL_BACKDROP = {
-  bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-  edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-  edgeSize = 14,
-  insets = { left = 3, right = 3, top = 3, bottom = 3 },
+  background = Theme.COLORS.background,
+  border = Theme.COLORS.border,
+  highlight = Theme.COLORS.accent,
+  muted = Theme.COLORS.muted,  -- Hinweise: lesbar, aber leiser als normaler Text
 }
 
 local SLIDER_BACKDROP = {
@@ -28,7 +23,7 @@ local SLIDER_BACKDROP = {
   insets = { left = 3, right = 3, top = 6, bottom = 6 },
 }
 
-local INACTIVE_TAB_COLOR = { 0.55, 0.55, 0.55 }
+local INACTIVE_TAB_COLOR = Theme.COLORS.inactive
 local TAB_PADDING = 8
 local SECTION_HEADER_HEIGHT = 18
 local CLOSE_BUTTON_SIZE = 24
@@ -54,11 +49,14 @@ function Widgets.SetTextIfChanged(fontString, text)
   return true
 end
 
+-- Nach einem SetText an SetTextIfChanged vorbei (z.B. Breite messen): der nächste SetTextIfChanged setzt sicher
+function Widgets.ForgetText(fontString)
+  shownTexts[fontString] = nil
+end
+
 function Widgets.CreatePanel(name, backgroundAlpha)
   local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
-  panel:SetBackdrop(PANEL_BACKDROP)
-  panel:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
-  Widgets.SetBackgroundAlpha(panel, backgroundAlpha)
+  Theme.RegisterPanel(panel, backgroundAlpha)  -- Grund und Rand im Stil des Themes, auch nach einem Wechsel
   panel:SetMovable(true)
   panel:EnableMouse(true)
   panel:SetClampedToScreen(true)
@@ -78,21 +76,9 @@ function Widgets.SetScaleKeepingTopLeft(frame, scale)
   end
 end
 
-function Widgets.SetBackgroundAlpha(panel, alpha)
-  local r, g, b = unpack(Widgets.COLORS.background)
-  panel:SetBackdropColor(r, g, b, alpha)
-end
-
--- Vollfarbiger Hintergrund ohne Rahmen (z.B. Chroma-Key für Streams); color = { r, g, b }
-function Widgets.SetSolidBackground(panel, color)
-  local r, g, b = unpack(color)
-  panel:SetBackdropColor(r, g, b, 1)
-  panel:SetBackdropBorderColor(0, 0, 0, 0)
-end
-
+-- Feste Deckkraft eines Fensters im Stil des Themes (z.B. Zusammenfassung ohne Chroma-Grund)
 function Widgets.SetDefaultBackground(panel, alpha)
-  Widgets.SetBackgroundAlpha(panel, alpha)
-  panel:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
+  Theme.RegisterPanel(panel, alpha)
 end
 
 -- Tooltip bei Mauskontakt. title() und text() liefern die Texte in der aktuellen Sprache;
@@ -233,89 +219,6 @@ function Widgets.CreateButton(parent, width, height, onClick)
   function button:GetTextWidth() return self.label:GetStringWidth() end
   button:SetScript("OnClick", onClick)
   return button
-end
-
----------------------------------------------------------------------------
--- Verschiebbare Anzeige: speichert die Position, kennt einen Verschiebemodus (Ziehen, Rechtsklick beendet)
--- config = { default = { Punkt, Bezugspunkt, x, y }, get() -> gespeicherte Position oder nil, set(Position oder nil) }
--- Rückgabe: { Restore, Sync, SetScale, SetMoving, IsMoving, Reset }
----------------------------------------------------------------------------
-local activeMover  -- der Mover im Verschiebemodus; es gibt höchstens einen
-
--- Beendet den Verschiebemodus (z.B. beim Schließen der Einstellungen), damit keine Beispielanzeige stehen bleibt
-function Widgets.EndMoving()
-  if activeMover then activeMover.SetMoving(false) end
-end
-
-function Widgets.CreateMover(frame, config)
-  local mover = {}
-  local moving = false
-  local applied  -- zuletzt angewendete Position (Tabelle); ein Profilwechsel liefert eine andere
-
-  function mover.Restore()
-    applied = config.get()
-    local pos = applied or config.default
-    frame:ClearAllPoints()
-    frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-  end
-
-  -- Nur wenn sich die Position seit dem letzten Anwenden geändert hat (z.B. anderes Profil)
-  function mover.Sync()
-    if config.get() ~= applied then mover.Restore() end
-  end
-
-  -- Ankerabstände gelten in der Skalierung des Rahmens: ändert sich die Größe bei stehender Position, umrechnen,
-  -- damit er stehen bleibt. Nicht bei der ersten Anwendung nach dem Laden (die gespeicherten Abstände gelten schon
-  -- in dieser Größe) und nicht bei einem Profilwechsel (neue Position, neue Größe zusammen gespeichert).
-  local scaleApplied = false
-  function mover.SetScale(scale)
-    local old = frame:GetScale()
-    frame:SetScale(scale)
-    local pos = config.get()
-    if scaleApplied and pos and pos == applied and math.abs(old - scale) > 0.001 then
-      pos[3] = pos[3] * old / scale
-      pos[4] = pos[4] * old / scale
-      mover.Restore()
-    end
-    scaleApplied = true
-  end
-
-  function mover.IsMoving() return moving end
-
-  function mover.SetMoving(enabled)
-    moving = enabled and true or false
-    if moving then
-      if activeMover and activeMover ~= mover then activeMover.SetMoving(false) end
-      activeMover = mover
-    elseif activeMover == mover then
-      activeMover = nil
-    end
-    frame:EnableMouse(moving)
-    if config.onMovingChanged then config.onMovingChanged(moving) end
-  end
-
-  function mover.Reset()
-    config.set(nil)
-    mover.Restore()
-  end
-
-  frame:SetMovable(true)
-  frame:SetClampedToScreen(true)
-  frame:RegisterForDrag("LeftButton")
-  frame:SetScript("OnDragStart", function(self)
-    if moving then self:StartMoving() end
-  end)
-  frame:SetScript("OnDragStop", function(self)
-    self:StopMovingOrSizing()
-    local point, _, relativePoint, x, y = self:GetPoint()
-    local pos = { point, relativePoint, x, y }
-    config.set(pos)
-    applied = pos
-  end)
-  frame:SetScript("OnMouseUp", function(_, mouseButton)
-    if moving and mouseButton == "RightButton" then mover.SetMoving(false) end
-  end)
-  return mover
 end
 
 ---------------------------------------------------------------------------

@@ -1,4 +1,6 @@
--- Aussehen und Position der Einblendungen: Stil, Größe, Dauer, Ton, Verschiebemodus.
+-- Aussehen und Position der Einblendungen: Stil, Größe, Dauer, Ton, Edit-Modus.
+local Frames = addon.Frames
+local EditMode = addon.EditMode
 local L = addon.L
 local Alerts = addon.Alerts
 local alert = LevelTimerAlert
@@ -18,7 +20,7 @@ expect("kein Ton im Standard", #played, 0)
 addon.Set("alertStyle", "text")
 
 -- Größe und Stil wirken sofort
-addon.Set("alertScale", 1.5)
+Frames.SetScale("alert", 1.5)
 expect("Größe 150 %", alert:GetScale(), 1.5)
 Alerts.ShowSample("levelUp")
 expectTrue("Text-Stil zeigt Schrift", alert:IsShown() and not LevelTimerNotice:IsShown())
@@ -41,20 +43,21 @@ wow.advance(4)
 alert._scripts.OnUpdate(alert, 0.1)
 expect("kurze Dauer: weg", alert:IsShown(), false)
 
--- Verschiebemodus: bleibt stehen, neue Einblendungen ersetzen ihn nicht, Ziehen speichert die Position
-Alerts.SetMoving(true)
-expect("Verschiebemodus an", Alerts.IsMoving(), true)
+-- Edit-Modus: Beispiel bleibt stehen, neue Einblendungen ersetzen es nicht, Ziehen speichert die Position
+EditMode.Enter()
+expect("Edit-Modus an", Alerts.IsEditing(), true)
+local overlay = EditMode.Overlay("alert")
 expect("zeigt Hinweis", alert.text:GetText(), L.ALERT_MOVE_HINT)
 wow.advance(60)
 alert._scripts.OnUpdate(alert, 0.1)
 expect("bleibt sichtbar", alert:IsShown(), true)
 Alerts.ShowSample("levelUp")
 expect("Hinweis bleibt", alert.text:GetText(), L.ALERT_MOVE_HINT)
-alert._scripts.OnDragStart(alert)
-alert._scripts.OnDragStop(alert)
-expectTrue("Position gespeichert", LevelTimerDB.alertPos ~= nil)
-alert._scripts.OnMouseUp(alert, "RightButton")
-expect("Rechtsklick beendet", Alerts.IsMoving(), false)
+overlay._scripts.OnDragStart(overlay)
+overlay._scripts.OnDragStop(overlay)
+expectTrue("Position gespeichert", LevelTimerDB.frames.alert.point ~= nil)
+EditMode.Leave()
+expect("Verlassen beendet", Alerts.IsEditing(), false)
 -- Was währenddessen kam (Level-Up-Beispiel), erscheint jetzt statt verloren zu gehen
 expect("Wartende erscheint danach", alert.text:GetText(), string.format(L.ALERT_LEVEL_UP, 11))
 Alerts.Clear()
@@ -62,38 +65,38 @@ expect("danach versteckt", alert:IsShown(), false)
 
 -- Verschiebemodus im Banner-Stil: die Karte ist das sichtbare Beispiel, der unsichtbare Rahmen trägt die Ziehgriffe
 addon.Set("alertStyle", "banner")
-Alerts.SetMoving(true)
+EditMode.Enter()
 expect("Banner: Karte steht", LevelTimerNotice:IsShown(), true)
 expect("Banner: Karte sichtbar", LevelTimerNotice:GetAlpha(), 1)
 expectTrue("Banner: Ziehfläche da", alert:IsShown())
 expect("Banner: Ziehfläche unsichtbar", alert:GetAlpha(), 0)
-alert._scripts.OnDragStart(alert)
-alert._scripts.OnDragStop(alert)
-expectTrue("Banner: Position gespeichert", LevelTimerDB.alertPos ~= nil)
-alert._scripts.OnMouseUp(alert, "RightButton")
-expect("Banner: Rechtsklick beendet", Alerts.IsMoving(), false)
+expectTrue("Banner: Fläche über dem Rahmen", EditMode.Overlay("alert"):IsShown())
+EditMode.Leave()
+expect("Banner: beendet", Alerts.IsEditing(), false)
 Alerts.Clear()
 addon.Set("alertStyle", "text")
 
 -- Zurücksetzen
-Alerts.ResetPosition()
-expect("Position zurückgesetzt", LevelTimerDB.alertPos, nil)
+Frames.Reset("alert")
+expect("Position zurückgesetzt", LevelTimerDB.frames.alert, nil)
 
--- Gespeicherte Position kommt aus den Einstellungen; Müll im Profil wird verworfen
+-- Gespeicherte Position kommt aus den Einstellungen; Müll im Profil wird verworfen (alte Schlüssel ziehen um)
 local clean = addon.Database.SanitizeSettings({ alertPos = { "TOP", "TOP", 5, -10 }, alertScale = "groß" })
-expect("gültige Position bleibt", clean.alertPos[3], 5)
-expect("falscher Typ fliegt raus", clean.alertScale, nil)
-expect("ungültige Position fliegt raus", addon.Database.SanitizeSettings({ alertPos = { 1, 2 } }).alertPos, nil)
+expect("gültige Position bleibt", clean.frames.alert.x, 5)
+expect("falscher Typ fliegt raus", clean.frames.alert.scale, nil)
+expect("alter Schlüssel weg", clean.alertPos, nil)
+expect("ungültige Position fliegt raus", addon.Database.SanitizeSettings({ alertPos = { 1, 2 } }).frames, nil)
 
 -- Optionen: Reiter und Buttons vorhanden
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Einblendungen", wow.click(L.OPTIONS_TAB_ALERTS))
-expectTrue("Button Vorschau", wow.click(L.ALERT_PREVIEW, true))
+expectTrue("Button Vorschau", wow.clickOption("ALERT_PREVIEW"))
 expect("Vorschau zeigt Level-Up", alert:IsShown(), true)
-expectTrue("Button Verschieben", wow.click(L.ALERT_MOVE, true))
-expect("Button schaltet Verschiebemodus", Alerts.IsMoving(), true)
-expectTrue("Button Verschieben beendet", wow.click(L.ALERT_MOVE, true))
-expect("Verschiebemodus aus", Alerts.IsMoving(), false)
+expectTrue("Button Layout bearbeiten", wow.click(L.EDIT_MODE))
+expect("Button startet den Edit-Modus", Alerts.IsEditing(), true)
+expect("Einstellungen dabei zu", LevelTimerOptions:IsShown(), false)
+EditMode.Leave()
+expect("Edit-Modus aus", Alerts.IsEditing(), false)
 
 -- Warteschlange: eine zweite Einblendung wartet hinter der laufenden und erscheint danach
 Alerts.Clear()
@@ -132,11 +135,12 @@ Alerts.Notify("Hinweis", { 1, 1, 1 })
 expect("Hinweis ohne Ton", #played, before)
 
 -- Größenänderung lässt die gespeicherte Einblendung visuell stehen (Abstände in der Skalierung des Rahmens)
-LevelTimerDB.alertPos = { "TOP", "TOP", 100, -200 }
-addon.Set("alertScale", 1)
-addon.Set("alertScale", 2)
-expect("Abstand x umgerechnet", LevelTimerDB.alertPos[3], 50)
-expect("Abstand y umgerechnet", LevelTimerDB.alertPos[4], -100)
+LevelTimerDB.frames.alert = { point = "TOP", relPoint = "TOP", x = 100, y = -200 }
+addon.ApplySettings()  -- neue Tabelle: dorthin
+Frames.SetScale("alert", 1)
+Frames.SetScale("alert", 2)
+expect("Abstand x umgerechnet", LevelTimerDB.frames.alert.x, 50)
+expect("Abstand y umgerechnet", LevelTimerDB.frames.alert.y, -100)
 
 -- Hinweise (Notify) erscheinen als Karte mit Symbol, Titel und Text, an derselben Stelle wie das Banner
 local noticeFrame = LevelTimerNotice
@@ -152,9 +156,9 @@ Alerts.Notify("Nur Text", { 1, 0.6, 0.2 })
 expect("ohne Titel", noticeFrame.title:GetText(), "Nur Text")
 expect("ohne Titel kein Text darunter", noticeFrame.body:GetText(), "")
 -- Karte folgt Größe und blendet wie das Banner aus
-addon.Set("alertScale", 1.5)
+Frames.SetScale("alert", 1.5)
 expect("Karte skaliert mit", noticeFrame:GetScale(), 1.5)
-addon.Set("alertScale", 1)
+Frames.SetScale("alert", 1)
 addon.Set("alertDuration", 3)
 Alerts.Clear()
 Alerts.Notify({ title = "T", text = "X" }, { 1, 1, 1 })

@@ -41,20 +41,48 @@ expect("zuletzt angenommen", item:GetAttribute("item"), "item:6000")
 -- Retail/Forever: kleinster Abstand gewinnt
 C_QuestLog.GetDistanceSqToQuest = function(questID) return questID == 70 and 100 or 900 end
 wow.update(1)
+expect("Abstand erst nach der Pause neu verglichen", item:GetAttribute("item"), "item:6000")
+wow.advance(3)
+wow.update(1)
 expect("nächste Quest", item:GetAttribute("item"), "item:5000")
 C_QuestLog.GetDistanceSqToQuest = nil
 
+-- Ereignisgesteuert: ohne Änderung liest der Takt den Questlog nicht neu (Roadmap 390)
+local reads = { count = 0 }
+local readItem = GetQuestLogSpecialItemInfo
+GetQuestLogSpecialItemInfo = function(...)
+  reads.count = reads.count + 1
+  return readItem(...)
+end
+for _ = 1, 30 do
+  wow.advance(1)
+  wow.update(1)
+end
+expect("30 Sekunden ohne Ereignis: kein Questlog-Lesen", reads.count, 0)
+wow.fire("QUEST_LOG_UPDATE")
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1)
+expect("zwei Questlog-Ereignisse: einmal gelesen (drei Quests)", reads.count, 3)
+expect("ohne Abstand wieder die zuletzt angenommene", item:GetAttribute("item"), "item:6000")
+wow.state.itemCounts[6000] = 5
+wow.fire("BAG_UPDATE_DELAYED")
+wow.update(1)
+expect("Taschen geändert: neue Anzahl", item.count:GetText(), "5")
+GetQuestLogSpecialItemInfo = readItem
+
 -- Im Kampf nichts ändern, danach nachholen
 wow.state.combatLockdown = true
-wow.state.questLog[2].specialItem = nil
+wow.state.questLog[4].specialItem = nil
+wow.fire("QUEST_LOG_UPDATE")
 wow.update(1)
-expect("Kampf: Attribut bleibt", item:GetAttribute("item"), "item:5000")
+expect("Kampf: Attribut bleibt", item:GetAttribute("item"), "item:6000")
 wow.state.combatLockdown = false
 wow.fire("PLAYER_REGEN_ENABLED")
-expect("nach dem Kampf: anderes Item", item:GetAttribute("item"), "item:6000")
+expect("nach dem Kampf: anderes Item", item:GetAttribute("item"), "item:5000")
 
 -- Kein Item mehr: Knopf weg
-wow.state.questLog[4].specialItem = nil
+wow.state.questLog[2].specialItem = nil
+wow.fire("QUEST_LOG_UPDATE")
 wow.update(1)
 expectTrue("kein Item: versteckt", not item:IsShown() and not bar:IsShown())
 
@@ -93,11 +121,10 @@ addon.Set("questLearning", false)
 
 -- Verschieben: Griff sichtbar, nicht im Kampf
 addon.Set("questTargetButton", false)
-QuestItem.SetMoving(true)
-expectTrue("Verschieben: Halter sichtbar", QuestItem.IsMoving() and bar:IsShown())
+addon.EditMode.Enter()
+expectTrue("Edit-Modus: Halter sichtbar", bar:IsShown())
 expect("Griff beschriftet", bar.label:GetText(), L.QUEST_ITEM_MOVE_LABEL)
-QuestItem.SetMoving(false)
+addon.EditMode.Leave()
 wow.state.combatLockdown = true
-QuestItem.SetMoving(true)
-expectTrue("im Kampf kein Verschieben", not QuestItem.IsMoving())
+expect("im Kampf kein Edit-Modus", addon.EditMode.Enter(), false)
 wow.state.combatLockdown = false

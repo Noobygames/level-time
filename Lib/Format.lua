@@ -54,24 +54,21 @@ function Format.SignedDuration(seconds)
   return sign .. Format.Duration(math.abs(seconds))
 end
 
-local AHEAD_COLOR = "|cff40ff40"   -- schneller als der Vergleich
-local AHEAD_COLOR_ON_GREEN = "|cff4dd2ff"  -- auf grünem Chroma-Hintergrund (OBS stanzt Grün aus): Cyan
-local BEHIND_COLOR = "|cffff4040"  -- langsamer als der Vergleich
-local GOLD_COLOR = "|cffc070ff"    -- Gold-Split: neue Bestzeit für das Level (lila wie bei Sprint)
-local EVEN_COLOR = "|cffffd040"    -- innerhalb des Toleranzbands (Splits.lua)
+-- Farben aus Theme.lua: good = schneller, goodOnChroma = schneller auf grünem Chroma-Grund (OBS stanzt Grün aus),
+-- bad = langsamer, best = Gold-Split (neue Bestzeit für das Level), neutral = innerhalb des Toleranzbands
 
 -- Hervorhebungen einer Split-Abweichung statt grün/rot
 Format.SPLIT_GOLD = "gold"
 Format.SPLIT_EVEN = "even"
-local STYLE_COLORS = { [Format.SPLIT_GOLD] = GOLD_COLOR, [Format.SPLIT_EVEN] = EVEN_COLOR }
+local STYLE_COLORS = { [Format.SPLIT_GOLD] = "best", [Format.SPLIT_EVEN] = "neutral" }
 
 -- Split-Abweichung farbig: grün schneller, rot langsamer, style = Format.SPLIT_GOLD/SPLIT_EVEN hebt
 -- hervor; "-" ohne Vergleichswert
 function Format.SplitDelta(seconds, style)
   if not seconds then return "-" end
-  local ahead = (ns.db and ns.db.windowBackground == "green") and AHEAD_COLOR_ON_GREEN or AHEAD_COLOR
-  local color = STYLE_COLORS[style] or (seconds < 0 and ahead or BEHIND_COLOR)
-  return color .. Format.SignedDuration(seconds) .. "|r"
+  local ahead = (ns.db and ns.db.windowBackground == "green") and "goodOnChroma" or "good"
+  local color = STYLE_COLORS[style] or (seconds < 0 and ahead or "bad")
+  return ns.Theme.Hex(color) .. Format.SignedDuration(seconds) .. "|r"
 end
 
 -- Große Zahlen kürzen: 950, 12.3k, 1.2M
@@ -82,6 +79,25 @@ function Format.Number(value)
     return string.format("%.1f%s", value / 1000, unit("UNIT_THOUSAND_SHORT"))
   end
   return string.format("%d", value)
+end
+
+-- Ganze Zahl mit Tausender-Trennzeichen der Sprache (UNIT_THOUSANDS_SEPARATOR): "12.345" bzw. "12,345"
+local THOUSANDS_GROUP = "^(-?%d+)(%d%d%d)"
+function Format.Integer(value)
+  local text = string.format("%d", math.floor(value + 0.5))
+  local separator = unit("UNIT_THOUSANDS_SEPARATOR")
+  local count
+  repeat
+    text, count = text:gsub(THOUSANDS_GROUP, "%1" .. separator:gsub("%%", "%%%%") .. "%2")
+  until count == 0
+  return text
+end
+
+-- Anteil in Prozent mit einer Nachkommastelle und dem Dezimalzeichen der Sprache: "38,9 %" bzw. "38.9%"
+function Format.PercentPrecise(part, total)
+  if total <= 0 then return "-" end
+  local text = string.format("%.1f", part / total * 100)
+  return string.format(unit("UNIT_PERCENT_FORMAT"), (text:gsub("%.", unit("UNIT_DECIMAL_SEPARATOR"))))
 end
 
 -- Anteil in Prozent, "-" wenn es keine Gesamtmenge gibt

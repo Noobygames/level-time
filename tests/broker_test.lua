@@ -41,3 +41,18 @@ expect("Rechtsklick blendet Fenster aus", LevelTimerDB.showTimer, false)
 registered["LevelTimer"] = nil
 addon.DeleteCharacter(addon.characterKey)
 expect("keine zweite Anmeldung", registered["LevelTimer"], nil)
+
+-- Ohne Leiste, die den Datentext zeigt, kein Neuberechnen (Roadmap 396); mit Anzeige nur geänderte Texte
+broker.callbacks = { events = { LibDataBroker_AttributeChanged_Other = { [{}] = true } } }
+expect("fremdes Objekt: keine Anzeige", addon.Broker.HasDisplay(), false)
+dataObject.text = "alt"
+wow.advance(5)
+wow.update(1)
+expect("ohne Anzeige: Text unverändert", dataObject.text, "alt")
+broker.callbacks.events.LibDataBroker_AttributeChanged_LevelTimer_text = { [{}] = true }
+expectTrue("eigenes Feld: Anzeige", addon.Broker.HasDisplay())
+wow.update(1)
+expectTrue("mit Anzeige: neuer Text", dataObject.text ~= "alt")
+broker.callbacks.events.LibDataBroker_AttributeChanged_LevelTimer_text = nil
+broker.callbacks.events.LibDataBroker_AttributeChanged = { [{}] = true }
+expectTrue("alle Objekte: Anzeige", addon.Broker.HasDisplay())

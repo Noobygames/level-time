@@ -30,20 +30,26 @@ end
 --   { kind = "countdown", remaining, duration, spellId }  einladendes Lagerfeuer läuft
 --   { kind = "hint", spellId }                            Feuer in der Nähe, keine Lagervorteile
 -- Zweiter Rückgabewert: der Buff "Lagervorteile" (oder nil)
+-- Die Zustände sind wiederverwendete Tabellen (je Prüfung neu gefüllt, nicht festhalten)
+local COUNTDOWN = { kind = "countdown", spellId = CampFire.INVITING_SPELL_ID }
+local HINT = { kind = "hint", spellId = CampFire.NEARBY_SPELL_ID }
+
 function CampFire.GetState()
   if not CampFire.IsAvailable() or UnitIsDeadOrGhost("player") then return nil end
-  local found = Auras.FindBySpellIds({ CampFire.NEARBY_SPELL_ID, CampFire.INVITING_SPELL_ID, CampFire.BENEFITS_SPELL_ID })
-  if not found then return nil end
-  local benefits = found[CampFire.BENEFITS_SPELL_ID]
-  local inviting = found[CampFire.INVITING_SPELL_ID]
+  local buffs = Auras.Snapshot()
+  if not buffs then return nil end
+  local bySpellId = buffs.bySpellId
+  local benefits = bySpellId[CampFire.BENEFITS_SPELL_ID]
+  local inviting = bySpellId[CampFire.INVITING_SPELL_ID]
   if inviting then
     local remaining, duration = Auras.RemainingSeconds(inviting)
     if remaining then
-      return { kind = "countdown", remaining = remaining, duration = duration, spellId = CampFire.INVITING_SPELL_ID }, benefits
+      COUNTDOWN.remaining, COUNTDOWN.duration = remaining, duration
+      return COUNTDOWN, benefits
     end
   end
-  if found[CampFire.NEARBY_SPELL_ID] and not benefits then
-    return { kind = "hint", spellId = CampFire.NEARBY_SPELL_ID }, nil
+  if bySpellId[CampFire.NEARBY_SPELL_ID] and not benefits then
+    return HINT, nil
   end
   return nil, benefits
 end
@@ -101,17 +107,33 @@ local function benefitsGranted(benefits)
 end
 
 -- Beide Anzeigen aus: keine Buffs lesen; der Zustand beginnt beim Einschalten neu (wie nach dem Login)
+-- Eingaben der letzten vollständigen Prüfung (Roadmap 391): ändern sich weder Buffs (Auras.Version) noch Tod,
+-- Kampf, Client oder die gezeigte Art, steht nichts Zeitabhängiges an (Hinweis mit Anzeigezeit und Pause, Warten
+-- auf die Lagervorteile nach dem Countdown), bleibt alles, wie es ist. Der Countdown läuft in der Anzeige selbst.
+local last = {}
+
 local function reset()
   previousKind, benefitsAtStart, countdownEndedAt = nil, NO_BENEFITS, nil
   hintShownAt, hintNextAt = nil, 0
+  last.version = nil
 end
 
 local function wanted(db)
   return db.campCountdown or db.campHint
 end
 
+local function unchanged(available, dead, combat)
+  return last.version == Auras.Version() and last.available == available and last.dead == dead
+    and last.combat == combat and not countdownEndedAt and previousKind ~= "hint"
+    and ns.CampDisplay.ShownKind() == last.shownKind
+end
+
 function CampFire.Check()
   if not ns.db or not wanted(ns.db) then return end
+  local available, dead, combat = CampFire.IsAvailable(), UnitIsDeadOrGhost("player"), ns.InCombat()
+  if available and not dead then Auras.Snapshot() end  -- aktualisiert Auras.Version()
+  if unchanged(available, dead, combat) then return end
+  last.version, last.available, last.dead, last.combat = Auras.Version(), available, dead, combat
   local state, benefits = CampFire.GetState()
   local kind = state and state.kind or nil
 
@@ -144,6 +166,7 @@ function CampFire.Check()
     ns.Debug("camp", "campfire benefits granted")
     ns.CampDisplay.ShowDone()
   end
+  last.shownKind = ns.CampDisplay.ShownKind()
 end
 
 -- Regelmäßig prüfen statt auf UNIT_AURA zu hören: der Countdown läuft in der Anzeige selbst weiter,

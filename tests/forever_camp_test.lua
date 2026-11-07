@@ -74,6 +74,22 @@ Camp.Check()
 tick()
 expectTrue("nach 20 s noch 40 s", shownText(string.format(L.SECONDS_SHORT, 40)))
 
+-- Ohne Aura-Änderung arbeitet die Prüfung nicht (Roadmap 391): kein neuer Zustand, keine Anzeige-Aufrufe
+local shows = { count = 0 }
+local show = Display.Show
+Display.Show = function(...)
+  shows.count = shows.count + 1
+  return show(...)
+end
+for _ = 1, 10 do
+  wow.advance(0.5)
+  Camp.Check()
+end
+expect("Countdown ohne Änderung: Anzeige nicht angefasst", shows.count, 0)
+tick()
+expectTrue("Countdown läuft in der Anzeige weiter", shownText(string.format(L.SECONDS_SHORT, 35)))
+Display.Show = show
+
 -- Countdown vorbei, Lagervorteile erneuert: kurz "aktiv", mit Ton wenn gewünscht
 addon.Set("campSound", true)
 wow.advance(40)
@@ -159,50 +175,37 @@ wow.advance(9)
 tick()
 expect("Vorschau endet", camp:IsShown(), false)
 
-Display.SetMoving(true)
-expect("Verschiebemodus", Display.IsMoving(), true)
-expect("zeigt den Countdown", camp:IsShown(), true)
-camp._scripts.OnDragStart(camp)
-camp._scripts.OnDragStop(camp)
-expectTrue("Position gespeichert", LevelTimerDB.campPos ~= nil)
-camp._scripts.OnMouseUp(camp, "RightButton")
-expect("Rechtsklick beendet", Display.IsMoving(), false)
+local EditMode, Frames = addon.EditMode, addon.Frames
+EditMode.Enter()
+expect("Edit-Modus zeigt den Countdown", camp:IsShown(), true)
+local overlay = EditMode.Overlay("camp")
+overlay._scripts.OnDragStart(overlay)
+overlay._scripts.OnDragStop(overlay)
+expectTrue("Position gespeichert", LevelTimerDB.frames.camp.point ~= nil)
+EditMode.Leave()
 expect("danach versteckt", camp:IsShown(), false)
 
-LevelTimerDB.campPos = { "TOP", "TOP", 100, -200 }
-addon.ApplySettings()  -- neue Position übernehmen (ns.Set mit gleichem Wert wendet nichts an)
-addon.Set("campScale", 2)
-expect("Größe: Abstand x umgerechnet", LevelTimerDB.campPos[3], 50)
-expect("Größe: Abstand y umgerechnet", LevelTimerDB.campPos[4], -100)
-Display.ResetPosition()
-expect("Position zurückgesetzt", LevelTimerDB.campPos, nil)
-addon.Set("campScale", 1)
+LevelTimerDB.frames.camp = { point = "TOP", relPoint = "TOP", x = 100, y = -200 }
+addon.ApplySettings()  -- neue Tabelle übernehmen
+Frames.SetScale("camp", 2)
+expect("Größe: Abstand x umgerechnet", LevelTimerDB.frames.camp.x, 50)
+expect("Größe: Abstand y umgerechnet", LevelTimerDB.frames.camp.y, -100)
+Frames.Reset("camp")
+expect("Position zurückgesetzt", LevelTimerDB.frames.camp, nil)
 
 ---------------------------------------------------------------------------
 -- Einstellungen
 ---------------------------------------------------------------------------
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Timer", wow.click(L.OPTIONS_TAB_TIMERS))
-expectTrue("Button Vorschau", wow.click(L.CAMP_PREVIEW))
+expectTrue("Button Vorschau", wow.clickOption("CAMP_PREVIEW"))
 expect("Vorschau zeigt Anzeige", camp:IsShown(), true)
-expectTrue("Button Verschieben", wow.click(L.CAMP_MOVE))
-expect("Button schaltet Verschiebemodus", Display.IsMoving(), true)
-expectTrue("Button Verschieben beendet", wow.click(L.CAMP_MOVE))
-expect("Verschiebemodus aus", Display.IsMoving(), false)
--- Schließen der Einstellungen beendet den Verschiebemodus, die Beispielanzeige verschwindet
-expectTrue("Button Verschieben", wow.click(L.CAMP_MOVE))
-LevelTimerOptions:Hide()
-expect("Einstellungen zu: Modus aus", Display.IsMoving(), false)
-expect("Einstellungen zu: Anzeige weg", camp:IsShown(), false)
--- Ein zweiter Verschiebemodus löst den ersten ab
-SlashCmdList.LEVELTIMER("config")
-Display.SetMoving(true)
-local alerts = addon.Alerts
-alerts.SetMoving(true)
-expect("anderer Modus löst ab", Display.IsMoving(), false)
-expect("anderer Modus: Anzeige weg", camp:IsShown(), false)
-alerts.SetMoving(false)
-expectTrue("Button Zurücksetzen", wow.click(L.CAMP_RESET_POSITION))
+-- Layout bearbeiten (unten auf jedem Reiter): alle Anzeigen auf einmal, auch das Lagerfeuer
+expectTrue("Button Layout bearbeiten", wow.click(L.EDIT_MODE))
+expect("Lagerfeuer im Edit-Modus", camp:IsShown(), true)
+expectTrue("Lagerfeuer hat eine Fläche", EditMode.Overlay("camp"):IsShown())
+EditMode.Leave()
+expect("Edit-Modus aus: Anzeige weg", camp:IsShown(), false)
 
 -- Beide Anzeigen aus: keine Buff-Abfrage, die Anzeige verschwindet; Einschalten beginnt neu
 local scans = { count = 0 }

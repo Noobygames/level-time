@@ -18,6 +18,8 @@ local lootFormats = ChatPatterns.CompileGlobals({
   "LOOT_ITEM_PUSHED_SELF_MULTIPLE",
   "LOOT_ITEM_PUSHED_SELF",
 }, ChatPatterns.LINK)
+-- Erhaltene statt erbeutete Gegenstände (Questbelohnung, Kauf, Behälter)
+local PUSHED_FORMATS = { LOOT_ITEM_PUSHED_SELF_MULTIPLE = true, LOOT_ITEM_PUSHED_SELF = true }
 
 -- Qualität aus der Farbe des Links, falls der Client das Item noch nicht kennt
 local QUALITY_BY_COLOR = {
@@ -54,7 +56,8 @@ local function guessSource()
   return nil
 end
 
--- Jede eigene Beute (alle Qualitäten), z.B. zum Lernen von Quest-Gegenständen: listener(link, quantity)
+-- Jede eigene Beute (alle Qualitäten), z.B. zum Lernen von Quest-Gegenständen: listener(link, quantity, pushed);
+-- pushed = erhaltener Gegenstand ("Ihr erhaltet einen Gegenstand"), auch Käufe beim Händler
 local selfLootListeners = {}
 function Loot.OnSelfLoot(listener)
   ns.RememberSource(listener, "Loot.lua")
@@ -64,11 +67,12 @@ end
 if #lootFormats > 0 then
   ns.RegisterEvent("CHAT_MSG_LOOT", function(message)
     if ns.IsSecret(message) then return end
-    local args = ChatPatterns.MatchAny(message, lootFormats)
+    local args, format = ChatPatterns.MatchAny(message, lootFormats)
     if not args then return end
 
     local link = args[1]
-    for _, listener in ipairs(selfLootListeners) do ns.SafeCall(listener, link, tonumber(args[2]) or 1) end
+    local quantity, pushed = tonumber(args[2]) or 1, PUSHED_FORMATS[format.name] or false
+    for _, listener in ipairs(selfLootListeners) do ns.SafeCall(listener, link, quantity, pushed) end
     local quality = Loot.QualityOf(link)
     if not quality or quality < MIN_QUALITY then return end
 
@@ -76,7 +80,7 @@ if #lootFormats > 0 then
       link = link,
       name = link:match("%[(.-)%]") or link,
       quality = quality,
-      quantity = tonumber(args[2]) or 1,
+      quantity = quantity,
       source = guessSource(),
     })
   end)

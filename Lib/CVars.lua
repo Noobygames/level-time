@@ -18,7 +18,20 @@ CVars.CHARACTER = "character"
 CVars.STORE_KEY = "cvarOriginals"
 
 local getCVar = C_CVar and C_CVar.GetCVar or GetCVar
-local setCVar = C_CVar and C_CVar.SetCVar or SetCVar
+local rawSetCVar = C_CVar and C_CVar.SetCVar or SetCVar
+local writing = false  -- eigene Änderung läuft: CVAR_UPDATE kommt synchron, Debug-Proben übergehen das Echo
+
+local function setCVar(name, value)
+  writing = true
+  local ok, err = pcall(rawSetCVar, name, value)
+  writing = false
+  if not ok then error(err, 0) end
+end
+
+-- true, während Level Time selbst eine CVar setzt (eigenes CVAR_UPDATE-Echo)
+function CVars.IsWriting()
+  return writing
+end
 
 local function owner(scope)
   if scope == CVars.CHARACTER then return ns.character end

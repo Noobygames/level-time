@@ -8,18 +8,19 @@ expectTrue("Ziehgriff vorhanden", grip ~= nil)
 wow.login()
 expect("Standardgröße", window:GetScale(), 1)
 
--- Regler in den Einstellungen skaliert das ganze Fenster
-addon.Set("scale", 1.5)
+-- Regler in den Einstellungen skaliert das ganze Fenster (Lib/Frames.lua, frames.main.scale)
+local Frames = addon.Frames
+Frames.SetScale("main", 1.5)
 expect("Größe aus Einstellung", window:GetScale(), 1.5)
-expectTrue("Position nach Skalierung gespeichert", LevelTimerDB.pos ~= nil)
+expectTrue("Position nach Skalierung gespeichert", LevelTimerDB.frames.main.point ~= nil)
 
-addon.Set("scale", 5)
-expect("obere Grenze", window:GetScale(), addon.TimerWindow.MAX_SCALE)
-addon.Set("scale", 0.1)
-expect("untere Grenze", window:GetScale(), addon.TimerWindow.MIN_SCALE)
+Frames.SetScale("main", 5)
+expect("obere Grenze", window:GetScale(), Frames.MAX_SCALE)
+Frames.SetScale("main", 0.1)
+expect("untere Grenze", window:GetScale(), Frames.MIN_SCALE)
 
 -- Ziehgriff: Ecke um die halbe Fenstergröße nach rechts unten ziehen = 1,5-fach
-addon.Set("scale", 1)
+Frames.SetScale("main", 1)
 local width, height = window:GetWidth(), window:GetHeight()
 wow.state.cursorX, wow.state.cursorY = 300, 300
 grip._scripts.OnMouseDown(grip, "LeftButton")
@@ -27,19 +28,25 @@ wow.state.cursorX, wow.state.cursorY = 300 + width / 2, 300 - height / 2
 grip._scripts.OnUpdate(grip, 0.1)
 grip._scripts.OnMouseUp(grip, "LeftButton")
 expectNear("Größe nach Ziehen", window:GetScale(), 1.5)
-expectNear("gezogene Größe gespeichert", LevelTimerDB.scale, 1.5)
+expectNear("gezogene Größe gespeichert", LevelTimerDB.frames.main.scale, 1.5)
 
--- Fixiertes Fenster: kein Ziehgriff
+-- Fixiertes Fenster: kein Ziehgriff, kein Ziehen
 addon.Set("locked", true)
 expect("Ziehgriff bei fixiertem Fenster versteckt", grip:IsShown(), false)
+local moved = { count = 0 }
+window.StartMoving = function() moved.count = moved.count + 1 end
+window._scripts.OnDragStart(window)
+expect("fixiert: kein Ziehen", moved.count, 0)
 addon.Set("locked", false)
 expect("Ziehgriff wieder da", grip:IsShown(), true)
+window._scripts.OnDragStart(window)
+expect("frei: Ziehen", moved.count, 1)
+window.StartMoving = nil
 
 -- Zurücksetzen
 SlashCmdList.LEVELTIMER("reset")
-expect("Größe zurückgesetzt", LevelTimerDB.scale, 1)
+expect("Eintrag zurückgesetzt", LevelTimerDB.frames.main, nil)
 expect("Fenster zurückgesetzt", window:GetScale(), 1)
-expect("Position zurückgesetzt", LevelTimerDB.pos, nil)
 
 -- Rechtsklick öffnet die Einstellungen
 window._scripts.OnMouseUp(window, "RightButton")
@@ -58,27 +65,26 @@ addon.Set("showXpBar", true)
 wow.levelUp(60)
 expect("Max-Level erreicht: Balken weg ohne neues Anwenden", window:GetHeight(), withoutBar)
 
--- Kompaktmodus: ohne Reiter und ohne weitere Zeilen deutlich kleiner
+-- Layout Kompakt (/lt compact): ohne Reiter und ohne weitere Zeilen deutlich kleiner
 wow.state.level, addon.level = 30, 30
-addon.Set("compactMode", false)
+addon.Set("windowLayout", "table")
 local fullHeight = window:GetHeight()
 local sessionTab = wow.findFrame(function(frame)
   local label = rawget(frame, "label")
   return label and label._text == "Session"
 end)
 SlashCmdList.LEVELTIMER("compact")
-expect("Kompaktmodus an", LevelTimerDB.compactMode, true)
+expect("Kompakt an", LevelTimerDB.windowLayout, "compact")
 expectTrue("kompakt ist kleiner", window:GetHeight() < fullHeight)
 expect("Reiter versteckt", sessionTab:IsShown(), false)
 SlashCmdList.LEVELTIMER("compact")
-expect("Kompaktmodus aus", LevelTimerDB.compactMode, false)
+expect("Kompakt aus", LevelTimerDB.windowLayout, "table")
 expect("Reiter wieder da", sessionTab:IsShown(), true)
 
--- Horizontale Leiste: eine Zeile, also breiter und flacher als das Fenster
-addon.Set("horizontalLayout", false)
+-- Layout Leiste (/lt bar): eine Zeile, also breiter und flacher als das Fenster
 local verticalWidth, verticalHeight = window:GetWidth(), window:GetHeight()
 SlashCmdList.LEVELTIMER("bar")
-expect("Leiste an", LevelTimerDB.horizontalLayout, true)
+expect("Leiste an", LevelTimerDB.windowLayout, "bar")
 expectTrue("Leiste ist breiter", window:GetWidth() > verticalWidth)
 expectTrue("Leiste ist flacher", window:GetHeight() < verticalHeight)
 expect("Reiter in der Leiste", sessionTab:IsShown(), true)
@@ -89,16 +95,9 @@ addon.Set("showXpBar", false)
 expectTrue("Leiste ohne Balken flacher", window:GetHeight() < barHeight)
 addon.Set("showXpBar", true)
 
--- Mit Kompaktmodus kombinierbar: schmaler, ohne Reiter
-local barWidth = window:GetWidth()
-addon.Set("compactMode", true)
-expectTrue("kompakte Leiste schmaler", window:GetWidth() < barWidth)
-expect("kompakte Leiste ohne Reiter", sessionTab:IsShown(), false)
-addon.Set("compactMode", false)
-
 -- Abschalten stellt das Fenster wieder her
 SlashCmdList.LEVELTIMER("bar")
-expect("Leiste aus", LevelTimerDB.horizontalLayout, false)
+expect("Leiste aus", LevelTimerDB.windowLayout, "table")
 expect("Breite wie vorher", window:GetWidth(), verticalWidth)
 expect("Höhe wie vorher", window:GetHeight(), verticalHeight)
 
@@ -106,7 +105,7 @@ expect("Höhe wie vorher", window:GetHeight(), verticalHeight)
 addon.Set("bgAlpha", 0.5)
 expect("Standard: Deckkraft", window._backdropColor[4], 0.5)
 expectTrue("Standard: Rahmen sichtbar", window._borderColor[4] ~= 0)
-expectTrue("Auswahl Grün", wow.click(addon.L.BACKGROUND_GREEN))
+expectTrue("Auswahl Grün", wow.click(addon.L.BACKGROUND_GREEN, true))  -- "Grün" gibt es auch als Akzent (Allgemein)
 expect("Einstellung Grün", LevelTimerDB.windowBackground, "green")
 expect("Grün: voll deckend", window._backdropColor[4], 1)
 expect("Grün: Farbe", window._backdropColor[2], 1)

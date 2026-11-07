@@ -26,6 +26,15 @@ expect("Log an: Proben-Aufgaben laufen", probeTaskRan(), true)
 local before = #addon.DebugLog.Lines()
 wow.fire(PROBE_ONLY_EVENT, "player")
 expectTrue("Log an: Probe schreibt", #addon.DebugLog.Lines() > before)
+-- Roadmap 397: gleiche Bedrohung nur einmal, nur die Bedrohungslage (kein voller Kampf-Schnappschuss)
+before = #addon.DebugLog.Lines()
+for _ = 1, 5 do wow.fire(PROBE_ONLY_EVENT, "player") end
+expect("gleiche Bedrohung: nicht noch einmal", #addon.DebugLog.Lines(), before)
+-- CVar-Änderungen: dieselbe fremde Änderung kurz hintereinander nur einmal
+before = #addon.DebugLog.Lines()
+for _ = 1, 3 do wow.fire("CVAR_UPDATE", "cameraDistanceMaxZoomFactor", "2.6") end
+expect("fremde CVar: eine Zeile", #addon.DebugLog.Lines(), before + 1)
+expect("eigene Änderung läuft nicht", addon.CVars.IsWriting(), false)
 
 SlashCmdList.LEVELTIMER("debug log")
 expect("Log wieder aus: abgemeldet", registered(PROBE_ONLY_EVENT), false)

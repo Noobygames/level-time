@@ -13,7 +13,7 @@ lt("show")
 expectTrue("show meldet", said(L.CMD_SHOWN))
 
 lt("compact")
-expect("compact an", LevelTimerDB.compactMode, true)
+expect("compact an", LevelTimerDB.windowLayout, "compact")
 expectTrue("compact meldet an", said(L.CMD_COMPACT_ON))
 lt("compact")
 expectTrue("compact meldet aus", said(L.CMD_COMPACT_OFF))

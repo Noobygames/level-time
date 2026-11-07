@@ -283,6 +283,11 @@ function ns.SetDeferred(key, value)
   deferredApplyFrame:Show()
 end
 
+-- Ein Apply im nächsten Frame, wenn ein Modul ns.db selbst geändert hat (z.B. Frames.SetScale beim Mausrad)
+function ns.RequestApply()
+  deferredApplyFrame:Show()
+end
+
 ---------------------------------------------------------------------------
 -- Events: mehrere Module können dasselbe Event abonnieren.
 -- Handler laufen in Registrierungsreihenfolge (= Ladereihenfolge der .toc).

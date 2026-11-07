@@ -127,14 +127,66 @@ local function forPlayer(unit)
   return unit == "player"
 end
 
+-- CVar-Änderungen fremder Hand (Roadmap 397): eigene stehen schon als ns.Debug("comfort", "cvar ...") im Log,
+-- dieselbe CVar mit demselben Wert innerhalb von CVAR_REPEAT_SECONDS nur einmal
+local CVAR_REPEAT_SECONDS = 5
+local lastCVar = {}  -- [Name] = { value, at }
+
+local function foreignCVarChange(name, value)
+  if ns.CVars.IsWriting() then return false end
+  if type(name) ~= "string" or ns.IsSecret(name) or ns.IsSecret(value) then return true end
+  local now, last = GetTime(), lastCVar[name]
+  if last and last.value == value and now - last.at < CVAR_REPEAT_SECONDS then return false end
+  if last then
+    last.value, last.at = value, now
+  else
+    lastCVar[name] = { value = value, at = now }
+  end
+  return true
+end
+
+-- Beute-Würfe (364): was Client und Historie zu einem Wurf liefern (Würfel-ID gleich der Historie? geheim?)
+local function lootRollStart(rollID)
+  return { link = call("GetLootRollItemLink", rollID), info = call("GetLootRollItemInfo", rollID),
+    timeLeft = call("GetLootRollTimeLeft", rollID), active = call("GetActiveLootRollIDs") }
+end
+
+local function legacyRollChanged(itemIndex, playerIndex)
+  return { item = call("C_LootHistory.GetItem", itemIndex),
+    player = call("C_LootHistory.GetPlayerInfo", itemIndex, playerIndex) }
+end
+
+local function lootDrop(encounterID, lootListID)
+  local drop = call("C_LootHistory.GetSortedInfoForDrop", encounterID, lootListID)
+  if type(drop) ~= "table" or ns.IsSecret(drop) then return { drop = drop } end
+  local rolls = {}
+  for index, info in ipairs(type(drop.rollInfos) == "table" and drop.rollInfos or {}) do
+    if index > MAX_ITEMS then break end
+    rolls[index] = { info.playerName, info.playerClass, info.state, info.roll, info.isWinner, info.isSelf }
+  end
+  local winner = type(drop.winner) == "table" and { drop.winner.playerName, drop.winner.roll } or drop.winner
+  return { link = drop.itemHyperlink, lootListID = drop.lootListID, lootListKey = drop.lootListKey,
+    allPassed = drop.allPassed, isTied = drop.isTied, winner = winner, rolls = rolls }
+end
+
 local EVENT_PROBES = {
+  -- Beute-Würfe (364)
+  { event = "START_LOOT_ROLL", extra = lootRollStart },
+  { event = "CANCEL_LOOT_ROLL" },
+  { event = "CANCEL_ALL_LOOT_ROLLS" },
+  { event = "LOOT_ROLLS_COMPLETE" },
+  { event = "LOOT_HISTORY_ROLL_CHANGED", extra = legacyRollChanged },
+  { event = "LOOT_HISTORY_ROLL_COMPLETE" },
+  { event = "LOOT_HISTORY_FULL_UPDATE", extra = function() return call("C_LootHistory.GetNumItems") end },
+  { event = "LOOT_HISTORY_UPDATE_DROP", extra = lootDrop },
+  { event = "LOOT_HISTORY_UPDATE_ENCOUNTER" },
   -- Taint und gesperrte Aktionen (alle Punkte mit „kein Aktion blockiert“): Addon-Name und Funktion
   { event = "ADDON_ACTION_BLOCKED", state = true },
   { event = "ADDON_ACTION_FORBIDDEN", state = true },
   { event = "MACRO_ACTION_BLOCKED" },
   { event = "MACRO_ACTION_FORBIDDEN" },
   -- CVars, die wir oder der Spieler ändern (329 Schritt 5, 330)
-  { event = "CVAR_UPDATE" },
+  { event = "CVAR_UPDATE", filter = foreignCVarChange },
   -- Einnahmen und Ausgaben nach Fenster (276): Reihenfolge Schließen gegen PLAYER_MONEY
   { event = "LOOT_OPENED" },
   { event = "LOOT_CLOSED" },
@@ -414,10 +466,21 @@ check("259.questLevels.log", function()
   return { enabled = ns.db.questLevels, entries = entries }
 end)
 
--- 268: Kandidaten für den Quest-Item-Knopf, Wahl, Zielname
+-- 268: Kandidaten für den Quest-Item-Knopf (mit Zone je Quest und Ort des Spielers), Wahl, Zielname
 check("268.questItem.pick", function()
   local pick = ns.QuestItem.Pick()
-  return { candidates = ns.QuestItem.Candidates(), pick = pick and { itemId = pick.itemId, questID = pick.questID },
+  local candidates = ns.QuestItem.Candidates()
+  for _, candidate in ipairs(candidates) do
+    local inZone, signals = ns.QuestItem.ZoneOf(candidate.questID)
+    candidate.inZone, candidate.zoneSignals = inZone, signals
+    candidate.questMap = ns.QuestLog.QuestMap(candidate.questID)
+  end
+  local here = ns.QuestItem.Here()
+  local names = {}
+  for name in pairs(here.names) do names[#names + 1] = name end
+  table.sort(names)
+  return { candidates = candidates, pick = pick and { itemId = pick.itemId, questID = pick.questID },
+    zoneOnly = ns.db.questButtonsZoneOnly, here = { mapID = here.mapID, zone = here.zone, names = names },
     targets = ns.QuestItem.TargetNames(), canTarget = ns.QuestItem.CanTarget(),
     buttons = framesByName({ "LevelTimerQuestItemButton", "LevelTimerQuestTargetButton" }) }
 end)
@@ -558,6 +621,32 @@ check("329.social.target", function()
     trusted = safe(ns.Friends.IsTrusted, name, guid), info = safe(ns.InviteInfo.Describe, name, guid) }
 end)
 
+-- 364: Beute-Würfe: welche Quelle (Historie alt/neu, Chat), welche Formate der Client kennt (roh), Blizzards
+-- Würfelfenster und die verfolgten Würfe mit Zählung
+check("364.lootRoll.api", function()
+  local LootRolls = ns.LootRolls
+  local formats, missing = {}, {}
+  for _, name in ipairs(LootRolls.FORMAT_NAMES) do
+    local format = _G[name]
+    if format == nil then missing[#missing + 1] = name else formats[#formats + 1] = name .. "=" .. plain(format) end
+  end
+  local frames = {}
+  for index = 1, 10 do
+    local frame = _G["GroupLootFrame" .. index]
+    if type(frame) ~= "table" then break end
+    frames[index] = { state = frameState(frame), rollID = plain(frame.rollID) }
+  end
+  local tracked = {}
+  for _, roll in ipairs(LootRolls.All()) do
+    tracked[#tracked + 1] = { id = roll.id, link = roll.link, counts = LootRolls.Counts(roll), closed = roll.closed,
+      fromHistory = roll.fromHistory, historyId = roll.historyId, dropKey = roll.dropKey }
+  end
+  return { source = LootRolls.HistorySource(), wanted = LootRolls.IsWanted(ns.db) and true or false,
+    apis = { legacy = api("C_LootHistory.GetItem") ~= nil, drops = api("C_LootHistory.GetSortedInfoForDrop") ~= nil,
+      activeIds = call("GetActiveLootRollIDs"), container = frameState(_G.GroupLootContainer) },
+    missing = missing, formats = chunked(formats), frames = frames, tracked = tracked }
+end)
+
 -- 329 Schritt 3b: Chatfenster (Kampflog-Reiter, Knöpfe, Eingabezeile, Ausblenden)
 check("329.chat.windows", function()
   local frames = {}
@@ -609,4 +698,142 @@ check("329.minimap", function()
   for _, button in ipairs(ns.MinimapTweaks.ZoomButtons()) do zoom[frameName(button)] = frameState(button) end
   return { zoom = zoom, calendar = frameState(_G.GameTimeFrame), canWheelZoom = ns.MinimapTweaks.CanWheelZoom(),
     wheel = method(_G.Minimap, "IsMouseWheelEnabled") }
+end)
+
+-- 357: Theme, Font-Objekte je Rolle (Schrift, Größe, Flags nach dem Anwenden), LibSharedMedia geladen
+check("357.theme", function()
+  local fonts = {}
+  for _, role in ipairs({ "title", "body", "label", "small", "number", "huge" }) do
+    fonts[role] = { method(_G[ns.Theme.Font(role)], "GetFont") }
+  end
+  return { theme = ns.db.theme, accent = ns.db.themeAccent, font = ns.db.themeFont,
+    fontPath = ns.Theme.FontPath(ns.db.themeFont), offset = ns.db.themeFontSize, outline = ns.db.themeOutline,
+    fonts = fonts, fontChoices = #ns.Theme.FontChoices(), accentColor = ns.Theme.Hex("accent"),
+    sharedMedia = (LibStub and LibStub("LibSharedMedia-3.0", true)) ~= nil }
+end)
+
+-- 358: angemeldete Anzeigen: gespeicherter Eintrag gegen Anker und Größe des Rahmens
+check("358.frames.positions", function()
+  local result = {}
+  for _, reg in ipairs(ns.Frames.All()) do
+    result[reg.id] = { saved = ns.db.frames and ns.db.frames[reg.id], scale = ns.Frames.GetScale(reg.id),
+      frame = frameState(reg.frame) }
+  end
+  return { locked = ns.db.locked, frames = result }
+end)
+
+-- 359: Edit-Modus und Blizzards Bearbeitungsmodus (gibt es ihn, ist er eingehängt)
+check("359.editMode", function()
+  local manager = _G.EditModeManagerFrame
+  return { active = ns.EditMode.IsActive(), grid = ns.db.editGrid, withBlizzard = ns.db.editModeWithBlizzard,
+    blizzard = type(manager) == "table", enter = type(manager) == "table" and type(manager.EnterEditMode) == "function",
+    hooked = ns.EditMode.blizzardHooked == true, combat = call("InCombatLockdown") }
+end)
+
+-- 365: Blizzards Erfahrungs- und Rufleiste: gefundene Behälter und Leisten mit Zustand (Alpha, Maus, Rahmen)
+check("365.blizzardXpBar", function()
+  local HideFrames = ns.HideFrames
+  local function bars(kind)
+    local list = {}
+    for _, bar in ipairs(HideFrames.StatusBars(kind)) do
+      local state = frameState(bar)
+      state.name, state.mouse = frameName(bar), method(bar, "IsMouseEnabled")
+      table.insert(list, state)
+    end
+    return list
+  end
+  local containers = {}
+  for _, container in ipairs(HideFrames.StatusBarContainers()) do
+    local state = frameState(container)
+    local art = HideFrames.ContainerArt(container)
+    state.name, state.shownBar, state.art = frameName(container), HideFrames.ShownBarIndex(container), #art
+    state.artAlpha = art[1] and method(art[1], "GetAlpha")
+    table.insert(containers, state)
+  end
+  return { hideXp = ns.db.hideBlizzardXpBar, hideRep = ns.db.hideBlizzardRepBar,
+    manager = type(_G.StatusTrackingBarManager) == "table", experienceIndex = HideFrames.BarIndex("experience"),
+    reputationIndex = HideFrames.BarIndex("reputation"), containers = containers, xp = bars("experience"),
+    rep = bars("reputation"), legacyXp = frameState(_G.MainMenuExpBar),
+    maxLevelBar = frameState(_G.MainMenuBarMaxLevelBar), combat = call("InCombatLockdown") }
+end)
+
+-- 258/370: Flugzeiten-Schätzung: eigene Strecken, Faktoren und Messungen je Karte, mitgelieferte Faktoren; dazu was
+-- die Flug-API gerade liefert (bei offener Karte: GetTaxiMapID, ob C_TaxiMap nodeIDs je Slot kennt; offen für Era/TBC)
+check("258.flight.estimates", function()
+  local summary = ns.FlightTimes.Summary()
+  local mapID = call("GetTaxiMapID")
+  local nodes = type(mapID) == "number" and mapID ~= 0 and call("C_TaxiMap.GetAllTaxiNodes", mapID)
+  local first = type(nodes) == "table" and nodes[1]
+  summary.api = { taxiMapID = mapID, numNodes = call("NumTaxiNodes"),
+    taxiMapNodes = type(nodes) == "table" and #nodes or nil,
+    firstNode = type(first) == "table" and { nodeID = first.nodeID, slotIndex = first.slotIndex, name = first.name }
+      or nil,
+    tooltipHook = type(_G.TaxiNodeOnButtonEnter) == "function", flightMapMixin = type(_G.FlightMap_FlightPointPinMixin) }
+  summary.shipped = ns.FlightTimesData ~= nil and ns.FlightTimesData[ns.Client.Flavor()] ~= nil
+  return summary
+end)
+
+-- 360: Layout des Hauptfensters: Zeilen des Modells, Maße und je sichtbarem Text die gemessene Breite gegen die
+-- Fensterbreite (abgeschnitten = IsTruncated, wo es das gibt); Schrift der Rolle mit Kontur
+local function fontStringState(fontString)
+  return { text = plain(method(fontString, "GetText")), width = method(fontString, "GetStringWidth"),
+    truncated = method(fontString, "IsTruncated"), font = { method(fontString, "GetFont") } }
+end
+
+check("360.window.layout", function()
+  local elements, model = ns.TimerWindow.Elements(), ns.TimerWindow.Model()
+  local texts = {}
+  for _, fontString in ipairs({ elements.time, elements.big, elements.sub }) do
+    if method(fontString, "IsShown") then texts[#texts + 1] = fontStringState(fontString) end
+  end
+  for _, row in ipairs(elements.rows) do
+    if method(row.value, "IsShown") then
+      texts[#texts + 1] = { label = fontStringState(row.label), value = fontStringState(row.value) }
+    end
+  end
+  for _, field in ipairs(elements.fields) do
+    if method(field, "IsShown") then texts[#texts + 1] = fontStringState(field) end
+  end
+  local rows = {}
+  for index, row in ipairs(model.rows) do rows[index] = row.key end
+  return { layout = ns.TimerWindow.ActiveLayout(), setting = ns.db.windowLayout, rows = rows,
+    order = ns.db.rowOrder, chosen = ns.db.compactRows, frame = frameState(_G.LevelTimerFrame),
+    renders = ns.TimerWindow.RenderCount(), texts = chunked(texts),
+    outlined = { method(_G[ns.Theme.Font("small", true)], "GetFont") } }
+end)
+
+-- XP-Tooltip (Wunsch zu 360): Zeilen wie beim Überfahren des Balkens und die Rohwerte dahinter
+check("360.xpTooltip", function()
+  return { content = ns.XpTooltip.Build(), xp = call("UnitXP", "player"), xpMax = call("UnitXPMax", "player"),
+    rested = call("GetXPExhaustion"), questReady = ns.QuestLogXp.Get() }
+end)
+
+-- 362: Sichtbarkeitsregeln: Einstellung, Zustand der Regeln (Kampf, Instanz, Leveln) und was die Rahmen zeigen
+check("362.visibility", function()
+  return { window = ns.db.windowVisibility, splitList = ns.db.splitListVisibility, fade = ns.db.fadeAlpha,
+    combat = call("UnitAffectingCombat", "player"), lockdown = call("InCombatLockdown"),
+    instance = { call("IsInInstance") }, leveling = ns.Experience.IsLeveling(),
+    mouseOver = method(_G.LevelTimerFrame, "IsMouseOver"),
+    main = frameState(_G.LevelTimerFrame), splits = frameState(_G.LevelTimerSplits) }
+end)
+
+-- 371: Blizzard-Oberfläche ausblenden: je Eintrag gefunden?, Frame-Name und Zustand, ausgeblendet (Einstellung) und von
+-- uns angewendet, geschützt; dazu die Minimap (ob die Karte selbst Alpha 0 des Rahmens folgt, sieht man nur im Spiel)
+check("371.blizzardFrames", function()
+  local BlizzardHide = ns.BlizzardHide
+  local entries = {}
+  for _, entry in ipairs(BlizzardHide.ENTRIES) do
+    local frames = BlizzardHide.Frames(entry)
+    local first = frames[1]
+    local state = first and frameState(first) or {}
+    state.id, state.supported, state.found = entry.id, BlizzardHide.IsSupported(entry), #frames
+    state.name, state.mouse = first and frameName(first), first and method(first, "IsMouseEnabled")
+    state.protected = first and method(first, "IsProtected")
+    state.hidden, state.applied = BlizzardHide.IsHidden(entry.id), BlizzardHide.IsApplied(entry.id)
+    state.setting, state.markedProtected = entry.setting, entry.protected == true
+    table.insert(entries, state)
+  end
+  return { pending = BlizzardHide.IsPending(), combat = call("InCombatLockdown"),
+    editOverlays = ns.db.editBlizzardFrames, minimapAlpha = method(_G.Minimap, "GetAlpha"),
+    minimapEffectiveAlpha = method(_G.Minimap, "GetEffectiveAlpha"), entries = chunked(entries) }
 end)

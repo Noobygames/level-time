@@ -1,18 +1,18 @@
 -- Anzeige für Flüge (Zustände liefert Assist/FlightTimer.lua) als Karte (Lib/TimerDisplay.lua):
---   countdown  im Flug mit bekannter Dauer: Ziel als Titel, Restzeit und Balken
+--   countdown  im Flug mit bekannter Dauer: Ziel als Titel, Restzeit und Balken; geschätzte Dauer (Gegenrichtung,
+--              Strecke) mit "~" und leiser Farbe (Theme muted), gemessene normal
 --   hint       im Flug, Strecke zum ersten Mal: Ziel als Titel, "Dauer wird gemessen"
 --   done       gelandet: kurz "Angekommen"
--- Einstellungen: flightScale, flightPos (verschiebbar, Vorschau mit FlightDisplay.Preview), flightSound (Landung).
+-- Einstellungen: Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau mit FlightDisplay.Preview), flightSound (Landung).
 local _, ns = ...
 local L = ns.L
 
-local MIN_SCALE = 0.5
-local MAX_SCALE = 2
 local ICON = "Interface\\Icons\\Ability_Mount_Wyvern_01"
 local COLORS = {
-  countdown = { 0.55, 0.8, 1 },
-  hint = { 0.55, 0.8, 1 },
-  done = { 0.35, 1, 0.45 },
+  countdown = ns.Theme.COLORS.info,
+  hint = ns.Theme.COLORS.info,
+  done = ns.Theme.COLORS.success,
+  estimated = ns.Theme.COLORS.muted,
 }
 
 local function titleFor(kind)
@@ -21,16 +21,18 @@ local function titleFor(kind)
   return L.FLIGHT_TITLE
 end
 
--- Restzeit als "4:10" (Flüge dauern Minuten)
-local function formatTime(seconds)
-  return string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
+-- Restzeit als "4:10" (Flüge dauern Minuten), geschätzt als "~4:10"
+local function formatTime(seconds, state)
+  local text = string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
+  if state and state.estimated then return "~" .. text end
+  return text
 end
 
 local FlightDisplay = ns.TimerDisplay.Create({
   name = "LevelTimerFlight",
   default = { "TOP", "TOP", 0, -160 },
-  scaleKey = "flightScale", posKey = "flightPos", soundKey = "flightSound",
-  minScale = MIN_SCALE, maxScale = MAX_SCALE,
+  id = "flight", label = "EDIT_FRAME_FLIGHT", soundKey = "flightSound",
+  toggleKey = "flightTimer", settingsPage = "OPTIONS_PAGE_FLIGHTS",
   colors = COLORS,
   titleFor = titleFor,
   formatTime = formatTime,
@@ -39,5 +41,4 @@ local FlightDisplay = ns.TimerDisplay.Create({
   movingSpell = function() return ICON end,
 })
 ns.FlightDisplay = FlightDisplay
-FlightDisplay.MIN_SCALE, FlightDisplay.MAX_SCALE = MIN_SCALE, MAX_SCALE
 FlightDisplay.ICON = ICON

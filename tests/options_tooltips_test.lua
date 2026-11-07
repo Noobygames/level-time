@@ -17,9 +17,9 @@ local function clickable(text)
 end
 
 -- Schalter, Button unten, Auswahl-Reiter
-local title, body = hover(clickable(L.COMPACT_MODE))
-expect("Schalter: Titel", title, L.COMPACT_MODE)
-expect("Schalter: Text", body, L.COMPACT_MODE_TIP)
+local title, body = hover(clickable(L.AUTO_INSTANCE_TAB))
+expect("Schalter: Titel", title, L.AUTO_INSTANCE_TAB)
+expect("Schalter: Text", body, L.AUTO_INSTANCE_TAB_TIP)
 
 title, body = hover(clickable(L.HISTORY))
 expect("Button: Text", body, L.HISTORY_TIP)
@@ -47,7 +47,7 @@ end
 addon.Set("language", "deDE")
 
 -- Verlassen schließt den Tooltip
-local checkbox = clickable(L.COMPACT_MODE)
+local checkbox = clickable(L.AUTO_INSTANCE_TAB)
 hover(checkbox)
 checkbox._scripts.OnLeave(checkbox)
 expect("Tooltip zu", GameTooltip:IsShown(), false)

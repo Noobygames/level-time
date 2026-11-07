@@ -1,8 +1,8 @@
 -- Level-Up-Fenster (Einstellung levelUpWindow): ersetzt Blizzards großes "Level 31"-Banner durch ein eigenes Fenster mit
 --   Titel, Werten vorher -> nachher (Leben, Mana, Stärke, ... aus LevelGains), neuen Talentpunkten und den Fähigkeiten,
 --   die der Klassenlehrer ab diesem Level anbietet (TrainerCache; Symbole mit Tooltip).
--- Aussehen: levelUpTheme (modern, alliance, horde), levelUpCompact (eine Zeile statt Tabelle), levelUpScale, levelUpDuration,
--- levelUpSound, levelUpPos (verschiebbar, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
+-- Aussehen: levelUpTheme (modern, alliance, horde), levelUpCompact (eine Zeile statt Tabelle), levelUpDuration,
+-- levelUpSound; Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
 -- Im Kampf wartet das Fenster bis zum Ende des Kampfes.
 local _, ns = ...
 local L = ns.L
@@ -10,7 +10,6 @@ local Widgets = ns.Widgets
 
 local LevelUpWindow = {
   THEMES = { "modern", "alliance", "horde" },
-  MIN_SCALE = 0.5, MAX_SCALE = 2,
   MIN_DURATION = 3, MAX_DURATION = 20,
 }
 ns.LevelUpWindow = LevelUpWindow
@@ -31,15 +30,15 @@ local ACCENT_HEIGHT = 4
 local BORDER = 1
 local FADE_IN, FADE_OUT = 0.25, 0.7
 local SAMPLE_DURATION = 8
-local GAIN_COLOR = "|cff55ff77"
 local QUESTION_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
-local MOVING = "moving"  -- Wert von override im Verschiebemodus
+local BACKGROUND_ALPHA = 0.94
+local MOVING = "moving"  -- Wert von override im Edit-Modus
 
 -- Farben je Theme: Grund, Akzent (Leiste und Rahmen), Titel
 local THEME_COLORS = {
-  modern = { background = { 0.03, 0.04, 0.08, 0.94 }, accent = { 1, 0.82, 0 }, title = { 1, 0.9, 0.45 } },
-  alliance = { background = { 0.03, 0.06, 0.16, 0.94 }, accent = { 0.3, 0.55, 1 }, title = { 0.75, 0.88, 1 } },
-  horde = { background = { 0.15, 0.03, 0.03, 0.94 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
+  modern = { background = ns.Theme.COLORS.surface, accent = ns.Theme.COLORS.gold, title = { 1, 0.9, 0.45 } },
+  alliance = { background = { 0.03, 0.06, 0.16 }, accent = { 0.3, 0.55, 1 }, title = { 0.75, 0.88, 1 } },
+  horde = { background = { 0.15, 0.03, 0.03 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
 }
 
 local frame = CreateFrame("Frame", "LevelTimerLevelUp", UIParent)
@@ -145,7 +144,7 @@ end
 
 local function applyTheme()
   local theme = THEME_COLORS[ns.db.levelUpTheme] or THEME_COLORS.modern
-  setColor(background, theme.background)
+  setColor(background, theme.background, BACKGROUND_ALPHA)
   setColor(accent, theme.accent)
   setColor(divider, theme.accent, 0.5)
   for _, line in pairs(border) do setColor(line, theme.accent, 0.6) end
@@ -169,7 +168,7 @@ local function fillRow(index, gain)
   else
     row.value:SetText("")
   end
-  row.delta:SetText(string.format("%s+%d|r", GAIN_COLOR, gain.delta))
+  row.delta:SetText(string.format("%s+%d|r", ns.Theme.Hex("success"), gain.delta))
   return row
 end
 
@@ -201,7 +200,7 @@ end
 local function layoutCompact(gains, top, width)
   local parts = {}
   for _, gain in ipairs(gains and gains.rows or {}) do
-    table.insert(parts, string.format("%s %s+%d|r", gain.label, GAIN_COLOR, gain.delta))
+    table.insert(parts, string.format("%s %s+%d|r", gain.label, ns.Theme.Hex("success"), gain.delta))
   end
   if gains and gains.talents then table.insert(parts, string.format(L.GAIN_TALENTS, gains.talents)) end
   if #parts == 0 then return width, top end
@@ -291,7 +290,7 @@ end
 -- Anzeigen, Ausblenden, Warten im Kampf
 ---------------------------------------------------------------------------
 local shownAt
-local override  -- true = Vorschau (verschwindet nach SAMPLE_DURATION), MOVING = Verschiebemodus (bleibt stehen)
+local override  -- true = Vorschau (verschwindet nach SAMPLE_DURATION), MOVING = Edit-Modus (bleibt stehen)
 
 local function duration()
   return math.max(LevelUpWindow.MIN_DURATION, math.min(LevelUpWindow.MAX_DURATION, ns.db.levelUpDuration))
@@ -364,30 +363,16 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
 end)
 
 ---------------------------------------------------------------------------
--- Position, Größe, Vorschau
+-- Vorschau und Edit-Modus; Position und Größe über Lib/Frames.lua
 ---------------------------------------------------------------------------
-local mover = Widgets.CreateMover(frame, {
-  default = DEFAULT_POSITION,
-  get = function() return ns.db and ns.db.levelUpPos end,
-  set = function(pos) ns.db.levelUpPos = pos end,
-  onMovingChanged = function(moving)
-    if not moving then hide() end
-    frame:EnableMouse(true)
-  end,
-})
-
--- Linksklick schließt das Fenster; im Verschiebemodus beendet Rechtsklick das Verschieben
+-- Linksklick schließt das Fenster (im Edit-Modus liegt dessen Fläche darüber)
 frame:EnableMouse(true)
 frame:SetScript("OnMouseUp", function(_, mouseButton)
-  if mover.IsMoving() then
-    if mouseButton == "RightButton" then mover.SetMoving(false) end
-  elseif mouseButton == "LeftButton" then
-    hide()
-  end
+  if mouseButton == "LeftButton" and override ~= MOVING then hide() end
 end)
 
 Widgets.AttachTooltip(frame, function() return ns.DISPLAY_NAME end,
-  function() return not mover.IsMoving() and L.LEVEL_UP_CLOSE_HINT or nil end)
+  function() return override ~= MOVING and L.LEVEL_UP_CLOSE_HINT or nil end)
 
 -- Beispieldaten: Zuwächse auf die aktuellen Werte, Fähigkeiten aus dem Lehrer-Cache (sonst drei Beispiele)
 local function sampleData()
@@ -402,34 +387,32 @@ local function sampleData()
 end
 
 function LevelUpWindow.Preview()
-  if mover.IsMoving() then mover.SetMoving(false) end
+  if override == MOVING then return end
   display(ns.level + 1, ns.LevelGains.Sample(), select(3, sampleData()), true)
 end
 
-function LevelUpWindow.SetMoving(enabled)
-  enabled = enabled and true or false
-  if enabled == mover.IsMoving() then return end
+-- Edit-Modus: Beispiel bleibt stehen, bis der Modus endet
+local function setEditing(enabled)
+  if enabled == (override == MOVING) then return end
   if enabled then
     local level, gains, abilities = sampleData()
     display(level, gains, abilities, MOVING)
     frame:SetAlpha(1)
+  else
+    hide()
   end
-  mover.SetMoving(enabled)
 end
 
-function LevelUpWindow.IsMoving()
-  return mover.IsMoving()
-end
-
-function LevelUpWindow.ResetPosition()
-  mover.Reset()
-end
+ns.Frames.Register({
+  id = "levelUp", frame = frame, label = "EDIT_FRAME_LEVEL_UP", default = DEFAULT_POSITION,
+  settingsPage = "OPTIONS_PAGE_LEVEL_UP_WINDOW", preview = setEditing,
+  hide = function() ns.Set("levelUpWindow", false) end,
+})
 
 function LevelUpWindow.IsShown()
   return frame:IsShown()
 end
 
-ns.OnLogin(mover.Restore)
 
 ---------------------------------------------------------------------------
 -- Blizzards Standardbanner: Ereignis abmelden, solange unser Fenster es ersetzt (und wieder anmelden)
@@ -489,8 +472,6 @@ end
 ns.OnLogin(hookBlizzardToast)
 
 ns.RegisterApply(function(db)
-  mover.SetScale(math.max(LevelUpWindow.MIN_SCALE, math.min(LevelUpWindow.MAX_SCALE, db.levelUpScale)))
-  mover.Sync()
   updateBlizzardBanner()
   if frame:IsShown() and override then  -- Theme, Kompaktmodus oder Sprache haben sich geändert
     local level, gains, abilities = sampleData()

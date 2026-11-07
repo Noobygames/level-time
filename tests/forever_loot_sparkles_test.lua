@@ -202,6 +202,30 @@ expect("geheim: nichts", (LootTarget.Classify(SOFT)), nil)
 UnitIsGameObject = function(unit) return objects[unit] == true end
 
 ---------------------------------------------------------------------------
+-- Kurz kein Interaktionsziel (Roadmap 397): die Plakette bleibt offen, kommt ein Ziel zurück, keine CVar-Änderung
+---------------------------------------------------------------------------
+objects[SOFT] = true
+cursors[SOFT] = "Interface\\Cursor\\Mine"
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "Creature-9", "GameObject-5")
+expect("Erz: Plakette an", cvars.SoftTargetNameplateInteract, "1")
+local soft = wow.state.units[SOFT]
+wow.state.units[SOFT] = nil
+cursors[SOFT] = nil
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-5", nil)
+expect("kein Ziel: Plakette bleibt kurz offen", cvars.SoftTargetNameplateInteract, "1")
+wow.state.units[SOFT] = soft
+cursors[SOFT] = "Interface\\Cursor\\Mine"
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", nil, "GameObject-5")
+wow.runTimers()
+expect("Ziel zurück: Plakette blieb offen (kein Zurücksetzen)", cvars.SoftTargetNameplateInteract, "1")
+wow.state.units[SOFT] = nil
+cursors[SOFT] = nil
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-5", nil)
+wow.runTimers()
+expect("dauerhaft kein Ziel: Plakette zu", cvars.SoftTargetNameplateInteract, "0")
+wow.state.units[SOFT] = soft
+
+---------------------------------------------------------------------------
 -- Kampf
 ---------------------------------------------------------------------------
 objects[SOFT] = true

@@ -143,6 +143,31 @@ wow.advance(120)
 BuffReminder.Check()
 expect("und wieder", reminders(), count + 3)
 
+-- Während der Pause und bei unverändertem Schnappschuss wird nicht nachgesehen (Roadmap 393)
+local lookups = { count = 0 }
+local getSpellName = C_Spell.GetSpellName
+C_Spell.GetSpellName = function(...)
+  lookups.count = lookups.count + 1
+  return getSpellName(...)
+end
+for _ = 1, 55 do
+  wow.advance(2)
+  BuffReminder.Check()
+end
+expect("Pause: keine Prüfung", lookups.count, 0)
+expect("Pause: kein Hinweis", reminders(), count + 3)
+wow.advance(10)
+BuffReminder.Check()
+expect("gleicher Schnappschuss: letztes Ergebnis", lookups.count, 0)
+expect("trotzdem erinnert", reminders(), count + 4)
+wow.state.buffs = { "Satt" }
+wow.advance(120)
+BuffReminder.Check()
+expectTrue("neuer Schnappschuss: neu geprüft", lookups.count > 0)
+expect("satt: still", reminders(), count + 4)
+wow.state.buffs = {}
+C_Spell.GetSpellName = getSpellName
+
 -- Bosskampf in Retail/Forever: Auren gesperrt, keine Abfrage und kein Fehler
 wow.state.aurasSecret = true
 expect("gesperrt: unbekannt", addon.BuffReminder.IsFoodMissing(), nil)

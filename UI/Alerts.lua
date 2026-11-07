@@ -1,7 +1,7 @@
 -- Große Einblendungen oben in der Bildschirmmitte für Stream-Momente: Level-Up, Rare- und Elite-Kill,
 -- epische Beute, Beinahe-Tod. Jede Art ist einzeln schaltbar (Einstellungen alert*), alle aus.
--- Aussehen: alertStyle (Text oder Banner = Karte mit Symbol, Lib/Card.lua), alertScale, alertDuration, alertSound; Position alertPos
--- (ziehen im Verschiebemodus, Alerts.SetMoving). Dieselbe Einblendung zeigt auch Hinweise (Alerts.Notify).
+-- Aussehen: alertStyle (Text oder Banner = Karte mit Symbol, Lib/Card.lua), alertDuration, alertSound; Position und Größe
+-- über Lib/Frames.lua (Edit-Modus). Dieselbe Einblendung zeigt auch Hinweise (Alerts.Notify).
 -- Quellen: ns.OnLevelStarted und neue Journal-Einträge (Journal.OnAdd), kein eigenes Event-Parsing.
 -- In Dungeons und Raids ist fast jeder Gegner Elite: dort keine Elite-Einblendung (IsInInstance).
 -- In Raids ist epische Beute normal: dort keine Beute-Einblendung.
@@ -23,22 +23,21 @@ local RAID_WARNING_SOUND = 8959  -- SOUNDKIT.RAID_WARNING, in allen Clients glei
 -- Einstellung alertStyle: nur Text oder Banner (Karte mit Symbol wie die Hinweise)
 Alerts.STYLE_TEXT = "text"
 Alerts.STYLE_BANNER = "banner"
-Alerts.MIN_SCALE = 0.5
-Alerts.MAX_SCALE = 2
 Alerts.MIN_DURATION = 1
 Alerts.MAX_DURATION = 10
 local MAX_TEXT_WIDTH = 520   -- längere Texte brechen um
 local MAX_QUEUE = 4          -- wartende Einblendungen; bei mehr fällt die älteste weg
 local QUEUED_HOLD = 1.5      -- Anzeigedauer, solange weitere warten
+local Theme = ns.Theme
 local COLORS = {
-  levelUp = { 1, 0.82, 0 },
+  levelUp = Theme.COLORS.gold,
   rare = { 0.75, 0.75, 1 },
   elite = { 1, 0.5, 0.1 },
   loot = { 0.64, 0.21, 0.93 },
-  nearDeath = { 1, 0.25, 0.25 },
-  quest = { 0.45, 1, 0.45 },
+  nearDeath = Theme.COLORS.bad,
+  quest = Theme.COLORS.success,
 }
-Alerts.WARNING_COLOR = { 1, 0.6, 0.2 }   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
+Alerts.WARNING_COLOR = Theme.COLORS.warning   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
 Alerts.REMINDER_COLOR = COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
 
 local frame = CreateFrame("Frame", "LevelTimerAlert", UIParent)
@@ -47,7 +46,7 @@ frame:SetPoint(DEFAULT_POSITION[1], UIParent, DEFAULT_POSITION[2], DEFAULT_POSIT
 frame:SetFrameStrata("HIGH")
 frame:SetClampedToScreen(true)
 
-frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+frame.text = frame:CreateFontString(nil, "OVERLAY", Theme.Font("huge"))
 frame.text:SetPoint("CENTER")
 frame:Hide()
 
@@ -66,6 +65,7 @@ Alerts.ICONS = {
   food = 19705,   -- Satt
   camp = 1229741, -- Lagervorteile (WoW Forever)
   charged = 1270893, -- Aufgeladen (Himmelsgeborene, WoW Forever)
+  sleepingBag = iconPath("INV_Misc_Bag_10"),  -- Rückfall, falls der Client das Schlafsack-Symbol nicht liefert
   bags = iconPath("INV_Misc_Bag_08"),
   durability = iconPath("INV_Misc_Gear_01"),
   aggro = iconPath("Ability_Warrior_Charge"),
@@ -87,7 +87,7 @@ Alerts.ICONS = {
 }
 
 local shownAt
-local moving  -- Verschiebemodus: bleibt stehen und lässt sich ziehen
+local moving  -- Edit-Modus: ein Beispiel bleibt stehen
 
 local function isBanner()
   return ns.db and ns.db.alertStyle == Alerts.STYLE_BANNER
@@ -180,7 +180,7 @@ ns.SetUpdateScript(notice.frame, "AlertNotice", fade)
 -- Einblendung zeigen; läuft schon eine, wartet die neue (höchstens MAX_QUEUE). options = { immediate = ersetzt die
 -- laufende und leert die Warteschlange, sound = Ton, falls eingeschaltet, notice = { icon, title, body } zeigt eine
 -- Karte statt des Banners, combat = "hold" (im Kampf zurückhalten, nach dem Kampf zeigen) oder "skip" (im Kampf
--- verwerfen) }. Im Verschiebemodus erscheint nichts Neues.
+-- verwerfen) }. Im Edit-Modus erscheint nichts Neues.
 function Alerts.Show(message, color, options)
   ns.Debug("alert", "%s", message)
   options = options or {}
@@ -193,7 +193,7 @@ function Alerts.Show(message, color, options)
     return
   end
   if options.immediate then queue = {} end
-  -- Im Verschiebemodus wartet alles Neue (auch die erste Einblendung) und erscheint nach dem Verschieben
+  -- Im Edit-Modus wartet alles Neue (auch die erste Einblendung) und erscheint danach
   if moving or (isShowing() and not options.immediate) then
     if #queue >= MAX_QUEUE then table.remove(queue, 1) end
     table.insert(queue, { message, color, options.sound, options.notice })
@@ -215,58 +215,51 @@ function Alerts.Clear()
 end
 
 ---------------------------------------------------------------------------
--- Position: ziehen im Verschiebemodus, gespeichert in alertPos
+-- Edit-Modus (Lib/Frames.lua): ein Beispiel bleibt stehen, Neues wartet und erscheint danach
 ---------------------------------------------------------------------------
-local mover = Widgets.CreateMover(frame, {
-  default = DEFAULT_POSITION,
-  get = function() return ns.db and ns.db.alertPos end,
-  set = function(pos) ns.db.alertPos = pos end,
-  onMovingChanged = function(isMoving)
-    moving = isMoving
-    if isMoving then
-      if notice.frame:IsShown() then
-        -- Banner-Stil: Das sichtbare Beispiel ist die Karte; der (sonst versteckte) Rahmen bekommt ihre Größe und
-        -- unsichtbar die Ziehgriffe, die Karte hängt an ihm
-        notice.frame:SetAlpha(1)
-        frame:SetSize(notice.frame:GetWidth(), notice.frame:GetHeight())
-        frame:SetAlpha(0)
-        frame:Show()
-      else
-        frame:SetAlpha(1)
-      end
-      return
-    end
-    frame:SetSize(1, 1)
-    frame:Hide()
-    notice.frame:Hide()
-    current = nil
-    local waiting = table.remove(queue, 1)
-    if waiting then display(unpack(waiting, 1, 5)) end
-  end,
-})
-
-function Alerts.IsMoving()
-  return moving or false
-end
-
--- Verschiebemodus: Beispiel bleibt stehen, Ziehen verschiebt, Rechtsklick oder erneuter Aufruf beendet
-function Alerts.SetMoving(enabled)
+local function setEditing(enabled)
   enabled = enabled and true or false
   if enabled == (moving or false) then return end
   if enabled then
     local card = isBanner() and { title = L.ALERT_MOVE_HINT } or nil
     Alerts.Show(L.ALERT_MOVE_HINT, COLORS.levelUp, { immediate = true, notice = card })  -- noch nicht im Modus: wird gezeigt
+    moving = true
+    if notice.frame:IsShown() then
+      -- Banner-Stil: Das sichtbare Beispiel ist die Karte; der (sonst versteckte) Rahmen bekommt ihre Größe, damit
+      -- die Fläche des Edit-Modus sie abdeckt; die Karte hängt an ihm
+      notice.frame:SetAlpha(1)
+      frame:SetSize(notice.frame:GetWidth(), notice.frame:GetHeight())
+      frame:SetAlpha(0)
+      frame:Show()
+    else
+      frame:SetAlpha(1)
+    end
+    return
   end
-  mover.SetMoving(enabled)
+  moving = false
+  frame:SetSize(1, 1)
+  frame:Hide()
+  notice.frame:Hide()
+  current = nil
+  local waiting = table.remove(queue, 1)
+  if waiting then display(unpack(waiting, 1, 5)) end
 end
 
-function Alerts.ResetPosition()
-  mover.Reset()
+-- Die Karte folgt der Größe des Rahmens
+ns.Frames.Register({
+  id = "alert", frame = frame, label = "EDIT_FRAME_ALERT", default = DEFAULT_POSITION,
+  settingsPage = "OPTIONS_PAGE_ALERT_LOOK", preview = setEditing,
+  onScale = function(scale) notice.frame:SetScale(scale) end,
+})
+
+function Alerts.IsEditing()
+  return moving or false
 end
 
 -- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
 local function noticeCard(entry)
-  return { icon = entry.icon, title = entry.title or entry.text, body = entry.title and entry.text or nil }
+  return { icon = entry.icon, texture = entry.texture, title = entry.title or entry.text,
+    body = entry.title and entry.text or nil }
 end
 
 -- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander).
@@ -325,7 +318,7 @@ end
 -- sichtbare echte kommt vorne zurück in die Warteschlange und erscheint nach dem Beispiel noch einmal ganz
 local function showSample(message, color, card, sound)
   if moving then
-    -- Im Verschiebemodus wartet auch das Beispiel und erscheint nach dem Verschieben
+    -- Im Edit-Modus wartet auch das Beispiel und erscheint danach
     if #queue >= MAX_QUEUE then table.remove(queue, 1) end
     table.insert(queue, { message, color, sound, card, true })
     return
@@ -392,21 +385,16 @@ local function showNoticeSample()
 end
 
 function Alerts.Preview()
-  if moving then Alerts.SetMoving(false) end
+  if moving then return end
   previewIndex = previewIndex % #PREVIEW_ORDER + 1
   local kind = PREVIEW_ORDER[previewIndex]
   if kind == "notice" then showNoticeSample() else Alerts.ShowSample(kind) end
 end
 
-ns.RegisterApply(function(db)
-  local scale = math.max(Alerts.MIN_SCALE, math.min(Alerts.MAX_SCALE, db.alertScale))
-  mover.SetScale(scale)
-  notice.frame:SetScale(scale)
-  mover.Sync()
+ns.RegisterApply(function()
   layout()
 end)
 
-ns.OnLogin(mover.Restore)
 ns.OnLogout(function() moving = false end)
 
 -- Kampf vorbei: zurückgehaltene Einblendungen zeigen (Reihenfolge bleibt)
