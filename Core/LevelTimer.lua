@@ -185,6 +185,14 @@ function ns.SetUpdateScript(frame, label, fn)
   end)
 end
 
+-- OnEvent eines eigenen Frames (sehr häufige Events direkt, ohne Verteiler), gemessen unter "event " .. label
+function ns.SetEventScript(frame, label, fn)
+  local key = "event " .. label
+  addProfiledScript(frame, "OnEvent", fn, function(measured)
+    return function(self, event, ...) measured(key, fn, self, event, ...) end
+  end)
+end
+
 -- Schlüssel je Funktion einmal bauen, damit das Messen selbst keinen Müll erzeugt
 local callKeys = setmetatable({}, { __mode = "k" })
 local function profiledSafeCall(fn, ...)
