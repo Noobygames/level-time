@@ -1,4 +1,4 @@
--- Karten (Lib/Card.lua, Roadmap 382): dasselbe Symbol wird nicht bei jedem Set neu aufgelöst und gesetzt
+-- Karten (Lib/Card.lua, Roadmap 401): dasselbe Symbol wird nicht bei jedem Set neu aufgelöst und gesetzt
 local Card = addon.Card
 
 wow.login({ level = 10 })

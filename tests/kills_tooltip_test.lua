@@ -69,7 +69,7 @@ local function noLine(description, unit)
   expect(description, #tooltipLines, 0)
 end
 noLine("Spieler", { name = "Aragorn", level = 10, hostile = true, isPlayer = true })
--- Spieler: gar nicht erst rechnen (Roadmap 381)
+-- Spieler: gar nicht erst rechnen (Roadmap 400)
 local killsToLevel = MobXp.KillsToLevel
 local computed = { count = 0 }
 MobXp.KillsToLevel = function(...)

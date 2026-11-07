@@ -51,7 +51,7 @@ addon.Set("hideMacroText", true)
 expect("Tastentext unsichtbar", button1.HotKey:GetAlpha(), 0)
 expect("auch zweite Leiste", button2.HotKey:GetAlpha(), 0)
 expect("Makroname unsichtbar", button1.Name:GetAlpha(), 0)
--- Andere Einstellungen fassen die Texte nicht an (Roadmap 376)
+-- Andere Einstellungen fassen die Texte nicht an (Roadmap 395)
 local alphaWrites = { count = 0 }
 local setAlpha = button1.HotKey.SetAlpha
 button1.HotKey.SetAlpha = function(...)

@@ -1,4 +1,4 @@
--- QuestWatch (Roadmap 373): eingelesen wird nur nach Questlog-Ereignissen, mehrere Ereignisse ergeben einen
+-- QuestWatch (Roadmap 392): eingelesen wird nur nach Questlog-Ereignissen, mehrere Ereignisse ergeben einen
 -- Durchlauf, der Stand je Quest wird fortgeschrieben statt neu gebaut; Meldungen wie vorher
 local QuestWatch = addon.QuestWatch
 

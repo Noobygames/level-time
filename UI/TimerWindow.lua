@@ -226,7 +226,7 @@ end)
 ---------------------------------------------------------------------------
 -- Ablauf
 ---------------------------------------------------------------------------
--- Werte lesen (Roadmap 380): einmal je angezeigter Sekunde (die Zeit zeigt Sekunden) und sofort nach Ereignissen,
+-- Werte lesen (Roadmap 399): einmal je angezeigter Sekunde (die Zeit zeigt Sekunden) und sofort nach Ereignissen,
 -- die Werte ändern (Zähler, XP, Geld, Kampf, Zone); dazwischen prüft der Takt nur zwei Zahlen
 local sinceUpdate = 0
 local refreshedSecond

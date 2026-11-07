@@ -177,7 +177,7 @@ computed.count = 0
 wow.advance(1)
 wow.update(0.3)
 expect("Prognose einmal je Takt", computed.count, 1)
--- Roadmap 380: innerhalb derselben Sekunde ohne Ereignis keine Werte lesen; viele Frames, wenige Takte
+-- Roadmap 399: innerhalb derselben Sekunde ohne Ereignis keine Werte lesen; viele Frames, wenige Takte
 computed.count = 0
 for _ = 1, 60 do wow.update(0.016) end
 expect("gleiche Sekunde, kein Ereignis: nichts gelesen", computed.count, 0)

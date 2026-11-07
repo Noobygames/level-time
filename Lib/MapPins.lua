@@ -32,7 +32,7 @@ local function newLayer(definition)
     return pin
   end
 
-  -- Gezeigter Stand (Roadmap 379): Karte, Datenstand (revision() darf zwei Werte liefern) und Größe einzeln
+  -- Gezeigter Stand (Roadmap 398): Karte, Datenstand (revision() darf zwei Werte liefern) und Größe einzeln
   -- verglichen statt als zusammengesetzter Schlüssel je Prüfung; nur die Größe geändert = Punkte neu verankern
   local shown = {}
   local points = {}

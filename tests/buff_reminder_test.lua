@@ -143,7 +143,7 @@ wow.advance(120)
 BuffReminder.Check()
 expect("und wieder", reminders(), count + 3)
 
--- Während der Pause und bei unverändertem Schnappschuss wird nicht nachgesehen (Roadmap 374)
+-- Während der Pause und bei unverändertem Schnappschuss wird nicht nachgesehen (Roadmap 393)
 local lookups = { count = 0 }
 local getSpellName = C_Spell.GetSpellName
 C_Spell.GetSpellName = function(...)

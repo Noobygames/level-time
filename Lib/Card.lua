@@ -121,7 +121,7 @@ function Card.Create(name)
     title:SetTextColor(r, g, b)
     hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)
-    -- Gleiches Symbol wie beim letzten Mal: nicht neu auflösen und setzen (Roadmap 382; Level Time Goals baut seine
+    -- Gleiches Symbol wie beim letzten Mal: nicht neu auflösen und setzen (Roadmap 401; Level Time Goals baut seine
     -- Karten bei jedem Apply und Fortschritt neu, Quest-Einblendungen kommen in Serien mit demselben Symbol)
     local sameIcon = hasIcon and spec.texture == shownTexture and spec.icon == shownIcon and icon:GetTexture() ~= nil
     shownTexture, shownIcon = spec.texture, spec.icon

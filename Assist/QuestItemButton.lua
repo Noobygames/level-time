@@ -20,7 +20,7 @@
 --               verschwindet. Sichtbare Questgegner auf Namensplaketten sind ohnehin in der Nähe und bleiben.
 --               Ort und Entscheidungen werden zwischengespeichert und bei Zonenwechsel (ZONE_CHANGED*,
 --               PLAYER_ENTERING_WORLD) bzw. Questlog-Änderung (QUEST_LOG_UPDATE) verworfen.
--- Aktualisiert wird ereignisgesteuert (Roadmap 371): Questlog, Taschen, Zone, Namensplaketten, Kampfende und
+-- Aktualisiert wird ereignisgesteuert (Roadmap 390): Questlog, Taschen, Zone, Namensplaketten, Kampfende und
 -- Einstellungen setzen Merker; der Sekundentakt arbeitet nur, wenn ein Merker steht. Die Item-Kandidaten bleiben bis
 -- zur nächsten Questlog- oder Taschenänderung gespeichert (C_QuestLog.GetInfo erzeugt je Eintrag eine Tabelle).
 -- Ohne Ereignis neu gewählt wird nur nach Abstand (Retail/Forever, alle DISTANCE_SECONDS, nur bei mindestens zwei

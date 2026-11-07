@@ -1,4 +1,4 @@
--- Optionsfenster (Roadmap 376): ein Apply bei offenem Fenster aktualisiert nur die sichtbare Seite; verborgene Seiten
+-- Optionsfenster (Roadmap 395): ein Apply bei offenem Fenster aktualisiert nur die sichtbare Seite; verborgene Seiten
 -- holen es beim Umschalten nach, ein Sprachwechsel aktualisiert alles
 local OptionsBuilder = addon.OptionsBuilder
 

@@ -127,7 +127,7 @@ local function forPlayer(unit)
   return unit == "player"
 end
 
--- CVar-Änderungen fremder Hand (Roadmap 378): eigene stehen schon als ns.Debug("comfort", "cvar ...") im Log,
+-- CVar-Änderungen fremder Hand (Roadmap 397): eigene stehen schon als ns.Debug("comfort", "cvar ...") im Log,
 -- dieselbe CVar mit demselben Wert innerhalb von CVAR_REPEAT_SECONDS nur einmal
 local CVAR_REPEAT_SECONDS = 5
 local lastCVar = {}  -- [Name] = { value, at }

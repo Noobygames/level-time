@@ -74,7 +74,7 @@ Camp.Check()
 tick()
 expectTrue("nach 20 s noch 40 s", shownText(string.format(L.SECONDS_SHORT, 40)))
 
--- Ohne Aura-Änderung arbeitet die Prüfung nicht (Roadmap 372): kein neuer Zustand, keine Anzeige-Aufrufe
+-- Ohne Aura-Änderung arbeitet die Prüfung nicht (Roadmap 391): kein neuer Zustand, keine Anzeige-Aufrufe
 local shows = { count = 0 }
 local show = Display.Show
 Display.Show = function(...)

@@ -1967,7 +1967,7 @@ Kampf wartet (ja/nein):
 Fehler:
 ```
 
-### 137. Schlafsack-Hinweis (Roadmap 375, WoW Forever)
+### 139. Schlafsack-Hinweis (Roadmap 394, WoW Forever)
 
 - [ ] geprüft
 
@@ -1983,7 +1983,7 @@ Zeile von /lt debug remind:
 Fehler:
 ```
 
-### 138. Profiler-Vergleich nach Performance-Runde 2 (Roadmap 371-382)
+### 138. Profiler-Vergleich nach Performance-Runde 2 (Roadmap 390-401)
 
 - [ ] geprüft
 

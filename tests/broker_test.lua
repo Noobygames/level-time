@@ -42,7 +42,7 @@ registered["LevelTimer"] = nil
 addon.DeleteCharacter(addon.characterKey)
 expect("keine zweite Anmeldung", registered["LevelTimer"], nil)
 
--- Ohne Leiste, die den Datentext zeigt, kein Neuberechnen (Roadmap 377); mit Anzeige nur geänderte Texte
+-- Ohne Leiste, die den Datentext zeigt, kein Neuberechnen (Roadmap 396); mit Anzeige nur geänderte Texte
 broker.callbacks = { events = { LibDataBroker_AttributeChanged_Other = { [{}] = true } } }
 expect("fremdes Objekt: keine Anzeige", addon.Broker.HasDisplay(), false)
 dataObject.text = "alt"

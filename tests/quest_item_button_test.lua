@@ -47,7 +47,7 @@ wow.update(1)
 expect("nächste Quest", item:GetAttribute("item"), "item:5000")
 C_QuestLog.GetDistanceSqToQuest = nil
 
--- Ereignisgesteuert: ohne Änderung liest der Takt den Questlog nicht neu (Roadmap 371)
+-- Ereignisgesteuert: ohne Änderung liest der Takt den Questlog nicht neu (Roadmap 390)
 local reads = { count = 0 }
 local readItem = GetQuestLogSpecialItemInfo
 GetQuestLogSpecialItemInfo = function(...)

@@ -54,7 +54,7 @@ local function rose(objective, old)
 end
 
 -- Stand einer Quest einlesen und Änderungen gegenüber dem letzten Stand melden. Der Stand je Quest und Ziel wird an
--- Ort und Stelle fortgeschrieben (Roadmap 373: keine neuen Tabellen je Durchlauf); gemeldet wird vor dem Überschreiben,
+-- Ort und Stelle fortgeschrieben (Roadmap 392: keine neuen Tabellen je Durchlauf); gemeldet wird vor dem Überschreiben,
 -- old ist also noch der letzte Stand.
 local function update(quest)
   local questID = quest.questID

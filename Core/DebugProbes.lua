@@ -388,7 +388,7 @@ end, DebugLog.IsEnabled)
 for _, event in ipairs({ "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE", "PLAYER_REGEN_DISABLED" }) do
   probeEvents.Add(event, nil, function(...) writeCombatSample(event, ...) end)
 end
--- Bedrohung (Roadmap 378): nur die Bedrohungslage, und nur wenn sie sich geändert hat; den vollen Kampf-Schnappschuss
+-- Bedrohung (Roadmap 397): nur die Bedrohungslage, und nur wenn sie sich geändert hat; den vollen Kampf-Schnappschuss
 -- schreibt ohnehin der Takt alle COMBAT_SAMPLE_SECONDS (vorher je Event rund 27 KB Müll)
 local lastThreat
 probeEvents.Add("UNIT_THREAT_SITUATION_UPDATE", "player", function()

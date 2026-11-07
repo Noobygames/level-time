@@ -77,7 +77,7 @@ local function onUnitTooltip(tooltip)
     local text, color = Tooltip.TargetLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
   end
-  -- Spieler bekommen keine Kills-Zeile: gar nicht erst rechnen und loggen (Roadmap 381)
+  -- Spieler bekommen keine Kills-Zeile: gar nicht erst rechnen und loggen (Roadmap 400)
   local isPlayer = UnitIsPlayer(unit)
   if ns.db.tooltipKillsToLevel and not (readable(isPlayer) and isPlayer) then
     local text, color = Tooltip.KillsLine(unit)

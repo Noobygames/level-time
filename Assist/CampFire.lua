@@ -107,7 +107,7 @@ local function benefitsGranted(benefits)
 end
 
 -- Beide Anzeigen aus: keine Buffs lesen; der Zustand beginnt beim Einschalten neu (wie nach dem Login)
--- Eingaben der letzten vollständigen Prüfung (Roadmap 372): ändern sich weder Buffs (Auras.Version) noch Tod,
+-- Eingaben der letzten vollständigen Prüfung (Roadmap 391): ändern sich weder Buffs (Auras.Version) noch Tod,
 -- Kampf, Client oder die gezeigte Art, steht nichts Zeitabhängiges an (Hinweis mit Anzeigezeit und Pause, Warten
 -- auf die Lagervorteile nach dem Countdown), bleibt alles, wie es ist. Der Countdown läuft in der Anzeige selbst.
 local last = {}

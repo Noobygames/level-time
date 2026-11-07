@@ -24,7 +24,7 @@ end
 local snapshot = { list = {}, byName = {}, bySpellId = {} }
 local snapshotValid = false
 local snapshotAt
--- Stand des Schnappschusses (Roadmap 372): steigt nur, wenn sich Buffs (Spell-ID, Ablaufzeit, Stapel) oder die
+-- Stand des Schnappschusses (Roadmap 391): steigt nur, wenn sich Buffs (Spell-ID, Ablaufzeit, Stapel) oder die
 -- Lesbarkeit geändert haben, nicht bei jedem Neu-Lesen nach MAX_SNAPSHOT_AGE. Wer nur bei Änderungen arbeiten will,
 -- vergleicht Auras.Version() nach Auras.Snapshot().
 local version = 0

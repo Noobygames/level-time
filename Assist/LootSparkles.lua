@@ -166,7 +166,7 @@ local function setPlate(open)
   end
 end
 
--- Ohne Interaktionsziel ist keine Plakette zu sehen: Schließen darf warten (Roadmap 378). Wer zwischen zwei
+-- Ohne Interaktionsziel ist keine Plakette zu sehen: Schließen darf warten (Roadmap 397). Wer zwischen zwei
 -- Leichen oder Erzen kurz kein Ziel hat, schaltet die CVar sonst bei jedem Schritt zweimal um (CVAR_UPDATE).
 local function closePlateSoon()
   if plateOpen ~= true then return setPlate(false) end

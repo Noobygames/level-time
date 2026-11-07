@@ -202,7 +202,7 @@ expect("geheim: nichts", (LootTarget.Classify(SOFT)), nil)
 UnitIsGameObject = function(unit) return objects[unit] == true end
 
 ---------------------------------------------------------------------------
--- Kurz kein Interaktionsziel (Roadmap 378): die Plakette bleibt offen, kommt ein Ziel zurück, keine CVar-Änderung
+-- Kurz kein Interaktionsziel (Roadmap 397): die Plakette bleibt offen, kommt ein Ziel zurück, keine CVar-Änderung
 ---------------------------------------------------------------------------
 objects[SOFT] = true
 cursors[SOFT] = "Interface\\Cursor\\Mine"

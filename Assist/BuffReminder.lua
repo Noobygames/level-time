@@ -178,7 +178,7 @@ local function pauseOver(reminder)
 end
 
 -- Fehlt der Buff? Hinweise mit auraOnly hängen nur am Aura-Schnappschuss: bei gleichem Auras.Version() gilt das
--- letzte Ergebnis (Roadmap 374)
+-- letzte Ergebnis (Roadmap 393)
 local function missingNow(reminder)
   if not reminder.auraOnly then return reminder.isMissing() end
   local version = ns.Auras.Snapshot() and ns.Auras.Version() or nil

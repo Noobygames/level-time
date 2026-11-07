@@ -29,7 +29,7 @@ local function brokerText()
   return text
 end
 
--- Zeigt eine Leiste den Datentext? (Roadmap 377) Anzeigen hören über CallbackHandler auf
+-- Zeigt eine Leiste den Datentext? (Roadmap 396) Anzeigen hören über CallbackHandler auf
 -- "LibDataBroker_AttributeChanged" (alle), "..._LevelTimer[_text]" (dieses Objekt) oder "...__text" (dieses Feld);
 -- LibDataBroker-1.1 legt sie in library.callbacks.events ab. Unbekannter Aufbau: lieber aktualisieren.
 local GENERIC_EVENT = "LibDataBroker_AttributeChanged"

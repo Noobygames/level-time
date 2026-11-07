@@ -99,7 +99,7 @@ function OptionsBuilder.New(options)
   title:SetPoint("TOP", 0, -14)
 
   -- { run(db), owner }: owner = Seite oder Unterseite, auf der das Steuerelement steht (nil = immer sichtbar: Reiter,
-  -- Fuß-Buttons). Bei offenem Fenster aktualisiert ein Apply nur die sichtbaren (Roadmap 376); verborgene Seiten
+  -- Fuß-Buttons). Bei offenem Fenster aktualisiert ein Apply nur die sichtbaren (Roadmap 395); verborgene Seiten
   -- merken sich das (stale) und holen es beim Umschalten nach.
   local refreshers = {}
   local stale = {}          -- [owner] = true: Einstellungen geändert, während die Seite verborgen war

@@ -56,7 +56,7 @@ expectTrue("an: Rahmen auf der Leinwand", LevelTimerDeathMap ~= nil and LevelTim
 expect("ein Tod auf der Karte", #DeathMap.DeathsOn(1429), 1)
 DeathMap.Refresh(true)
 wow.update(1)
--- Roadmap 379: ohne Änderung kein Neuzeichnen; Kartenwechsel über OnMapChanged sofort
+-- Roadmap 398: ohne Änderung kein Neuzeichnen; Kartenwechsel über OnMapChanged sofort
 local lookups = { count = 0 }
 local deathsOn = DeathMap.DeathsOn
 DeathMap.DeathsOn = function(...)

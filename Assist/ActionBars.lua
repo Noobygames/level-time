@@ -92,7 +92,7 @@ end
 ---------------------------------------------------------------------------
 -- Anwenden
 ---------------------------------------------------------------------------
--- Nur bei geänderten eigenen Einstellungen (Roadmap 376): jedes Apply (jede Einstellung, Profilwechsel) fasste sonst
+-- Nur bei geänderten eigenen Einstellungen (Roadmap 395): jedes Apply (jede Einstellung, Profilwechsel) fasste sonst
 -- rund 100 Tasten- und Makrotexte an. Blizzard ändert die Transparenz dieser Texte nicht, die Knöpfe bleiben dieselben.
 local applied = {}
 
