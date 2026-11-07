@@ -208,6 +208,7 @@ local SETTINGS_DEFAULTS = {
   tooltipAnchor = "default",  -- Welt-Tooltips am Mauszeiger: default/cursor/cursorLeft/cursorRight (Tooltip.lua)
   deathMap = false,  -- Todespunkte auf der Weltkarte (DeathMap.lua)
   minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
+  readyTimer = false,  -- Restzeit bei Bereitschaftscheck und Schlachtfeld-Einladung (ReadyTimer.lua)
   minimapSquare = false,  -- eckige Minimap (MinimapTweaks.lua)
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)

@@ -1050,6 +1050,7 @@ addSection("SECTION_COMBAT_GROUP")
 addToggles({
   toggle("COMBAT_PLATES", "combatPlates"),
   toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
+  toggle("READY_TIMER", "readyTimer"),
 })
 if ns.AddonListSort.IsAvailable() then
   addSection("SECTION_ADDON_LIST")

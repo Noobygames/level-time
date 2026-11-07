@@ -192,6 +192,7 @@ Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua
 Assist\RaidRestrictions.lua
+Assist\ReadyTimer.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
 UI\WindowModel.lua
