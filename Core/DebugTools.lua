@@ -71,6 +71,9 @@ function actions.remind()
     BuffReminder.HasCampSystem())
   out("reminder", "charged missing %s (on %s, skyborne %s)",
     BuffReminder.IsChargedMissing(), ns.db.remindCharged, BuffReminder.IsSkyborne())
+  out("reminder", "well rested missing %s (on %s, sleeping bag item %s, in bags %s)",
+    BuffReminder.IsSleepingBagMissing(), ns.db.remindSleepingBag, BuffReminder.SleepingBagExists(),
+    BuffReminder.SleepingBagCount())
   out("reminder", "worth reminding now %s (leveling, no combat, alive, not resting)",
     BuffReminder.WorthReminding())
 end

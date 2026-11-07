@@ -65,6 +65,7 @@ Alerts.ICONS = {
   food = 19705,   -- Satt
   camp = 1229741, -- Lagervorteile (WoW Forever)
   charged = 1270893, -- Aufgeladen (Himmelsgeborene, WoW Forever)
+  sleepingBag = iconPath("INV_Misc_Bag_10"),  -- Rückfall, falls der Client das Schlafsack-Symbol nicht liefert
   bags = iconPath("INV_Misc_Bag_08"),
   durability = iconPath("INV_Misc_Gear_01"),
   aggro = iconPath("Ability_Warrior_Charge"),
@@ -257,7 +258,8 @@ end
 
 -- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
 local function noticeCard(entry)
-  return { icon = entry.icon, title = entry.title or entry.text, body = entry.title and entry.text or nil }
+  return { icon = entry.icon, texture = entry.texture, title = entry.title or entry.text,
+    body = entry.title and entry.text or nil }
 end
 
 -- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander).

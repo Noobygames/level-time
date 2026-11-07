@@ -1937,3 +1937,19 @@ Höhle/Gebäude ok (ja/nein):
 Fehlt etwas zu Unrecht (welche Quest, Überschrift im Log):
 Fehler:
 ```
+
+### 137. Schlafsack-Hinweis (Roadmap 375, WoW Forever)
+
+- [ ] geprüft
+
+Einstellungen > Hinweise: „Hinweis: Gut erholt fehlt (Schlafsack)“ an, „Gemütlicher Schlafsack“ in der Tasche, unter Maximallevel, draußen und ohne „Gut erholt“. Datenteil: `/lt debug remind` (Zeile „well rested missing …“).
+
+1. Nach spätestens 2 s erscheint die Hinweis-Karte „Im Schlafsack ausruhen für 3 % XP-Bonus.“ mit dem Symbol des Schlafsacks (nicht dem allgemeinen Taschen-Symbol).
+
+**Antwort:**
+
+```text
+Karte mit Schlafsack-Symbol (ja/nein):
+Zeile von /lt debug remind:
+Fehler:
+```

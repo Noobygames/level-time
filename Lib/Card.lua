@@ -5,7 +5,7 @@
 --   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
 --   card.SetTime("42 s"); card.SetFraction(0.7)
 -- card.frame ist der Rahmen (Position, Skalierung, Ein-/Ausblenden macht der Aufrufer); card.frame.title,
--- .body und .time sind die Textfelder.
+-- .body und .time sind die Textfelder, .icon das Symbol.
 local _, ns = ...
 
 local Card = {}
@@ -61,7 +61,7 @@ function Card.Create(name)
   local timeText = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("huge"))
   timeText:SetJustifyH("LEFT")
   timeText:SetTextColor(1, 1, 1)
-  frame.title, frame.body, frame.time = title, body, timeText
+  frame.title, frame.body, frame.time, frame.icon = title, body, timeText, icon
 
   local barBack = frame:CreateTexture(nil, "ARTWORK")
   barBack:SetColorTexture(unpack(BAR_BACK_COLOR))

@@ -3,6 +3,8 @@
 --   remindCamp  "Lagervorteile" (Camp-Buff, nur WoW Forever, Spell 1229741)
 --   remindCharged "Aufgeladen" der Himmelsgeborenen (Rassen-ID 96, nur WoW Forever, Spell 1270893,
 --               kommt von "Himmelssicht" an einer Elementarkonvergenz)
+--   remindSleepingBag "Gut erholt" (Spell 429959, nur WoW Forever), nur mit "Gemütlicher Schlafsack" (Item 211527)
+--               in den Taschen
 -- Erinnert wird nur, wenn es sich lohnt: beim Leveln, außerhalb von Kampf und Ruhegebiet, lebendig,
 -- und je Buff wiederholt im Abstand von reminderInterval Minuten (Einstellung), solange er fehlt.
 -- Lagervorteile und Aufgeladen nur in der offenen Welt (outdoorsOnly): in Dungeons, Schlachtzügen und
@@ -23,6 +25,8 @@ local WELL_FED_SPELL_ID = 19705    -- "Well Fed" (Classic), liefert den überset
 local CAMP_SPELL_ID = 1229741      -- "Lagervorteile" (WoW Forever), im Spiel per /dump ermittelt
 local CHARGED_SPELL_ID = 1270893   -- "Aufgeladen" (Himmelsgeborene, WoW Forever), im Spiel ermittelt
 local SKYBORNE_RACE_ID = 96        -- 3. Wert von UnitRace: "Himmelsgeborene der Windformer" (Kürzel "Skyborne")
+local SLEEPING_BAG_ITEM_ID = 211527  -- "Gemütlicher Schlafsack" (WoW Forever)
+local WELL_RESTED_SPELL_ID = 429959  -- "Gut erholt" (WoW Forever, 7200 s), im Spiel gesehen
 local CHECK_INTERVAL = 2           -- Sekunden zwischen zwei Prüfungen (Schild weg im Kampf: schnell merken)
 local SECONDS_PER_MINUTE = 60
 BuffReminder.MIN_INTERVAL = 1      -- Minuten; Grenzen des Reglers in den Einstellungen
@@ -70,6 +74,38 @@ function BuffReminder.IsChargedMissing()
   return missing(ns.Auras.FindBySpellId(CHARGED_SPELL_ID))
 end
 
+-- Schlafsack (WoW Forever): Item SLEEPING_BAG_ITEM_ID "Gemütlicher Schlafsack" gibt beim Ausruhen den Buff
+-- WELL_RESTED_SPELL_ID "Gut erholt" (2 h, +3 % XP; beides im Spiel gesehen). Erinnert wird nur mit dem Item in den
+-- Taschen; Clients ohne das Item (GetItemInfoInstant nil) bekommen nichts.
+function BuffReminder.HasSleepingBagSystem()
+  return ns.Client.IsForever()
+end
+
+function BuffReminder.SleepingBagExists()
+  return C_Item ~= nil and C_Item.GetItemInfoInstant ~= nil and C_Item.GetItemInfoInstant(SLEEPING_BAG_ITEM_ID) ~= nil
+end
+
+function BuffReminder.SleepingBagCount()
+  local count = C_Item and C_Item.GetItemCount and C_Item.GetItemCount(SLEEPING_BAG_ITEM_ID)
+  if ns.IsSecret(count) or type(count) ~= "number" then return nil end
+  return count
+end
+
+-- true = Schlafsack dabei und "Gut erholt" fehlt; false = Buff da; nil = kein Schlafsack, anderer Client, unlesbar
+function BuffReminder.IsSleepingBagMissing()
+  if not BuffReminder.HasSleepingBagSystem() or not BuffReminder.SleepingBagExists() then return nil end
+  local count = BuffReminder.SleepingBagCount()
+  if not count or count < 1 then return nil end
+  return missing(ns.Auras.FindBySpellId(WELL_RESTED_SPELL_ID))
+end
+
+-- Symbol des Schlafsacks (Datei-ID aus dem Client); ohne das Item das allgemeine Symbol aus Alerts.ICONS
+local function sleepingBagTexture()
+  local icon = C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(SLEEPING_BAG_ITEM_ID)
+  if ns.IsSecret(icon) then return nil end
+  return icon
+end
+
 -- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol (Schlüssel aus Alerts.ICONS oder
 -- Funktion, die eine Spell-ID oder einen Pfad liefert) und Zeitpunkt des letzten Hinweises
 local REMINDERS = {
@@ -86,6 +122,9 @@ local REMINDERS = {
     outdoorsOnly = true,
     auraOnly = true,
   },
+  -- Hängt auch an den Taschen (Schlafsack dabei), daher nicht auraOnly
+  { setting = "remindSleepingBag", isMissing = BuffReminder.IsSleepingBagMissing, message = "REMIND_SLEEPING_BAG",
+    icon = "sleepingBag", texture = sleepingBagTexture, outdoorsOnly = true },
 }
 
 -- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
@@ -172,7 +211,8 @@ function BuffReminder.Check()
       ns.Debug("reminder", "%s missing, reminding", reminder.setting)
       reminder.lastShown = GetTime()
       messages = messages or {}
-      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder) })
+      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder),
+        texture = reminder.texture and reminder.texture() or nil })
     end
   end
   if messages then
