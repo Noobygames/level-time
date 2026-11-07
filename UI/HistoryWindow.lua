@@ -220,7 +220,6 @@ end)
 Widgets.AttachTooltip(nameButton, function() return L.HISTORY end, function() return L.HISTORY_CHARACTER_LIST_TIP end)
 panel:HookScript("OnHide", function()
   menu:Hide()
-  ns.Journal.ReleaseCache()  -- entpackte Archiv-Listen freigeben, beim nächsten Öffnen neu
 end)
 
 ---------------------------------------------------------------------------
@@ -325,12 +324,23 @@ function refresh()
   placeContent(subtabRows)
 end
 
+-- Jede Sekunde nur die gewählte Ansicht (laufende Werte) und den Namen samt Level; Reiter, Texte und Anordnung
+-- ändern sich nur bei Klick, Sprach- oder Charakterwechsel und laufen dann über refresh (Roadmap 213)
+local function tick()
+  if selectedCharacter ~= rendered.character or not History.GetCharacter(selectedCharacter or "") then
+    refresh()
+    return
+  end
+  showCharacterName(selectedCharacter)
+  selectedEntry.selected.frame:Render(selectedCharacter, false)
+end
+
 local sinceUpdate = 0
-panel:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(panel, "HistoryWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0
-  refresh()
+  tick()
 end)
 
 -- Sprachwechsel bei offenem Fenster

@@ -170,7 +170,7 @@ expect("Rechtsklick beendet", Display.IsMoving(), false)
 expect("danach versteckt", camp:IsShown(), false)
 
 LevelTimerDB.campPos = { "TOP", "TOP", 100, -200 }
-addon.Set("campScale", 1)
+addon.ApplySettings()  -- neue Position übernehmen (ns.Set mit gleichem Wert wendet nichts an)
 addon.Set("campScale", 2)
 expect("Größe: Abstand x umgerechnet", LevelTimerDB.campPos[3], 50)
 expect("Größe: Abstand y umgerechnet", LevelTimerDB.campPos[4], -100)
@@ -203,3 +203,26 @@ expect("anderer Modus löst ab", Display.IsMoving(), false)
 expect("anderer Modus: Anzeige weg", camp:IsShown(), false)
 alerts.SetMoving(false)
 expectTrue("Button Zurücksetzen", wow.click(L.CAMP_RESET_POSITION))
+
+-- Beide Anzeigen aus: keine Buff-Abfrage, die Anzeige verschwindet; Einschalten beginnt neu
+local scans = { count = 0 }
+local getAura = C_UnitAuras.GetAuraDataByIndex
+C_UnitAuras.GetAuraDataByIndex = function(...)
+  scans.count = scans.count + 1
+  return getAura(...)
+end
+wow.state.buffs = { nearby(), inviting(GetTime() + 60) }
+addon.Set("campCountdown", true)
+Camp.Check()
+expect("an: Countdown", camp:IsShown(), true)
+addon.Set("campCountdown", false)
+addon.Set("campHint", false)
+expect("aus: Anzeige weg", camp:IsShown(), false)
+wow.state.buffs = { nearby(), inviting(GetTime() + 50) }
+local scansBefore = scans.count
+Camp.Check()
+expect("aus: keine Abfrage", scans.count, scansBefore)
+addon.Set("campCountdown", true)
+Camp.Check()
+expect("wieder an: Countdown", camp:IsShown(), true)
+C_UnitAuras.GetAuraDataByIndex = getAura

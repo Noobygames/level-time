@@ -53,7 +53,9 @@ wow = {
     resting = false,
     buffs = {},              -- aktive Buffs: Name oder { name, spellId } (C_UnitAuras.GetAuraDataByIndex)
     spellNames = { [433] = "Essen", [19705] = "Satt", [1229741] = "Lagervorteile" },  -- C_Spell.GetSpellName
-    interface = (SCENARIO or ""):match("^forever_") and 16001 or 120105,  -- Interface-Version (GetBuildInfo); Szenarien forever_* laden als WoW Forever (16001)
+    -- Interface-Version (GetBuildInfo): Szenarien forever_* laden als WoW Forever (16001), era_* als Classic Era
+    -- (11509), alle anderen als Retail
+    interface = (SCENARIO or ""):match("^forever_") and 16001 or (SCENARIO or ""):match("^era_") and 11509 or 120105,
     health = 1000,
     healthMax = 1000,
     powerMax = 0,
@@ -168,7 +170,13 @@ local frameMethods = {
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
   GetParent = function(self) return self._parent end,
-  Show = function(self) self._shown = true end,
+  -- Wie im Client: OnShow beim Wechsel von versteckt zu gezeigt
+  Show = function(self)
+    local wasShown = self._shown
+    self._shown = true
+    local onShow = self._scripts and self._scripts.OnShow
+    if not wasShown and onShow then onShow(self) end
+  end,
   Hide = function(self)
     local wasShown = self._shown
     self._shown = false
@@ -196,7 +204,7 @@ local frameMethods = {
     local previous = self._scripts[name]
     self._scripts[name] = previous and function(...) previous(...); handler(...) end or handler
   end,
-  AddLine = function(self, text) self._lines = self._lines or {}; table.insert(self._lines, text) end,
+  AddLine = function(self, text) self._lines = rawget(self, "_lines") or {}; table.insert(self._lines, text) end,
   ClearLines = function(self) self._lines = {} end,
   SetOwner = function(self) self._lines = {} end,
   SetHyperlink = function(self, link) self._hyperlink = link end,
@@ -204,11 +212,52 @@ local frameMethods = {
     if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
     self._events[event] = true
   end,
-  UnregisterEvent = function(self, event) self._events[event] = nil end,
+  -- Wie im Client: das Event kommt nur noch für diese Einheiten (wow.fire prüft das erste Argument)
+  RegisterUnitEvent = function(self, event, ...)
+    if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
+    self._events[event] = true
+    self._unitEvents = rawget(self, "_unitEvents") or {}
+    self._unitEvents[event] = { ... }
+    wow.unitEventRegistrations = (wow.unitEventRegistrations or 0) + 1
+    return true
+  end,
+  UnregisterEvent = function(self, event)
+    self._events[event] = nil
+    if rawget(self, "_unitEvents") then self._unitEvents[event] = nil end
+  end,
   IsEventRegistered = function(self, event) return self._events[event] == true end,
 }
 
 local function noop() end
+
+-- Texturen merken Datei oder Atlas (SetUnitCursorTexture im Test schreibt so das Zeiger-Symbol)
+frameMethods.SetTexture = function(self, texture) self._texture = texture end
+frameMethods.GetTexture = function(self) return rawget(self, "_texture") end
+frameMethods.GetAtlas = function(self) return rawget(self, "_atlas") end
+
+-- Animationen: nur Abspielzustand (group:IsPlaying) und Skripte (OnLoop, OnFinished); Werte werden nicht ausgewertet.
+-- frame._animationGroups listet die Gruppen eines Frames bzw. einer Textur für Prüfungen.
+local function newAnimationGroup()
+  local group = { _playing = false, _scripts = {}, _animations = {} }
+  group.Play = function(self) self._playing = true end
+  group.Stop = function(self) self._playing = false end
+  group.IsPlaying = function(self) return self._playing end
+  group.SetScript = function(self, name, handler) self._scripts[name] = handler end
+  group.GetScript = function(self, name) return self._scripts[name] end
+  group.CreateAnimation = function(self, kind)
+    local animation = setmetatable({ _kind = kind }, { __index = function() return noop end })
+    table.insert(self._animations, animation)
+    return animation
+  end
+  return setmetatable(group, { __index = function() return noop end })
+end
+
+frameMethods.CreateAnimationGroup = function(self)
+  local group = newAnimationGroup()
+  self._animationGroups = rawget(self, "_animationGroups") or {}
+  table.insert(self._animationGroups, group)
+  return group
+end
 
 local function newFrame()
   local frame = {
@@ -220,13 +269,32 @@ local function newFrame()
   frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
   return setmetatable(frame, {
-    __index = function(_, key) return frameMethods[key] or noop end,
+    -- false in frameMethods = Methode fehlt in diesem Client (nil statt No-Op)
+    __index = function(_, key)
+      local method = frameMethods[key]
+      if method == false then return nil end
+      return method or noop
+    end,
   })
+end
+
+-- Szenarien no_unit_events*: Client ohne Frame:RegisterUnitEvent (Rückfall: selbst nach Einheit filtern)
+if (SCENARIO or ""):match("^no_unit_events") then frameMethods.RegisterUnitEvent = false end
+
+-- Unit-Event für eine andere Einheit als angemeldet?
+local function filteredUnitEvent(frame, event, unit)
+  local unitEvents = rawget(frame, "_unitEvents")
+  local units = unitEvents and unitEvents[event]
+  if not units then return false end
+  for _, wanted in ipairs(units) do
+    if wanted == unit then return false end
+  end
+  return true
 end
 
 function wow.fire(event, ...)
   for _, frame in ipairs(frames) do
-    if frame._events[event] and frame._scripts.OnEvent then
+    if frame._events[event] and frame._scripts.OnEvent and not filteredUnitEvent(frame, event, ...) then
       frame._scripts.OnEvent(frame, event, ...)
     end
   end
@@ -315,6 +383,21 @@ end
 -- WoW-Globals
 ---------------------------------------------------------------------------
 local state = wow.state
+
+-- Buffs ändern sich im Client nie ohne UNIT_AURA: wow.state.buffs = { ... } meldet das Event für den Spieler
+-- (der Aura-Schnappschuss in Lib/Auras.lua liest erst danach neu)
+do
+  local buffs = state.buffs
+  state.buffs = nil
+  setmetatable(state, {
+    __index = function(_, key) if key == "buffs" then return buffs end end,
+    __newindex = function(self, key, value)
+      if key ~= "buffs" then return rawset(self, key, value) end
+      buffs = value
+      wow.fire("UNIT_AURA", "player")
+    end,
+  })
+end
 
 -- Benannte Frames landen wie im Client als Global (z.B. LevelTimerFrame)
 CreateFrame = function(_, name, parent)
@@ -427,9 +510,25 @@ function GetMaxPlayerLevel() return state.maxLevel end
 function GetXPExhaustion() return state.rested > 0 and state.rested or nil end
 function GetMoney() return state.money end
 function GetTime() return state.now end
+-- Profiler-Uhr in Millisekunden: läuft mit GetTime; wow.profileMs schiebt sie zusätzlich vor (teurer Handler)
+wow.profileMs = 0
+function debugprofilestop() return state.now * 1000 + wow.profileMs end
+-- Aufrufstapel wie im Client ("Datei.lua:Zeile: in function ...", ab dem Aufrufer), aus gopher-luas traceback
+function debugstack()
+  local trace = debug and debug.traceback and debug.traceback() or ""
+  return (trace:gsub("^stack traceback:%s*[^\n]*\n", ""))
+end
 -- Geheime Werte (Retail/Forever): Tests setzen wow.SECRET als Rückgabe einer API
 wow.SECRET = setmetatable({}, { __tostring = function() return "<secret>" end })
 function issecretvalue(value) return value == wow.SECRET end
+-- xpcall wie im WoW-Client (reicht Argumente durch) für Szenarien native_xpcall_*; sonst Lua 5.1 wie gopher-lua
+if (SCENARIO or ""):match("^native_xpcall") then
+  local luaXpcall = xpcall
+  function xpcall(fn, handler, ...)
+    local count, args = select("#", ...), { ... }
+    return luaXpcall(function() return fn(unpack(args, 1, count)) end, handler)
+  end
+end
 -- Fehler-Handler des Clients: merkt sich Fehler, statt sie anzuzeigen
 wow.errors = {}
 function geterrorhandler() return function(message) table.insert(wow.errors, message) end end
@@ -845,6 +944,13 @@ function CompleteQuest() questAction("complete") end
 function GetQuestMoneyToGet() return state.questMoney end
 function GetNumQuestChoices() return #state.questChoices end
 function GetQuestItemLink(kind, index) return kind == "choice" and state.questChoices[index] or nil end
+-- 5. Wert isUsable: state.questChoiceUnusable[i] = true für nicht benutzbare Wahlen
+function GetQuestItemInfo(kind, index)
+  if kind ~= "choice" or not state.questChoices[index] then return nil end
+  return "Wahl " .. index, 134000, 1, 2, not (state.questChoiceUnusable or {})[index]
+end
+-- Angelegte Ausrüstung: state.equipped[platz] = Link
+function GetInventoryItemLink(_, slot) return (state.equipped or {})[slot] end
 function GetQuestReward(choice) questAction("reward", choice) end
 
 C_Item = {
@@ -854,10 +960,16 @@ C_Item = {
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
   end,
   -- Wie im Client: nichts für unbekannte IDs, sonst itemID, Typ, Untertyp, Platz, Symbol, Klasse, Unterklasse
-  GetItemInfoInstant = function(itemID)
+  GetItemInfoInstant = function(item)
+    local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
     local icon = state.itemIcons[itemID]
     if not icon then return nil end
-    return itemID, "Rüstung", "Leder", "INVTYPE_FEET", icon, 4, 2
+    return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
+  end,
+  -- Itemlevel je itemID: state.itemLevels
+  GetDetailedItemLevelInfo = function(item)
+    local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
+    return (state.itemLevels or {})[itemID]
   end,
 }
 

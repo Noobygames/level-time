@@ -1,4 +1,4 @@
--- Stream Goal: jede Sprache hat jeden Text mit denselben Platzhaltern wie Englisch, und alle landen in den
+-- Level Time Goals: jede Sprache hat jeden Text mit denselben Platzhaltern wie Englisch, und alle landen in den
 -- Sprachtabellen von Level Time (die gemeinsamen Bausteine lesen sie dort).
 local texts = streamGoal.locales
 local english = texts.enUS

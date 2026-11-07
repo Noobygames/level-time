@@ -7,6 +7,12 @@ local function printHelp()
   for line in L.HELP:gmatch("[^\n]+") do ns.Print(line) end
 end
 
+-- Schalter umlegen und den neuen Zustand melden
+local function toggleSetting(key, onText, offText)
+  ns.Set(key, not ns.db[key])
+  ns.Print(L[ns.db[key] and onText or offText])
+end
+
 local commands = {
   help = function() printHelp() end,
   [""] = function() ns.ToggleOptions() end,
@@ -24,15 +30,15 @@ local commands = {
     ns.TimerWindow.ResetLayout()
     ns.Print(L.RESET_DONE)
   end,
-  compact = function() ns.Set("compactMode", not ns.db.compactMode) end,
-  bar = function() ns.Set("horizontalLayout", not ns.db.horizontalLayout) end,
+  compact = function() toggleSetting("compactMode", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
+  bar = function() toggleSetting("horizontalLayout", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
   resetinstance = function() ns.ConfirmInstanceReset() end,
   recap = function() ns.ToggleRecap() end,
   -- /lt copy: Zeilen des aktuellen Chatfensters zum Kopieren (ChatCopy.lua)
   copy = function() ns.ChatCopy.ShowCurrent() end,
   stream = function() ns.StreamMode.Toggle() end,
-  splits = function() ns.Set("showSplitList", not ns.db.showSplitList) end,
+  splits = function() toggleSetting("showSplitList", "CMD_SPLITS_ON", "CMD_SPLITS_OFF") end,
   -- /lt split [Name] | undo | template: eigene Splits (CustomSplits.lua)
   split = function(argument) ns.CustomSplits.Command(argument) end,
   -- /lt profile: Liste | <Name> wechseln | save <Name> | delete <Name> | export | import
@@ -45,11 +51,10 @@ local commands = {
       ns.Print(string.format(L.PROFILE_LIST, Profiles.DisplayName(Profiles.GetActive()), table.concat(names, ", ")))
     elseif Profiles.Switch(argument) then
       return  -- der ganze Text ist ein Profilname, auch "save x" oder "export"
-    elseif action == "save" and Profiles.SaveAs(name) then
-      ns.Print(string.format(L.PROFILE_SAVED, name))
-      ns.ApplySettings()
+    elseif action == "save" then
+      ns.ConfirmProfileSave(name)  -- vorhandenes Profil erst nach Rückfrage
     elseif action == "delete" then
-      ns.Print(Profiles.Delete(name) and string.format(L.PROFILE_DELETED, name) or L.PROFILE_NOT_DELETED)
+      ns.ConfirmProfileDelete(name)
     elseif action == "export" then
       ns.Export.Show(Profiles.DisplayName(Profiles.GetActive()), Profiles.Export(Profiles.GetActive()))
     elseif action == "import" then
@@ -110,10 +115,25 @@ local commands = {
     ns.debug = not ns.debug  -- bewusst nicht gespeichert, gilt bis /reload
     ns.Print(ns.debug and L.DEBUG_ON or L.DEBUG_OFF)
   end,
-  sync = function() ns.PlayedTime.Sync() end,
-  show = function() ns.Set("showTimer", true) end,
-  hide = function() ns.Set("showTimer", false) end,
-  minimap = function() ns.SetMinimapHidden(not ns.db.minimap.hide) end,
+  sync = function()
+    ns.Print(L.CMD_SYNC)
+    ns.PlayedTime.Sync(function(total, thisLevel)
+      ns.Print(string.format(L.CMD_SYNCED, ns.Format.Duration(total), ns.Format.Duration(thisLevel)))
+    end)
+  end,
+  show = function()
+    ns.Set("showTimer", true)
+    ns.Print(L.CMD_SHOWN)
+  end,
+  hide = function()
+    ns.Set("showTimer", false)
+    ns.Print(L.CMD_HIDDEN)
+  end,
+  minimap = function()
+    local hide = not ns.db.minimap.hide
+    ns.SetMinimapHidden(hide)  -- meldet das Ausblenden selbst (MINIMAP_HIDDEN)
+    if not hide then ns.Print(L.CMD_MINIMAP_ON) end
+  end,
 }
 
 SLASH_LEVELTIMER1 = "/leveltimer"

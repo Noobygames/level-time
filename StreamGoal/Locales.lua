@@ -1,11 +1,11 @@
--- Texte von Stream Goal. Sie werden in die Sprachtabellen von Level Time eingehängt (Schlüssel mit Präfix SG_),
+-- Texte von Level Time Goals. Sie werden in die Sprachtabellen von Level Time eingehängt (Schlüssel mit Präfix SG_),
 -- damit die gemeinsamen Bausteine (Tabelle, Karten, Export) sie in der dort gewählten Sprache finden.
 local _, ns = ...
 local LT = LevelTimerAPI
 
 local strings = {
   deDE = {
-    SG_TITLE = "Stream Goal",
+    SG_TITLE = "Level Time Goals",
     SG_TAB_GOALS = "Ziele",
     SG_TAB_HISTORY = "Historie",
     SG_KIND_LEVEL = "Level",
@@ -73,7 +73,7 @@ local strings = {
     SG_HELP = "/sg: Fenster | add level 20 | add kills 100 [pve|pvp] [bg] | add item <Link/ID> [Anzahl] | add bgwin 3 [Name] | add custom [Anzahl] <Text> | count <Nr> [+/-Anzahl] | list | cancel <Nr> | tracker | move | scale <0.5-2> | history",
   },
   enUS = {
-    SG_TITLE = "Stream Goal",
+    SG_TITLE = "Level Time Goals",
     SG_TAB_GOALS = "Goals",
     SG_TAB_HISTORY = "History",
     SG_KIND_LEVEL = "Level",
@@ -141,7 +141,7 @@ local strings = {
     SG_HELP = "/sg: window | add level 20 | add kills 100 [pve|pvp] [bg] | add item <link/ID> [amount] | add bgwin 3 [name] | add custom [amount] <text> | count <no.> [+/-amount] | list | cancel <no.> | tracker | move | scale <0.5-2> | history",
   },
   frFR = {
-    SG_TITLE = "Stream Goal",
+    SG_TITLE = "Level Time Goals",
     SG_TAB_GOALS = "Objectifs",
     SG_TAB_HISTORY = "Historique",
     SG_KIND_LEVEL = "Niveau",
@@ -209,7 +209,7 @@ local strings = {
     SG_HELP = "/sg : fenêtre | add level 20 | add kills 100 [pve|pvp] [bg] | add item <lien/ID> [quantité] | add bgwin 3 [nom] | add custom [quantité] <texte> | count <n°> [+/-quantité] | list | cancel <n°> | tracker | move | scale <0.5-2> | history",
   },
   esES = {
-    SG_TITLE = "Stream Goal",
+    SG_TITLE = "Level Time Goals",
     SG_TAB_GOALS = "Metas",
     SG_TAB_HISTORY = "Historial",
     SG_KIND_LEVEL = "Nivel",

@@ -48,3 +48,19 @@ expect("Fenster zu", LevelTimerRecap:IsShown(), false)
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Button in den Einstellungen", wow.click(L.RECAP_TITLE))
 expect("Fenster per Button", LevelTimerRecap:IsShown(), true)
+
+-- Roadmap 209: Chroma-Hintergrund wie das Zeitfenster, offene Karte zählt mit
+addon.Set("windowBackground", "green")
+expect("Chroma-Grün", LevelTimerRecap._backdropColor[2], 1)
+expect("Chroma deckend", LevelTimerRecap._backdropColor[4], 1)
+addon.Set("windowBackground", "default")
+expect("eigener dunkler Hintergrund", LevelTimerRecap._backdropColor[4], 0.95)
+local function shownValue(text)
+  return wow.findFrame(function(frame) return frame._text == text end) ~= nil
+end
+local kills = addon.Stats.GetTotalKills(addon.Stats.SESSION)
+expectTrue("Kills sichtbar", shownValue(tostring(kills)))
+wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Eber stirbt, Ihr bekommt 50 Erfahrung.")
+wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Eber stirbt, Ihr bekommt 50 Erfahrung.")
+wow.update(1.1)
+expectTrue("Kills aktualisiert ohne neu öffnen", shownValue(tostring(kills + 2)))

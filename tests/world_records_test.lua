@@ -45,7 +45,10 @@ end
 local recordRow = string.format(L.WORLD_RECORD_ROW, "1-10")
 expectTrue("Rekord-Zeile", footerLabels()[recordRow] ~= nil)
 expectTrue("Stand der Rekorde", footerLabels()[L.RECORDS_AGE] ~= nil)
-expect("Stand", footerLabels()[L.RECORDS_AGE][2], "2026-10-02")
+expect("Stand als lokalisiertes Datum", footerLabels()[L.RECORDS_AGE][2], "02.10.2026")
+addon.Set("language", "enUS")
+expect("Stand auf Englisch", footerLabels()[L.RECORDS_AGE][2], "10/02/2026")
+addon.Set("language", "deDE")
 LevelTimerDB.recordBrackets["1-10"] = false
 expect("Abschnitt ausblendbar", footerLabels()[recordRow], nil)
 expectTrue("anderer Abschnitt bleibt", footerLabels()[string.format(L.WORLD_RECORD_ROW, "1-20")] ~= nil)

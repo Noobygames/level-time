@@ -37,8 +37,11 @@ expect("links vom Lebensbalken: Anker", point[1], "RIGHT")
 expect("links vom Lebensbalken: Bezug", point[2], bar)
 expect("links vom Lebensbalken: Seite", point[3], "LEFT")
 expect("Abstand", point[4], -5)
-bar:SetHeight(20)
+mark._points = { { "unverändert" } }
 wow.update(1.1)
+expect("gleicher Balken: nicht neu verankert", mark._points[1][1], "unverändert")
+bar:SetHeight(20)
+wow.update(5)  -- ohne Questlog-Änderung: Sicherheitsnetz
 expect("folgt dem Balken", mark:GetHeight(), 30)
 bar:SetHeight(12)
 
@@ -48,15 +51,18 @@ expect("kein Questziel: keine Markierung", created[plates.nameplate2], nil)
 
 -- Ziel erfüllt: das Spiel meldet false, Markierung weg
 related.nameplate1 = false
+wow.fire("QUEST_LOG_UPDATE")
 wow.update(1.1)
 expect("Ziel erfüllt: Markierung weg", mark:IsShown(), false)
 related.nameplate1 = true
+wow.fire("QUEST_LOG_UPDATE")
 wow.update(1.1)
 expect("Quest wieder offen: Markierung da", mark:IsShown(), true)
 
 -- Geheimer Rückgabewert: keine Markierung, kein Fehler
 issecretvalue = function(value) return value == "geheim" end
 related.nameplate1 = "geheim"
+wow.fire("QUEST_LOG_UPDATE")
 wow.update(1.1)
 expect("geheim: Markierung weg", mark:IsShown(), false)
 issecretvalue = nil

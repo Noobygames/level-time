@@ -1,4 +1,4 @@
--- Kern von Stream Goal: bindet die Bausteine von Level Time (LevelTimerAPI) und lädt die gespeicherten Daten.
+-- Kern von Level Time Goals: bindet die Bausteine von Level Time (LevelTimerAPI) und lädt die gespeicherten Daten.
 -- Das Addon hängt per "## Dependencies: LevelTimer" von Level Time ab; Ereignisse, Login, Karten, Fenster,
 -- Tabellen und Texte kommen von dort, hier liegt nur, was zu den Zielen gehört.
 --
@@ -9,7 +9,7 @@ local _, ns = ...
 local LT = LevelTimerAPI
 ns.LT = LT
 ns.L = LT.L
-ns.DISPLAY_NAME = "Stream Goal"
+ns.DISPLAY_NAME = "Level Time Goals"
 
 local PREFIX = "|cfff4c95d" .. ns.DISPLAY_NAME .. ":|r "
 

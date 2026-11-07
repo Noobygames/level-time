@@ -18,6 +18,7 @@ ns.Tooltip = Tooltip
 
 local TARGET_SUFFIX = "target"
 local NEUTRAL_COLOR = { 1, 1, 1 }
+local QUEST_COLOR = { 1, 0.82, 0 }
 
 local function readable(...)
   for index = 1, select("#", ...) do
@@ -79,7 +80,27 @@ local function onUnitTooltip(tooltip)
   if ns.db.tooltipKillsToLevel then
     local text, color = Tooltip.KillsLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
+    if ns.IsDebugging() then
+      local name = UnitName(unit)
+      ns.Debug("tooltip", "kills line for %s (level %s): %s", name, UnitLevel(unit), text)
+    end
   end
+  if ns.db.questLearning then
+    local text = Tooltip.LearnedQuestLine(unit)
+    if text then tooltip:AddLine(text, unpack(QUEST_COLOR)) end
+  end
+end
+
+-- Gelernte Questzuordnung (QuestMobs.lua) für Ziel und Mouseover, nur wo der Client selbst keine Questzeilen
+-- in den Einheiten-Tooltip schreibt (ohne C_TooltipInfo, also Classic Era/TBC): "Quest: Wölfe jagen (3/8)"
+function Tooltip.LearnedQuestLine(unit)
+  if ns.QuestTooltip.HasTooltipInfo() then return nil end
+  local name = UnitName(unit)
+  if not readable(name) then return nil end
+  local progress, hit = ns.QuestMobs.ProgressOf(name)
+  if not hit then return nil end
+  local title = hit.title or ""
+  return string.format(L.TOOLTIP_QUEST_LINE, progress and string.format("%s (%s)", title, progress) or title)
 end
 
 -- Im Kampf ausblenden: nur Einheiten-Tooltips (auch geheime Einheiten zählen als Einheit)
@@ -111,5 +132,6 @@ local function hook()
 end
 
 ns.RegisterApply(function(db)
-  if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat or db.tooltipKillsToLevel then hook() end
+  if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat or db.tooltipKillsToLevel
+    or db.questLearning then hook() end
 end)

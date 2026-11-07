@@ -94,6 +94,19 @@ function OptionsBuilder.New(options)
   end
   local onRefresh = builder.OnRefresh
 
+  -- Texte, deren Breite fitWidth misst (Reiter, Schalter, Auswahlzeilen, Buttons): nur bei geändertem Text setzen;
+  -- Messen und neu Anordnen (fitWidth) nur, wenn sich mindestens einer geändert hat (Sprachwechsel, Werte in
+  -- Beschriftungen), nicht bei jeder Einstellungsänderung. true = Text hat sich geändert.
+  local measuredTexts = {}  -- [Widget] = zuletzt gesetzter Text
+  local layoutStale = true
+  local function setMeasuredText(widget, method, text)
+    if measuredTexts[widget] == text then return false end
+    measuredTexts[widget] = text
+    widget[method](widget, text)
+    layoutStale = true
+    return true
+  end
+
   -------------------------------------------------------------------------
   -- Reiter: je Reiter eine Seite über das ganze Fenster; Steuerelemente hängen an ihrer Seite
   -------------------------------------------------------------------------
@@ -137,7 +150,7 @@ function OptionsBuilder.New(options)
     table.insert(pages, entry)
     page = entry.frame
     nextRowY = CONTENT_TOP
-    onRefresh(function() entry.tabButton:SetLabel(L[labelKey]) end)
+    onRefresh(function() setMeasuredText(entry.tabButton, "SetLabel", L[labelKey]) end)
   end
 
   local function showSubPage(bar, selected)
@@ -165,7 +178,7 @@ function OptionsBuilder.New(options)
     table.insert(bar.entries, entry)
     page = entry.frame
     nextRowY = bar.startY
-    onRefresh(function() entry.button:SetLabel(L[labelKey]) end)
+    onRefresh(function() setMeasuredText(entry.button, "SetLabel", L[labelKey]) end)
   end
 
   -- Unterseiten abschließen: weiter auf der Seite unter der längsten Unterseite bzw. der Seitenleiste
@@ -245,10 +258,11 @@ function OptionsBuilder.New(options)
       table.insert(toggleCells, { checkbox = checkbox, column = column, y = nextRowY - row * ROW_CHECKBOX })
       addTooltip(checkbox, toggle.tip or (toggle.label .. "_TIP"), function() return checkbox.label:GetText() end)
       onRefresh(function(db)
-        checkbox.label:SetText(toggle.text and toggle.text() or L[toggle.label])
         checkbox:SetChecked(toggle.get(db))
-        -- Beschriftung gehört zur Klick- und Tooltip-Fläche
-        checkbox:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + checkbox.label:GetStringWidth()), 0, 0)
+        if setMeasuredText(checkbox.label, "SetText", toggle.text and toggle.text() or L[toggle.label]) then
+          -- Beschriftung gehört zur Klick- und Tooltip-Fläche
+          checkbox:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + checkbox.label:GetStringWidth()), 0, 0)
+        end
       end)
     end
     nextRowY = nextRowY - math.ceil(#toggles / 2) * ROW_CHECKBOX
@@ -269,7 +283,7 @@ function OptionsBuilder.New(options)
         button:SetPoint("LEFT", widgets[i - 1], "RIGHT", BUTTON_ROW_GAP, 0)
       end
       addTooltip(button, definition.label .. "_TIP", localized(definition.label))
-      onRefresh(function() button:SetText(L[definition.label]) end)
+      onRefresh(function() setMeasuredText(button, "SetText", L[definition.label]) end)
       widgets[i] = button
     end
     -- Breite gleichmäßig auf die Buttons verteilen, sobald die Zeile ihre Größe kennt
@@ -305,7 +319,7 @@ function OptionsBuilder.New(options)
     end
     table.insert(footerButtons, button)
     addTooltip(button, labelKey .. "_TIP", localized(labelKey))
-    onRefresh(function() button:SetText(L[labelKey]) end)
+    onRefresh(function() setMeasuredText(button, "SetText", L[labelKey]) end)
   end
 
   -- Auswahl als Zeile von Reitern: chooser = { label = Locale-Key, setting, choices = { { value, name() }, ... } }
@@ -324,12 +338,12 @@ function OptionsBuilder.New(options)
       table.insert(row.tabs, tab)
       addTooltip(tab, chooser.label .. "_TIP", localized(chooser.label))
       onRefresh(function(db)
-        tab:SetLabel(choice.name())
+        setMeasuredText(tab, "SetLabel", choice.name())
         tab:SetActive(db[chooser.setting] == choice.value)
       end)
     end
     nextRowY = nextRowY - ROW_CHOOSER
-    onRefresh(function() label:SetText(L[chooser.label]) end)
+    onRefresh(function() setMeasuredText(label, "SetText", L[chooser.label]) end)
   end
 
   -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional };
@@ -354,7 +368,7 @@ function OptionsBuilder.New(options)
     table.insert(chooserRows, { label = label, tabs = { box } })  -- Breite prüft fitWidth wie bei Auswahlzeilen
     nextRowY = nextRowY - ROW_CHOOSER
     onRefresh(function(db)
-      label:SetText(L[input.label])
+      setMeasuredText(label, "SetText", L[input.label])
       current = input.get(db) or ""
       if not box:HasFocus() then box:SetText(current) end
     end)
@@ -477,15 +491,31 @@ function OptionsBuilder.New(options)
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end
   end
 
+  local refreshPending = false  -- Einstellungen haben sich bei geschlossenem Fenster geändert
+
   function builder.Refresh(db)
+    refreshPending = false
     title:SetText(options.title())
     for _, refreshControl in ipairs(refreshers) do
       refreshControl(db)
     end
-    fitWidth()
+    if layoutStale then
+      layoutStale = false
+      fitWidth()
+    end
     -- Bildschirmgröße oder UI-Skalierung können sich geändert haben
     if wantedHeight then panel:SetHeight(math.min(wantedHeight, maxPanelHeight())) end
   end
+
+  -- Für ns.RegisterApply: nur das offene Fenster aktualisieren (jede Einstellungsänderung ruft das, auch bei
+  -- geschlossenem Fenster); geschlossen holt OnShow es nach
+  function builder.RefreshIfShown(db)
+    if panel:IsShown() then builder.Refresh(db) else refreshPending = true end
+  end
+
+  panel:SetScript("OnShow", function()
+    if refreshPending and ns.db then builder.Refresh(ns.db) end
+  end)
 
   return builder
 end

@@ -32,17 +32,17 @@ local function spellName(spellID)
   return C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(spellID)
 end
 
--- true, wenn der Buff fehlt; nil, wenn sich das nicht feststellen lässt (Auren gesperrt, siehe Lib/Auras.lua)
-local function missing(matches)
-  local active = ns.Auras.Has(matches)
-  if active == nil then return nil end
-  return not active
+-- true, wenn der Buff fehlt; nil, wenn sich das nicht feststellen lässt (Auren gesperrt, siehe Lib/Auras.lua).
+-- found = Ergebnis von Auras.FindByName/FindBySpellId (Aura, false oder nil)
+local function missing(found)
+  if found == nil then return nil end
+  return not found
 end
 
 function BuffReminder.IsFoodMissing()
   local name = spellName(WELL_FED_SPELL_ID)
   if not name then return nil end
-  return missing(function(aura) return aura.name == name end)
+  return missing(ns.Auras.FindByName(name))
 end
 
 function BuffReminder.HasCampSystem()
@@ -51,7 +51,7 @@ end
 
 function BuffReminder.IsCampMissing()
   if not BuffReminder.HasCampSystem() or not spellName(CAMP_SPELL_ID) then return nil end
-  return missing(function(aura) return aura.spellId == CAMP_SPELL_ID end)
+  return missing(ns.Auras.FindBySpellId(CAMP_SPELL_ID))
 end
 
 function BuffReminder.HasChargedSystem()
@@ -67,7 +67,7 @@ function BuffReminder.IsChargedMissing()
   if not BuffReminder.HasChargedSystem() or not BuffReminder.IsSkyborne() or not spellName(CHARGED_SPELL_ID) then
     return nil
   end
-  return missing(function(aura) return aura.spellId == CHARGED_SPELL_ID end)
+  return missing(ns.Auras.FindBySpellId(CHARGED_SPELL_ID))
 end
 
 -- Je Hinweis: Einstellung, Prüfung, Text (Schlüssel oder Funktion), Symbol (Schlüssel aus Alerts.ICONS oder

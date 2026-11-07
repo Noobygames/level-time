@@ -56,11 +56,29 @@ ns.Journal.OnAdd(function(logName, entry)
   end
 end)
 
--- Abgegebene Quests mit Dauer, neueste zuerst (Historie, Speedrun > Quest-Splits)
-function QuestSplits.GetRecords(characterKey)
-  local records = {}
-  for _, entry in ipairs(ns.History.GetQuestLog(characterKey)) do
-    if entry.duration then table.insert(records, entry) end
+-- Abgegebene Quests mit Dauer, älteste zuerst (Speedrun > Quest-Splits, TableView appendOnly). Je Quest-Journal-Liste
+-- eine eigene Liste, die wie das Journal nur hinten wächst: neue Quests werden angehängt statt jede Sekunde alle zu
+-- filtern. Die Dauer steht schon beim Anlegen im Eintrag (OnAdd oben). Ergebnis nicht verändern.
+local splitLists = setmetatable({}, { __mode = "k" })  -- [Journal-Liste] = { count, records }
+
+function QuestSplits.GetEntries(characterKey)
+  local journal = ns.Journal.GetEntries(characterKey, "questLog")
+  local cached = splitLists[journal]
+  if not cached or #journal < cached.count then
+    cached = { count = 0, records = {} }
+    splitLists[journal] = cached
   end
+  local records = cached.records
+  for i = cached.count + 1, #journal do
+    if journal[i].duration then records[#records + 1] = journal[i] end
+  end
+  cached.count = #journal
+  return records
+end
+
+-- Dasselbe, neueste zuerst (neue Liste)
+function QuestSplits.GetRecords(characterKey)
+  local entries, records = QuestSplits.GetEntries(characterKey), {}
+  for i = #entries, 1, -1 do records[#records + 1] = entries[i] end
   return records
 end

@@ -1,8 +1,8 @@
-# Stream Goal
+# Level Time Goals
 
 Set goals for your stream and show them as cards on screen. Viewers see at a glance what you are working on and how far along you are; when a goal is reached you get a big on-screen alert.
 
-**Requires [Level Time](https://www.curseforge.com/wow/addons/level-time).** Stream Goal builds on its cards, alerts and tables, so install both.
+**Requires [Level Time](https://www.curseforge.com/wow/addons/level-time).** Level Time Goals builds on its cards, alerts and tables, so install both.
 
 ## Goal types
 

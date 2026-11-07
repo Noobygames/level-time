@@ -131,12 +131,15 @@ end
 
 local function markButtons()
   clearMarks()
+  local names = {}
   for _, button in ipairs(ns.ActionBars.Buttons()) do
     if Emergency.IsEmergencyAction(button.action) then
       marked[button] = true
       glowFor(button):Show()
+      names[#names + 1] = ns.Overrides.NameOf(button) .. "=" .. tostring(button.action)
     end
   end
+  ns.Debug("emergency", "marked %s", table.concat(names, ", "))
   dirty = false
 end
 
@@ -179,23 +182,24 @@ local function update()
   end
 end
 
-local function onHealth(unit)
-  if unit == "player" then update() end
-end
-
 local function onSlotsChanged()
   dirty = true
   if active then markButtons() end
 end
 
-ns.RegisterEvent("UNIT_HEALTH", onHealth)
-ns.RegisterEvent("UNIT_HEALTH_FREQUENT", onHealth)
-ns.RegisterEvent("UNIT_MAXHEALTH", onHealth)
+-- Lebens-Events nur für den Spieler und nur, solange der Hinweis an und verfügbar ist
+local healthEvents = ns.NewEventGroup()
+for _, event in ipairs({ "UNIT_HEALTH", "UNIT_HEALTH_FREQUENT", "UNIT_MAXHEALTH" }) do
+  healthEvents.Add(event, "player", update)
+end
 ns.RegisterEvent("PLAYER_DEAD", update)
 for _, event in ipairs({ "ACTIONBAR_SLOT_CHANGED", "ACTIONBAR_PAGE_CHANGED", "UPDATE_BONUS_ACTIONBAR" }) do
   ns.RegisterEvent(event, onSlotsChanged)
 end
-ns.RegisterApply(update)
+ns.RegisterApply(function(db)
+  healthEvents.SetActive(db.emergencyHighlight and Emergency.IsAvailable())
+  update()
+end)
 
 -- /lt debug check: welche Items und Zauber der Liste der Client kennt (Namen in der Client-Sprache)
 ns.DebugLog.AddCheck("emergency.actions", function()

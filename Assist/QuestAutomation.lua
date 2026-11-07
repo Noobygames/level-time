@@ -54,7 +54,9 @@ local function isBlockedDialog()
   if Blocklist.Blocks(questID, GetTitleText()) then return true end
   if not (C_QuestLog.IsRepeatableQuest and type(questID) == "number" and questID ~= 0) then return false end
   local repeatable = C_QuestLog.IsRepeatableQuest(questID)
-  return not ns.IsSecret(repeatable) and repeatable == true
+  local blocked = not ns.IsSecret(repeatable) and repeatable == true
+  if blocked then ns.Debug("quests", "quest %s is repeatable, left to the player", questID) end
+  return blocked
 end
 
 -- Erste lohnende Quest aus einer Liste von C_GossipInfo (GossipQuestUIInfo)
@@ -120,21 +122,9 @@ ns.RegisterEvent("QUEST_PROGRESS", function()
   CompleteQuest()
 end)
 
--- Verkaufswert einer Belohnung zur Auswahl; nil, solange der Client das Item nicht kennt
-local function choiceValue(index)
-  local link = GetQuestItemLink("choice", index)
-  return link and ns.Items.GetSellPrice(link)
-end
-
--- Belohnung mit dem höchsten Verkaufswert; nil, wenn ein Wert noch unbekannt ist
+-- Belohnung mit dem höchsten Verkaufswert; nil, wenn ein Wert noch unbekannt ist (Lib/QuestRewards.lua)
 local function mostValuableChoice(count)
-  local best, bestValue
-  for index = 1, count do
-    local value = choiceValue(index)
-    if not value then return nil end
-    if not bestValue or value > bestValue then best, bestValue = index, value end
-  end
-  return best
+  return (ns.QuestRewards.MostValuable(count))
 end
 
 -- Welche Belohnung genommen wird; nil = Spieler wählt selbst
@@ -159,7 +149,10 @@ local lastSkipped  -- { id, at } der zuletzt automatisch gewählten Option
 -- Die einzige Gesprächsoption, wenn es sonst nichts zu tun gibt (z.B. Flugmeister, Händler).
 -- Als Geist nie: der Geistheiler hat genau eine Option ("Wiederbeleben"), die Wiederbelebungsschwäche kostet.
 local function onlyOption()
-  if UnitIsDeadOrGhost("player") then return nil end
+  if UnitIsDeadOrGhost("player") then
+    ns.Debug("quests", "gossip: ghost, no option skipped")
+    return nil
+  end
   if C_GossipInfo.GetNumAvailableQuests() > 0 or C_GossipInfo.GetNumActiveQuests() > 0 then return nil end
   if C_GossipInfo.ForceGossip() then return nil end
   local options = C_GossipInfo.GetOptions()

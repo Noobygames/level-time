@@ -86,7 +86,7 @@ StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
   button1 = YES or "Yes",
   button2 = NO or "No",
   OnAccept = function(_, name)
-    ns.Profiles.Delete(name)
+    if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
     ns.ApplySettings()
   end,
   timeout = 0,
@@ -94,6 +94,52 @@ StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
   hideOnEscape = true,
   preferredIndex = 3,
 }
+
+-- Profil nach Rückfrage löschen (Rechtsklick in der Liste und /lt profile delete); nicht löschbare melden sich sofort
+function ns.ConfirmProfileDelete(name)
+  if not ns.Profiles.CanDelete(name) then
+    ns.Print(L.PROFILE_NOT_DELETED)
+    return
+  end
+  StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM  -- aktuelle Sprache
+  StaticPopup_Show(DELETE_PROFILE_POPUP, ns.Profiles.DisplayName(name), nil, name)
+end
+
+local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
+local onProfileSaved  -- Rückruf des laufenden Speicherns (leert z.B. das Namensfeld)
+
+local function saveProfile(name)
+  if ns.Profiles.SaveAs(name) then
+    ns.Print(string.format(L.PROFILE_SAVED, name))
+    if onProfileSaved then onProfileSaved() end
+    ns.ApplySettings()
+  end
+end
+
+StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
+  button1 = YES or "Yes",
+  button2 = NO or "No",
+  OnAccept = function(_, name) saveProfile(name) end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+
+-- Einstellungen als Profil speichern (Button und /lt profile save); leerer Name meldet sich, ein vorhandenes
+-- Profil wird erst nach Rückfrage überschrieben. onSaved läuft nach dem Speichern.
+function ns.ConfirmProfileSave(name, onSaved)
+  name = strtrim(name or "")
+  onProfileSaved = onSaved
+  if name == "" then
+    ns.Print(L.PROFILE_NAME_EMPTY)
+  elseif ns.Profiles.Exists(name) then
+    StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
+    StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
+  else
+    saveProfile(name)
+  end
+end
 
 -- Liste der Profile: MAX_PROFILE_ROWS Zeilen; mehr Profile per Mausrad oder Scrollleiste erreichbar
 local function addProfileList()
@@ -124,8 +170,7 @@ local function addProfileList()
     local tab = Widgets.CreateTab(builder.Page(), "GameFontHighlight", function(self, mouseButton)
       local name = self.profileName
       if mouseButton == "RightButton" then
-        StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM
-        StaticPopup_Show(DELETE_PROFILE_POPUP, Profiles.DisplayName(name), nil, name)
+        ns.ConfirmProfileDelete(name)
       else
         Profiles.Switch(name)
       end
@@ -157,40 +202,14 @@ function ns.ShowProfileImport()
   end)
 end
 
-local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
-
 local function addProfileSaver()
   local page = builder.Page()
   local nameBox = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
   nameBox:SetSize(PROFILE_NAME_WIDTH, Builder.BUTTON_HEIGHT)
   nameBox:SetAutoFocus(false)
   nameBox:SetPoint("TOPLEFT", Builder.MARGIN + 6, builder.RowY())  -- Vorlage zeichnet ihren Rand links außerhalb
-  local function save(name)
-    if ns.Profiles.SaveAs(name) then
-      ns.Print(string.format(L.PROFILE_SAVED, name))
-      nameBox:SetText("")
-      ns.ApplySettings()
-    end
-  end
-  StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
-    button1 = YES or "Yes",
-    button2 = NO or "No",
-    OnAccept = function(_, name) save(name) end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-  }
   local saveButton = Widgets.CreateButton(page, PROFILE_SAVE_WIDTH, Builder.BUTTON_HEIGHT, function()
-    local name = strtrim(nameBox:GetText())
-    if name == "" then
-      ns.Print(L.PROFILE_NAME_EMPTY)
-    elseif ns.Profiles.Exists(name) then
-      StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
-      StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
-    else
-      save(name)
-    end
+    ns.ConfirmProfileSave(nameBox:GetText(), function() nameBox:SetText("") end)
   end)
   saveButton:SetPoint("LEFT", nameBox, "RIGHT", Builder.CHOOSER_TAB_GAP, 0)
   builder.AddTooltip(saveButton, "PROFILE_SAVE_TIP", localized("PROFILE_SAVE"))
@@ -221,7 +240,7 @@ addSlider({
   max = toPercent(TimerWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.scale) end,
-  set = function(value) ns.Set("scale", value / 100) end,
+  set = function(value) ns.SetDeferred("scale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -230,7 +249,7 @@ addSlider({
   max = 100,
   step = 5,
   get = function(db) return toPercent(db.bgAlpha) end,
-  set = function(value) ns.Set("bgAlpha", value / 100) end,
+  set = function(value) ns.SetDeferred("bgAlpha", value / 100) end,
   format = percent,
 })
 addToggles({
@@ -259,6 +278,7 @@ local presetButtons = {}
 for i, preset in ipairs(ns.STAT_PRESETS) do
   presetButtons[i] = { label = preset.label, onClick = function() ns.ApplyStatPreset(preset) end }
 end
+table.insert(presetButtons, { label = "PRESET_UNDO", onClick = function() ns.UndoStatPreset() end })
 builder.AddButtonRow(presetButtons)
 for _, group in ipairs(ns.STAT_GROUPS) do
   addSection(group)
@@ -279,7 +299,7 @@ addSlider({
   max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
   step = 1,
   get = function(db) return db.idleMinutes end,
-  set = function(value) ns.Set("idleMinutes", value) end,
+  set = function(value) ns.SetDeferred("idleMinutes", value) end,
   format = function(value) return value == 0 and L.IDLE_LIMIT_OFF or string.format(L.MINUTES, value) end,
 })
 addSlider({
@@ -288,7 +308,7 @@ addSlider({
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
   step = 5,
   get = function(db) return db.toLevelSamples end,
-  set = function(value) ns.Set("toLevelSamples", value) end,
+  set = function(value) ns.SetDeferred("toLevelSamples", value) end,
   format = function(value)
     return value == 0 and L.TO_LEVEL_SAMPLES_LEVEL or string.format(L.TO_LEVEL_SAMPLES_VALUE, value)
   end,
@@ -328,7 +348,7 @@ addSlider({
   max = ns.BuffReminder.MAX_INTERVAL,
   step = 1,
   get = function(db) return db.reminderInterval end,
-  set = function(value) ns.Set("reminderInterval", value) end,
+  set = function(value) ns.SetDeferred("reminderInterval", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
 -- Pausen-Erinnerung (BreakReminder.lua)
@@ -339,7 +359,7 @@ addSlider({
   max = ns.BreakReminder.MAX_MINUTES,
   step = 15,
   get = function(db) return db.breakMinutes end,
-  set = function(value) ns.Set("breakMinutes", value) end,
+  set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
 addSection("SECTION_WARNINGS")
@@ -358,6 +378,7 @@ addToggles({
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
 addSlider({
@@ -366,7 +387,7 @@ addSlider({
   max = ns.BreathWarning.MAX_SECONDS,
   step = 1,
   get = function(db) return db.breathWarnSeconds end,
-  set = function(value) ns.Set("breathWarnSeconds", value) end,
+  set = function(value) ns.SetDeferred("breathWarnSeconds", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addSlider({
@@ -375,7 +396,7 @@ addSlider({
   max = ns.ManaCallout.MAX_PERCENT,
   step = 5,
   get = function(db) return db.lowManaPercent end,
-  set = function(value) ns.Set("lowManaPercent", value) end,
+  set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
 })
 -- Munition: nur für Jäger
@@ -386,7 +407,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_AMMO,
     step = 20,
     get = function(db) return db.ammoLow end,
-    set = function(value) ns.Set("ammoLow", value) end,
+    set = function(value) ns.SetDeferred("ammoLow", value) end,
     format = function(value) return string.format(L.AMMO_COUNT, value) end,
   })
   addSlider({
@@ -395,7 +416,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_CRITICAL_AMMO,
     step = 10,
     get = function(db) return db.ammoCritical end,
-    set = function(value) ns.Set("ammoCritical", value) end,
+    set = function(value) ns.SetDeferred("ammoCritical", value) end,
     format = function(value) return value == 0 and L.AMMO_OFF or string.format(L.AMMO_COUNT, value) end,
   })
   addSlider({
@@ -404,7 +425,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     max = ns.GearWarnings.MAX_AMMO_REPEAT,
     step = 1,
     get = function(db) return db.ammoRepeat end,
-    set = function(value) ns.Set("ammoRepeat", value) end,
+    set = function(value) ns.SetDeferred("ammoRepeat", value) end,
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
   })
 end
@@ -421,7 +442,7 @@ do
       max = toPercent(display.MAX_SCALE),
       step = 5,
       get = function(db) return toPercent(db[scaleSetting]) end,
-      set = function(value) ns.Set(scaleSetting, value / 100) end,
+      set = function(value) ns.SetDeferred(scaleSetting, value / 100) end,
       format = percent,
     })
     builder.AddButtonRow({
@@ -446,7 +467,7 @@ do
       max = ns.CampFire.MAX_HINT_PAUSE,
       step = 1,
       get = function(db) return db.campHintPause end,
-      set = function(value) ns.Set("campHintPause", value) end,
+      set = function(value) ns.SetDeferred("campHintPause", value) end,
       format = function(value) return string.format(L.MINUTES, value) end,
     })
     addTimerDisplayControls("CAMP", ns.CampDisplay, "campScale")
@@ -569,29 +590,62 @@ addToggles({
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
+-- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
+local LootSparkles = ns.LootSparkles
+if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
+  addSection("SECTION_LOOT_SPARKLES")
+  addToggles({
+    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
+    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
+  })
+  if LootSparkles.CanSoftTarget() then
+    addSlider({
+      label = "LOOT_SPARKLE_SCALE",
+      min = toPercent(ns.LootSparkle.MIN_SCALE),
+      max = toPercent(ns.LootSparkle.MAX_SCALE),
+      step = 5,
+      get = function(db) return toPercent(db.lootSparkleScale) end,
+      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
+      format = percent,
+    })
+  end
+end
+-- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
+addSubPage("COMFORT_PAGE_QUESTS")
+addSection("SECTION_QUEST_LEARNING")
+addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
+addSection("SECTION_QUEST_LOG")
+addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
+addSection("SECTION_QUEST_DISPLAY")
+addToggles({
+  toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
+  toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
+  toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
+  toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
+  toggle("REWARD_HINT_TOGGLE", "rewardHint"),
+  toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
+  toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
+})
+builder.AddButtonRow({
+  { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
+  { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
+})
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
-  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks") })
+  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
   addSlider({
     label = "QUEST_MARK_SCALE",
     min = toPercent(ns.QuestMarks.MIN_SCALE),
     max = toPercent(ns.QuestMarks.MAX_SCALE),
     step = 5,
     get = function(db) return toPercent(db.questMarkScale) end,
-    set = function(value) ns.Set("questMarkScale", value / 100) end,
+    set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
     format = percent,
   })
 end
-addSection("SECTION_QUEST_DISPLAY")
-addToggles({
-  toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
-  toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
-  toggle("QUEST_TARGET_TOGGLE", "questTargetButton", ns.QuestItem.CanTarget),
-})
-builder.AddButtonRow({
-  { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
-  { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
-})
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({
@@ -616,7 +670,8 @@ addToggles({
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
 })
 addSection("SECTION_WORLD_MAP")
-addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap") })
+addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
+  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
@@ -642,7 +697,7 @@ addSlider({
   max = ns.ScreenEffects.MAX_WEATHER,
   step = 1,
   get = function(db) return db.weatherDensity end,
-  set = function(value) ns.Set("weatherDensity", value) end,
+  set = function(value) ns.SetDeferred("weatherDensity", value) end,
   format = function(value) return tostring(value) end,
 })
 -- Stummschalten nur, wo MuteSoundFile existiert
@@ -672,6 +727,9 @@ addToggles({
     set = function(checked) ns.StreamMode.SetEnabled(checked) end },
   toggle("STREAMER_PRIVACY", "streamerPrivacy"),
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
+  -- Abkürzung zu "Minimap-Button anzeigen" (Allgemein), umgekehrt formuliert
+  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(checked) end },
 })
 addBackgroundChooser()
 finishPage()
@@ -685,6 +743,10 @@ addToggles({
   toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
+  toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
+  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
+  toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
+  toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })
 addSection("SECTION_LEVEL_UP_WINDOW")
 addToggles({
@@ -704,7 +766,7 @@ addSlider({
   max = toPercent(ns.LevelUpWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.levelUpScale) end,
-  set = function(value) ns.Set("levelUpScale", value / 100) end,
+  set = function(value) ns.SetDeferred("levelUpScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -713,7 +775,7 @@ addSlider({
   max = ns.LevelUpWindow.MAX_DURATION,
   step = 1,
   get = function(db) return db.levelUpDuration end,
-  set = function(value) ns.Set("levelUpDuration", value) end,
+  set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 builder.AddButtonRow({
@@ -733,7 +795,7 @@ addSlider({
   max = toPercent(Alerts.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(db.alertScale) end,
-  set = function(value) ns.Set("alertScale", value / 100) end,
+  set = function(value) ns.SetDeferred("alertScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -742,7 +804,7 @@ addSlider({
   max = Alerts.MAX_DURATION,
   step = 1,
   get = function(db) return db.alertDuration end,
-  set = function(value) ns.Set("alertDuration", value) end,
+  set = function(value) ns.SetDeferred("alertDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addToggles({ toggle("ALERT_SOUND", "alertSound") })
@@ -772,7 +834,7 @@ addSlider({
   max = ns.Splits.MAX_TOLERANCE_PERCENT,
   step = 1,
   get = function(db) return db.splitTolerancePercent end,
-  set = function(value) ns.Set("splitTolerancePercent", value) end,
+  set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
   format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
 addSlider({
@@ -781,7 +843,7 @@ addSlider({
   max = toPercent(TimerWindow.MAX_SCALE),
   step = 5,
   get = function(db) return toPercent(ns.SplitList.GetScale(db)) end,
-  set = function(value) ns.Set("splitListScale", value / 100) end,
+  set = function(value) ns.SetDeferred("splitListScale", value / 100) end,
   format = percent,
 })
 addSlider({
@@ -790,7 +852,7 @@ addSlider({
   max = ns.SplitList.MAX_ROWS,
   step = 1,
   get = function(db) return db.splitListRows end,
-  set = function(value) ns.Set("splitListRows", value) end,
+  set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
 })
 addSection("SECTION_WORLD_RECORDS")
@@ -838,10 +900,24 @@ finishPage()
 
 addFooterButton("HISTORY", function() ns.ToggleHistory() end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
-addFooterButton("NEW_SESSION", function() ns.StartNewSession() end)
+-- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
+local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
+StaticPopupDialogs[NEW_SESSION_POPUP] = {
+  button1 = YES or "Yes",
+  button2 = NO or "No",
+  OnAccept = function() ns.StartNewSession() end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+addFooterButton("NEW_SESSION", function()
+  StaticPopupDialogs[NEW_SESSION_POPUP].text = L.NEW_SESSION_CONFIRM  -- aktuelle Sprache
+  StaticPopup_Show(NEW_SESSION_POPUP, ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
+end)
 
 builder.Finish()
-ns.RegisterApply(builder.Refresh)
+ns.RegisterApply(builder.RefreshIfShown)
 
 function ns.ToggleOptions()
   if not ns.db then return end

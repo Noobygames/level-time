@@ -28,15 +28,9 @@ end
 local function readBuffs()
   local eatingName, wellFedName = spellName(FoodTimer.EATING_SPELL_ID), spellName(FoodTimer.WELL_FED_SPELL_ID)
   if not eatingName or not wellFedName then return false end
-  local eating, wellFed
-  local read = Auras.ForEachBuff(function(aura)
-    if aura.name == eatingName then
-      eating = eating or aura
-    elseif aura.name == wellFedName then
-      wellFed = wellFed or aura
-    end
-  end)
-  if read == nil then return false end
+  local buffs = Auras.Snapshot()
+  if not buffs then return false end
+  local eating, wellFed = buffs.byName[eatingName], buffs.byName[wellFedName]
   local state
   if eating and not UnitIsDeadOrGhost("player") then
     local remaining, duration = Auras.RemainingSeconds(eating)
@@ -64,6 +58,7 @@ local wasEating
 local wellFedAtStart = NO_BUFF  -- "Satt" beim Start des Essens: keins, Ablaufzeit oder unbekannt
 local endedAt                   -- GetTime(), seit nicht mehr gegessen wird, bis das Ergebnis feststeht
 local mealDone = false          -- "Satt" ist für diese Mahlzeit schon gemeldet
+local eatingSince               -- GetTime() beim Start des Essens, nur für das Debug-Log (wann kommt "Satt"?)
 
 -- Hat das Essen "Satt" gebracht? Neu oder erneuert (spätere Ablaufzeit)
 local function wellFedGranted(wellFed)
@@ -74,17 +69,24 @@ local function wellFedGranted(wellFed)
   return expiration ~= nil and expiration > wellFedAtStart + 1
 end
 
+-- Zustand einer Mahlzeit vergessen (Login, Einstellung aus): Einschalten wirkt wie ein frischer Login
+local function reset()
+  wasEating, wellFedAtStart, endedAt, mealDone = nil, NO_BUFF, nil, false
+end
+
 function FoodTimer.Check()
-  if not ns.db then return end
+  if not ns.db or not ns.db.foodTimer then return end
   local ok, state, wellFed = readBuffs()
   if not ok then return end
   local eating = state ~= nil
 
   if eating and not wasEating then
     wellFedAtStart = baselineOf(wellFed)
-    endedAt, mealDone = nil, false
+    endedAt, mealDone, eatingSince = nil, false, GetTime()
+    ns.Debug("food", "eating started, well fed before %s", wellFedAtStart)
   elseif not eating and wasEating then
     endedAt = GetTime()
+    ns.Debug("food", "eating ended after %s s", eatingSince and endedAt - eatingSince)
   end
   wasEating = eating
 
@@ -95,16 +97,22 @@ function FoodTimer.Check()
     endedAt = nil  -- aufgestanden, bevor es fertig war
   end
 
-  if mealDone or not ns.db.foodTimer then state = nil end
+  if mealDone then state = nil end
   ns.FoodDisplay.Show(state)
   if finished and ns.db.foodTimer then
-    ns.Debug("food", "well fed granted")
+    ns.Debug("food", "well fed granted %s s after eating started (still eating %s)",
+      eatingSince and GetTime() - eatingSince, eating)
     ns.FoodDisplay.ShowDone()
   end
 end
 
-ns.Every(CHECK_INTERVAL, FoodTimer.Check)
+ns.Every(CHECK_INTERVAL, FoodTimer.Check, function(db) return db.foodTimer end)
 
-ns.OnLogin(function()
-  wasEating, wellFedAtStart, endedAt, mealDone = nil, NO_BUFF, nil, false
+ns.OnLogin(reset)
+
+-- Ausgeschaltet liest der Timer keine Buffs mehr; der Zustand beginnt beim Einschalten neu
+ns.RegisterApply(function(db)
+  if db.foodTimer then return end
+  reset()
+  ns.FoodDisplay.Show(nil)
 end)

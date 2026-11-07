@@ -22,8 +22,23 @@ local function playedWhenReached(character, level)
   return record and record.totalPlayed
 end
 
+-- PB und Summe der Bestzeiten je Abschnitts-Level, solange Runs.GetAll dieselbe Liste liefert (sie wird neu gebaut,
+-- sobald sich Level-Zeiten oder Charaktere ändern können, Runs.lua); die Split-Liste fragt zweimal je Sekunde
+local memo = {}  -- { runs, personalBest = { [level] = Sekunden oder false }, sumOfBest = { ... } }
+
+local function cached(kind, level, compute)
+  local runs = Runs.GetAll()
+  if memo.runs ~= runs then memo = { runs = runs, personalBest = {}, sumOfBest = {} } end
+  local value = memo[kind][level]
+  if value == nil then
+    value = compute(runs, level) or false
+    memo[kind][level] = value
+  end
+  return value or nil
+end
+
 -- Schnellste /played-Zeit anderer eigener Charaktere beim Erreichen von level
-function BracketForecast.PersonalBest(level)
+local function personalBest(_, level)
   local best
   for _, key in ipairs(History.GetCharacterKeys()) do
     if key ~= ns.characterKey then
@@ -34,15 +49,26 @@ function BracketForecast.PersonalBest(level)
   return best
 end
 
--- Summe der schnellsten Zeiten je Level 1..level-1 über alle eigenen Charaktere; nil, wenn eines fehlt
-function BracketForecast.SumOfBest(level)
+function BracketForecast.PersonalBest(level)
+  return cached("personalBest", level, personalBest)
+end
+
+-- Summe der schnellsten Zeiten je Level 1..level-1 über alle eigenen Charaktere (bestTimes: ohne Teil-Level);
+-- nil, wenn eines fehlt
+local function sumOfBest(runs, level)
   local best = {}
-  for _, key in ipairs(History.GetCharacterKeys()) do
-    for completed, seconds in pairs(Runs.LevelTimes(key, true)) do
-      if not best[completed] or seconds < best[completed] then best[completed] = seconds end
+  for _, run in ipairs(runs) do
+    if not run.imported then
+      for completed, seconds in pairs(run.bestTimes) do
+        if not best[completed] or seconds < best[completed] then best[completed] = seconds end
+      end
     end
   end
   return Runs.SumOfLevels(best, FIRST_LEVEL, level - 1)
+end
+
+function BracketForecast.SumOfBest(level)
+  return cached("sumOfBest", level, sumOfBest)
 end
 
 -- { label, level, forecast, pb, sumOfBest, record } des nächsten Abschnitts; nil ohne offenen Abschnitt

@@ -25,7 +25,8 @@ local state = "unloaded"    -- "unloaded" | "loaded" | "unavailable" (Laden schl
 local version = 0           -- steigt bei jeder Änderung am Archiv (Zwischenspeicher in Journal.GetEntries)
 local codecs = {}           -- [logName] = codec
 local dictionaries = {}     -- [Schlüssel] = Wörterbuch (Index nur im Speicher)
-local decoded = {}          -- [Schlüssel .. "#" .. logName] = Liste der entpackten Einträge
+local decoded = {}          -- [Schlüssel .. "#" .. logName] = Liste der entpackten Einträge; bleibt für die Sitzung
+                            -- (Speicher ist billig, jedes Wiederöffnen der Historie müsste sonst alles neu entpacken)
 
 for logName, spec in pairs(Journal.LOGS) do
   codecs[logName] = RecordCodec.New(spec.fields)
@@ -60,12 +61,7 @@ local function dictionaryOf(characterKey, archive)
   return dictionaries[characterKey]
 end
 
--- list[1..count] verwerfen, der Rest rückt nach vorn (ohne table.remove je Eintrag)
-local function dropOldest(list, count)
-  local size = #list
-  for i = 1, size - count do list[i] = list[i + count] end
-  for i = size, size - count + 1, -1 do list[i] = nil end
-end
+local dropOldest = Journal.DropOldest
 
 -- Eingang eines Charakters ins Archiv umziehen; true, wenn etwas umgezogen ist
 local function flushCharacter(characterKey, character)
@@ -98,11 +94,6 @@ function Archive.FlushAll()
     moved = flushCharacter(characterKey, character) or moved
   end
   if moved then changed() end
-end
-
--- Entpackte Listen verwerfen (Speicher); die Version steigt, damit niemand die alten weiter benutzt
-function Archive.ReleaseCache()
-  changed()
 end
 
 function Archive.Version()

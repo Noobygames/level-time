@@ -154,31 +154,49 @@ function Analysis.SessionXpTimeline(characterKey)
   return items
 end
 
--- Häufigkeit je Name, die TOP_COUNT häufigsten absteigend (bei Gleichstand alphabetisch).
--- text zeigt Anzahl und Anteil an allen Einträgen, z.B. "11 (13%)".
-local function topCounts(entries, nameOf)
-  local counts = {}
-  for _, entry in ipairs(entries) do
-    local name = nameOf(entry)
+-- Häufigkeit je Name über ein Journal (Journal.GetEntries: wächst nur hinten an derselben Liste). Je Liste und
+-- Zählweise gemerkt und um neue Einträge ergänzt, statt bei jedem neuen Kill das ganze Journal zu zählen; neu gezählt
+-- bei anderer oder kürzerer Liste und bei neuem Stand (Sprache der Namen, nachgetragene Todesursachen).
+local tallies = setmetatable({}, { __mode = "k" })  -- [Liste] = { [nameOf] = { count, epoch, counts } }
+
+local function countsOf(entries, nameOf, epoch)
+  tallies[entries] = tallies[entries] or {}
+  local tally = tallies[entries][nameOf]
+  if not tally or tally.epoch ~= epoch or #entries < tally.count then
+    tally = { count = 0, epoch = epoch, counts = {} }
+    tallies[entries][nameOf] = tally
+  end
+  local counts = tally.counts
+  for i = tally.count + 1, #entries do
+    local name = nameOf(entries[i])
     counts[name] = (counts[name] or 0) + 1
   end
+  tally.count = #entries
+  return counts
+end
 
-  local items = {}
-  for name, count in pairs(counts) do
-    table.insert(items, {
-      label = name,
-      value = count,
-      text = string.format("%d (%s)", count, Format.Percent(count, #entries)),
-    })
+local function ranksBefore(a, b)
+  if a.value ~= b.value then return a.value > b.value end
+  return a.label < b.label
+end
+
+-- Die TOP_COUNT häufigsten Namen absteigend (bei Gleichstand alphabetisch), ohne alle Namen zu sortieren.
+-- text zeigt Anzahl und Anteil an allen Einträgen, z.B. "11 (13%)".
+local function topCounts(entries, nameOf, epoch)
+  local top = {}
+  for name, count in pairs(countsOf(entries, nameOf, epoch)) do
+    local item = { label = name, value = count }
+    if #top < TOP_COUNT or ranksBefore(item, top[#top]) then
+      local position = #top + 1
+      while position > 1 and ranksBefore(item, top[position - 1]) do position = position - 1 end
+      table.insert(top, position, item)
+      if #top > TOP_COUNT then table.remove(top) end
+    end
   end
-  table.sort(items, function(a, b)
-    if a.value ~= b.value then return a.value > b.value end
-    return a.label < b.label
-  end)
-  while #items > TOP_COUNT do
-    table.remove(items)
+  for _, item in ipairs(top) do
+    item.text = string.format("%d (%s)", item.value, Format.Percent(item.value, #entries))
   end
-  return items
+  return top
 end
 
 -- Zonen mit der besten XP pro Stunde; kurze Aufenthalte sind zu ungenau und fallen weg
@@ -198,14 +216,20 @@ function Analysis.XpRatePerZone(characterKey)
   return items
 end
 
+local function killName(kill)
+  return kill.name or L.UNKNOWN_NAME
+end
+
+local function cacheEpoch(logName)
+  return (ns.db and ns.db.language or "") .. ":" .. ns.Journal.EditRevision(logName)
+end
+
 function Analysis.TopKills(characterKey)
-  return topCounts(ns.Journal.GetEntries(characterKey, "killLog"), function(kill)
-    return kill.name or L.UNKNOWN_NAME
-  end)
+  return topCounts(ns.Journal.GetEntries(characterKey, "killLog"), killName, cacheEpoch("killLog"))
 end
 
 function Analysis.DeathCauses(characterKey)
-  return topCounts(ns.Journal.GetEntries(characterKey, "deathLog"), History.DeathCauseText)
+  return topCounts(ns.Journal.GetEntries(characterKey, "deathLog"), History.DeathCauseText, cacheEpoch("deathLog"))
 end
 
 -- Wann ich spiele (PlayHours.lua): Heatmap Wochentag × Stunde, Farbe = aktive Zeit, Tooltip mit Zeit und XP.

@@ -55,8 +55,22 @@ expect("Ungültiges abgelehnt", Profiles.Import("LT1:run:{}"), nil)
 -- Löschen: nicht Standard, nicht das aktive
 expect("aktives nicht löschbar", Profiles.Delete("Stream 2"), false)
 expect("Standard nicht löschbar", Profiles.Delete("Default"), false)
+-- Roadmap 200/201: /lt profile delete fragt wie die Oberfläche nach
+wow.popup = nil
 SlashCmdList.LEVELTIMER("profile delete Stream")
+expectTrue("Stream nicht sofort gelöscht", LevelTimerDB.profiles.Stream ~= nil)
+expect("Rückfrage per Befehl", wow.popup and wow.popup.data, "Stream")
+StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)
 expect("Stream gelöscht", LevelTimerDB.profiles.Stream, nil)
+expectTrue("Löschen gemeldet", wow.printed[#wow.printed]:find(string.format(L.PROFILE_DELETED, "Stream"), 1, true) ~= nil)
+wow.popup = nil
+SlashCmdList.LEVELTIMER("profile delete Default")
+expect("Standard: keine Rückfrage", wow.popup, nil)
+expectTrue("Standard: gemeldet", wow.printed[#wow.printed]:find(L.PROFILE_NOT_DELETED, 1, true) ~= nil)
+-- /lt profile save mit vorhandenem Namen fragt vor dem Überschreiben
+SlashCmdList.LEVELTIMER("profile save Stream 2")
+expect("Überschreiben: Rückfrage", wow.popup and wow.popup.data, "Stream 2")
+wow.popup = nil
 wow.logout()
 wow.login({ name = "Erster" })
 expect("Charakter mit gelöschtem Profil: unverändert weiter", LevelTimerDB.profiles.Stream, nil)

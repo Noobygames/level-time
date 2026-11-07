@@ -14,6 +14,7 @@ local RecordCodec = {}
 ns.RecordCodec = RecordCodec
 
 local SEPARATOR = "\t"
+local FIELD_PATTERN = "(.-)" .. SEPARATOR  -- ein Feld bis zum nächsten Trenner (Decode hängt einen an)
 local KIND_VALUE = "value"
 
 -- values = gespeicherte Liste (wird erweitert); der Index Wert -> Nummer lebt nur im Speicher
@@ -86,7 +87,7 @@ function RecordCodec.New(fieldList)
 
   function codec.Decode(line, dict)
     local entry, i = {}, 0
-    for part in (line .. SEPARATOR):gmatch("(.-)" .. SEPARATOR) do
+    for part in (line .. SEPARATOR):gmatch(FIELD_PATTERN) do
       i = i + 1
       local field = fields[i]
       if not field then break end

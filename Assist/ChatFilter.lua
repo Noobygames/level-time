@@ -53,12 +53,16 @@ end
 
 local function systemFilter(_, _, message)
   if not (ns.db and ns.db.filterDrunkSpam and readable(message)) then return false end
-  return ChatFilter.IsDrunkSpam(message)
+  local spam = ChatFilter.IsDrunkSpam(message)
+  if spam then ns.Debug("chat", "filtered drunk message: %s", message) end  -- je Chatfenster einmal
+  return spam
 end
 
 local function spellLinkFilter(_, _, message, sender)
   if not (ns.db and ns.db.filterSpellLinks and readable(message, sender)) then return false end
-  return ChatFilter.IsSpellLinkSpam(message, sender)
+  local spam = ChatFilter.IsSpellLinkSpam(message, sender)
+  if spam then ns.Debug("chat", "filtered spell link from %s", sender) end  -- je Chatfenster einmal
+  return spam
 end
 
 local function addFilter(event, filter)

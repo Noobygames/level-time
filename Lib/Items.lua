@@ -16,6 +16,11 @@ local function itemInfo(item)
   return getItemInfo(item)
 end
 
+-- Name in der Sprache des Clients; nil, solange das Item nicht geladen ist
+function Items.GetName(item)
+  return (itemInfo(item))
+end
+
 function Items.GetQuality(item)
   return (select(QUALITY_INDEX, itemInfo(item)))
 end

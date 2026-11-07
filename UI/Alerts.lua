@@ -36,6 +36,7 @@ local COLORS = {
   elite = { 1, 0.5, 0.1 },
   loot = { 0.64, 0.21, 0.93 },
   nearDeath = { 1, 0.25, 0.25 },
+  quest = { 0.45, 1, 0.45 },
 }
 Alerts.WARNING_COLOR = { 1, 0.6, 0.2 }   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
 Alerts.REMINDER_COLOR = COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
@@ -79,6 +80,10 @@ Alerts.ICONS = {
   breath = iconPath("Spell_Shadow_DemonBreath"),
   fatigue = iconPath("Spell_Nature_Sleep"),
   rest = iconPath("INV_Misc_PocketWatch_02"),
+  questComplete = iconPath("INV_Misc_Note_01"),
+  questObjective = iconPath("INV_Misc_Note_01"),
+  questLog = iconPath("INV_Misc_Book_09"),
+  rareSpotted = iconPath("INV_Misc_Eye_01"),
 }
 
 local shownAt
@@ -108,7 +113,8 @@ local function duration()
   return math.max(Alerts.MIN_DURATION, math.min(Alerts.MAX_DURATION, ns.db and ns.db.alertDuration or 3))
 end
 
-local queue = {}  -- { message, color, sound } der wartenden Einblendungen, älteste zuerst
+local queue = {}  -- { message, color, sound, notice, sample } der wartenden Einblendungen, älteste zuerst
+local current     -- die gerade sichtbare echte Einblendung (gleicher Aufbau), nil bei Beispielen oder nichts
 local held = {}   -- Einblendungen aus dem Kampf: { message, color, options }, kommen nach dem Kampf
 
 -- Der Raid-Warnton; auch für andere Anzeigen (z.B. Lagerfeuer), wenn der Spieler Ton eingeschaltet hat
@@ -121,7 +127,8 @@ local function isShowing()
 end
 
 -- spec = { icon, texture, title, body }: als Karte statt als Banner (texture siehe Card.Set)
-local function display(message, color, sound, spec)
+local function display(message, color, sound, spec, sample)
+  current = not sample and { message, color, sound, spec } or nil
   local shown
   if spec then
     frame:Hide()
@@ -137,7 +144,11 @@ local function display(message, color, sound, spec)
   shownAt = GetTime()
   shown:SetAlpha(0)
   shown:Show()
-  if sound and ns.db and ns.db.alertSound then Alerts.PlaySound() end
+  local playSound = sound and ns.db and ns.db.alertSound
+  ns.Debug("alert", "shown %s: card %s, icon %s, sample %s, sound %s, waiting %s, duration %s, scale %s",
+    message, spec ~= nil, spec and (spec.icon or spec.texture), sample == true, playSound and true or false, #queue,
+    duration(), shown:GetScale())
+  if playSound then Alerts.PlaySound() end
 end
 
 -- Einblenden, halten, ausblenden; danach die nächste wartende (Banner und Karte teilen sich den Ablauf)
@@ -149,8 +160,9 @@ local function fade(self)
   if age >= hold + FADE_SECONDS then
     local nextAlert = table.remove(queue, 1)
     if nextAlert then
-      display(unpack(nextAlert, 1, 4))
+      display(unpack(nextAlert, 1, 5))
     else
+      current = nil
       self:Hide()
     end
   elseif age > hold then
@@ -162,8 +174,8 @@ local function fade(self)
   end
 end
 
-frame:SetScript("OnUpdate", fade)
-notice.frame:SetScript("OnUpdate", fade)
+ns.SetUpdateScript(frame, "Alerts", fade)
+ns.SetUpdateScript(notice.frame, "AlertNotice", fade)
 
 -- Einblendung zeigen; läuft schon eine, wartet die neue (höchstens MAX_QUEUE). options = { immediate = ersetzt die
 -- laufende und leert die Warteschlange, sound = Ton, falls eingeschaltet, notice = { icon, title, body } zeigt eine
@@ -177,6 +189,7 @@ function Alerts.Show(message, color, options)
       if #held >= MAX_QUEUE then table.remove(held, 1) end
       table.insert(held, { message, color, options })
     end
+    ns.Debug("alert", "in combat: %s", options.combat)
     return
   end
   if options.immediate then queue = {} end
@@ -184,6 +197,7 @@ function Alerts.Show(message, color, options)
   if moving or (isShowing() and not options.immediate) then
     if #queue >= MAX_QUEUE then table.remove(queue, 1) end
     table.insert(queue, { message, color, options.sound, options.notice })
+    ns.Debug("alert", "queued (%s waiting, moving %s)", #queue, moving or false)
     return
   end
   display(message, color, options.sound, options.notice)
@@ -193,6 +207,7 @@ end
 function Alerts.Clear()
   queue = {}
   held = {}
+  current = nil
   if not moving then
     frame:Hide()
     notice.frame:Hide()
@@ -224,8 +239,9 @@ local mover = Widgets.CreateMover(frame, {
     frame:SetSize(1, 1)
     frame:Hide()
     notice.frame:Hide()
+    current = nil
     local waiting = table.remove(queue, 1)
-    if waiting then display(unpack(waiting, 1, 4)) end
+    if waiting then display(unpack(waiting, 1, 5)) end
   end,
 })
 
@@ -278,27 +294,54 @@ Alerts.KINDS = {
     sample = function() return "[Thunderfury]" end },
   nearDeath = { setting = "alertNearDeath", color = COLORS.nearDeath, format = "ALERT_NEAR_DEATH",
     sample = function() return 4 end },
+  questComplete = { setting = "alertQuestComplete", color = COLORS.quest, format = "ALERT_QUEST_COMPLETE", inCombat = "hold",
+    sample = function() return "Hogger" end },
+  rareSpotted = { setting = "alertRareSpotted", color = COLORS.rare, format = "ALERT_RARE_SPOTTED",
+    sample = function() return "Mor'Ladim" end },
+  questObjective = { setting = "alertQuestObjective", color = COLORS.quest, format = "ALERT_QUEST_OBJECTIVE", inCombat = "hold",
+    sample = function() return "Hogger: 1/1" end },
 }
 
--- Im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
-local function showKind(kind, value, body, combat)
-  local definition = Alerts.KINDS[kind]
-  local message = string.format(L[definition.format], value)
-  local card = isBanner() and { icon = Alerts.ICONS[kind], title = message, body = body } or nil
-  Alerts.Show(message, definition.color, { sound = true, notice = card, combat = combat })
+-- Text und Karte einer Art: im Stil "Banner" als Karte mit Symbol (wie die Hinweise), im Stil "Text" nur als Schrift
+local function kindMessage(kind, value, body)
+  local message = string.format(L[Alerts.KINDS[kind].format], value)
+  return message, isBanner() and { icon = Alerts.ICONS[kind], title = message, body = body } or nil
 end
 
 -- Nur, wenn die Art eingeschaltet ist
 local function alert(kind, value, body)
-  if ns.db[Alerts.KINDS[kind].setting] then showKind(kind, value, body, Alerts.KINDS[kind].inCombat) end
+  local definition = Alerts.KINDS[kind]
+  if not ns.db[definition.setting] then return end
+  local message, card = kindMessage(kind, value, body)
+  Alerts.Show(message, definition.color, { sound = true, notice = card, combat = definition.inCombat })
+end
+
+-- Einblendung einer Art für andere Module (Quest fertig, ...), nur wenn die Art eingeschaltet ist
+function Alerts.Raise(kind, value, body)
+  alert(kind, value, body)
+end
+
+-- Beispiel (Vorschau, /lt debug alert) sofort zeigen, ohne wartende echte Einblendungen zu verwerfen: eine gerade
+-- sichtbare echte kommt vorne zurück in die Warteschlange und erscheint nach dem Beispiel noch einmal ganz
+local function showSample(message, color, card, sound)
+  if moving then
+    -- Im Verschiebemodus wartet auch das Beispiel und erscheint nach dem Verschieben
+    if #queue >= MAX_QUEUE then table.remove(queue, 1) end
+    table.insert(queue, { message, color, sound, card, true })
+    return
+  end
+  if current then table.insert(queue, 1, current) end
+  while #queue > MAX_QUEUE do table.remove(queue) end
+  display(message, color, sound, card, true)
 end
 
 -- Beispiel unabhängig von der Einstellung (Fehlersuche); false bei unbekannter Art
 function Alerts.ShowSample(kind)
   local definition = Alerts.KINDS[kind]
   if not definition then return false end
-  Alerts.Clear()
-  showKind(kind, definition.sample(), ns.db.levelUpGains and definition.sampleBody and definition.sampleBody() or nil)
+  local body = ns.db.levelUpGains and definition.sampleBody and definition.sampleBody() or nil
+  local message, card = kindMessage(kind, definition.sample(), body)
+  showSample(message, definition.color, card, true)
   return true
 end
 
@@ -344,9 +387,8 @@ local previewIndex = 0
 
 -- Beispiel einer Hinweis-Karte (wie "Taschen fast voll"), ohne Chatzeile
 local function showNoticeSample()
-  Alerts.Clear()
   local sample = { icon = Alerts.ICONS.bags, title = L.NOTICE_BAGS, text = L.WARN_BAGS_FULL }
-  Alerts.Show(sample.text, Alerts.WARNING_COLOR, { notice = noticeCard(sample), immediate = true })
+  showSample(sample.text, Alerts.WARNING_COLOR, noticeCard(sample))
 end
 
 function Alerts.Preview()
@@ -371,6 +413,7 @@ ns.OnLogout(function() moving = false end)
 ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   local waiting = held
   held = {}
+  if #waiting > 0 then ns.Debug("alert", "combat over, showing %s held", #waiting) end
   for _, entry in ipairs(waiting) do
     local options = entry[3]
     Alerts.Show(entry[1], entry[2], { sound = options.sound, notice = options.notice })

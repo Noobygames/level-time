@@ -73,10 +73,12 @@ local function hintVisible(isHint)
   if not hintShownAt then
     if now < hintNextAt then return false end
     hintShownAt = now
+    ns.Debug("camp", "hint visible for %s s", HINT_SECONDS)
   end
   if now - hintShownAt >= HINT_SECONDS then
     hintShownAt = nil
     hintNextAt = now + ns.db.campHintPause * SECONDS_PER_MINUTE
+    ns.Debug("camp", "hint paused for %s min", ns.db.campHintPause)
     return false
   end
   return true
@@ -98,17 +100,30 @@ local function benefitsGranted(benefits)
   return expiration ~= nil and expiration > benefitsAtStart + 1
 end
 
+-- Beide Anzeigen aus: keine Buffs lesen; der Zustand beginnt beim Einschalten neu (wie nach dem Login)
+local function reset()
+  previousKind, benefitsAtStart, countdownEndedAt = nil, NO_BENEFITS, nil
+  hintShownAt, hintNextAt = nil, 0
+end
+
+local function wanted(db)
+  return db.campCountdown or db.campHint
+end
+
 function CampFire.Check()
-  if not ns.db then return end
+  if not ns.db or not wanted(ns.db) then return end
   local state, benefits = CampFire.GetState()
   local kind = state and state.kind or nil
 
   if kind == "countdown" and previousKind ~= "countdown" then
     benefitsAtStart = baselineOf(benefits)
     countdownEndedAt = nil
+    ns.Debug("camp", "countdown started: %s s of %s, benefits before %s", state.remaining, state.duration, benefitsAtStart)
   elseif kind ~= "countdown" and previousKind == "countdown" then
     countdownEndedAt = GetTime()
+    ns.Debug("camp", "countdown ended, now %s", kind)
   end
+  if kind ~= previousKind then ns.Debug("camp", "state %s -> %s (combat %s)", previousKind, kind, ns.InCombat()) end
   previousKind = kind
 
   local finished = false
@@ -134,10 +149,13 @@ end
 -- Regelmäßig prüfen statt auf UNIT_AURA zu hören: der Countdown läuft in der Anzeige selbst weiter,
 -- und die Prüfung ist billig
 if CampFire.IsAvailable() then
-  ns.Every(CHECK_INTERVAL, CampFire.Check)
+  ns.Every(CHECK_INTERVAL, CampFire.Check, wanted)
 end
 
-ns.OnLogin(function()
-  previousKind, benefitsAtStart, countdownEndedAt = nil, NO_BENEFITS, nil
-  hintShownAt, hintNextAt = nil, 0
+ns.OnLogin(reset)
+
+ns.RegisterApply(function(db)
+  if wanted(db) then return end
+  reset()
+  ns.CampDisplay.Show(nil)
 end)

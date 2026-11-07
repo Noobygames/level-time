@@ -31,3 +31,18 @@ expect("aus", StreamMode.IsEnabled(), false)
 expect("Namen wieder sichtbar", LevelTimerDB.streamerPrivacy, false)
 expect("Einblendungen wieder aus", LevelTimerDB.alertLevelUp, false)
 expect("Sicherung entfernt", LevelTimerDB.streamBackup, nil)
+
+-- Roadmap 209: Abkürzung "Minimap-Button ausblenden" im Reiter Stream, gleiche Einstellung wie im Reiter Allgemein
+local function checkboxFor(text)
+  return wow.findFrame(function(frame)
+    local label = rawget(frame, "label")
+    return label and label._text == text
+  end)
+end
+local hideMinimap = checkboxFor(addon.L.STREAM_HIDE_MINIMAP)
+expectTrue("Schalter im Reiter Stream", hideMinimap ~= nil)
+expect("Minimap-Button sichtbar", hideMinimap:GetChecked(), false)
+hideMinimap:SetChecked(true)
+hideMinimap._scripts.OnClick(hideMinimap)
+expect("ausgeblendet", LevelTimerDB.minimap.hide, true)
+expect("Allgemein folgt", checkboxFor(addon.L.SHOW_MINIMAP):GetChecked(), false)

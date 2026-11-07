@@ -26,6 +26,116 @@ rechts an jedem Chatfenster.
 
 ---
 
+## Per Debug-Log abgedeckt
+
+Diese Punkte beantwortet das Debug-Log ohne Hinsehen; sie stehen unten nicht mehr. Bei Punkten mit Teil
+„Datenteil per Debug-Log“ bleibt unten nur, was man sehen oder hören muss.
+
+**So geht's:**
+
+1. Nach dem Update einmal den Client neu starten (neue Datei `Core\DebugChecks.lua` in der `.toc`).
+2. Die Einstellungen der Punkte einschalten, die du prüfen willst (Komfort, Hinweise, Speedrun, Statistiken); das
+   Log hält fest, was an war (`settings.all`).
+3. Log an (bleibt über `/reload` an):
+
+```
+/lt debug log
+```
+
+4. Normal spielen. Diese Situationen sollten vorkommen (je mehr, desto mehr Punkte erledigt):
+   - Login nach mehr als 5 Minuten Pause, einmal `/reload` (Session-Vergleich, Erfassung, Ruhe-Schätzung, Chat-Verlauf)
+   - Kämpfe mit Kills, auch mit Erholungsbonus, ein Rare/Elite; einmal 2+ Minuten stehen ohne XP, einmal über 5 Minuten AFK
+   - Level-Up, auch im Kampf und über eine große Quest-Belohnung hinweg; ein gerades Level nach einem Lehrerbesuch
+   - Quests annehmen, Ziele erledigen, abgeben (allein und in einer Gruppe); ein Stoff-Quartiermeister oder eine
+     wiederholbare Quest; ein NPC mit genau einer Gesprächsoption (Flugmeister, Gastwirt)
+   - Tod draußen und im Dungeon, Geisterlauf zurück, einmal als Geist den Geistheiler ansprechen; mit wenig Leben
+     wiederbelebt werden (Era/TBC), unter 10 % Leben fallen und heilen
+   - Dungeon betreten, Gegner anvisieren, raus und wieder rein (Händlergang), zurücksetzen (allein, als Leiter, als
+     Mitglied, mit einem Spieler drin), Normal/Heroisch; mit Gruppe Kills und Gold, dann raus (Instanz-Bericht)
+   - Händler: reparieren (mit „zuerst aus der Gildenbank“, Limit unter und über den Kosten), Schrott verkaufen
+   - Gold looten (allein und in einer Gruppe), Post mit Gold (auch Auktionserlös), Handel mit Gold, ein Flug
+   - Gebiet entdecken, Kraut/Erz sammeln (Retail/Forever), Ruf bekommen (Quest, Kill, Dungeon)
+   - Gruppe: Einladung von Fremdem und Freund, geteilte Quest, „inv“ flüstern, Battle.net-Anfrage; ein zweiter
+     Spieler mit Level Time (Rennen gegen Freunde), Briefkasten/Handel (SSF)
+   - Forever: Lagerfeuer (stehen, sitzen 60 s, aufstehen), Essen bis „Satt“; ein Schlachtfeld (Level Time Goals)
+   - Pausen-Erinnerung (Einstellung an, Grenze erreichen, einmal im Kampf), Screenshot-Meilensteine, eigener Split
+     per Taste
+5. Zwischendurch an diesen Stellen einmal (läuft alle Prüfungen, auch mit Log aus):
+
+```
+/lt debug check
+```
+
+   nach dem Login; in einem Dungeon; mit einem Spieler (Freund/Fremder) als Ziel; mit einem Gegner als Ziel; bei
+   offener Weltkarte; mit Namensplaketten an Questgegnern; vor Erz, Kraut, Quest-Objekt und Leiche (Beute-Glitzer);
+   vor und nach dem Umschalten der System-Schalter (CVars); einmal je Sprache (Einheiten).
+6. `/reload` oder ausloggen (schreibt das Log auf die Platte), dann Bescheid sagen; ich lese es mit `make debuglog`.
+7. Danach Log wieder aus (oder leeren mit `/lt debug log clear`):
+
+```
+/lt debug log
+```
+
+**Legende:** check `Name` = Eintrag einer Prüfung aus `/lt debug check`; event `NAME` = Ereignis-Probe; debug `bereich`
+= Entscheidungszeile eines Moduls (`ns.Debug`); `print` = Chatzeile des Addons; `error` = abgefangener Lua-Fehler mit
+Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCKED`/`ADDON_ACTION_FORBIDDEN` im Log.
+
+- **9. Kopie wird an Gegnern erkannt (Roadmap 93)**: debug `instances` (enter/sighted/confirmed, zoneUID je Gegner), event `PLAYER_TARGET_CHANGED` (guid des Ziels)
+- **10. Reset ergibt neue Kopie (Roadmap 93)**: event `CHAT_MSG_SYSTEM` (Reset-Text), debug `instances` (reset, run finished, new run), check `282.instances`
+- **11. Reset als Gruppenmitglied (Roadmap 93, 121)**: wie 10, dazu `error`-Zeilen (Lua-Fehler) und debug `instances` beim Wiederbetreten
+- **12. „Noch Spieler drin“ (Roadmap 93)**: event `CHAT_MSG_SYSTEM` (Text „… kann nicht zurückgesetzt werden …“), debug `instances` (zoneUID beim Wiederbetreten)
+- **13. Tod im Dungeon (Roadmap 91)**: debug `instances` (left as ghost / alive outside, clock paused / run continues), events `PLAYER_DEAD`, `PLAYER_ALIVE`, `PLAYER_UNGHOST`, `ZONE_CHANGED_NEW_AREA`
+- **14. Händlergang (Roadmap 91)**: debug `instances` (clock paused, run continues), check `282.instances` (Sekunden des Laufs)
+- **15. Gruppenwechsel (Roadmap 93)**: debug `instances` (confirmed … new copy, corrected … snapshot), check `282.instances`
+- **16. Normal und Heroisch (Roadmap 123, TBC/Retail/Forever)**: events `ZONE_CHANGED_NEW_AREA`/`PLAYER_ENTERING_WORLD` (extra = `GetInstanceInfo`, 3. Wert difficultyID), debug `instances` (new run, new instance … in the last hour)
+- **17. Lebend raus, Retail/Forever ohne Fehler (Roadmap 93)**: `error`-Zeilen, event `PLAYER_TARGET_CHANGED` (guid `<secret>` oder lesbar), debug `instances` (instance info secret)
+- **18. Limit in WoW Forever (Roadmap 92)**: events `UI_ERROR_MESSAGE`/`CHAT_MSG_SYSTEM` (Server-Text), `print` (Zeile des Addons), check `282.instances` (limit)
+- **19. Hinweis bei 4/5 und 5/5 (Roadmap 92)**: `print` und debug `alert` (Hinweis bei 4/5 und 5/5), check `282.instances`; Einstellung `warnInstanceLimit`
+- **20. Tageslimit (Roadmap 124)**: check `282.instances` (hour, today, day, dailyLimit) und der Server-Text aus `UI_ERROR_MESSAGE`/`CHAT_MSG_SYSTEM`
+- **21. Session-XP über einen Level-Up (Roadmap 100)**: debug `stats` (xpGained +…), event `QUEST_TURNED_IN` (XP der Belohnung), `PLAYER_LEVEL_UP`, check `window.rows.session`
+- **23. Gildenreparatur (Roadmap 107, TBC/Retail/Forever)**: debug `merchant` (repair cost, guild repair … left), debug `money` (spent … as …), event `PLAYER_MONEY` (Gold vorher/nachher), `print`; check `guild.repair`
+- **24. Wiederholbare Quests (Roadmap 108)**: debug `quests` (quest … is repeatable, left to the player / blocked), events `QUEST_DETAIL`, `QUEST_PROGRESS`, `GOSSIP_SHOW`
+- **25. Levelcap der Erweiterung (Roadmap 118, Retail)**: check `118.maxLevel` (UnitLevel, UnitXPMax, IsPlayerAtEffectiveMaxLevel, leveling, xpBar)
+- **26. Beinahe-Tod nach Wiederbelebung (Roadmap 120, Classic Era/TBC)**: debug `neardeath` (resurrected at … health, low health … ignored, counted)
+- **29. Gespräch mit einer Option (Roadmap 133)**: event `GOSSIP_SHOW` (extra = Optionen mit Flags), debug `quests` (gossip: skipping to option), `error`-Zeilen
+- **33. Zeitumstellung (Roadmap 95)**: check `95.daily.dst` (mit der echten Zeitzone: dayLength 90000/82800, stuckHours 0) – kein Spielen am Stichtag nötig
+- **34. XP/h ohne AFK überall gleich (Roadmap 90)**: check `90.xp.rates` (Fenster, Level-Tabelle, Graph, Vergleich nebeneinander), `print` (Level-Up-Zeile); Einstellung `xpRateWithoutAfk`
+- **39. Einblendungen: Warteschlange und Verschiebemodus (Roadmap 155, 163)**: debug `alert` (queued … waiting, moving true; shown … mit Zeitstempel `gt` = Reihenfolge und Dauer)
+- **40. Instanz-Reiter im Spiel (Roadmap 149, 152, 156, 161, 162)**: check `window.state` (Reiter, Lauf, offen), `window.rows.instance`, debug `instances`, debug `stats` (combatSeconds direkt nach dem Reset)
+- **45. Hilfe und Willkommenshinweis (Roadmap 157)**: `print` (Willkommenszeile einmal, Hilfe-Zeilen), check `157.help` (Zeilenzahl, introShown)
+- **46. Erhaltene XP und XP/h ohne AFK (Roadmap 150, 151)**: checks `window.rows.level/session/instance` (Zeile „Erhaltene XP“), `90.xp.rates`
+- **47. Klassifikation mit geheimen Werten (Roadmap 171, Retail/Forever)**: `error`-Zeilen (secret value in Classification/InstanceCopy/Zones), debug `stats` (eliteKills/rareKills +1)
+- **48. `UnitXPMax` beim Level-Up (Roadmap 175)**: event `PLAYER_LEVEL_UP` (state.xpMax im Moment des Ereignisses), `PLAYER_XP_UPDATE` davor, check `175.level.records` (xp gegen Tabelle)
+- **49. Death Recap ohne ID (Roadmap 180, Retail/Forever)**: debug `death` (recap: ok … events …, cause from death recap), check `deathRecap.withoutId`, `280.deaths.recent`
+- **50. Gespräch überspringen beim Geistheiler (Roadmap 181)**: debug `quests` (gossip: ghost, no option skipped), event `GOSSIP_SHOW`; Einstellung `skipGossip`
+- **51. Gildenreparatur und Abhebelimit (Roadmap 179)**: wie 23: debug `merchant` (guild repair: … of … left), event `PLAYER_MONEY` (Gold vorher/nachher), `print`
+- **60. Lagerfeuer-Hinweis nur kurz (Roadmap 245)**: debug `camp` (hint visible for 8 s, hint paused for … min), debug `timer` (LevelTimerCamp shows/hides hint)
+- **63. Keine Hinweise im Kampf (Roadmap 248)**: debug `alert` (in combat: hold, combat over, showing … held), `print` (Level-Up-Fenster nach dem Kampf), debug `camp` (state … combat true), events `PLAYER_REGEN_*`
+- **65. Sozial: geteilte Quests, Freundschaftsanfragen, Einladungen (Roadmap 329, Schritt 3a)**: debug `social` (declining/accepting/inviting …), events `PARTY_INVITE_REQUEST`, `BN_FRIEND_INVITE_ADDED`, `QUEST_DETAIL`, `print`, check `329.social.target` (Freund/Gilde des Ziels)
+- **71. Erfassungsquote und Teil-Level (Roadmap 253)**: debug `coverage` (played, last known, gap; level … only partly tracked), `print` (Chatzeile), check `253.coverage`
+- **73. Quest-Automatik: Sperrliste (Roadmap 260, 181, 182)**: debug `quests` (blocked: quest …, gossip/greeting: blocked npc, repeatable), events `QUEST_*`/`GOSSIP_SHOW`, check `settings.all` (`questExclude`)
+- **74. Pausen-Erinnerung (Roadmap 263)**: debug `reminders` (break counted (afk/reminder), break due … waits), event `PLAYER_FLAGS_CHANGED` (AFK), `print`/debug `alert`
+- **75. Questfortschritt an die Gruppe (Roadmap 264)**: debug `announce` (quest progress …, skipped (chat lockdown)), debug `groupchat`, event `CHAT_MSG_PARTY`/`_INSTANCE_CHAT` (eigene Zeile vom Server)
+- **83. Ruhe-XP der Twinks (Roadmap 271)**: debug `rested` (login: estimated … actual …, fully rested), check `271.rested.estimate`, `print`
+- **84. Kills bis Level-Up mit Erholung (Roadmap 273)**: check `window.rows.level` (Kills bis Level-Up), debug `stats` (xpKills, xpRested), event `CHAT_MSG_COMBAT_XP_GAIN`
+- **85. XP aus Entdecken, Sammeln und nach Ort (Roadmap 275)**: debug `xp` (exploration XP …, gathering XP …), events `CHAT_MSG_SYSTEM`/`UI_INFO_MESSAGE`/`CHAT_MSG_OPENING`, check `window.rows.level` (XP-Quellen, XP nach Ort)
+- **86. Session-Vergleich beim Login (Roadmap 281)**: `print` (Zeile „Letzte Session …“ nur beim echten Login), debug `session`
+- **87. Leerlauf ohne AFK-Flag (Roadmap 283)**: debug `stats` (idleSeconds +…), checks `window.rows.level` (Zeitaufteilung), `90.xp.rates`; Einstellung `idleMinutes`
+- **88. Persönliche Rekorde (Roadmap 272)**: debug `records` (… before …), `print`, debug `alert` (Karte), check `272.personalRecords`
+- **90. Einnahmen nach Art und Zeitraum (Roadmap 276)**: debug `money` (income … from window/as loot/as other, spent … as …), events Fenster auf/zu und `PLAYER_MONEY`, checks `window.rows.session`, `276.money.periods`
+- **92. Ruf pro Stunde (Roadmap 278)**: debug `reputation` (Fraktion +…), event `CHAT_MSG_COMBAT_FACTION_CHANGE`, checks `278.reputation`, `window.rows.*`
+- **95. Instanz-Bericht an die Gruppe und Tageslimit (Roadmap 282)**: debug `announce` (instance report …), debug `groupchat`, eigene Zeile aus `CHAT_MSG_PARTY`/`_INSTANCE_CHAT`, check `282.instances` (Limits), Server-Texte
+- **97. Toleranzband und PB derselben Klasse (Roadmap 285)**: check `284.splitList.lines` (Abweichungen mit Farbcode: gelb im Band), `settings.all` (`splitTolerancePercent`, `splitComparison`)
+- **98. Prognose des nächsten Abschnitts (Roadmap 286)**: check `284.splitList.lines` (Fußzeilen Prognose/gegen PB/Bestzeiten/Rekord), `286.bracketForecast`
+- **99. SSF-Regelhelfer (Roadmap 287)**: debug `ssf` (logout counted, forbidden window), check `287.ssf` (Ruhe-XP-Balken, Logouts, Zeilen), `print`/debug `alert` bei Post/Handel
+- **100. Eigene Splits und Tastenbelegung (Roadmap 288)**: check `288.customSplits` (Splits, Vorlage, Tastenbelegung `GetBindingKey`), debug `splits` (custom split …), `print`
+- **101. Quest-Splits (Roadmap 289)**: debug `quests` (accepted … at …, quest split … delta), `print`
+- **102. Prüfcode für Läufe (Roadmap 290)**: debug `runcheck`, check `290.runs` (Prüfstatus je Lauf), `print` von `/lt runs verify`
+- **105. Rennen gegen Freunde (Roadmap 293)**: debug `friendrace` (send/received), check `293.friendRace`, `284.splitList.lines` (Spalte Freund), `print`, event `ADDON_ACTION_BLOCKED`
+- **106. Meilenstein-Screenshots (Roadmap 294)**: debug `screenshot` (milestone …), events `SCREENSHOT_SUCCEEDED`/`SCREENSHOT_FAILED`, `ADDON_ACTION_BLOCKED`
+
+---
+
 ## Schnellcheck: Werte des Clients
 
 Diese Punkte gehen in wenigen Minuten an einem beliebigen Ort. Wenn möglich in **WoW Forever** und in
@@ -223,245 +333,11 @@ Client: Forever
 Symbole (ja/nein): ja
 ```
 
----
-
-## Instanzen
-
 **Auswertung:** In Ordnung (Forever).
-
-### 9. Kopie wird an Gegnern erkannt (Roadmap 93)
-
-- [ ] geprüft
-
-Im Dungeon zwei verschiedene Gegner anvisieren. Mit `/lt debug` erscheint im Chat eine Zeile zur Kopie.
-Die zoneUID eines Ziels von Hand:
-
-```
-/run print(select(5, strsplit("-", UnitGUID("target"))))
-```
-
-**Erwartet:** bei allen Gegnern derselben Instanz dieselbe Zahl.
-
-**Antwort:**
-
-```text
-Client, Dungeon:
-zoneUID von 2 Gegnern:
-Debug-Zeile:
-```
-
-### 10. Reset ergibt neue Kopie (Roadmap 93)
-
-- [ ] geprüft
-
-Dungeon verlassen, als Gruppenleiter bzw. allein zurücksetzen (Rechtsklick auf das eigene Porträt →
-Instanzen zurücksetzen), wieder rein, Gegner anvisieren und den Befehl aus Punkt 9 ausführen.
-
-**Erwartet:** andere zoneUID; in Historie → Journal → Instanzen ein neuer Lauf, der alte beendet.
-
-**Antwort:**
-
-```text
-zoneUID vorher / nachher:
-Neuer Lauf (ja/nein):
-```
-
-### 11. Reset als Gruppenmitglied (Roadmap 93, 121)
-
-- [ ] geprüft
-
-In einer Gruppe setzt der Leiter zurück, (a) während du draußen bist, (b) während du noch drin bist.
-
-**Erwartet:** (a) bei dir erscheint evtl. keine Reset-Meldung; beim nächsten Betreten erkennt das Addon die
-neue Kopie an den Gegnern. (b) kein Lua-Fehler, dein Lauf läuft weiter.
-
-**Antwort:**
-
-```text
-(a) Reset-Meldung bei dir (ja/nein, Text):
-(a) Neuer Lauf nach Wiederbetreten (ja/nein):
-(b) Fehler / Lauf weiter:
-```
-
-### 12. „Noch Spieler drin“ (Roadmap 93)
-
-- [ ] geprüft
-
-Leiter setzt zurück, während ein Mitglied noch drin ist.
-
-**Erwartet:** Meldung „… kann nicht zurückgesetzt werden …“; für alle, die draußen sind, gilt die Instanz
-trotzdem als zurückgesetzt (Annahme aus dem Code von Nova Instance Tracker).
-
-**Antwort:**
-
-```text
-Meldung:
-Beim Wiederbetreten neue zoneUID (ja/nein):
-```
-
-### 13. Tod im Dungeon (Roadmap 91)
-
-- [ ] geprüft
-
-Im Dungeon sterben, als Geist zum Friedhof und zurück laufen, an der Leiche wiederbeleben. Ein anderes Mal
-beim Geistheiler draußen wiederbeleben.
-
-**Erwartet:** Geisterlauf: derselbe Lauf, Zeile „Instanz“ zählt weiter (Einstellungen → Statistiken →
-Instanz-Lauf an). Geistheiler draußen: Uhr bleibt stehen.
-
-**Antwort:**
-
-```text
-Geisterlauf, gleicher Lauf (ja/nein):
-Geistheiler, Uhr steht (ja/nein):
-```
-
-### 14. Händlergang (Roadmap 91)
-
-- [ ] geprüft
-
-Raus, ein paar Minuten draußen, wieder rein in dieselbe Instanz.
-
-**Erwartet:** derselbe Lauf geht weiter; die Zeit draußen zählt nicht.
-
-**Antwort:**
-
-```text
-Gleicher Lauf (ja/nein):
-Zeit draußen mitgezählt (ja/nein):
-```
-
-### 15. Gruppenwechsel (Roadmap 93)
-
-- [ ] geprüft
-
-Innerhalb von 30 Minuten in die Kopie eines anderen Gruppenleiters wechseln (gleicher Dungeon), Gegner
-anvisieren.
-
-**Erwartet:** nach zwei Gegnern wird der Lauf geteilt (alter beendet, neuer läuft).
-
-**Antwort:**
-
-```text
-Lauf geteilt (ja/nein):
-```
-
-### 16. Normal und Heroisch (Roadmap 123, TBC/Retail/Forever)
-
-- [ ] geprüft
-
-Normal betreten, raus, Schwierigkeit auf Heroisch stellen, wieder rein.
-
-```
-/dump GetInstanceInfo()
-```
-
-**Erwartet:** dritter Wert (difficultyID) unterscheidet sich; neuer Lauf und ein Eintrag mehr bei
-„Instanzen/h“.
-
-**Antwort:**
-
-```text
-Ausgabe Normal:
-Ausgabe Heroisch:
-Neuer Lauf (ja/nein):
-```
-
-### 17. Lebend raus, Retail/Forever ohne Fehler (Roadmap 93)
-
-- [ ] geprüft
-
-In Retail oder Forever einen Dungeon laufen und dabei Gegner anvisieren.
-
-```
-/dump issecretvalue(UnitGUID("target"))
-```
-
-**Erwartet:** kein Lua-Fehler; ist der Wert `true`, bleibt es bei der Schätzung.
-
-**Antwort:**
-
-```text
-Client:
-Ausgabe (im Kampf / außerhalb):
-Fehler:
-```
-
----
-
-## Instanzlimit
-
-### 18. Limit in WoW Forever (Roadmap 92)
-
-- [ ] geprüft
-
-Fünf verschiedene Instanzen innerhalb einer Stunde betreten (z.B. Dungeon betreten und zurücksetzen), dann
-eine sechste.
-
-**Erwartet:** die sechste wird abgewiesen; das Addon zeigt dabei „Server: zu viele Instanzen. Laut Addon
-5/5 …“.
-
-**Antwort:**
-
-```text
-Client:
-Abgewiesen bei Nr.:
-Text der Server-Meldung:
-Zeile des Addons erschienen (ja/nein):
-```
-
-### 19. Hinweis bei 4/5 und 5/5 (Roadmap 92)
-
-- [ ] geprüft
-
-Einstellungen → Hinweise → Instanzlimit an, dann die vierte und fünfte Instanz betreten.
-
-**Erwartet:** jeweils Einblendung und Chatzeile mit Wartezeit.
-
-**Antwort:**
-
-```text
-Hinweis bei 4/5 (ja/nein):
-Hinweis bei 5/5 (ja/nein):
-```
-
-### 20. Tageslimit (Roadmap 124)
-
-- [ ] geprüft
-
-Nur falls du je abgewiesen wirst, obwohl „Instanzen/h“ weniger als 5 zeigt.
-
-**Antwort:**
-
-```text
-Instanzen/h laut Addon:
-Instanzen heute laut Addon:
-Text der Server-Meldung:
-```
 
 ---
 
 ## Stabilität (v2.8.1)
-
-### 21. Session-XP über einen Level-Up (Roadmap 100)
-
-- [ ] geprüft
-
-Vor einer großen Quest-Belohnung, die über eine Levelgrenze geht, die Session-XP notieren (Zeile
-„Erfahrung“ in der Session-Zusammenfassung), Quest abgeben und erneut nachsehen:
-
-```
-/lt recap
-```
-
-**Erwartet:** Session-XP steigt um die volle Belohnung.
-
-**Antwort:**
-
-```text
-Belohnung laut Quest:
-Session-XP vorher / nachher:
-```
 
 ### 22. Erholt-XP (Roadmap 102)
 
@@ -526,73 +402,6 @@ Level Time: [debug] stats: combatSeconds +4.0260001625866
 
 **Auswertung:** In Ordnung: der Pool sank um 108 bzw. 136 (Grund- plus Bonus-XP), gebucht wurde jeweils die Hälfte als Erholt-Bonus (54 bzw. 68). Genau das Verhalten aus Roadmap 102.
 
-### 23. Gildenreparatur (Roadmap 107, TBC/Retail/Forever)
-
-- [ ] geprüft
-
-Komfort → Automatisch reparieren und „zuerst aus der Gildenbank“ an. **Ohne** vorher die Gildenbank zu
-öffnen, beschädigt zum Händler.
-
-**Erwartet:** die Gilde zahlt (Chatzeile „aus der Gildenbank“); reicht ihr Limit nicht, zahlt der Rest der
-Charakter.
-
-**Antwort:**
-
-```text
-Client:
-Chatzeilen:
-```
-
-### 24. Wiederholbare Quests (Roadmap 108)
-
-- [ ] geprüft
-
-Mit Auto-Annehmen und Auto-Abgeben eine wiederholbare Abgabe-Quest besuchen (z.B. Runenstoff in einer
-Hauptstadt).
-
-**Erwartet:** nichts passiert automatisch, alle Gegenstände bleiben.
-
-**Antwort:**
-
-```text
-NPC / Quest:
-Automatisch abgegeben (ja/nein):
-```
-
-### 25. Levelcap der Erweiterung (Roadmap 118, Retail)
-
-- [ ] geprüft
-
-Charakter am Levelcap des Accounts (z.B. Trial oder ältere Erweiterung):
-
-```
-/dump UnitLevel("player"), UnitXPMax("player"), GameRulesUtil.IsPlayerAtEffectiveMaxLevel()
-```
-
-**Erwartet:** letzter Wert `true`; im Fenster kein XP-Balken, keine XP/h und Prognose.
-
-**Antwort:**
-
-```text
-Ausgabe:
-XP-Balken / XP/h sichtbar (ja/nein):
-```
-
-### 26. Beinahe-Tod nach Wiederbelebung (Roadmap 120, Classic Era/TBC)
-
-- [ ] geprüft
-
-Mit wenig Gesundheit wiederbeleben (Geistheiler, Seelenstein, niedriger Wiederbelebungszauber) und danach
-heilen.
-
-**Erwartet:** kein neuer Beinahe-Tod (Zeile „Beinahe-Tode“ bleibt gleich).
-
-**Antwort:**
-
-```text
-Beinahe-Tode vorher / nachher:
-```
-
 ### 27. Split-Liste skalieren (Roadmap 128)
 
 - [x] geprüft
@@ -638,29 +447,13 @@ Name in Historie → Speedrun → Läufe:
 
 **Auswertung:** Fehler bestätigt, Ursache vermutet: ein leeres mehrzeiliges Eingabefeld ist nur eine Zeile hoch; ein Klick in den freien Bereich trifft es nicht, Strg+V geht dann ins Leere. Jetzt fokussiert jeder Klick in den Textbereich das Feld (Roadmap 147). Bitte erneut prüfen; klappt es weiterhin nicht, bitte sagen, ob ein Textcursor im Feld blinkt.
 
-### 29. Gespräch mit einer Option (Roadmap 133)
-
-- [ ] geprüft
-
-Komfort → Gespräche überspringen an, einen NPC mit genau einer Option ansprechen (z.B. Flugmeister,
-Gastwirt mit nur „Händler“).
-
-**Erwartet:** die Option wird einmal gewählt, kein Fehler.
-
-**Antwort:**
-
-```text
-NPC:
-Ergebnis:
-```
-
 ### 30. Zeit ab 100 Tagen (Roadmap 139)
 
 - [ ] geprüft
 
-Nur falls du einen Charakter mit 100+ Tagen auf dem aktuellen Level hast (meist Max-Level).
+Datenteil per Debug-Log: check `194.format.units` (Text über 100 Tage). Hier nur noch das Auge:
 
-**Erwartet:** die Zeitanzeige ist vollständig.
+**Erwartet:** im Zeitfenster wird die lange Zeit nicht abgeschnitten (nur prüfbar mit einem Charakter mit 100+ Tagen).
 
 **Antwort:**
 
@@ -713,36 +506,6 @@ Abgeschnitten (Sprache, Stelle): alles top
 
 **Auswertung:** In Ordnung (alle Sprachen).
 
-### 33. Zeitumstellung (Roadmap 95)
-
-- [ ] geprüft
-
-Am Sonntag, 25.10.2026, zwischen 23 und 24 Uhr ausloggen oder `/reload`, bzw. Historie → Graphen →
-Spielzeit pro Tag öffnen.
-
-**Erwartet:** kein Hänger.
-
-**Antwort:**
-
-```text
-Hänger (ja/nein):
-```
-
-### 34. XP/h ohne AFK überall gleich (Roadmap 90)
-
-- [ ] geprüft
-
-Einstellungen → Statistiken → „XP/h ohne AFK-Zeit“ an; ein paar Minuten AFK, dann leveln.
-
-**Erwartet:** Vergleich der Charaktere, Graph „XP/h je Level“ und die Level-Up-Zeile im Chat zeigen dieselbe
-Rate wie Fenster und Level-Tabelle.
-
-**Antwort:**
-
-```text
-Abweichung (wo, Werte):
-```
-
 ### 35. Prognose plausibel (Roadmap 94)
 
 - [ ] geprüft
@@ -762,24 +525,16 @@ Einschätzung:
 
 - [ ] geprüft
 
-Einstellungen → Komfort → „Chat kopieren“ an, Button „C“ oben rechts im Chatfenster anklicken; ohne
-Button:
+Datenteil per Debug-Log: check `145.chatCopy.lines` (Zeilen, älteste zuerst, ohne Farbcodes). Hier nur das Aussehen:
 
-```
-/lt copy
-```
+Einstellungen → Komfort → „Chat kopieren“ an, Button „C“ oben rechts im Chatfenster ansehen und anklicken.
 
-**Erwartet:** Kopierfenster mit den Zeilen des Fensters, älteste oben, ohne Farbcodes; Links als
-`[Name]`. Der Button verdeckt nichts Wichtiges und erscheint in jedem Chatfenster (auch Reitern wie
-„Kampflog“).
+**Erwartet:** der Button verdeckt nichts Wichtiges und erscheint in jedem Chatfenster (auch Reitern wie „Kampflog“).
 
 **Antwort:**
 
 ```text
-Client:
-Zeilen vollständig (ja/nein):
 Button stört (wo):
-Fehler:
 ```
 
 ---
@@ -810,59 +565,18 @@ Stil Text (ja/nein, aussehen):
 
 - [ ] geprüft
 
-Größe auf 50 % und 200 %, Dauer auf 1 und 10 s, Ton an; „Position verschieben“, an eine andere Stelle
-ziehen, Rechtsklick; danach die Größe ändern.
+Datenteil per Debug-Log: debug `alert` (shown … duration, scale, sound), check `frames.addon` (Position von
+`LevelTimerAlert`/`LevelTimerNotice` vor und nach `/reload` und nach dem Skalieren). Hier nur Ton und Eindruck:
 
-**Erwartet:** Größe und Dauer wirken sofort; Ton beim Level-Up (`/lt debug alert levelUp`); die Position
-bleibt nach `/reload`; „Position zurücksetzen“ bringt sie nach oben in die Mitte. Beim Ändern der
-Größe darf die Einblendung nicht auffällig wandern (Roadmap 165).
+Ton an, `/lt debug alert levelUp`; Größe auf 50 % und 200 % stellen.
+
+**Erwartet:** Ton ist zu hören; beim Skalieren springt die Einblendung nicht sichtbar weg.
 
 **Antwort:**
 
 ```text
 Ton gehört (ja/nein):
-Position nach /reload gleich (ja/nein):
-Wandert beim Skalieren (ja/nein, wohin):
-```
-
-### 39. Einblendungen: Warteschlange und Verschiebemodus (Roadmap 155, 163)
-
-- [ ] geprüft
-
-Mehrere Ereignisse kurz hintereinander auslösen (`/lt debug alert rare`, danach `elite`, `loot` schnell
-hintereinander). Dann „Position verschieben“ aktivieren und währenddessen eine Warnung auslösen
-(z.B. `/lt debug remind`).
-
-**Erwartet:** die Einblendungen erscheinen nacheinander, die laufende zeigt sich dann kürzer; im
-Verschiebemodus geht die Warnung nur in den Chat (bekannte Lücke Roadmap 163).
-
-**Antwort:**
-
-```text
-Reihenfolge und Kürze (ja/nein):
-Warnung im Verschiebemodus verloren (ja/nein):
-```
-
-### 40. Instanz-Reiter im Spiel (Roadmap 149, 152, 156, 161, 162)
-
-- [ ] geprüft
-
-Einen Dungeon betreten und den Reiter „Instanz“ wählen. Kämpfen, XP sammeln, sterben. Dann Rechtsklick auf
-den Reiter (oder `/lt resetinstance`) und bestätigen. „Instanz-Reiter automatisch“ (Einstellungen →
-Allgemein) einschalten, raus- und wieder hineingehen und **in der Instanz** `/reload` ausführen.
-
-**Erwartet:** Zeit und XP des Laufs zählen nur drinnen; nach dem Zurücksetzen beginnen alle Werte bei
-null (Kampfzeit darf nicht sofort springen, Roadmap 162); ohne Lauf steht „Kein Lauf“ und „-“. Nach
-`/reload` in der Instanz und dem Verlassen darf das Fenster nicht auf „Instanz“ hängen bleiben
-(Roadmap 161).
-
-**Antwort:**
-
-```text
-Client, Dungeon:
-Werte zählen nur drinnen (ja/nein):
-Nach Reset sofort Kampfzeit > 0 (ja/nein):
-Reiter nach /reload und Verlassen (Level/Session/Instanz):
+Wandert sichtbar beim Skalieren (ja/nein):
 ```
 
 ### 41. Einstellungen scrollen (Roadmap 159)
@@ -923,160 +637,18 @@ Abgeschnitten (Sprache, Button):
 
 - [ ] geprüft
 
-`/lt history`, Reiter „Sessions“ wählen, Fenster schließen und wieder öffnen; auf den Charakternamen klicken,
-einen anderen Charakter wählen. Menü offen lassen und irgendwo anders ins Fenster klicken.
+Datenteil per Debug-Log: check `settings.all` (`historyTab` nach `/reload`). Hier nur die Liste:
 
-**Erwartet:** der Reiter bleibt (auch nach `/reload`); die Liste zeigt alle Charaktere klassenfarbig, ab 12
-scrollt sie mit dem Mausrad; ein Klick daneben schließt sie (bekannte Lücke Roadmap 168: schließt bisher nur
-über Name, Eintrag, ESC).
+`/lt history`, auf den Charakternamen klicken, Menü offen lassen und irgendwo anders ins Fenster klicken.
+
+**Erwartet:** die Liste zeigt alle Charaktere klassenfarbig, ab 12 scrollt sie mit dem Mausrad; ein Klick daneben
+schließt sie (bekannte Lücke Roadmap 168).
 
 **Antwort:**
 
 ```text
-Reiter gemerkt (ja/nein):
 Liste vollständig (ja/nein):
 Schließt bei Klick daneben (ja/nein):
-```
-
-### 45. Hilfe und Willkommenshinweis (Roadmap 157)
-
-- [ ] geprüft
-
-Hinweis erneut auslösen und Hilfe ansehen:
-
-```
-/run LevelTimerStatsDB.introShown = nil
-```
-
-```
-/reload
-```
-
-```
-/lt help
-```
-
-**Erwartet:** nach `/reload` einmal die Zeile mit Rechtsklick und `/lt help`; danach nie wieder; die Hilfe
-steht in fünf Zeilen nach Themen.
-
-**Antwort:**
-
-```text
-Willkommenszeile einmalig (ja/nein):
-Hilfe in 5 Zeilen (ja/nein):
-```
-
-### 46. Erhaltene XP und XP/h ohne AFK (Roadmap 150, 151)
-
-- [ ] geprüft
-
-Einstellungen → Statistiken → „Erhaltene XP“ an. Auf allen drei Reitern Level, Session, Instanz die Zeile
-ansehen. „XP/h ohne AFK-Zeit“ an, einige Minuten AFK, dann leveln; Historie → Levels und Vergleich ansehen.
-
-**Erwartet:** die Zeile zeigt die absolut gewonnenen XP je Reiter; Fenster, Level-Tabelle und Vergleich
-zeigen für das laufende Level dieselbe XP/h (Roadmap 151).
-
-**Antwort:**
-
-```text
-Werte Level / Session / Instanz:
-XP/h Fenster / Historie / Vergleich:
-```
-
-### 47. Klassifikation mit geheimen Werten (Roadmap 171, Retail/Forever)
-
-- [ ] geprüft
-
-Im Dungeon oder Bosskampf mit Mouseover und Ziel auf Gegner (und Spieler) fahren; BugSack beobachten.
-
-**Erwartet:** kein Fehler aus `Classification.lua`, `InstanceCopy.lua` oder `Zones.lua` („attempt to
-compare/perform boolean test on a secret value“); Rare-/Elite-Kills werden weiter erkannt.
-
-**Antwort:**
-
-```text
-Client:
-Fehlertext, Datei:Zeile:
-```
-
-### 48. `UnitXPMax` beim Level-Up (Roadmap 175)
-
-- [ ] geprüft
-
-Vor einem Level-Up einmalig einschalten (gilt bis `/reload`):
-
-```
-/run local f=CreateFrame("Frame"); f:RegisterEvent("PLAYER_LEVEL_UP"); f:SetScript("OnEvent", function() print("XPMax beim Level-Up:", UnitXPMax("player")) end)
-```
-
-Dann das Level erreichen und mit dem XP-Bedarf des alten Levels (`UnitXPMax` kurz vorher) und der Spalte
-„XP“ des Eintrags in Historie → Levels vergleichen.
-
-**Erwartet:** der ausgegebene Wert ist der Bedarf des **alten** Levels (dann stimmt die Annahme in
-`History.lua:204`); ist er der des neuen Levels, ist Roadmap 175 ein echter Fehler.
-
-**Antwort:**
-
-```text
-Client, Level:
-Ausgabe beim Level-Up:
-XP-Bedarf vorher:
-Eintrag in der Historie:
-```
-
-### 49. Death Recap ohne ID (Roadmap 180, Retail/Forever)
-
-- [ ] geprüft
-
-Nach einem Tod (Geist freigelassen, noch in der Nähe):
-
-```
-/dump C_DeathRecap.GetRecapEvents()
-```
-
-**Erwartet:** eine Tabelle mit Ereignissen (kein Fehler wegen fehlendem Argument); in Historie → Journal →
-Tode steht die Ursache. Bei Fehler oder `nil` ist die Ursache in Retail/Forever immer „unbekannt“.
-
-**Antwort:**
-
-```text
-Client:
-Ausgabe oder Fehler:
-Ursache im Journal:
-```
-
-### 50. Gespräch überspringen beim Geistheiler (Roadmap 181)
-
-- [ ] geprüft
-
-Komfort → Gespräche überspringen an, als Geist den Geistheiler ansprechen.
-
-**Erwartet:** nichts wird automatisch gewählt („Wiederbeleben“ kostet Wiederbelebungsschwäche bzw.
-Haltbarkeit). Tritt es doch auf, ist Roadmap 181 bestätigt.
-
-**Antwort:**
-
-```text
-Client:
-Automatisch gewählt (ja/nein):
-```
-
-### 51. Gildenreparatur und Abhebelimit (Roadmap 179)
-
-- [ ] geprüft
-
-Komfort → Automatisch reparieren und „zuerst aus der Gildenbank“; einmal mit Gildenbank-Limit **unter** den
-Reparaturkosten, einmal darüber zu einem Händler.
-
-**Erwartet:** reicht das Limit nicht, zahlt der Charakter den Rest (kein doppeltes Abbuchen); die Chatzeile
-nennt, was aus der Gildenbank kam.
-
-**Antwort:**
-
-```text
-Client, Limit, Kosten:
-Chatzeilen:
-Gold vorher / nachher:
 ```
 
 ### 52. Chroma-Grün und schnelle Splits (Roadmap 198)
@@ -1103,54 +675,39 @@ Schnelle Splits sichtbar (ja/nein):
 
 - [ ] geprüft
 
-Einstellungen → Hinweise → Abschnitt „Lagerfeuer“: Countdown und Hinweis an. Zuerst „Vorschau“ mehrfach
-anklicken (Hinweis, Countdown, „Lagervorteile aktiv“), „Verschieben“ ausprobieren, Größe ändern. Dann echt:
-zu einem Lagerfeuer gehen **ohne** Lagervorteile (Buff „Lagervorteile“ ablaufen lassen oder abbrechen),
-stehen, danach hinsetzen und die 60 Sekunden abwarten.
+Datenteil per Debug-Log: debug `camp` (state, countdown started/ended, benefits granted), debug `timer`
+(LevelTimerCamp shows/hides/done, sound), `error`-Zeilen. Der Ablauf (Hinweis, Countdown 60 → 0, „aktiv“, nichts im
+Kampf) steht damit im Log. Hier nur das Aussehen:
 
-**Erwartet:** beim Dazustellen erscheint der blaue, leicht pulsierende Hinweis „Setz dich hin“; beim Hinsetzen
-wechselt er zum Countdown mit Zauber-Symbol, Zahl und Balken, der von 60 s bis 0 läuft (Zahl und Buff-Zeit
-gleich, Prüfung mit der Aura-Liste); danach kurz „Lagervorteile aktiv!“ (grün), mit Ton, wenn „Ton bei
-Lagervorteilen“ an ist. Wer vorher aufsteht, bekommt keine Erfolgsmeldung. Mit Lagervorteilen und ohne
-Hinsetzen erscheint kein Hinweis. Im Kampf und bei Bosskämpfen nichts und kein Fehler.
+Einstellungen → Hinweise → „Lagerfeuer“: Vorschau mehrfach, „Verschieben“, Größe; dann echt an ein Lagerfeuer.
 
-```
-/run for i=1,40 do local a=C_UnitAuras.GetAuraDataByIndex("player",i,"HELPFUL"); if not a then break end print(i, a.spellId, a.name, a.duration, a.expirationTime, GetTime()) end
-```
+**Erwartet:** blauer, leicht pulsierender Hinweis; Countdown mit Zauber-Symbol, Zahl und Balken; „Lagervorteile
+aktiv!“ grün; Ton, wenn eingeschaltet; Texte passen in fr/es.
 
 **Antwort:**
 
 ```text
-Hinweis erscheint (ja/nein):
-Countdown läuft von 60 bis 0 (ja/nein, Abweichung zur Aura-Liste):
-Meldung "aktiv" und Ton (ja/nein):
-Symbol sichtbar (ja/nein):
+Pulsieren, Symbol, Balken sichtbar (ja/nein):
+Ton gehört (ja/nein):
 Texte in fr/es passen (ja/nein):
-Position nach /reload gleich (ja/nein):
-Fehler:
 ```
 
 ### 54. Hinweise als Karten (Roadmap 237)
 
 - [ ] geprüft
 
-Einstellungen → Einblendungen → „Vorschau“ so oft anklicken, bis die Karte „Taschen“ erscheint. Dann die
-echten Hinweise auslösen: Food-Hinweis (Satt fehlt, Einstellungen → Hinweise → „Hinweis: Satt fehlt“),
-Taschen fast voll, Haltbarkeit unter 20 %, als Jäger Munition knapp, geradzahliger Level-Up (Lehrer),
-Instanzlimit.
+Datenteil per Debug-Log: check `237.alerts.icons` (Datei-ID je Symbol; leer = grünes Quadrat), debug `card`
+(icon … -> …), debug `alert` (shown …, Reihenfolge). Hier nur das Aussehen:
 
-**Erwartet:** jede Meldung als dunkle Karte mit Farbleiste, passendem Symbol (kein grünes Quadrat, kein
-Fragezeichen außer bei unbekanntem Zauber), Titel in Gold/Orange und Text darunter; mehrere gleichzeitig
-(Satt + Lagervorteile) erscheinen nacheinander; Größe, Dauer und Position folgen den Einstellungen im Reiter
-„Einblendungen“; die Chatzeile erscheint weiterhin.
+Einstellungen → Einblendungen → „Vorschau“ bis zur Karte „Taschen“; einige echte Hinweise auslösen.
+
+**Erwartet:** dunkle Karte mit Farbleiste, Titel in Gold/Orange und Text darunter.
 
 **Antwort:**
 
 ```text
-Symbole sichtbar (welche fehlen oder sind grün):
+Karten sehen richtig aus (ja/nein):
 Texte in fr/es passen (ja/nein):
-Position und Größe wie eingestellt (ja/nein):
-Fehler:
 ```
 
 ---
@@ -1180,19 +737,18 @@ Fehler:
 
 - [ ] geprüft
 
-Einstellungen → Hinweise → Abschnitt „Essen“: Timer an. Etwas essen, das „Satt“ gibt, und sitzen bleiben. Danach
-mitten im Essen aufstehen. Einmal als Satt schon aktiv war und noch einmal essen. Vorschau, Verschieben, Größe.
+Datenteil per Debug-Log: debug `food` (eating started/ended after … s, well fed granted … s after eating started),
+debug `timer` (LevelTimerFood). Damit steht im Log, wann „Satt“ kommt. Hier nur die Karte:
 
-**Erwartet:** Karte „Sitzen bleiben!“ mit Zahl und leerlaufendem Balken (18 s); „Satt aktiv!“ erscheint, sobald
-der Buff „Satt“ da ist (wann genau: vor oder nach Ende des Essens?); beim Aufstehen ohne „Satt“ keine Meldung;
-Getränke lösen nichts aus; die Karte sitzt unter der Lagerfeuer-Anzeige und lässt sich verschieben.
+Einstellungen → Hinweise → „Essen“: Timer an, etwas essen.
+
+**Erwartet:** Karte „Sitzen bleiben!“ mit Zahl und leerlaufendem Balken, sitzt unter der Lagerfeuer-Anzeige und lässt
+sich verschieben.
 
 **Antwort:**
 
 ```text
-Satt kommt nach wie vielen Sekunden Essen:
-Countdown und „Satt aktiv“ wie erwartet (ja/nein):
-Fehler:
+Karte sieht richtig aus (ja/nein):
 ```
 
 ---
@@ -1201,20 +757,18 @@ Fehler:
 
 - [ ] geprüft
 
-Einstellungen → Komfort → „Questziele markieren“ einschalten. Namensplaketten für Gegner und NPCs an
-(Esc → Optionen → Namensplaketten). Eine Quest mit Tötungsziel annehmen und in die Nähe der Ziele laufen.
-Ziele töten, bis das Ziel erfüllt ist. Größe-Regler verstellen.
+Datenteil per Debug-Log: debug `questmarks` (mark/unmark Name, health bar), check `240.questMarks.plates` (Plaketten,
+Questbezug), `error`-Zeilen. Hier nur die Lage des Symbols:
 
-**Erwartet:** gelbes Ausrufezeichen direkt links neben dem Lebensbalken der Questmobs, so hoch wie der Balken (nicht bei anderen); verschwindet,
-sobald das Ziel erfüllt ist (auch wenn noch Mobs der Sorte stehen); Größe folgt dem Regler; kein Lua-Fehler,
-auch im Kampf und in Instanzen; Symbol sitzt sauber links am Balken (Höhe, kein Überlappen); bei anderen Plakettenaddons (Plater o. ä.) Fallback über der Plakette.
+„Questziele markieren“ an, Namensplaketten an, zu Questgegnern laufen, Größe-Regler verstellen.
+
+**Erwartet:** gelbes Ausrufezeichen direkt links neben dem Lebensbalken, so hoch wie der Balken, kein Überlappen; Größe
+folgt dem Regler; bei Plater o. ä. Fallback über der Plakette.
 
 **Antwort:**
 
 ```text
-Symbol sichtbar und passend (ja/nein):
-Verschwindet bei erfülltem Ziel (ja/nein):
-Fehler:
+Symbol sitzt sauber (ja/nein):
 ```
 
 ---
@@ -1223,21 +777,18 @@ Fehler:
 
 - [ ] geprüft
 
-Einstellungen → Komfort → „Fenster verschieben“ einschalten. Charakterfenster (C), Zauberbuch, Händler, Questgespräch
-und Talente öffnen und jeweils an der Titelleiste oder einer freien Stelle mit der linken Maustaste ziehen. Fenster
-schließen und wieder öffnen, dann /reload und noch einmal öffnen. Im Kampf ziehen. „Fensterpositionen zurücksetzen“
-klicken, /reload.
+Datenteil per Debug-Log: debug `moveframes` (attached/skipped), check `238.moveFrames.frames` (Positionen nach Öffnen
+und `/reload`, gemerkte Werte), event `ADDON_ACTION_BLOCKED` (auch im Kampf). Hier nur das Ziehen selbst:
 
-**Erwartet:** Fenster folgt der Maus und bleibt nach Schließen, Öffnen und /reload an der neuen Stelle (auch Fenster,
-die Blizzard beim Öffnen selbst anordnet); im Kampf bewegt sich nichts und es gibt keinen „Aktion blockiert“-Fehler;
-nach dem Zurücksetzen und /reload stehen alle Fenster wieder an der Standardstelle; ausgeschaltet lässt sich nichts ziehen.
+Einstellungen → Komfort → „Fenster verschieben“ an; Charakterfenster, Zauberbuch, Händler, Questgespräch und Talente
+ziehen.
+
+**Erwartet:** das Fenster folgt der Maus; ausgeschaltet lässt sich nichts ziehen.
 
 **Antwort:**
 
 ```text
 Welche Fenster verschiebbar (und welche nicht):
-Position nach Öffnen/Reload gemerkt (ja/nein):
-Fehler oder „Aktion blockiert“ (Text):
 ```
 
 ---
@@ -1279,849 +830,423 @@ Locals:
 
 - [ ] geprüft
 
-Reiter Einblendungen: Vorschau mehrfach klicken (Level-Up, Rare, Elite, Beute, Beinahe-Tod), danach Position
-verschieben. Stil „Text“ zum Vergleich.
+Datenteil per Debug-Log: check `237.alerts.icons` (Datei-IDs), debug `card`, debug `alert`. Hier nur das Aussehen:
 
-**Erwartet:** im Stil „Banner“ jede Einblendung als Karte mit Symbol und Farbleiste wie die Hinweise (Lagerfeuer,
-Taschen); Größe, Dauer, Ton und Position wirken weiter; „Text“ zeigt nur die Schrift. Symbole sind keine grünen
-Quadrate.
+Reiter Einblendungen: Vorschau mehrfach (Level-Up, Rare, Elite, Beute, Beinahe-Tod), Stil „Text“ zum Vergleich.
 
-**Antwort:**
-
-```text
-Symbole alle sichtbar (ja/nein):
-Fehler:
-```
-
-### 60. Lagerfeuer-Hinweis nur kurz (Roadmap 245)
-
-- [ ] geprüft
-
-In WoW Forever zu einem Lagerfeuer gehen, ohne sich zu setzen. Weggehen und wiederkommen. Regler „Hinweis wieder nach“
-im Reiter Timer ändern.
-
-**Erwartet:** Hinweis steht ca. 8 s und verschwindet; erscheint erst nach der eingestellten Pause wieder, auch wenn
-man zwischendurch weggeht. Countdown und „Lagervorteile aktiv“ sind nicht betroffen.
+**Erwartet:** im Stil „Banner“ jede Einblendung als Karte mit Symbol und Farbleiste; „Text“ zeigt nur die Schrift.
 
 **Antwort:**
 
 ```text
-Hinweis verschwindet (ja/nein):
-Pause wirkt (ja/nein):
-Fehler:
+Karten und Text-Stil sehen richtig aus (ja/nein):
 ```
 
-### 61. Stream Goal (Roadmap 246)
+### 61. Level Time Goals (Roadmap 246)
 
 - [ ] geprüft
 
-Beide Addons installiert (`make install`), Client neu gestartet. `/sg` öffnet das Fenster. Ziele anlegen: Level (Formular),
-`/sg add kills 5 pve`, `/sg add item 2589 3` (Leinenstoff), `/sg add bgwin 1`. Auf ein Schlachtfeld gehen und gewinnen,
-dann Level-Up bzw. Item looten. Im Formular „Item“ ein Item per Shift-Klick in das Feld einfügen.
+Datenteil per Debug-Log: debug `goal:goals` und `goal:tracking` (battleground over: winner, faction, won), event
+`PVP_MATCH_COMPLETE`/`UPDATE_BATTLEFIELD_SCORE` (Siegerwerte), check `246.battleground`, `error`-Zeilen. Hier nur
+das Sichtbare:
 
-**Erwartet:** Karten rechts oben mit Titel, „x / y“ und Balken, Position per „Verschieben“ änderbar. Beim Erreichen
-Einblendung „Ziel erreicht!“ wie bei Level Time plus Chatzeile; das Ziel erscheint in der Historie. Sieg im
-Schlachtfeld zählt genau einmal (auch in Classic Era, Retail, Forever); Niederlage, Unentschieden und Arena zählen nicht.
-Shift-Klick fügt den Link ein. Ohne Level Time lädt Stream Goal nicht (Abhängigkeit).
+`/sg`, Ziele anlegen (siehe `/sg add …`), im Formular „Item“ ein Item per Shift-Klick einfügen.
+
+**Erwartet:** Karten rechts oben mit Titel, „x / y“ und Balken, verschiebbar; Einblendung „Ziel erreicht!“;
+Shift-Klick fügt den Link ein; ohne Level Time lädt Level Time Goals nicht.
 
 **Antwort:**
 
 ```text
 Karten und Einblendung (ja/nein):
-BG-Sieg zählt einmal (Client):
 Shift-Klick-Link (ja/nein):
-Reload im fertigen Schlachtfeld zählt doppelt (ja/nein):
-Sieger-Wert: `/dump C_PvP.GetActiveMatchWinner and C_PvP.GetActiveMatchWinner(), GetBattlefieldWinner and GetBattlefieldWinner()` am Ende eines Spiels (Retail/Forever: 0/1 = Horde/Allianz, 255 = Unentschieden?):
-Fehler:
 ```
 
 ### 62. Level-Up-Zuwachs (Roadmap 247)
 
 - [ ] geprüft
 
-Level-Up ausgelöst (echtes Level oder `/lt debug levelup` für ein Beispiel). Einstellung „Level-Up: Zuwachs anzeigen“ im Reiter Hinweise, Einblendung „Level-Up“ an.
+Datenteil per Debug-Log: debug `gains` (Werte beim Level-Up), `print` (Zuwachs-Zeile), check `unit.stats` (Werte
+danach). Hier nur die Karte:
 
-**Erwartet:** Chatzeile mit Leben, Mana, Stärke, Beweglichkeit, Ausdauer, Intelligenz als „vorher → nachher (+Zuwachs)“ und Talentpunkten; die Level-Up-Karte zeigt dieselben Zeilen. Die Werte stimmen mit dem Charakterfenster überein (Werte ohne Buffs). Mit Ausdauer-Buff (z.B. Essen, Segen) steht beim Leben nur „+Zuwachs“, mit Intelligenz-Buff beim Mana.
+Level-Up (echt oder `/lt debug levelup`) mit „Level-Up: Zuwachs anzeigen“ und Einblendung „Level-Up“.
 
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Zeilen stimmen mit dem Charakterfenster (ja/nein):
-Werte nach 1 s schon neu (ja/nein):
-Fehler:
-```
-
-### 63. Keine Hinweise im Kampf (Roadmap 248)
-
-- [ ] geprüft
-
-Einblendung „Level-Up“ an. Im Kampf (z.B. gegen einen Gegner) das Level erreichen; außerdem im Kampf die Taschen fast voll machen und in die Nähe eines Lagerfeuers laufen (Forever).
-
-**Erwartet:** Im Kampf erscheint nichts. Nach dem Kampf kommt die Level-Up-Karte (mit Zuwachs), danach die Taschenwarnung bzw. der Lagerfeuer-Hinweis.
+**Erwartet:** die Level-Up-Karte zeigt dieselben Zeilen wie die Chatzeile.
 
 **Antwort:**
 
 ```text
-Level-Up kommt nach dem Kampf (ja/nein):
-Taschenwarnung nach dem Kampf (ja/nein):
-Lagerfeuer-Hinweis nach dem Kampf (ja/nein):
-Fehler:
+Karte zeigt die Zuwächse (ja/nein):
 ```
 
 ### 64. Level-Up-Fenster (Roadmap 249)
 
 - [ ] geprüft
 
-Klassenlehrer einmal besuchen (Liste wird gemerkt). Reiter Einblendungen > Level-Up-Fenster: „Vorschau“, „Verschieben“, Farbschema und „Kompakte Ansicht“ ausprobieren. Dann ein echtes Level-Up (gerades Level, damit der Lehrer neue Fähigkeiten hat).
+Datenteil per Debug-Log: debug `levelup` (window for level … abilities, Blizzard banner off/on, Blizzard toast
+closed), check `249.trainer.cache`, `print` (nach dem Kampf). Hier nur das Sichtbare:
 
-**Erwartet:** Eigenes Fenster mit Level, Tabelle der Zuwächse, Talentpunkten und Symbolen der neuen Lehrerfähigkeiten (Tooltip mit Name, Rang, Level). Blizzards großes Banner erscheint nicht, solange „Blizzard-Banner ausblenden“ an ist; mit der Einstellung aus kommt es wieder (dazu ggf. /reload). Linksklick schließt das Fenster, unter der Maus bleibt es stehen. Im Kampf erscheint es erst danach. In WoW Forever ist das Banner ein Toast des EventToastManager; er wird mit Blizzards `CloseActiveToasts()` geschlossen, sobald er kurz nach dem Level-Up mit der neuen Stufe im Titel erscheint (kurzes Aufblitzen möglich). Danach prüfen: Controller-Aktionsleiste und Castbar bleiben an ihrem Platz. Ohne besuchten Lehrer steht im Fenster ein grauer Hinweis statt der Fähigkeiten; mit der Maus über dem Fenster erscheint „Linksklick schließt das Fenster“. Im Kampf steht eine Chatzeile, dass das Fenster nach dem Kampf kommt. Die Level-Up-Einblendung (Karte) kommt nicht zusätzlich, solange das Fenster an ist.
+Reiter Einblendungen > Level-Up-Fenster: Vorschau, Verschieben, Farbschema, kompakte Ansicht; dann ein echtes
+Level-Up (gerades Level).
+
+**Erwartet:** eigenes Fenster mit Tabelle, Talentpunkten und Symbolen (Tooltip mit Name, Rang, Level); Blizzards
+Banner/Toast erscheint nicht (kurzes Aufblitzen in Forever möglich); Controller-Aktionsleiste und Castbar bleiben an
+ihrem Platz; Linksklick schließt.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
 Blizzard-Banner weg (ja/nein):
-Fähigkeiten stimmen mit dem Lehrer überein (ja/nein/nicht gemerkt):
 Tooltip der Fähigkeiten (ja/nein):
-Fehler:
-```
-
-### 65. Sozial: geteilte Quests, Freundschaftsanfragen, Einladungen (Roadmap 329, Schritt 3a)
-
-- [ ] geprüft
-
-Komfort > Sozial: „Geteilte Quests ablehnen“, „Freundschaftsanfragen blocken“, „Gruppe von Freunden annehmen“ und „Einladen per Flüstern“ an (Stichwort „inv“). Mit einem Fremden und mit einem Freund bzw. Gildenmitglied: Quest teilen lassen, Gruppe einladen lassen, „inv“ flüstern lassen (auch über Battle.net). Eine Battle.net-Freundschaftsanfrage schicken lassen.
-
-**Erwartet:** Geteilte Quest des Fremden wird abgelehnt (Chatzeile), die des Freundes bleibt bzw. wird mit „Geteilte Quests annehmen“ angenommen. Einladung des Freundes wird angenommen, auch wenn „Gruppeneinladungen ablehnen“ an ist; die des Fremden wird dann abgelehnt. Nach „inv“ kommt eine Einladung, bei Battle.net-Freunden an das WoW-Spielkonto. Die Freundschaftsanfrage verschwindet sofort.
-
-```
-/dump C_FriendList.IsFriend(UnitGUID("target")), C_GuildInfo.MemberExistsByName(UnitName("target"))
-```
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Quest Fremder abgelehnt / Freund angenommen (ja/nein):
-Einladung Freund angenommen, Dialog weg (ja/nein):
-Einladung per Flüstern / Battle.net (ja/nein):
-Freundschaftsanfrage abgelehnt (ja/nein):
-Fehler:
+Aktionsleiste/Castbar am Platz (ja/nein):
 ```
 
 ### 66. Chat: Fenster, letzter Chat nach /reload, Spam-Filter (Roadmap 329, Schritt 3b)
 
 - [ ] geprüft
 
-Komfort > Chat: jeden Schalter einzeln an und wieder aus: Kampflog-Reiter, Chat-Buttons, Eingabezeile oben, Pfeiltasten, nicht ausblenden. Dann „Chat nach /reload behalten“ an, ein paar Zeilen schreiben, `/reload`. Betrunken werden lassen (Mitspieler) und im Kampf Zauber-Links in der Gruppe posten lassen.
+Datenteil per Debug-Log: debug `overrides` (… overridden/restored), debug `chat` (restored … lines, filtered …),
+check `329.chat.windows` (Reiter, Knöpfe, Eingabezeile, Ausblenden). Hier nur das Sichtbare:
 
-**Erwartet:** Kampflog-Reiter verschwindet, die anderen Reiter rücken auf; aus = wieder da. Menü-, Kanal-, Sprach- und Sozial-Buttons und die Knopfleiste sind weg, Mausrad blättert; aus = wieder da (ohne /reload). Eingabezeile erscheint über den Reitern und überdeckt nichts Wichtiges. Pfeiltasten bewegen den Cursor ohne Alt. Text verblasst nicht. Nach /reload stehen die letzten Zeilen wieder im Chat, nach einem echten Login nicht. Betrunken-Meldungen anderer und Zauber-Links im Kampf erscheinen nicht.
+Komfort > Chat: „Eingabezeile oben“ und „Pfeiltasten“ an.
+
+**Erwartet:** die Eingabezeile sitzt über den Reitern und überdeckt nichts Wichtiges; Pfeiltasten bewegen den Cursor
+ohne Alt.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Kampflog-Reiter weg und zurück (ja/nein):
-Buttons weg und zurück (ja/nein):
 Eingabe oben sitzt gut (ja/nein):
-Chat nach /reload wieder da (ja/nein):
-Spam-Filter (ja/nein):
-Fehler:
+Pfeiltasten (ja/nein):
 ```
 
 ### 67. Oberfläche: Aktionsleisten und Blizzard-Einblendungen ausblenden (Roadmap 329, Schritt 4)
 
 - [ ] geprüft
 
-Komfort > Oberfläche: jeden Schalter einzeln an und wieder aus (ohne /reload): Tastenbelegung, Makronamen, außer Reichweite rot, Boss-Banner, Ereignis-Einblendungen, Meldungen, Haltungsleiste, Ruhe-Animation, Porträtzahlen. Für Reichweite einen Gegner anvisieren und weglaufen, auch mit wenig Mana. Haltungsleiste einmal im Kampf umschalten. Für Meldungen einen Erfolg oder gewonnene Beute abwarten, für die Porträtzahlen kämpfen (auch mit Begleiter), für die Ruhe-Animation in ein Gasthaus gehen.
+Datenteil per Debug-Log: debug `overrides` (je Frame overridden/restored), debug `comfort` (stance bar: waiting for
+combat end), events `ADDON_ACTION_BLOCKED`/`ADDON_ACTION_FORBIDDEN`. Hier nur das Sichtbare:
 
-**Erwartet:** Tasten und Makronamen verschwinden auf allen Leisten und kommen zurück. Symbol wird rot, sobald das Ziel zu weit weg ist, und wieder normal (blau bei wenig Mana) in Reichweite; aus = nie rot. Kein Boss-Banner, keine Toasts in der Mitte (Forever: auch kein Level-Up-Toast), keine Meldungen unten; aus = wieder da. Haltungsleiste verschwindet (im Kampf erst danach) und kommt zurück, ohne Fehlermeldung. „Zzz“ am Porträt weg. Keine Schadenszahlen auf dem Porträt. Schalter, deren Frame der Client nicht hat (Classic: Boss-Banner, Toasts), fehlen.
+Komfort > Oberfläche: jeden Schalter einzeln an und aus (Tastenbelegung, Makronamen, Reichweite rot, Boss-Banner,
+Ereignis-Einblendungen, Meldungen, Haltungsleiste, Ruhe-Animation, Porträtzahlen).
+
+**Erwartet:** Texte, Banner, Toasts, „Zzz“ und Porträtzahlen verschwinden und kommen zurück; Symbol rot außer
+Reichweite, blau bei wenig Mana.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Tasten/Makrotext weg und zurück (ja/nein):
+Alles weg und zurück (ja/nein, was nicht):
 Reichweite rot, wieder normal (ja/nein):
-Boss-Banner/Toasts/Meldungen weg (ja/nein):
-Haltungsleiste weg, im Kampf erst danach (ja/nein):
-Zzz und Porträtzahlen weg (ja/nein):
-Fehler (BugSack, "Aktion blockiert"):
 ```
 
 ### 68. Charakterfenster: Haltbarkeit und Lautstärkeregler (Roadmap 329, Schritt 2d und 4)
 
 - [ ] geprüft
 
-Komfort > Fenster: „Haltbarkeit anzeigen“ und „Lautstärkeregler“ an, Charakterfenster (C) öffnen. Ein paar Mal sterben oder kämpfen, beim Händler reparieren. Regler ziehen, Fenster schließen und wieder öffnen. Beide Schalter wieder aus.
+Datenteil per Debug-Log: check `329.characterFrame` (eigene Haltbarkeitssumme gegen angezeigten Text, Regler gegen
+CVar `Sound_MasterVolume`), event `UPDATE_INVENTORY_DURABILITY`. Hier nur Lage und Ton:
 
-**Erwartet:** Links neben der Waffenhand „Haltbarkeit“ und ein Prozentwert (Summe aller Teile), grün ab 60 %, gelb darunter, rot unter 20 %; nach der Reparatur 100 %. Rechts neben den Waffen ein Regler „Lautstärke“ mit dem aktuellen Wert aus den Spieleinstellungen; Ziehen ändert die Gesamtlautstärke sofort. Nichts überlappt Plätze, Modell oder Reiter (auch auf Französisch). Aus = beides weg.
+Komfort > Fenster: „Haltbarkeit anzeigen“ und „Lautstärkeregler“ an, Charakterfenster (C) öffnen, Regler ziehen.
+
+**Erwartet:** nichts überlappt Plätze, Modell oder Reiter (auch auf Französisch); die Lautstärke ändert sich hörbar.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Haltbarkeit sichtbar, Wert stimmt (ja/nein):
 Position gut, nichts überlappt (ja/nein):
-Lautstärke ändert sich (ja/nein):
-Fehler:
+Lautstärke ändert sich hörbar (ja/nein):
 ```
 
 ### 69. Fenster: Klassenfarben bei Ziel und Fokus, Tooltip, Minimap (Roadmap 329, Schritt 4)
 
 - [ ] geprüft
 
-Komfort > Fenster: „Klassenfarben bei Ziel und Fokus“ an, Spieler verschiedener Klassen und NPCs anvisieren und fokussieren (auch in einer Instanz). Tooltip: „Namen in Klassenfarbe“ und „Ziel der Einheit zeigen“ an, über Spieler und kämpfende Gegner fahren; „Im Kampf ausblenden“ an, im Kampf über Gegner fahren, dann mit Umschalt. Minimap (Classic): Mausrad, Zoom-Knöpfe, Kalender-Knopf. Alles wieder aus.
+Datenteil per Debug-Log: check `329.classColors` (Farbe des Namenshintergrunds gegen Klasse), check `329.minimap`
+(Knöpfe, Mausrad), events `ADDON_ACTION_BLOCKED`, `error`-Zeilen (auch in Instanzen). Hier nur der Tooltip:
 
-**Erwartet:** Namenshintergrund bei Spielern in Klassenfarbe, bei NPCs wie gewohnt (rot/gelb/grün); aus = sofort wieder Reaktionsfarbe. Tooltip-Name von Spielern in Klassenfarbe, Zeile „Ziel: Name“ (bei dir „Ziel: Du“), Tooltip passt seine Größe an. Im Kampf keine Einheiten-Tooltips, mit Umschalt doch; Tooltips von Knöpfen und Gegenständen bleiben. Classic: Mausrad zoomt die Minimap, Zoom-Knöpfe und Kalender-Knopf weg und nicht klickbar; aus = zurück. Retail/Forever: Mausrad- und Zoom-Knopf-Schalter fehlen (dort schon Standard). Keine Fehler, kein „Aktion blockiert“, auch in Instanzen (Forever: geheime Werte).
+Tooltip: „Namen in Klassenfarbe“, „Ziel der Einheit zeigen“, „Im Kampf ausblenden“ an; über Spieler und kämpfende
+Gegner fahren, im Kampf mit und ohne Umschalt.
+
+**Erwartet:** Name in Klassenfarbe, Zeile „Ziel: Name“ (bei dir „Ziel: Du“), Tooltip passt seine Größe an; im Kampf
+keine Einheiten-Tooltips, mit Umschalt doch.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Klassenfarbe Ziel/Fokus, aus = zurück (ja/nein):
 Tooltip Klassenfarbe und Zielzeile (ja/nein):
 Im Kampf versteckt, Umschalt zeigt (ja/nein):
-Minimap Mausrad/Knöpfe (ja/nein/fehlt):
-Fehler (auch in Instanzen):
 ```
 
 ### 70. System: Bildschirmeffekte, Wetter, Namensplaketten im Kampf, Töne, Addon-Liste, Gruppenfarbe (Roadmap 329, Schritt 5)
 
 - [ ] geprüft
 
-Vorher die Werte ausgeben und in die Antwort schreiben, dann Komfort > System der Reihe nach einschalten und prüfen, danach alles wieder aus und die Werte erneut ausgeben:
+Datenteil per Debug-Log: check `329.cvars` vorher/nachher (Werte, Standard, gemerkte Originale, `lowLevelRaid`),
+event `CVAR_UPDATE`, debug `comfort` (cvar … = …, restored, sound group … muted, low level raid …), check
+`329.chat.colors`, events `ADDON_ACTION_BLOCKED`. Dafür einmal vor dem Einschalten, einmal eingeschaltet und einmal nach
+dem Ausschalten (auch nach `/reload`) `/lt debug check`. Hier nur, was man sieht und hört:
 
-```
-/lt debug check
-```
-
-```
-/run for _,n in ipairs({"ffxGlow","ffxDeath","ffxNether","weatherDensity","RAIDweatherDensity","nameplateShowEnemies","Sound_EnableEmoteSounds"}) do print(n, C_CVar.GetCVar(n)) end print("lowLevelRaid", GetAllowLowLevelRaid())
-```
-
-„Kein Rausch-Schleier“ (betrunken werden, z.B. Gasthaus-Bier), „Keine Bildschirmeffekte“ (sterben, als Geist laufen), „Wetterdichte festlegen“ mit Regler 0 und 3 (in einem Regengebiet), „Namensplaketten nur im Kampf“ (Kampf beginnen und beenden, auch den Schalter im Kampf umlegen), „Emotes beim Ausruhen stumm“ (im Gasthaus und draußen /lachen), „Zauber-Fehlschlag stumm“ (Zauber durch Bewegung abbrechen), „Stadtglocken stumm“ (zur vollen Stunde in einer Hauptstadt), „Roboschreiter stumm“ (Gnom-Reittier oder NPC), „Schlachtzug-Beschränkung aufheben“ (Charakter unter Level 10 in einer Gruppe, die zum Schlachtzug wird), „Addon-Liste alphabetisch“ (Addon-Liste im Spielmenü), Komfort > Chat „Eine Gruppenfarbe“ (Schlachtzug- und Instanzchat). Einmal `/reload` mit Einstellungen an, dann aus.
-
-**Erwartet:** Jede Einstellung wirkt sofort, kein „Aktion blockiert“ (auch nicht beim Kampfbeginn mit Namensplaketten). Ausgeschaltet stehen alle CVars wieder auf den notierten Werten, auch mit `/reload` dazwischen; `lowLevelRaid` wieder wie vorher. Plaketten nur im Kampf; im Kampf ausgeschaltet kommt der alte Wert nach dem Kampf. Emotes im Gasthaus ohne Ton, draußen mit. Addon-Liste nach Titel sortiert (Farbcodes egal), Addons und Kategorien lassen sich weiter an- und ausschalten. Schlachtzugchat in der Farbe des Gruppenchats, aus = alte Farben (auch nach einem Neustart). Wenn die Farben direkt nach dem Login nicht umspringen: melden (ChatTypeInfo war dann noch leer).
+**Erwartet:** kein Rausch-Schleier, keine Geist-/Nether-Effekte, Wetter bei 0 und 3 sichtbar anders; Emotes im
+Gasthaus stumm, draußen mit Ton; Zauber-Fehlschlag, Stadtglocken, Roboschreiter stumm; Addon-Liste alphabetisch und
+weiter klickbar.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Werte vorher:
-Werte nachher (gleich? ja/nein):
 Rausch/Geist/Nether/Wetter wirken (ja/nein je):
-Plaketten nur im Kampf, kein „Aktion blockiert“ (ja/nein):
 Emotes/Fehlschlag/Glocken/Roboschreiter stumm (ja/nein je):
-Schlachtzug mit niedrigem Charakter (ja/nein/nicht getestet):
 Addon-Liste alphabetisch, Klicks gehen (ja/nein):
-Gruppenfarbe, aus = zurück (ja/nein):
-Fehler:
-```
-
-### 71. Erfassungsquote und Teil-Level (Roadmap 253)
-
-- [ ] geprüft
-
-Einmal mit einem Twink ohne Level Time spielen (Addon in der Addon-Liste aus, ein paar Minuten), dann mit Addon einloggen. Historie öffnen: Reiter Vergleich und Speedrun > Läufe, Spalte „Erfasst“; Reiter Level.
-
-**Erwartet:** Beim Login mit Addon eine Chatzeile „Seit dem letzten Mal wurden ... ohne Level Time gespielt“. Spalte „Erfasst“ grün ab 95 %, gelb ab 90 %, sonst rot; importierte Läufe zeigen „-“. Das laufende Level hat im Reiter Level ein „*“ und zählt nach dem Level-Up nicht in Speedrun > Rekorde. Nach `/reload` keine Chatzeile.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Chatzeile nach Spielen ohne Addon (ja/nein):
-Keine Chatzeile nach /reload (ja/nein):
-Quote je Charakter plausibel (Wert):
-Stern am Level (ja/nein):
-Fehler:
 ```
 
 ### 72. Atem-Warnung (Roadmap 255)
 
 - [ ] geprüft
 
-Hinweise > Warnungen „Atem und Erschöpfung knapp“ an, Regler auf 15 s. Tauchen, bis die Atemleiste fast leer ist (Spiel im Fenster lassen und kurz wegklicken, um das Blinken zu sehen). Einmal unter Wasser `/reload`. Optional: in Richtung offenes Meer schwimmen, bis „Erschöpfung“ startet.
+Datenteil per Debug-Log: debug `warnings` (mirror timer …, … low), events `MIRROR_TIMER_START`/`STOP`, debug `alert`
+(Karte), auch nach `/reload` unter Wasser. Hier nur Ton und Blinken:
 
-**Erwartet:** Bei 15 s Rest eine Karte „Luft holen!“ mit Sekunden, Warnton, Taskleiste blinkt (wo der Client `FlashClientIcon` hat). Nur einmal je Abtauchen, nach dem Auftauchen wieder. Nach `/reload` unter Wasser kommt die Warnung trotzdem. Erschöpfung: Karte „Erschöpfung!“.
+„Atem und Erschöpfung knapp“ an, tauchen bis kurz vor leer, Spiel im Fenster lassen und kurz wegklicken.
+
+**Erwartet:** Warnton und blinkende Taskleiste (wo der Client `FlashClientIcon` hat).
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Karte bei der Schwelle, Sekunden stimmen (ja/nein):
 Ton und Blinken (ja/nein):
-Nach /reload unter Wasser (ja/nein):
-Erschöpfung (ja/nein/nicht getestet):
-In Instanzen (z.B. Unterwasser-Dungeon) geheim? (ja/nein/nicht getestet):
-Fehler:
-```
-
-### 73. Quest-Automatik: Sperrliste (Roadmap 260, 181, 182)
-
-- [ ] geprüft
-
-Komfort > Automatik: Quests annehmen und abgeben an. Mit 60 Leinen-/Wollstoff zum Stoff-Quartiermeister einer Hauptstadt (z.B. Ralston Farnsley in Unterstadt). Danach im Feld „Nie automatisch“ den Namen eines normalen Questgebers eintragen (Enter) und ihn ansprechen. In Retail/Forever eine wiederholbare Quest von Hand öffnen.
-
-**Erwartet:** Beim Quartiermeister öffnet, nimmt und gibt die Automatik nichts. Der eingetragene Questgeber bleibt ebenfalls manuell. Wiederholbare Quests (Retail/Forever) werden nicht automatisch abgegeben. Flugmeister-Gespräch wird weiter übersprungen.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Quartiermeister manuell (ja/nein, Name):
-Eigener Eintrag wirkt (ja/nein):
-Wiederholbare Quest manuell (ja/nein/nicht getestet):
-Flugmeister weiter übersprungen (ja/nein):
-Fehler:
-```
-
-### 74. Pausen-Erinnerung (Roadmap 263)
-
-- [ ] geprüft
-
-Hinweise > Erinnerungen „Pausen-Erinnerung“ an, „Pause nach“ auf 15 Minuten. 15 Minuten spielen (einmal mit /reload dazwischen), einmal davon im Kampf über die Grenze kommen. Danach 5 Minuten AFK gehen (`/afk`).
-
-**Erwartet:** Nach 15 Minuten (ohne AFK-Zeit) Karte „Kurze Pause?“ mit der Spielzeit, auch nach /reload richtig gezählt. Im Kampf oder in einer Instanz erst danach. Nach 5 Minuten AFK beginnt die Zählung neu.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Karte nach der eingestellten Zeit (ja/nein):
-Zählung nach /reload weiter (ja/nein):
-Wartet im Kampf/in Instanzen (ja/nein):
-AFK setzt zurück (ja/nein):
-Fehler:
-```
-
-### 75. Questfortschritt an die Gruppe (Roadmap 264)
-
-- [ ] geprüft
-
-Hinweise > Warnungen „Questfortschritt an die Gruppe“ an. In einer Gruppe eine Quest annehmen, ein Ziel fertig machen (Kills und Gegenstände), bis die Quest fertig ist. Einmal `/reload` mit einem halb erfüllten Ziel. In Classic eine Überschrift im Questlog einklappen und weitermachen.
-
-**Erwartet:** Im Gruppenchat „Level Time: Quest angenommen: ...“, je Ziel einmal „Titel: Wolf getötet: 8/8“ (Text des Clients), dann „Quest fertig: ...“. Nach `/reload` keine Wiederholung. Allein nichts.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Angenommen/Ziel/Fertig im Gruppenchat (ja/nein je):
-Keine Wiederholung nach /reload (ja/nein):
-Eingeklappte Überschrift (Classic): Meldung trotzdem (ja/nein/nicht getestet):
-Im Dungeon/Bosskampf (gesperrt?) (ja/nein/nicht getestet):
-Fehler:
 ```
 
 ### 76. Einladungen mit Infos (Roadmap 265)
 
 - [ ] geprüft
 
-Komfort > Sozial > Einladungen „Einladungen mit Infos“ an. Von einem Fremden, einem Freund und einem Gildenmitglied einladen lassen, einmal mit dem Einladenden als Ziel.
+Datenteil per Debug-Log: `print` (Zeile „Gruppeneinladung von …“), check `329.social.target` (Info zum Ziel), event
+`PARTY_INVITE_REQUEST`, `ADDON_ACTION_BLOCKED`. Hier nur das Einladungsfenster:
 
-**Erwartet:** Chatzeile „Gruppeneinladung von <Name in Klassenfarbe>: Orc Krieger“, als Ziel mit „Level N“ davor, bei Freund/Gilde „(Freund oder Gilde)“ dahinter. Das Einladungsfenster funktioniert wie immer (Annehmen/Ablehnen, kein „Aktion blockiert“).
+„Einladungen mit Infos“ an, einladen lassen.
+
+**Erwartet:** das Einladungsfenster funktioniert wie immer (Annehmen/Ablehnen); der Name in der Chatzeile ist
+klassenfarbig.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Rasse und Klasse stimmen (ja/nein):
-Level als Ziel (ja/nein):
-Freund/Gilde markiert (ja/nein):
-Popup unverändert, keine Fehler (ja/nein):
-Fehler:
+Popup unverändert (ja/nein):
+Name klassenfarbig (ja/nein):
 ```
 
 ### 77. Quest-Level in Questlog, Gesprächen und Tracker (Roadmap 259)
 
 - [ ] geprüft
 
-Komfort > Oberfläche > Quests „Quest-Level anzeigen“ an. Questlog öffnen und blättern, einen NPC mit mehreren Quests ansprechen (Gesprächsliste), einen NPC mit der alten Quest-Grußliste (z.B. Anschlagbrett oder NPC ohne Gesprächsoptionen), eine Gruppenquest im Log, in Classic eine Quest beobachten (Tracker). Danach ausschalten und das Questlog neu öffnen.
+Datenteil per Debug-Log: debug `questlevels` (hooked …), check `259.questLevels.log` (Präfix je Quest), events
+`ADDON_ACTION_BLOCKED`, `error`-Zeilen (auch beim Öffnen der Weltkarte). Hier nur das Sichtbare:
 
-**Erwartet:** „[12] Titel“ vor jeder Quest, Gruppenquests „[12+]“, Überschriften im Questlog ohne Level. Kein „Aktion blockiert“, keine Lua-Fehler (auch nicht beim Öffnen der Weltkarte in Retail/Forever). Ausgeschaltet verschwindet das Level beim nächsten Öffnen.
+„Quest-Level anzeigen“ an: Questlog, Gesprächsliste, Grußliste, Tracker (Classic).
+
+**Erwartet:** „[12] Titel“ bzw. „[12+]“ überall, Überschriften ohne Level, lange Titel umbrechen ohne Überlappen.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Questlog (ja/nein):
-Gesprächsliste (ja/nein):
-Grußliste (ja/nein/nicht getestet):
-Tracker (Classic) (ja/nein/nicht getestet):
-„+“ bei Gruppenquest (ja/nein):
+Questlog/Gespräch/Gruß/Tracker (ja/nein je):
 Lange Titel umbrechen/überlappen (ja/nein):
-Fehler:
 ```
 
 ### 78. Verschobene Fenster skalieren (Roadmap 266)
 
 - [ ] geprüft
 
-Komfort > Oberfläche > Fenster „Fenster verschieben“ an. Charakterfenster, Zauberbuch und Händler öffnen, mit gehaltener Strg-Taste das Mausrad über dem Fenster drehen, dann Strg+Rechtsklick. Fenster schließen und neu öffnen, einmal `/reload`. In einem Fenster mit Liste (Questlog, Händler) ohne Strg scrollen. Im Kampf versuchen.
+Datenteil per Debug-Log: debug `moveframes` (… scale …), check `238.moveFrames.frames` (Größe nach Schließen und
+`/reload`), `ADDON_ACTION_BLOCKED`. Hier nur das Bedienen:
 
-**Erwartet:** Strg+Mausrad macht das Fenster größer/kleiner (50–200 %), Strg+Rechtsklick wieder 100 %. Größe bleibt nach Schließen und /reload. Listen scrollen ohne Strg wie immer. Kein „Aktion blockiert“ im Kampf. „Fensterpositionen zurücksetzen“ setzt die Größe sofort zurück.
+Strg+Mausrad über Charakterfenster, Zauberbuch, Händler; in Questlog und Händler ohne Strg scrollen.
+
+**Erwartet:** das Fenster wird sichtbar größer/kleiner; Listen scrollen ohne Strg wie immer.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Skalieren und Zurücksetzen (ja/nein):
-Gemerkt nach /reload (ja/nein):
+Skalieren sichtbar (ja/nein):
 Listen scrollen weiter (ja/nein):
-Im Kampf keine Fehler (ja/nein):
-Fehler:
 ```
 
 ### 79. Notfall bei wenig Leben (Roadmap 267)
 
 - [ ] geprüft
 
-Nur Classic Era/TBC. Hinweise > Warnungen „Notfall bei wenig Leben“ an. Einen Heiltrank, einen Gesundheitsstein und einen Notfallzauber der Klasse (z.B. Gottesschild, Entrinnen, Totstellen) auf die Leisten legen, dazu ein Makro mit Heiltrank. Im Kampf unter 10 % Leben fallen (z.B. Fallschaden, starke Gegner), dann heilen. Danach `/lt debug log` an, `/lt debug check`, `make debuglog` und den Eintrag `emergency.actions` ansehen.
+Datenteil per Debug-Log: debug `emergency` (active, marked Knopf=Aktion), check `emergency.actions`,
+`ADDON_ACTION_BLOCKED`. Nur Classic Era/TBC. Hier nur das Aussehen:
 
-**Erwartet:** Unter 10 % grüner Rahmen um Trank, Stein und Notfallzauber (nicht um das Makro), roter Rand am Bildschirm. Ab 15 % ist alles weg. Kein „Aktion blockiert“, auch nicht im Kampf. In `emergency.actions` haben alle Items und Zauber des Clients einen Namen.
+„Notfall bei wenig Leben“ an, Trank, Stein und Notfallzauber auf die Leisten, im Kampf unter 10 % fallen.
+
+**Erwartet:** grüner Rahmen um die markierten Knöpfe, roter Rand am Bildschirm.
 
 **Antwort:**
 
 ```text
 Client (Era/TBC):
-Knöpfe markiert (ja/nein, welche nicht):
-Roter Rand (ja/nein, zu stark/zu schwach):
-Aus ab 15 % (ja/nein):
-Fehler im Kampf (ja/nein):
-IDs ohne Namen in emergency.actions:
-Fehler:
+Rahmen und Rand sichtbar (ja/nein, zu stark/zu schwach):
 ```
 
 ### 80. Quest-Item-Knopf und Zielknopf (Roadmap 268)
 
 - [ ] geprüft
 
-Komfort > Oberfläche > Quests „Quest-Item-Knopf“ und „Questgegner-Zielknopf“ an, Namensplaketten an. Eine Quest mit benutzbarem Item annehmen (z.B. Item auf einen Gegner oder Ort benutzen), zweite solche Quest dazu. Knopf anklicken (mit und ohne Ziel), in den Kampf gehen und eine Quest abschließen, danach den Kampf verlassen. „Knöpfe verschieben“, ziehen, Rechtsklick, `/reload`. Nahe Questgegner auf den Plaketten: Zielknopf klicken.
+Datenteil per Debug-Log: debug `questitem` (item …, target …, in combat, update waits), check `268.questItem.pick`
+(Kandidaten, Wahl, Ziel), `ADDON_ACTION_BLOCKED`. Hier nur Klicks und Aussehen:
 
-**Erwartet:** Knopf mit dem Symbol des Quest-Items (Anzahl unten rechts), Klick benutzt das Item. Mit zwei Quests in Retail/Forever das Item der näheren Quest, in Classic das der zuletzt angenommenen. Im Kampf ändert sich nichts, kein „Aktion blockiert“; nach dem Kampf wechselt der Knopf. Zielknopf wählt einen Questgegner als Ziel. Position bleibt nach /reload.
+„Quest-Item-Knopf“ und „Questgegner-Zielknopf“ an, Knopf anklicken, Zielknopf klicken, verschieben.
+
+**Erwartet:** Symbol mit Anzahl, Klick benutzt das Item; Zielknopf wählt einen Questgegner.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Item erkannt und benutzt (ja/nein):
-Nächste/letzte Quest richtig (ja/nein):
-Im Kampf keine Fehler (ja/nein):
+Klick benutzt das Item (ja/nein):
 Zielknopf wählt Questgegner (ja/nein/nicht vorhanden):
-Verschieben gemerkt (ja/nein):
-Fehler:
 ```
 
 ### 81. Koordinaten auf der Weltkarte (Roadmap 269)
 
 - [ ] geprüft
 
-Komfort > Fenster > Weltkarte „Koordinaten auf der Karte“ an. Weltkarte öffnen, Maus über die Karte und daneben bewegen, auf eine andere Zone und den Kontinent wechseln, in einer Instanz öffnen. In Retail/Forever danach eine Quest über die Karte verfolgen und im Kampf die Karte öffnen.
+Datenteil per Debug-Log: check `269.mapCoordinates` bei offener Weltkarte (Spieler- und Maustext), `error`- und
+Taint-Zeilen. Hier nur Lesbarkeit:
 
-**Erwartet:** Unten auf der Karte „Spieler: 45.2, 63.1   Maus: 12.3, 40.0“; die Mauswerte ändern sich mit der Maus, neben der Karte „–“. Auf einer fremden Zone Spieler „–“. In Instanzen Spieler „–“. Keine Lua-Fehler, kein „Aktion blockiert“.
+„Koordinaten auf der Karte“ an, Weltkarte öffnen.
+
+**Erwartet:** Text unten auf der Karte gut lesbar, Lage passt.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Spieler-Koordinaten stimmen (ja/nein):
-Maus-Koordinaten (ja/nein):
 Text gut lesbar/Lage ok (ja/nein):
-Fehler/Taint (ja/nein):
-Fehler:
 ```
 
 ### 82. Quest-XP im Questlog (Roadmap 270)
 
 - [ ] geprüft
 
-Statistiken > Erfahrung „Quest-XP im Questlog“ an, Allgemein > Fenster „Quest-XP auf dem XP-Balken“ an. Mehrere Quests annehmen, eine davon fertig machen (nicht abgeben), eine Überschrift im Questlog einklappen. Danach `/dump GetQuestLogRewardXP(<questID>)` für eine Quest aus dem Log.
+Datenteil per Debug-Log: check `quest.log` (XP je Quest), `270.questLogXp`, `window.rows.level` (Quest-XP fertig/offen,
+Abgabe für Level-Up), debug `quests` (quest log XP). Hier nur der Balken:
 
-**Erwartet:** „Quest-XP fertig“ = Summe der fertigen Quests, „Quest-XP offen“ = Rest; „Abgabe für Level-Up“ zeigt „Ja (+…)“ grün, sobald die fertigen Quests reichen. Auf dem XP-Balken ein gelbes Stück hinter dem Fortschritt. Nach dem Abgeben sinkt die Summe. In Era/TBC: unter eingeklappten Überschriften fehlen Quests (bekannt).
+„Quest-XP auf dem XP-Balken“ an, eine Quest fertig machen.
+
+**Erwartet:** gelbes Stück hinter dem Fortschritt auf dem XP-Balken.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-/dump GetQuestLogRewardXP(questID) liefert XP (ja/nein, Wert):
-Summen fertig/offen stimmen (ja/nein):
-Level-Up-Zeile richtig (ja/nein):
 Gelbes Stück auf dem Balken (ja/nein):
-Fehler:
-```
-
-### 83. Ruhe-XP der Twinks (Roadmap 271)
-
-- [ ] geprüft
-
-Einen Twink (levelnd) im Gasthaus ausloggen, `/dump GetXPExhaustion(), UnitXPMax("player")` vorher notieren. Mit einem anderen Charakter einloggen, Historie > Vergleich öffnen. Nach einigen Stunden (oder einem Tag) erneut ansehen und den Twink einloggen, wieder `/dump GetXPExhaustion()`.
-
-**Erwartet:** Spalte „Erholt“ zeigt den geschätzten Pool in Prozent des Balkens (+5 % je 8 h im Gasthaus, draußen ein Viertel), höchstens „150% voll“. Beim Login eines anderen Charakters einmal „X ist voll ausgeruht.“, sobald 150 % erreicht sind. Die Schätzung liegt nahe am echten Wert nach dem Einloggen.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Pool beim Logout / Schätzung / echter Wert nach Login:
-Stunden offline, Gasthaus ja/nein:
-Meldung "voll ausgeruht" (ja/nein/nicht erreicht):
-Fehler:
-```
-
-### 84. Kills bis Level-Up mit Erholung (Roadmap 273)
-
-- [ ] geprüft
-
-Statistiken „Kills bis Level-Up“ an, Berechnung „Schnitt über“ auf „letzte 20“. Erholt (blauer Balken) einige Gegner töten, `/lt debug` an und die Chatzeile eines Kills im Erholungsbonus ansehen. Danach Regler ganz nach links („ganzes Level“).
-
-**Erwartet:** Die Zahl passt zu „fehlende XP ÷ XP je Kill ohne Bonus“, im Erholungsbonus etwa halb so viele Kills. Im Journal (Historie > Kills) keine Fehler. Debug-Zeile `stats xpKills +…` mit der vollen XP.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Kill-Meldung im Erholungsbonus (Text kopieren):
-Zahl plausibel mit/ohne Erholung (ja/nein):
-Fehler:
-```
-
-### 85. XP aus Entdecken, Sammeln und nach Ort (Roadmap 275)
-
-- [ ] geprüft
-
-Statistiken „XP-Quellen“ und „XP nach Ort“ an, `/lt debug` an. Ein neues Gebiet entdecken (gelbe Meldung „… entdeckt: N Erfahrung erhalten.“). In Retail/Forever ein Kraut oder Erz sammeln, das XP gibt. Einen Dungeon betreten und dort XP bekommen. Danach Historie > Level > „XP-Quellen“.
-
-**Erwartet:** Debug-Zeilen `xp exploration XP N (Gebiet)` und `xp gathering XP N`; „XP aus Entdecken“/„XP aus Sammeln“ steigen, „XP sonstige“ nicht. „XP in Dungeons“ steigt nur in der Instanz. Die Unteransicht zeigt die Anteile je Level.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Entdecken erkannt (ja/nein; sonst: in welchem Chatfenster/Ereignis kam die Meldung):
-Sammeln erkannt (ja/nein/keine Sammel-XP im Client):
-XP nach Ort stimmt (ja/nein):
-Fehler:
-```
-
-### 86. Session-Vergleich beim Login (Roadmap 281)
-
-- [ ] geprüft
-
-Hinweise > Level-Up „Letzte Session beim Login“ an (Standard). Eine Session spielen (einige Minuten mit XP), ausloggen, mehr als 5 Minuten warten, wieder einloggen. Danach `/reload`.
-
-**Erwartet:** Beim Login „Letzte Session: 25m 10s, 3.2k XP (+12% XP/h zur vorherigen)“; der Vergleich fehlt, wenn es keine Session davor mit XP gab. Nach `/reload` keine Zeile.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Zeile beim Login (Text kopieren):
-Werte passen zur Historie > Sessions (ja/nein):
-Keine Zeile nach /reload (ja/nein):
-Fehler:
-```
-
-### 87. Leerlauf ohne AFK-Flag (Roadmap 283)
-
-- [ ] geprüft
-
-Statistiken „Zeitaufteilung“ an, Berechnung „Leerlauf ohne XP nach“ auf 2 min. XP holen, dann 5 Minuten stehen bleiben ohne AFK zu werden (Maus bewegen, nicht kämpfen). Danach einen Gegner töten. Zum Vergleich einmal mit Kampf ohne Kill über 2 Minuten.
-
-**Erwartet:** „Leerlauf“ in der Zeitaufteilung steigt erst nach 2 min ohne XP, etwa 3 min für den Test; der Kill beendet ihn. Kampf zählt nicht als Leerlauf. XP/h steigt etwas, die Spielzeit bleibt gleich. Historie > Level > Zeitaufteilung hat die Spalte „Leerlauf“.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Leerlauf beginnt nach der Grenze (ja/nein):
-Kill/Kampf beendet ihn (ja/nein):
-XP/h ohne Leerlauf plausibel (ja/nein):
-Fehler:
-```
-
-### 88. Persönliche Rekorde (Roadmap 272)
-
-- [ ] geprüft
-
-Hinweise > Persönliche Rekorde „Neue Rekorde melden“ an. Einige Minuten leveln (Kills, eine Quest mit viel XP), danach Historie > Level > „Persönliche Rekorde“ öffnen. Eine zweite, größere Quest abgeben. Einen Dungeon über 5 Minuten laufen und verlassen. Ein Level schneller schaffen als jeder andere Charakter.
-
-**Erwartet:** Beim ersten Wert jeder Art keine Meldung, danach Karte „Persönlicher Rekord!“ mit „Größter XP-Gewinn: 1.2k (vorher 800)“ und Chatzeile. „Meiste XP in 60 Minuten“ und „Beste Session-XP/h“ höchstens einmal je Session. Die Tabelle zeigt Wert, Charakter, Level und Datum.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Meldungen kamen (welche):
-Tabelle stimmt (ja/nein):
-Zu viele Meldungen (ja/nein):
-Fehler:
 ```
 
 ### 89. Kills bis Level im Tooltip (Roadmap 274)
 
 - [ ] geprüft
 
-Komfort > Fenster > Tooltip „Kills bis Level-Up zeigen“ an. Mit der Maus über einen Gegner fahren, den du noch nicht getötet hast, dann einen davon töten und wieder darüberfahren. Auch einen grauen, einen Elite- und einen deutlich höheren Gegner prüfen, einmal mit Erholung.
+Datenteil per Debug-Log: debug `tooltip` (kills line for … : Text), check `274.tooltip.killsToLevel`. Hier nur die Farbe:
 
-**Erwartet:** Ungetötete Gegner zeigen „Kills bis Level-Up: ~N“ (Classic-Clients; Retail ohne Zeile), nach dem ersten Kill ohne „~“ und mit dem Wert aus der echten XP. Farbe wie die Stufenfarbe des Gegners. Graue Gegner, Spieler und freundliche NPCs haben keine Zeile. Mit Erholung ist die Zahl kleiner. Im Kampf in Instanzen (geheime Werte) keine Fehler.
+„Kills bis Level-Up zeigen“ an, über Gegner verschiedener Stufen fahren.
+
+**Erwartet:** Farbe wie die Stufenfarbe des Gegners.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Schätzung vor dem ersten Kill (Zahl, echte Kills bis Level-Up):
-Gelernter Wert nach dem Kill stimmt (ja/nein):
 Farbe passt (ja/nein):
-Fehler:
-```
-
-### 90. Einnahmen nach Art und Zeitraum (Roadmap 276)
-
-- [ ] geprüft
-
-Statistiken „Einnahmen nach Art“ an. Gold looten (allein und in einer Gruppe, geteilte Beute), eine Quest mit Gold abgeben, etwas beim Händler verkaufen, Gold aus der Post nehmen (auch einen Auktionserlös), einen Handel mit Gold abschließen. Danach Historie > „Geld“ öffnen.
-
-**Erwartet:** Jede Einnahme landet in ihrer Zeile (Auktionserlöse unter Post), nichts doppelt; die Summe stimmt mit „Gold“ überein. Gold/h erscheint nach einer Minute. In „Geld“ stehen Heute, Diese Woche, Dieser Monat und Gesamt mit Ein, Aus, Saldo und Gold/h, unten „Gold aller Charaktere“ (Twinks nach ihrem nächsten Login).
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Falsch eingeordnete Einnahmen (welche, wo gelandet):
-Geteilte Beute als Beute (ja/nein):
-Tabelle Geld stimmt (ja/nein):
-Fehler:
 ```
 
 ### 91. Wann ich spiele (Roadmap 277)
 
 - [ ] geprüft
 
-Eine Weile spielen (auch über einen Stundenwechsel), kurz AFK gehen. Historie > Graphen > „Wann“ öffnen und mit der Maus über die Kacheln fahren.
+Datenteil per Debug-Log: check `277.playHours` (Kacheln mit Zeit und XP, aktuelle Stunde). Hier nur das Bild:
 
-**Erwartet:** 7 Zeilen (Mo bis So) × 24 Stunden, die heutige Stunde ist hell, Tooltip „Mi 13-14 Uhr“ mit aktiver Zeit (ohne AFK) und XP. Stundenbeschriftung alle 3 Stunden, nichts überlappt. Ein neuer Charakter zeigt „keine Daten“.
+Historie > Graphen > „Wann“, mit der Maus über die Kacheln.
+
+**Erwartet:** 7 × 24 Kacheln, heutige Stunde hell, Tooltip „Mi 13-14 Uhr“, Beschriftung alle 3 Stunden, nichts
+überlappt.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
 Heatmap sichtbar und lesbar (ja/nein):
-Zeit/XP im Tooltip plausibel (ja/nein):
-Fehler:
-```
-
-### 92. Ruf pro Stunde (Roadmap 278)
-
-- [ ] geprüft
-
-Statistiken „Ruf“ an. Quests mit Ruf abgeben und Gegner töten, die Ruf geben (auch in einem Dungeon). Historie > „Ruf“, „Zonen“ und „Instanzen“ ansehen.
-
-**Erwartet:** „Ruf“ und „Ruf/h“ steigen im Level, in der Session und im Instanz-Tab. Die Tabelle „Ruf“ zeigt jede Fraktion mit ihrer Summe; Zonen und Instanzen haben die Spalte „Ruf“. Ruf-Verluste zählen nicht.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Ruf wird erkannt (ja/nein, Beispielmeldung aus dem Chat):
-Werte stimmen (ja/nein):
-Fehler:
 ```
 
 ### 93. Fortschrittskurve (Roadmap 279)
 
 - [ ] geprüft
 
-Mit einem Charakter einloggen, der einige Level mit dem Addon geschafft hat, und mindestens einen Twink mit Leveln haben. Historie > Graphen > „Kurve“ öffnen, über die Punkte fahren, dann oben einen anderen Charakter wählen.
+Datenteil per Debug-Log: check `279.progressCurve` (Linien, Punkte, letzter Punkt). Hier nur das Bild:
 
-**Erwartet:** Linien je Charakter in Klassenfarbe (gewählter zuerst in der Legende), dazu „Vergleich (Splits)“ schwächer und dünner. Y-Achse Level, X-Achse Spielzeit. Tooltip „Name: 23.4 - 1d 2h“. Der letzte Punkt des eingeloggten Charakters wandert mit der XP. Mit einem anderen gewählten Charakter fehlt der Vergleich.
+Historie > Graphen > „Kurve“, über die Punkte fahren.
+
+**Erwartet:** Linien in Klassenfarbe, Vergleich schwächer und dünner, Achsen und Legende lesbar.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Linien sichtbar (ja/nein):
-Achsen und Legende lesbar (ja/nein):
-Werte plausibel (ja/nein):
-Fehler:
+Linien, Achsen und Legende (ja/nein):
 ```
 
 ### 94. Todeskarte und letzte Worte (Roadmap 280)
 
 - [ ] geprüft
 
-Komfort > Fenster > Weltkarte „Tode auf der Karte“ an. Etwas in /s oder die Gruppe schreiben, draußen sterben (z.B. Fallschaden), einmal auch in einem Dungeon. Weltkarte öffnen, hinein- und herauszoomen, eine andere Zone anzeigen. Historie > Journal > Tode ansehen.
+Datenteil per Debug-Log: debug `deaths` (place mapID x, y), check `280.deaths.recent` (Ort, letzte Worte). Hier nur
+die Karte:
 
-**Erwartet:** Roter Punkt an der Todesstelle, der beim Zoomen an der Stelle bleibt; Tooltip mit Ursache, Level, Zeit und „Letzte Worte: …“. Auf anderen Karten keine Punkte, Dungeon-Tode ohne Punkt. Die Tabelle zeigt „Ort“ (Koordinaten) und „Letzte Worte“.
+„Tode auf der Karte“ an, nach einem Tod die Weltkarte öffnen, zoomen, andere Zone anzeigen.
 
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Punkt an der richtigen Stelle (ja/nein):
-Zoomen/Kartenwechsel richtig (ja/nein):
-Letzte Worte stimmen (ja/nein):
-Fehler:
-```
-
-### 95. Instanz-Bericht an die Gruppe und Tageslimit (Roadmap 282)
-
-- [ ] geprüft
-
-Hinweise > Warnungen „Instanz-Bericht an die Gruppe“ an. In einer Gruppe einen Dungeon einige Minuten laufen (Kills, Gold looten) und hinausgehen, wieder hinein und gleich wieder hinaus. Einmal als Geist hinauslaufen. Statistiken „Instanzen heute“ ansehen (Classic-Clients).
-
-**Erwartet:** Beim Verlassen eine Gruppenchat-Zeile „Level Time: Name: Dauer, XP, Kills (XP/Kill), Gold“, beim sofortigen zweiten Verlassen keine, als Geist keine. Allein nichts. „Instanzen heute“ zeigt in Classic „N (M/30 in 24 h)“. Bitte notieren, ob der Server ein Tageslimit (30) und welches Stundenlimit (5 oder 10) er durchsetzt.
+**Erwartet:** roter Punkt an der Todesstelle, bleibt beim Zoomen dort; Tooltip mit Ursache und letzten Worten.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Bericht kam und stimmt (ja/nein):
-Kein doppelter Bericht (ja/nein):
-Stundenlimit laut Server (5/10):
-Tageslimit laut Server (30/keins):
-Fehler:
+Punkt an der richtigen Stelle, Zoom richtig (ja/nein):
 ```
 
 ### 96. Gold-Splits (Roadmap 284)
 
 - [ ] geprüft
 
-Speedrun > „Gold-Splits melden“ an, Split-Liste an (`/lt splits`). Mit einem Charakter ein Level schneller abschließen als jeder andere eigene Charakter dafür gebraucht hat.
+Datenteil per Debug-Log: debug `splits` (gold split level …), `print` (Gold-Split-Zeile), check
+`284.splitList.lines` (`gold`). Hier nur Farbe und Ton:
 
-**Erwartet:** Beim Level-Up Chatzeile „Gold-Split! Level N in … (−… gegen die Bestzeit)“ und Raid-Warnungs-Ton; in der Split-Liste steht die Abweichung dieses Levels lila statt grün.
+„Gold-Splits melden“ an, ein Level schneller als jeder andere eigene Charakter.
+
+**Erwartet:** Raid-Warnungs-Ton; die Abweichung in der Split-Liste lila.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Chatzeile und Ton (ja/nein):
+Ton gehört (ja/nein):
 Lila in der Split-Liste (ja/nein):
-Fehler:
-```
-
-### 97. Toleranzband und PB derselben Klasse (Roadmap 285)
-
-- [ ] geprüft
-
-Speedrun > „Toleranzband der Splits“ auf 5 %, Split-Liste an. Ein Level knapp (innerhalb von 5 % der Vergleichszeit) vor oder hinter dem Vergleich halten. Dann Vergleich „PB“ und „PB nur gegen dieselbe Klasse“ an, mit einem schnelleren Charakter anderer Klasse auf dem Account.
-
-**Erwartet:** Knappe Abweichungen gelb, deutliche grün/rot. Mit „PB nur gegen dieselbe Klasse“ vergleicht die Split-Liste nur mit Charakteren der eigenen Klasse.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Gelb im Band (ja/nein):
-PB nur gleiche Klasse (ja/nein):
-Fehler:
-```
-
-### 98. Prognose des nächsten Abschnitts (Roadmap 286)
-
-- [ ] geprüft
-
-Speedrun > „Prognose des nächsten Abschnitts“ an, Split-Liste an. Mit einem Charakter unter Level 10 bzw. 20 spielen, am besten mit einem zweiten Charakter, der den Abschnitt schon erreicht hat.
-
-**Erwartet:** Unter den Leveln „Prognose 1-10“ (bzw. 1-20) mit einer plausiblen /played-Endzeit, darunter „gegen PB“, „gegen Bestzeiten“ (nur wenn jedes Level eine Zeit hat) und „gegen Rekord“ mit farbiger Abweichung.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Prognose plausibel (ja/nein):
-Vergleiche stimmen (ja/nein):
-Fehler:
-```
-
-### 99. SSF-Regelhelfer (Roadmap 287)
-
-- [ ] geprüft
-
-Speedrun > SSF-Kategorie „1-20“, Split-Liste an. Etwas mit Ruhe-XP leveln, einmal /reload und einmal richtig ausloggen (über 5 Minuten), einen Briefkasten und ein Handelsfenster öffnen.
-
-**Erwartet:** Split-Liste: „SSF 1-20“, Ruhe-XP-Balken steigen beim Leveln mit Ruhe-Bonus, Logouts zählt nur das echte Ausloggen, Instanzen der letzten Stunde, Uhr mit Datum. Beim Briefkasten und Handel eine SSF-Karte. Nichts wird blockiert.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Ruhe-XP-Balken plausibel (ja/nein):
-Logout-Zähler richtig (ja/nein):
-Hinweis bei Post/Handel/AH (ja/nein):
-Fehler:
-```
-
-### 100. Eigene Splits und Tastenbelegung (Roadmap 288)
-
-- [ ] geprüft
-
-Nach Client-Neustart (neue Datei Bindings.xml): Tastaturbelegung > AddOns > Level Time > „Eigenen Split setzen“ belegen. `/lt split`, `/lt split Hogger`, Taste drücken, `/lt split undo`, `/lt split template`. Mit einem zweiten Charakter `/lt split` mehrmals.
-
-**Erwartet:** Die Tastenbelegung erscheint unter AddOns. Chatzeile „Split „Zone“ bei …“; die Split-Liste zeigt die letzten drei eigenen Splits. Beim zweiten Charakter kommen die Namen aus der Vorlage, mit grüner/roter Abweichung.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Tastenbelegung sichtbar und wirkt (ja/nein):
-Splits und undo (ja/nein):
-Vorlage beim zweiten Charakter (ja/nein):
-Fehler:
-```
-
-### 101. Quest-Splits (Roadmap 289)
-
-- [ ] geprüft
-
-Speedrun > „Quest-Splits im Chat“ an. Eine Quest annehmen, erledigen, abgeben; mit einem zweiten Charakter dieselbe Quest schneller. Historie > Speedrun > Quest-Splits öffnen.
-
-**Erwartet:** Bei der Abgabe Chatzeile „Quest „Name“ in 5m 12s -“, beim zweiten Charakter mit grüner Abweichung. Die Tabelle zeigt Quest, Level, XP, Zeit, Bestzeit und Abweichung. Classic: Annahme über Questlog-Index und ID funktioniert.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Dauer stimmt (ja/nein):
-Bestzeit und Abweichung (ja/nein):
-Fehler:
-```
-
-### 102. Prüfcode für Läufe (Roadmap 290)
-
-- [ ] geprüft
-
-Ein Level aufsteigen, dann `/lt runs verify`. Historie > Speedrun > Läufe: Spalte „Prüfcode“. Einen Lauf mit Shift+Klick exportieren und auf einem anderen Account/Client importieren, dann `/lt runs verify`.
-
-**Erwartet:** Eigene Charaktere „ok“, auch nach /reload. Der importierte Lauf zeigt „ok“; ändert man im Text eine Zeit von Hand (nicht empfohlen, nur zum Test), zeigt er „geändert“.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Eigene Läufe ok (ja/nein):
-Import ok (ja/nein):
-Fehler:
 ```
 
 ### 103. Run-Kategorie automatisch (Roadmap 291)
 
 - [ ] geprüft
 
-Neuen Charakter erstellen, Historie > Speedrun > Läufe: Kategorie „SSF“. Briefkasten öffnen, dann einer Gruppe beitreten, dann mit einem mindestens 10 Level höheren Spieler gruppieren. Suchfeld „SSF“ eingeben.
+Datenteil per Debug-Log: debug `runcategory` (… -> …), event `GROUP_ROSTER_UPDATE` (Level der Mitglieder), check
+`290.runs` (Kategorie je Lauf). Hier nur das Suchfeld:
 
-**Erwartet:** Kategorie wechselt SSF → Solo → Gruppe → Geboostet und nie zurück; alte Charaktere „-“. Das Suchfeld filtert die Läufe nach Kategorie.
+Historie > Speedrun > Läufe, Suchfeld „SSF“ eingeben.
+
+**Erwartet:** das Suchfeld filtert die Läufe nach Kategorie.
 
 **Antwort:**
 
 ```text
-Client (Retail/Era/TBC/Forever):
-Wechsel richtig (ja/nein):
-Level der Gruppenmitglieder lesbar (ja/nein):
 Filter (ja/nein):
-Fehler:
 ```
 
 ### 104. LiveSplit-Export (Roadmap 292)
@@ -2141,39 +1266,434 @@ Zeiten stimmen (ja/nein):
 Fehler:
 ```
 
-### 105. Rennen gegen Freunde (Roadmap 293)
+### 107. Beute-Glitzer (Roadmap 330)
 
 - [ ] geprüft
 
-Zwei Accounts/Charaktere mit Level Time, beide Speedrun > „Rennen gegen Freunde“ an, Split-Liste an. Gruppe bilden bzw. den anderen inspizieren. Mit einem der beiden ein Level aufsteigen. Einmal in einem Dungeon wiederholen.
+Datenteil per Debug-Log: debug `sparkle` (… target, state …), check `lootSparkles.target` (vor Erz, Kraut,
+Quest-Objekt, Leiche je einmal `/lt debug check`), check `329.cvars` (SoftTarget-CVars vorher/nachher), event
+`CVAR_UPDATE`, `ADDON_ACTION_BLOCKED`. Vorher ForeverLootSparkles und Lueur ausschalten. Hier nur das Glitzern:
 
-**Erwartet:** Nach wenigen Sekunden zeigt die Split-Liste „Splits (gegen Name)“ und eine vierte Spalte mit der Abweichung je Level. Beim Level-Up des anderen erscheint „Name hat Level N erreicht …“ im Chat. Keine Fehler, kein „Aktion blockiert“.
+**Erwartet:** Quest-Gegenstände glitzern (Forever, auch nach Wechsel der Grafik-Voreinstellung); Erz/Kräuter zuerst
+gedämpft, in Reichweite hell, mit zu niedriger Fertigkeit grau; Quest-Objekte und Leichen mit Beute glitzern bis zum
+Plündern bzw. erfüllten Ziel; „Größe der Funken“ 200 % deutlich größer; NPCs und Briefkästen ohne Plakette.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Austausch in der Gruppe (ja/nein):
-Austausch beim Inspizieren (ja/nein):
-Level-Up-Meldung (ja/nein):
-In Instanzen (ja/nein):
+Quest-Gegenstände nach Voreinstellung wieder an (ja/nein/nicht vorhanden):
+Erz/Kräuter: gedämpft/hell/grau (ja/nein):
+Quest-Objekte, Leichen (ja/nein):
+Funkengröße (ja/nein):
+```
+
+### 108. Einheiten je Sprache (Roadmap 194)
+
+- [ ] geprüft
+
+Datenteil per Debug-Log: check `194.format.units` (Zeit- und Geldtext in der eingestellten Sprache; je Sprache einmal
+`/lt debug check`). Hier nur, ob nichts abgeschnitten ist:
+
+Sprache nacheinander auf Deutsch, Français, Español; Zeitfenster und Historie → Levels/Sessions ansehen.
+
+**Erwartet:** Spalten schneiden die längeren französischen Geldeinheiten nicht ab.
+
+**Antwort:**
+
+```text
+Abgeschnitten (wo):
+```
+
+### 109. Zusammenfassungskarte im Stream (Roadmap 209)
+
+- [ ] geprüft
+
+Einstellungen → Stream → Hintergrund „Grün“, dann `/lt recap` offen lassen und ein paar Gegner töten.
+Danach im Reiter Stream „Minimap-Button ausblenden“ anhaken.
+
+**Erwartet:** Die Karte hat denselben grünen Hintergrund ohne Rand wie das Zeitfenster und zählt Zeit, XP und
+Kills jede Sekunde mit, ohne neu geöffnet zu werden. Mit „Standard“ ist sie wieder dunkel mit Rand. Der
+Minimap-Button verschwindet, im Reiter Allgemein ist „Minimap-Button anzeigen“ nicht mehr angehakt.
+
+**Antwort:**
+
+```text
+Client:
+Chroma-Hintergrund der Karte (ja/nein):
+Karte zählt mit (ja/nein):
+Minimap-Button ausgeblendet (ja/nein):
 Fehler:
 ```
 
-### 106. Meilenstein-Screenshots (Roadmap 294)
+### 110. Spiel-Tooltip in Beute und Quests (Roadmap 212)
 
 - [ ] geprüft
 
-Speedrun > Meilenstein-Screenshots: alle drei an. Auf ein durch 5 teilbares Level aufsteigen, einen Dungeon zum ersten Mal mit dem Charakter betreten, epische Beute bekommen (falls möglich).
+`/lt history` → Journal → Beute: Maus über eine Zeile mit einem Gegenstand. Dann Journal → Quests: Maus über
+eine abgegebene Quest.
 
-**Erwartet:** Je Ereignis eine Sekunde später ein Screenshot (Chatmeldung des Clients „Screenshot gespeichert …“, Datei im Ordner Screenshots), kein „Aktion blockiert“. Beim zweiten Dungeon keiner.
+**Erwartet:** Bei Beute erscheint der normale Gegenstands-Tooltip am Mauszeiger, bei Quests der Quest-Tooltip
+(Titel, ggf. Ziele). Kein Lua-Fehler; in Classic Era/TBC darf der Quest-Tooltip fehlen oder nur den Titel zeigen,
+dann bitte notieren.
+
+**Antwort:**
+
+```text
+Client:
+Gegenstands-Tooltip (ja/nein):
+Quest-Tooltip (ja/nein/nur Titel):
+Fehler:
+```
+
+### 111. CPU-Last vorher/nachher (Roadmap 331–336)
+
+- [ ] geprüft
+
+Einmal mit dem Stand **vor** dem Performance-Branch und einmal **danach** messen, jeweils gleiche Situation (z.B. 5 min Questen draußen, dazu wenn möglich 5 min Dungeon/Raid oder Schlachtfeld). Nach `/reload`:
+
+```
+/lt debug perf on
+```
+
+Spielen, dann:
+
+```
+/lt debug perf report 20
+```
+
+Danach `/lt copy`, die perf-Zeilen kopieren. Vor dem Wechsel `/lt debug perf off`. (Der alte Stand kennt den Befehl noch nicht; dort als Gegencheck `/console scriptProfile 1`, `/reload`, nach dem Spielen `/dump GetAddOnCPUUsage("LevelTimer")` nach `/run UpdateAddOnCPUUsage()`, danach `scriptProfile 0`.)
+
+**Erwartet:** Der Bericht listet Schlüssel wie `event UNIT_AURA ...`, `task ...`, `onupdate TimerWindow`; nach dem Branch kleinere Summen bei UNIT_*-Events, COMBAT_LOG_EVENT_UNFILTERED (Classic) und den Aura-Aufgaben, weniger Speicherzuwachs. Keine Fehler, keine fehlenden Funktionen.
 
 **Antwort:**
 
 ```text
 Client (Retail/Era/TBC/Forever):
-Level-Screenshot (ja/nein):
-Dungeon-Screenshot (ja/nein):
-Beute-Screenshot (ja/nein/nicht getestet):
+Situation:
+Vorher (Top-Zeilen oder GetAddOnCPUUsage):
+Nachher (Top-Zeilen):
+Fehler:
+```
+
+### 112. Historie offen beim Kämpfen vorher/nachher (Roadmap 337–339, 353–355)
+
+- [ ] geprüft
+
+Einmal mit dem Stand **vor** dem Branch `perf/bigo` und einmal **danach**, gleiche Situation: Charakter mit großem Kill-Journal (möglichst einige tausend Kills, Archiv geladen), Historie offen auf **Journal > Kills**, nach Name sortiert und mit Suchtext (z.B. `wolf`), dann 5 min Mobs töten. Danach dasselbe auf **Graphen > Top-Gegner** und **Speedrun > Läufe**. Nach `/reload`:
+
+```
+/lt debug perf on
+```
+
+Spielen, dann:
+
+```
+/lt debug perf report 20
+```
+
+Danach `/lt copy`, die perf-Zeilen kopieren, `/lt debug perf off`. Zusätzlich im Optionsfenster einen Regler (z.B. Hintergrund) hin und her ziehen und den Bericht danach ansehen.
+
+**Erwartet:** Nach dem Branch deutlich kleinere Summen und Maxima bei den OnUpdate-Zeilen der Historie und bei den Journal-Listenern; neue Kills erscheinen weiter spätestens nach 5 s an der richtigen Stelle der sortierten Tabelle, Suche und Summenzeile stimmen, Top-Gegner zählt mit. Reglerziehen ohne Ruckeln. Keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Journal-Größe (Kills):
+Vorher (Top-Zeilen):
+Nachher (Top-Zeilen):
+Tabellen korrekt (Sortierung, Suche, Summe):
+Fehler:
+```
+
+### 113. Zielstand am Quest-Symbol (Roadmap 340)
+
+- [ ] geprüft
+
+Komfort > Quests > Kill-Quest-Markierung: „Kill-Quest-Mobs markieren“ und „Zielstand am Symbol“ an, Namensplaketten an. Eine Quest „töte 8 X“ annehmen und zu den Gegnern gehen.
+
+1. Links vom Quest-Symbol steht der Stand, z.B. „0/8“; nach jedem Kill steigt er, nach dem letzten verschwindet das Symbol.
+2. Einen Questgegner anvisieren, `/lt debug log`, `/lt debug check`, danach `make debuglog` (Eintrag `quests.unitTooltip`: Zeilentypen, Texte, `completed`, gedeuteter Stand).
+3. Classic Era/TBC: steht im Tooltip eines Questgegners überhaupt eine Questzeile? Wenn nicht, bleibt der Zähler leer (dann kommt er später aus gelernten Daten).
+
+**Erwartet:** Zähler stimmt mit dem Questlog überein, kein Flackern, keine Lua-Fehler; im Kampf in Instanzen (geheime Zeilen) kein Zähler, aber auch kein Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zähler sichtbar und richtig (ja/nein):
+Tooltip-Zeilen laut Debug-Log (Typen/Text):
+Fehler:
+```
+
+### 114. Questgegner und Quest-Gegenstände lernen (Roadmap 341)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ an, `/lt debug log` an. Eine Tötungsquest („töte 8 X“) und eine Sammelquest („bringe 4 Y“, Y droppt von Gegnern) annehmen und je drei Ziele erledigen, dazu einen grauen Gegner für eine Quest töten, falls möglich.
+
+1. `/lt debug check`, danach `make debuglog`: Eintrag `quests.learned` nennt die gelernten Namen (`openMobs`), die `quests`-Zeilen „objective .../... rose (...): learned true“.
+2. Classic Era/TBC: Komfort > Quests > Kill-Quest-Markierung an. Gelernte Gegner bekommen nach dem zweiten Kill das Quest-Symbol (mit „Zielstand am Symbol“ auch den Zähler aus dem Questlog); Mouseover zeigt „Quest: Name (3/8)“.
+3. Mit einem Twink dieselbe Quest annehmen: die Gegner sind sofort markiert (Classic) bzw. der Zielknopf kennt sie.
+4. Ziel erfüllt: Markierung und Tooltipzeile verschwinden.
+
+**Erwartet:** keine falschen Zuordnungen (z.B. ein zufällig gleichzeitig getöteter anderer Gegner bleibt unter 2 Treffern), keine Lua-Fehler. Retail/Forever: Tooltipzeile erscheint nicht (der Client zeigt eigene Questzeilen).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Gelernt laut Debug-Log (Namen):
+Markierung/Tooltip in Classic (ja/nein):
+Twink sofort markiert (ja/nein):
+Falsche Zuordnungen:
+Fehler:
+```
+
+### 115. Zielknopf mit gelernten Namen und Totenkopf (Roadmap 342)
+
+- [ ] geprüft
+
+Komfort > Quests: „Questgegner-Zielknopf“, „Ziel mit Totenkopf markieren“ und „Questgegner und -gegenstände lernen“ an. Eine Tötungsquest mit schon gelernten Gegnern (siehe 341) offen haben.
+
+1. Der Zielknopf erscheint auch ohne sichtbare Plakette; Mouseover nennt die Namen. Klick wählt den nächsten passenden Gegner und setzt den Totenkopf, ein zweiter Klick nimmt ihn nicht wieder ab.
+2. Im Kampf ein Ziel erfüllen: der Knopf ändert sich erst nach dem Kampf, ohne „Aktion blockiert“.
+3. Ziel erfüllt: der Name verschwindet aus dem Mouseover des Knopfs.
+4. Solo in Classic Era: setzt `/tm` überhaupt einen Marker? (Falls nicht, bitte notieren.)
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis; Makro wird nie länger als 255 Zeichen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielwahl mit gelernten Namen (ja/nein):
+Totenkopf gesetzt, bleibt beim 2. Klick (ja/nein):
+Fehler:
+```
+
+### 116. „Quest fertig“ als Einblendung (Roadmap 343)
+
+- [ ] geprüft
+
+Einblendungen: „Quest fertig“ und „Questziel erfüllt“ an, Stil Banner, Ton an. Allein (ohne Gruppe) eine Quest mit zwei Zielen erledigen.
+
+1. Erstes Ziel erfüllt: Karte „Ziel erfüllt: …“ mit Questname darunter.
+2. Letztes Ziel erfüllt: nur „Quest fertig: Name“ mit „+N XP bei Abgabe“ und Ton, keine zusätzliche Ziel-Karte.
+3. Ziel im Kampf erfüllen: Karte kommt erst nach dem Kampf.
+4. `/reload` mit einer schon fertigen Quest: keine Karte.
+5. `/lt debug alert questcomplete` zeigt ein Beispiel.
+
+**Erwartet:** XP stimmt mit dem Questlog überein (Retail: Wert nach Level), keine doppelten Karten, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ziel-/Quest-Karte (ja/nein):
+XP richtig (ja/nein):
+Im Kampf zurückgehalten (ja/nein):
+Fehler:
+```
+
+### 117. Graue Quests aufräumen, Questlog fast voll (Roadmap 344)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: Knopf „Graue Quests“ an; Hinweise > Warnungen: „Questlog fast voll“ an. Ein Charakter mit mindestens zwei grauen Quests.
+
+1. Questlog öffnen (Classic: L, Retail/Forever: Karte mit Questliste): unter dem Fenster steht „Graue Quests (N)“; Lage und Größe ok? Überdeckt er etwas?
+2. Klick: Rückfrage mit den Namen. „Nein“: nichts passiert. „Ja“: die grauen Quests verschwinden nacheinander aus dem Log, sonst keine. Danach `/lt debug log` mit `make debuglog`: Zeilen „abandoned gray quest …“.
+3. Gibt es nach dem Abbruch einen Fehler „Aktion blockiert“/„Interface-Aktion fehlgeschlagen“? (Abbrechen ist laut Doku nicht geschützt, aber ungeprüft.)
+4. So viele Quests annehmen, bis nur noch 2 Plätze frei sind: einmal Hinweis „N von M Quests im Log“.
+
+**Erwartet:** nie ohne Bestätigung abgebrochen, keine Lua-Fehler; Classic: graue Quests stimmen mit der grauen Farbe im Log überein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Knopf sichtbar und gut platziert (ja/nein):
+Nur graue abgebrochen (ja/nein):
+Blockiert-Fehler (ja/nein):
+Hinweis „fast voll“ (ja/nein):
+Fehler:
+```
+
+### 118. Abgabe-Übersicht (Roadmap 345)
+
+- [ ] geprüft
+
+Mit mehreren abgabebereiten Quests in verschiedenen Zonen `/lt history` > Quests > Abgabe öffnen.
+
+1. Jede fertige Quest steht mit Zone (Überschrift im Questlog), Level, XP und „% Level“; Fußzeile mit Anzahl, XP-Summe und Summe in Prozent.
+2. Maus über eine Zeile zeigt den Quest-Tooltip des Spiels.
+3. Eine Quest abgeben: sie verschwindet nach spätestens 5 s aus der Liste.
+4. Classic: Quests unter eingeklappten Überschriften fehlen (bekannt); bitte notieren, ob das stört.
+
+**Erwartet:** XP stimmen mit dem Questlog überein, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste und Summen richtig (ja/nein):
+Quest-Tooltip (ja/nein):
+Fehler:
+```
+
+### 119. Belohnungsempfehlung (Roadmap 346)
+
+- [ ] geprüft
+
+Komfort > Quests: „Belohnung empfehlen“ an. Eine Quest mit mehreren Belohnungen zur Auswahl abgeben (Questfenster) und vorher im Questlog die Details derselben Quest ansehen.
+
+1. Die Wahl mit dem höchsten Händlerpreis hat oben links eine Goldmünze; die benutzbare Wahl mit dem größten Itemlevel-Gewinn unten links „+N“ in Grün.
+2. Beim ersten Öffnen (Items noch nicht im Cache) erscheinen die Symbole kurz verzögert.
+3. Sitzen die Symbole sauber auf den Knöpfen (auch im Questlog-Detail)? Überdecken sie Anzahl oder Name?
+4. `/lt debug log`, danach `make debuglog`: Zeile „reward hint: value …, upgrade …, log …“.
+
+**Erwartet:** keine automatische Wahl, keine Lua-Fehler; Ringe/Schmuck vergleichen mit dem schwächeren angelegten.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Münze richtig (ja/nein):
++N richtig (ja/nein):
+Im Questlog-Detail (ja/nein):
+Fehler:
+```
+
+### 120. Quest-Effizienz (Roadmap 347)
+
+- [ ] geprüft
+
+Nach einigen abgegebenen Quests (mit Quest-Splits, also nach der Installation angenommen) `/lt history` > Quests > Effizienz.
+
+1. Je Quest: Abgaben, Ø Dauer, Ø XP, XP/min; Klick auf die Spaltenköpfe sortiert.
+2. Komfort > Quests: „Quest-Effizienz im Tooltip“ an. Einen Quest-Link im Chat anklicken bzw. in der Tabelle mit der Maus darüber: Zeile „Bisher: Ø 3:40, 1.250 XP/min, 2x“.
+3. Retail/Forever: zeigt die Questliste neben der Karte beim Überfahren einen Link-Tooltip mit dieser Zeile? (Wenn nicht, bitte notieren; Classic zeigt im Questlog keinen Tooltip.)
+
+**Erwartet:** Werte plausibel, Twink sieht die Werte des Main, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tabelle richtig (ja/nein):
+Tooltipzeile an Links (ja/nein):
+In der Questliste (ja/nein/kein Tooltip):
+Fehler:
+```
+
+### 121. Seltene Gegner melden (Roadmap 348)
+
+- [ ] geprüft
+
+Einblendungen: „Rare gesichtet“ und „Dabei Taskleiste blinken“ an, Ton an. Zu einem bekannten seltenen Gegner gehen (silberner Drache am Porträt).
+
+1. Sobald seine Plakette erscheint (oder beim Anvisieren/Mouseover): „Rare gesichtet: Name“ mit Ton; läuft WoW im Hintergrund, blinkt das Symbol in der Taskleiste.
+2. Erneut hinsehen: keine zweite Meldung in dieser Session; nach Logout/Login wieder.
+3. Toter Rare: keine Meldung. In Instanzen (geheime Werte in Forever): keine Fehler.
+4. `/lt debug alert rarespotted` zeigt ein Beispiel.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Meldung bei Plakette/Ziel/Mouseover (ja/nein):
+Taskleiste blinkt (ja/nein):
+Fehler:
+```
+
+### 122. Quest-Gegenstand im Tooltip (Roadmap 349)
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Gegenstände im Tooltip“ an (dazu am besten „Questgegner und -gegenstände lernen“). Eine Sammelquest offen haben und einige Gegenstände dafür in der Tasche.
+
+1. Tooltip eines solchen Gegenstands in der Tasche: „Für Quest: Name (3/8)“ in Gelb.
+2. Ein Gegenstand, dessen Name nicht im Zieltext steht (z.B. „Schuppe“ für „Schuppen gesammelt“): erscheint die Zeile erst nach dem Lernen (zweite Beute)?
+3. Quest abgeben, übrig gebliebener Gegenstand: „Quest erledigt – verkaufbar“ in Grau.
+4. Retail/Forever: Zeile auch im Tooltip von Händler, Beute-Fenster und Chat-Links?
+
+**Erwartet:** Zeile nur einmal pro Tooltip, keine Lua-Fehler; keine Zeile bei normalen Gegenständen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Offene Quest mit Stand (ja/nein):
+„verkaufbar“ nach Abgabe (ja/nein):
+Fehler:
+```
+
+### 123. Quest-NPCs und Orte lernen, Questkarte (Roadmap 350)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ und „Gelernte Questorte auf der Karte“ an, `/lt debug log` an. Eine Quest bei einem NPC annehmen, ein paar Ziele an verschiedenen Stellen erledigen, abgeben; eine zweite Quest annehmen und fertig machen, aber noch nicht abgeben.
+
+1. Weltkarte: gelbe Punkte, wo die Ziele der offenen Quest vorankamen; Maus darüber nennt die Quest.
+2. Fertige Quest, deren Abgabe-NPC schon bekannt ist (z.B. Twink mit derselben Quest): Fragezeichen am NPC, Tooltip „Abgabe bei Name“.
+3. Historie > Quests > Abgabe: Spalte NPC mit dem gelernten Namen.
+4. `make debuglog`: Zeilen „quest … giver/turnIn: Name (NPC-ID) map …“. In einer Forever-Instanz: Name ohne NPC-ID, keine Fehler.
+5. Die Todeskarte (Komfort > Rahmen > Weltkarte) zeigt weiterhin die Tode (gemeinsamer Baustein).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielpunkte (ja/nein):
+Abgabe-Fragezeichen (ja/nein):
+NPC-Spalte (ja/nein):
+Todeskarte noch ok (ja/nein):
+Fehler:
+```
+
+### 124. Leichenpfeil (Roadmap 351)
+
+- [ ] geprüft
+
+Komfort > Rahmen > Weltkarte: „Leichenpfeil als Geist“ an. Draußen sterben und freilassen.
+
+1. Als Geist erscheint oben mittig ein Pfeil mit „N Meter“ darunter. Zeigt er zur Leiche, wenn du dich drehst? Nimmt die Entfernung beim Laufen ab und stimmt sie ungefähr (z.B. mit der Minikarte)?
+2. In einer anderen Zone als die Leiche (Friedhof jenseits der Zonengrenze): Pfeil weg oder richtig?
+3. Wiederbelebt: Pfeil weg.
+4. Als Geist `/lt debug log`, `/lt debug check`, danach `make debuglog`: Eintrag `deaths.corpseArrow` (Karte, Leiche, Breite/Höhe, Blickrichtung, Drehung, Entfernung).
+5. In einer Instanz sterben (Forever: geheime Positionen): kein Pfeil, keine Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Richtung stimmt (ja/nein, um wie viel daneben):
+Entfernung plausibel (ja/nein):
+Andere Zone (ja/nein/weg):
+Fehler:
+```
+
+### 125. Questreste in den Taschen (Roadmap 352)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: „Questreste melden“ an, dazu „Questgegner und -gegenstände lernen“. Eine Sammelquest mit überzähligen Gegenständen abgeben oder eine Quest mit Quest-Item abbrechen.
+
+1. Beim nächsten Händler: Hinweis „Questreste – Kann weg: Name (Anzahl)“. Gegenstände, die eine andere offene Quest braucht, stehen nicht dabei.
+2. Verkaufen: beim nächsten Händler kein Hinweis mehr.
+3. Taschen fast voll (Hinweis an): der Hinweis nennt die Questreste mit.
+4. `/reload` zwischen Annahme und Abbruch: das Quest-Item wird trotzdem erkannt.
+
+**Erwartet:** keine falschen Vorschläge (z.B. Gegenstände für Folgequests: bitte notieren), keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hinweis beim Händler (ja/nein):
+Falsche Vorschläge:
 Fehler:
 ```

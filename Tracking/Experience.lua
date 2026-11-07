@@ -87,18 +87,67 @@ Experience.MAX_TO_LEVEL_SAMPLES = 50
 
 local function isPveKill(entry) return entry.kind == ns.Journal.PVE end
 local function anyEntry() return true end
+local MATCHERS = { [KILL_LOG] = isPveKill, [QUEST_LOG] = anyEntry }  -- welche Einträge je Log zählen
 
--- Schnitt der Basis-XP der neuesten sampleSize Einträge mit XP; nil ohne Einträge
-local function recentBaseXp(logName, matches, sampleSize)
-  local log = ns.character[logName] or {}
-  local sum, count = 0, 0
+-- Basis-XP der neuesten passenden Einträge je Log, neueste zuerst gelesen: ein Ring aus höchstens
+-- MAX_TO_LEVEL_SAMPLES Werten. Die Zeilen fragen viermal je Sekunde; statt jedes Mal den Eingang rückwärts zu
+-- durchsuchen (bei vielen Einträgen ohne XP bis zu 20000), kommen neue Einträge hinten dazu. Liegt der Eingang nicht
+-- mehr so vor wie beim letzten Lesen (anderer Charakter, gekürzt, umgezogen), wird der Ring einmal neu gefüllt.
+local recent = {}  -- [logName] = { log, count, last, values, head, size }
+
+local function baseXpOf(entry, matches)
+  if type(entry.xp) == "number" and entry.xp > 0 and matches(entry) then return entry.xp - (entry.rested or 0) end
+  return nil
+end
+
+local function push(ring, value)
+  ring.head = ring.head % Experience.MAX_TO_LEVEL_SAMPLES + 1
+  ring.values[ring.head] = value
+  ring.size = math.min(ring.size + 1, Experience.MAX_TO_LEVEL_SAMPLES)
+end
+
+-- Ring aus dem Eingang neu füllen: die neuesten passenden Einträge, in Reihenfolge älteste zuerst eingereiht
+local function refill(ring, log, matches)
+  local found = {}
   for i = #log, 1, -1 do
-    local entry = log[i]
-    if type(entry.xp) == "number" and entry.xp > 0 and matches(entry) then
-      sum = sum + entry.xp - (entry.rested or 0)
-      count = count + 1
-      if count >= sampleSize then break end
+    local value = baseXpOf(log[i], matches)
+    if value then
+      found[#found + 1] = value
+      if #found >= Experience.MAX_TO_LEVEL_SAMPLES then break end
     end
+  end
+  ring.values, ring.head, ring.size = {}, 0, 0
+  for i = #found, 1, -1 do push(ring, found[i]) end
+end
+
+local function ringFor(logName, matches)
+  local log = ns.character[logName] or {}
+  local ring = recent[logName]
+  local count = #log
+  if ring and ring.log == log and count >= ring.count and (ring.count == 0 or log[ring.count] == ring.last) then
+    for i = ring.count + 1, count do
+      local value = baseXpOf(log[i], matches)
+      if value then push(ring, value) end
+    end
+  else
+    ring = { log = log }
+    recent[logName] = ring
+    refill(ring, log, matches)
+  end
+  ring.count, ring.last = count, log[count]
+  return ring
+end
+
+-- Schnitt der Basis-XP der neuesten sampleSize (höchstens MAX_TO_LEVEL_SAMPLES) Einträge mit XP im Eingang von
+-- logName (killLog: nur PvE, questLog); nil ohne Einträge
+function Experience.RecentBaseXp(logName, sampleSize)
+  local ring = ringFor(logName, MATCHERS[logName])
+  local count = math.min(sampleSize, ring.size)
+  local sum, index = 0, ring.head
+  for _ = 1, count do  -- neueste zuerst, wie früher beim Rückwärtslesen des Eingangs
+    sum = sum + ring.values[index]
+    index = index - 1
+    if index < 1 then index = Experience.MAX_TO_LEVEL_SAMPLES end
   end
   return count > 0 and sum / count or nil
 end
@@ -126,7 +175,8 @@ function Experience.CountToLevel(xpCounter, countCounter)
   local sampleSize = ns.db.toLevelSamples or 0
   local baseXp
   if sampleSize > 0 then
-    baseXp = recentBaseXp(isKills and KILL_LOG or QUEST_LOG, isKills and isPveKill or anyEntry, sampleSize)
+    sampleSize = math.min(sampleSize, Experience.MAX_TO_LEVEL_SAMPLES)
+    baseXp = Experience.RecentBaseXp(isKills and KILL_LOG or QUEST_LOG, sampleSize)
   end
   baseXp = baseXp or scopeBaseXp(xpCounter, countCounter, isKills)
   if not baseXp or baseXp <= 0 then return nil end
@@ -158,9 +208,18 @@ end
 ---------------------------------------------------------------------------
 local lastXp, lastXpMax, lastLevel
 local gainListeners = {}
+-- Zuletzt gesehener XP-Bedarf je Level. Beim Level-Up kann UnitXPMax schon den Bedarf des neuen Levels liefern,
+-- wenn PLAYER_XP_UPDATE vor PLAYER_LEVEL_UP kam; der Historie-Eintrag braucht aber den des alten.
+local xpMaxByLevel = {}
+
+-- XP-Bedarf von level, wie zuletzt gesehen; ohne Beobachtung UnitXPMax (Bedarf des aktuellen Levels)
+function Experience.XpMaxOf(level)
+  return xpMaxByLevel[level] or UnitXPMax("player")
+end
 
 -- listener(amount) bei jedem XP-Gewinn (z.B. um geheime Kill-Meldungen ihrer XP zuzuordnen)
 function Experience.OnGain(listener)
+  ns.RememberSource(listener, "Experience.lua")
   gainListeners[#gainListeners + 1] = listener
 end
 
@@ -182,10 +241,12 @@ local function trackXpGained()
     if xpMax ~= lastXpMax or xp < lastXp or ns.level > lastLevel then
       local newLevel = math.max(ns.level, lastLevel + 1)
       gained = (lastXpMax - lastXp) + skippedLevelsXp(lastLevel + 1, newLevel) + xp
+      xpMaxByLevel[lastLevel] = lastXpMax
       lastLevel = newLevel
     else
       gained = xp - lastXp
     end
+    xpMaxByLevel[lastLevel] = xpMax
     if gained > 0 then
       Stats.Increment(Stats.XP_GAINED, gained)
       notifyGain(gained)
@@ -215,6 +276,7 @@ end
 
 ns.OnLogin(function()
   lastXp, lastXpMax, lastLevel = UnitXP("player"), UnitXPMax("player"), ns.level
+  xpMaxByLevel = { [lastLevel] = lastXpMax }
   lastRestedPool = restedPool()
 end)
 

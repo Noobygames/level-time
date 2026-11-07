@@ -31,21 +31,25 @@ function Runs.LevelTimes(characterKey, withoutPartial)
   return times
 end
 
+-- Felder eines eigenen Laufs, die sich ohne neues Level ändern können (Kategorie, Erfassungsquote, Prüfcode,
+-- erreichtes Level): billig zu lesen, daher bei jedem Runs.GetAll frisch
+local function refreshCharacterRun(run)
+  local character = History.GetCharacter(run.id)
+  run.check, run.checkFrom, run.checkTo = ns.RunCheck.ForCharacter(character)
+  run.category = character.runCategory
+  run.name, run.realm, run.class = character.name, character.realm, character.class
+  run.coverage = ns.Coverage.Get(run.id)
+  run.reachedLevel = character.currentLevel.level
+end
+
 local function fromCharacter(characterKey)
-  local character = History.GetCharacter(characterKey)
-  local check, checkFrom, checkTo = ns.RunCheck.ForCharacter(character)
-  return {
-    check = check, checkFrom = checkFrom, checkTo = checkTo,
-    category = character.runCategory,
+  local run = {
     id = characterKey,
-    name = character.name,
-    realm = character.realm,
-    class = character.class,
     times = Runs.LevelTimes(characterKey),
     bestTimes = Runs.LevelTimes(characterKey, true),  -- ohne Teil-Level: nur diese zählen als Bestzeit
-    coverage = ns.Coverage.Get(characterKey),
-    reachedLevel = character.currentLevel.level,
   }
+  refreshCharacterRun(run)
+  return run
 end
 
 local function fromImport(index, run)
@@ -63,26 +67,54 @@ local function fromImport(index, run)
   }
 end
 
--- Alle Läufe: eigene Charaktere (eingeloggter zuerst), dann importierte
-function Runs.GetAll()
-  local favorites = store().runFavorites
-  local runs = {}
-  for _, key in ipairs(History.GetCharacterKeys()) do
+-- Zwischenspeicher der Läufe: die Level-Zeiten (Sortieren der Level-Historie je Charakter) nur neu, wenn sich etwas
+-- geändert haben kann: Login, Level-Up, Einstellungen, Löschen/Ersetzen eines Charakters, andere Charakterliste
+-- (History.GetCharacterKeys liefert dann eine neue) oder Importe (andere Tabelle oder Anzahl). Die Läufe- und
+-- Rekorde-Ansicht fragen jede Sekunde.
+local revision = 0
+local cache = {}  -- { revision, characterKeys, imported, importedCount, list, byId }
+
+-- Läufe beim nächsten Lesen neu aufbauen (z.B. vor einer ausdrücklichen Wahl per Name)
+function Runs.Invalidate()
+  revision = revision + 1
+end
+
+local function upToDate(characterKeys)
+  local imported = store().importedRuns
+  return cache.revision == revision and cache.characterKeys == characterKeys and cache.imported == imported
+    and cache.importedCount == #imported
+end
+
+local function build(characterKeys)
+  local runs, byId = {}, {}
+  for _, key in ipairs(characterKeys) do
     table.insert(runs, fromCharacter(key))
   end
-  for index, run in ipairs(store().importedRuns) do
+  local imported = store().importedRuns
+  for index, run in ipairs(imported) do
     table.insert(runs, fromImport(index, run))
   end
-  for _, run in ipairs(runs) do
+  for _, run in ipairs(runs) do byId[run.id] = run end
+  cache = { revision = revision, characterKeys = characterKeys, imported = imported, importedCount = #imported,
+    list = runs, byId = byId }
+end
+
+-- Alle Läufe: eigene Charaktere (eingeloggter zuerst), dann importierte. Zwischengespeichert: Liste und Läufe nicht
+-- verändern (Ansichten setzen nur eigene Anzeige-Felder wie timeToLevel).
+function Runs.GetAll()
+  local characterKeys = History.GetCharacterKeys()
+  if not upToDate(characterKeys) then build(characterKeys) end
+  local favorites = store().runFavorites
+  for _, run in ipairs(cache.list) do
+    if not run.imported then refreshCharacterRun(run) end
     run.favorite = favorites[run.id] == true
   end
-  return runs
+  return cache.list
 end
 
 function Runs.Get(id)
-  for _, run in ipairs(Runs.GetAll()) do
-    if run.id == id then return run end
-  end
+  Runs.GetAll()
+  return cache.byId[id]
 end
 
 -- Erster Lauf mit diesem Namen (Groß-/Kleinschreibung egal), außer dem eingeloggten Charakter
@@ -97,6 +129,12 @@ function Runs.ToggleFavorite(id)
   local favorites = store().runFavorites
   favorites[id] = not favorites[id] or nil
 end
+
+ns.OnLogin(Runs.Invalidate)
+ns.OnLevelStarted(Runs.Invalidate)  -- nach allen OnLevelCompleted: Level-Historie und Prüfcode stehen schon
+ns.RegisterApply(Runs.Invalidate)
+ns.Database.OnCharacterDeleted(Runs.Invalidate)
+ns.Database.OnCharacterReplaced(Runs.Invalidate)
 
 -- Summe der Zeiten von Level from bis to; nil, wenn eines davon fehlt
 function Runs.SumOfLevels(times, from, to)
@@ -185,25 +223,24 @@ local function sanitize(run)
   }
 end
 
-local function sameTimes(a, b)
-  for level, seconds in pairs(a) do
-    if b[level] ~= seconds then return false end
-  end
-  for level in pairs(b) do
-    if a[level] == nil then return false end
-  end
-  return true
+-- Schlüssel für "schon vorhanden": Name, Realm und alle Level-Zeiten (nach Level sortiert)
+local IDENTITY_SEPARATOR = "\1"
+local NO_VALUE = "\2"
+
+local function identity(run)
+  local levels = {}
+  for level in pairs(run.times) do levels[#levels + 1] = level end
+  table.sort(levels)
+  local parts = { run.name or NO_VALUE, run.realm or NO_VALUE }
+  for _, level in ipairs(levels) do parts[#parts + 1] = level .. "=" .. run.times[level] end
+  return table.concat(parts, IDENTITY_SEPARATOR)
 end
 
--- Schon vorhanden: Lauf gleichen Namens und Realms mit denselben Zeiten (eigener Charakter oder
--- importiert). Ein alter Versuch eines zurückgesetzten oder neu erstellten Charakters ist neu.
-local function isKnown(run)
-  for _, existing in ipairs(Runs.GetAll()) do
-    if existing.name == run.name and existing.realm == run.realm and sameTimes(existing.times, run.times) then
-      return true
-    end
-  end
-  return false
+-- Vorhandene Läufe (eigene Charaktere und Importe) als Menge, einmal je Import gebaut
+local function knownRuns()
+  local known = {}
+  for _, existing in ipairs(Runs.GetAll()) do known[identity(existing)] = true end
+  return known
 end
 
 -- Alter Versuch eines neu erstellten Charakters gleichen Namens: bleibt als importierter Lauf zum
@@ -230,9 +267,13 @@ function Runs.Import(text)
     runs[i] = sanitize(candidate)
     if not runs[i] then return nil end  -- erst alles prüfen, dann übernehmen
   end
-  local added = 0
+  -- Schon vorhanden: Lauf gleichen Namens und Realms mit denselben Zeiten (eigener Charakter, importiert oder
+  -- früher im selben Text). Ein alter Versuch eines zurückgesetzten oder neu erstellten Charakters ist neu.
+  local known, added = knownRuns(), 0
   for _, run in ipairs(runs) do
-    if not isKnown(run) then
+    local key = identity(run)
+    if not known[key] then
+      known[key] = true
       table.insert(store().importedRuns, run)
       added = added + 1
     end

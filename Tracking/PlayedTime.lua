@@ -56,7 +56,11 @@ local function muteChat()
   end
 end
 
-function PlayedTime.Sync()
+local answerListeners = {}  -- Rückrufe einzelner Abfragen (z.B. /lt sync), einmalig bei der nächsten Antwort
+
+-- /played beim Server abfragen, ohne dass die Antwort im Chat erscheint; onAnswer(total, thisLevel) optional
+function PlayedTime.Sync(onAnswer)
+  if type(onAnswer) == "function" then table.insert(answerListeners, onAnswer) end
   muteChat()
   RequestTimePlayed()
   C_Timer.After(REQUEST_TIMEOUT, unmuteChat)
@@ -69,6 +73,9 @@ ns.RegisterEvent("TIME_PLAYED_MSG", function(total, thisLevel)
   syncedAt = GetTime()
   -- Erst nach dieser Event-Runde wieder anmelden, damit die Chatfenster die Antwort nicht doch bekommen
   C_Timer.After(0, unmuteChat)
+  local listeners = answerListeners
+  answerListeners = {}
+  for _, listener in ipairs(listeners) do ns.SafeCall(listener, total, thisLevel) end
 end)
 
 -- Neues Level beginnt bei 0; die Gesamtzeit läuft weiter

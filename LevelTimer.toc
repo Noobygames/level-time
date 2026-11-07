@@ -21,6 +21,7 @@ Core\LevelTimer.lua
 Core\Client.lua
 Core\DebugLog.lua
 Core\DebugProbes.lua
+Core\Profiler.lua
 Lib\Format.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
@@ -29,9 +30,13 @@ Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\GroupChat.lua
 Lib\GroupRole.lua
+Lib\NamePlates.lua
 Lib\Bags.lua
 Lib\Items.lua
 Lib\QuestLog.lua
+Lib\QuestTooltip.lua
+Lib\QuestRewards.lua
+Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
@@ -60,9 +65,12 @@ Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
 Tracking\QuestCounter.lua
+Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\QuestMobs.lua
+Tracking\QuestNpcs.lua
 Tracking\MoneyCounter.lua
 Tracking\Reputation.lua
 
@@ -76,6 +84,7 @@ History\PlayHours.lua
 History\Instances.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
+History\QuestEfficiency.lua
 History\Analysis.lua
 History\ProgressCurve.lua
 History\XpTable.lua
@@ -106,6 +115,7 @@ UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua
 UI\FlightDisplay.lua
+UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
 Assist\CampFire.lua
@@ -117,6 +127,8 @@ Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
 Assist\QuestProgress.lua
+Assist\QuestCompleteAlert.lua
+Assist\RareAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
 Assist\BreakReminder.lua
@@ -128,6 +140,8 @@ Assist\InviteInfo.lua
 Assist\Merchant.lua
 Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
+Assist\RewardHint.lua
+Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua
@@ -140,8 +154,12 @@ Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\LootTarget.lua
+Assist\LootSparkles.lua
 Assist\QuestLevels.lua
 Assist\QuestItemButton.lua
+Assist\QuestCleanup.lua
+Assist\QuestLeftovers.lua
 Assist\ActionBars.lua
 Assist\Emergency.lua
 Assist\HideFrames.lua
@@ -151,6 +169,8 @@ Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
+Assist\QuestMap.lua
+Assist\CorpseArrow.lua
 Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua
@@ -161,16 +181,19 @@ UI\TimerWindow.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
 Lib\Export.lua
+Lib\TableOrder.lua
 Lib\TableView.lua
 Lib\OptionsBuilder.lua
 UI\HistoryWindow.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
+UI\QuestViews.lua
 UI\RecapWindow.lua
 UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+Core\DebugChecks.lua
 Core\DebugTools.lua
 Core\Commands.lua

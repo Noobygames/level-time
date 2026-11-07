@@ -1,8 +1,6 @@
 -- Todeskarte (Roadmap 280, Einstellung deathMap, Standard aus): Punkte der eigenen Tode (Journal deathLog mit mapID,
 -- x, y aus DeathPlace.lua) auf der angezeigten Weltkarte, Tooltip mit Ursache, Level, Zeitpunkt und letzten Worten.
--- Quellen (Gethe/wow-ui-source, alle vier Zweige): WorldMapFrame ist ein MapCanvas mit GetMapID() und GetCanvas()
--- (= ScrollContainer.Child, zoomt mit). Eigener Rahmen als Kind der Leinwand, eigene Texturen statt Blizzards
--- Pin-Vorlagen; ein OnUpdate des eigenen Rahmens bemerkt Kartenwechsel (keine Hooks auf Blizzard-Funktionen).
+-- Zeichnen und Anhängen an die Weltkarte übernimmt Lib/MapPins.lua.
 local _, ns = ...
 local L = ns.L
 
@@ -11,25 +9,44 @@ ns.DeathMap = DeathMap
 
 local PIN_SIZE = 8
 local PIN_COLOR = { 0.9, 0.1, 0.1, 0.9 }
-local CHECK_SECONDS = 0.5
 
-local overlay
-local pins = {}
-local shownFor  -- Karte, Journal-Stand und Größe der zuletzt gezeichneten Punkte
+-- Tode je Karte, aus dem Tod-Journal des eingeloggten Charakters. Das Journal wächst nur hinten (Journal.GetEntries
+-- hängt an dieselbe Liste an): neue Tode kommen dazu, statt bei jedem Kartenwechsel alle zu durchlaufen. Eine andere
+-- oder kürzere Liste (anderer Charakter, Archiv-Umzug) baut den Index neu. Ort steht schon beim Anlegen (DeathPlace).
+local index = { count = 0 }  -- { list, count, byMap = { [mapID] = { Einträge } } }
+local NO_DEATHS = {}
 
--- Tode des eingeloggten Charakters auf dieser Karte
-function DeathMap.DeathsOn(mapID)
-  local deaths = {}
-  for _, entry in ipairs(ns.Journal.GetEntries(ns.characterKey, "deathLog")) do
-    if entry.mapID == mapID and type(entry.x) == "number" and type(entry.y) == "number" then
-      deaths[#deaths + 1] = entry
+local function deathsByMap()
+  local list = ns.Journal.GetEntries(ns.characterKey, "deathLog")
+  if index.list ~= list or #list < index.count then index = { list = list, count = 0, byMap = {} } end
+  local byMap = index.byMap
+  for i = index.count + 1, #list do
+    local entry = list[i]
+    if entry.mapID ~= nil and type(entry.x) == "number" and type(entry.y) == "number" then
+      byMap[entry.mapID] = byMap[entry.mapID] or {}
+      table.insert(byMap[entry.mapID], entry)
     end
   end
-  return deaths
+  index.count = #list
+  return byMap
 end
 
-local function showTooltip(pin)
-  local entry = pin.entry
+-- Tode des eingeloggten Charakters auf dieser Karte (nicht verändern)
+function DeathMap.DeathsOn(mapID)
+  if mapID == nil then return NO_DEATHS end
+  return deathsByMap()[mapID] or NO_DEATHS
+end
+
+local function points(mapID)
+  local list = {}
+  for index, entry in ipairs(DeathMap.DeathsOn(mapID)) do
+    list[index] = { x = entry.x, y = entry.y, size = PIN_SIZE, color = PIN_COLOR, entry = entry }
+  end
+  return list
+end
+
+local function showTooltip(pin, point)
+  local entry = point.entry
   GameTooltip:SetOwner(pin, "ANCHOR_RIGHT")
   GameTooltip:AddLine(ns.History.DeathCauseText(entry), 1, 0.3, 0.3)
   GameTooltip:AddLine(string.format(L.DEATH_MAP_DETAILS, entry.level or "?", date(L.DATE_TIME_FORMAT, entry.time)),
@@ -40,68 +57,17 @@ local function showTooltip(pin)
   GameTooltip:Show()
 end
 
-local function getPin(index)
-  if pins[index] then return pins[index] end
-  local pin = CreateFrame("Frame", nil, overlay)
-  pin:SetSize(PIN_SIZE, PIN_SIZE)
-  pin:EnableMouse(true)
-  pin.texture = pin:CreateTexture(nil, "OVERLAY")
-  pin.texture:SetAllPoints(pin)
-  pin.texture:SetColorTexture(unpack(PIN_COLOR))
-  pin:SetScript("OnEnter", showTooltip)
-  pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
-  pins[index] = pin
-  return pin
-end
+local layer = ns.MapPins.Create({
+  name = "LevelTimerDeathMap",
+  label = "DeathMap",
+  points = points,
+  revision = ns.Journal.RevisionOf("deathLog"),
+  onEnter = showTooltip,
+})
 
 function DeathMap.Refresh(force)
-  local map = WorldMapFrame
-  if not overlay or not map.GetMapID then return end
-  local mapID = map:GetMapID()
-  local width, height = overlay:GetWidth(), overlay:GetHeight()
-  local key = table.concat({ tostring(mapID), ns.Journal.Revision(), width, height }, ":")
-  if not force and key == shownFor then return end
-  shownFor = key
-  local deaths = type(mapID) == "number" and DeathMap.DeathsOn(mapID) or {}
-  for index, entry in ipairs(deaths) do
-    local pin = getPin(index)
-    pin.entry = entry
-    pin:ClearAllPoints()
-    pin:SetPoint("CENTER", overlay, "TOPLEFT", entry.x * width, -entry.y * height)
-    pin:Show()
-  end
-  for index = #deaths + 1, #pins do pins[index]:Hide() end
+  layer.Refresh(force)
 end
 
-local function create()
-  local map = WorldMapFrame
-  if overlay or type(map) ~= "table" or not map.GetCanvas then return end
-  local canvas = map:GetCanvas()
-  if not canvas then return end
-  overlay = CreateFrame("Frame", "LevelTimerDeathMap", canvas)
-  overlay:SetAllPoints(canvas)
-  overlay:SetFrameLevel((canvas:GetFrameLevel() or 1) + 10)
-  local sinceCheck = CHECK_SECONDS
-  overlay:SetScript("OnUpdate", function(_, elapsed)
-    sinceCheck = sinceCheck + elapsed
-    if sinceCheck < CHECK_SECONDS then return end
-    sinceCheck = 0
-    ns.SafeCall(DeathMap.Refresh)
-  end)
-  overlay:SetShown(ns.db and ns.db.deathMap or false)
-  ns.Debug("deaths", "death map attached")
-end
-
-ns.OnLogin(function()
-  if ns.db.deathMap then create() end
-end)
-ns.RegisterEvent("ADDON_LOADED", function(name)
-  if name == "Blizzard_WorldMap" and ns.db and ns.db.deathMap then create() end
-end)
-ns.RegisterApply(function(db)
-  if db.deathMap then create() end
-  if overlay then
-    overlay:SetShown(db.deathMap)
-    shownFor = nil
-  end
-end)
+ns.OnLogin(function() layer.SetEnabled(ns.db.deathMap) end)
+ns.RegisterApply(function(db) layer.SetEnabled(db.deathMap) end)

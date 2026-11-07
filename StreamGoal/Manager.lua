@@ -1,4 +1,4 @@
--- Fenster von Stream Goal (/sg): Reiter "Ziele" (Formular für ein neues Ziel, laufende Ziele mit Abbrechen,
+-- Fenster von Level Time Goals (/sg): Reiter "Ziele" (Formular für ein neues Ziel, laufende Ziele mit Abbrechen,
 -- Einstellungen der Anzeige) und Reiter "Historie" (Tabelle aller abgeschlossenen und abgebrochenen Ziele,
 -- gebaut mit TableView von Level Time: Filter, Sortieren, CSV-Export).
 local _, ns = ...

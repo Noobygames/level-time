@@ -73,11 +73,19 @@ expectTrue("Reiter Tode", wow.click("Tode"))
 ---------------------------------------------------------------------------
 -- Begrenzung des Eingangs (greift nur, wenn das Archiv nicht umziehen kann): nur die neuesten Einträge bleiben
 ---------------------------------------------------------------------------
-local inboxLimit = Journal.INBOX_LIMIT
-Journal.INBOX_LIMIT = 50
-for i = 1, Journal.INBOX_LIMIT + 10 do
+-- Gekürzt wird in einem Zug, sobald INBOX_SLACK Einträge zu viel sind (Roadmap 355)
+local inboxLimit, inboxSlack = Journal.INBOX_LIMIT, Journal.INBOX_SLACK
+Journal.INBOX_LIMIT, Journal.INBOX_SLACK = 50, 5
+addon.character.killLog = {}
+local log = addon.character.killLog
+for i = 1, Journal.INBOX_LIMIT + Journal.INBOX_SLACK do
   Journal.AddKill(Journal.PVE, "Ratte " .. i)
 end
-expect("Kill-Eingang begrenzt", #addon.character.killLog, Journal.INBOX_LIMIT)
-expect("neuester Eintrag bleibt", addon.character.killLog[Journal.INBOX_LIMIT].name, "Ratte " .. (Journal.INBOX_LIMIT + 10))
-Journal.INBOX_LIMIT = inboxLimit
+expect("bis zur Reserve nicht gekürzt", #log, 55)
+Journal.AddKill(Journal.PVE, "Ratte 56")
+expect("Kill-Eingang auf die Grenze gekürzt", #log, Journal.INBOX_LIMIT)
+expect("älteste fallen weg", log[1].name, "Ratte 7")
+expect("neuester Eintrag bleibt", log[#log].name, "Ratte 56")
+for i = 57, 60 do Journal.AddKill(Journal.PVE, "Ratte " .. i) end
+expect("danach wieder Reserve", #log, 54)
+Journal.INBOX_LIMIT, Journal.INBOX_SLACK = inboxLimit, inboxSlack

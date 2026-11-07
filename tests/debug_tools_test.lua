@@ -49,7 +49,7 @@ SlashCmdList.LEVELTIMER("debug alert levelUp")
 expect("Einblendung Level-Up per Befehl", LevelTimerAlert.text:GetText(), string.format(L.ALERT_LEVEL_UP, addon.level + 1))
 before = #wow.printed
 SlashCmdList.LEVELTIMER("debug alert quatsch")
-expectTrue("unbekannte Art: Liste", printedSince(before, "kinds: elite, levelUp, loot, nearDeath, rare"))
+expectTrue("unbekannte Art: Liste", printedSince(before, "kinds: elite, levelUp, loot, nearDeath, questComplete, questObjective, rare, rareSpotted"))
 
 for _, command in ipairs({ "remind", "death", "splits" }) do
   before = #wow.printed

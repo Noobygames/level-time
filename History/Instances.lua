@@ -67,6 +67,7 @@ local function resume()
   if runningSince then return end
   ns.TimeBreakdown.Flush()  -- Zeit von draußen gehört nicht in den Lauf
   runningSince = GetTime()
+  ns.Debug("instances", "clock started: %s, %s s so far", currentRun().name, currentRun().seconds)
 end
 
 local function newRun(name, instanceType, startedAt, level)
@@ -120,7 +121,7 @@ end
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
   local run = currentRun()
   if run and run.name == name and not isNew then
-    ns.Debug("instances", "run continues: %s, clock running %s, ghost %s", name, runningSince ~= nil,
+    ns.Debug("instances", "run continues: %s, clock was running %s, ghost %s", name, runningSince ~= nil,
       UnitIsDeadOrGhost("player"))
     -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie
     if not runningSince and run.zoneUID then

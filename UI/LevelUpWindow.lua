@@ -310,7 +310,7 @@ local function display(level, gains, abilities, overrideKind)
   frame:Show()
 end
 
-frame:SetScript("OnUpdate", function(self)
+ns.SetUpdateScript(frame, "LevelUpWindow", function(self)
   if not self:IsShown() then return end
   local age = GetTime() - shownAt
   if override then
@@ -340,7 +340,10 @@ end
 local pending  -- { level, gains }, wenn das Fenster im Kampf nicht erscheinen durfte
 
 local function show(level, gains)
-  display(level, gains, abilitiesFor(level), nil)
+  local abilities = abilitiesFor(level)
+  ns.Debug("levelup", "window for level %s: %s abilities, trainer cache %s", level, #abilities,
+    ns.TrainerCache.IsAvailable())
+  display(level, gains, abilities, nil)
   if ns.db.levelUpSound then ns.Alerts.PlaySound() end
 end
 

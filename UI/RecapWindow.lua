@@ -16,18 +16,21 @@ local CONTENT_TOP = -44
 local ROW_HEIGHT = 18
 local COLUMN_GAP = 24
 local NO_VALUE = "-"
+local BACKGROUND_ALPHA = 0.95  -- ohne Chroma-Hintergrund fast deckend, unabhängig von bgAlpha des Zeitfensters
+local UPDATE_INTERVAL = 1      -- s: offene Karte zählt mit (Zeit, XP, Kills)
 
 ---------------------------------------------------------------------------
 -- Inhalt
 ---------------------------------------------------------------------------
 
--- Einträge eines Journals seit Beginn der Session
+-- Einträge eines Journals seit Beginn der Session, älteste zuerst. Der Eingang ist nach Zeit geordnet (angehängt mit
+-- time()): von hinten lesen und beim ersten älteren Eintrag aufhören, statt jede Sekunde den ganzen Eingang.
 local function sinceSessionStart(log)
   local startedAt = ns.character.currentSession.startedAt or 0
+  local first = #log + 1
+  while first > 1 and (log[first - 1].time or 0) >= startedAt do first = first - 1 end
   local entries = {}
-  for _, entry in ipairs(log) do
-    if (entry.time or 0) >= startedAt then table.insert(entries, entry) end
-  end
+  for i = first, #log do entries[#entries + 1] = log[i] end
   return entries
 end
 
@@ -82,7 +85,7 @@ end
 ---------------------------------------------------------------------------
 -- Fenster
 ---------------------------------------------------------------------------
-local panel = Widgets.CreatePanel("LevelTimerRecap", 0.95)
+local panel = Widgets.CreatePanel("LevelTimerRecap", BACKGROUND_ALPHA)
 panel:SetPoint("CENTER", UIParent, "CENTER", -40, -40)  -- versetzt zu den Einstellungen
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
@@ -121,6 +124,15 @@ local function render()
   panel:SetSize(width, -CONTENT_TOP + #content * ROW_HEIGHT + MARGIN)
 end
 
+-- Chroma-Hintergrund des Zeitfensters (Stream, OBS) übernehmen, sonst der eigene dunkle
+local function applyBackground(db)
+  if ns.TimerWindow.CHROMA_COLORS[db.windowBackground] then
+    ns.TimerWindow.ApplyBackground(panel, db)
+  else
+    Widgets.SetDefaultBackground(panel, BACKGROUND_ALPHA)
+  end
+end
+
 function ns.ToggleRecap()
   if not ns.db then return end
   if panel:IsShown() then
@@ -131,7 +143,17 @@ function ns.ToggleRecap()
   end
 end
 
--- Sprachwechsel bei offenem Fenster
-ns.RegisterApply(function()
+-- Offen zählt die Karte mit, statt beim Öffnen stehen zu bleiben (nur solange sichtbar)
+local sinceUpdate = 0
+panel:SetScript("OnUpdate", function(_, elapsed)
+  sinceUpdate = sinceUpdate + elapsed
+  if sinceUpdate < UPDATE_INTERVAL then return end
+  sinceUpdate = 0
+  render()
+end)
+
+-- Sprach- oder Hintergrundwechsel, auch bei offenem Fenster
+ns.RegisterApply(function(db)
+  applyBackground(db)
   if panel:IsShown() then render() end
 end)

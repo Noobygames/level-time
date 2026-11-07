@@ -31,9 +31,9 @@ function NearDeath.HealthFraction()
   return health / maxHealth
 end
 
-local function onHealthChanged(unit)
-  if unit ~= "player" then return end
+local function onHealthChanged()
   if UnitIsDeadOrGhost("player") then
+    if episode then ns.Debug("neardeath", "episode ended by death") end
     episode = nil
     return
   end
@@ -44,25 +44,36 @@ local function onHealthChanged(unit)
     local justResurrected = resurrectedAt and GetTime() - resurrectedAt < RESURRECT_GRACE
     if fraction <= LOW_HEALTH and not justResurrected then
       episode = { lowest = fraction, cause = DeathCounter.PeekLastHit() }
+      ns.Debug("neardeath", "episode started at %s", fraction)
+    elseif fraction <= LOW_HEALTH then
+      ns.Debug("neardeath", "low health %s ignored, resurrected %s s ago", fraction, GetTime() - resurrectedAt)
     end
     return
   end
 
   episode.lowest = math.min(episode.lowest, fraction)
   if fraction >= RECOVERED_HEALTH then
+    ns.Debug("neardeath", "counted, lowest %s", episode.lowest)
     Stats.Increment(Stats.NEAR_DEATHS)
     Journal.AddNearDeath(math.floor(episode.lowest * 100 + 0.5), episode.cause)
     episode = nil
   end
 end
 
-ns.RegisterEvent("UNIT_HEALTH", onHealthChanged)
-ns.RegisterEvent("UNIT_HEALTH_FREQUENT", onHealthChanged)  -- ältere Clients melden Änderungen hierüber
+-- Nur das eigene Leben (UNIT_HEALTH käme sonst für jede Einheit) und nur, wo es lesbar ist: in Retail/Forever
+-- ist es immer geheim, dort bleibt der Handler abgemeldet. UNIT_HEALTH_FREQUENT gibt es nur in Classic Era/TBC.
+local healthEvents = ns.NewEventGroup()
+healthEvents.Add("UNIT_HEALTH", "player", onHealthChanged)
+healthEvents.Add("UNIT_HEALTH_FREQUENT", "player", onHealthChanged)
+ns.RegisterApply(function() healthEvents.SetActive(NearDeath.IsAvailable()) end)
 ns.RegisterEvent("PLAYER_DEAD", function() episode = nil end)
 
 -- Wiederbelebt mit wenig Leben ist kein Beinahe-Tod. PLAYER_ALIVE kommt auch beim Freilassen des Geistes.
 local function onPossiblyResurrected()
-  if not UnitIsDeadOrGhost("player") then resurrectedAt = GetTime() end
+  if not UnitIsDeadOrGhost("player") then
+    resurrectedAt = GetTime()
+    ns.Debug("neardeath", "resurrected at %s health", NearDeath.HealthFraction())
+  end
 end
 ns.RegisterEvent("PLAYER_ALIVE", onPossiblyResurrected)
 ns.RegisterEvent("PLAYER_UNGHOST", onPossiblyResurrected)

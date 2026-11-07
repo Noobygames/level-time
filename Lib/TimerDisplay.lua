@@ -29,6 +29,7 @@ function TimerDisplay.Create(config)
   frame:SetFrameStrata("HIGH")
 
   local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
+  local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
   local override  -- Vorschau oder Verschiebemodus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
 
@@ -44,7 +45,10 @@ function TimerDisplay.Create(config)
     if current.kind == "countdown" then
       local remaining = remainingOf(current)
       local seconds = math.ceil(remaining)
-      card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+      if seconds ~= shownSeconds then
+        shownSeconds = seconds
+        card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+      end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
     local alpha = math.min(1, (now - shownAt) / FADE_IN_SECONDS)
@@ -53,11 +57,13 @@ function TimerDisplay.Create(config)
   end
 
   local function hide()
+    if current then ns.Debug("timer", "%s hides %s", config.name, current.kind) end
     current = nil
     frame:Hide()
   end
 
   local function setCard(state)
+    shownSeconds = nil  -- Card.Set misst mit einem Platzhalter-Text, die Zahl kommt danach neu
     card.Set({
       color = config.colors[state.kind],
       icon = state.spellId,
@@ -67,6 +73,8 @@ function TimerDisplay.Create(config)
   end
 
   local function display(state)
+    ns.Debug("timer", "%s shows %s (remaining %s, duration %s, preview %s)", config.name, state.kind,
+      state.expiration and state.expiration - GetTime(), state.duration, override ~= nil)
     current = state
     setCard(state)
     shownAt = GetTime()
@@ -76,7 +84,7 @@ function TimerDisplay.Create(config)
   end
 
   local sinceUpdate = 0
-  frame:SetScript("OnUpdate", function(_, elapsed)
+  ns.SetUpdateScript(frame, config.name or "TimerDisplay", function(_, elapsed)
     sinceUpdate = sinceUpdate + elapsed
     if sinceUpdate < UPDATE_INTERVAL then return end
     sinceUpdate = 0
@@ -116,7 +124,9 @@ function TimerDisplay.Create(config)
   function Display.ShowDone(spellId, title)
     if override then return end
     display({ kind = "done", spellId = spellId, title = title, endsAt = GetTime() + DONE_SECONDS })
-    if ns.db and ns.db[config.soundKey] then ns.Alerts.PlaySound() end
+    local sound = ns.db and ns.db[config.soundKey]
+    ns.Debug("timer", "%s done, sound %s", config.name, sound and true or false)
+    if sound then ns.Alerts.PlaySound() end
   end
 
   ---------------------------------------------------------------------------

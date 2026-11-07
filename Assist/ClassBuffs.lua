@@ -148,16 +148,18 @@ end
 local function hasAnyBuff(spellIds, memory)
   local names = buffNames(spellIds)
   if not next(names) then return false end
-  local found
-  local read = ns.Auras.ForEachBuff(function(aura)
-    if names[aura.name] then
-      found = aura
-      return true
+  local buffs = ns.Auras.Snapshot()
+  if buffs then
+    local found
+    for _, aura in ipairs(buffs.list) do
+      if names[aura.name] then
+        found = aura
+        break
+      end
     end
-  end)
-  if read ~= nil then
     remember(memory, found)
-    if not found then logMissing(names) end
+    -- Nur fürs Debug-Log (zweiter Durchlauf, Sortieren, Text): ohne Logging gar nicht erst bauen
+    if not found and ns.DebugActive() then logMissing(names) end
     return found ~= nil
   end
   -- Buff-Liste gesperrt (im Kampf, Retail/Forever): einzeln per Spell-ID, soweit Blizzard sie freigibt
@@ -284,8 +286,8 @@ for _, reminder in ipairs(ClassBuffs.REMINDERS) do
 end
 
 -- Im Kampf neu gewirkt: gemerkte Ablaufzeit auffrischen (Dauer vom letzten lesbaren Buff)
-ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
-  if unit ~= "player" or ns.IsSecret(spellId) then return end
+ns.RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, spellId)
+  if ns.IsSecret(spellId) then return end
   local name = spellName(spellId)
   if not name then return end
   for _, reminder in ipairs(ClassBuffs.REMINDERS) do
@@ -305,8 +307,8 @@ local function isRemoved(removed, instanceId)
   return false
 end
 
-ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
-  if unit ~= "player" or type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
+ns.RegisterUnitEvent("UNIT_AURA", "player", function(_, updateInfo)
+  if type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
   local removed = updateInfo.removedAuraInstanceIDs
   if type(removed) ~= "table" or ns.IsSecret(removed) then return end
   for _, reminder in ipairs(ClassBuffs.REMINDERS) do

@@ -106,6 +106,11 @@ function actions.check()
   ns.DebugLog.CheckCommand()
 end
 
+-- CPU-Messung (Profiler.lua): an/aus, report [n], reset
+function actions.perf(argument)
+  ns.Profiler.Command(argument)
+end
+
 function actions.help()
   ns.Print(L.DEBUG_HELP)
 end

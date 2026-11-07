@@ -137,9 +137,8 @@ function SplitList.BuildFooterLines()
     end
   end
   if db.showRecordsAge then
-    local _, fetched = WorldRecords.GetSource()
     local days = WorldRecords.GetAgeDays()
-    table.insert(lines, { L.RECORDS_AGE, fetched or "?", days and string.format(L.DAYS_AGO, days) or "" })
+    table.insert(lines, { L.RECORDS_AGE, WorldRecords.GetFetchedText(), days and string.format(L.DAYS_AGO, days) or "" })
   end
   return lines
 end
@@ -238,7 +237,7 @@ end, function(scale)
 end)
 
 local sinceUpdate = 0
-panel:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(panel, "SplitList", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0

@@ -21,8 +21,8 @@ local REPEAT_SECONDS = 5
 local HEALER_ANNOUNCE_SECONDS = 2
 local HEALER_REPEAT_SECONDS = 10
 local TANK_ROLE = "TANK"
-local NAMEPLATE_UNITS = 40
 local FIXED_UNITS = { "target", "focus", "mouseover" }
+local TARGET_OF = ns.NamePlates.TARGET_OF  -- vorberechnet: kein unit .. "target" je Prüfung
 
 local aggroSince   -- GetTime(), seit dem ein Gegner den Spieler angreift
 local warned       -- für diese Aggro schon gewarnt
@@ -43,20 +43,20 @@ local function attacksPlayer(unit)
   if not UnitExists(unit) or not UnitCanAttack("player", unit) or readable(UnitAffectingCombat(unit)) == false then
     return false
   end
-  local targetsPlayer = readable(UnitIsUnit(unit .. "target", "player"))
+  local targetsPlayer = readable(UnitIsUnit(TARGET_OF[unit] or unit .. "target", "player"))
   if targetsPlayer == false then return false end
   local tanking = UnitDetailedThreatSituation and readable((UnitDetailedThreatSituation("player", unit)))
   if targetsPlayer == true then return tanking ~= false end
   return tanking == true
 end
 
--- true, wenn ein sichtbarer Gegner den Spieler angreift
+-- true, wenn ein sichtbarer Gegner den Spieler angreift (Namensplaketten nur die gerade sichtbaren)
 function AggroWarning.HasAggro()
   for _, unit in ipairs(FIXED_UNITS) do
     if attacksPlayer(unit) then return true end
   end
-  for index = 1, NAMEPLATE_UNITS do
-    if attacksPlayer("nameplate" .. index) then return true end
+  for unit in pairs(ns.NamePlates.Active()) do
+    if attacksPlayer(unit) then return true end
   end
   return false
 end
@@ -67,9 +67,12 @@ local function isTank()
   return not ns.IsSecret(role) and role == TANK_ROLE
 end
 
+local function enabled(db)
+  return db.warnAggro or db.announceHealerAggro
+end
+
 local function wanted()
-  return (ns.db.warnAggro or ns.db.announceHealerAggro) and IsInGroup() and not isTank()
-    and UnitAffectingCombat("player")
+  return enabled(ns.db) and IsInGroup() and not isTank() and UnitAffectingCombat("player")
 end
 
 -- Eigene Einblendung nach AGGRO_CONFIRM_SECONDS
@@ -105,7 +108,12 @@ function AggroWarning.Check()
   announceHealer(now)
 end
 
-ns.Every(CHECK_SECONDS, AggroWarning.Check)
+ns.Every(CHECK_SECONDS, AggroWarning.Check, enabled)
+
+-- Ausgeschaltet läuft die Prüfung nicht; eine laufende Aggro gilt danach als vorbei (wie bei Check ohne wanted)
+ns.RegisterApply(function(db)
+  if not enabled(db) then aggroSince, warned, announced = nil, false, false end
+end)
 
 ns.OnLogin(function()
   aggroSince, warned, lastShown, announced, lastAnnounced = nil, false, nil, false, nil

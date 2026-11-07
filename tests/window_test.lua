@@ -121,6 +121,6 @@ expectTrue("zurück: Rahmen", window._borderColor[4] ~= 0)
 -- 100 Tage und mehr auf einem Level: die Zeitanzeige wird breiter statt abgeschnitten
 wow.fire("TIME_PLAYED_MSG", 200 * 86400, 120 * 86400)
 wow.update(1)
-local clock = wow.findFrame(function(frame) return frame._text and frame._text:match("^120d ") end)
+local clock = wow.findFrame(function(frame) return frame._text and frame._text:match("^120" .. addon.L.UNIT_DAY_SHORT .. " ") end)
 expectTrue("Zeit mit 120 Tagen angezeigt", clock ~= nil)
 expectTrue("Platz für drei Tagesziffern", clock and clock:GetWidth() >= clock:GetStringWidth())
