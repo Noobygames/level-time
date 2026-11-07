@@ -45,11 +45,10 @@ local commands = {
       ns.Print(string.format(L.PROFILE_LIST, Profiles.DisplayName(Profiles.GetActive()), table.concat(names, ", ")))
     elseif Profiles.Switch(argument) then
       return  -- der ganze Text ist ein Profilname, auch "save x" oder "export"
-    elseif action == "save" and Profiles.SaveAs(name) then
-      ns.Print(string.format(L.PROFILE_SAVED, name))
-      ns.ApplySettings()
+    elseif action == "save" then
+      ns.ConfirmProfileSave(name)  -- vorhandenes Profil erst nach Rückfrage
     elseif action == "delete" then
-      ns.Print(Profiles.Delete(name) and string.format(L.PROFILE_DELETED, name) or L.PROFILE_NOT_DELETED)
+      ns.ConfirmProfileDelete(name)
     elseif action == "export" then
       ns.Export.Show(Profiles.DisplayName(Profiles.GetActive()), Profiles.Export(Profiles.GetActive()))
     elseif action == "import" then
