@@ -2,7 +2,7 @@
 --   Abgabe (Roadmap 345)  alle abgabebereiten Quests des eingeloggten Charakters mit Zone (Überschrift im Questlog),
 --                         XP je Quest (QuestLog.RewardXp) und Anteil am aktuellen Level; Summe in der Fußzeile
 --                         ("bringt N % Level"). Hilft beim Bündeln vor dem Ruhestein. Andere Charaktere: leer, weil
---                         nur der eigene Questlog lesbar ist.
+--                         nur der eigene Questlog lesbar ist. Spalte NPC: gelernter Abgabe-NPC (QuestNpcs.lua).
 --   Effizienz (Roadmap 347) je Quest über alle Charaktere: Abgaben, Ø Dauer, Ø XP, XP/min
 --                         (History/QuestEfficiency.lua); sortierbar, zeigt Twinks, welche Quests sich lohnen.
 local _, ns = ...
@@ -56,6 +56,9 @@ local TURN_IN_COLUMNS = {
     sort = function(r) return r.xp end },
   { header = "HISTORY_LEVEL_SHARE", width = 64, value = function(r) return percent(r.share) end,
     sort = function(r) return r.share end },
+  { header = "HISTORY_TURN_IN_NPC", width = 110, align = LEFT, value = function(r)
+      return ns.QuestNpcs.TurnInName(r.questID) or ""
+    end },
 }
 
 -- Fußzeile: Anzahl, XP-Summe, Anteil am Level

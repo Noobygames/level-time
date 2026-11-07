@@ -36,6 +36,7 @@ Lib\Items.lua
 Lib\QuestLog.lua
 Lib\QuestTooltip.lua
 Lib\QuestRewards.lua
+Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
@@ -69,6 +70,7 @@ Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
 Tracking\QuestMobs.lua
+Tracking\QuestNpcs.lua
 Tracking\MoneyCounter.lua
 Tracking\Reputation.lua
 
@@ -166,6 +168,7 @@ Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
+Assist\QuestMap.lua
 Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua

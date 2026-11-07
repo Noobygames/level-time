@@ -2522,3 +2522,26 @@ Offene Quest mit Stand (ja/nein):
 „verkaufbar“ nach Abgabe (ja/nein):
 Fehler:
 ```
+
+### 122. Quest-NPCs und Orte lernen, Questkarte (Roadmap 350)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ und „Gelernte Questorte auf der Karte“ an, `/lt debug log` an. Eine Quest bei einem NPC annehmen, ein paar Ziele an verschiedenen Stellen erledigen, abgeben; eine zweite Quest annehmen und fertig machen, aber noch nicht abgeben.
+
+1. Weltkarte: gelbe Punkte, wo die Ziele der offenen Quest vorankamen; Maus darüber nennt die Quest.
+2. Fertige Quest, deren Abgabe-NPC schon bekannt ist (z.B. Twink mit derselben Quest): Fragezeichen am NPC, Tooltip „Abgabe bei Name“.
+3. Historie > Quests > Abgabe: Spalte NPC mit dem gelernten Namen.
+4. `make debuglog`: Zeilen „quest … giver/turnIn: Name (NPC-ID) map …“. In einer Forever-Instanz: Name ohne NPC-ID, keine Fehler.
+5. Die Todeskarte (Komfort > Rahmen > Weltkarte) zeigt weiterhin die Tode (gemeinsamer Baustein).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zielpunkte (ja/nein):
+Abgabe-Fragezeichen (ja/nein):
+NPC-Spalte (ja/nein):
+Todeskarte noch ok (ja/nein):
+Fehler:
+```

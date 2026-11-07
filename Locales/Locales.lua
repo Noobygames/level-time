@@ -1153,6 +1153,11 @@ ns.locales = {
     QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "Der Tooltip eines Gegenstands nennt die offene Quest, für die er gebraucht wird, mit Stand (z.B. 3/8). Gehört er nur zu erledigten Quests: „Quest erledigt – verkaufbar“. Aus gelernten Daten und den Zieltexten im Questlog.",
     QUEST_ITEM_FOR_QUEST = "Für Quest: %s",
     QUEST_ITEM_DONE = "Quest erledigt – verkaufbar",
+    QUEST_MAP_TOGGLE = "Gelernte Questorte auf der Karte",
+    QUEST_MAP_TOGGLE_TIP = "Zeigt auf der Weltkarte für Quests in deinem Log, wo der Abgabe-NPC steht (Fragezeichen, sobald die Quest fertig ist) und wo ihre Ziele bisher vorankamen (gelbe Punkte). Gelernt mit „Questgegner und -gegenstände lernen“, für alle Charaktere des Accounts.",
+    QUEST_MAP_TURN_IN = "Abgabe bei %s",
+    QUEST_MAP_OBJECTIVE = "Hier kam ein Ziel voran",
+    HISTORY_TURN_IN_NPC = "NPC",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2299,6 +2304,11 @@ ns.locales = {
     QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "The tooltip of an item names the open quest that needs it, with progress (e.g. 3/8). If it only belongs to finished quests: \"Quest done – sellable\". From learned data and the objective texts in the quest log.",
     QUEST_ITEM_FOR_QUEST = "For quest: %s",
     QUEST_ITEM_DONE = "Quest done – sellable",
+    QUEST_MAP_TOGGLE = "Learned quest places on the map",
+    QUEST_MAP_TOGGLE_TIP = "Shows on the world map for quests in your log where the turn-in NPC stands (question mark once the quest is done) and where their objectives advanced so far (yellow dots). Learned with \"Learn quest mobs and items\", for all characters of the account.",
+    QUEST_MAP_TURN_IN = "Turn in at %s",
+    QUEST_MAP_OBJECTIVE = "An objective advanced here",
+    HISTORY_TURN_IN_NPC = "NPC",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3445,6 +3455,11 @@ ns.locales = {
     QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "L'infobulle d'un objet indique la quête ouverte qui en a besoin, avec la progression (p. ex. 3/8). S'il n'appartient qu'à des quêtes terminées : « Quête terminée – vendable ». D'après les données apprises et les objectifs du journal.",
     QUEST_ITEM_FOR_QUEST = "Pour la quête : %s",
     QUEST_ITEM_DONE = "Quête terminée – vendable",
+    QUEST_MAP_TOGGLE = "Lieux de quête appris sur la carte",
+    QUEST_MAP_TOGGLE_TIP = "Affiche sur la carte du monde, pour les quêtes de votre journal, où se trouve le PNJ de rendu (point d'interrogation une fois la quête terminée) et où leurs objectifs ont avancé jusqu'ici (points jaunes). Appris avec « Apprendre ennemis et objets de quête », pour tous les personnages du compte.",
+    QUEST_MAP_TURN_IN = "À rendre à %s",
+    QUEST_MAP_OBJECTIVE = "Un objectif a avancé ici",
+    HISTORY_TURN_IN_NPC = "PNJ",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4591,6 +4606,11 @@ ns.locales = {
     QUEST_ITEM_TOOLTIP_TOGGLE_TIP = "El tooltip de un objeto nombra la misión abierta que lo necesita, con el progreso (p. ej. 3/8). Si solo pertenece a misiones terminadas: «Misión terminada – se puede vender». Con datos aprendidos y los objetivos del registro.",
     QUEST_ITEM_FOR_QUEST = "Para la misión: %s",
     QUEST_ITEM_DONE = "Misión terminada – se puede vender",
+    QUEST_MAP_TOGGLE = "Lugares de misión aprendidos en el mapa",
+    QUEST_MAP_TOGGLE_TIP = "Muestra en el mapa del mundo, para las misiones de tu registro, dónde está el PNJ de entrega (interrogación cuando la misión está lista) y dónde avanzaron sus objetivos hasta ahora (puntos amarillos). Aprendido con «Aprender enemigos y objetos de misión», para todos los personajes de la cuenta.",
+    QUEST_MAP_TURN_IN = "Entregar a %s",
+    QUEST_MAP_OBJECTIVE = "Aquí avanzó un objetivo",
+    HISTORY_TURN_IN_NPC = "PNJ",
   },
 }
 

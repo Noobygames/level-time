@@ -616,7 +616,7 @@ end
 -- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
 addSubPage("COMFORT_PAGE_QUESTS")
 addSection("SECTION_QUEST_LEARNING")
-addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning") })
+addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
 addSection("SECTION_QUEST_LOG")
 addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton") })
 addSection("SECTION_QUEST_DISPLAY")
