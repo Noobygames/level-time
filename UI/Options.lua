@@ -814,6 +814,7 @@ addToggles({
   toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
   toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
   toggle("NO_CHAT_FADE", "noChatFade"),
+  toggle("UNCLAMP_CHAT", "unclampChat"),
 })
 addSubPage("COMFORT_PAGE_INTERFACE")
 addSection("SECTION_SCREEN_TEXT")

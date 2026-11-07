@@ -531,6 +531,11 @@ for index = 1, Constants.ChatFrameConstants.MaxChatWindows do
   chatFrame.GetMessageInfo = function(self, messageIndex) return self._messages[messageIndex], 1, 1, 1 end
   chatFrame.AddMessage = function(self, text) table.insert(self._messages, text) end
   chatFrame.GetName = function() return "ChatFrame" .. index end
+  chatFrame.GetID = function() return index end
+  -- Klemm-Abstände wie FloatingChatFrame.lua (Classic)
+  chatFrame._clamp = { -35, 35, 26, -50 }
+  chatFrame.GetClampRectInsets = function(self) return unpack(self._clamp) end
+  chatFrame.SetClampRectInsets = function(self, left, right, top, bottom) self._clamp = { left, right, top, bottom } end
   -- Eingabezeile, Knopfleiste und Reiter wie in FloatingChatFrame.xml
   chatFrame.editBox = newFrame()
   chatFrame.editBox:SetPoint("TOPLEFT", chatFrame, "BOTTOMLEFT", -5, -2)

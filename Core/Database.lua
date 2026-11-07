@@ -163,6 +163,7 @@ local SETTINGS_DEFAULTS = {
   -- Chatfenster (ChatWindows.lua), letzter Chat nach /reload (ChatHistory.lua), Spam-Filter (ChatFilter.lua)
   hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,
   restoreChat = false, filterDrunkSpam = false, filterSpellLinks = false,
+  unclampChat = false,      -- Chatfenster bis an den Bildschirmrand (ChatWindows.lua)
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
