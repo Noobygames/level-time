@@ -2449,3 +2449,20 @@ Verdienen zählt (ja/nein):
 Besitzen folgt dem Bestand (ja/nein):
 Fehler:
 ```
+
+### 172. Quest-Ziele (Roadmap 296)
+
+- [ ] geprüft
+
+1. Quest im Questlog per Shift-Klick in das Feld „Quest-IDs oder Links“ (`/sg`, Reiter Quests, „Bestimmte Quests“):
+   Link landet im Feld, Karte zeigt den Questnamen; Abgabe hakt ab.
+2. Kette aus drei Quest-IDs, die erste schon erledigt: Karte startet bei 1 / 3 und nennt die nächste Quest.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Link per Shift-Klick (ja/nein):
+Schon erledigte Quest erkannt (ja/nein):
+Fehler:
+```

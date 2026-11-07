@@ -19,6 +19,7 @@ Kinds.lua
 
 # Weitere Zielarten: je Datei Art, Formular, Befehl und Erfassung
 Kinds\Gold.lua
+Kinds\Quests.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua

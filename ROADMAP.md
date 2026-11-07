@@ -105,7 +105,7 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 ### Level Time Goals (nächste Versionen, ehemals Stream Goal)
 
 - [x] 295. **Gold-Ziel** (S): „N Gold verdienen“ (Einnahmen aus `MoneyCounter`) oder „N Gold besitzen“ (`GetMoney`, `PLAYER_MONEY`). **Erledigt: Art `gold` (`StreamGoal/Kinds/Gold.lua`), verdienen über `Stats.OnIncrement(MONEY_EARNED)`, besitzen über `PLAYER_MONEY`; Eingabe in Gold, gespeichert in Kupfer, Stand „12g / 100g“; schon besessene Summe wird abgelehnt. `/sg add gold 100 [earn|own]`. Szenario `streamgoal_gold`.**
-- [ ] 296. **Quest-Ziele** (S–M): N Quests abgeben, bestimmte Quest-ID (`C_QuestLog.IsQuestFlaggedCompleted`, Era prüfen) oder eine Kette in Reihenfolge.
+- [x] 296. **Quest-Ziele** (S–M): N Quests abgeben, bestimmte Quest-ID (`C_QuestLog.IsQuestFlaggedCompleted`, Era prüfen) oder eine Kette in Reihenfolge. **Erledigt: Art `quest` (`StreamGoal/Kinds/Quests.lua`) aus dem Quest-Journal von Level Time (`Journal.OnAdd`): Anzahl oder Quest-IDs/Links, mehrere = Kette (Stand = von vorn ohne Lücke abgegeben, Karte zeigt die nächste), schon abgegebene über `C_QuestLog.IsQuestFlaggedCompleted` bzw. `IsQuestFlaggedCompleted`. `/sg add quest 10 | <ID/Link> ...`. Szenario `streamgoal_quests`.**
 - [ ] 297. **Berufs-Ziel** (S): Fertigkeit N erreichen über `CHAT_MSG_SKILL` mit `SKILL_RANK_UP` (`ChatPatterns`, alle Clients).
 - [ ] 298. **Items besitzen** (S): Neben „N looten“ auch „N in den Taschen“ (`C_Item.GetItemCount`), Zähler zeigt den Bestand (FarmIt, Farming Bar).
 - [ ] 299. **Frist für jedes Ziel** (M): Endzeit in Echtzeit oder `/played`, Restzeit auf der Karte, Status „gescheitert“ (FateLocked-Aufträge). Neuer Status in Historie und Alert.
