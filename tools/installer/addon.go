@@ -58,6 +58,7 @@ func LoadAddon(dir, version string) (*Addon, error) {
 		return nil, err
 	}
 	files = append(files, assets...)
+	files = append(files, autoloadFiles(dir)...)
 
 	for _, f := range files {
 		if _, err := os.Stat(filepath.Join(dir, filepath.FromSlash(f))); err != nil {
@@ -71,6 +72,19 @@ func LoadAddon(dir, version string) (*Addon, error) {
 		Files:   files,
 		Version: version,
 	}, nil
+}
+
+// Dateien, die der Client ohne .toc-Eintrag aus dem Addon-Ordner lädt (Tastenbelegungen); nur wenn vorhanden
+var autoloadNames = []string{"Bindings.xml"}
+
+func autoloadFiles(dir string) []string {
+	var files []string
+	for _, name := range autoloadNames {
+		if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
+			files = append(files, name)
+		}
+	}
+	return files
 }
 
 // Ordner mit Grafiken o.Ä., die nicht in der .toc stehen, aber per Pfad geladen werden

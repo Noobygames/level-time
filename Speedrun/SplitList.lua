@@ -5,7 +5,7 @@
 -- splitListScale (eigene Größe, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
 -- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
 -- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
--- ssfCategory (SSF-Regelhelfer, SsfRules.lua).
+-- ssfCategory (SSF-Regelhelfer, SsfRules.lua), splitListShowCustom (die letzten eigenen Splits, CustomSplits.lua).
 -- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
 local _, ns = ...
 local L = ns.L
@@ -72,6 +72,18 @@ function SplitList.BuildLines()
   return lines
 end
 
+-- Die letzten eigenen Splits (CustomSplits.lua): Name, /played, Abweichung zur Vorlage
+local CUSTOM_SPLIT_ROWS = 3
+
+function SplitList.AddCustomSplitLines(lines)
+  local CustomSplits = ns.CustomSplits
+  local all = CustomSplits.GetAll()
+  for index = math.max(1, #all - CUSTOM_SPLIT_ROWS + 1), #all do
+    table.insert(lines, { all[index].name, Format.Duration(all[index].played),
+      Format.SplitDelta(CustomSplits.GetDelta(index)) })
+  end
+end
+
 -- Prognose des nächsten Abschnitts (BracketForecast.lua): Endzeit, darunter der Abstand zu jedem
 -- bekannten Vergleich (negativ = voraussichtlich schneller)
 function SplitList.AddForecastLines(lines)
@@ -95,6 +107,7 @@ end
 function SplitList.BuildFooterLines()
   local db = ns.db
   local lines = {}
+  if db.splitListShowCustom then SplitList.AddCustomSplitLines(lines) end
   if db.splitListShowTotal then
     table.insert(lines, { L.SPLIT_LIST_TOTAL, "", Format.SplitDelta(Splits.GetTotalDelta()) })
   end

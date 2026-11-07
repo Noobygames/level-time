@@ -88,6 +88,7 @@ Speedrun\SpeedrunRecords.lua
 Speedrun\WorldRecords.lua
 Speedrun\BracketForecast.lua
 Speedrun\SsfRules.lua
+Speedrun\CustomSplits.lua
 
 # Oberfläche (UI), Leveling-Hilfe (Assist), Speedrun-Fenster, Befehle
 UI\StatLines.lua

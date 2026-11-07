@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="LEVELTIMER_CUSTOM_SPLIT" header="LEVELTIMER" category="ADDONS">
+		LevelTimer_CustomSplit()
+	</Binding>
+</Bindings>

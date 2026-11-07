@@ -37,6 +37,7 @@ local SETTINGS_DEFAULTS = {
   splitListRows = 5,
   splitListShowTotal = true,   -- Zeile "Gesamt" in der Split-Liste
   splitListShowPlayed = true,  -- Zeile "/played" in der Split-Liste
+  splitListShowCustom = true,  -- die letzten eigenen Splits (/lt split) in der Split-Liste
   splitListShowForecast = false,  -- Prognose des nächsten Abschnitts gegen PB, Bestzeiten und Rekord (BracketForecast.lua)
   showWorldRecords = true,  -- Speedrun-Rekorde in der Split-Liste (siehe WorldRecords.lua)
   showRecordsAge = true,    -- Stand der Rekord-Daten in der Split-Liste
@@ -253,6 +254,7 @@ local CHARACTER_DEFAULTS = {
   lootLog = {},         -- seltene und bessere Beute, älteste zuerst (siehe Loot.lua)
   nearDeathLog = {},    -- Beinahe-Tode, älteste zuerst (siehe NearDeath.lua)
   zoneStats = {},       -- Spielzeit, XP, Kills und Tode je Zone (siehe Zones.lua)
+  customSplits = {},    -- eigene Splits { name, played, time, level }, älteste zuerst (CustomSplits.lua)
   ssfLogouts = 0,       -- echte Logouts seit Beginn der Aufzeichnung (SSF-Regelhelfer, SsfRules.lua)
   dailyStats = {},      -- Tageswerte, Schlüssel "JJJJ-MM-TT" (siehe Daily.lua)
 }

@@ -33,6 +33,8 @@ local commands = {
   copy = function() ns.ChatCopy.ShowCurrent() end,
   stream = function() ns.StreamMode.Toggle() end,
   splits = function() ns.Set("showSplitList", not ns.db.showSplitList) end,
+  -- /lt split [Name] | undo | template: eigene Splits (CustomSplits.lua)
+  split = function(argument) ns.CustomSplits.Command(argument) end,
   -- /lt profile: Liste | <Name> wechseln | save <Name> | delete <Name> | export | import
   profile = function(argument)
     local Profiles = ns.Profiles

@@ -239,6 +239,18 @@ func TestVersionTokenIsReplacedOnInstall(t *testing.T) {
 	}
 }
 
+func TestBindingsAreInstalledWithoutTocEntry(t *testing.T) {
+	a, _ := setup(t)
+	writeFile(t, filepath.Join(a.Dir, "Bindings.xml"), "<Bindings/>")
+	a, err := LoadAddon(a.Dir, "v2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.Files[len(a.Files)-1] != "Bindings.xml" {
+		t.Fatalf("Files = %v", a.Files)
+	}
+}
+
 func TestMediaFilesAreInstalledWithoutTocEntry(t *testing.T) {
 	a, f := setup(t)
 	writeFile(t, filepath.Join(a.Dir, "Media", "Icon.tga"), "icon")

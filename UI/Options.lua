@@ -760,6 +760,7 @@ addToggles({
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
   toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
+  toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
 })
 addSplitComparisonChooser()
 addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })

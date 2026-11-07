@@ -2053,3 +2053,21 @@ Logout-Zähler richtig (ja/nein):
 Hinweis bei Post/Handel/AH (ja/nein):
 Fehler:
 ```
+
+### 100. Eigene Splits und Tastenbelegung (Roadmap 288)
+
+- [ ] geprüft
+
+Nach Client-Neustart (neue Datei Bindings.xml): Tastaturbelegung > AddOns > Level Time > „Eigenen Split setzen“ belegen. `/lt split`, `/lt split Hogger`, Taste drücken, `/lt split undo`, `/lt split template`. Mit einem zweiten Charakter `/lt split` mehrmals.
+
+**Erwartet:** Die Tastenbelegung erscheint unter AddOns. Chatzeile „Split „Zone“ bei …“; die Split-Liste zeigt die letzten drei eigenen Splits. Beim zweiten Charakter kommen die Namen aus der Vorlage, mit grüner/roter Abweichung.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tastenbelegung sichtbar und wirkt (ja/nein):
+Splits und undo (ja/nein):
+Vorlage beim zweiten Charakter (ja/nein):
+Fehler:
+```
