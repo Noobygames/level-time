@@ -2095,3 +2095,183 @@ Scrollen zum Treffer (ja/nein):
 Tastatur ok (ja/nein):
 Fehler:
 ```
+
+### 150. Chat bis an den Rand und eigene Schriftgröße (Roadmap 329, Schritt 3c)
+
+- [ ] geprüft
+
+Komfort > Chat: „Chat bis an den Rand“, „Eigene Chat-Schriftgröße“ mit Regler.
+
+1. Rand an: Chatfenster lässt sich ganz an den linken und unteren Bildschirmrand ziehen; aus: der alte Abstand gilt
+   wieder (Fenster springt beim nächsten Ziehen zurück).
+2. Schriftgröße an, Regler auf 10 und 26: alle Chatfenster (auch Kampflog) ändern sich sofort; Rechtsklick auf einen
+   Reiter > Schriftgröße zeigt Blizzards Menü weiter normal.
+3. /reload: Größe bleibt; ausschalten: jedes Fenster bekommt seine vorherige Größe zurück.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rand ok (ja/nein):
+Schriftgröße ok, auch nach /reload (ja/nein):
+Fehler:
+```
+
+### 151. Tooltip am Mauszeiger, Größe, Gildenrang (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Tooltip: „Tooltip in der Welt“, „Tooltip-Größe“, „Gildenrang im Tooltip“.
+
+1. „Mauszeiger“: Tooltip von Gegnern, NPCs und Objekten (Briefkasten, Erz) folgt dem Zeiger; Tooltips an
+   Aktionsknöpfen und Taschen bleiben, wo sie waren. „Links/Rechts vom Zeiger“ ebenso.
+2. Größe 150 %: Gegenstands-Tooltip und Vergleichs-Tooltip größer, Link im Chat anklicken (ItemRefTooltip) auch;
+   zurück auf 100 %: wie vorher.
+3. Gildenrang: Spieler einer Gilde überfahren, hinter dem Gildennamen steht „(Rang)“; eigene Gilde ebenso.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Anker richtig, nur Welt-Tooltips (ja/nein):
+Größe ok (ja/nein):
+Gildenrang sichtbar (ja/nein):
+Fehler:
+```
+
+### 152. Eckige Minimap (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Minimap: „Eckige Minimap“.
+
+1. An: Minimap eckig, runder Rahmen weg, Kartenrand sauber; Addon-Knöpfe (LibDBIcon) sitzen am eckigen Rand.
+2. Forever: Minimap drehen (Interface-Einstellung) bleibt eckig.
+3. Aus: wieder rund mit Rahmen (Retail: Maske `Interface\Masks\CircleMaskScalable`, Classic `Textures\MinimapMask`
+   ungeprüft; Forever nutzt Blizzards UpdateMinimapConfig).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+eckig ok (ja/nein):
+wieder rund nach Aus (ja/nein):
+Fehler:
+```
+
+### 153. Questtext-Größe (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Quest-Anzeige: „Questtext-Größe ändern“, Regler.
+
+1. Questgeber ansprechen: Text, Ziele und Überschrift in der Reglergröße, nichts abgeschnitten.
+2. Questlog (Classic: Questlog-Fenster, Retail/Forever: Kartenquests) ebenso.
+3. Aus: Blizzards Größen sofort zurück.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Größe wirkt (ja/nein):
+Fehler:
+```
+
+### 154. Bildschirmränder (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Bildschirmränder.
+
+1. An, oben 60, unten 80, seitlich 40: schwarze Balken, Aktionsleisten und Chat liegen darüber.
+2. Klicks auf die Spielwelt im Balkenbereich gehen weiter (Maus aus).
+3. Alt+Z (Oberfläche aus): Balken verschwinden mit.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Balken unter der Oberfläche (ja/nein):
+Klicks gehen durch (ja/nein):
+Fehler:
+```
+
+### 155. Bereit-Timer (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > System > „Bereit-Timer“.
+
+1. In einer Gruppe einen Bereitschaftscheck starten lassen: unter Blizzards Fenster „Bereitschaftscheck: 30 s“, zählt
+   herunter, verschwindet nach Antwort/Ende.
+2. Schlachtfeld-Warteschlange bis zur Einladung: „Schlachtfeld betreten: 1:25“ oben in der Mitte.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bereitschaftscheck (ja/nein):
+Schlachtfeld (ja/nein):
+Fehler:
+```
+
+### 156. Spielerrahmen in Classic: Klassenfarbe, Drache, Druiden-Mana (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Classic Era/Anniversary. Komfort > Fenster > Einheitenrahmen.
+
+1. „Klassenfarbe am Spielerrahmen“: farbiger Balken hinter dem Namen, gleiche Lage wie beim Ziel (gespiegelt).
+2. „Rahmen am Spieler“ Elite/Rar/Rar-Elite: Drache sitzt passend um den Rahmen (keine doppelten Kanten, Porträt
+   frei); Aus: Blizzards Rahmen.
+3. Druide: „Druiden-Manaleiste“, in Bär/Katze schmale Manaleiste unter der Wut-/Energieleiste mit Zahl; in
+   Normalgestalt weg.
+
+**Antwort:**
+
+```text
+Client (Era/TBC):
+Namenshintergrund sitzt (ja/nein):
+Drache sitzt (ja/nein, Versatz?):
+Manaleiste ok (ja/nein):
+Fehler:
+```
+
+### 157. Anprobe-Knöpfe und Flugkarte verschieben (Roadmap 329, Schritt 4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Charakterfenster: „Anprobe-Knöpfe“; Komfort > Oberfläche: „Fenster verschieben“.
+
+1. Strg+Klick auf ein Ausrüstungsteil: Anprobe offen, links neben „Zurücksetzen“ „Ausziehen“ und „Wappenrock“.
+   Beide wirken auf das Modell; „Zurücksetzen“ zieht wieder an.
+2. Retail/Forever: Flugmeister, Flugkarte am Rand ziehen und mit Strg+Mausrad skalieren; Flugpunkte bleiben klickbar.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Anprobe-Knöpfe ok (ja/nein):
+Flugkarte verschiebbar, Punkte klickbar (ja/nein):
+Fehler:
+```
+
+### 158. Infokarte und Communities als Freunde (Roadmap 329, Schritt 3c/4c)
+
+- [ ] geprüft
+
+Komfort > Fenster > Tooltip „Infokarten“, Taste unter Tastaturbelegung > AddOns > Level Time „Infokarte“;
+Komfort > Sozial „Communities als Freunde“.
+
+1. Gegenstand in der Tasche, Zauber im Zauberbuch, NPC in der Welt überfahren und Taste drücken: Kopierfenster mit
+   Name, Art, ID und Wowhead-Link (Forever: Classic-Link, prüfen, ob der Link passt).
+2. Mitglied einer Charakter-Community lädt in eine Gruppe ein (mit „Gruppe von Freunden annehmen“): wird angenommen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Infokarte ok, Link passt (ja/nein):
+Community-Einladung angenommen (ja/nein):
+Fehler:
+```
