@@ -21,6 +21,8 @@
 -- Ändert sich drinnen nur die Schwierigkeit (der Client meldet direkt nach dem Betreten kurz 0), bleibt es
 -- derselbe Aufenthalt: kein Verlassen, kein neuer Lauf, kein zweiter Eintrag fürs Instanzlimit.
 --
+-- Schwierigkeit 0 (noch nicht bekannt) passt beim Betreten zu jedem Besuch gleichen Namens und umgekehrt.
+--
 -- Abonnenten (Instances.lua, InstanceLimit.lua):
 --   OnEnter(fn(name, instanceType, isNew))                     isNew = Schätzung
 --   OnLeave(fn(name))
@@ -37,6 +39,9 @@ local TRACKED_TYPES = { party = true, raid = true, scenario = true }
 local REUSE_SECONDS = 30 * 60
 local RELOAD_SECONDS = 5 * 60   -- so lange nach einem Logout in der Instanz gilt der Wiedereintritt als /reload  -- so lange nach dem Verlassen gilt die Instanz als dieselbe Kopie
 local CONFIRM_SIGHTINGS = 2    -- so viele verschiedene Gegner müssen dieselbe zoneUID zeigen
+-- DifficultyID 0 = keine (warcraft.wiki.gg/wiki/DifficultyID; Blizzards DifficultyUtil.ID kennt keine 0). In einer
+-- Instanz heißt das: noch nicht bekannt. WoW Forever meldet sie so direkt nach dem Betreten, manchmal bis zum Verlassen.
+local UNSETTLED_DIFFICULTY = 0
 
 local resetPatterns = ChatPatterns.CompileGlobals({ "INSTANCE_RESET_SUCCESS", "INSTANCE_RESET_FAILED" })
 
@@ -78,14 +83,43 @@ local function visits()
 end
 
 local function copyKey(name, difficultyID)
-  return name .. "#" .. (difficultyID or 0)
+  return name .. "#" .. (difficultyID or UNSETTLED_DIFFICULTY)
 end
 
--- Besuch zu einem Schlüssel; Besuche aus v2.8 hießen nur nach der Instanz und werden übernommen
-local function visitOf(key, name)
+-- Schwierigkeit aus einem Schlüssel "Name#difficultyID" der Instanz name; nil für einen anderen Namen
+local function difficultyOf(key, name)
+  local prefix = name .. "#"
+  if key:sub(1, #prefix) ~= prefix then return nil end
+  return tonumber(key:sub(#prefix + 1))
+end
+
+-- Besuch gleichen Namens, dessen Schwierigkeit zu difficultyID passen kann: eine der beiden ist noch nicht bekannt.
+-- Bei mehreren der zuletzt verlassene. Rückgabe: Schlüssel oder nil
+local function unsettledSibling(key, name, difficultyID)
+  local found, foundLeftAt
+  for otherKey, visit in pairs(visits()) do
+    local other = difficultyOf(otherKey, name)
+    if otherKey ~= key and other and (other == UNSETTLED_DIFFICULTY or difficultyID == UNSETTLED_DIFFICULTY) then
+      local leftAt = visit.leftAt or math.huge
+      if not found or leftAt > foundLeftAt then found, foundLeftAt = otherKey, leftAt end
+    end
+  end
+  return found
+end
+
+-- Besuch zu einem Schlüssel; Besuche aus v2.8 hießen nur nach der Instanz und werden übernommen. Steht die
+-- Schwierigkeit (hier oder beim gemerkten Besuch) noch nicht fest, gilt der Besuch gleichen Namens (zieht um).
+local function visitOf(key, name, difficultyID)
   local all = visits()
   if not all[key] and all[name] then
     all[key], all[name] = all[name], nil
+  end
+  if not all[key] then
+    local sibling = unsettledSibling(key, name, difficultyID)
+    if sibling then
+      ns.Debug("instances", "difficulty not settled: visit %s continues as %s", sibling, key)
+      all[key], all[sibling] = all[sibling], nil
+    end
   end
   return all[key]
 end
@@ -131,11 +165,11 @@ end
 
 -- Bis zur Bestätigung merkt sich der Besuch die Schätzung (pending = { guessNew, expected, enteredAt }),
 -- damit /reload oder kurzes Rausgehen sie nicht verlieren: sonst fehlte später der Vergleichswert.
-local function enter(key, name, instanceType)
+local function enter(key, name, instanceType, difficultyID)
   local now = time()
   local ghost = ghostReturn(key, name)
   local reloaded = reloadReturn(key, name)
-  local visit = visitOf(key, name)
+  local visit = visitOf(key, name, difficultyID)
   local pending = visit and visit.pending
   local guessNew = not ghost and not reloaded and isNewCopy(visit, now)
   ns.Debug("instances", "enter %s: visit %s, left %s s ago, zoneUID %s, pending %s, ghost %s", key, visit ~= nil,
@@ -217,7 +251,8 @@ local function trackedInstance()
     ns.Debug("instances", "instance info secret, not tracked")
     return nil
   end
-  return copyKey(name, difficultyID), name, instanceType
+  difficultyID = difficultyID or UNSETTLED_DIFFICULTY
+  return copyKey(name, difficultyID), name, instanceType, difficultyID
 end
 
 -- Drinnen meldet der Client eine andere Schwierigkeit, ohne dass man die Instanz verlassen hat (direkt nach dem
@@ -230,14 +265,14 @@ local function difficultySettled(key)
 end
 
 local function onWorldChanged()
-  local key, name, instanceType = trackedInstance()
+  local key, name, instanceType, difficultyID = trackedInstance()
   if key == (inside and inside.key) then return end
   if inside and key and name == inside.name then
     difficultySettled(key)
     return
   end
   if inside then leave() end
-  if key then enter(key, name, instanceType) end
+  if key then enter(key, name, instanceType, difficultyID) end
 end
 
 -- "Die Todesminen wurde zurückgesetzt.": die alte Kopie gibt es nicht mehr
