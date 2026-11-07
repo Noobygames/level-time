@@ -2432,3 +2432,20 @@ Edit-Modus Einstellungen ok (ja/nein):
 Fenster-Layout fr/es ok (ja/nein):
 Fehler:
 ```
+
+### 171. Gold-Ziel (Roadmap 295)
+
+- [ ] geprüft
+
+1. `/sg add gold 1`: Gegner looten, Quest abgeben, beim Händler verkaufen: Karte zählt „0g / 1g“ hoch, Ausgaben senken
+   nichts.
+2. `/sg add gold <Bestand+1> own`: Karte zeigt den Bestand, Kauf beim Händler senkt ihn, Verkauf hebt ihn.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Verdienen zählt (ja/nein):
+Besitzen folgt dem Bestand (ja/nein):
+Fehler:
+```

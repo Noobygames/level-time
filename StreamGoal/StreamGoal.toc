@@ -17,6 +17,8 @@ Core.lua
 Goals.lua
 Kinds.lua
 
+# Weitere Zielarten: je Datei Art, Formular, Befehl und Erfassung
+Kinds\Gold.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
