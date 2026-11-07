@@ -159,6 +159,7 @@ Assist\LootSparkles.lua
 Assist\QuestLevels.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua
+Assist\QuestLeftovers.lua
 Assist\ActionBars.lua
 Assist\Emergency.lua
 Assist\HideFrames.lua

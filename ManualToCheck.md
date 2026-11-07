@@ -2567,3 +2567,25 @@ Entfernung plausibel (ja/nein):
 Andere Zone (ja/nein/weg):
 Fehler:
 ```
+
+### 124. Questreste in den Taschen (Roadmap 352)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: „Questreste melden“ an, dazu „Questgegner und -gegenstände lernen“. Eine Sammelquest mit überzähligen Gegenständen abgeben oder eine Quest mit Quest-Item abbrechen.
+
+1. Beim nächsten Händler: Hinweis „Questreste – Kann weg: Name (Anzahl)“. Gegenstände, die eine andere offene Quest braucht, stehen nicht dabei.
+2. Verkaufen: beim nächsten Händler kein Hinweis mehr.
+3. Taschen fast voll (Hinweis an): der Hinweis nennt die Questreste mit.
+4. `/reload` zwischen Annahme und Abbruch: das Quest-Item wird trotzdem erkannt.
+
+**Erwartet:** keine falschen Vorschläge (z.B. Gegenstände für Folgequests: bitte notieren), keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hinweis beim Händler (ja/nein):
+Falsche Vorschläge:
+Fehler:
+```

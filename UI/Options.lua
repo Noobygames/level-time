@@ -618,7 +618,7 @@ addSubPage("COMFORT_PAGE_QUESTS")
 addSection("SECTION_QUEST_LEARNING")
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
 addSection("SECTION_QUEST_LOG")
-addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton") })
+addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),

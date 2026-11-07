@@ -155,6 +155,7 @@ local SETTINGS_DEFAULTS = {
   questItemTooltip = false,   -- Item-Tooltip nennt die Quest des Gegenstands (QuestItemTooltip.lua)
   questMap = false,           -- gelernte Abgabe-NPCs und Zielorte auf der Weltkarte (QuestMap.lua)
   corpseArrow = false,        -- als Geist Pfeil und Entfernung zur Leiche (CorpseArrow.lua)
+  questLeftovers = false,     -- Gegenstände erledigter Quests als Verkaufsvorschlag (QuestLeftovers.lua)
   questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
   -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
