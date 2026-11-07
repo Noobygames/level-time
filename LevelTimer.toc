@@ -161,6 +161,7 @@ Assist\SkipDialogs.lua
 Assist\Declines.lua
 Assist\ChatCopy.lua
 Assist\ChatWindows.lua
+Assist\ChatFontSize.lua
 Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua

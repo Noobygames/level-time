@@ -545,6 +545,10 @@ for index = 1, Constants.ChatFrameConstants.MaxChatWindows do
   _G["ChatFrame" .. index .. "Tab"] = newFrame()
 end
 CHAT_FRAMES = { "ChatFrame1", "ChatFrame2" }
+-- Schriftgröße je Chatfenster (GetChatWindowInfo, zweiter Wert), gesetzt wie Blizzards Menü
+wow.chatWindowSizes = {}
+function GetChatWindowInfo(id) return "Chat " .. id, wow.chatWindowSizes[id] or 14 end
+function FCF_SetChatWindowFontSize(_, chatFrame, size) wow.chatWindowSizes[chatFrame:GetID()] = size end
 -- Nachrichtenfilter wie Blizzards ChatFrameUtil; wow.chatFiltered(event, ...) = true, wenn ein Filter verwirft
 wow.chatFilters = {}
 ChatFrameUtil = {

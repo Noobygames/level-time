@@ -815,7 +815,20 @@ addToggles({
   toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
   toggle("NO_CHAT_FADE", "noChatFade"),
   toggle("UNCLAMP_CHAT", "unclampChat"),
+  toggle("CHAT_FONT_OVERRIDE", "chatFontOverride", ns.ChatFontSize.IsAvailable),
 })
+if ns.ChatFontSize.IsAvailable() then
+  addSlider({
+    label = "CHAT_FONT_SIZE",
+    min = ns.ChatFontSize.MIN,
+    max = ns.ChatFontSize.MAX,
+    step = 1,
+    get = function(db) return db.chatFontSize end,
+    set = function(value) ns.SetDeferred("chatFontSize", value) end,
+    format = function(value) return tostring(value) end,
+    enabled = function(db) return db.chatFontOverride end,
+  })
+end
 addSubPage("COMFORT_PAGE_INTERFACE")
 addSection("SECTION_SCREEN_TEXT")
 addToggles({

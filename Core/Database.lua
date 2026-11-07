@@ -164,6 +164,7 @@ local SETTINGS_DEFAULTS = {
   hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,
   restoreChat = false, filterDrunkSpam = false, filterSpellLinks = false,
   unclampChat = false,      -- Chatfenster bis an den Bildschirmrand (ChatWindows.lua)
+  chatFontOverride = false, chatFontSize = 14,  -- eigene Chat-Schriftgröße für alle Fenster (ChatFontSize.lua)
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
