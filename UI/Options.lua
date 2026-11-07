@@ -1130,6 +1130,17 @@ function ns.ShowOptionsPage(pageKey)
   if pageKey then builder.ShowPage(pageKey) end
 end
 
+-- Rechtsklick auf eine Anzeige (Lib/Frames.lua): ihre Seite öffnen; ist genau sie schon offen, schließen
+function ns.ToggleOptionsPage(pageKey)
+  if not ns.db then return end
+  local tab, sub = builder.CurrentPage()
+  if builder.panel:IsShown() and (sub or tab) == pageKey then
+    builder.panel:Hide()
+  else
+    ns.ShowOptionsPage(pageKey)
+  end
+end
+
 function ns.ToggleOptions()
   if not ns.db then return end
   local panel = builder.panel

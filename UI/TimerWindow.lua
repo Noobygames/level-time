@@ -20,6 +20,7 @@ local UPDATE_INTERVAL = 0.25          -- Sekunden zwischen zwei Anzeige-Updates
 local MIN_DAY_DIGITS = 2
 local SECONDS_PER_DAY = 86400
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -120 }
+local SETTINGS_PAGE = "OPTIONS_PAGE_WINDOW"  -- Rechtsklick auf Fenster und Reiter (Lib/Frames.lua)
 -- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key, Theme.lua)
 TimerWindow.BACKGROUND_DEFAULT = Theme.BACKGROUND_DEFAULT
 TimerWindow.CHROMA_COLORS = Theme.CHROMA
@@ -32,7 +33,7 @@ window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereits
 local function createScopeTab(scope)
   local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
     if mouseButton == "RightButton" then
-      ns.ToggleOptions()
+      ns.ToggleOptionsPage(SETTINGS_PAGE)
     else
       ns.Set("windowScope", scope)
     end
@@ -206,16 +207,12 @@ local visibility = ns.DisplayVisibility.Attach({
 
 ns.Frames.Register({
   id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
-  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_WINDOW",
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = SETTINGS_PAGE,
   preview = function(on)
     visibility:SetEditing(on)
   end,
   hide = function() ns.Set("showTimer", false) end,
 })
-
-window:SetScript("OnMouseUp", function(_, mouseButton)
-  if mouseButton == "RightButton" then ns.ToggleOptions() end
-end)
 
 -- Ziehgriff unten rechts ändert die Größe; er hat schon um die linke obere Ecke skaliert
 local grip = Widgets.CreateResizeGrip(window, ns.Frames.ClampScale, function(scale)

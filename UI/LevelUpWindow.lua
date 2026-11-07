@@ -365,7 +365,8 @@ end)
 ---------------------------------------------------------------------------
 -- Vorschau und Edit-Modus; Position und Größe über Lib/Frames.lua
 ---------------------------------------------------------------------------
--- Linksklick schließt das Fenster (im Edit-Modus liegt dessen Fläche darüber)
+-- Linksklick schließt das Fenster, Rechtsklick öffnet seine Einstellungen (Lib/Frames.lua; im Edit-Modus liegt dessen
+-- Fläche darüber)
 frame:EnableMouse(true)
 frame:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "LeftButton" and override ~= MOVING then hide() end

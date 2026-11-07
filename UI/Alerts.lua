@@ -245,7 +245,8 @@ local function setEditing(enabled)
   if waiting then display(unpack(waiting, 1, 5)) end
 end
 
--- Die Karte folgt der Größe des Rahmens
+-- Die Karte folgt der Größe des Rahmens. Kein Rechtsklick zu den Einstellungen: die Einblendung steht mitten im Bild
+-- und bleibt klickdurchlässig (sonst schluckte sie im Kampf Klicks auf Gegner)
 ns.Frames.Register({
   id = "alert", frame = frame, label = "EDIT_FRAME_ALERT", default = DEFAULT_POSITION,
   settingsPage = "OPTIONS_PAGE_ALERT_LOOK", preview = setEditing,

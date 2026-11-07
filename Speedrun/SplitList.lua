@@ -245,10 +245,6 @@ ns.Frames.Register({
   hide = function() ns.Set("showSplitList", false) end,
 })
 
-panel:SetScript("OnMouseUp", function(_, mouseButton)
-  if mouseButton == "RightButton" then ns.ToggleOptions() end
-end)
-
 -- Ziehgriff unten rechts ändert die eigene Größe, wie beim Hauptfenster
 local grip = Widgets.CreateResizeGrip(panel, ns.Frames.ClampScale, function(scale)
   ns.Frames.SavePosition("splitList")

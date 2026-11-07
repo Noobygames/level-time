@@ -9,8 +9,11 @@
 --     des Edit-Modus ziehbar, solange "locked" aus ist), store = { get(), set(entry) } (eigener Speicher, z.B. Stream
 --     Goal), onScale(scale) (weitere Rahmen mitskalieren), available() (gibt es die Anzeige in diesem Client),
 --     preview(on) (Beispielinhalt im Edit-Modus), hide() (Anzeige ausschalten), settingsPage (Locale-Key des Reiters oder der Unterseite),
---     protected (sichere Kinder: nicht im Kampf ändern)
+--     protected (sichere Kinder: nicht im Kampf ändern), clickable (Anzeige nimmt sonst keine Maus: für den Rechtsklick
+--     einschalten), rightClickSettings = false (Rechtsklick gehört der Anzeige selbst)
 --   })
+-- Rechtsklick außerhalb des Edit-Modus öffnet die Unterseite settingsPage (Roadmap 404), außer bei geschützten
+-- Anzeigen (sichere Knöpfe) und rightClickSettings = false; ein zweiter Rechtsklick schließt sie wieder.
 -- Ein Profilwechsel bringt neue Tabellen mit: daran erkennt das Apply, dass eine Anzeige an ihre neue Stelle muss.
 local _, ns = ...
 local Widgets = ns.Widgets
@@ -211,6 +214,13 @@ function Frames.Register(config)
   local frame = reg.frame
   frame:SetMovable(true)
   frame:SetClampedToScreen(true)
+  if reg.settingsPage and not reg.protected and reg.rightClickSettings ~= false then
+    if reg.clickable then frame:EnableMouse(true) end
+    frame:HookScript("OnMouseUp", function(_, mouseButton)
+      if mouseButton ~= "RightButton" or (ns.EditMode and ns.EditMode.IsActive()) then return end
+      ns.ToggleOptionsPage(reg.settingsPage)
+    end)
+  end
   if reg.dragWhenUnlocked then
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", function(self)

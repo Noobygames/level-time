@@ -2095,3 +2095,26 @@ Scrollen zum Treffer (ja/nein):
 Tastatur ok (ja/nein):
 Fehler:
 ```
+
+### 143. Rechtsklick auf Anzeigen öffnet ihre Einstellungen (Roadmap 404)
+
+- [ ] geprüft
+
+Außerhalb des Edit-Modus nacheinander rechtsklicken: Hauptfenster (und Level-/Session-Reiter), Split-Liste
+(`/lt splits`), Flug-Anzeige während eines Flugs, Essen-/Lagerfeuer-Anzeige (Vorschau in den Einstellungen),
+Level-Up-Fenster (Vorschau), Beute-Wurf-Karte (falls sichtbar).
+
+1. Jede Anzeige öffnet die Einstellungen auf ihrer eigenen Unterseite; ein zweiter Rechtsklick schließt sie.
+2. Linksklick auf das Level-Up-Fenster schließt es weiter; Ziehen von Hauptfenster/Split-Liste geht weiter.
+3. Die Einblendung (Level-Up-Banner, Warnungen) bleibt klickdurchlässig: Klick durch sie auf einen Gegner wählt ihn.
+4. Flug-/Essen-Anzeige: schluckt sie Klicks, die stören (z.B. auf Gegner hinter ihr)?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+richtige Unterseite je Anzeige (ja/nein, welche nicht):
+Einblendung klickdurchlässig (ja/nein):
+Timer-Anzeigen stören (ja/nein):
+Fehler:
+```
