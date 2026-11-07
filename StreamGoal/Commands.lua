@@ -1,7 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
---   add level 20 | add kills 100 [pve|pvp] [bg] | add item <Link oder ID> [Anzahl] | add bgwin 3 [Name]
---   add custom [Anzahl] <Text> | count <Nr> [+/-Betrag]
---   list | cancel <Nr> | history | tracker | move | scale <0.5-2> | help
+--   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
+--   list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -10,75 +9,38 @@ local Manager = ns.Manager
 local L = ns.L
 local Format = ns.LT.Format
 
-local DEFAULT_AMOUNT = 1
 local DEFAULT_STEP = 1
 
-local function words(text)
-  local list = {}
-  for word in text:gmatch("%S+") do table.insert(list, word) end
-  return list
-end
-
--- Alle Wörter aus text, die kein Schlüsselwort aus ignore sind, in der Reihenfolge
-local function without(list, ignore)
-  local rest = {}
-  for _, word in ipairs(list) do
-    if not ignore[word:lower()] then table.insert(rest, word) end
+-- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax
+local function help()
+  ns.Print(L.SG_HELP)
+  for _, kind in ipairs(Goals.KindOrder()) do
+    local usage = Goals.GetKind(kind).usage
+    if usage then ns.Print("  " .. L[usage]) end
   end
-  return rest
-end
-
-local adders = {}
-
-function adders.level(args)
-  return "level", {}, tonumber(args[1])
-end
-
-function adders.kills(args)
-  local params = {}
-  for _, word in ipairs(args) do
-    word = word:lower()
-    if word == "pve" or word == "pvp" or word == "any" then params.source = word end
-    if word == "bg" then params.battleground = true end
-  end
-  return "kills", params, tonumber(args[1])
-end
-
--- Der Link enthält Leerzeichen im Namen ("|Hitem:123|h[Dunkle Klinge]|h"): erst herauslösen, dann die Anzahl
-function adders.item(_, rest)
-  local link = rest:match("|c.-|r")
-  local remainder = link and rest:gsub("|c.-|r", "", 1) or rest
-  local itemId, parsedLink = Kinds.ParseItem(link or words(remainder)[1])
-  local amountWords = words(remainder)
-  if not link then table.remove(amountWords, 1) end
-  return "item", { itemId = itemId, link = parsedLink }, tonumber(amountWords[1]) or DEFAULT_AMOUNT
-end
-
-function adders.bgwin(args)
-  local name = table.concat(args, " ", 2)
-  return "bgwin", { battleground = name ~= "" and name or nil }, tonumber(args[1]) or DEFAULT_AMOUNT
-end
-
--- Eine führende Zahl ist der Zähler ("add custom 5 Alle Quests für RFC"), ohne Zahl ein Ziel zum Abhaken
-function adders.custom(args, rest)
-  local counter = tonumber(args[1])
-  local text = counter and rest:match("^%S+%s*(.*)$") or rest
-  return "custom", { text = text }, counter
 end
 
 local function add(rest)
   local kind, remainder = rest:match("^(%S+)%s*(.*)$")
-  local adder = kind and adders[kind:lower()]
-  if not adder then
+  local def = kind and Goals.GetKind(kind:lower())
+  if not def or not def.parse then
     ns.Print(string.format(L.SG_ERR_UNKNOWN_KIND, kind or "?"))
     return
   end
-  local goal, err = Goals.Create(adder(words(remainder), remainder))
+  local params, target = def.parse(Kinds.Words(remainder), remainder)
+  local goal, err = Goals.Create(def.name, params, target)
   if goal then
     ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal)))
   else
     ns.Print(err)
   end
+end
+
+local function goalLine(goal)
+  if Goals.HasCount(goal) then
+    return string.format("#%d %s (%s)", goal.id, Goals.Title(goal), Goals.CountText(goal))
+  end
+  return string.format("#%d %s", goal.id, Goals.Title(goal))
 end
 
 -- Selbst gezähltes Ziel weiterzählen: "count 3" = +1, "count 3 2" = +2, "count 3 -1" = eins zurück
@@ -88,7 +50,7 @@ local function count(argument)
   if not goal then
     ns.Print(err)
   elseif goal.status == Goals.ACTIVE and Goals.HasCount(goal) then
-    ns.Print(string.format("#%d %s (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
+    ns.Print(goalLine(goal))
   end
 end
 
@@ -98,13 +60,7 @@ local function list()
     ns.Print(L.SG_LIST_EMPTY)
     return
   end
-  for _, goal in ipairs(active) do
-    if Goals.HasCount(goal) then
-      ns.Print(string.format("#%d %s (%d / %d)", goal.id, Goals.Title(goal), goal.progress, goal.target))
-    else
-      ns.Print(string.format("#%d %s", goal.id, Goals.Title(goal)))
-    end
-  end
+  for _, goal in ipairs(active) do ns.Print(goalLine(goal)) end
 end
 
 local function cancel(argument)
@@ -135,10 +91,13 @@ local commands = {
   count = count,
   tracker = toggleTracker,
   scale = scale,
+  options = function() ns.Options.Toggle() end,
+  config = function() ns.Options.Toggle() end,
   move = function() ns.LT.EditMode.Toggle() end,  -- Edit-Modus von Level Time
   history = function() Manager.Toggle("history") end,
-  help = function() ns.Print(L.SG_HELP) end,
+  help = help,
 }
+ns.commands = commands  -- weitere Befehle melden die Dateien danach an (z.B. Pakete)
 
 SLASH_STREAMGOAL1 = "/sg"
 SLASH_STREAMGOAL2 = "/streamgoal"
@@ -151,6 +110,6 @@ SlashCmdList.STREAMGOAL = function(input)
   elseif commands[command] then
     commands[command](argument)
   else
-    ns.Print(L.SG_HELP)
+    help()
   end
 end

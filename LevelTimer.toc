@@ -238,6 +238,7 @@ Lib\MinimapButton.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\ExternalOptions.lua
 UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua

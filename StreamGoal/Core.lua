@@ -23,10 +23,42 @@ function ns.Debug(area, format, ...)
 end
 
 ns.SCHEMA_VERSION = 1
+-- Einstellungen in StreamGoalDB.settings (Seite im Einstellungsfenster: Options.lua); Position und Größe des Trackers
+-- stehen in settings.frame (Lib/Frames.lua von Level Time)
 ns.SETTING_DEFAULTS = {
   showTracker = true,
-  sound = true,
+  sound = true,          -- Ton beim Erreichen
+  doneAlert = true,      -- Einblendung von Level Time beim Erreichen
+  doneChat = true,       -- Chatzeile beim Erreichen
+  maxCards = 6,          -- so viele Karten zeigt der Tracker, der Rest als "+n weitere"
+  cardColors = "kind",   -- "kind" = Farbe der Zielart, "accent" = Akzentfarbe des Themes für alle
 }
+ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
+
+-- Nach jeder Änderung der Einstellungen (und bei Sprach- oder Theme-Wechsel in Level Time): Anzeigen neu aufbauen
+local applyListeners = {}
+
+function ns.RegisterApply(listener)
+  table.insert(applyListeners, listener)
+end
+
+function ns.ApplySettings()
+  if not ns.db then return end
+  for _, listener in ipairs(applyListeners) do LT.SafeCall(listener) end
+end
+
+-- Einstellung ändern; unveränderte Werte lösen kein Neuaufbauen aus
+function ns.SetSetting(key, value)
+  local settings = ns.db.settings
+  if settings[key] == value then return end
+  settings[key] = value
+  ns.Debug("settings", "%s = %s", key, value)
+  ns.ApplySettings()
+end
+
+function ns.SettingDefault(key)
+  return ns.SETTING_DEFAULTS[key]
+end
 
 local function fillDefaults(target, defaults)
   for key, value in pairs(defaults) do
@@ -54,3 +86,5 @@ LT.OnLogin(function()
   end
   ns.db = db
 end)
+
+LT.RegisterApply(function() ns.ApplySettings() end)

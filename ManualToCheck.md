@@ -2402,3 +2402,33 @@ Kopfzeile ok (ja/nein):
 Unterstrich und Legende sichtbar (ja/nein):
 Fehler:
 ```
+
+## Level Time Goals (Roadmap 295-312)
+
+### 170. Einstellungen, Tracker und Fenster im Look von Level Time (Roadmap 312)
+
+- [ ] geprüft
+
+1. `/sg options`: Fenster mit Seitenleiste Tracker / Meldungen / Daten, Suche oben links findet „Karten höchstens“;
+   jedes Steuerelement hat einen Tooltip; Texte auf Französisch und Spanisch nicht abgeschnitten.
+2. „Karten höchstens“ 2 bei vier Zielen: zwei Karten, darunter „+2 weitere Ziele“; Kartenfarbe „Akzentfarbe“ färbt
+   alle Karten in der Akzentfarbe des Level-Time-Themes, Theme-Wechsel in Level Time färbt live mit.
+3. Rechtsklick auf eine Karte öffnet die Unterseite Tracker, zweiter Rechtsklick schließt; Linksklick auf ein eigenes
+   Ziel +1, Shift+Linksklick -1.
+4. `/lt edit` ohne Ziele: Beispielkarte; Rechtsklick > „Einstellungen“ öffnet die Goals-Einstellungen (nicht die von
+   Level Time).
+5. `/sg`: Reiter der Zielarten brechen bei Platzmangel in eine zweite Zeile um, Beschriftungen und Felder stehen bündig;
+   „Abbrechen“ fragt nach; Fußzeile „Einstellungen“ und „Verschieben“.
+6. Daten: Charakter in `/lt history` löschen, dann „Ziele gelöschter Charaktere entfernen“ (Rückfrage, Zähler sinkt).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Einstellungen und Suche ok (ja/nein):
+Kartenzahl und Farben ok (ja/nein):
+Rechtsklick/Shift-Klick ok (ja/nein):
+Edit-Modus Einstellungen ok (ja/nein):
+Fenster-Layout fr/es ok (ja/nein):
+Fehler:
+```

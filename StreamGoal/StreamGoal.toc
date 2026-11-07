@@ -17,10 +17,12 @@ Core.lua
 Goals.lua
 Kinds.lua
 
+
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
 
-# Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Befehle
+# Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
 Tracker.lua
 Manager.lua
+Options.lua
 Commands.lua

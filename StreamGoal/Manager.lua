@@ -1,52 +1,47 @@
--- Fenster von Level Time Goals (/sg): Reiter "Ziele" (Formular für ein neues Ziel, laufende Ziele mit Abbrechen,
--- Einstellungen der Anzeige) und Reiter "Historie" (Tabelle aller abgeschlossenen und abgebrochenen Ziele,
--- gebaut mit TableView von Level Time: Filter, Sortieren, CSV-Export).
+-- Fenster von Level Time Goals (/sg): Reiter "Ziele" (Formular für ein neues Ziel, laufende Ziele mit Zählen und
+-- Abbrechen) und Reiter "Historie" (Tabelle aller abgeschlossenen, abgebrochenen und gescheiterten Ziele, gebaut mit
+-- TableView von Level Time: Filter, Sortieren, CSV-Export). Fußzeile: Tracker an/aus, Einstellungen, Verschieben.
+-- Formular: je Zielart eine eigene Fläche aus def.form (Kinds.lua und Kinds/*.lua):
+--   form = { amount = Locale-Key der Zahl (nil = keine Zahl), fields = { Feld, ... } }
+--   Feld: { type = "text", param, label, width optional } | { type = "choice", param, label, values = { Wert, ... },
+--         labels = { [Wert] = Locale-Key } } | { type = "check", param, label }
+-- Daraus entstehen params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
+-- Reiter der Zielarten brechen in weitere Zeilen um, wenn die Sprache breitere Texte hat.
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
-local Kinds = ns.Kinds
 local Tracker = ns.Tracker
 local L = ns.L
 local Widgets = LT.Widgets
 local Format = LT.Format
+local Theme = LT.Theme
 
 local Manager = {}
 ns.Manager = Manager
 
 local MARGIN = 16
-local CONTENT_WIDTH = 570
-local PAGE_HEIGHT = 330
+local CONTENT_WIDTH = 600
+local PAGE_HEIGHT = 420
 local PAGE_TOP = -66
 local FOOTER_HEIGHT = 34
 local ROW = 26                  -- Höhe einer Formularzeile
-local LABEL_WIDTH = 170
+local MIN_LABEL_WIDTH = 120
+local LABEL_GAP = 12            -- Abstand zwischen der breitesten Beschriftung und den Feldern
 local AMOUNT_BOX_WIDTH = 70
 local TEXT_BOX_WIDTH = 300
 local BOX_HEIGHT = 20
-local ACTIVE_ROW = 22
-local MAX_ACTIVE_ROWS = Goals.MAX_ACTIVE
+local BOX_BORDER = 6            -- InputBoxTemplate zeichnet seinen Rand links außerhalb
+local CHOICE_MIN_WIDTH = 140
+local ADD_MIN_WIDTH = 120
+local KIND_TAB_ROW = 22
 local KIND_TAB_GAP = 14
+local KIND_TABS_TOP = -24
+local ACTIVE_ROW = 22
 local CANCEL_WIDTH = 80
 local STEP_WIDTH = 24           -- Knöpfe "-" und "+" bei selbst gezählten Zielen
 local BUTTON_GAP = 4
-local ERROR_COLOR = { 1, 0.4, 0.4 }
-local MUTED = Widgets.COLORS.muted
-
----------------------------------------------------------------------------
--- Formular: welche Felder zu welcher Art gehören
----------------------------------------------------------------------------
--- amount = Beschriftung der Zahl; text1/text2 = Beschriftung der Textfelder (nil = Feld aus);
--- kills zeigt stattdessen Quelle und "nur Schlachtfeld"
-local FORM = {
-  level = { amount = "SG_FORM_TARGET_LEVEL" },
-  kills = { amount = "SG_FORM_AMOUNT", kills = true },
-  item = { amount = "SG_FORM_AMOUNT", text1 = "SG_FORM_ITEM", text2 = "SG_FORM_BOSS" },
-  bgwin = { amount = "SG_FORM_AMOUNT", text1 = "SG_FORM_BG" },
-  custom = { amount = "SG_FORM_COUNTER", text1 = "SG_FORM_TEXT" },
-}
-local KIND_LABELS = { level = "SG_KIND_LEVEL", kills = "SG_KIND_KILLS", item = "SG_KIND_ITEM", bgwin = "SG_KIND_BGWIN",
-  custom = "SG_KIND_CUSTOM" }
-local SOURCE_LABELS = { any = "SG_FORM_SOURCE_ANY", pve = "SG_FORM_SOURCE_PVE", pvp = "SG_FORM_SOURCE_PVP" }
+local FOOTER_BUTTON_MIN_WIDTH = 90
+local STEP_UP, STEP_DOWN = 1, -1
 
 ---------------------------------------------------------------------------
 -- Fenster und Reiter
@@ -60,6 +55,7 @@ panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, "StreamGoalWindow")  -- mit ESC schließen
 Widgets.CreateCloseButton(panel)
+Manager.panel = panel
 
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", 0, -14)
@@ -82,126 +78,211 @@ local function showPage(name)
   if name == "history" then Manager.history:Render() end
 end
 
-local function createPageTab(key, labelKey, x)
-  local tab = Widgets.CreateTab(panel, "GameFontNormal", function() showPage(key) end)
-  tab:SetPoint("TOPLEFT", x, -40)
+local function createPageTab(key, labelKey)
+  local tab = Widgets.CreateTab(panel, Theme.Font("title"), function() showPage(key) end)
   tab.labelKey = labelKey
   pageTabs[key] = tab
   return tab
 end
-createPageTab("goals", "SG_TAB_GOALS", MARGIN)
-createPageTab("history", "SG_TAB_HISTORY", MARGIN + 90)
+local goalsTab = createPageTab("goals", "SG_TAB_GOALS")
+local historyTab = createPageTab("history", "SG_TAB_HISTORY")
+goalsTab:SetPoint("TOPLEFT", MARGIN, -40)
+historyTab:SetPoint("LEFT", goalsTab, "RIGHT", KIND_TAB_GAP, 0)
 
 ---------------------------------------------------------------------------
--- Reiter "Ziele": Formular
+-- Reiter "Ziele": Formular je Zielart
 ---------------------------------------------------------------------------
 local formHeader = Widgets.CreateSectionHeader(goalsPage)
 formHeader:SetPoint("TOPLEFT")
 formHeader:SetPoint("TOPRIGHT")
 
-local selectedKind = "level"
+local selectedKind = Goals.KindOrder()[1]
 local kindTabs = {}
-for _, kind in ipairs(Kinds.ORDER) do
-  kindTabs[kind] = Widgets.CreateTab(goalsPage, "GameFontHighlight", function() Manager.SelectKind(kind) end)
-end
+local forms = {}         -- [Art] = { frame, rows = { { label, widget, field } }, amountBox }
+local allLabels = {}     -- alle Beschriftungen der Formulare (Breite der Beschriftungsspalte)
 
-local function layoutKindTabs()
-  local left = 0
-  for _, kind in ipairs(Kinds.ORDER) do
-    local tab = kindTabs[kind]
-    tab:SetLabel(L[KIND_LABELS[kind]])
-    tab:ClearAllPoints()
-    tab:SetPoint("TOPLEFT", left, -24)
-    left = left + tab:GetWidth() + KIND_TAB_GAP
-  end
-end
-
-local function createLabel(y)
-  local label = goalsPage:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+local function createLabel(parent, y)
+  local label = parent:CreateFontString(nil, "OVERLAY", Theme.Font("title"))
   label:SetPoint("TOPLEFT", 0, y)
   label:SetJustifyH("LEFT")
+  table.insert(allLabels, label)
   return label
 end
 
-local function createBox(y, width)
-  local box = CreateFrame("EditBox", nil, goalsPage, "InputBoxTemplate")
+local function createBox(parent, width, numeric)
+  local box = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
   box:SetSize(width, BOX_HEIGHT)
-  box:SetPoint("TOPLEFT", LABEL_WIDTH, y)
   box:SetAutoFocus(false)
+  box:SetNumeric(numeric and true or false)
   box:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+  box:SetScript("OnEnterPressed", function() Manager.AddFromForm() end)
   return box
 end
 
-local FIELD_Y = -54
-local amountLabel, amountBox = createLabel(FIELD_Y), createBox(FIELD_Y, AMOUNT_BOX_WIDTH)
-amountBox:SetNumeric(true)
-local text1Label, text1Box = createLabel(FIELD_Y - ROW), createBox(FIELD_Y - ROW, TEXT_BOX_WIDTH)
-local text2Label, text2Box = createLabel(FIELD_Y - 2 * ROW), createBox(FIELD_Y - 2 * ROW, TEXT_BOX_WIDTH)
+-- Auswahl: Linksklick nächster, Rechtsklick voriger Wert
+local function createChoice(parent, field, form)
+  local button = Widgets.CreateButton(parent, CHOICE_MIN_WIDTH, BOX_HEIGHT + 2, nil)
+  button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  button:SetScript("OnClick", function(_, mouseButton)
+    local values = field.values
+    local index = 1
+    for i, value in ipairs(values) do
+      if value == form.choices[field.param] then index = i end
+    end
+    local step = mouseButton == "RightButton" and -1 or 1
+    form.choices[field.param] = values[(index - 1 + step) % #values + 1]
+    Manager.Refresh()
+  end)
+  return button
+end
 
--- Kills: Quelle (Klick wechselt) und Schalter "nur Schlachtfeld"
-local killSource = "any"
-local sourceButton = Widgets.CreateButton(goalsPage, 140, BOX_HEIGHT + 2, function()
-  local order = Kinds.KILL_SOURCES
-  for i, source in ipairs(order) do
-    if source == killSource then
-      killSource = order[i % #order + 1]
-      break
+local function buildForm(kind)
+  local def = Goals.GetKind(kind)
+  local spec = def.form or {}
+  local form = { frame = CreateFrame("Frame", nil, goalsPage), rows = {}, choices = {}, spec = spec }
+  form.frame:SetSize(CONTENT_WIDTH, 1)
+  form.frame:Hide()
+  local y = 0
+  if spec.amount then
+    form.amountBox = createBox(form.frame, AMOUNT_BOX_WIDTH, true)
+    table.insert(form.rows, { label = createLabel(form.frame, y), widget = form.amountBox, labelKey = spec.amount,
+      y = y, box = true })
+    y = y - ROW
+  end
+  for _, field in ipairs(spec.fields or {}) do
+    local row = { field = field, y = y }
+    if field.type == "check" then
+      row.widget = Widgets.CreateCheckbox(form.frame, function() end)
+      row.widget:SetPoint("TOPLEFT", -4, y + 2)
+    else
+      row.label = createLabel(form.frame, y)
+      row.labelKey = field.label
+      if field.type == "choice" then
+        form.choices[field.param] = field.values[1]
+        row.widget = createChoice(form.frame, field, form)
+      else
+        row.widget = createBox(form.frame, field.width or TEXT_BOX_WIDTH, field.numeric)
+        row.box = true
+      end
+    end
+    table.insert(form.rows, row)
+    y = y - ROW
+  end
+  form.height = -y
+  forms[kind] = form
+  return form
+end
+
+for _, kind in ipairs(Goals.KindOrder()) do
+  kindTabs[kind] = Widgets.CreateTab(goalsPage, Theme.Font("body"), function() Manager.SelectKind(kind) end)
+  buildForm(kind)
+end
+
+-- Reiter der Zielarten in Zeilen umbrechen; Rückgabe: Höhe aller Zeilen
+local function layoutKindTabs()
+  local left, row = 0, 0
+  for _, kind in ipairs(Goals.KindOrder()) do
+    local tab = kindTabs[kind]
+    tab:SetLabel(L[Goals.GetKind(kind).label])
+    local width = tab:GetWidth()
+    if left > 0 and left + width > CONTENT_WIDTH then
+      left, row = 0, row + 1
+    end
+    tab:ClearAllPoints()
+    tab:SetPoint("TOPLEFT", left, KIND_TABS_TOP - row * KIND_TAB_ROW)
+    left = left + width + KIND_TAB_GAP
+  end
+  return (row + 1) * KIND_TAB_ROW
+end
+
+-- Breite der Beschriftungsspalte: breiteste Beschriftung aller Formulare (fr/es sind länger)
+local function labelColumnWidth()
+  local widest = MIN_LABEL_WIDTH
+  for _, label in ipairs(allLabels) do
+    widest = math.max(widest, math.ceil(label:GetStringWidth() or 0) + LABEL_GAP)
+  end
+  return widest
+end
+
+local function refreshForm(form, labelWidth)
+  for _, row in ipairs(form.rows) do
+    local field = row.field
+    if row.label then row.label:SetText(L[row.labelKey]) end
+    if field and field.type == "check" then
+      row.widget.label:SetText(L[field.label])
+    else
+      row.widget:ClearAllPoints()
+      row.widget:SetPoint("TOPLEFT", labelWidth + (row.box and BOX_BORDER or 0), row.y + (row.box and 0 or 2))
+    end
+    if field and field.type == "choice" then
+      local value = form.choices[field.param]
+      Widgets.SetButtonText(row.widget, L[field.labels[value]], CHOICE_MIN_WIDTH)
     end
   end
-  Manager.Refresh()
-end)
-sourceButton:SetPoint("TOPLEFT", 0, FIELD_Y - ROW)
-local battlegroundCheck = Widgets.CreateCheckbox(goalsPage, function() end)
-battlegroundCheck:SetPoint("TOPLEFT", -4, FIELD_Y - 2 * ROW - 2)
+end
 
-local errorText = goalsPage:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-errorText:SetTextColor(unpack(ERROR_COLOR))
-errorText:SetPoint("TOPLEFT", 0, FIELD_Y - 3 * ROW - 4)
-errorText:SetWidth(CONTENT_WIDTH - 130)
+local errorText = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+errorText:SetTextColor(Theme.RGB("bad"))
 errorText:SetJustifyH("LEFT")
+errorText:SetWidth(CONTENT_WIDTH - ADD_MIN_WIDTH - 2 * LABEL_GAP)
 
 local function boxText(box)
   return strtrim(box:GetText() or "")
 end
 
--- Ziel aus dem Formular; Rückgabe: Ziel oder nil und Fehlertext
-local function createFromForm()
-  local params
-  if selectedKind == "kills" then
-    params = { source = killSource, battleground = battlegroundCheck:GetChecked() and true or nil }
-  elseif selectedKind == "item" then
-    local itemId, link = Kinds.ParseItem(boxText(text1Box))
-    local boss = boxText(text2Box)
-    params = { itemId = itemId, link = link, boss = boss ~= "" and boss or nil }
-  elseif selectedKind == "bgwin" then
-    local name = boxText(text1Box)
-    params = { battleground = name ~= "" and name or nil }
-  elseif selectedKind == "custom" then
-    params = { text = boxText(text1Box) }  -- leere Anzahl = ohne Zähler
+-- params und target aus dem Formular der gewählten Art
+local function readForm(form)
+  local params, target = {}, nil
+  for _, row in ipairs(form.rows) do
+    local field = row.field
+    if not field then
+      target = tonumber(boxText(row.widget))
+    elseif field.type == "check" then
+      params[field.param] = row.widget:GetChecked() and true or nil
+    elseif field.type == "choice" then
+      params[field.param] = form.choices[field.param]
+    else
+      local text = boxText(row.widget)
+      if field.numeric then
+        params[field.param] = tonumber(text)
+      else
+        params[field.param] = text ~= "" and text or nil
+      end
+    end
   end
-  return Goals.Create(selectedKind, params, tonumber(boxText(amountBox)))
+  return params, target
 end
 
-local addButton = Widgets.CreateButton(goalsPage, 120, BOX_HEIGHT + 2, function()
-  local goal, err = createFromForm()
+local function clearForm(form)
+  for _, row in ipairs(form.rows) do
+    if row.box then row.widget:SetText("") end
+  end
+end
+
+function Manager.AddFromForm()
+  local form = forms[selectedKind]
+  local params, target = readForm(form)
+  local goal, err = Goals.Create(selectedKind, params, target)
   if not goal then
     errorText:SetText(err or "")
-    return
+    return nil
   end
   errorText:SetText("")
   ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal)))
-  amountBox:SetText("")
-  text1Box:SetText("")
-  text2Box:SetText("")
-end)
-addButton:SetPoint("TOPRIGHT", 0, FIELD_Y - 3 * ROW - 2)
+  clearForm(form)
+  return goal
+end
 
--- Shift-Klick auf ein Item (Taschen, Beute, Chat) fügt den Link ins Feld ein, solange es den Fokus hat
+local addButton = Widgets.CreateButton(goalsPage, ADD_MIN_WIDTH, BOX_HEIGHT + 2, function() Manager.AddFromForm() end)
+
+-- Shift-Klick auf ein Item (Taschen, Beute, Chat) fügt den Link in das fokussierte Textfeld ein
 -- Blizzards Chat ruft ChatFrameUtil.InsertLink; ChatEdit_InsertLink ist nur ein Deprecation-Alias (fehlt ohne
 -- CVar loadDeprecationFallbacks) und wird nie aufgerufen
 local function insertLinkIntoField(link)
-  if link and text1Box:IsVisible() and text1Box:HasFocus() and selectedKind == "item" then
-    text1Box:Insert(link)
+  if not link or not panel:IsVisible() then return end
+  for _, row in ipairs(forms[selectedKind].rows) do
+    local field = row.field
+    if field and field.links and row.widget:HasFocus() then row.widget:Insert(link) end
   end
 end
 if ChatFrameUtil and ChatFrameUtil.InsertLink then
@@ -213,40 +294,45 @@ end
 ---------------------------------------------------------------------------
 -- Reiter "Ziele": laufende Ziele
 ---------------------------------------------------------------------------
-local ACTIVE_HEADER_Y = FIELD_Y - 4 * ROW - 10
 local activeHeader = Widgets.CreateSectionHeader(goalsPage)
-activeHeader:SetPoint("TOPLEFT", 0, ACTIVE_HEADER_Y)
-activeHeader:SetPoint("TOPRIGHT", 0, ACTIVE_HEADER_Y)
 
-local emptyText = goalsPage:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-emptyText:SetTextColor(unpack(MUTED))
-emptyText:SetPoint("TOPLEFT", 0, ACTIVE_HEADER_Y - ACTIVE_ROW)
+local emptyText = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
+emptyText:SetTextColor(Theme.RGB("muted"))
+emptyText:SetJustifyH("LEFT")
 
 local activeRows = {}
-local STEP_LABELS = { minus = "-", plus = "+" }
+local activeTop = 0  -- y der Überschrift "Aktive Ziele" (hängt von Reiterzeilen und Formular ab)
 
 local function stepGoal(id, delta)
   local _, err = Goals.Step(id, delta)
   if err then ns.Print(err) end
 end
 
+local confirmCancel = Widgets.ConfirmPopup("STREAMGOAL_CANCEL", "SG_CONFIRM_CANCEL", function(id)
+  Manager.CancelGoal(id)
+end)
+
 local function activeRow(index)
   if not activeRows[index] then
-    local y = ACTIVE_HEADER_Y - index * ACTIVE_ROW
-    local text = goalsPage:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    text:SetPoint("TOPLEFT", 0, y)
-    text:SetJustifyH("LEFT")
-    text:SetWordWrap(false)
-    text:SetWidth(CONTENT_WIDTH - CANCEL_WIDTH - 2 * (STEP_WIDTH + BUTTON_GAP) - 8)
-    local cancel = Widgets.CreateButton(goalsPage, CANCEL_WIDTH, ACTIVE_ROW - 4, nil)
-    cancel:SetPoint("TOPRIGHT", 0, y + 2)
-    local plus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, nil)
-    plus:SetPoint("RIGHT", cancel, "LEFT", -BUTTON_GAP, 0)
-    Widgets.SetButtonText(plus, STEP_LABELS.plus, STEP_WIDTH)
-    local minus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, nil)
-    minus:SetPoint("RIGHT", plus, "LEFT", -BUTTON_GAP, 0)
-    Widgets.SetButtonText(minus, STEP_LABELS.minus, STEP_WIDTH)
-    activeRows[index] = { text = text, cancel = cancel, plus = plus, minus = minus }
+    local row = {}
+    row.text = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+    row.text:SetJustifyH("LEFT")
+    row.text:SetWordWrap(false)
+    row.text:SetWidth(CONTENT_WIDTH - CANCEL_WIDTH - 2 * (STEP_WIDTH + BUTTON_GAP) - 8)
+    row.cancel = Widgets.CreateButton(goalsPage, CANCEL_WIDTH, ACTIVE_ROW - 4, function()
+      if row.goal then confirmCancel(Goals.Title(row.goal), row.goal.id) end
+    end)
+    row.plus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, function()
+      if row.goal then stepGoal(row.goal.id, STEP_UP) end
+    end)
+    row.plus:SetPoint("RIGHT", row.cancel, "LEFT", -BUTTON_GAP, 0)
+    Widgets.SetButtonText(row.plus, "+", STEP_WIDTH)
+    row.minus = Widgets.CreateButton(goalsPage, STEP_WIDTH, ACTIVE_ROW - 4, function()
+      if row.goal then stepGoal(row.goal.id, STEP_DOWN) end
+    end)
+    row.minus:SetPoint("RIGHT", row.plus, "LEFT", -BUTTON_GAP, 0)
+    Widgets.SetButtonText(row.minus, "-", STEP_WIDTH)
+    activeRows[index] = row
   end
   return activeRows[index]
 end
@@ -255,7 +341,15 @@ end
 local function activeLabel(goal)
   local label = string.format("#%d  %s", goal.id, Goals.Title(goal))
   if not Goals.HasCount(goal) then return label end
-  return string.format("%s  (%d / %d)", label, goal.progress, goal.target)
+  return string.format("%s  (%s)", label, Goals.CountText(goal))
+end
+
+local function hideRow(row)
+  row.goal = nil
+  row.text:Hide()
+  row.cancel:Hide()
+  row.plus:Hide()
+  row.minus:Hide()
 end
 
 local function renderActive()
@@ -264,23 +358,23 @@ local function renderActive()
   emptyText:SetShown(#active == 0)
   for i = 1, math.max(#active, #activeRows) do
     local goal = active[i]
-    if goal and i <= MAX_ACTIVE_ROWS then
+    if goal then
       local row = activeRow(i)
+      local y = activeTop - i * ACTIVE_ROW
+      row.goal = goal
+      row.text:ClearAllPoints()
+      row.text:SetPoint("TOPLEFT", 0, y)
       row.text:SetText(activeLabel(goal))
       row.text:Show()
+      row.cancel:ClearAllPoints()
+      row.cancel:SetPoint("TOPRIGHT", 0, y + 2)
       Widgets.SetButtonText(row.cancel, L.SG_CANCEL, CANCEL_WIDTH)
-      row.cancel:SetScript("OnClick", function() Manager.CancelGoal(goal.id) end)
       row.cancel:Show()
       local manual = Goals.IsManual(goal)
-      row.plus:SetScript("OnClick", function() stepGoal(goal.id, 1) end)
-      row.minus:SetScript("OnClick", function() stepGoal(goal.id, -1) end)
       row.plus:SetShown(manual)
       row.minus:SetShown(manual and Goals.HasCount(goal))  -- ohne Zähler gibt es nur "erledigt"
     elseif activeRows[i] then
-      activeRows[i].text:Hide()
-      activeRows[i].cancel:Hide()
-      activeRows[i].plus:Hide()
-      activeRows[i].minus:Hide()
+      hideRow(activeRows[i])
     end
   end
 end
@@ -291,23 +385,26 @@ function Manager.CancelGoal(id)
 end
 
 ---------------------------------------------------------------------------
--- Fußzeile: Einstellungen der Anzeige
+-- Fußzeile: Tracker an/aus, Einstellungen, Verschieben
 ---------------------------------------------------------------------------
 local trackerCheck = Widgets.CreateCheckbox(panel, function(checked) Tracker.SetShown(checked) end)
 trackerCheck:SetPoint("BOTTOMLEFT", MARGIN - 4, 8)
-local soundCheck = Widgets.CreateCheckbox(panel, function(checked) ns.db.settings.sound = checked end)
-local moveButton = Widgets.CreateButton(panel, 90, BOX_HEIGHT + 2, function()
-  ns.LT.EditMode.Toggle()  -- Edit-Modus von Level Time: alle Anzeigen verschieben
+local settingsButton = Widgets.CreateButton(panel, FOOTER_BUTTON_MIN_WIDTH, BOX_HEIGHT + 2, function()
+  ns.Options.Toggle(Tracker.SETTINGS_PAGE)
 end)
-moveButton:SetPoint("BOTTOMRIGHT", -MARGIN - 96, 12)
-local resetButton = Widgets.CreateButton(panel, 90, BOX_HEIGHT + 2, function() ns.LT.Frames.Reset("streamGoal") end)
-resetButton:SetPoint("BOTTOMRIGHT", -MARGIN, 12)
+settingsButton:SetPoint("BOTTOMRIGHT", -MARGIN, 12)
+local moveButton = Widgets.CreateButton(panel, FOOTER_BUTTON_MIN_WIDTH, BOX_HEIGHT + 2, function()
+  LT.EditMode.Toggle()  -- Edit-Modus von Level Time: alle Anzeigen verschieben
+end)
+moveButton:SetPoint("BOTTOMRIGHT", settingsButton, "BOTTOMLEFT", -6, 0)
 
 ---------------------------------------------------------------------------
 -- Reiter "Historie"
 ---------------------------------------------------------------------------
-local WHITE = { 1, 1, 1 }
-local STATUS_LABELS = { [Goals.DONE] = "SG_STATUS_DONE", [Goals.CANCELLED] = "SG_STATUS_CANCELLED" }
+local STATUS_LABELS = { [Goals.DONE] = "SG_STATUS_DONE", [Goals.CANCELLED] = "SG_STATUS_CANCELLED",
+  [Goals.FAILED] = "SG_STATUS_FAILED" }
+local STATUS_COLORS = { [Goals.DONE] = Theme.COLORS.text, [Goals.CANCELLED] = Theme.COLORS.muted,
+  [Goals.FAILED] = Theme.COLORS.bad }
 
 local function characterName(goal)
   local ok, name = pcall(LT.History.DisplayName, goal.character)
@@ -321,10 +418,10 @@ end
 local historyColumns = {
   { header = "SG_COL_DATE", width = 80, align = "LEFT",
     value = function(g) return date("%Y-%m-%d", g.finishedAt) end, sort = function(g) return g.finishedAt end },
-  { header = "SG_COL_GOAL", width = 190, align = "LEFT", value = function(g) return Goals.Title(g) end },
+  { header = "SG_COL_GOAL", width = 210, align = "LEFT", value = function(g) return Goals.Title(g) end },
   { header = "SG_COL_CHARACTER", width = 100, align = "LEFT", value = characterName },
-  { header = "SG_COL_PROGRESS", width = 60,
-    value = function(g) return Goals.HasCount(g) and string.format("%d/%d", g.progress, g.target) or "" end,
+  { header = "SG_COL_PROGRESS", width = 70,
+    value = function(g) return Goals.HasCount(g) and Goals.CountText(g) or "" end,
     sort = function(g) return Goals.Fraction(g) end },
   { header = "SG_COL_RESULT", width = 70, align = "LEFT", value = function(g) return L[STATUS_LABELS[g.status]] end },
   { header = "SG_COL_TIME", width = 70, value = function(g) return Format.Duration(duration(g)) end, sort = duration },
@@ -341,7 +438,7 @@ local historyView = LT.TableView.Create({
     end
     return { string.format("%d / %d", done, #records) }
   end,
-  rowColor = function(goal) return goal.status == Goals.DONE and WHITE or MUTED end,
+  rowColor = function(goal) return STATUS_COLORS[goal.status] or Theme.COLORS.muted end,
 })
 Manager.history = historyView.Create(historyPage, CONTENT_WIDTH, PAGE_HEIGHT)
 
@@ -354,42 +451,60 @@ function Manager.SelectKind(kind)
   Manager.Refresh()
 end
 
+function Manager.SelectedKind()
+  return selectedKind
+end
+
+-- Feld des Formulars der gewählten Art (Tests): param oder "amount" für die Zahl
+function Manager.FormWidget(param)
+  for _, row in ipairs(forms[selectedKind].rows) do
+    if (row.field and row.field.param or "amount") == param then return row.widget end
+  end
+end
+
+-- Formular der gewählten Art unter den Reitern, darunter Fehlertext und "Ziel hinzufügen", dann die laufenden Ziele
+local function layoutGoalsPage()
+  local tabsHeight = layoutKindTabs()
+  local formTop = KIND_TABS_TOP - tabsHeight - 6
+  local labelWidth = labelColumnWidth()
+  for kind, form in pairs(forms) do
+    refreshForm(form, labelWidth)
+    form.frame:SetShown(kind == selectedKind)
+    kindTabs[kind]:SetActive(kind == selectedKind)
+  end
+  local form = forms[selectedKind]
+  form.frame:ClearAllPoints()
+  form.frame:SetPoint("TOPLEFT", 0, formTop)
+  local addY = formTop - form.height - 4
+  addButton:ClearAllPoints()
+  addButton:SetPoint("TOPRIGHT", 0, addY)
+  Widgets.SetButtonText(addButton, L.SG_FORM_ADD, ADD_MIN_WIDTH)
+  errorText:ClearAllPoints()
+  errorText:SetPoint("TOPLEFT", 0, addY - 4)
+  activeTop = addY - ROW - 10
+  activeHeader:ClearAllPoints()
+  activeHeader:SetPoint("TOPLEFT", 0, activeTop)
+  activeHeader:SetPoint("TOPRIGHT", 0, activeTop)
+  emptyText:ClearAllPoints()
+  emptyText:SetPoint("TOPLEFT", 0, activeTop - ACTIVE_ROW)
+end
+
 -- Alle Texte (Sprache!), Felder der gewählten Art und laufende Ziele neu setzen
 function Manager.Refresh()
   title:SetText(L.SG_TITLE)
-  for key, tab in pairs(pageTabs) do tab:SetLabel(L[tab.labelKey]); tab:SetActive(key == shownPage) end
+  for key, tab in pairs(pageTabs) do
+    tab:SetLabel(L[tab.labelKey])
+    tab:SetActive(key == shownPage)
+  end
   formHeader:SetText(L.SG_FORM_TITLE)
   activeHeader:SetText(L.SG_ACTIVE_TITLE)
-  layoutKindTabs()
-  for kind, tab in pairs(kindTabs) do tab:SetActive(kind == selectedKind) end
-
-  local form = FORM[selectedKind]
-  amountLabel:SetText(L[form.amount])
-  text1Label:SetText(form.text1 and L[form.text1] or "")
-  text2Label:SetText(form.text2 and L[form.text2] or "")
-  text1Label:SetShown(form.text1 ~= nil)
-  text1Box:SetShown(form.text1 ~= nil)
-  text2Label:SetShown(form.text2 ~= nil)
-  text2Box:SetShown(form.text2 ~= nil)
-  sourceButton:SetShown(form.kills == true)
-  battlegroundCheck:SetShown(form.kills == true)
-  battlegroundCheck.label:SetText(L.SG_FORM_ONLY_BG)
-  Widgets.SetButtonText(sourceButton, L[SOURCE_LABELS[killSource]], 140)
-  Widgets.SetButtonText(addButton, L.SG_FORM_ADD, 120)
-
+  layoutGoalsPage()
   renderActive()
 
   trackerCheck.label:SetText(L.SG_SHOW_TRACKER)
   trackerCheck:SetChecked(ns.db.settings.showTracker)
-  -- Ton-Schalter hinter dem Text des ersten
-  soundCheck:ClearAllPoints()
-  soundCheck:SetPoint("LEFT", trackerCheck.label, "RIGHT", 14, 0)
-  soundCheck.label:SetText(L.SG_SOUND)
-  soundCheck:SetChecked(ns.db.settings.sound)
-  Widgets.SetButtonText(moveButton, L.SG_MOVE, 90)
-  Widgets.SetButtonText(resetButton, L.SG_RESET_POSITION, 90)
-  moveButton:ClearAllPoints()
-  moveButton:SetPoint("BOTTOMRIGHT", resetButton, "BOTTOMLEFT", -6, 0)
+  Widgets.SetButtonText(settingsButton, L.SG_SETTINGS, FOOTER_BUTTON_MIN_WIDTH)
+  Widgets.SetButtonText(moveButton, L.SG_MOVE, FOOTER_BUTTON_MIN_WIDTH)
 end
 
 function Manager.Toggle(page)
@@ -411,7 +526,7 @@ Goals.OnChange(function()
   end
 end)
 
--- Sprachwechsel in Level Time bei offenem Fenster
-LT.RegisterApply(function()
+-- Einstellungen und Sprachwechsel bei offenem Fenster
+ns.RegisterApply(function()
   if panel:IsShown() then Manager.Refresh() end
 end)

@@ -198,8 +198,11 @@ SlashCmdList.STREAMGOAL("scale 9")
 expect("Größe begrenzt", StreamGoalDB.settings.frame.scale, 2)
 expect("Tracker in neuer Größe", StreamGoalTracker:GetScale(), 2)
 SlashCmdList.STREAMGOAL("move")
+local printedBefore = #wow.printed
 SlashCmdList.STREAMGOAL("help")
-expect("Hilfe", lastPrint():find(L.SG_HELP, 1, true) ~= nil, true)
+expect("Hilfe", wow.printed[printedBefore + 1]:find(L.SG_HELP, 1, true) ~= nil, true)
+expect("Hilfe nennt jede Zielart", #wow.printed - printedBefore, 1 + #Goals.KindOrder())
+expect("Hilfe mit Syntax", wow.printed[printedBefore + 2]:find(L.SG_USAGE_LEVEL, 1, true) ~= nil, true)
 
 ---------------------------------------------------------------------------
 -- Obergrenze und Reload im fertigen Schlachtfeld
