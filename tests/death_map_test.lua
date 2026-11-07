@@ -9,6 +9,7 @@ local canvas = CreateFrame("Frame")
 canvas:SetSize(1000, 600)
 WorldMapFrame.GetCanvas = function() return canvas end
 WorldMapFrame.GetMapID = function() return shownMap end
+WorldMapFrame.OnMapChanged = function() end
 local playerPosition = { 0.25, 0.5 }
 C_Map = {
   GetBestMapForUnit = function() return 1429 end,
@@ -55,7 +56,19 @@ expectTrue("an: Rahmen auf der Leinwand", LevelTimerDeathMap ~= nil and LevelTim
 expect("ein Tod auf der Karte", #DeathMap.DeathsOn(1429), 1)
 DeathMap.Refresh(true)
 wow.update(1)
+-- Roadmap 379: ohne Änderung kein Neuzeichnen; Kartenwechsel über OnMapChanged sofort
+local lookups = { count = 0 }
+local deathsOn = DeathMap.DeathsOn
+DeathMap.DeathsOn = function(...)
+  lookups.count = lookups.count + 1
+  return deathsOn(...)
+end
+for _ = 1, 20 do wow.update(0.5) end
+expect("Karte unverändert: nicht neu gezeichnet", lookups.count, 0)
 shownMap = 1411
+WorldMapFrame:OnMapChanged()
+expect("Kartenwechsel: sofort neu gezeichnet", lookups.count, 1)
+DeathMap.DeathsOn = deathsOn
 DeathMap.Refresh(true)
 expect("andere Karte: keine Tode", #DeathMap.DeathsOn(1411), 0)
 addon.Set("deathMap", false)
