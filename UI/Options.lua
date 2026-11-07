@@ -785,12 +785,13 @@ addToggles({
   toggle("DECLINE_SHARED_QUESTS", "declineSharedQuests"),
   toggle("BLOCK_FRIEND_REQUESTS", "blockFriendRequests", ns.Social.CanBlockFriendRequests),
 })
--- Einladungen: Vertraute = Freunde und Gilde (Friends.lua); declineGroupInvites lehnt sie dann nicht ab
+-- Einladungen: Vertraute = Freunde, Gilde und wahlweise Communities (Friends.lua); declineGroupInvites lehnt sie dann nicht ab
 addSection("SECTION_INVITES")
 addToggles({
   toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
   toggle("INVITE_INFO_TOGGLE", "inviteInfo"),
   toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
+  toggle("FRIENDLY_COMMUNITIES", "friendlyCommunities", ns.Friends.CanUseCommunities),
 })
 builder.AddTextInput({
   label = "INVITE_KEYWORD",

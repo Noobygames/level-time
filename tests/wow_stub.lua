@@ -85,6 +85,7 @@ wow = {
     -- Sozial: Charakter-Freunde (Name oder GUID), Battle.net-Freunde (GUID), Gildenmitglieder (Name),
     -- offene Battle.net-Freundschaftsanfragen { inviteID, accountName }, Battle.net-Konten je ID (accountInfo)
     friends = {}, bnetFriends = {}, guildMembers = {}, friendInvites = {}, bnetAccounts = {},
+    clubs = {},              -- Communities { clubId, clubType, members = { { name, guid, isSelf } } }
     groupLeader = false,     -- UnitIsGroupLeader("player")
   },
   printed = {},
@@ -1036,6 +1037,25 @@ C_BattleNet = {
   InviteFriend = function(gameAccountID) socialAction("bnetInvite", gameAccountID) end,
 }
 C_GuildInfo = { MemberExistsByName = function(name) return state.guildMembers[name] == true end }
+local function clubById(clubId)
+  for _, club in ipairs(state.clubs) do if club.clubId == clubId then return club end end
+end
+C_Club = {
+  GetSubscribedClubs = function()
+    local list = {}
+    for _, club in ipairs(state.clubs) do table.insert(list, { clubId = club.clubId, clubType = club.clubType }) end
+    return list
+  end,
+  GetClubMembers = function(clubId)
+    local ids = {}
+    for index in ipairs((clubById(clubId) or { members = {} }).members) do table.insert(ids, index) end
+    return ids
+  end,
+  GetMemberInfo = function(clubId, memberId)
+    local club = clubById(clubId)
+    return club and club.members[memberId]
+  end,
+}
 C_PartyInfo = { InviteUnit = function(name) socialAction("invite", name) end }
 function BNGetNumFriendInvites() return #state.friendInvites end
 function BNDeclineFriendInvite(inviteID)
