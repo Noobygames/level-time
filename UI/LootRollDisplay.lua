@@ -247,8 +247,7 @@ ns.Frames.Register({
     LootRollDisplay.Refresh()
   end,
   hide = function()
-    ns.db.lootRollCounts = false
-    ns.ApplySettings()
+    ns.SetBatch(function(db) db.lootRollCounts = false end)
   end,
 })
 

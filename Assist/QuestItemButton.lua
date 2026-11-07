@@ -337,8 +337,7 @@ local function create()
       QuestItem.Refresh()
     end,
     hide = function()
-      ns.db.questItemButton, ns.db.questTargetButton = false, false
-      ns.ApplySettings()
+      ns.SetBatch(function(db) db.questItemButton, db.questTargetButton = false, false end)
     end,
   })
   holder:Hide()

@@ -275,6 +275,12 @@ function ns.Set(key, value)
   ns.ApplySettings()
 end
 
+-- Mehrere Einstellungen auf einmal: change(db) ändert ns.db (auch auf nil), danach ein Apply für alle
+function ns.SetBatch(change)
+  change(ns.db)
+  ns.ApplySettings()
+end
+
 -- Wie ns.Set, der Apply läuft aber erst im nächsten Frame, einmal für alle Änderungen bis dahin (Regler ziehen:
 -- OnValueChanged kommt je Pixel). Der Wert steht sofort in ns.db.
 function ns.SetDeferred(key, value)

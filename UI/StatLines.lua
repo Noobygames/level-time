@@ -355,14 +355,16 @@ ns.STAT_PRESETS = {
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im
 -- Profil), damit "Rückgängig" ihn auch nach /reload wiederherstellt
 function ns.ApplyStatPreset(preset)
-  local on, backup = {}, {}
+  local on = {}
   for _, setting in ipairs(preset.settings) do on[setting] = true end
-  for _, stat in ipairs(ns.STAT_LINES) do
-    backup[stat.setting] = ns.db[stat.setting] and true or false
-    ns.db[stat.setting] = on[stat.setting] or false
-  end
-  ns.db.presetBackup = backup
-  ns.ApplySettings()
+  ns.SetBatch(function(db)
+    local backup = {}
+    for _, stat in ipairs(ns.STAT_LINES) do
+      backup[stat.setting] = db[stat.setting] and true or false
+      db[stat.setting] = on[stat.setting] or false
+    end
+    db.presetBackup = backup
+  end)
   ns.Print(string.format(ns.L.PRESET_APPLIED, ns.L[preset.label]) .. " " .. ns.L.PRESET_APPLIED_UNDO)
 end
 
@@ -373,11 +375,12 @@ function ns.UndoStatPreset()
     ns.Print(ns.L.PRESET_NOTHING_TO_UNDO)
     return false
   end
-  for _, stat in ipairs(ns.STAT_LINES) do
-    if backup[stat.setting] ~= nil then ns.db[stat.setting] = backup[stat.setting] end
-  end
-  ns.db.presetBackup = nil
-  ns.ApplySettings()
+  ns.SetBatch(function(db)
+    for _, stat in ipairs(ns.STAT_LINES) do
+      if backup[stat.setting] ~= nil then db[stat.setting] = backup[stat.setting] end
+    end
+    db.presetBackup = nil
+  end)
   ns.Print(ns.L.PRESET_UNDONE)
   return true
 end

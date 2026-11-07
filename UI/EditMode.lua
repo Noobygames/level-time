@@ -322,6 +322,7 @@ local function toolbarButton(labelKey, onClick)
 end
 
 local gridButton = toolbarButton("EDIT_MODE_GRID", function()
+  -- Ohne Apply: das Raster betrifft nur den Edit-Modus und wird hier direkt umgeschaltet
   ns.db.editGrid = not ns.db.editGrid
   updateGrid()
 end)
