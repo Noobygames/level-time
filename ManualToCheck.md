@@ -2068,3 +2068,30 @@ Höhe/Scrollen ok (ja/nein):
 Sprünge aus dem Edit-Modus ok (ja/nein):
 Fehler:
 ```
+
+### 141. Suche in den Einstellungen (Roadmap 381)
+
+- [ ] geprüft
+
+`/lt`, Suchfeld oben links („Suchen …“).
+
+1. „Repar“ tippen: Liste unter dem Feld mit „Automatisch reparieren — Komfort > Automatik“ usw., über Reitern und
+   Inhalt, nicht abgeschnitten; Mausrad/Klicks gehen nicht durch die Liste auf die Schalter darunter.
+2. Treffer anklicken: Reiter und Kategorie wechseln, der Schalter ist kurz hell hinterlegt (Fläche über Kästchen und
+   Text, nicht verrutscht), nach 2 s weg.
+3. Tiefe Einstellung (z.B. „Atem“, „Munition“ als Jäger) mit Enter: Seite scrollt so, dass sie oben steht.
+4. Ein Wort nur aus einem Tooltip (z.B. „Gruppenchat“): Treffer erscheinen hinter den Beschriftungs-Treffern.
+5. Esc im Feld leert es und schließt die Liste; Esc danach schließt das Fenster. Tippen in das Feld löst keine
+   Tastenbelegungen aus (Bewegen, Zauber).
+6. Französisch/Spanisch: Feld und Titel überlappen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste lesbar und oben (ja/nein):
+Hervorhebung sitzt richtig (ja/nein):
+Scrollen zum Treffer (ja/nein):
+Tastatur ok (ja/nein):
+Fehler:
+```

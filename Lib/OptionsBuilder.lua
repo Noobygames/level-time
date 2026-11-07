@@ -10,8 +10,9 @@
 -- eine eigene Unterseite rechts daneben mit denselben Bausteinen (Abschnitte, Schalter in zwei Spalten, ...).
 -- Breite: die zwei Schalter-Spalten, Auswahlzeilen und die Reiterzeile bestimmen sie (fitWidth),
 -- damit längere Sprachen (fr/es) passen; Höhe: längste Seite bzw. Unterseite plus Buttons unten (Finish).
--- Suchindex: jeder Baustein, jede Überschrift, Seite und Unterseite kommt in einen Index (Beschriftung und
--- Tooltip-Text in der gewählten Sprache), Search(query) liefert die Treffer.
+-- Suche (oben links): jeder Baustein, jede Überschrift, Seite und Unterseite kommt in einen Suchindex (Beschriftung
+-- und Tooltip-Text in der gewählten Sprache); ein Treffer zeigt Reiter und Unterseite, scrollt hin und hebt ihn kurz
+-- hervor. Gesucht wird nur beim Tippen (linear über alle Einträge, ein paar hundert).
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -57,6 +58,17 @@ local SIDEBAR_ROW = 24       -- Höhe eines Eintrags der Seitenleiste
 local SIDEBAR_GAP = 16       -- Abstand zwischen Seitenleiste und Unterseite
 local TEXT_INPUT_WIDTH = 120 -- Standardbreite eines Eingabefelds (AddTextInput)
 local TEXT_INPUT_BORDER = 6  -- InputBoxTemplate zeichnet seinen Rand links außerhalb
+local SEARCH_WIDTH = 150         -- Suchfeld oben links
+local SEARCH_TOP = -10
+local SEARCH_MIN_CHARS = 2       -- kürzere Eingaben suchen nicht (zu viele Treffer)
+local SEARCH_MAX_RESULTS = 10    -- so viele Treffer listet die Ergebnisliste, der Rest als "... und n weitere"
+local SEARCH_ROW = 18
+local SEARCH_PADDING = 6
+local SEARCH_RESULTS_TOP = SEARCH_TOP - 24  -- Ergebnisliste unter dem Suchfeld, über Reitern und Inhalt
+local SEARCH_WHERE_GAP = 12     -- Abstand zwischen Beschriftung und "Reiter > Unterseite" in der Ergebnisliste
+local HIGHLIGHT_PADDING = 3      -- Rand der Hervorhebung um einen gefundenen Baustein
+local HIGHLIGHT_SECONDS = 2
+local HIGHLIGHT_ALPHA = 0.3
 
 -- Für eigene Bausteine des Fensters (z.B. Profil-Liste)
 OptionsBuilder.MARGIN = MARGIN
@@ -256,6 +268,160 @@ function OptionsBuilder.New(options)
     local where = L[entry.tab.key]
     if entry.sub then where = where .. " > " .. L[entry.sub.key] end
     return where
+  end
+
+  -- Gefundenen Baustein kurz hervorheben: eine Fläche über ihm, nach HIGHLIGHT_SECONDS wieder weg
+  local highlight = CreateFrame("Frame", nil, panel)
+  highlight.texture = highlight:CreateTexture(nil, "OVERLAY")
+  highlight.texture:SetAllPoints(highlight)
+  highlight:Hide()
+  local highlightToken = 0
+
+  local function showHighlight(entry)
+    highlight:SetParent(entry.parent)
+    highlight:ClearAllPoints()
+    highlight:SetPoint("TOPLEFT", entry.left, "TOPLEFT", -HIGHLIGHT_PADDING, HIGHLIGHT_PADDING)
+    highlight:SetPoint("BOTTOMRIGHT", entry.right, "BOTTOMRIGHT", HIGHLIGHT_PADDING, -HIGHLIGHT_PADDING)
+    local r, g, b = unpack(Widgets.COLORS.highlight)
+    highlight.texture:SetColorTexture(r, g, b, HIGHLIGHT_ALPHA)
+    highlight:Show()
+    highlightToken = highlightToken + 1
+    local token = highlightToken
+    C_Timer.After(HIGHLIGHT_SECONDS, function()
+      if token == highlightToken then highlight:Hide() end
+    end)
+  end
+
+  -- Treffer zeigen: Reiter, Unterseite, Zeile oben im sichtbaren Bereich, kurz hervorgehoben
+  function builder.Reveal(entry)
+    if entry.sub then builder.ShowPage(entry.sub.key) else showPage(entry.tab) end
+    if entry.isPage then return end
+    scrollTo(entry.tab, entry.y)
+    showHighlight(entry)
+  end
+
+  function builder.Highlighted()
+    return highlight:IsShown() and highlight or nil
+  end
+
+  -------------------------------------------------------------------------
+  -- Suchfeld oben links und Ergebnisliste darunter (über Reitern und Inhalt); Klick oder Enter zeigt den Treffer
+  -------------------------------------------------------------------------
+  local searchBox = CreateFrame("EditBox", options.name .. "Search", panel, "InputBoxTemplate")
+  searchBox:SetSize(SEARCH_WIDTH, BUTTON_HEIGHT)
+  searchBox:SetAutoFocus(false)
+  searchBox:SetPoint("TOPLEFT", MARGIN + TEXT_INPUT_BORDER, SEARCH_TOP)
+  local placeholder = searchBox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  placeholder:SetPoint("LEFT", 2, 0)
+  placeholder:SetTextColor(unpack(Widgets.COLORS.muted))
+
+  local results = CreateFrame("Frame", nil, panel, "BackdropTemplate")
+  results:SetFrameStrata("FULLSCREEN_DIALOG")
+  results:SetPoint("TOPLEFT", MARGIN, SEARCH_RESULTS_TOP)
+  results:SetPoint("TOPRIGHT", -MARGIN, SEARCH_RESULTS_TOP)
+  results:Hide()
+  ns.Theme.RegisterPanel(results, 1)
+  local resultRows = {}  -- angelegt bei Bedarf, höchstens SEARCH_MAX_RESULTS + 1 (Zeile "... und n weitere")
+  local rowEntries = {}  -- [Zeilennummer] = Treffer; false = Zeile ohne Sprung ("nichts gefunden", "... weitere")
+
+  local function clearSearch()
+    searchBox:SetText("")
+    searchBox:ClearFocus()
+    placeholder:Show()
+    results:Hide()
+  end
+
+  -- Klick auf eine Zeile: Feld leeren, Treffer zeigen (Zeilen ohne Treffer tun nichts)
+  local function openResult(index)
+    local entry = rowEntries[index]
+    if not entry then return end
+    clearSearch()
+    builder.Reveal(entry)
+  end
+
+  local function resultRow(index)
+    local row = resultRows[index]
+    if row then return row end
+    row = CreateFrame("Button", nil, results)
+    row:SetHeight(SEARCH_ROW)
+    row:SetPoint("TOPLEFT", SEARCH_PADDING, -SEARCH_PADDING - (index - 1) * SEARCH_ROW)
+    row:SetPoint("TOPRIGHT", -SEARCH_PADDING, -SEARCH_PADDING - (index - 1) * SEARCH_ROW)
+    row.where = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    row.where:SetPoint("RIGHT")
+    row.where:SetTextColor(unpack(Widgets.COLORS.muted))
+    row.text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    row.text:SetPoint("LEFT")
+    row.text:SetPoint("RIGHT", row.where, "LEFT", -SEARCH_WHERE_GAP, 0)
+    row.text:SetJustifyH("LEFT")
+    local hover = row:CreateTexture(nil, "HIGHLIGHT")
+    hover:SetAllPoints(row)
+    local r, g, b = unpack(Widgets.COLORS.highlight)
+    hover:SetColorTexture(r, g, b, HIGHLIGHT_ALPHA / 2)
+    row:SetScript("OnClick", function() openResult(index) end)
+    resultRows[index] = row
+    return row
+  end
+
+  local matches = {}
+  local function updateResults()
+    local query = strtrim(searchBox:GetText() or "")
+    placeholder:SetShown(query == "" and not searchBox:HasFocus())
+    if #query < SEARCH_MIN_CHARS then
+      matches = {}
+      results:Hide()
+      return
+    end
+    matches = builder.Search(query)
+    local shown = math.min(#matches, SEARCH_MAX_RESULTS)
+    for i = 1, shown do
+      local row = resultRow(i)
+      rowEntries[i] = matches[i]
+      row.text:SetText(matches[i].title())
+      row.where:SetText(builder.WhereOf(matches[i]))
+      row:Show()
+    end
+    local lines = shown
+    if #matches == 0 or #matches > shown then
+      lines = shown + 1
+      local row = resultRow(lines)
+      rowEntries[lines] = false
+      row.text:SetText(#matches == 0 and L.OPTIONS_SEARCH_NONE or string.format(L.OPTIONS_SEARCH_MORE, #matches - shown))
+      row.where:SetText("")
+      row:Show()
+    end
+    for i = lines + 1, #resultRows do resultRows[i]:Hide() end
+    results:SetHeight(lines * SEARCH_ROW + 2 * SEARCH_PADDING)
+    results:Show()
+  end
+
+  searchBox:SetScript("OnTextChanged", updateResults)
+  searchBox:SetScript("OnEditFocusGained", function() placeholder:Hide() end)
+  searchBox:SetScript("OnEditFocusLost", function() placeholder:SetShown((searchBox:GetText() or "") == "") end)
+  searchBox:SetScript("OnEscapePressed", clearSearch)
+  searchBox:SetScript("OnEnterPressed", function()
+    local first = matches[1]
+    clearSearch()
+    if first then builder.Reveal(first) end
+  end)
+  Widgets.AttachTooltip(searchBox, localized("OPTIONS_SEARCH"), localized("OPTIONS_SEARCH_TIP"))
+  panel:HookScript("OnHide", clearSearch)
+
+  -- Für Tests: Suchtext setzen wie beim Tippen, Zeilen der Ergebnisliste
+  function builder.SetSearchText(text)
+    searchBox:SetText(text)
+    updateResults()
+  end
+  function builder.SearchResultRows()
+    local rows = {}
+    for i, row in ipairs(resultRows) do
+      if row:IsShown() and results:IsShown() then
+        table.insert(rows, {
+          text = row.text:GetText(), where = row.where:GetText(), entry = rowEntries[i] or nil,
+          click = function() openResult(i) end,
+        })
+      end
+    end
+    return rows
   end
 
   -- Neue Seite beginnen; folgende Add*-Aufrufe landen darauf
@@ -663,7 +829,10 @@ function OptionsBuilder.New(options)
         entry.frame:SetPoint("BOTTOMRIGHT")
       end
     end
-    local content = math.max(offset + 2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth())
+    -- Titel steht mittig: links und rechts je Platz für das Suchfeld
+    local titleRow = title:GetStringWidth() + 2 * (SEARCH_WIDTH + TEXT_INPUT_BORDER + MARGIN)
+    local content = math.max(offset + 2 * column, widestChooserRow(), tabRowWidth(), footerWidth(), buttonRowsWidth(),
+      titleRow)
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end
   end
@@ -686,7 +855,8 @@ function OptionsBuilder.New(options)
     refreshPending = false
     refreshedLanguage = db.language
     for owner in pairs(stale) do stale[owner] = nil end
-    title:SetText(options.title())
+    setMeasuredText(title, "SetText", options.title())  -- Breite zählt für das Suchfeld daneben (fitWidth)
+    placeholder:SetText(L.OPTIONS_SEARCH)
     for _, refresher in ipairs(refreshers) do
       refresher.run(db)
     end
@@ -695,7 +865,7 @@ function OptionsBuilder.New(options)
 
   -- Nur die sichtbaren; verborgene Seiten merken sich, dass sie beim Zeigen nachholen müssen
   local function refreshVisible(db)
-    title:SetText(options.title())
+    setMeasuredText(title, "SetText", options.title())
     for _, refresher in ipairs(refreshers) do
       local owner = refresher.owner
       if not owner or owner:IsVisible() then

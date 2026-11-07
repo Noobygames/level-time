@@ -1,6 +1,6 @@
 -- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle
 -- außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie, Layout bearbeiten,
--- Zusammenfassung, Neue Session.
+-- Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
 -- Nur der Inhalt; Aufbau, Tooltips, Breite und Aktualisierung übernimmt Lib/OptionsBuilder.lua.
 local _, ns = ...
 local L = ns.L
@@ -1119,7 +1119,7 @@ end)
 
 builder.Finish()
 ns.RegisterApply(builder.RefreshIfShown)
-ns.OptionsWindow = builder  -- Seiten und Suchindex (Tests)
+ns.OptionsWindow = builder  -- Seiten, Suche und Hervorhebung (Tests)
 
 -- Einstellungen auf einem Reiter oder einer Unterseite öffnen (Locale-Key wie bei addPage/addSubPage), z.B. aus dem
 -- Menü des Edit-Modus; ohne Key bleibt die zuletzt gezeigte Seite

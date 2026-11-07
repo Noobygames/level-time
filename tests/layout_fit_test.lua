@@ -56,6 +56,12 @@ local function checkOptions(language)
     end
   end
 
+  -- Suchfeld links und Titel in der Mitte überlappen nicht
+  local search = LevelTimerOptionsSearch
+  local titleWidth = (addon.DISPLAY_NAME .. " - " .. L.SETTINGS):len() * 6
+  expectTrue(language .. ": Suchfeld neben dem Titel",
+    16 + search:GetWidth() + 6 <= (options:GetWidth() - titleWidth) / 2)
+
   -- Sprachwahl: Beschriftung und alle Reiter nebeneinander
   local row = L.LANGUAGE:len() * 6
   for _, entry in ipairs(addon.languages) do
