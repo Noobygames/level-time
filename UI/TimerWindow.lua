@@ -28,12 +28,11 @@ TimerWindow.CHROMA_COLORS = Theme.CHROMA
 local window = Widgets.CreatePanel("LevelTimerFrame", 0.8)
 window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereitstehen
 
--- Reiter wählen den Bereich (Einstellung windowScope)
--- Linksklick wählt den Bereich, Rechtsklick öffnet wie auf dem Fenster die Einstellungen
-local function createScopeTab(scope)
+-- Reiter wählen den Bereich (Einstellung windowScope): Linksklick wählt ihn, Rechtsklick ruft onRightClick
+local function createScopeTab(scope, onRightClick)
   local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
     if mouseButton == "RightButton" then
-      ns.ToggleOptionsPage(SETTINGS_PAGE)
+      onRightClick()
     else
       ns.Set("windowScope", scope)
     end
@@ -42,20 +41,13 @@ local function createScopeTab(scope)
   return tab
 end
 
-local levelTab = createScopeTab(Stats.LEVEL)
-local sessionTab = createScopeTab(Stats.SESSION)
+-- Rechtsklick öffnet wie auf dem Fenster die Einstellungen
+local function openSettings() ns.ToggleOptionsPage(SETTINGS_PAGE) end
 
-local instanceTab = Widgets.CreateTab(window, Theme.Font("label"))
-
+local levelTab = createScopeTab(Stats.LEVEL, openSettings)
+local sessionTab = createScopeTab(Stats.SESSION, openSettings)
 -- Rechtsklick auf den Instanz-Reiter (oder Button/Befehl): Daten des Laufs zurücksetzen, nach Rückfrage
-instanceTab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-instanceTab:SetScript("OnClick", function(_, mouseButton)
-  if mouseButton == "RightButton" then
-    ns.Instances.ConfirmReset()
-  else
-    ns.Set("windowScope", Stats.INSTANCE)
-  end
-end)
+local instanceTab = createScopeTab(Stats.INSTANCE, function() ns.Instances.ConfirmReset() end)
 Widgets.AttachTooltip(instanceTab, function() return L.TAB_INSTANCE end, function() return L.TAB_INSTANCE_TIP end)
 
 Widgets.AttachTooltip(levelTab, function() return string.format(L.TAB_LEVEL, ns.level) end, function() return L.TAB_LEVEL_TIP end)

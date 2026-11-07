@@ -10,6 +10,9 @@ local SECONDS_PER_DAY = 86400
 local COPPER_PER_SILVER = 100
 local COPPER_PER_GOLD = 10000
 
+Format.NO_VALUE = "-"    -- Platzhalter für Werte, die es (noch) nicht gibt
+Format.PENDING = "..."   -- Platzhalter für Werte, die noch kommen (z.B. /played hat noch nicht geantwortet)
+
 local function splitDuration(totalSeconds)
   totalSeconds = math.floor(totalSeconds)
   return math.floor(totalSeconds / SECONDS_PER_DAY),

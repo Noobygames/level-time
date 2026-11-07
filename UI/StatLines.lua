@@ -10,9 +10,9 @@ local Stats = ns.Stats
 local Experience = ns.Experience
 local DeathCounter = ns.DeathCounter
 
-local NO_VALUE = "-"
+local NO_VALUE = Format.NO_VALUE
 -- Tode rot (Theme-Farbe bad), damit sie (z.B. im Stream) auffallen (Einstellung highlightDeaths)
-local PENDING = "..."  -- noch nicht aussagekräftig (z.B. /played hat noch nicht geantwortet)
+local PENDING = Format.PENDING  -- noch nicht aussagekräftig (z.B. /played hat noch nicht geantwortet)
 
 local function counter(name)
   return function(scope) return tostring(Stats.Get(scope, name)) end

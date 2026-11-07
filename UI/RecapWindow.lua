@@ -15,7 +15,7 @@ local MARGIN = 16
 local CONTENT_TOP = -44
 local ROW_HEIGHT = 18
 local COLUMN_GAP = 24
-local NO_VALUE = "-"
+local NO_VALUE = Format.NO_VALUE
 local BACKGROUND_ALPHA = 0.95  -- ohne Chroma-Hintergrund fast deckend, unabhängig von bgAlpha des Zeitfensters
 local UPDATE_INTERVAL = 1      -- s: offene Karte zählt mit (Zeit, XP, Kills)
 
