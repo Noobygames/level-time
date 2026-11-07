@@ -77,7 +77,6 @@ function OptionsBuilder.New(options)
   panel:SetScript("OnDragStart", panel.StartMoving)
   panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
   panel:Hide()
-  panel:SetScript("OnHide", Widgets.EndMoving)  -- ein offener Verschiebemodus endet mit den Einstellungen
   table.insert(UISpecialFrames, options.name)  -- mit ESC schließen
   Widgets.CreateCloseButton(panel)
   builder.panel = panel

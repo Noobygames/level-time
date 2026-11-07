@@ -2,12 +2,10 @@
 --   countdown  Einladendes Lagerfeuer läuft: "Sitzen bleiben" mit Restzeit und Balken
 --   hint       Feuer in der Nähe, aber keine Lagervorteile: Hinweis, sich hinzusetzen (pulsiert leicht)
 --   done       kurz nach dem Countdown: "Lagervorteile aktiv"
--- Einstellungen: campScale, campPos (verschiebbar, Vorschau mit CampDisplay.Preview), campSound (bei "done").
+-- Einstellungen: Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau mit CampDisplay.Preview), campSound (bei "done").
 local _, ns = ...
 local L = ns.L
 
-local MIN_SCALE = 0.5  -- Grenzen des Reglers in den Einstellungen
-local MAX_SCALE = 2
 local COLORS = {
   countdown = ns.Theme.COLORS.gold,
   done = ns.Theme.COLORS.success,
@@ -29,8 +27,8 @@ end
 local CampDisplay = ns.TimerDisplay.Create({
   name = "LevelTimerCamp",
   default = { "TOP", "TOP", 0, -230 },  -- unter den Einblendungen
-  scaleKey = "campScale", posKey = "campPos", soundKey = "campSound",
-  minScale = MIN_SCALE, maxScale = MAX_SCALE,
+  id = "camp", label = "EDIT_FRAME_CAMP", soundKey = "campSound",
+  available = function() return ns.CampFire.IsAvailable() end,
   colors = COLORS,
   titleFor = titleFor,
   previewKinds = { "hint", "countdown", "done" },
@@ -39,7 +37,6 @@ local CampDisplay = ns.TimerDisplay.Create({
   movingSpell = function() return ns.CampFire.INVITING_SPELL_ID end,  -- CampFire lädt nach dieser Datei
 })
 ns.CampDisplay = CampDisplay
-CampDisplay.MIN_SCALE, CampDisplay.MAX_SCALE = MIN_SCALE, MAX_SCALE
 
 -- Die Spell-ID wird erst beim Aufruf aufgelöst, weil Assist/CampFire.lua nach dieser Datei lädt
 local showDone = CampDisplay.ShowDone

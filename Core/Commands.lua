@@ -27,9 +27,10 @@ local commands = {
     ns.Print(L.UNLOCKED)
   end,
   reset = function()
-    ns.TimerWindow.ResetLayout()
+    ns.Frames.ResetAll()  -- Position und Größe aller Anzeigen
     ns.Print(L.RESET_DONE)
   end,
+  edit = function() ns.EditMode.Toggle() end,
   compact = function() toggleSetting("compactMode", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
   bar = function() toggleSetting("horizontalLayout", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,

@@ -9,10 +9,11 @@ ns.Database = Database
 
 local SETTINGS_DEFAULTS = {
   language = ns.DefaultLanguage(),
-  scale = 1,  -- Größe des Fensters samt Inhalt (siehe TimerWindow.lua)
   bgAlpha = 0.8,
   windowBackground = "default",  -- "default", "green" oder "magenta" (Chroma-Key, siehe TimerWindow.lua)
-  locked = false,
+  locked = false,  -- Anzeigen nur im Edit-Modus verschieben und skalieren (Lib/Frames.lua)
+  editGrid = true,  -- Raster im Edit-Modus (UI/EditMode.lua), daran rastet das Ziehen ein
+  editModeWithBlizzard = true,  -- Edit-Modus zusammen mit Blizzards Bearbeitungsmodus (Retail, WoW Forever)
   -- Aussehen aller Anzeigen (siehe Theme.lua)
   theme = "classic",     -- "classic", "flat", "minimal" oder "colorblind"
   themeAccent = "",      -- "" = Akzent des Presets, sonst Theme.ACCENTS oder "class"
@@ -71,7 +72,6 @@ local SETTINGS_DEFAULTS = {
   alertQuestComplete = false,   -- Quest abgabebereit (QuestCompleteAlert.lua)
   alertQuestObjective = false,  -- einzelnes Questziel erfüllt
   alertStyle = "banner",  -- "text" oder "banner" (siehe Alerts.lua)
-  alertScale = 1,
   alertDuration = 3,      -- Sekunden voll sichtbar
   alertSound = false,
   -- Lagerfeuer in WoW Forever (siehe CampFire.lua, CampDisplay.lua)
@@ -79,13 +79,10 @@ local SETTINGS_DEFAULTS = {
   campHint = true,       -- Hinweis, wenn ein Feuer in der Nähe ist und die Lagervorteile fehlen
   campHintPause = 5,     -- Minuten, bevor der Lagerfeuer-Hinweis wieder erscheinen darf
   campSound = false,     -- Ton, wenn die Lagervorteile da sind
-  campScale = 1,
   foodTimer = true,      -- Essen-Timer (FoodTimer.lua): Restzeit beim Essen, danach "Satt aktiv"
   foodSound = false,     -- Ton, wenn "Satt" da ist
-  foodScale = 1,
   flightTimer = false,   -- Flugzeiten (FlightTimer.lua): eigene Messung, Restzeit im Flug
   flightSound = false,   -- Ton bei der Landung
-  flightScale = 1,
   remindFood = false,  -- Hinweis, wenn beim Leveln "Satt" fehlt (siehe BuffReminder.lua)
   remindCamp = false,  -- Hinweis, wenn beim Leveln der Camp-Buff fehlt (WoW Forever)
   remindCharged = false,  -- Hinweis, wenn Himmelsgeborenen beim Leveln "Aufgeladen" fehlt (WoW Forever)
@@ -189,7 +186,6 @@ local SETTINGS_DEFAULTS = {
   levelUpTheme = "modern",  -- "modern", "alliance" oder "horde"
   levelUpCompact = false,
   levelUpSound = true,
-  levelUpScale = 1,
   levelUpDuration = 8,
   announceRecords = false,  -- Einblendung und Chatzeile bei einem neuen persönlichen Rekord (PersonalRecords.lua)
   sessionCompareLogin = true,  -- Chatzeile zur letzten Session beim Login (siehe SessionCompare.lua)
@@ -327,7 +323,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 5
+local SETTINGS_SCHEMA_VERSION = 6
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -379,6 +375,14 @@ local settingsMigrations = {
         values.showQuestsToLevel = values.showCountToLevel
       end
       values.showCountToLevel = nil
+    end)
+  end,
+  -- Ein Positionssystem (Lib/Frames.lua): xxxPos/xxxScale je Anzeige -> frames[id]. Die Stream-Sicherung verliert
+  -- sie nur (ältere Versionen sicherten dort die Größe; zurückgespielt würde frames sonst alle Positionen ersetzen)
+  [6] = function(settings)
+    forEachSettingsCopy(settings, function(values)
+      Database.MoveLegacyFrameKeys(values)
+      if values == settings.streamBackup then values.frames = nil end
     end)
   end,
 }
@@ -435,10 +439,8 @@ end
 
 -- Erlaubte Bereiche von Zahlen-Einstellungen (wie die Regler und Fenster sie vorgeben); Importe werden begrenzt
 local SETTING_RANGES = {
-  scale = { 0.5, 2 },
   bgAlpha = { 0, 1 },
   themeFontSize = { -4, 8 },
-  splitListScale = { 0.5, 2 },
   splitListRows = { 3, 15 },
   splitTolerancePercent = { 0, 10 },
   reminderInterval = { 1, 30 },
@@ -450,29 +452,22 @@ local SETTING_RANGES = {
   breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
-  alertScale = { 0.5, 2 },
   alertDuration = { 1, 10 },
-  levelUpScale = { 0.5, 2 },
   levelUpDuration = { 3, 20 },
   campHintPause = { 1, 30 },
-  campScale = { 0.5, 2 },
-  foodScale = { 0.5, 2 },
-  flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
   lootSparkleScale = { 0.5, 2 },
   weatherDensity = { 0, 3 },
 }
 
 local OPTIONAL_SETTINGS = {
-  splitListScale = isFiniteNumber,  -- eigene Größe der Split-Liste, sonst die des Hauptfensters (SplitList.lua)
-  pos = isPosition,           -- Hauptfenster (TimerWindow.lua)
-  splitListPos = isPosition,  -- Split-Liste (SplitList.lua)
-  alertPos = isPosition,      -- Einblendungen (Alerts.lua); fehlt = oben in der Mitte
-  campPos = isPosition,       -- Lagerfeuer-Anzeige (CampDisplay.lua)
-  foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
-  flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
-  levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
-  questItemPos = isPosition,  -- Quest-Item-Knopf (QuestItemButton.lua)
+  frames = function(value)  -- Position und Größe je Anzeige (Lib/Frames.lua), Id -> Eintrag
+    if type(value) ~= "table" then return false end
+    for id, entry in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
+      value[id] = type(id) == "string" and Database.SanitizeFrameEntry(entry) or nil
+    end
+    return true
+  end,
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end
     for name, pos in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
@@ -501,13 +496,65 @@ local OPTIONAL_SETTINGS = {
 
 local sanitizeSettings
 
+-- Ein Eintrag von db.frames: { point, relPoint, x, y, scale }; Position nur vollständig und gültig, Größe begrenzt.
+-- nil, wenn nichts Gültiges bleibt
+local FRAME_SCALE_RANGE = { 0.5, 2 }  -- wie Frames.MIN_SCALE/MAX_SCALE (Lib/Frames.lua lädt später)
+
+function Database.SanitizeFrameEntry(entry)
+  if type(entry) ~= "table" then return nil end
+  local clean = {}
+  if FRAME_POINTS[entry.point] and FRAME_POINTS[entry.relPoint] and isFiniteNumber(entry.x) and isFiniteNumber(entry.y) then
+    clean.point, clean.relPoint, clean.x, clean.y = entry.point, entry.relPoint, entry.x, entry.y
+  end
+  if isFiniteNumber(entry.scale) then
+    clean.scale = math.max(FRAME_SCALE_RANGE[1], math.min(FRAME_SCALE_RANGE[2], entry.scale))
+  end
+  return next(clean) and clean or nil
+end
+
+-- Frühere Schlüssel je Anzeige (Position als { Punkt, Bezugspunkt, x, y } und eigene Größe) -> frames[id]
+local LEGACY_FRAME_KEYS = {
+  { id = "main", pos = "pos", scale = "scale" },
+  { id = "splitList", pos = "splitListPos", scale = "splitListScale" },
+  { id = "alert", pos = "alertPos", scale = "alertScale" },
+  { id = "levelUp", pos = "levelUpPos", scale = "levelUpScale" },
+  { id = "camp", pos = "campPos", scale = "campScale" },
+  { id = "food", pos = "foodPos", scale = "foodScale" },
+  { id = "flight", pos = "flightPos", scale = "flightScale" },
+  { id = "questItem", pos = "questItemPos" },
+}
+
+-- Alte Schlüssel einmal lesen und löschen; ein schon vorhandener Eintrag in frames gewinnt. Läuft in der Migration
+-- (auch für Profile und die Stream-Sicherung), beim Import und beim Laden eines Profils.
+function Database.MoveLegacyFrameKeys(values)
+  for _, legacy in ipairs(LEGACY_FRAME_KEYS) do
+    local pos, scale = values[legacy.pos], legacy.scale and values[legacy.scale]
+    if pos ~= nil or scale ~= nil then
+      local frames = type(values.frames) == "table" and values.frames or {}
+      local existing = frames[legacy.id]
+      local entry = type(existing) == "table" and existing or {}
+      if isPosition(pos) and entry.point == nil then
+        entry.point, entry.relPoint, entry.x, entry.y = pos[1], pos[2], pos[3], pos[4]
+      end
+      if entry.scale == nil then entry.scale = scale end
+      frames[legacy.id] = Database.SanitizeFrameEntry(entry)
+      if next(frames) then values.frames = frames end
+    end
+    values[legacy.pos] = nil
+    if legacy.scale then values[legacy.scale] = nil end
+  end
+end
+
 -- Ein Wert passt, wenn er den Typ des Defaults hat (verschachtelt geprüft) bzw. die Form einer
 -- optionalen Einstellung
 local function sanitizeValue(key, value)
   local default = SETTINGS_DEFAULTS[key]
   if default == nil then
-    if key == "streamBackup" then  -- frühere Werte der Stream-Einstellungen (StreamMode.lua)
-      return type(value) == "table" and sanitizeSettings(value) or nil
+    if key == "streamBackup" then  -- frühere Werte der Stream-Einstellungen (StreamMode.lua), nie Positionen
+      if type(value) ~= "table" then return nil end
+      local backup = sanitizeSettings(value)
+      backup.frames = nil
+      return backup
     end
     local check = OPTIONAL_SETTINGS[key]
     if not (check and check(value)) then return nil end
@@ -534,8 +581,11 @@ end
 
 -- Nur bekannte Einstellungen mit passendem Typ, z.B. aus einem importierten Profil
 function sanitizeSettings(settings)
+  local source = {}  -- Kopie: alte Positions-Schlüssel (Profile älterer Versionen) ziehen nach frames um
+  for key, value in pairs(settings) do source[key] = value end
+  Database.MoveLegacyFrameKeys(source)
   local clean = {}
-  for key, value in pairs(settings) do
+  for key, value in pairs(source) do
     if type(key) == "string" then clean[key] = sanitizeValue(key, value) end
   end
   return clean

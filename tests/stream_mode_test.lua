@@ -4,7 +4,7 @@ local window = LevelTimerFrame
 
 wow.login()
 addon.Set("bgAlpha", 0.6)
-addon.Set("scale", 1.2)
+addon.Frames.SetScale("main", 1.2)
 
 SlashCmdList.LEVELTIMER("stream")
 expect("an", StreamMode.IsEnabled(), true)

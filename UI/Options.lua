@@ -264,6 +264,20 @@ local function addThemeSection()
   addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
 end
 
+-- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
+local function addFrameScaleSlider(label, id)
+  local Frames = ns.Frames
+  addSlider({
+    label = label,
+    min = toPercent(Frames.MIN_SCALE),
+    max = toPercent(Frames.MAX_SCALE),
+    step = 5,
+    get = function() return toPercent(Frames.GetScale(id)) end,
+    set = function(value) Frames.SetScale(id, value / 100) end,
+    format = percent,
+  })
+end
+
 ---------------------------------------------------------------------------
 -- Inhalt
 ---------------------------------------------------------------------------
@@ -271,15 +285,7 @@ end
 -- Allgemein: Fenster und grundlegende Einstellungen
 addPage("SECTION_GENERAL")
 addSection("SECTION_WINDOW")
-addSlider({
-  label = "WINDOW_SIZE",
-  min = toPercent(TimerWindow.MIN_SCALE),
-  max = toPercent(TimerWindow.MAX_SCALE),
-  step = 5,
-  get = function(db) return toPercent(db.scale) end,
-  set = function(value) ns.SetDeferred("scale", value / 100) end,
-  format = percent,
-})
+addFrameScaleSlider("WINDOW_SIZE", "main")
 addSlider({
   label = "BG_OPACITY",
   min = 0,
@@ -297,8 +303,8 @@ addToggles({
   toggle("HORIZONTAL_LAYOUT", "horizontalLayout"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
   toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
+  toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end),
 })
-addButton("RESET_WINDOW", function() TimerWindow.ResetLayout() end)
 addHint("OPTIONS_HINT")
 addThemeSection()
 addSection("SECTION_LANGUAGE")
@@ -472,22 +478,11 @@ finishPage()
 -- Timer: Lagerfeuer (nur WoW Forever), Essen und Flüge (überall, daher gibt es den Reiter immer)
 do
   addPage("OPTIONS_TAB_TIMERS")
-  -- Größe, Vorschau, Verschieben und Zurücksetzen einer Zeit-Anzeige (Lib/TimerDisplay.lua); Texte <PREFIX>_SCALE, _PREVIEW, _MOVE, _RESET_POSITION
-  local function addTimerDisplayControls(prefix, display, scaleSetting)
-    addSlider({
-      label = prefix .. "_SCALE",
-      min = toPercent(display.MIN_SCALE),
-      max = toPercent(display.MAX_SCALE),
-      step = 5,
-      get = function(db) return toPercent(db[scaleSetting]) end,
-      set = function(value) ns.SetDeferred(scaleSetting, value / 100) end,
-      format = percent,
-    })
-    builder.AddButtonRow({
-      { label = prefix .. "_PREVIEW", onClick = function() display.Preview() end },
-      { label = prefix .. "_MOVE", onClick = function() display.SetMoving(not display.IsMoving()) end },
-      { label = prefix .. "_RESET_POSITION", onClick = function() display.ResetPosition() end },
-    })
+  -- Größe und Vorschau einer Zeit-Anzeige (Lib/TimerDisplay.lua); Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
+  -- Zurücksetzen übernimmt der Edit-Modus (Button unten)
+  local function addTimerDisplayControls(prefix, display, frameId)
+    addFrameScaleSlider(prefix .. "_SCALE", frameId)
+    addButton(prefix .. "_PREVIEW", function() display.Preview() end)
   end
 
 
@@ -508,7 +503,7 @@ do
       set = function(value) ns.SetDeferred("campHintPause", value) end,
       format = function(value) return string.format(L.MINUTES, value) end,
     })
-    addTimerDisplayControls("CAMP", ns.CampDisplay, "campScale")
+    addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
   end
 
   -- Essen-Timer: überall, wo der Client die Buffs "Essen" und "Satt" kennt
@@ -518,7 +513,7 @@ do
       toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
       toggle("FOOD_SOUND", "foodSound"),
     })
-    addTimerDisplayControls("FOOD", ns.FoodDisplay, "foodScale")
+    addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
   end
 
   -- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times", ohne mitgelieferte Daten)
@@ -527,7 +522,7 @@ do
     toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
     toggle("FLIGHT_SOUND", "flightSound"),
   })
-  addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flightScale")
+  addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
   finishPage()
 end
 
@@ -667,10 +662,6 @@ addToggles({
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
 })
-builder.AddButtonRow({
-  { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
-  { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
-})
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
   addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
@@ -798,15 +789,7 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
   { value = "alliance", name = localized("THEME_ALLIANCE") },
   { value = "horde", name = localized("THEME_HORDE") },
 } })
-addSlider({
-  label = "LEVEL_UP_SCALE",
-  min = toPercent(ns.LevelUpWindow.MIN_SCALE),
-  max = toPercent(ns.LevelUpWindow.MAX_SCALE),
-  step = 5,
-  get = function(db) return toPercent(db.levelUpScale) end,
-  set = function(value) ns.SetDeferred("levelUpScale", value / 100) end,
-  format = percent,
-})
+addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
 addSlider({
   label = "LEVEL_UP_DURATION",
   min = ns.LevelUpWindow.MIN_DURATION,
@@ -816,26 +799,14 @@ addSlider({
   set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
-builder.AddButtonRow({
-  { label = "LEVEL_UP_PREVIEW", onClick = function() ns.LevelUpWindow.Preview() end },
-  { label = "LEVEL_UP_MOVE", onClick = function() ns.LevelUpWindow.SetMoving(not ns.LevelUpWindow.IsMoving()) end },
-  { label = "LEVEL_UP_RESET_POSITION", onClick = function() ns.LevelUpWindow.ResetPosition() end },
-})
+addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 addSection("SECTION_ALERT_LOOK")
 addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
   { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
   { value = Alerts.STYLE_TEXT, name = localized("ALERT_STYLE_TEXT") },
 } })
-addSlider({
-  label = "ALERT_SCALE",
-  min = toPercent(Alerts.MIN_SCALE),
-  max = toPercent(Alerts.MAX_SCALE),
-  step = 5,
-  get = function(db) return toPercent(db.alertScale) end,
-  set = function(value) ns.SetDeferred("alertScale", value / 100) end,
-  format = percent,
-})
+addFrameScaleSlider("ALERT_SCALE", "alert")
 addSlider({
   label = "ALERT_DURATION",
   min = Alerts.MIN_DURATION,
@@ -847,8 +818,6 @@ addSlider({
 })
 addToggles({ toggle("ALERT_SOUND", "alertSound") })
 addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
-addButton("ALERT_MOVE", function() Alerts.SetMoving(not Alerts.IsMoving()) end)
-addButton("ALERT_RESET_POSITION", function() Alerts.ResetPosition() end)
 finishPage()
 
 -- Speedrun: Splits, Split-Liste und Speedrun-Rekorde
@@ -875,15 +844,7 @@ addSlider({
   set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
   format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
-addSlider({
-  label = "SPLIT_LIST_SIZE",
-  min = toPercent(TimerWindow.MIN_SCALE),
-  max = toPercent(TimerWindow.MAX_SCALE),
-  step = 5,
-  get = function(db) return toPercent(ns.SplitList.GetScale(db)) end,
-  set = function(value) ns.SetDeferred("splitListScale", value / 100) end,
-  format = percent,
-})
+addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
 addSlider({
   label = "SPLIT_LIST_ROWS",
   min = ns.SplitList.MIN_ROWS,
@@ -937,6 +898,11 @@ addHint("PROFILE_HINT")
 finishPage()
 
 addFooterButton("HISTORY", function() ns.ToggleHistory() end)
+-- Edit-Modus auf allen Reitern: verschieben, skalieren und zurücksetzen aller Anzeigen (UI/EditMode.lua)
+addFooterButton("EDIT_MODE", function()
+  builder.panel:Hide()  -- Platz für die Anzeigen
+  ns.EditMode.Enter()
+end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
 -- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
 local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
@@ -956,6 +922,14 @@ end)
 
 builder.Finish()
 ns.RegisterApply(builder.RefreshIfShown)
+
+-- Einstellungen auf einem Reiter öffnen (Locale-Key wie bei addPage), z.B. aus dem Menü des Edit-Modus
+function ns.ShowOptionsPage(pageKey)
+  if not ns.db then return end
+  builder.Refresh(ns.db)
+  builder.panel:Show()
+  if pageKey then builder.ShowPage(pageKey) end
+end
 
 function ns.ToggleOptions()
   if not ns.db then return end

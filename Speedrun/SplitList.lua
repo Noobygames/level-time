@@ -2,12 +2,12 @@
 -- abgeschlossenen Leveln (Level, Zeit, Abweichung zum Vergleich aus Splits.lua), darunter die Summe
 -- und die gesamte Spielzeit (/played); optional die Speedrun-Rekorde je Abschnitt (WorldRecords.lua).
 -- Einstellungen (Reiter Speedrun): showSplitList (an/aus, /lt splits), splitListRows (Zahl der Level),
--- splitListScale (eigene Größe, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
+-- eigene Größe (frames.splitList.scale, sonst die des Hauptfensters), splitListShowTotal, splitListShowPlayed,
 -- showWorldRecords mit WorldRecords.IsBracketShown je Abschnitt, showRecordsAge (Stand der Rekorde),
 -- splitListShowForecast (Prognose des nächsten Abschnitts gegen PB, Summe der Bestzeiten und Rekord),
 -- ssfCategory (SSF-Regelhelfer, SsfRules.lua), splitListShowCustom (die letzten eigenen Splits, CustomSplits.lua).
 -- Mit friendRace und einem gehörten Freund (FriendRace.lua) eine vierte Spalte "gegen Freund" je Level.
--- Position splitListPos; Hintergrund und Fixieren folgen dem Hauptfenster.
+-- Position über Lib/Frames.lua; Hintergrund und Fixieren folgen dem Hauptfenster.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -15,7 +15,6 @@ local Theme = ns.Theme
 local Format = ns.Format
 local Stats = ns.Stats
 local Splits = ns.Splits
-local TimerWindow = ns.TimerWindow
 
 local SplitList = {
   MIN_ROWS = 3,
@@ -211,36 +210,30 @@ local function render()
 end
 
 ---------------------------------------------------------------------------
--- Position, Ablauf
+-- Position (Lib/Frames.lua; ohne eigene Größe die des Hauptfensters), Ablauf
 ---------------------------------------------------------------------------
-panel:SetScript("OnDragStart", function(self)
-  if not ns.db.locked then self:StartMoving() end
-end)
--- Zuletzt angewendete bzw. gespeicherte Positionstabelle (wie beim Hauptfenster: ein Profilwechsel
--- bringt eine neue Tabelle mit)
-local appliedPos
-local positioned = false  -- schon einmal positioniert (Login)
+local editing = false  -- Edit-Modus: auch ausgeschaltet sichtbar
 
-local function savePosition()
-  local point, _, relativePoint, x, y = panel:GetPoint()
-  ns.db.splitListPos = { point, relativePoint, x, y }
-  appliedPos = ns.db.splitListPos
-end
+ns.Frames.Register({
+  id = "splitList", frame = panel, label = "EDIT_FRAME_SPLITS", default = DEFAULT_POSITION,
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_TAB_SPEEDRUN",
+  fallbackScale = function() return ns.Frames.GetScale("main") end,
+  preview = function(on)
+    editing = on
+    panel:SetShown(on or ns.db.showSplitList)
+    if panel:IsShown() then render() end
+  end,
+  hide = function() ns.Set("showSplitList", false) end,
+})
 
-panel:SetScript("OnDragStop", function(self)
-  self:StopMovingOrSizing()
-  savePosition()
-end)
 panel:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "RightButton" then ns.ToggleOptions() end
 end)
 
--- Ziehgriff unten rechts ändert die eigene Größe (splitListScale), wie beim Hauptfenster
-local grip = Widgets.CreateResizeGrip(panel, function(scale)
-  return math.max(TimerWindow.MIN_SCALE, math.min(TimerWindow.MAX_SCALE, scale))
-end, function(scale)
-  savePosition()
-  ns.Set("splitListScale", scale)
+-- Ziehgriff unten rechts ändert die eigene Größe, wie beim Hauptfenster
+local grip = Widgets.CreateResizeGrip(panel, ns.Frames.ClampScale, function(scale)
+  ns.Frames.SavePosition("splitList")
+  ns.Frames.SetScale("splitList", scale)
 end)
 
 local sinceUpdate = 0
@@ -252,36 +245,10 @@ ns.SetUpdateScript(panel, "SplitList", function(_, elapsed)
   grip:UpdateAlpha()  -- nur bei Mauskontakt sichtbar
 end)
 
--- Abstände gelten in der Skalierung der Anzeige, daher vor dem Positionieren skalieren
--- Eigene Größe der Split-Liste; ohne eigene Einstellung die des Hauptfensters
-function SplitList.GetScale(db)
-  return db.splitListScale or db.scale
-end
-
-local function restorePosition(db)
-  appliedPos, positioned = db.splitListPos, true
-  local pos = db.splitListPos or DEFAULT_POSITION
-  panel:SetScale(SplitList.GetScale(db))
-  panel:ClearAllPoints()
-  panel:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-end
-
--- Neue Position (Login, Profil, Zurücksetzen): dorthin. Nur andere Größe: um die linke obere Ecke
--- skalieren, sonst würde die Liste mit den alten Abständen in neuer Skalierung springen.
-local function applyPosition(db)
-  local scale = SplitList.GetScale(db)
-  if not positioned or db.splitListPos ~= appliedPos then
-    restorePosition(db)
-  elseif math.abs(panel:GetScale() - scale) > 0.001 then
-    Widgets.SetScaleKeepingTopLeft(panel, scale)
-    savePosition()
-  end
-end
-
 ns.RegisterApply(function(db)
-  applyPosition(db)
   grip:SetShown(not db.locked)
   Theme.ApplyBackground(panel, db)
-  panel:SetShown(db.showSplitList)
-  if db.showSplitList then render() end
+  local shown = db.showSplitList or editing
+  panel:SetShown(shown)
+  if shown then render() end
 end)

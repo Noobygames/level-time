@@ -93,11 +93,10 @@ addon.Set("questLearning", false)
 
 -- Verschieben: Griff sichtbar, nicht im Kampf
 addon.Set("questTargetButton", false)
-QuestItem.SetMoving(true)
-expectTrue("Verschieben: Halter sichtbar", QuestItem.IsMoving() and bar:IsShown())
+addon.EditMode.Enter()
+expectTrue("Edit-Modus: Halter sichtbar", bar:IsShown())
 expect("Griff beschriftet", bar.label:GetText(), L.QUEST_ITEM_MOVE_LABEL)
-QuestItem.SetMoving(false)
+addon.EditMode.Leave()
 wow.state.combatLockdown = true
-QuestItem.SetMoving(true)
-expectTrue("im Kampf kein Verschieben", not QuestItem.IsMoving())
+expect("im Kampf kein Edit-Modus", addon.EditMode.Enter(), false)
 wow.state.combatLockdown = false

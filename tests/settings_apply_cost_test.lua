@@ -14,9 +14,9 @@ expect("gleicher Wert: kein Apply", applies.count, 0)
 addon.Set("compactMode", not addon.db.compactMode)
 expect("neuer Wert: ein Apply", applies.count, 1)
 -- Tabellen (Positionen) werden oft an Ort und Stelle geändert: immer anwenden
-local position = { "CENTER", "CENTER", 0, 0 }
-addon.Set("alertPos", position)
-addon.Set("alertPos", position)
+local position = { alert = { point = "CENTER", relPoint = "CENTER", x = 0, y = 0 } }
+addon.Set("frames", position)
+addon.Set("frames", position)
 expect("Tabellen: immer angewendet", applies.count, 3)
 
 -- Regler: viele Änderungen in einem Frame, ein Apply im nächsten Frame; der Wert steht sofort in db

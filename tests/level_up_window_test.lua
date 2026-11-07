@@ -51,14 +51,16 @@ expect("Vorschau sichtbar", LevelTimerLevelUp:IsShown(), true)
 addon.Set("levelUpTheme", "alliance")
 addon.Set("levelUpCompact", false)
 
--- Verschiebemodus bleibt stehen
-Window.SetMoving(true)
-expect("Verschieben: sichtbar", Window.IsMoving(), true)
+-- Edit-Modus: Beispiel bleibt stehen, Linksklick schließt es nicht
+addon.EditMode.Enter()
+expect("Edit-Modus: sichtbar", LevelTimerLevelUp:IsShown(), true)
 wow.advance(30)
 wow.update(0.1)
-expect("Verschieben: bleibt", LevelTimerLevelUp:IsShown(), true)
-Window.SetMoving(false)
-expect("Verschieben beendet", LevelTimerLevelUp:IsShown(), false)
+expect("Edit-Modus: bleibt", LevelTimerLevelUp:IsShown(), true)
+LevelTimerLevelUp._scripts.OnMouseUp(LevelTimerLevelUp, "LeftButton")
+expect("Edit-Modus: Klick schließt nicht", LevelTimerLevelUp:IsShown(), true)
+addon.EditMode.Leave()
+expect("Edit-Modus beendet", LevelTimerLevelUp:IsShown(), false)
 
 -- Blizzards Banner: Ereignis abgemeldet, solange das Fenster es ersetzt
 addon.Set("levelUpHideBlizzard", false)

@@ -8,18 +8,19 @@ expectTrue("Ziehgriff vorhanden", grip ~= nil)
 wow.login()
 expect("Standardgröße", window:GetScale(), 1)
 
--- Regler in den Einstellungen skaliert das ganze Fenster
-addon.Set("scale", 1.5)
+-- Regler in den Einstellungen skaliert das ganze Fenster (Lib/Frames.lua, frames.main.scale)
+local Frames = addon.Frames
+Frames.SetScale("main", 1.5)
 expect("Größe aus Einstellung", window:GetScale(), 1.5)
-expectTrue("Position nach Skalierung gespeichert", LevelTimerDB.pos ~= nil)
+expectTrue("Position nach Skalierung gespeichert", LevelTimerDB.frames.main.point ~= nil)
 
-addon.Set("scale", 5)
-expect("obere Grenze", window:GetScale(), addon.TimerWindow.MAX_SCALE)
-addon.Set("scale", 0.1)
-expect("untere Grenze", window:GetScale(), addon.TimerWindow.MIN_SCALE)
+Frames.SetScale("main", 5)
+expect("obere Grenze", window:GetScale(), Frames.MAX_SCALE)
+Frames.SetScale("main", 0.1)
+expect("untere Grenze", window:GetScale(), Frames.MIN_SCALE)
 
 -- Ziehgriff: Ecke um die halbe Fenstergröße nach rechts unten ziehen = 1,5-fach
-addon.Set("scale", 1)
+Frames.SetScale("main", 1)
 local width, height = window:GetWidth(), window:GetHeight()
 wow.state.cursorX, wow.state.cursorY = 300, 300
 grip._scripts.OnMouseDown(grip, "LeftButton")
@@ -27,19 +28,25 @@ wow.state.cursorX, wow.state.cursorY = 300 + width / 2, 300 - height / 2
 grip._scripts.OnUpdate(grip, 0.1)
 grip._scripts.OnMouseUp(grip, "LeftButton")
 expectNear("Größe nach Ziehen", window:GetScale(), 1.5)
-expectNear("gezogene Größe gespeichert", LevelTimerDB.scale, 1.5)
+expectNear("gezogene Größe gespeichert", LevelTimerDB.frames.main.scale, 1.5)
 
--- Fixiertes Fenster: kein Ziehgriff
+-- Fixiertes Fenster: kein Ziehgriff, kein Ziehen
 addon.Set("locked", true)
 expect("Ziehgriff bei fixiertem Fenster versteckt", grip:IsShown(), false)
+local moved = { count = 0 }
+window.StartMoving = function() moved.count = moved.count + 1 end
+window._scripts.OnDragStart(window)
+expect("fixiert: kein Ziehen", moved.count, 0)
 addon.Set("locked", false)
 expect("Ziehgriff wieder da", grip:IsShown(), true)
+window._scripts.OnDragStart(window)
+expect("frei: Ziehen", moved.count, 1)
+window.StartMoving = nil
 
 -- Zurücksetzen
 SlashCmdList.LEVELTIMER("reset")
-expect("Größe zurückgesetzt", LevelTimerDB.scale, 1)
+expect("Eintrag zurückgesetzt", LevelTimerDB.frames.main, nil)
 expect("Fenster zurückgesetzt", window:GetScale(), 1)
-expect("Position zurückgesetzt", LevelTimerDB.pos, nil)
 
 -- Rechtsklick öffnet die Einstellungen
 window._scripts.OnMouseUp(window, "RightButton")

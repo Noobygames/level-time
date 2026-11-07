@@ -29,7 +29,7 @@ addon.Set("splitListRows", 10)
 expect("nur vorhandene Level", #SplitList.BuildLines(), 5)
 
 -- Größe und Hintergrund folgen dem Hauptfenster
-addon.Set("scale", 1.5)
+addon.Frames.SetScale("main", 1.5)
 expect("Größe wie Fenster", list:GetScale(), 1.5)
 addon.Set("windowBackground", "green")
 expect("Chroma wie Fenster", list._backdropColor[2], 1)
@@ -50,12 +50,12 @@ expectTrue("Wert /played", found ~= nil)
 
 -- Größe ändern: die Liste bleibt mit ihrer linken oberen Ecke stehen
 addon.Set("showSplitList", true)
-addon.Set("splitListScale", 1)
-addon.Set("splitListScale", 2)
+addon.Frames.SetScale("splitList", 1)
+addon.Frames.SetScale("splitList", 2)
 local anchor = LevelTimerSplits._points[1]
 expect("an der linken oberen Ecke skaliert", anchor[1] .. " " .. anchor[3], "TOPLEFT BOTTOMLEFT")
 expect("Abstand umgerechnet", anchor[4], 50)  -- linke Kante 100 bei Größe 1
-expectTrue("Position gespeichert", LevelTimerDB.splitListPos ~= nil)
+expectTrue("Position gespeichert", LevelTimerDB.frames.splitList.point ~= nil)
 
 -- Ziehgriff an der Split-Liste: Loslassen speichert die eigene Größe
 local grips = {}
@@ -64,12 +64,12 @@ wow.findFrame(function(frame)
   return false
 end)
 expect("Ziehgriffe an Hauptfenster und Split-Liste", #grips, 2)
-addon.Set("scale", 1)
+addon.Frames.SetScale("main", 1)
 local savedSplitScale
 for _, grip in ipairs(grips) do
   LevelTimerSplits:SetScale(1.4)               -- wie nach dem Ziehen am Griff der Split-Liste
   grip._scripts.OnMouseUp(grip)
-  if math.abs(LevelTimerDB.splitListScale - 1.4) < 0.001 then savedSplitScale = true end
+  if math.abs(LevelTimerDB.frames.splitList.scale - 1.4) < 0.001 then savedSplitScale = true end
 end
 expectTrue("Größe der Split-Liste gespeichert", savedSplitScale)
-expectNear("Hauptfenster unverändert", LevelTimerDB.scale, 1)
+expectNear("Hauptfenster unverändert", LevelTimerDB.frames.main.scale, 1)

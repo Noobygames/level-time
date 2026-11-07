@@ -2,12 +2,10 @@
 --   countdown  im Flug mit bekannter Dauer: Ziel als Titel, Restzeit und Balken
 --   hint       im Flug, Strecke zum ersten Mal: Ziel als Titel, "Dauer wird gemessen"
 --   done       gelandet: kurz "Angekommen"
--- Einstellungen: flightScale, flightPos (verschiebbar, Vorschau mit FlightDisplay.Preview), flightSound (Landung).
+-- Einstellungen: Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau mit FlightDisplay.Preview), flightSound (Landung).
 local _, ns = ...
 local L = ns.L
 
-local MIN_SCALE = 0.5
-local MAX_SCALE = 2
 local ICON = "Interface\\Icons\\Ability_Mount_Wyvern_01"
 local COLORS = {
   countdown = ns.Theme.COLORS.info,
@@ -29,8 +27,8 @@ end
 local FlightDisplay = ns.TimerDisplay.Create({
   name = "LevelTimerFlight",
   default = { "TOP", "TOP", 0, -160 },
-  scaleKey = "flightScale", posKey = "flightPos", soundKey = "flightSound",
-  minScale = MIN_SCALE, maxScale = MAX_SCALE,
+  id = "flight", label = "EDIT_FRAME_FLIGHT", soundKey = "flightSound",
+  toggleKey = "flightTimer",
   colors = COLORS,
   titleFor = titleFor,
   formatTime = formatTime,
@@ -39,5 +37,4 @@ local FlightDisplay = ns.TimerDisplay.Create({
   movingSpell = function() return ICON end,
 })
 ns.FlightDisplay = FlightDisplay
-FlightDisplay.MIN_SCALE, FlightDisplay.MAX_SCALE = MIN_SCALE, MAX_SCALE
 FlightDisplay.ICON = ICON

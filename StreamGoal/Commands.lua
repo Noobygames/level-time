@@ -135,7 +135,7 @@ local commands = {
   count = count,
   tracker = toggleTracker,
   scale = scale,
-  move = function() Tracker.mover.SetMoving(not Tracker.mover.IsMoving()) end,
+  move = function() ns.LT.EditMode.Toggle() end,  -- Edit-Modus von Level Time
   history = function() Manager.Toggle("history") end,
   help = function() ns.Print(L.SG_HELP) end,
 }

@@ -41,6 +41,7 @@ Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
+Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
 Lib\TimerDisplay.lua
@@ -195,6 +196,7 @@ UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\EditMode.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
 Core\Commands.lua

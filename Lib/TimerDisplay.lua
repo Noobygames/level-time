@@ -3,13 +3,13 @@
 --   countdown  Restzeit als Zahl und leerlaufender Balken
 --   hint       Hinweis ohne Zeit, pulsiert leicht (config.pulseKind)
 --   done       steht kurz mit "fertig" und verschwindet (endsAt)
--- config: { name, default (Position), scaleKey, posKey, soundKey, minScale, maxScale, colors[kind],
---   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber für den Verschiebemodus), pulseKind,
+-- config: { name, id und label (Edit-Modus, Lib/Frames.lua), default (Position), soundKey, colors[kind],
+--   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber im Edit-Modus), pulseKind,
+--   toggleKey (Einstellung, die "Ausblenden" im Edit-Modus abschaltet), available() optional,
 --   formatTime(remaining) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen.
 -- spellId darf auch ein Texturpfad sein (Card nimmt beides).
--- Einstellungen: db[scaleKey], db[posKey] (verschiebbar, Vorschau), db[soundKey] (bei "done").
+-- Einstellungen: db[soundKey] (bei "done"); Position und Größe in db.frames[id].
 local _, ns = ...
-local Widgets = ns.Widgets
 
 local TimerDisplay = {}
 ns.TimerDisplay = TimerDisplay
@@ -30,7 +30,7 @@ function TimerDisplay.Create(config)
 
   local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
   local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
-  local override  -- Vorschau oder Verschiebemodus; solange gesetzt, ignoriert die Anzeige die echten Zustände
+  local override  -- Vorschau oder Edit-Modus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
 
   local function remainingOf(state)
@@ -130,19 +130,9 @@ function TimerDisplay.Create(config)
   end
 
   ---------------------------------------------------------------------------
-  -- Position, Größe, Vorschau
+  -- Vorschau und Edit-Modus; Position und Größe über Lib/Frames.lua
   ---------------------------------------------------------------------------
-  local mover = Widgets.CreateMover(frame, {
-    default = config.default,
-    get = function() return ns.db and ns.db[config.posKey] end,
-    set = function(pos) ns.db[config.posKey] = pos end,
-    onMovingChanged = function(moving)
-      if not moving then
-        override = nil
-        hide()
-      end
-    end,
-  })
+  local editing = false
 
   local function demoState(kind)
     return {
@@ -158,37 +148,33 @@ function TimerDisplay.Create(config)
 
   -- Vorschau: jeder Aufruf zeigt den nächsten Zustand ein paar Sekunden
   function Display.Preview()
-    if mover.IsMoving() then Display.SetMoving(false) end
+    if editing then return end
     previewIndex = previewIndex % #config.previewKinds + 1
     override = demoState(config.previewKinds[previewIndex])
     display(override)
   end
 
-  -- Verschiebemodus: der Countdown steht still (42 s), Ziehen verschiebt, Rechtsklick oder erneuter Aufruf beendet
-  function Display.SetMoving(enabled)
-    enabled = enabled and true or false
-    if enabled == mover.IsMoving() then return end
+  -- Edit-Modus: der Countdown steht still (42 s), bis der Modus endet
+  local function setEditing(enabled)
+    if enabled == editing then return end
+    editing = enabled
     if enabled then
       override = { kind = "countdown", spellId = config.movingSpell(), frozen = DEMO_REMAINING, duration = DEMO_DURATION }
       display(override)
       frame:SetAlpha(1)
+    else
+      override = nil
+      hide()
     end
-    mover.SetMoving(enabled)
   end
 
-  function Display.IsMoving()
-    return mover.IsMoving()
-  end
+  ns.Frames.Register({
+    id = config.id, frame = frame, label = config.label, default = config.default,
+    settingsPage = "OPTIONS_TAB_TIMERS", available = config.available, preview = setEditing,
+    hide = config.toggleKey and function() ns.Set(config.toggleKey, false) end or nil,
+  })
 
-  function Display.ResetPosition()
-    mover.Reset()
-  end
-
-  ns.OnLogin(mover.Restore)
-
-  ns.RegisterApply(function(db)
-    mover.SetScale(math.max(config.minScale, math.min(config.maxScale, db[config.scaleKey])))
-    mover.Sync()
+  ns.RegisterApply(function()
     if current then setCard(current) end  -- Sprache kann gewechselt haben
   end)
 

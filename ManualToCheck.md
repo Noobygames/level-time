@@ -133,6 +133,9 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **102. Prüfcode für Läufe (Roadmap 290)**: debug `runcheck`, check `290.runs` (Prüfstatus je Lauf), `print` von `/lt runs verify`
 - **105. Rennen gegen Freunde (Roadmap 293)**: debug `friendrace` (send/received), check `293.friendRace`, `284.splitList.lines` (Spalte Freund), `print`, event `ADDON_ACTION_BLOCKED`
 - **106. Meilenstein-Screenshots (Roadmap 294)**: debug `screenshot` (milestone …), events `SCREENSHOT_SUCCEEDED`/`SCREENSHOT_FAILED`, `ADDON_ACTION_BLOCKED`
+- **126. Themes und Schriften, Datenteil (Roadmap 357)**: check `357.theme` (Preset, Schrift je Rolle mit Größe und Flags nach dem Anwenden, LibSharedMedia geladen, Zahl der Schriften)
+- **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
+- **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 
 ---
 
@@ -1722,5 +1725,56 @@ Client (Retail/Era/TBC/Forever):
 Klassisch wie vorher (ja/nein):
 Flach/Minimal sauber (ja/nein, was fällt auf):
 Schriften/Kontur ok (ja/nein):
+Fehler:
+```
+
+### 127. Positionen nach dem Update (Roadmap 358)
+
+- [ ] geprüft
+
+Vor dem Update: Hauptfenster, Split-Liste, Einblendungen, Level-Up-Fenster und (falls genutzt) Lagerfeuer, Essen, Flug, Quest-Knöpfe und Stream-Goal-Tracker an eigene Stellen mit eigener Größe setzen. Update einspielen, Client neu starten (neue Dateien in der `.toc`).
+
+1. Alle Anzeigen stehen an derselben Stelle in derselben Größe wie vorher.
+2. Ein zweites Profil mit anderen Positionen: Wechsel setzt alle Anzeigen um, zurück ebenso.
+3. `/lt lock`: Hauptfenster und Split-Liste lassen sich nicht mehr ziehen, kein Größengriff; `/lt unlock` wieder.
+4. `/lt reset`: alle Anzeigen springen auf ihre Standardplätze (Hauptfenster oben Mitte, Einblendungen darunter).
+
+**Erwartet:** nichts springt beim Login oder `/reload`, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Positionen übernommen (ja/nein, welche nicht):
+Profilwechsel ok (ja/nein):
+Fehler:
+```
+
+### 128. Edit-Modus (Roadmap 359)
+
+- [ ] geprüft
+
+`/lt edit` (oder „Layout bearbeiten“ unten in den Einstellungen, oder Shift-Rechtsklick auf den Minimap-Knopf).
+
+1. Alle Anzeigen erscheinen mit Beispielinhalt und einer farbigen, beschrifteten Fläche (Name und Größe in %), oben eine Leiste mit Hinweis und Knöpfen; das Raster liegt hinter allem.
+2. Ziehen: die Anzeige folgt der Maus; beim Loslassen rastet sie sichtbar am Raster, an der Bildschirmmitte oder an der Kante einer anderen Anzeige ein; mit gehaltenem Shift nicht.
+3. Mausrad über einer Anzeige ändert ihre Größe in 5-%-Schritten; die Fläche wächst mit.
+4. Anzeige anklicken, dann Pfeiltasten: 1 px je Druck, mit Shift 10 px. Andere Tasten (WASD) bewegen weiter den Charakter.
+5. Rechtsklick: kleines Menü mit Größen-Regler, Zurücksetzen, Ausblenden, Einstellungen (öffnet den passenden Reiter), Schließen.
+6. Esc oder „Fertig“: alles verschwindet, Anzeigen zeigen wieder ihren echten Zustand.
+7. Im Edit-Modus einen Gegner angreifen: der Modus endet mit Chatzeile, kein „Aktion blockiert“.
+8. Retail/Forever: Esc > Bearbeitungsmodus öffnet die Flächen mit, Verlassen schließt sie (Einstellung „Mit Blizzards Bearbeitungsmodus“).
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis, Text der Leiste passt in allen vier Sprachen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ziehen/Einrasten ok (ja/nein):
+Mausrad/Pfeiltasten ok (ja/nein):
+Menü ok (ja/nein):
+Kampf beendet sauber (ja/nein):
+Blizzard-Modus (nur Retail/Forever):
 Fehler:
 ```

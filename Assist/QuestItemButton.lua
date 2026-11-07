@@ -15,27 +15,27 @@
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
 --               Zweige). SetRaidTarget direkt ist in Retail/Forever für Addons gesperrt; der sichere Knopf geht überall.
 -- Attribute, Anzeigen und Verstecken der sicheren Knöpfe nur außerhalb des Kampfs; im Kampf wird es gemerkt und bei
--- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (verschiebbar über Widgets.CreateMover, Position questItemPos) wird
+-- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (Position und Größe über Lib/Frames.lua, Edit-Modus) wird
 -- durch die sicheren Kinder selbst geschützt und deshalb ebenfalls nur außerhalb des Kampfs angefasst.
 -- Klicks: RegisterForClicks("AnyUp", "AnyDown") und useOnKeyDown = false, damit genau ein Klick beim Loslassen auslöst
 -- (SecureActionButton_OnClick in allen Zweigen).
 local _, ns = ...
 local L = ns.L
-local Widgets = ns.Widgets
 
 local QuestItem = {}
 ns.QuestItem = QuestItem
 
 local BUTTON_SIZE = 36
 local GAP = 4
-local LABEL_HEIGHT = 14  -- Griff zum Verschieben über den Knöpfen (nur im Verschiebe-Modus sichtbar)
+local LABEL_HEIGHT = 14  -- Beschriftung über den Knöpfen (nur im Edit-Modus sichtbar)
 local REFRESH_SECONDS = 1
 local MAX_MACRO = 255          -- Länge eines Makros
 local MARKER_LINE = "\n/tm [exists,nodead] !8"  -- 8 = Totenkopf
 local DEFAULT_POS = { "CENTER", "CENTER", 0, -180 }
 local MOVE_BACKGROUND = { 0, 0, 0, 0.6 }
 
-local holder, itemButton, targetButton, mover
+local holder, itemButton, targetButton
+local editing = false  -- Edit-Modus: Halter mit Grund und Beschriftung sichtbar
 local shown = { itemId = nil, target = nil, texture = nil }  -- zuletzt gesetzte Attribute und Symbol
 local pending = false                         -- im Kampf aufgeschoben
 local acceptedAt = {}                         -- [questID] = GetTime() der Annahme
@@ -198,14 +198,19 @@ local function create()
     button:SetScript("OnLeave", function() GameTooltip:Hide() end)
   end
 
-  mover = Widgets.CreateMover(holder, {
-    default = DEFAULT_POS,
-    get = function() return ns.db and ns.db.questItemPos end,
-    set = function(pos) ns.db.questItemPos = pos end,
-    onMovingChanged = function(moving)
-      holder.background:SetShown(moving)
-      holder.label:SetShown(moving)
+  ns.Frames.Register({
+    id = "questItem", frame = holder, label = "EDIT_FRAME_QUEST_ITEM", default = DEFAULT_POS, protected = true,
+    settingsPage = "OPTIONS_TAB_COMFORT",
+    preview = function(on)
+      if inCombat() then return end
+      editing = on
+      holder.background:SetShown(on)
+      holder.label:SetShown(on)
       QuestItem.Refresh()
+    end,
+    hide = function()
+      ns.db.questItemButton, ns.db.questTargetButton = false, false
+      ns.ApplySettings()
     end,
   })
   holder:Hide()
@@ -258,28 +263,13 @@ function QuestItem.Refresh()
   end
   pending = false
   local db = ns.db
-  local moving = mover.IsMoving()
   local itemBefore, targetBefore = shown.itemId, shown.target
   setItem(db and db.questItemButton and QuestItem.Pick() or nil)
   setTarget(db and db.questTargetButton and QuestItem.TargetNames() or nil)
   if shown.itemId ~= itemBefore or shown.target ~= targetBefore then
     ns.Debug("questitem", "item %s (link %s), target %s", shown.itemId, itemButton.link, shown.target)
   end
-  holder:SetShown(moving or shown.itemId ~= nil or shown.target ~= nil)
-end
-
-function QuestItem.SetMoving(enabled)
-  if not holder or inCombat() then return end
-  mover.SetMoving(enabled)
-end
-
-function QuestItem.IsMoving()
-  return mover ~= nil and mover.IsMoving()
-end
-
-function QuestItem.ResetPosition()
-  if not holder or inCombat() then return end
-  mover.Reset()
+  holder:SetShown(editing or shown.itemId ~= nil or shown.target ~= nil)
 end
 
 create()
@@ -295,7 +285,6 @@ local function apply()
     return
   end
   holder.label:SetText(L.QUEST_ITEM_MOVE_LABEL)
-  mover.Sync()
   QuestItem.Refresh()
 end
 

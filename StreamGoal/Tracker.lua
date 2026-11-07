@@ -17,9 +17,6 @@ ns.Tracker = Tracker
 local CARD_GAP = 6
 local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -40, -220 }
 local DONE_COLOR = LT.Theme.COLORS.success
-local MIN_SCALE, MAX_SCALE = 0.5, 2
-
-Tracker.MIN_SCALE, Tracker.MAX_SCALE = MIN_SCALE, MAX_SCALE
 
 local frame = CreateFrame("Frame", "StreamGoalTracker", UIParent)
 frame:SetSize(1, 1)
@@ -30,12 +27,12 @@ local STEP_UP, STEP_DOWN = 1, -1
 local TOOLTIP_ANCHOR = "ANCHOR_LEFT"  -- Karten stehen meist am rechten Rand
 
 local cards = {}  -- eine Karte je Platz, wird wiederverwendet; card.goal = gezeigtes Ziel (nil = Beispielkarte)
-local mover        -- unten angelegt; Refresh braucht den Verschiebemodus
+local editing = false  -- Edit-Modus von Level Time: Karten nehmen keine Klicks, ohne Ziele eine Beispielkarte
 
 -- Klick auf die Karte eines selbst gezählten Ziels
 local function onCardClick(card, mouseButton)
   local goal = card.goal
-  if not goal or not Goals.IsManual(goal) or mover.IsMoving() then return end
+  if not goal or not Goals.IsManual(goal) or editing then return end
   Goals.Step(goal.id, mouseButton == "RightButton" and STEP_DOWN or STEP_UP)
 end
 
@@ -67,18 +64,22 @@ local function cardAt(index)
 end
 
 -- Nur Karten mit Klick oder Tooltip nehmen die Maus an (die anderen lassen sie zur Spielwelt durch); im
--- Verschiebemodus keine, damit der Rahmen darunter gezogen werden kann
+-- Edit-Modus keine
 local function updateCardMouse(card)
   local goal = card.goal
   local interactive = goal ~= nil and (Goals.IsManual(goal) or Goals.GetKind(goal.kind).tooltip ~= nil)
-  card.frame:EnableMouse(interactive and not mover.IsMoving())
+  card.frame:EnableMouse(interactive and not editing)
 end
 
 -- Karten neu aufbauen: Inhalt aus den Zielen, gleiche Breite, untereinander
 function Tracker.Refresh()
   if not ns.db then return end
   local active = Goals.Active()
-  local visible = ns.db.settings.showTracker and #active > 0
+  if editing and #active == 0 then
+    Tracker.ShowSample()  -- etwas zum Greifen im Edit-Modus
+    return
+  end
+  local visible = (ns.db.settings.showTracker or editing) and #active > 0
   frame:SetShown(visible)
   for i = #active + 1, #cards do
     cards[i].goal = nil
@@ -123,19 +124,19 @@ end
 ---------------------------------------------------------------------------
 -- Position und Größe
 ---------------------------------------------------------------------------
-mover = Widgets.CreateMover(frame, {
-  default = DEFAULT_POSITION,
-  get = function() return ns.db and ns.db.settings.pos end,
-  set = function(pos) ns.db.settings.pos = pos end,
-  onMovingChanged = function(moving)
-    if moving and #Goals.Active() == 0 then
-      Tracker.ShowSample()  -- Beispielkarte, damit man im Verschiebemodus etwas zum Greifen hat
-    else
-      Tracker.Refresh()     -- Karten nehmen im Verschiebemodus keine Klicks an
-    end
+-- Über den Positions-Speicher von Level Time (Lib/Frames.lua); gespeichert in StreamGoalDB.settings.frame
+LT.Frames.Register({
+  id = "streamGoal", frame = frame, label = "SG_EDIT_FRAME", default = DEFAULT_POSITION,
+  store = {
+    get = function() return ns.db and ns.db.settings.frame end,
+    set = function(entry) ns.db.settings.frame = entry end,
+  },
+  preview = function(on)
+    editing = on
+    Tracker.Refresh()
   end,
+  hide = function() Tracker.SetShown(false) end,
 })
-Tracker.mover = mover
 
 function Tracker.ShowSample()
   local card = cardAt(1)
@@ -153,10 +154,8 @@ function Tracker.ShowSample()
 end
 
 function Tracker.SetScale(scale)
-  scale = math.max(MIN_SCALE, math.min(MAX_SCALE, scale))
-  ns.db.settings.scale = scale
-  mover.SetScale(scale)
-  return scale
+  LT.Frames.SetScale("streamGoal", scale)
+  return LT.Frames.GetScale("streamGoal")
 end
 
 function Tracker.SetShown(shown)
@@ -186,7 +185,6 @@ end)
 LT.RegisterApply(Tracker.Refresh)
 
 LT.OnLogin(function()
-  mover.SetScale(ns.db.settings.scale)
-  mover.Restore()
+  LT.Frames.Restore("streamGoal")  -- StreamGoalDB steht erst jetzt (Core.lua)
   Tracker.Refresh()
 end)

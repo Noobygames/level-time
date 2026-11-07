@@ -610,3 +610,33 @@ check("329.minimap", function()
   return { zoom = zoom, calendar = frameState(_G.GameTimeFrame), canWheelZoom = ns.MinimapTweaks.CanWheelZoom(),
     wheel = method(_G.Minimap, "IsMouseWheelEnabled") }
 end)
+
+-- 357: Theme, Font-Objekte je Rolle (Schrift, Größe, Flags nach dem Anwenden), LibSharedMedia geladen
+check("357.theme", function()
+  local fonts = {}
+  for _, role in ipairs({ "title", "body", "label", "small", "number", "huge" }) do
+    fonts[role] = { method(_G[ns.Theme.Font(role)], "GetFont") }
+  end
+  return { theme = ns.db.theme, accent = ns.db.themeAccent, font = ns.db.themeFont,
+    fontPath = ns.Theme.FontPath(ns.db.themeFont), offset = ns.db.themeFontSize, outline = ns.db.themeOutline,
+    fonts = fonts, fontChoices = #ns.Theme.FontChoices(), accentColor = ns.Theme.Hex("accent"),
+    sharedMedia = (LibStub and LibStub("LibSharedMedia-3.0", true)) ~= nil }
+end)
+
+-- 358: angemeldete Anzeigen: gespeicherter Eintrag gegen Anker und Größe des Rahmens
+check("358.frames.positions", function()
+  local result = {}
+  for _, reg in ipairs(ns.Frames.All()) do
+    result[reg.id] = { saved = ns.db.frames and ns.db.frames[reg.id], scale = ns.Frames.GetScale(reg.id),
+      frame = frameState(reg.frame) }
+  end
+  return { locked = ns.db.locked, frames = result }
+end)
+
+-- 359: Edit-Modus und Blizzards Bearbeitungsmodus (gibt es ihn, ist er eingehängt)
+check("359.editMode", function()
+  local manager = _G.EditModeManagerFrame
+  return { active = ns.EditMode.IsActive(), grid = ns.db.editGrid, withBlizzard = ns.db.editModeWithBlizzard,
+    blizzard = type(manager) == "table", enter = type(manager) == "table" and type(manager.EnterEditMode) == "function",
+    hooked = ns.EditMode.blizzardHooked == true, combat = call("InCombatLockdown") }
+end)

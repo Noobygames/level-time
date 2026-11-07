@@ -81,7 +81,7 @@ expectTrue("danach die Hilfe", wow.printed[printedBefore + 2]:find("/lt", 1, tru
 -- Fenster öffnen/schließen und Einstellungen ändern ohne Fehler
 SlashCmdList.LEVELTIMER("")
 SlashCmdList.LEVELTIMER("history")
-addon.Set("scale", 1.2)
+addon.Frames.SetScale("main", 1.2)
 addon.Set("showMoney", false)
 wow.state.shiftDown = true
 LevelTimer_OnAddonCompartmentClick()

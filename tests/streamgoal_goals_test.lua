@@ -195,7 +195,8 @@ expect("Zeilen der Historie", #wow.shownTable():GetVisibleRecords(), 5)
 SlashCmdList.STREAMGOAL("tracker")
 expect("Anzeige aus", StreamGoalDB.settings.showTracker, false)
 SlashCmdList.STREAMGOAL("scale 9")
-expect("Größe begrenzt", StreamGoalDB.settings.scale, 2)
+expect("Größe begrenzt", StreamGoalDB.settings.frame.scale, 2)
+expect("Tracker in neuer Größe", StreamGoalTracker:GetScale(), 2)
 SlashCmdList.STREAMGOAL("move")
 SlashCmdList.STREAMGOAL("help")
 expect("Hilfe", lastPrint():find(L.SG_HELP, 1, true) ~= nil, true)
@@ -220,3 +221,14 @@ wow.fire("PLAYER_ENTERING_WORLD")  -- /reload im fertigen Schlachtfeld
 wow.fire("UPDATE_BATTLEFIELD_SCORE")
 expect("Reload zählt nicht doppelt", firstActive.progress, 1)
 wow.state.instance = nil
+
+-- Alte Speicherung (pos/scale in den Einstellungen) zieht beim Login in den Eintrag von Lib/Frames.lua um
+StreamGoalDB.settings.frame = nil
+StreamGoalDB.settings.pos = { "TOPRIGHT", "TOPRIGHT", -12, -34 }
+StreamGoalDB.settings.scale = 1.25
+wow.logout()
+wow.login()
+expect("alte Position umgezogen", StreamGoalDB.settings.frame.x, -12)
+expect("alte Größe umgezogen", StreamGoalDB.settings.frame.scale, 1.25)
+expect("alte Schlüssel weg", StreamGoalDB.settings.pos or StreamGoalDB.settings.scale, nil)
+expect("Tracker in alter Größe", StreamGoalTracker:GetScale(), 1.25)

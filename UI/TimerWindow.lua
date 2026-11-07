@@ -2,7 +2,8 @@
 -- eine Tabelle der eingeschalteten Stats (Bezeichnung links, Wert rechts).
 -- Einstellung "horizontalLayout": dieselben Elemente nebeneinander in einer Zeile (Info-Leiste),
 -- der XP-Balken darunter über die ganze Breite.
--- Größe: Ziehgriff unten rechts (erscheint bei Mauskontakt) oder Einstellung "scale" skaliert das ganze Fenster.
+-- Größe: Ziehgriff unten rechts (erscheint bei Mauskontakt), Regler oder Edit-Modus (frames.main.scale) skaliert das
+-- ganze Fenster.
 -- Rechtsklick öffnet die Einstellungen.
 -- Stream-Ansicht: Einstellung "windowBackground" färbt den Hintergrund grün oder magenta ohne Rahmen.
 local _, ns = ...
@@ -12,10 +13,7 @@ local Theme = ns.Theme
 local Format = ns.Format
 local Stats = ns.Stats
 
-local TimerWindow = {
-  MIN_SCALE = 0.5,
-  MAX_SCALE = 2,
-}
+local TimerWindow = {}
 ns.TimerWindow = TimerWindow
 
 local UPDATE_INTERVAL = 0.25          -- Sekunden zwischen zwei Anzeige-Updates
@@ -32,7 +30,6 @@ local MIN_DAY_DIGITS = 2
 local SECONDS_PER_DAY = 86400
 local TIME_WIDTH_SLACK = 2            -- Reserve, damit die Zeit nicht wegen Rundung abgeschnitten wird
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -120 }
-local DEFAULT_SCALE = 1
 local COMPACT_ROW_SETTING = "showXpRate"  -- einzige Zeile im Kompaktmodus
 local XP_BAR_HEIGHT = 6
 local XP_BAR_BACKGROUND = { 1, 1, 1, 0.1 }
@@ -385,59 +382,28 @@ function ns.ConfirmInstanceReset()
 end
 
 ---------------------------------------------------------------------------
--- Position und Größe
+-- Position und Größe (Lib/Frames.lua): ziehbar, solange "Fixieren" aus ist; Größe hält die linke obere Ecke fest
 ---------------------------------------------------------------------------
-local function clampScale(scale)
-  return math.max(TimerWindow.MIN_SCALE, math.min(TimerWindow.MAX_SCALE, scale))
-end
+local editing = false  -- Edit-Modus: auch ausgeschaltet sichtbar
 
--- Zuletzt angewendete bzw. gespeicherte Positionstabelle. Ein Profilwechsel kopiert db.pos als neue
--- Tabelle; daran erkennt das Apply, dass das Fenster an die Stelle des Profils muss.
-local appliedPos
-
-local function savePosition()
-  local point, _, relativePoint, x, y = window:GetPoint()
-  ns.db.pos = { point, relativePoint, x, y }
-  appliedPos = ns.db.pos
-end
-
--- Gespeicherte Abstände gelten in der Skalierung des Fensters, daher zuerst skalieren
-local function restorePosition()
-  appliedPos = ns.db.pos
-  local pos = ns.db.pos or DEFAULT_POSITION
-  window:SetScale(clampScale(ns.db.scale))
-  window:ClearAllPoints()
-  window:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-end
-
-local function setScaleKeepingTopLeft(scale)
-  Widgets.SetScaleKeepingTopLeft(window, scale)
-end
-
-function TimerWindow.ResetLayout()
-  ns.db.pos = nil
-  ns.db.splitListPos = nil
-  ns.db.scale = DEFAULT_SCALE
-  restorePosition()
-  ns.ApplySettings()
-end
-
-window:SetScript("OnDragStart", function(self)
-  if not ns.db.locked then self:StartMoving() end
-end)
-window:SetScript("OnDragStop", function(self)
-  self:StopMovingOrSizing()
-  savePosition()
-end)
+ns.Frames.Register({
+  id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "SECTION_GENERAL",
+  preview = function(on)
+    editing = on
+    window:SetShown(on or ns.db.showTimer)
+  end,
+  hide = function() ns.Set("showTimer", false) end,
+})
 
 window:SetScript("OnMouseUp", function(_, mouseButton)
   if mouseButton == "RightButton" then ns.ToggleOptions() end
 end)
 
--- Ziehgriff unten rechts ändert die Größe (Einstellung scale)
-local grip = Widgets.CreateResizeGrip(window, clampScale, function(scale)
-  savePosition()
-  ns.Set("scale", scale)
+-- Ziehgriff unten rechts ändert die Größe; er hat schon um die linke obere Ecke skaliert
+local grip = Widgets.CreateResizeGrip(window, ns.Frames.ClampScale, function(scale)
+  ns.Frames.SavePosition("main")
+  ns.Frames.SetScale("main", scale)
 end)
 
 ---------------------------------------------------------------------------
@@ -452,8 +418,6 @@ ns.SetUpdateScript(window, "TimerWindow", function(_, elapsed)
   -- Ziehgriff nur zeigen, wenn die Maus über dem Fenster ist (oder gerade gezogen wird)
   grip:UpdateAlpha()
 end)
-
-ns.OnLogin(restorePosition)
 
 -- Ob gelevelt wird (XP-Balken, Zeilen), ändert sich auch ohne Einstellung: Max-Level erreicht oder
 -- XP beim Erfahrungsverwalter ab-/angeschaltet
@@ -473,16 +437,6 @@ ns.RegisterApply(function(db)
   timeText:SetTextColor(Theme.RGB("accent"))  -- Akzentfarbe kann gewechselt haben
   xpBarFill:SetColorTexture(Theme.RGB("accent"))
 
-  -- Anderes Profil: dessen Position und Größe. Sonst Größe aus den Einstellungen (Regler);
-  -- beim Login ist sie schon gesetzt
-  local scale = clampScale(db.scale)
-  if db.pos ~= appliedPos then
-    restorePosition()
-  elseif math.abs(window:GetScale() - scale) > 0.001 then
-    setScaleKeepingTopLeft(scale)
-    savePosition()
-  end
-
   grip:SetShown(not db.locked)
-  window:SetShown(db.showTimer)
+  window:SetShown(db.showTimer or editing)
 end)
