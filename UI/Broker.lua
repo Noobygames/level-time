@@ -15,17 +15,39 @@ local UPDATE_INTERVAL = 1  -- Sekunden
 local TEXT_SEPARATOR = " - "  -- "|" ist in WoW-Texten ein Steuerzeichen
 
 local dataObject  -- nil, solange keine LibDataBroker verfügbar ist
+local library     -- die geladene LibDataBroker
 
 local function brokerText()
   local scope = ns.db.windowScope
   if not Stats.IsOpen(scope) then return L.INSTANCE_NONE end
   local seconds = Stats.GetSeconds(scope)
-  local parts = { seconds and Format.Duration(seconds) or "..." }
+  local text = seconds and Format.Duration(seconds) or "..."
   local rate = Experience.IsLeveling() and Experience.GetRatePerHour(scope)
   if rate then
-    table.insert(parts, Format.Number(rate) .. " " .. L.ROW_XP_RATE)
+    text = text .. TEXT_SEPARATOR .. Format.Number(rate) .. " " .. L.ROW_XP_RATE
   end
-  return table.concat(parts, TEXT_SEPARATOR)
+  return text
+end
+
+-- Zeigt eine Leiste den Datentext? (Roadmap 377) Anzeigen hören über CallbackHandler auf
+-- "LibDataBroker_AttributeChanged" (alle), "..._LevelTimer[_text]" (dieses Objekt) oder "...__text" (dieses Feld);
+-- LibDataBroker-1.1 legt sie in library.callbacks.events ab. Unbekannter Aufbau: lieber aktualisieren.
+local GENERIC_EVENT = "LibDataBroker_AttributeChanged"
+local OWN_EVENT = GENERIC_EVENT .. "_LevelTimer"
+local TEXT_EVENT = GENERIC_EVENT .. "__text"
+
+local function listening(name, handlers)
+  if type(handlers) ~= "table" or next(handlers) == nil or type(name) ~= "string" then return false end
+  return name == GENERIC_EVENT or name == TEXT_EVENT or name:sub(1, #OWN_EVENT) == OWN_EVENT
+end
+
+function Broker.HasDisplay()
+  local events = type(library) == "table" and type(library.callbacks) == "table" and library.callbacks.events
+  if type(events) ~= "table" then return true end
+  for name, handlers in pairs(events) do
+    if listening(name, handlers) then return true end
+  end
+  return false
 end
 
 local function showTooltip(tooltip)
@@ -56,15 +78,22 @@ local function onClick(_, mouseButton)
   end
 end
 
+-- Text nur setzen, wenn er sich geändert hat (jede Zuweisung löst bei LibDataBroker Callbacks aus)
 function Broker.Refresh()
-  if dataObject then
-    dataObject.text = brokerText()
-  end
+  if not dataObject then return end
+  local text = brokerText()
+  if dataObject.text ~= text then dataObject.text = text end
+end
+
+-- Jede Sekunde, aber nur mit Datentext und einer Leiste, die ihn zeigt
+local function tick()
+  if Broker.HasDisplay() then Broker.Refresh() end
 end
 
 ns.OnLogin(function()
   local broker = LibStub and LibStub("LibDataBroker-1.1", true)
   if not broker or dataObject then return end
+  library = broker
   dataObject = broker:NewDataObject("LevelTimer", {
     type = "data source",
     label = ns.DISPLAY_NAME,
@@ -73,6 +102,7 @@ ns.OnLogin(function()
     OnClick = onClick,
     OnTooltipShow = showTooltip,
   })
+  ns.RefreshTasks()  -- die Aufgabe läuft erst mit Datentext
 end)
 
-ns.Every(UPDATE_INTERVAL, Broker.Refresh)
+ns.Every(UPDATE_INTERVAL, tick, function() return dataObject ~= nil end)
