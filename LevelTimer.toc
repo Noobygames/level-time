@@ -123,6 +123,7 @@ Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
 Assist\QuestProgress.lua
+Assist\QuestCompleteAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
 Assist\BreakReminder.lua

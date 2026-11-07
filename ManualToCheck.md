@@ -2365,3 +2365,27 @@ Zielwahl mit gelernten Namen (ja/nein):
 Totenkopf gesetzt, bleibt beim 2. Klick (ja/nein):
 Fehler:
 ```
+
+### 115. „Quest fertig“ als Einblendung (Roadmap 343)
+
+- [ ] geprüft
+
+Einblendungen: „Quest fertig“ und „Questziel erfüllt“ an, Stil Banner, Ton an. Allein (ohne Gruppe) eine Quest mit zwei Zielen erledigen.
+
+1. Erstes Ziel erfüllt: Karte „Ziel erfüllt: …“ mit Questname darunter.
+2. Letztes Ziel erfüllt: nur „Quest fertig: Name“ mit „+N XP bei Abgabe“ und Ton, keine zusätzliche Ziel-Karte.
+3. Ziel im Kampf erfüllen: Karte kommt erst nach dem Kampf.
+4. `/reload` mit einer schon fertigen Quest: keine Karte.
+5. `/lt debug alert questcomplete` zeigt ein Beispiel.
+
+**Erwartet:** XP stimmt mit dem Questlog überein (Retail: Wert nach Level), keine doppelten Karten, keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Ziel-/Quest-Karte (ja/nein):
+XP richtig (ja/nein):
+Im Kampf zurückgehalten (ja/nein):
+Fehler:
+```
