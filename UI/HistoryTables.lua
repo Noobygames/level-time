@@ -222,6 +222,11 @@ local LOOT_COLUMNS = {
   { header = "HISTORY_ITEM", width = 180, align = LEFT, value = function(r) return r.link or r.name or "" end },
   { header = "HISTORY_QUANTITY", width = 40, value = function(r) return r.quantity or 1 end },
   { header = "HISTORY_SOURCE", width = 130, align = LEFT, value = function(r) return r.source or "-" end },
+  -- Gewonnener Wurf (lootRollJournal): Symbol der Wahl und Zahl
+  { header = "HISTORY_ROLL", width = 50, value = function(r)
+      if not r.rollChoice then return "-" end
+      return ns.LootRollDisplay.IconText(r.rollChoice, 12) .. " " .. (r.roll or "")
+    end, sort = function(r) return r.roll end },
   levelColumn(40),
 }
 

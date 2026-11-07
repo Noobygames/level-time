@@ -10,7 +10,10 @@
 -- Quest-Eintrag: { time, level, zone, questID, name, xp, money, duration, delta }
 --   duration: /played-Sekunden von Annahme bis Abgabe, delta: Abweichung zur bisherigen Bestzeit (QuestSplits.lua)
 -- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID }
--- Beute:        { time, level, zone, link, name, quality, quantity, source }
+-- Beute:        { time, level, zone, link, name, quality, quantity, source, rollChoice, roll, rollNeed, rollGreed,
+--                 rollPass, rollDisenchant, rollTransmog }
+--   roll*: gewonnener Wurf (Wahl, Zahl, wie viele Bedarf/Gier/Passen/Entzaubern/Transmog gewählt haben), nur mit
+--   lootRollJournal und nur für selbst gewonnene Würfe (LootRollReport.lua); sonst nil
 -- Beinahe-Tod:  { time, level, zone, lowestPercent, killer, spell, environment }
 --
 -- Speicher in zwei Teilen (Roadmap 252):
@@ -56,7 +59,9 @@ Journal.LOGS = {
     { path = "zoneUID" }, { path = "counters.reputation" } } },
   lootLog = { max = Journal.MAX_LOOT, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
-    { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE } } },
+    { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE },
+    { path = "rollChoice", kind = VALUE }, { path = "roll" }, { path = "rollNeed" }, { path = "rollGreed" },
+    { path = "rollPass" }, { path = "rollDisenchant" }, { path = "rollTransmog" } } },
   nearDeathLog = { max = Journal.MAX_NEAR_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "lowestPercent" },
     { path = "killer", kind = VALUE }, { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
@@ -213,6 +218,19 @@ function Journal.SetDeathCause(entry, cause)
   entry.killer = cause.killer
   entry.spell = cause.spell
   entry.environment = cause.environment
+end
+
+-- Ergebnis eines gewonnenen Wurfs am Beute-Eintrag nachtragen; result = { choice, roll, counts = { need, ... } }
+function Journal.SetLootRoll(entry, result)
+  edited("lootLog")
+  local counts = result.counts or {}
+  entry.rollChoice = result.choice
+  entry.roll = result.roll
+  entry.rollNeed = counts.need
+  entry.rollGreed = counts.greed
+  entry.rollPass = counts.pass
+  entry.rollDisenchant = counts.disenchant
+  entry.rollTransmog = counts.transmog
 end
 
 ---------------------------------------------------------------------------

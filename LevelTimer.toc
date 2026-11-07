@@ -71,6 +71,7 @@ Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\LootRolls.lua
 Tracking\QuestMobs.lua
 Tracking\QuestNpcs.lua
 Tracking\MoneyCounter.lua
@@ -158,6 +159,8 @@ Assist\MoveFrames.lua
 Assist\QuestMarks.lua
 Assist\LootTarget.lua
 Assist\LootSparkles.lua
+Assist\LootRollReport.lua
+UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua

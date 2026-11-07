@@ -707,6 +707,14 @@ addToggles({
   toggle("FASTER_LOOT", "fasterLoot"),
   toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
 })
+addSection("SECTION_LOOT_ROLLS")
+addToggles({
+  toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
+  toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"),
+  toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
+  toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal"),
+})
+addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls")
 addSection("SECTION_DIALOGS")
 addToggles({
   toggle("EASY_DELETE", "easyDelete"),

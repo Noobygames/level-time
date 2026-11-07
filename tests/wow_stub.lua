@@ -171,6 +171,11 @@ local frameMethods = {
   GetCenter = function() return 0, 0 end,
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
+  -- Sichtbar = gezeigt samt aller Eltern (UIParent gilt als sichtbar)
+  IsVisible = function(self)
+    local parent = rawget(self, "_parent")
+    return self._shown and (parent == nil or parent == UIParent or parent:IsVisible()) or false
+  end,
   GetParent = function(self) return self._parent end,
   -- Wie im Client: OnShow beim Wechsel von versteckt zu gezeigt
   Show = function(self)
@@ -460,6 +465,25 @@ LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
 LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
 LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
+-- Würfeln um Beute wie im deutschen Classic-Era-Client (Ketho/BlizzardInterfaceResources classic_era deDE)
+LOOT_ROLL_ALL_PASSED = "|HlootHistory:%d|h[Beute]|h: Alle haben gepasst auf: %s"
+LOOT_ROLL_DISENCHANT = "%s hat für '%s' Entzauberung gewählt."
+LOOT_ROLL_DISENCHANT_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Entzauberung gewählt."
+LOOT_ROLL_GREED = "|HlootHistory:%d|h[Beute]|h: %s hat für %s Gier ausgewählt"
+LOOT_ROLL_GREED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Gier ausgewählt"
+LOOT_ROLL_LOST_ROLL = "|HlootHistory:%d|h[Beute]|h: Ihr habt %s - %d gewürfelt auf: %s"
+LOOT_ROLL_NEED = "|HlootHistory:%d|h[Beute]|h: %s hat für %s Bedarf ausgewählt"
+LOOT_ROLL_NEED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt für %s Bedarf ausgewählt"
+LOOT_ROLL_PASSED = "|HlootHistory:%d|h[Beute]|h: %s passt auf: %s"
+LOOT_ROLL_PASSED_AUTO = "|HlootHistory:%d|h[Beute]|h: %s passt automatisch auf %s, weil er den Gegenstand nicht benutzen kann."
+LOOT_ROLL_PASSED_SELF = "|HlootHistory:%d|h[Beute]|h: Ihr habt gepasst auf: %s"
+LOOT_ROLL_ROLLED_GREED = "|HlootHistory:%d|h[Beute]|h: Wurf für Gier: %d für %s von %s"
+LOOT_ROLL_ROLLED_NEED = "|HlootHistory:%d|h[Beute]|h: Wurf für Bedarf: %d für %s von %s"
+LOOT_ROLL_STARTED = "|HlootHistory:%d|h[Beute]|h: %s"
+LOOT_ROLL_WON = "|HlootHistory:%d|h[Beute]|h: %s gewinnt: %s"
+LOOT_ROLL_WON_NO_SPAM_NEED = "|HlootHistory:%d|h[Beute]|h: %s hat gewonnen: %s |cff818181(Bedarf - %d)|r"
+LOOT_ROLL_YOU_WON = "|HlootHistory:%d|h[Beute]|h: Ihr gewinnt: %s"
+LOOT_ROLL_YOU_WON_NO_SPAM_NEED = "|HlootHistory:%d|h[Beute]|h: Ihr habt gewonnen: %s |cff818181(Bedarf - %d)|r"
 -- Rufmeldungen (Retail-Form; Classic: "Your %s reputation has increased by %d.")
 FACTION_STANDING_INCREASED = "Euer Ruf bei der Fraktion '%s' hat sich um %d verbessert."
 FACTION_STANDING_INCREASED_ACCOUNT_WIDE = "Der Ruf Eurer Kriegsmeute bei der Fraktion '%s' hat sich um %d verbessert."
@@ -777,6 +801,43 @@ function TakeTaxiNode() end
 function GetNumLootItems() return state.lootSlots or 0 end
 function LootSlot(slot) comfortAction("loot", slot) end
 function ConfirmLootRoll(rollID, rollType) comfortAction("confirmRoll", rollID, rollType) end
+-- Würfeln um Beute: state.lootRolls[rollID] = { link, name, texture, quality }, state.activeLootRolls = { rollID, ... }
+function GetLootRollItemLink(rollID) return ((state.lootRolls or {})[rollID] or {}).link end
+function GetLootRollItemInfo(rollID)
+  local roll = (state.lootRolls or {})[rollID]
+  if not roll then return nil end
+  return roll.texture or 134400, roll.name, 1, roll.quality or 2, false, true, true, false
+end
+function GetActiveLootRollIDs() return state.activeLootRolls or {} end
+function GetLootRollTimeLeft() return 60000 end
+-- Würfel-Historie wie im Client: Classic Era (era_*) das alte C_LootHistory (state.lootHistory = { { rollID, link,
+-- isDone, winnerIdx, players = { { name, class, rollType, roll, isWinner } } } }), sonst das neue je Beute
+-- (state.lootDrops["encounterID:lootListID"] = EncounterLootDropInfo, state.encounterDrops[encounterID] = Liste)
+if state.interface < 20000 then
+  C_LootHistory = {
+    GetNumItems = function() return #(state.lootHistory or {}) end,
+    GetItem = function(index)
+      local item = state.lootHistory[index]
+      return item.rollID, item.link, #item.players, item.isDone == true, item.winnerIdx
+    end,
+    GetPlayerInfo = function(index, playerIndex)
+      local player = state.lootHistory[index].players[playerIndex]
+      return player.name, player.class, player.rollType, player.roll, player.isWinner == true
+    end,
+  }
+else
+  C_LootHistory = {
+    GetSortedInfoForDrop = function(encounterID, lootListID)
+      return (state.lootDrops or {})[encounterID .. ":" .. lootListID]
+    end,
+    GetSortedDropsForEncounter = function(encounterID) return (state.encounterDrops or {})[encounterID] end,
+  }
+end
+-- Blizzards Würfelfenster (GroupLootFrame1..4, versteckt; Tests setzen rollID und zeigen sie)
+for index = 1, 4 do
+  local frame = CreateFrame("Frame", "GroupLootFrame" .. index, UIParent)
+  frame._shown = false
+end
 function ConfirmLootSlot(slot) comfortAction("confirmBind", slot) end
 function RequestTimePlayed() end
 -- Nur C_CurrencyInfo: das globale GetCoinTextureString ist im Client ein Kompatibilitäts-Alias

@@ -136,6 +136,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **126. Themes und Schriften, Datenteil (Roadmap 357)**: check `357.theme` (Preset, Schrift je Rolle mit Größe und Flags nach dem Anwenden, LibSharedMedia geladen, Zahl der Schriften)
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
+- **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
 
 ---
 
@@ -1717,17 +1718,6 @@ Allgemein > Aussehen. Hauptfenster, Split-Liste (Speedrun) und eine Einblendung 
 8. Chroma Grün (Stream): weiterhin deckend grün ohne Rand, auch im Stil „Flach“.
 
 **Erwartet:** live ohne /reload, keine Lua-Fehler; ruRU/zh-Clients: „Spiel-Standard“ zeigt alle Zeichen.
-
-**Antwort:**
-
-```text
-Client (Retail/Era/TBC/Forever):
-Klassisch wie vorher (ja/nein):
-Flach/Minimal sauber (ja/nein, was fällt auf):
-Schriften/Kontur ok (ja/nein):
-Fehler:
-```
-
 ### 127. Positionen nach dem Update (Roadmap 358)
 
 - [ ] geprüft
@@ -1776,5 +1766,34 @@ Mausrad/Pfeiltasten ok (ja/nein):
 Menü ok (ja/nein):
 Kampf beendet sauber (ja/nein):
 Blizzard-Modus (nur Retail/Forever):
+Zeile unter dem Würfelfenster (ja/nein, überdeckt etwas?):
+Zahlen stimmen (ja/nein):
+Tooltip mit Namen (ja/nein):
+Chatzeile (ja/nein):
+Ersatzkarte (ja/nein/nicht getestet):
+Fehler:
+```
+
+### 129. Beute-Würfe: Zähler, Tooltip, Ersatzkarte (Roadmap 364)
+
+- [ ] geprüft
+
+Komfort > System > Würfeln um Beute: alle vier Schalter an. In einer Gruppe (Dungeon) um grüne oder bessere Beute würfeln.
+
+1. Unter jedem Blizzard-Würfelfenster eine Zeile: Würfel, Münze, Passen-Symbol und Sanduhr mit Zahlen; Entzaubern/Transmog nur, wenn jemand sie wählt. Die Zahlen steigen, während die anderen wählen; die Zeile überdeckt nichts (auch nicht das nächste Würfelfenster).
+2. Maus über einen Zähler: Namen in Klassenfarbe, nach dem Würfeln mit Zahl.
+3. Nach dem Würfeln eine Chatzeile „Gegenstand: Name gewinnt mit 87 (Bedarf). Bedarf 2, Gier 1, Passen 2“; bei „alle gepasst“ eine kurze Zeile.
+4. Eigener Gewinn (selten oder besser): Historie > Beute zeigt in der Spalte „Wurf“ Symbol und Zahl.
+5. Mit einem Addon, das die Würfelfenster ersetzt (z.B. ElvUI-Beutewürfe), oder mehr als vier Würfen gleichzeitig (Retail): die Karte „Würfe“ listet die Gegenstände mit Zählern; im Edit-Modus (`/lt edit`) erscheint sie mit Beispielwürfen und lässt sich verschieben und skalieren.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“, Zähler stimmen mit Blizzards Beute-Historie überein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Klassisch wie vorher (ja/nein):
+Flach/Minimal sauber (ja/nein, was fällt auf):
+Schriften/Kontur ok (ja/nein):
 Fehler:
 ```

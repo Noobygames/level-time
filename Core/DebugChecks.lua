@@ -127,7 +127,41 @@ local function forPlayer(unit)
   return unit == "player"
 end
 
+-- Beute-Würfe (364): was Client und Historie zu einem Wurf liefern (Würfel-ID gleich der Historie? geheim?)
+local function lootRollStart(rollID)
+  return { link = call("GetLootRollItemLink", rollID), info = call("GetLootRollItemInfo", rollID),
+    timeLeft = call("GetLootRollTimeLeft", rollID), active = call("GetActiveLootRollIDs") }
+end
+
+local function legacyRollChanged(itemIndex, playerIndex)
+  return { item = call("C_LootHistory.GetItem", itemIndex),
+    player = call("C_LootHistory.GetPlayerInfo", itemIndex, playerIndex) }
+end
+
+local function lootDrop(encounterID, lootListID)
+  local drop = call("C_LootHistory.GetSortedInfoForDrop", encounterID, lootListID)
+  if type(drop) ~= "table" or ns.IsSecret(drop) then return { drop = drop } end
+  local rolls = {}
+  for index, info in ipairs(type(drop.rollInfos) == "table" and drop.rollInfos or {}) do
+    if index > MAX_ITEMS then break end
+    rolls[index] = { info.playerName, info.playerClass, info.state, info.roll, info.isWinner, info.isSelf }
+  end
+  local winner = type(drop.winner) == "table" and { drop.winner.playerName, drop.winner.roll } or drop.winner
+  return { link = drop.itemHyperlink, lootListID = drop.lootListID, lootListKey = drop.lootListKey,
+    allPassed = drop.allPassed, isTied = drop.isTied, winner = winner, rolls = rolls }
+end
+
 local EVENT_PROBES = {
+  -- Beute-Würfe (364)
+  { event = "START_LOOT_ROLL", extra = lootRollStart },
+  { event = "CANCEL_LOOT_ROLL" },
+  { event = "CANCEL_ALL_LOOT_ROLLS" },
+  { event = "LOOT_ROLLS_COMPLETE" },
+  { event = "LOOT_HISTORY_ROLL_CHANGED", extra = legacyRollChanged },
+  { event = "LOOT_HISTORY_ROLL_COMPLETE" },
+  { event = "LOOT_HISTORY_FULL_UPDATE", extra = function() return call("C_LootHistory.GetNumItems") end },
+  { event = "LOOT_HISTORY_UPDATE_DROP", extra = lootDrop },
+  { event = "LOOT_HISTORY_UPDATE_ENCOUNTER" },
   -- Taint und gesperrte Aktionen (alle Punkte mit „kein Aktion blockiert“): Addon-Name und Funktion
   { event = "ADDON_ACTION_BLOCKED", state = true },
   { event = "ADDON_ACTION_FORBIDDEN", state = true },
@@ -556,6 +590,32 @@ check("329.social.target", function()
   if type(name) ~= "string" then return { target = false } end
   return { name = name, friend = call("C_FriendList.IsFriend", guid), guild = call("C_GuildInfo.MemberExistsByName", name),
     trusted = safe(ns.Friends.IsTrusted, name, guid), info = safe(ns.InviteInfo.Describe, name, guid) }
+end)
+
+-- 364: Beute-Würfe: welche Quelle (Historie alt/neu, Chat), welche Formate der Client kennt (roh), Blizzards
+-- Würfelfenster und die verfolgten Würfe mit Zählung
+check("364.lootRoll.api", function()
+  local LootRolls = ns.LootRolls
+  local formats, missing = {}, {}
+  for _, name in ipairs(LootRolls.FORMAT_NAMES) do
+    local format = _G[name]
+    if format == nil then missing[#missing + 1] = name else formats[#formats + 1] = name .. "=" .. plain(format) end
+  end
+  local frames = {}
+  for index = 1, 10 do
+    local frame = _G["GroupLootFrame" .. index]
+    if type(frame) ~= "table" then break end
+    frames[index] = { state = frameState(frame), rollID = plain(frame.rollID) }
+  end
+  local tracked = {}
+  for _, roll in ipairs(LootRolls.All()) do
+    tracked[#tracked + 1] = { id = roll.id, link = roll.link, counts = LootRolls.Counts(roll), closed = roll.closed,
+      fromHistory = roll.fromHistory, historyId = roll.historyId, dropKey = roll.dropKey }
+  end
+  return { source = LootRolls.HistorySource(), wanted = LootRolls.IsWanted(ns.db) and true or false,
+    apis = { legacy = api("C_LootHistory.GetItem") ~= nil, drops = api("C_LootHistory.GetSortedInfoForDrop") ~= nil,
+      activeIds = call("GetActiveLootRollIDs"), container = frameState(_G.GroupLootContainer) },
+    missing = missing, formats = chunked(formats), frames = frames, tracked = tracked }
 end)
 
 -- 329 Schritt 3b: Chatfenster (Kampflog-Reiter, Knöpfe, Eingabezeile, Ausblenden)
