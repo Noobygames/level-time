@@ -13,6 +13,7 @@ local ROW_PROFILE = 20
 local PROFILE_NAME_WIDTH = 160
 local PROFILE_SAVE_WIDTH = 120
 local DELETE_PROFILE_POPUP = "LEVELTIMER_DELETE_PROFILE"
+local QUEST_EXCLUDE_WIDTH = 200  -- Eingabefeld für die eigene Sperrliste der Quest-Automatik
 
 local builder = Builder.New({
   name = "LevelTimerOptions",
@@ -50,6 +51,15 @@ local function addWorldRecordScopeChooser()
     { value = WorldRecords.CLASS, name = localized("WORLD_RECORD_OWN_CLASS") },
     { value = WorldRecords.OVERALL, name = localized("WORLD_RECORD_ALL_CLASSES") },
   } })
+end
+
+-- SSF-Regelhelfer: aus oder eine Kategorie (SsfRules.lua)
+local function addSsfCategoryChooser()
+  local choices = { { value = ns.SsfRules.OFF, name = localized("SSF_CATEGORY_OFF") } }
+  for _, category in ipairs(ns.SsfRules.ORDER) do
+    table.insert(choices, { value = category, name = function() return category end })
+  end
+  addChooser({ label = "SSF_CATEGORY", setting = "ssfCategory", choices = choices })
 end
 
 -- Level-Up-Ansage: aus, Gruppe oder Gilde
@@ -230,6 +240,7 @@ addToggles({
   toggle("COMPACT_MODE", "compactMode"),
   toggle("HORIZONTAL_LAYOUT", "horizontalLayout"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
+  toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
 })
 addButton("RESET_WINDOW", function() TimerWindow.ResetLayout() end)
 addHint("OPTIONS_HINT")
@@ -262,13 +273,36 @@ for _, group in ipairs(ns.STAT_GROUPS) do
 end
 addSection("SECTION_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
+addSlider({
+  label = "IDLE_LIMIT",
+  min = ns.TimeBreakdown.MIN_IDLE_MINUTES,
+  max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
+  step = 1,
+  get = function(db) return db.idleMinutes end,
+  set = function(value) ns.Set("idleMinutes", value) end,
+  format = function(value) return value == 0 and L.IDLE_LIMIT_OFF or string.format(L.MINUTES, value) end,
+})
+addSlider({
+  label = "TO_LEVEL_SAMPLES",
+  min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
+  max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
+  step = 5,
+  get = function(db) return db.toLevelSamples end,
+  set = function(value) ns.Set("toLevelSamples", value) end,
+  format = function(value)
+    return value == 0 and L.TO_LEVEL_SAMPLES_LEVEL or string.format(L.TO_LEVEL_SAMPLES_VALUE, value)
+  end,
+})
 finishPage()
 
 -- Hinweise: Level-Up im Chat und Erinnerungen an Buffs
 addPage("OPTIONS_TAB_NOTIFICATIONS")
 addSection("SECTION_LEVEL_UP")
-addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains") })
+addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains"),
+  toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"), toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addAnnounceChooser()
+addSection("SECTION_PERSONAL_RECORDS")
+addToggles({ toggle("ANNOUNCE_RECORDS_TOGGLE", "announceRecords") })
 addSection("SECTION_REMINDERS")
 addToggles({
   toggle("REMIND_FOOD_TOGGLE", "remindFood"),
@@ -297,6 +331,17 @@ addSlider({
   set = function(value) ns.Set("reminderInterval", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
+-- Pausen-Erinnerung (BreakReminder.lua)
+addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
+addSlider({
+  label = "BREAK_MINUTES",
+  min = ns.BreakReminder.MIN_MINUTES,
+  max = ns.BreakReminder.MAX_MINUTES,
+  step = 15,
+  get = function(db) return db.breakMinutes end,
+  set = function(value) ns.Set("breakMinutes", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+})
 addSection("SECTION_WARNINGS")
 addHint("WARN_LOOK_HINT")
 addToggles({
@@ -306,10 +351,23 @@ addToggles({
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
+  toggle("WARN_BREATH_TOGGLE", "warnBreath"),
+  toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
   toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
+  toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
+})
+addSlider({
+  label = "WARN_BREATH_BELOW",
+  min = ns.BreathWarning.MIN_SECONDS,
+  max = ns.BreathWarning.MAX_SECONDS,
+  step = 1,
+  get = function(db) return db.breathWarnSeconds end,
+  set = function(value) ns.Set("breathWarnSeconds", value) end,
+  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
 })
 addSlider({
   label = "LOW_MANA_BELOW",
@@ -434,6 +492,12 @@ addToggles({
   toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
+builder.AddTextInput({
+  label = "QUEST_EXCLUDE",
+  width = QUEST_EXCLUDE_WIDTH,
+  get = function(db) return db.questExclude end,
+  set = function(text) ns.Set("questExclude", strtrim(text)) end,
+})
 addSection("SECTION_CHARACTER")
 addToggles({
   toggle("AUTO_ACCEPT_SUMMON", "autoAcceptSummon"),
@@ -454,6 +518,7 @@ addToggles({
 addSection("SECTION_INVITES")
 addToggles({
   toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
+  toggle("INVITE_INFO_TOGGLE", "inviteInfo"),
   toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
 })
 builder.AddTextInput({
@@ -517,6 +582,16 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
+addSection("SECTION_QUEST_DISPLAY")
+addToggles({
+  toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
+  toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
+  toggle("QUEST_TARGET_TOGGLE", "questTargetButton", ns.QuestItem.CanTarget),
+})
+builder.AddButtonRow({
+  { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
+  { label = "QUEST_ITEM_RESET_POSITION", onClick = function() ns.QuestItem.ResetPosition() end },
+})
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({
@@ -530,6 +605,7 @@ addToggles({
   toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
   toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
+  toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
 })
 -- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
 local MinimapTweaks = ns.MinimapTweaks
@@ -539,6 +615,8 @@ addToggles({
   toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
 })
+addSection("SECTION_WORLD_MAP")
+addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap") })
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_LOOT")
 addToggles({
@@ -680,8 +758,23 @@ addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
   toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
+  toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
+  toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
+  toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
+  toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
+  toggle("FRIEND_RACE", "friendRace"),
 })
 addSplitComparisonChooser()
+addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })
+addSlider({
+  label = "SPLIT_TOLERANCE",
+  min = 0,
+  max = ns.Splits.MAX_TOLERANCE_PERCENT,
+  step = 1,
+  get = function(db) return db.splitTolerancePercent end,
+  set = function(value) ns.Set("splitTolerancePercent", value) end,
+  format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
+})
 addSlider({
   label = "SPLIT_LIST_SIZE",
   min = toPercent(TimerWindow.MIN_SCALE),
@@ -719,6 +812,15 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
 end
 addToggles(recordToggles)
 addWorldRecordScopeChooser()
+addSection("SECTION_SCREENSHOTS")
+addToggles({
+  toggle("MILESTONE_SCREENSHOTS", "milestoneScreenshots"),
+  toggle("SCREENSHOT_FIRST_DUNGEON", "screenshotFirstDungeon"),
+  toggle("SCREENSHOT_EPIC_LOOT", "screenshotEpicLoot"),
+})
+addSection("SECTION_SSF")
+addSsfCategoryChooser()
+addHint("SSF_HINT")
 finishPage()
 
 -- Profile: Einstellungen benannt speichern, je Charakter wählen, als Text teilen

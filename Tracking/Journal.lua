@@ -1,11 +1,15 @@
 -- Journal: einzelne Kills, Tode, Quests, Beute, Instanz-Läufe und Beinahe-Tode des eingeloggten Charakters mit Zeitpunkt und Umständen.
 --
--- Kill-Eintrag: { time, kind = "pve"|"pvp", name, classification, level, zone }
--- Tod-Eintrag:  { time, level, zone, killer, spell, environment }
+-- Kill-Eintrag: { time, kind = "pve"|"pvp", name, classification, level, zone, xp, rested, mobLevel }
+--   xp: XP des Kills samt Erholungsbonus, rested: Bonus darin (beide nil bei PvP und älteren Einträgen)
+--   mobLevel: zuletzt gesehene Stufe des Gegners (Classification.lua), nil wenn unbekannt
+-- Tod-Eintrag:  { time, level, zone, killer, spell, environment, mapID, x, y, lastWords }
 --   killer/spell: Verursacher und Zauber des letzten Treffers, environment: Umgebungsschaden
 --   (z.B. "FALLING"); alle drei nil, wenn die Ursache nicht bekannt ist.
--- Quest-Eintrag: { time, level, zone, questID, name, xp, money }
--- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths }, zoneUID }
+--   mapID/x/y: Ort auf der Karte (nil in Instanzen), lastWords: letzte eigene Chatzeile (DeathPlace.lua)
+-- Quest-Eintrag: { time, level, zone, questID, name, xp, money, duration, delta }
+--   duration: /played-Sekunden von Annahme bis Abgabe, delta: Abweichung zur bisherigen Bestzeit (QuestSplits.lua)
+-- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID }
 -- Beute:        { time, level, zone, link, name, quality, quantity, source }
 -- Beinahe-Tod:  { time, level, zone, lowestPercent, killer, spell, environment }
 --
@@ -36,17 +40,19 @@ local VALUE = "value"
 Journal.LOGS = {
   killLog = { max = Journal.MAX_KILLS, fields = {
     { path = "time" }, { path = "kind", kind = VALUE }, { path = "name", kind = VALUE },
-    { path = "classification", kind = VALUE }, { path = "level" }, { path = "zone", kind = VALUE } } },
+    { path = "classification", kind = VALUE }, { path = "level" }, { path = "zone", kind = VALUE },
+    { path = "xp" }, { path = "rested" }, { path = "mobLevel" } } },
   deathLog = { max = Journal.MAX_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "killer", kind = VALUE },
-    { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
+    { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE }, { path = "mapID" }, { path = "x" },
+    { path = "y" }, { path = "lastWords", kind = VALUE } } },
   questLog = { max = Journal.MAX_QUESTS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "questID" },
-    { path = "name", kind = VALUE }, { path = "xp" }, { path = "money" } } },
+    { path = "name", kind = VALUE }, { path = "xp" }, { path = "money" }, { path = "duration" }, { path = "delta" } } },
   instanceLog = { max = Journal.MAX_INSTANCE_RUNS, fields = {
     { path = "time" }, { path = "name", kind = VALUE }, { path = "instanceType", kind = VALUE }, { path = "seconds" },
     { path = "level" }, { path = "xp" }, { path = "counters.kills" }, { path = "counters.deaths" },
-    { path = "zoneUID" } } },
+    { path = "zoneUID" }, { path = "counters.reputation" } } },
   lootLog = { max = Journal.MAX_LOOT, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
     { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE } } },
@@ -87,12 +93,15 @@ local function baseEntry()
   return { time = time(), level = ns.level, zone = GetZoneText and GetZoneText() or nil }
 end
 
--- name darf nil sein (z.B. wenn das Spiel den Namen verbirgt), classification ebenso
-function Journal.AddKill(kind, name, classification)
+-- name darf nil sein (z.B. wenn das Spiel den Namen verbirgt), classification, xp, rested und mobLevel ebenso
+function Journal.AddKill(kind, name, classification, xp, rested, mobLevel)
   local entry = baseEntry()
   entry.kind = kind
   entry.name = name
   entry.classification = classification
+  entry.xp = xp
+  entry.rested = rested
+  entry.mobLevel = mobLevel
   append("killLog", entry)
 end
 

@@ -33,6 +33,8 @@ local commands = {
   copy = function() ns.ChatCopy.ShowCurrent() end,
   stream = function() ns.StreamMode.Toggle() end,
   splits = function() ns.Set("showSplitList", not ns.db.showSplitList) end,
+  -- /lt split [Name] | undo | template: eigene Splits (CustomSplits.lua)
+  split = function(argument) ns.CustomSplits.Command(argument) end,
   -- /lt profile: Liste | <Name> wechseln | save <Name> | delete <Name> | export | import
   profile = function(argument)
     local Profiles = ns.Profiles
@@ -56,12 +58,17 @@ local commands = {
       ns.Print(L.PROFILE_UNKNOWN)
     end
   end,
-  -- /lt runs import | backup: Läufe einfügen bzw. alle als Text sichern
+  -- /lt runs import | backup | verify | lss: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen,
+  -- Level-Splits als LiveSplit-Datei
   runs = function(argument)
     if argument == "import" then
       ns.ShowRunImport()
     elseif argument == "backup" then
       ns.Export.Show(L.RUNS_BACKUP, ns.Runs.ExportAll())
+    elseif argument == "verify" then
+      ns.RunCheck.PrintAll()
+    elseif argument == "lss" then
+      ns.LiveSplitExport.Show()
     else
       printHelp()
     end

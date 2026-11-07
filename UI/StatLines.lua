@@ -40,6 +40,26 @@ local function countToLevel(xpCounter, countCounter)
   end
 end
 
+-- Questlog-XP (QuestLogXp.lua): fertige und offene Quests, und ob die Abgabe für das Level-Up reicht
+local LEVEL_UP_COLOR = "|cff40ff40"
+
+local function questLogXp(index)
+  return function()
+    if not Experience.IsLeveling() then return NO_VALUE end
+    local values = { ns.QuestLogXp.Get() }
+    return Format.Number(values[index])
+  end
+end
+
+local function questTurnInLevelUp()
+  if not Experience.IsLeveling() then return NO_VALUE end
+  local missing = ns.QuestLogXp.MissingAfterTurnIn()
+  if missing <= 0 then
+    return LEVEL_UP_COLOR .. string.format(ns.L.QUEST_XP_LEVEL_UP_YES, Format.Number(-missing)) .. "|r"
+  end
+  return string.format(ns.L.QUEST_XP_LEVEL_UP_NO, Format.Number(missing))
+end
+
 local function timeToLevel(scope)
   if not Experience.IsLeveling() then return NO_VALUE end
   local seconds = Experience.GetSecondsToLevel(scope)
@@ -92,13 +112,21 @@ local function killsPerDeath(scope)
   return ratio and string.format("%.1f", ratio) or NO_VALUE
 end
 
--- Anteil einer XP-Quelle; index 1 = Kills, 2 = Quests, 3 = Sonstige (Reihenfolge von GetSources)
-local function xpShare(index)
+-- Anteil einer XP-Quelle (Schlüssel von Experience.GetSources: kills, quests, explore, gather, other)
+local function xpShare(source)
   return function(scope)
-    local sources = { Experience.GetSources(scope) }
-    local total = sources[4]
+    local sources = Experience.GetSources(scope)
+    if sources.total <= 0 then return NO_VALUE end
+    return Format.Percent(sources[source], sources.total)
+  end
+end
+
+-- Anteil der XP an einem Ort (Zähler aus XpSources.lua) an der XP des Bereichs
+local function xpContextShare(counterName)
+  return function(scope)
+    local total = Stats.GetXp(scope)
     if total <= 0 then return NO_VALUE end
-    return Format.Percent(sources[index], total)
+    return Format.Percent(math.min(total, Stats.Get(scope, counterName)), total)
   end
 end
 
@@ -133,6 +161,18 @@ end
 
 local income = money(Stats.MONEY_EARNED)
 
+-- Ruf je Stunde im Bereich (Spielzeit wie bei XP/h)
+local function reputationRate(scope)
+  local rate = Experience.CalculateRate(Stats.Get(scope, Stats.REPUTATION), Experience.ScopeRateSeconds(scope))
+  return rate and Format.Number(rate) or NO_VALUE
+end
+
+-- Gold je Stunde im Bereich (Einnahmen, Spielzeit wie bei XP/h ohne AFK/Leerlauf, wenn eingestellt)
+local function goldPerHour(scope)
+  local rate = ns.Money.PerHour(Stats.Get(scope, Stats.MONEY_EARNED), Experience.ScopeRateSeconds(scope))
+  return rate and Format.Money(rate) or NO_VALUE
+end
+
 -- Unabhängig vom Bereich: Instanzlimit "3/5, nächste in 14m" (siehe InstanceLimit.lua)
 local function instanceLimit()
   local InstanceLimit = ns.InstanceLimit
@@ -142,8 +182,12 @@ local function instanceLimit()
   return string.format(ns.L.INSTANCE_LIMIT_NEXT, count, limit, Format.Duration(wait))
 end
 
+-- Seit Mitternacht; mit Tageslimit (Classic) dazu die gleitenden 24 Stunden "4 (12/30 in 24 h)"
 local function instancesToday()
-  return tostring(ns.InstanceLimit.GetTodayCount())
+  local InstanceLimit = ns.InstanceLimit
+  local today, dailyLimit = InstanceLimit.GetTodayCount(), InstanceLimit.GetDailyLimit()
+  if not dailyLimit then return tostring(today) end
+  return string.format(ns.L.INSTANCES_TODAY_DAILY, today, InstanceLimit.GetDayCount(), dailyLimit)
 end
 
 -- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP"
@@ -168,10 +212,15 @@ ns.STAT_LINES = {
     rows = { { label = "ROW_KILLS_TO_LEVEL", value = countToLevel(Stats.XP_KILLS, Stats.PVE_KILLS) } } },
   { setting = "showQuestsToLevel", group = "STAT_GROUP_XP", label = "STAT_QUESTS_TO_LEVEL",
     rows = { { label = "ROW_QUESTS_TO_LEVEL", value = countToLevel(Stats.XP_QUESTS, Stats.QUESTS) } } },
+  { setting = "showQuestLogXp", group = "STAT_GROUP_XP", label = "STAT_QUEST_LOG_XP", rows = {
+    { label = "ROW_QUEST_XP_READY", value = questLogXp(1) },
+    { label = "ROW_QUEST_XP_OPEN", value = questLogXp(2) },
+    { label = "ROW_QUEST_XP_LEVEL_UP", value = questTurnInLevelUp },
+  } },
   { setting = "showMaxLevelEta", group = "STAT_GROUP_XP", label = "STAT_MAX_LEVEL_ETA",
     rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
-    { label = "ROW_SPLIT_LEVEL", value = splitText(ns.Splits.GetCurrentDelta) },
+    { label = "ROW_SPLIT_LEVEL", value = function() return ns.Splits.CurrentDeltaText() end },
     { label = "ROW_SPLIT_TOTAL", value = splitText(ns.Splits.GetTotalDelta) },
   } },
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
@@ -191,9 +240,17 @@ ns.STAT_LINES = {
   { setting = "showDeathless", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHLESS",
     rows = { { label = "ROW_DEATHLESS", value = timeWithoutDeath } } },
   { setting = "showXpSources", group = "STAT_GROUP_XP", label = "STAT_XP_SOURCES", rows = {
-    { label = "ROW_XP_KILLS", value = xpShare(1) },
-    { label = "ROW_XP_QUESTS", value = xpShare(2) },
-    { label = "ROW_XP_OTHER", value = xpShare(3) },
+    { label = "ROW_XP_KILLS", value = xpShare("kills") },
+    { label = "ROW_XP_QUESTS", value = xpShare("quests") },
+    { label = "ROW_XP_EXPLORE", value = xpShare("explore") },
+    { label = "ROW_XP_GATHER", value = xpShare("gather") },
+    { label = "ROW_XP_OTHER", value = xpShare("other") },
+  } },
+  { setting = "showXpContext", group = "STAT_GROUP_XP", label = "STAT_XP_CONTEXT", rows = {
+    { label = "ROW_XP_WORLD", value = xpContextShare(Stats.XP_WORLD) },
+    { label = "ROW_XP_DUNGEON", value = xpContextShare(Stats.XP_DUNGEON) },
+    { label = "ROW_XP_RAID", value = xpContextShare(Stats.XP_RAID) },
+    { label = "ROW_XP_BATTLEGROUND", value = xpContextShare(Stats.XP_BATTLEGROUND) },
   } },
   { setting = "showRested", group = "STAT_GROUP_XP", label = "STAT_RESTED", rows = { { label = "ROW_RESTED", value = restedXp } } },
   { setting = "showRestedLeft", group = "STAT_GROUP_XP", label = "STAT_RESTED_LEFT", rows = { { label = "ROW_RESTED_LEFT", value = restedLeft } } },
@@ -201,6 +258,7 @@ ns.STAT_LINES = {
     { label = "ROW_TIME_COMBAT", value = timePart(Stats.COMBAT_SECONDS) },
     { label = "ROW_TIME_TAXI", value = timePart(Stats.TAXI_SECONDS) },
     { label = "ROW_TIME_AFK", value = timePart(Stats.AFK_SECONDS) },
+    { label = "ROW_TIME_IDLE", value = timePart(Stats.IDLE_SECONDS) },
     { label = "ROW_TIME_REST", value = timeShare(function(scope) return ns.TimeBreakdown.GetRestSeconds(scope) end) },
   } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
@@ -218,6 +276,20 @@ ns.STAT_LINES = {
     { label = "ROW_SPENT_TRAINER", value = money(Stats.SPENT_TRAINER) },
     { label = "ROW_SPENT_OTHER", value = money(Stats.SPENT_OTHER) },
     { label = "ROW_JUNK_INCOME", value = money(Stats.MONEY_JUNK) },
+  } },
+  { setting = "showReputation", group = "STAT_GROUP_TIME_MONEY", label = "STAT_REPUTATION", rows = {
+    { label = "ROW_REPUTATION", value = function(scope) return Format.Number(Stats.Get(scope, Stats.REPUTATION)) end },
+    { label = "ROW_REPUTATION_RATE", value = reputationRate },
+  } },
+  { setting = "showIncome", group = "STAT_GROUP_TIME_MONEY", label = "STAT_INCOME", rows = {
+    { label = "ROW_INCOME_LOOT", value = money(Stats.INCOME_LOOT) },
+    { label = "ROW_INCOME_QUEST", value = money(Stats.INCOME_QUEST) },
+    { label = "ROW_INCOME_MERCHANT", value = money(Stats.INCOME_MERCHANT) },
+    { label = "ROW_INCOME_MAIL", value = money(Stats.INCOME_MAIL) },
+    { label = "ROW_INCOME_AUCTION", value = money(Stats.INCOME_AUCTION) },
+    { label = "ROW_INCOME_TRADE", value = money(Stats.INCOME_TRADE) },
+    { label = "ROW_INCOME_OTHER", value = money(Stats.INCOME_OTHER) },
+    { label = "ROW_GOLD_PER_HOUR", value = goldPerHour },
   } },
 }
 

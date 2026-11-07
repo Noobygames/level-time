@@ -36,6 +36,7 @@ local COMPACT_ROW_SETTING = "showXpRate"  -- einzige Zeile im Kompaktmodus
 local XP_BAR_HEIGHT = 6
 local XP_BAR_BACKGROUND = { 1, 1, 1, 0.1 }
 local XP_BAR_RESTED = { 0.3, 0.55, 1, 0.6 }
+local XP_BAR_QUESTS = { 1, 0.8, 0.2, 0.75 }  -- XP der fertigen Quests (Einstellung questXpOnBar)
 -- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key)
 TimerWindow.BACKGROUND_DEFAULT = "default"
 TimerWindow.CHROMA_COLORS = {
@@ -93,7 +94,12 @@ local xpBarRested = window:CreateTexture(nil, "ARTWORK", nil, 1)
 xpBarRested:SetColorTexture(unpack(XP_BAR_RESTED))
 xpBarRested:SetPoint("TOPLEFT", xpBarBackground)
 xpBarRested:SetHeight(XP_BAR_HEIGHT)
-local xpBarFill = window:CreateTexture(nil, "ARTWORK", nil, 2)
+-- Darüber die XP der abgabebereiten Quests (QuestLogXp.lua), nur mit Einstellung questXpOnBar
+local xpBarQuests = window:CreateTexture(nil, "ARTWORK", nil, 2)
+xpBarQuests:SetColorTexture(unpack(XP_BAR_QUESTS))
+xpBarQuests:SetPoint("TOPLEFT", xpBarBackground)
+xpBarQuests:SetHeight(XP_BAR_HEIGHT)
+local xpBarFill = window:CreateTexture(nil, "ARTWORK", nil, 3)
 xpBarFill:SetColorTexture(unpack(Widgets.COLORS.highlight))
 xpBarFill:SetPoint("TOPLEFT", xpBarBackground)
 xpBarFill:SetHeight(XP_BAR_HEIGHT)
@@ -172,6 +178,10 @@ local function refreshXpBar()
   local withRested = math.min(xpMax, xp + (GetXPExhaustion() or 0))
   xpBarFill:SetWidth(math.max(1, barWidth * xp / xpMax))
   xpBarRested:SetWidth(math.max(1, barWidth * withRested / xpMax))
+  if xpBarQuests:IsShown() then
+    local withQuests = math.min(xpMax, xp + ns.QuestLogXp.Get())
+    xpBarQuests:SetWidth(math.max(1, barWidth * withQuests / xpMax))
+  end
 end
 
 -- Ziffern der Tage, für die die Zeitanzeige Platz hat; wächst bei 100 Tagen und mehr
@@ -224,6 +234,7 @@ local function updateVisibility(db)
   for _, part in ipairs(xpBarParts) do
     part:SetShown(showXpBar)
   end
+  xpBarQuests:SetShown(showXpBar and db.questXpOnBar)
 
   for _, row in ipairs(rows) do
     local visible = ns.IsStatShown(row.stat, db)

@@ -3,6 +3,9 @@
 -- nächsten Öffnen wiederhergestellt (Einstellung moveFrames im Reiter "Komfort", aus).
 -- Im Kampf wird nichts verschoben: geschützte Fenster dürfen dann nicht angefasst werden.
 -- Fenster, die ein Blizzard-Addon erst später lädt (Talente, Auktionshaus, ...), kommen über ADDON_LOADED dazu.
+-- Größe (Roadmap 266, wie BlizzMove): Strg+Mausrad skaliert ein verschobenes Fenster in SCALE_STEP-Schritten,
+-- Strg+Rechtsklick setzt es auf 1 zurück; gemerkt in movedFrameScales und beim Öffnen wie die Position gesetzt.
+-- Geschützte Fenster (IsProtected) werden im Kampf nicht skaliert.
 local _, ns = ...
 local L = ns.L
 
@@ -17,6 +20,10 @@ MoveFrames.FRAME_NAMES = {
   "GuildFrame", "PVEFrame", "LFGParentFrame", "CollectionsJournal", "ProfessionsFrame", "PetStableFrame",
   "TaxiFrame", "TabardFrame", "MacroFrame", "ItemTextFrame",
 }
+
+MoveFrames.MIN_SCALE = 0.5
+MoveFrames.MAX_SCALE = 2
+MoveFrames.SCALE_STEP = 0.1
 
 local attached = {}  -- [Name] = true, sobald die Griffe eingehängt sind
 
@@ -34,11 +41,46 @@ local function validPosition(pos)
     and type(pos[3]) == "number" and type(pos[4]) == "number"
 end
 
+local function savedScale(name)
+  local scale = ns.db and ns.db.movedFrameScales and ns.db.movedFrameScales[name]
+  if type(scale) ~= "number" then return nil end
+  return math.max(MoveFrames.MIN_SCALE, math.min(MoveFrames.MAX_SCALE, scale))
+end
+
 local function restore(frame, name)
+  if not isEnabled() or inCombat() then return end
+  local scale = savedScale(name)
+  if scale then frame:SetScale(scale) end
   local pos = ns.db and ns.db.movedFrames and ns.db.movedFrames[name]
-  if not validPosition(pos) or not isEnabled() or inCombat() then return end
+  if not validPosition(pos) then return end
   frame:ClearAllPoints()
   frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+end
+
+-- Geschützte Fenster dürfen im Kampf weder skaliert noch bewegt werden
+local function canScale(frame)
+  return not (inCombat() and frame.IsProtected and frame:IsProtected())
+end
+
+local function setScale(frame, name, scale)
+  scale = math.max(MoveFrames.MIN_SCALE, math.min(MoveFrames.MAX_SCALE, scale))
+  -- auf eine Nachkommastelle runden, damit sich die Schritte nicht verschieben
+  scale = math.floor(scale * 10 + 0.5) / 10
+  frame:SetScale(scale)
+  ns.db.movedFrameScales = ns.db.movedFrameScales or {}
+  ns.db.movedFrameScales[name] = scale ~= 1 and scale or nil
+  ns.Debug("moveframes", "%s scale %s", name, scale)
+end
+
+local function onMouseWheel(frame, name, delta)
+  if not isEnabled() or not IsControlKeyDown() or not canScale(frame) then return end
+  local current = frame:GetScale() or 1
+  setScale(frame, name, current + (delta > 0 and MoveFrames.SCALE_STEP or -MoveFrames.SCALE_STEP))
+end
+
+local function onMouseUp(frame, name, button)
+  if button ~= "RightButton" or not isEnabled() or not IsControlKeyDown() or not canScale(frame) then return end
+  setScale(frame, name, 1)
 end
 
 -- Gemerkt wird nur, was am Bildschirm hängt (nach StopMovingOrSizing immer der Fall)
@@ -72,6 +114,10 @@ local function attach(name)
   frame:EnableMouse(true)
   frame:SetClampedToScreen(true)
   frame:RegisterForDrag("LeftButton")
+  -- Mausrad nur am Fenster selbst; Listen darin (Scrollrahmen) liegen darüber und bekommen es weiter zuerst
+  frame:EnableMouseWheel(true)
+  frame:HookScript("OnMouseWheel", function(self, delta) ns.SafeCall(onMouseWheel, self, name, delta) end)
+  frame:HookScript("OnMouseUp", function(self, button) ns.SafeCall(onMouseUp, self, name, button) end)
   local dragging = false  -- nur ein Ziehen, das wirklich begonnen hat, wird gespeichert
   frame:HookScript("OnDragStart", function(self)
     if not isEnabled() or inCombat() then return end
@@ -103,6 +149,12 @@ end
 -- Gemerkte Positionen vergessen; die Fenster stehen wieder an ihrer Standardstelle, sobald das Spiel sie neu anordnet
 function MoveFrames.Reset()
   ns.db.movedFrames = nil
+  -- Größen sofort zurück, aber nur bei Fenstern, die wir skaliert haben
+  for name in pairs(ns.db.movedFrameScales or {}) do
+    local frame = _G[name]
+    if type(frame) == "table" and frame.SetScale and canScale(frame) then frame:SetScale(1) end
+  end
+  ns.db.movedFrameScales = nil
   ns.Print(L.MOVE_FRAMES_RESET_DONE)
 end
 

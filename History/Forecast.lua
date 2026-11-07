@@ -5,7 +5,7 @@
 --   meist etwas, die Prognose ist daher eher großzügig.
 --   Ohne Tabelle (Retail): Durchschnittszeit der letzten SAMPLE_SIZE Level je weiteres Level; höhere
 --   Level dauern meist länger, die Prognose ist daher eher knapp.
--- Zeiten ohne AFK, wenn eingestellt (Experience.RecordRate/RateSeconds).
+-- Zeiten ohne AFK und Leerlauf, wenn eingestellt (Experience.RecordRate/RateSeconds).
 local _, ns = ...
 local Stats = ns.Stats
 local Experience = ns.Experience
@@ -31,7 +31,7 @@ local function recentCompletedLevels()
 end
 
 local function rateSeconds(record)
-  return Experience.RateSeconds(record.seconds, record.counters[Stats.AFK_SECONDS])
+  return Experience.RecordRateSeconds(record)
 end
 
 local function averageRecentLevelSeconds()
@@ -61,8 +61,7 @@ local function secondsForLaterLevels(targetLevel, remaining)
   local rate = xp and recentXpRate()
   if rate then return xp / rate * SECONDS_PER_HOUR end
 
-  local levelSeconds = Experience.RateSeconds(Stats.GetSeconds(Stats.LEVEL),
-    ns.TimeBreakdown.GetSeconds(Stats.LEVEL, Stats.AFK_SECONDS))
+  local levelSeconds = Experience.ScopeRateSeconds(Stats.LEVEL)
   local perLevel = averageRecentLevelSeconds() or (levelSeconds + remaining)
   return (targetLevel - ns.level - 1) * perLevel
 end

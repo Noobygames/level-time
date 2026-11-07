@@ -1,6 +1,9 @@
 -- Läufe für Speedrun-Vergleiche: Level-Zeiten eines Charakters oder eines importierten Laufs.
 -- Lauf: { id, name, realm, class, times = { [level] = Sekunden }, reachedLevel, imported, favorite }
+--   eigene Charaktere zusätzlich bestTimes (ohne Teil-Level) und coverage (Erfassungsquote, Coverage.lua)
 --   id = Charakter-Schlüssel ("Name-Realm") oder "import:<n>" für importierte Läufe
+--   category: ssf/solo/group/boosted (RunCategory.lua), nil = unbekannt
+--   check/checkFrom/checkTo: Prüfcode über die Level checkFrom..checkTo (RunCheck.lua), coverage auch bei Importen
 -- Importierte Läufe liegen in LevelTimerStatsDB.importedRuns, Favoriten in LevelTimerStatsDB.runFavorites.
 local _, ns = ...
 local History = ns.History
@@ -16,23 +19,31 @@ local function store()
   return LevelTimerStatsDB
 end
 
--- Abgeschlossene Level-Zeiten eines Charakters: level -> Sekunden
-function Runs.LevelTimes(characterKey)
+-- Abgeschlossene Level-Zeiten eines Charakters: level -> Sekunden. withoutPartial = ohne nur teilweise erfasste
+-- Level (Coverage.lua), z.B. für Bestzeiten
+function Runs.LevelTimes(characterKey, withoutPartial)
   local times = {}
   for _, record in ipairs(History.GetLevelRecords(characterKey)) do
-    if not record.isCurrent and record.seconds then times[record.level] = record.seconds end
+    if not record.isCurrent and record.seconds and not (withoutPartial and record.partial) then
+      times[record.level] = record.seconds
+    end
   end
   return times
 end
 
 local function fromCharacter(characterKey)
   local character = History.GetCharacter(characterKey)
+  local check, checkFrom, checkTo = ns.RunCheck.ForCharacter(character)
   return {
+    check = check, checkFrom = checkFrom, checkTo = checkTo,
+    category = character.runCategory,
     id = characterKey,
     name = character.name,
     realm = character.realm,
     class = character.class,
     times = Runs.LevelTimes(characterKey),
+    bestTimes = Runs.LevelTimes(characterKey, true),  -- ohne Teil-Level: nur diese zählen als Bestzeit
+    coverage = ns.Coverage.Get(characterKey),
     reachedLevel = character.currentLevel.level,
   }
 end
@@ -45,6 +56,9 @@ local function fromImport(index, run)
     class = run.class,
     times = run.times,
     reachedLevel = run.reachedLevel,
+    coverage = run.coverage,
+    category = run.category,
+    check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo,
     imported = true,
   }
 end
@@ -109,7 +123,9 @@ local function shareable(run)
     realm = nil
     if not run.imported then name = History.DisplayName(run.id) end
   end
-  return { name = name, realm = realm, class = run.class, reachedLevel = run.reachedLevel, times = run.times }
+  return { name = name, realm = realm, class = run.class, reachedLevel = run.reachedLevel, times = run.times,
+    coverage = run.coverage, check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo,
+    category = run.category }
 end
 
 function Runs.Export(run)
@@ -130,6 +146,21 @@ local function plain(text)
   return type(text) == "string" and (text:gsub("|", "")) or nil
 end
 
+local function number(value)
+  return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge and value or nil
+end
+
+-- Prüfcode von außen: nur Hex-Text (RunCheck.lua), sonst verworfen
+local function checkCode(value)
+  return type(value) == "string" and value:match("^%x+$") and value or nil
+end
+
+-- Erfassungsquote von außen: Anteil 0..1
+local function fraction(value)
+  value = number(value)
+  return value and math.max(0, math.min(1, value)) or nil
+end
+
 -- Nur Läufe mit Namen und Level-Zeiten aus Zahlen übernehmen (der Text kommt von außen)
 local function sanitize(run)
   if type(run) ~= "table" or type(run.name) ~= "string" or type(run.times) ~= "table" then return nil end
@@ -146,6 +177,11 @@ local function sanitize(run)
     class = plain(run.class),
     reachedLevel = type(run.reachedLevel) == "number" and run.reachedLevel or nil,
     times = times,
+    coverage = fraction(run.coverage),
+    category = ns.RunCategory.IsValid(run.category) and run.category or nil,
+    check = checkCode(run.check),
+    checkFrom = number(run.checkFrom),
+    checkTo = number(run.checkTo),
   }
 end
 

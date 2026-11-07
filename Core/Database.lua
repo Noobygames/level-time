@@ -27,6 +27,9 @@ local SETTINGS_DEFAULTS = {
   showLevelEta = true,
   showKillsToLevel = false,   -- Kills bis zum Level-Up
   showQuestsToLevel = false,  -- Quests bis zum Level-Up
+  toLevelSamples = 20,  -- Kills/Quests bis Level-Up: Schnitt der letzten N (0 = ganzes Level, Experience.CountToLevel)
+  showQuestLogXp = false,  -- XP der Quests im Questlog, fertig und offen (siehe QuestLogXp.lua)
+  questXpOnBar = false,    -- XP der fertigen Quests als eigenes Stück auf dem XP-Balken
   showMaxLevelEta = false,
   showSplits = false,  -- Splits gegen einen Vergleich (siehe Splits.lua)
   splitComparison = "best",  -- "best", "pb" oder "run" (db.splitReference, siehe Splits.lua)
@@ -34,10 +37,21 @@ local SETTINGS_DEFAULTS = {
   splitListRows = 5,
   splitListShowTotal = true,   -- Zeile "Gesamt" in der Split-Liste
   splitListShowPlayed = true,  -- Zeile "/played" in der Split-Liste
+  questSplitNotice = false,
+  friendRace = false,
+  milestoneScreenshots = false,    -- Screenshot alle 5 Level und beim Max-Level (MilestoneScreenshots.lua)
+  screenshotFirstDungeon = false,  -- Screenshot beim ersten Dungeon des Charakters
+  screenshotEpicLoot = false,      -- Screenshot bei epischer Beute  -- Level-Zeiten per Addon-Nachricht mit anderen Level-Time-Nutzern tauschen (FriendRace.lua)  -- Chatzeile mit Dauer und Abweichung bei jeder Quest-Abgabe (QuestSplits.lua)
+  splitListShowCustom = true,  -- die letzten eigenen Splits (/lt split) in der Split-Liste
+  splitListShowForecast = false,  -- Prognose des nächsten Abschnitts gegen PB, Bestzeiten und Rekord (BracketForecast.lua)
   showWorldRecords = true,  -- Speedrun-Rekorde in der Split-Liste (siehe WorldRecords.lua)
   showRecordsAge = true,    -- Stand der Rekord-Daten in der Split-Liste
   recordBrackets = {},      -- [Abschnitt] = false blendet ihn in der Split-Liste aus
   worldRecordScope = "class",  -- "overall" oder "class"
+  goldSplitNotice = false,
+  ssfCategory = "off",  -- SSF-Regelhelfer: "off", "1-20" oder "1-60" (SsfRules.lua), nur Anzeige
+  splitTolerancePercent = 0,  -- Toleranzband der Splits in Prozent der Vergleichszeit, 0 = aus (Splits.lua)
+  pbSameClass = false,  -- Vergleich "pb" nur gegen eigene Charaktere derselben Klasse  -- Gold-Split (neue Bestzeit je Level) beim Level-Up mit Chatzeile und Ton melden
   showGoal = false,  -- Session-Ziel (siehe Goal.lua); /lt goal schaltet die Zeile ein
   streamerPrivacy = false,  -- Realm und andere Charaktere in der Historie verbergen (siehe History.DisplayName)
   -- Große Einblendungen (siehe Alerts.lua), für Streams gedacht und daher aus
@@ -71,6 +85,8 @@ local SETTINGS_DEFAULTS = {
   remindThorns = false, remindOmenOfClarity = false, remindShamanShield = false, remindShamanWeapon = false,
   remindBlessing = false, remindPaladinAura = false, remindRighteousFury = false, remindAspect = false,
   remindHunterPet = false, remindPoisons = false, remindBattleShout = false, remindBronzeBlessing = false,
+  remindBreak = false,  -- Pausen-Erinnerung nach breakMinutes Spielzeit ohne Pause (BreakReminder.lua)
+  breakMinutes = 60,
   reminderInterval = 5,  -- Minuten zwischen zwei Hinweisen auf denselben fehlenden Buff
   warnBagsFull = false,  -- Hinweis bei fast vollen Taschen (siehe GearWarnings.lua)
   warnDurability = false,  -- Hinweis bei niedriger Haltbarkeit
@@ -81,10 +97,14 @@ local SETTINGS_DEFAULTS = {
   ammoRepeat = 5,          -- Minuten zwischen Wiederholungen der Munitionswarnung (0 = einmalig)
   announceControlLoss = false,  -- Heiler: Kontrollverlust an die Gruppe (ControlCallout.lua)
   announceControlOver = false,  -- Heiler: Entwarnung, wenn der Kontrollverlust vorbei ist
+  announceQuestProgress = false,  -- Questfortschritt an die Gruppe (QuestProgress.lua)
+  announceInstanceReport = false,  -- Bericht des Instanz-Laufs beim Verlassen an die Gruppe (InstanceReport.lua)
   announceHealerAggro = false,  -- Heiler: Aggro über 2 s an die Gruppe (AggroWarning.lua)
   announceLowMana = false,  -- Heiler: wenig Mana an die Gruppe (ManaCallout.lua)
   lowManaPercent = 25,      -- ab diesem Mana-Anteil (Prozent) wird angesagt
   warnAggro = false,  -- Hinweis bei Aggro in einer Gruppe (AggroWarning.lua)
+  warnBreath = false,      -- Atem und Erschöpfung knapp (BreathWarning.lua)
+  breathWarnSeconds = 15,  -- ab so vielen Sekunden Rest
   warnInstanceLimit = false,  -- Hinweis beim Betreten der vorletzten und letzten erlaubten Instanz (InstanceLimit.lua)
   -- Komfort beim Leveln (siehe Comfort.lua), alles aus
   -- Komfort wie Leatrix Plus (Roadmap 329): AutoAccept.lua, Looting.lua, ScreenText.lua, Camera.lua
@@ -107,6 +127,7 @@ local SETTINGS_DEFAULTS = {
   autoTurnIn = false,       -- fertige Quests abgeben
   autoChooseReward = false, -- bei mehreren Belohnungen die mit dem höchsten Verkaufswert
   skipGossip = false,       -- Gespräche mit nur einer Option überspringen
+  questExclude = "",        -- eigene Sperrliste der Quest-Automatik: IDs und Namen (QuestBlocklist.lua)
   declineTrades = false,    -- Handel ablehnen (Declines.lua)
   declineGroupInvites = false,
   declineGuildInvites = false,
@@ -115,6 +136,7 @@ local SETTINGS_DEFAULTS = {
   -- annehmen, per Flüster-Stichwort einladen
   declineSharedQuests = false, blockFriendRequests = false, acceptFriendInvites = false, inviteFromWhisper = false,
   inviteKeyword = "inv",
+  inviteInfo = false,  -- Chatzeile mit Level, Rasse und Klasse bei Gruppeneinladungen (InviteInfo.lua)
   chatCopyButton = false,   -- Button zum Kopieren an jedem Chatfenster (ChatCopy.lua)
   -- Chatfenster (ChatWindows.lua), letzter Chat nach /reload (ChatHistory.lua), Spam-Filter (ChatFilter.lua)
   hideCombatLogTab = false, hideChatButtons = false, chatEditBoxTop = false, chatArrowKeys = false, noChatFade = false,
@@ -122,13 +144,19 @@ local SETTINGS_DEFAULTS = {
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
+  questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
+  questTargetButton = false, -- Knopf "/targetexact" für einen Questgegner auf den Namensplaketten
+  mapCoordinates = false,    -- Koordinaten von Spieler und Mauszeiger auf der Weltkarte (MapCoordinates.lua)
+  emergencyHighlight = false,  -- wenig Leben: Notfall-Knöpfe markieren, Bildschirmrand rot (Emergency.lua)
   -- Oberfläche (Roadmap 329, Schritt 4): Aktionsleisten (ActionBars.lua), Blizzard-Einblendungen (HideFrames.lua)
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
-  tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false,  -- Tooltip.lua
+  tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
+  deathMap = false,  -- Todespunkte auf der Weltkarte (DeathMap.lua)
   minimapWheelZoom = false, minimapHideZoomButtons = false, minimapHideCalendar = false,  -- MinimapTweaks.lua
   levelUpSummary = true,
   levelUpWindow = true,  -- eigenes Level-Up-Fenster statt Blizzards Banner (siehe LevelUpWindow.lua)
@@ -138,6 +166,9 @@ local SETTINGS_DEFAULTS = {
   levelUpSound = true,
   levelUpScale = 1,
   levelUpDuration = 8,
+  announceRecords = false,  -- Einblendung und Chatzeile bei einem neuen persönlichen Rekord (PersonalRecords.lua)
+  sessionCompareLogin = true,  -- Chatzeile zur letzten Session beim Login (siehe SessionCompare.lua)
+  restedAltNotice = true,  -- Chatzeile beim Login, wenn ein Twink voll ausgeruht ist (siehe RestedEstimate.lua)
   levelUpGains = true,  -- Zuwachs (Leben, Mana, Werte) in Chat und Level-Up-Karte (siehe LevelGains.lua)
   levelUpAnnounce = "off",  -- Level-Up-Zusammenfassung an "party" oder "guild" (siehe LevelUpSummary.lua)
   showPveKills = true,
@@ -149,16 +180,20 @@ local SETTINGS_DEFAULTS = {
   showDeathless = false,
   highlightDeaths = true,  -- Tode im Fenster rot (siehe StatLines.lua)  -- Hardcore: Zeit seit dem letzten Tod
   showXpSources = false,
+  showXpContext = false,  -- XP nach Ort: Welt, Dungeon, Schlachtzug, Schlachtfeld (XpSources.lua)
   showRested = false,
   showRestedLeft = false,  -- verbleibende Erholt-XP (GetXPExhaustion)
   showTimeBreakdown = false,  -- Zeit in Kampf, Flug, AFK und Rest (siehe TimeBreakdown.lua)
   xpRateWithoutAfk = false,   -- XP/h und Prognosen ohne AFK-Zeit (siehe Experience.RateSeconds)
+  idleMinutes = 0,  -- so lange ohne XP-Gewinn und Kampf, danach zählt Leerlauf (0 = aus, TimeBreakdown.lua)
   showInstanceRun = false,  -- laufender Dungeon-/Raid-Lauf (siehe Instances.lua)
   showInstanceLimit = false,   -- neue Instanzen in der letzten Stunde (siehe InstanceLimit.lua)
   showInstancesToday = false,  -- neue Instanzen seit Mitternacht
   showQuests = false,
   showMoney = false,
   showSpending = false,  -- Ausgaben nach Art und Schrott-Erlös (siehe MoneyCounter.lua)
+  showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
+  showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
   minimap = { hide = false, angle = 225 },
 }
 
@@ -173,6 +208,12 @@ local COUNTER_DEFAULTS = {
   xpKills = 0,
   xpQuests = 0,
   xpRested = 0,
+  xpExplore = 0,
+  xpGather = 0,
+  xpWorld = 0,
+  xpDungeon = 0,
+  xpRaid = 0,
+  xpBattleground = 0,
   moneyEarned = 0,
   eliteKills = 0,
   rareKills = 0,
@@ -180,12 +221,21 @@ local COUNTER_DEFAULTS = {
   combatSeconds = 0,
   taxiSeconds = 0,
   afkSeconds = 0,
+  idleSeconds = 0,
   moneyJunk = 0,
   spentRepair = 0,
   spentMerchant = 0,
   spentTaxi = 0,
   spentTrainer = 0,
   spentOther = 0,
+  incomeLoot = 0,
+  incomeQuest = 0,
+  incomeMerchant = 0,
+  incomeMail = 0,
+  incomeAuction = 0,
+  incomeTrade = 0,
+  incomeOther = 0,
+  reputation = 0,
 }
 
 local CHARACTER_DEFAULTS = {
@@ -209,6 +259,9 @@ local CHARACTER_DEFAULTS = {
   lootLog = {},         -- seltene und bessere Beute, älteste zuerst (siehe Loot.lua)
   nearDeathLog = {},    -- Beinahe-Tode, älteste zuerst (siehe NearDeath.lua)
   zoneStats = {},       -- Spielzeit, XP, Kills und Tode je Zone (siehe Zones.lua)
+  questStarts = {},     -- /played bei Annahme je Quest-ID, bis zur Abgabe (QuestSplits.lua)
+  customSplits = {},    -- eigene Splits { name, played, time, level }, älteste zuerst (CustomSplits.lua)
+  ssfLogouts = 0,       -- echte Logouts seit Beginn der Aufzeichnung (SSF-Regelhelfer, SsfRules.lua)
   dailyStats = {},      -- Tageswerte, Schlüssel "JJJJ-MM-TT" (siehe Daily.lua)
 }
 
@@ -361,9 +414,14 @@ local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   splitListScale = { 0.5, 2 },
   splitListRows = { 3, 15 },
+  splitTolerancePercent = { 0, 10 },
   reminderInterval = { 1, 30 },
   ammoLow = { 20, 1000 },
   lowManaPercent = { 5, 60 },
+  breakMinutes = { 15, 240 },
+  toLevelSamples = { 0, 50 },
+  idleMinutes = { 0, 30 },
+  breathWarnSeconds = { 5, 30 },
   ammoCritical = { 0, 500 },
   ammoRepeat = { 0, 30 },
   alertScale = { 0.5, 2 },
@@ -387,10 +445,18 @@ local OPTIONAL_SETTINGS = {
   foodPos = isPosition,       -- Essen-Timer (FoodDisplay.lua)
   flightPos = isPosition,     -- Flugzeiten (FlightDisplay.lua)
   levelUpPos = isPosition,    -- Level-Up-Fenster (LevelUpWindow.lua)
+  questItemPos = isPosition,  -- Quest-Item-Knopf (QuestItemButton.lua)
   movedFrames = function(value)  -- gemerkte Fensterpositionen (MoveFrames.lua), Name -> Position
     if type(value) ~= "table" then return false end
     for name, pos in pairs(value) do  -- ungültige Einträge einzeln entfernen, gültige behalten
       if type(name) ~= "string" or not isPosition(pos) then value[name] = nil end
+    end
+    return true
+  end,
+  movedFrameScales = function(value)  -- gemerkte Fenstergrößen (MoveFrames.lua), Name -> Faktor
+    if type(value) ~= "table" then return false end
+    for name, scale in pairs(value) do
+      if type(name) ~= "string" or not isFiniteNumber(scale) or scale <= 0 then value[name] = nil end
     end
     return true
   end,

@@ -23,6 +23,7 @@ Core\DebugLog.lua
 Core\DebugProbes.lua
 Lib\Format.lua
 Lib\Serializer.lua
+Lib\Fnv.lua
 Lib\RecordCodec.lua
 Core\Profiles.lua
 Lib\ChatPatterns.lua
@@ -30,6 +31,7 @@ Lib\GroupChat.lua
 Lib\GroupRole.lua
 Lib\Bags.lua
 Lib\Items.lua
+Lib\QuestLog.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
@@ -45,39 +47,60 @@ Tracking\Classification.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua
 Tracking\Session.lua
+Tracking\Coverage.lua
 Tracking\Experience.lua
 Tracking\LevelGains.lua
 Tracking\TrainerCache.lua
 Tracking\KillCounter.lua
+Tracking\MobXp.lua
 Tracking\DeathRecap.lua
 Tracking\DeathCounter.lua
+Tracking\DeathPlace.lua
 Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
 Tracking\QuestCounter.lua
+Tracking\QuestLogXp.lua
+Tracking\XpSources.lua
 Tracking\Loot.lua
 Tracking\MoneyCounter.lua
+Tracking\Reputation.lua
 
 # Historie, Auswertung, Prognose
 History\History.lua
+History\RestedEstimate.lua
 History\Zones.lua
 History\Daily.lua
+History\Money.lua
+History\PlayHours.lua
 History\Instances.lua
 History\InstanceLimit.lua
+History\PersonalRecords.lua
 History\Analysis.lua
+History\ProgressCurve.lua
 History\XpTable.lua
 History\Forecast.lua
 History\Goal.lua
 
 # Speedrun (Daten)
 Speedrun\Runs.lua
+Speedrun\RunCheck.lua
 Speedrun\Splits.lua
 Speedrun\SpeedrunRecords.lua
 Speedrun\WorldRecords.lua
+Speedrun\BracketForecast.lua
+Speedrun\RunCategory.lua
+Speedrun\SsfRules.lua
+Speedrun\CustomSplits.lua
+Speedrun\QuestSplits.lua
+Speedrun\LiveSplitExport.lua
+Speedrun\FriendRace.lua
+Speedrun\MilestoneScreenshots.lua
 
 # Oberfläche (UI), Leveling-Hilfe (Assist), Speedrun-Fenster, Befehle
 UI\StatLines.lua
 UI\LevelUpSummary.lua
+UI\SessionCompare.lua
 UI\Alerts.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
@@ -90,14 +113,20 @@ Assist\FoodTimer.lua
 Assist\FlightTimer.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
+Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
+Assist\QuestProgress.lua
+Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
+Assist\BreakReminder.lua
 Assist\TrainAll.lua
 Assist\Comfort.lua
 Assist\Friends.lua
 Assist\Social.lua
+Assist\InviteInfo.lua
 Assist\Merchant.lua
+Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
@@ -111,12 +140,17 @@ Assist\ChatHistory.lua
 Assist\ChatFilter.lua
 Assist\MoveFrames.lua
 Assist\QuestMarks.lua
+Assist\QuestLevels.lua
+Assist\QuestItemButton.lua
 Assist\ActionBars.lua
+Assist\Emergency.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
 Assist\ClassColors.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\MapCoordinates.lua
+Assist\DeathMap.lua
 Assist\ScreenEffects.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua

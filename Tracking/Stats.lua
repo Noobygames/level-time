@@ -22,6 +22,12 @@ Stats.XP_GAINED = "xpGained"
 Stats.XP_KILLS = "xpKills"
 Stats.XP_QUESTS = "xpQuests"
 Stats.XP_RESTED = "xpRested"
+Stats.XP_EXPLORE = "xpExplore"          -- weitere XP-Quellen und Ort der XP (XpSources.lua)
+Stats.XP_GATHER = "xpGather"
+Stats.XP_WORLD = "xpWorld"
+Stats.XP_DUNGEON = "xpDungeon"
+Stats.XP_RAID = "xpRaid"
+Stats.XP_BATTLEGROUND = "xpBattleground"
 Stats.MONEY_EARNED = "moneyEarned"
 Stats.ELITE_KILLS = "eliteKills"
 Stats.RARE_KILLS = "rareKills"
@@ -29,12 +35,23 @@ Stats.NEAR_DEATHS = "nearDeaths"
 Stats.COMBAT_SECONDS = "combatSeconds"  -- Zeitaufteilung (TimeBreakdown.lua)
 Stats.TAXI_SECONDS = "taxiSeconds"
 Stats.AFK_SECONDS = "afkSeconds"
+Stats.IDLE_SECONDS = "idleSeconds"        -- Leerlauf ohne AFK-Flag (Einstellung idleMinutes)
 Stats.MONEY_JUNK = "moneyJunk"            -- Erlös aus verkauftem Schrott (Merchant.lua), Teil der Einnahmen
 Stats.SPENT_REPAIR = "spentRepair"        -- Ausgaben nach Art (MoneyCounter.lua)
 Stats.SPENT_MERCHANT = "spentMerchant"
 Stats.SPENT_TAXI = "spentTaxi"
 Stats.SPENT_TRAINER = "spentTrainer"
 Stats.SPENT_OTHER = "spentOther"
+Stats.INCOME_LOOT = "incomeLoot"          -- Einnahmen nach Art (MoneyCounter.lua), zusammen = MONEY_EARNED
+Stats.INCOME_QUEST = "incomeQuest"
+Stats.INCOME_MERCHANT = "incomeMerchant"
+Stats.INCOME_MAIL = "incomeMail"
+Stats.INCOME_AUCTION = "incomeAuction"
+Stats.INCOME_TRADE = "incomeTrade"
+Stats.INCOME_OTHER = "incomeOther"
+Stats.REPUTATION = "reputation"          -- Rufgewinne aller Fraktionen (Reputation.lua)
+-- Alle Ausgaben-Zähler (Summe = Ausgaben gesamt)
+Stats.SPENDING = { Stats.SPENT_REPAIR, Stats.SPENT_MERCHANT, Stats.SPENT_TAXI, Stats.SPENT_TRAINER, Stats.SPENT_OTHER }
 
 local NO_COUNTERS = {}  -- Instanz-Bereich ohne laufenden Lauf (nie beschrieben)
 
@@ -120,6 +137,7 @@ local function startLevel(level)
   currentLevel.level = level
   currentLevel.seconds = 0
   currentLevel.xp = 0
+  currentLevel.partial = nil  -- nur teilweise erfasst (Coverage.lua)
   currentLevel.counters = ns.Database.NewCounters()
 end
 

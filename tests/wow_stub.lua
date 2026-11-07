@@ -184,6 +184,13 @@ local frameMethods = {
   GetChecked = function(self) return self._checked end,
   SetChecked = function(self, checked) self._checked = checked end,
   SetScript = function(self, name, handler) self._scripts[name] = handler end,
+  -- Attribute sicherer Knöpfe; im Kampf wie im Client verboten (Fehler), Tests prüfen so die Kampfsperre
+  SetAttribute = function(self, name, value)
+    if wow.state.combatLockdown then error("ADDON_ACTION_BLOCKED: SetAttribute in combat") end
+    self._attributes = rawget(self, "_attributes") or {}
+    self._attributes[name] = value
+  end,
+  GetAttribute = function(self, name) return (rawget(self, "_attributes") or {})[name] end,
   -- Wie im Client: vorhandenen Handler behalten und den neuen danach aufrufen
   HookScript = function(self, name, handler)
     local previous = self._scripts[name]
@@ -210,6 +217,7 @@ local function newFrame()
   }
   frame.CreateFontString = function() return newFrame() end
   frame.CreateTexture = function() return newFrame() end
+  frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
   return setmetatable(frame, {
     __index = function(_, key) return frameMethods[key] or noop end,
@@ -338,6 +346,8 @@ function StaticPopup_Show(name, textArg1, textArg2, data)
   wow.popup = { name = name, text = textArg1, data = data }
 end
 COMBATLOG_XPGAIN_FIRSTPERSON = "%s stirbt, Ihr bekommt %d Erfahrung."
+COMBATLOG_XPGAIN_EXHAUSTION1 = "%s stirbt, Ihr bekommt %d Erfahrung. (%s EP-Bonus durch %s)"
+ERR_ZONE_EXPLORED_XP = "%1$s entdeckt: %2$d Erfahrung erhalten."
 COMBATLOG_HONORGAIN = "%s stirbt, ehrenhafter Sieg Rang: %s (Geschätzte Ehrenpunkte: %d)"
 -- Texte wie im deutschen Client (WoW Forever, per /dump geprüft)
 INSTANCE_RESET_SUCCESS = "'%s' wurde zurückgesetzt."
@@ -348,6 +358,11 @@ LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
 LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
 LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
+-- Rufmeldungen (Retail-Form; Classic: "Your %s reputation has increased by %d.")
+FACTION_STANDING_INCREASED = "Euer Ruf bei der Fraktion '%s' hat sich um %d verbessert."
+FACTION_STANDING_INCREASED_ACCOUNT_WIDE = "Der Ruf Eurer Kriegsmeute bei der Fraktion '%s' hat sich um %d verbessert."
+FACTION_STANDING_INCREASED_ACH_BONUS = "Euer Ruf bei der Fraktion '%s' hat sich um %d verbessert. (+%.1f Bonus)"
+FACTION_STANDING_INCREASED_GENERIC = "Euer Ruf bei der Fraktion '%s' hat sich verbessert."
 -- Timer laufen nicht von selbst; Tests starten sie mit wow.runTimers()
 wow.timers = {}
 C_Timer = { After = function(_, callback) table.insert(wow.timers, callback) end }
@@ -400,7 +415,12 @@ function print(...)
 end
 
 function GetLocale() return "deDE" end
-function UnitLevel() return state.level end
+-- Andere Einheiten: units[unit].level, sonst die Stufe des Spielers
+function UnitLevel(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  if other and other.level then return other.level end
+  return state.level
+end
 function UnitXP() return state.xp end
 function UnitXPMax() return state.xpMax end
 function GetMaxPlayerLevel() return state.maxLevel end
@@ -502,6 +522,9 @@ C_UnitAuras = {
   end,
 }
 function IsInGroup() return state.inGroup end
+-- Gruppengröße samt Spieler (state.groupSize), Schlachtzug (state.inRaid)
+function GetNumGroupMembers() return state.groupSize or (state.inGroup and 2 or 0) end
+function IsInRaid() return state.inRaid == true end
 -- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
 function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
 function UnitGroupRolesAssigned() return state.role or "NONE" end
@@ -543,7 +566,25 @@ C_AddOns = {
   end,
 }
 
+-- Addon-Nachrichten: wow.addonMessages = { { prefix, message, chatType, target } }, wow.addonPrefixes
+wow.addonMessages = {}
+wow.addonPrefixes = {}
+function NotifyInspect() end
+-- Screenshot(): wow.screenshots zählt die Aufnahmen
+wow.screenshots = 0
+function Screenshot() wow.screenshots = wow.screenshots + 1 end
+function GetUnitName(unit, showServer)
+  local name = UnitName(unit)
+  local realm = state.units[unit] and state.units[unit].realm
+  if showServer and name and realm then return name .. "-" .. realm end
+  return name
+end
 C_ChatInfo = {
+  RegisterAddonMessagePrefix = function(prefix) wow.addonPrefixes[prefix] = true; return 0 end,
+  SendAddonMessage = function(prefix, message, chatType, target)
+    table.insert(wow.addonMessages, { prefix = prefix, message = message, chatType = chatType, target = target })
+    return 0
+  end,
   SendChatMessage = function(message, chatType) table.insert(wow.sentChat, { message = message, chatType = chatType }) end,
   InChatMessagingLockdown = function() return state.chatLockdown end,
 }
@@ -568,6 +609,10 @@ function UnitHealthMax() return state.healthMax end
 function UnitPowerMax() return state.powerMax end
 -- Mana: state.power (aktuell), state.powerMax
 function UnitPower() return state.power or 0 end
+-- Spiegel-Leisten (Atem, Erschöpfung): state.mirrorProgress[timer] = Rest in ms; Blinken zählt wow.flashes
+function GetMirrorTimerProgress(timer) return (state.mirrorProgress or {})[timer] end
+wow.flashes = 0
+function FlashClientIcon() wow.flashes = wow.flashes + 1 end
 ERR_OUT_OF_MANA = "Nicht genug Mana"
 -- Kontrollverlust: state.lossOfControl = { { locType, displayText, timeRemaining, displayType }, ... }
 C_LossOfControl = {
@@ -583,6 +628,12 @@ function UnitStat(_, index)
 end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
+function IsControlKeyDown() return state.controlDown == true end
+-- Aktionsplätze: state.actions[platz] = { "item"/"spell"/"macro", id } (GetActionInfo)
+function GetActionInfo(slot)
+  local action = (state.actions or {})[slot]
+  if action then return action[1], action[2] end
+end
 function IsModifiedClick() return state.modifiedClick == true end
 -- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
 function GetCVar(name) return (state.cvars or {})[name] end
@@ -626,7 +677,39 @@ end
 C_QuestLog = {
   GetTitleForQuestID = function(questID) return state.questTitles[questID] end,
   IsQuestTrivial = function(questID) return state.trivialQuests[questID] or false end,
+  IsRepeatableQuest = function(questID) return (state.repeatableQuests or {})[questID] == true end,
+  -- Ziele je Quest: state.questLog[i] = { questID, title, isHeader, objectives = { { text, finished } } }
+  GetQuestObjectives = function(questID)
+    for _, quest in ipairs(state.questLog or {}) do
+      if quest.questID == questID then return quest.objectives end
+    end
+  end,
 }
+-- Questlog wie in Classic Era/TBC (GetQuestLogTitle: 2. Level, 3. suggestedGroup, 8. questID); C_QuestLog.GetInfo
+-- fehlt im Stub. Beobachtete Quests (Tracker): state.questWatches = { Log-Index, ... }
+function GetNumQuestLogEntries() return #(state.questLog or {}) end
+function GetQuestLogTitle(index)
+  local quest = state.questLog[index]
+  return quest.title, quest.level or 1, quest.suggestedGroup or 0, quest.isHeader or false, false, quest.isComplete, 0, quest.questID
+end
+-- Belohnungs-XP je Quest-ID: questLog[i].rewardXp
+function GetQuestLogRewardXP(questID)
+  for _, quest in ipairs(state.questLog or {}) do
+    if quest.questID == questID then return quest.rewardXp or 0, quest.rewardXp or 0 end
+  end
+  return 0, 0
+end
+-- Quest-Item je Logeintrag: questLog[i].specialItem = { link, Symbol }
+function GetQuestLogSpecialItemInfo(index)
+  local item = ((state.questLog or {})[index] or {}).specialItem
+  if item then return item[1], item[2], 0, false end
+end
+function GetNumQuestWatches() return #(state.questWatches or {}) end
+function GetQuestIndexForWatch(index) return (state.questWatches or {})[index] end
+function GetNumQuestLeaderBoards(index)
+  local quest = (state.questLog or {})[index]
+  return quest and #(quest.objectives or {}) or 0
+end
 function GetQuestID() return state.questID or 0 end
 function strtrim(text) return (text:gsub("^%s+", ""):gsub("%s+$", "")) end
 -- Wie im Client: Funktion ersetzen, Original zuerst, dann der Hook
@@ -728,6 +811,11 @@ function BNDeclineFriendInvite(inviteID)
   socialAction("declineFriend", inviteID)
 end
 function UnitIsGroupLeader() return state.groupLeader end
+-- Spieler-Infos je GUID: state.playerInfo[guid] = { localizedClass, englishClass, localizedRace, englishRace, ... }
+function GetPlayerInfoByGUID(guid)
+  local info = (state.playerInfo or {})[guid]
+  if info then return unpack(info) end
+end
 C_GossipInfo = {
   GetAvailableQuests = function() return state.gossip.available end,
   GetActiveQuests = function() return state.gossip.active end,
@@ -746,6 +834,7 @@ function GetAvailableQuestInfo(index)
 end
 function SelectAvailableQuest(index) questAction("greetingAvailable", index) end
 function GetNumActiveQuests() return #state.greeting.active end
+function GetAvailableTitle(index) return state.greeting.available[index].title end
 function GetActiveTitle(index)
   local quest = state.greeting.active[index]
   return quest.title, quest.isComplete
@@ -759,6 +848,7 @@ function GetQuestItemLink(kind, index) return kind == "choice" and state.questCh
 function GetQuestReward(choice) questAction("reward", choice) end
 
 C_Item = {
+  GetItemCount = function(itemID) return (state.itemCounts or {})[itemID] or 0 end,
   -- itemID oder Link; Verkaufspreis aus state.sellPrices
   GetItemInfo = function(itemID)
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]

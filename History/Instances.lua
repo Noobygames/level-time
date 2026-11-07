@@ -6,7 +6,8 @@
 -- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed }.
 -- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
 -- eine andere Kopie, wird dort geteilt.
--- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths }.
+-- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation }
+-- (reputation fehlt bei älteren Läufen).
 -- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt.
 local _, ns = ...
 local Stats = ns.Stats
@@ -42,10 +43,11 @@ function Instances.Summarize(run)
     stats[Stats.DEATHS] or 0
 end
 
--- Beendeter Lauf als Journal-Eintrag-Teil { xp, counters = { kills, deaths } }
+-- Beendeter Lauf als Journal-Eintrag-Teil { xp, counters = { kills, deaths, reputation } }
 function Instances.ToRecord(run)
   local xp, kills, deaths = Instances.Summarize(run)
-  return { xp = xp, counters = { kills = kills, deaths = deaths } }
+  local reputation = run.stats and run.stats[Stats.REPUTATION] or 0
+  return { xp = xp, counters = { kills = kills, deaths = deaths, reputation = reputation } }
 end
 
 function Instances.GetRunSeconds(run)
@@ -178,6 +180,7 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
     stats[Stats.PVE_KILLS] = (stats[Stats.PVE_KILLS] or 0) + previous.counters.kills
     stats[Stats.DEATHS] = (stats[Stats.DEATHS] or 0) + previous.counters.deaths
+    stats[Stats.REPUTATION] = (stats[Stats.REPUTATION] or 0) + (previous.counters.reputation or 0)
   end
 end)
 

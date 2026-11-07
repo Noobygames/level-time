@@ -74,11 +74,13 @@ local function currentLevelRecord(characterKey)
       seconds = Stats.GetSeconds(Stats.LEVEL),
       xp = Stats.GetXp(Stats.LEVEL),
       counters = ns.TimeBreakdown.Snapshot(Stats.LEVEL),
+      partial = ns.character.currentLevel.partial,
       isCurrent = true,
     }
   end
   local saved = History.GetCharacter(characterKey).currentLevel
-  return { level = saved.level, seconds = saved.seconds, xp = saved.xp, counters = saved.counters, isCurrent = true }
+  return { level = saved.level, seconds = saved.seconds, xp = saved.xp, counters = saved.counters,
+    partial = saved.partial, isCurrent = true }
 end
 
 local function currentSessionRecord(characterKey)
@@ -197,6 +199,7 @@ local function compareRecord(characterKey)
     averageLevelSeconds = completedCount > 0 and completedSeconds / completedCount or nil,
     xpRate = ns.Experience.RecordRate(summary),
     counters = summary.counters,
+    coverage = ns.Coverage.Get(characterKey),
     isCurrent = isLoggedIn(characterKey),
   }
 end
@@ -232,9 +235,10 @@ function History.DeathCauseText(entry)
 end
 
 -- Auswertung: Summe über Einträge (Zeit, XP und alle Zähler). Für XP/h zählen nur Einträge mit
--- bekannter Dauer (ratedXp, ratedAfkSeconds; siehe Experience.RecordRate), sonst wäre die Rate zu hoch.
+-- bekannter Dauer (ratedXp, ratedAfkSeconds, ratedIdleSeconds; siehe Experience.RecordRate), sonst wäre die Rate zu hoch.
 function History.Summarize(records)
-  local summary = { seconds = 0, xp = 0, counters = {}, count = #records, ratedXp = 0, ratedAfkSeconds = 0 }
+  local summary = { seconds = 0, xp = 0, counters = {}, count = #records, ratedXp = 0, ratedAfkSeconds = 0,
+    ratedIdleSeconds = 0 }
   for _, record in ipairs(records) do
     summary.seconds = summary.seconds + (record.seconds or 0)
     summary.xp = summary.xp + (record.xp or 0)
@@ -244,6 +248,7 @@ function History.Summarize(records)
     if record.seconds then
       summary.ratedXp = summary.ratedXp + (record.xp or 0)
       summary.ratedAfkSeconds = summary.ratedAfkSeconds + (record.counters[ns.Stats.AFK_SECONDS] or 0)
+      summary.ratedIdleSeconds = summary.ratedIdleSeconds + (record.counters[ns.Stats.IDLE_SECONDS] or 0)
     end
   end
   return summary
@@ -259,5 +264,6 @@ ns.OnLevelCompleted(function(completedLevel)
     counters = Stats.Snapshot(Stats.LEVEL),
     completedAt = time(),                           -- Zeitpunkt, an dem das nächste Level erreicht wurde
     totalPlayed = ns.PlayedTime.GetTotalSeconds(),  -- /played gesamt in diesem Moment
+    partial = ns.character.currentLevel.partial,    -- nur teilweise erfasst, nie Bestzeit (Coverage.lua)
   }
 end)

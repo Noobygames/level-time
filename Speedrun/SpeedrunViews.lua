@@ -59,7 +59,7 @@ end
 local RUN_COLUMNS = {
   { header = "HISTORY_FAVORITE", width = 18, align = LEFT,
     value = function(r) return r.favorite and FAVORITE_MARK or "" end },
-  { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = runName },
+  { header = "HISTORY_CHARACTER_NAME", width = 110, align = LEFT, value = runName },
   { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.class) end },
   { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.reachedLevel or "" end,
     sort = function(r) return r.reachedLevel end },
@@ -67,7 +67,12 @@ local RUN_COLUMNS = {
   { header = "HISTORY_TIME_TO_CURRENT", width = 90, value = function(r)
       return r.timeToLevel and Format.Duration(r.timeToLevel) or "-"
     end, sort = function(r) return r.timeToLevel end },
-  { header = "HISTORY_RUN_STATUS", width = 80, value = function(r)
+  { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
+    sort = function(r) return r.coverage end },
+  { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
+    value = function(r) return ns.RunCategory.Label(r.category) end },
+  { header = "HISTORY_RUN_CHECK", width = 60, value = function(r) return ns.RunCheck.StatusText(r) end },
+  { header = "HISTORY_RUN_STATUS", width = 70, value = function(r)
       return isReference(r) and L.RUN_REFERENCE or ""
     end },
 }
@@ -100,6 +105,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   buttons = {
     { label = "RUNS_BACKUP", onClick = function() ns.Export.Show(L.RUNS_BACKUP, Runs.ExportAll()) end },
     { label = "IMPORT", onClick = function() ns.ShowRunImport() end },
+    { label = "LIVESPLIT_EXPORT", onClick = function() ns.LiveSplitExport.Show() end },
   },
 }))
 
@@ -121,7 +127,7 @@ local function recordRows()
   local best = {}
   for _, run in ipairs(Runs.GetAll()) do
     if not run.imported then
-      for level, seconds in pairs(run.times) do
+      for level, seconds in pairs(run.bestTimes) do  -- ohne Teil-Level (Coverage.lua)
         if not best[level] or seconds < best[level].seconds then
           best[level] = { level = level, seconds = seconds, run = run }
         end
@@ -146,6 +152,8 @@ local RECORD_COLUMNS = {
     sort = function(r) return r.seconds end },
   { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = function(r) return runName(r.run) end },
   { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.run.class) end },
+  { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
+    value = function(r) return ns.RunCategory.Label(r.run.category) end },
   { header = "HISTORY_OWN_TIME", width = 80, value = function(r)
       return r.ownSeconds and Format.Duration(r.ownSeconds) or "-"
     end, sort = function(r) return r.ownSeconds end },
@@ -161,6 +169,37 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   records = recordRows,
   footer = HistoryTables.CountCells,
   rowColor = function(r) return r.isCurrent and Widgets.COLORS.highlight or HistoryTables.ClassColor(r.run) end,
+}))
+
+---------------------------------------------------------------------------
+-- Quest-Splits: Dauer jeder Quest von der Annahme bis zur Abgabe gegen die Bestzeit je Quest (QuestSplits.lua)
+---------------------------------------------------------------------------
+local QuestSplits = ns.QuestSplits
+
+local QUEST_SPLIT_COLUMNS = {
+  { header = "HISTORY_QUEST", width = 170, align = LEFT, value = function(r) return r.name or L.UNKNOWN_NAME end },
+  { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.level or "" end,
+    sort = function(r) return r.level end },
+  { header = "HISTORY_XP", width = 56, value = function(r) return r.xp and Format.Number(r.xp) or "-" end,
+    sort = function(r) return r.xp end },
+  { header = "HISTORY_TIME", width = 64, value = function(r) return Format.Duration(r.duration) end,
+    sort = function(r) return r.duration end },
+  { header = "HISTORY_BEST_TIME", width = 64, value = function(r)
+      local best = QuestSplits.GetBest(r.questID)
+      return best and Format.Duration(best) or "-"
+    end, sort = function(r) return QuestSplits.GetBest(r.questID) end },
+  { header = "HISTORY_DELTA", width = 70, value = function(r) return Format.SplitDelta(r.delta) end,
+    sort = function(r) return r.delta end },
+}
+
+ns.HistoryWindow.AddView(ns.TableView.Create({
+  tab = "HISTORY_TAB_QUEST_SPLITS",
+  group = GROUP,
+  columns = QUEST_SPLIT_COLUMNS,
+  records = QuestSplits.GetRecords,
+  footer = HistoryTables.CountCells,
+  revision = ns.Journal.Revision,
+  hint = "QUEST_SPLITS_HINT",
 }))
 
 ---------------------------------------------------------------------------

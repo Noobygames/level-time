@@ -12,6 +12,8 @@ local MIN_ARCHIVED_SECONDS = 60  -- kürzere Sessions werden nicht archiviert
 local MAX_ARCHIVED_SESSIONS = 200
 
 local loginTime  -- GetTime() beim Login; Zeit seitdem kommt zu currentSession.seconds dazu
+local archivedAtLogin = false  -- beim letzten Login wurde die vorige Session archiviert (SessionCompare.lua)
+local afterLogout = false      -- der letzte Login kam nach einem echten Logout (nicht /reload, nicht die erste Session)
 
 local function current()
   return ns.character.currentSession
@@ -34,13 +36,26 @@ function Session.ToRecord(session)
   }
 end
 
+-- true, wenn die Session in die Historie kam (zu kurze nicht)
 local function archive(session)
-  if session.seconds < MIN_ARCHIVED_SECONDS then return end
+  if session.seconds < MIN_ARCHIVED_SECONDS then return false end
   local history = ns.character.sessionHistory
   table.insert(history, Session.ToRecord(session))
   while #history > MAX_ARCHIVED_SESSIONS do
     table.remove(history, 1)
   end
+  return true
+end
+
+-- Hat der letzte Login die vorige Session archiviert? Dann ist sie der letzte Eintrag in sessionHistory.
+function Session.ArchivedAtLogin()
+  return archivedAtLogin
+end
+
+-- Kam der letzte Login nach einem echten Logout? Auch dann, wenn die Session zu kurz für die Historie war
+-- (Logout-Zähler der SSF-Regeln, SsfRules.lua)
+function Session.LoggedInAfterLogout()
+  return afterLogout
 end
 
 local function startNew()
@@ -92,12 +107,14 @@ end
 
 ns.OnLogin(function()
   local session = current()
+  archivedAtLogin, afterLogout = false, false
   if not session.startedAt then
     ns.Debug("session", "first session")
     startNew()
   elseif not canResume(session) then
     ns.Debug("session", "archived previous session (%s s), new session", session.seconds)
-    archive(session)
+    archivedAtLogin = archive(session)
+    afterLogout = true
     startNew()
   else
     ns.Debug("session", "resumed session (gap %s s)", time() - session.lastSeen)

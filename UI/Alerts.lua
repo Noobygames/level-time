@@ -76,6 +76,9 @@ Alerts.ICONS = {
   elite = iconPath("INV_Misc_Head_Dragon_01"),
   loot = iconPath("INV_Misc_Gem_Amethyst_02"),
   nearDeath = iconPath("INV_Misc_Bone_HumanSkull_01"),
+  breath = iconPath("Spell_Shadow_DemonBreath"),
+  fatigue = iconPath("Spell_Nature_Sleep"),
+  rest = iconPath("INV_Misc_PocketWatch_02"),
 }
 
 local shownAt
