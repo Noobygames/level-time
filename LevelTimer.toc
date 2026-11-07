@@ -89,6 +89,7 @@ Speedrun\Splits.lua
 Speedrun\SpeedrunRecords.lua
 Speedrun\WorldRecords.lua
 Speedrun\BracketForecast.lua
+Speedrun\RunCategory.lua
 Speedrun\SsfRules.lua
 Speedrun\CustomSplits.lua
 Speedrun\QuestSplits.lua

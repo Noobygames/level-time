@@ -522,6 +522,9 @@ C_UnitAuras = {
   end,
 }
 function IsInGroup() return state.inGroup end
+-- Gruppengröße samt Spieler (state.groupSize), Schlachtzug (state.inRaid)
+function GetNumGroupMembers() return state.groupSize or (state.inGroup and 2 or 0) end
+function IsInRaid() return state.inRaid == true end
 -- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
 function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
 function UnitGroupRolesAssigned() return state.role or "NONE" end

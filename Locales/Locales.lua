@@ -9,6 +9,11 @@ ns.languages = {
 
 ns.locales = {
   deDE = {
+    HISTORY_RUN_CATEGORY = "Kategorie",
+    RUN_CATEGORY_SSF = "SSF",
+    RUN_CATEGORY_SOLO = "Solo",
+    RUN_CATEGORY_GROUP = "Gruppe",
+    RUN_CATEGORY_BOOSTED = "Geboostet",
     HISTORY_RUN_CHECK = "Prüfcode",
     RUN_CHECK_OK = "|cff40ff40ok|r",
     RUN_CHECK_CHANGED = "|cffff4040geändert|r",
@@ -1038,6 +1043,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
   },
   enUS = {
+    HISTORY_RUN_CATEGORY = "Category",
+    RUN_CATEGORY_SSF = "SSF",
+    RUN_CATEGORY_SOLO = "Solo",
+    RUN_CATEGORY_GROUP = "Group",
+    RUN_CATEGORY_BOOSTED = "Boosted",
     HISTORY_RUN_CHECK = "Check code",
     RUN_CHECK_OK = "|cff40ff40ok|r",
     RUN_CHECK_CHANGED = "|cffff4040changed|r",
@@ -2067,6 +2077,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
   },
   frFR = {
+    HISTORY_RUN_CATEGORY = "Catégorie",
+    RUN_CATEGORY_SSF = "SSF",
+    RUN_CATEGORY_SOLO = "Solo",
+    RUN_CATEGORY_GROUP = "Groupe",
+    RUN_CATEGORY_BOOSTED = "Boosté",
     HISTORY_RUN_CHECK = "Code de contrôle",
     RUN_CHECK_OK = "|cff40ff40ok|r",
     RUN_CHECK_CHANGED = "|cffff4040modifié|r",
@@ -3096,6 +3111,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
   },
   esES = {
+    HISTORY_RUN_CATEGORY = "Categoría",
+    RUN_CATEGORY_SSF = "SSF",
+    RUN_CATEGORY_SOLO = "Solo",
+    RUN_CATEGORY_GROUP = "Grupo",
+    RUN_CATEGORY_BOOSTED = "Potenciado",
     HISTORY_RUN_CHECK = "Código de control",
     RUN_CHECK_OK = "|cff40ff40ok|r",
     RUN_CHECK_CHANGED = "|cffff4040cambiado|r",

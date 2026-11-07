@@ -2105,3 +2105,21 @@ Eigene Läufe ok (ja/nein):
 Import ok (ja/nein):
 Fehler:
 ```
+
+### 103. Run-Kategorie automatisch (Roadmap 291)
+
+- [ ] geprüft
+
+Neuen Charakter erstellen, Historie > Speedrun > Läufe: Kategorie „SSF“. Briefkasten öffnen, dann einer Gruppe beitreten, dann mit einem mindestens 10 Level höheren Spieler gruppieren. Suchfeld „SSF“ eingeben.
+
+**Erwartet:** Kategorie wechselt SSF → Solo → Gruppe → Geboostet und nie zurück; alte Charaktere „-“. Das Suchfeld filtert die Läufe nach Kategorie.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Wechsel richtig (ja/nein):
+Level der Gruppenmitglieder lesbar (ja/nein):
+Filter (ja/nein):
+Fehler:
+```

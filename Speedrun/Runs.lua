@@ -2,6 +2,7 @@
 -- Lauf: { id, name, realm, class, times = { [level] = Sekunden }, reachedLevel, imported, favorite }
 --   eigene Charaktere zusätzlich bestTimes (ohne Teil-Level) und coverage (Erfassungsquote, Coverage.lua)
 --   id = Charakter-Schlüssel ("Name-Realm") oder "import:<n>" für importierte Läufe
+--   category: ssf/solo/group/boosted (RunCategory.lua), nil = unbekannt
 --   check/checkFrom/checkTo: Prüfcode über die Level checkFrom..checkTo (RunCheck.lua), coverage auch bei Importen
 -- Importierte Läufe liegen in LevelTimerStatsDB.importedRuns, Favoriten in LevelTimerStatsDB.runFavorites.
 local _, ns = ...
@@ -35,6 +36,7 @@ local function fromCharacter(characterKey)
   local check, checkFrom, checkTo = ns.RunCheck.ForCharacter(character)
   return {
     check = check, checkFrom = checkFrom, checkTo = checkTo,
+    category = character.runCategory,
     id = characterKey,
     name = character.name,
     realm = character.realm,
@@ -55,6 +57,7 @@ local function fromImport(index, run)
     times = run.times,
     reachedLevel = run.reachedLevel,
     coverage = run.coverage,
+    category = run.category,
     check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo,
     imported = true,
   }
@@ -121,7 +124,8 @@ local function shareable(run)
     if not run.imported then name = History.DisplayName(run.id) end
   end
   return { name = name, realm = realm, class = run.class, reachedLevel = run.reachedLevel, times = run.times,
-    coverage = run.coverage, check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo }
+    coverage = run.coverage, check = run.check, checkFrom = run.checkFrom, checkTo = run.checkTo,
+    category = run.category }
 end
 
 function Runs.Export(run)
@@ -174,6 +178,7 @@ local function sanitize(run)
     reachedLevel = type(run.reachedLevel) == "number" and run.reachedLevel or nil,
     times = times,
     coverage = fraction(run.coverage),
+    category = ns.RunCategory.IsValid(run.category) and run.category or nil,
     check = checkCode(run.check),
     checkFrom = number(run.checkFrom),
     checkTo = number(run.checkTo),

@@ -25,7 +25,7 @@ local OVER_LIMIT_COLOR = "|cffff4040"
 local NEAR_LIMIT_COLOR = "|cffffd040"
 local OK_COLOR = "|cff40ff40"
 
--- Fenster, die SSF verbieten: Event -> Text des Hinweises
+-- Fenster, die SSF verbieten (RunCategory.OUTSIDE_HELP_EVENTS): Event -> Text des Hinweises
 local FORBIDDEN_WINDOWS = {
   TRADE_SHOW = "SSF_TRADE",
   MAIL_SHOW = "SSF_MAIL",
@@ -94,6 +94,4 @@ local function onForbiddenWindow(event)
   ns.Alerts.Notify({ title = L.SSF_WARNING_TITLE, text = L[FORBIDDEN_WINDOWS[event]] }, ns.Alerts.WARNING_COLOR)
 end
 
-for event in pairs(FORBIDDEN_WINDOWS) do
-  ns.RegisterEvent(event, function() onForbiddenWindow(event) end)
-end
+ns.RunCategory.OnOutsideHelp(onForbiddenWindow)

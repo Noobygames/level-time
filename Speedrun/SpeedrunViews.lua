@@ -69,6 +69,8 @@ local RUN_COLUMNS = {
     end, sort = function(r) return r.timeToLevel end },
   { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
     sort = function(r) return r.coverage end },
+  { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
+    value = function(r) return ns.RunCategory.Label(r.category) end },
   { header = "HISTORY_RUN_CHECK", width = 60, value = function(r) return ns.RunCheck.StatusText(r) end },
   { header = "HISTORY_RUN_STATUS", width = 70, value = function(r)
       return isReference(r) and L.RUN_REFERENCE or ""
@@ -149,6 +151,8 @@ local RECORD_COLUMNS = {
     sort = function(r) return r.seconds end },
   { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = function(r) return runName(r.run) end },
   { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.run.class) end },
+  { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
+    value = function(r) return ns.RunCategory.Label(r.run.category) end },
   { header = "HISTORY_OWN_TIME", width = 80, value = function(r)
       return r.ownSeconds and Format.Duration(r.ownSeconds) or "-"
     end, sort = function(r) return r.ownSeconds end },
