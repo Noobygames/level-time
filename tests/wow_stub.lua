@@ -170,7 +170,13 @@ local frameMethods = {
   GetEffectiveScale = function() return 1 end,
   IsShown = function(self) return self._shown end,
   GetParent = function(self) return self._parent end,
-  Show = function(self) self._shown = true end,
+  -- Wie im Client: OnShow beim Wechsel von versteckt zu gezeigt
+  Show = function(self)
+    local wasShown = self._shown
+    self._shown = true
+    local onShow = self._scripts and self._scripts.OnShow
+    if not wasShown and onShow then onShow(self) end
+  end,
   Hide = function(self)
     local wasShown = self._shown
     self._shown = false

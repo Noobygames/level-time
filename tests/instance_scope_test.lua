@@ -75,6 +75,7 @@ expectNear("Uhr läuft nach Reset weiter", Stats.GetSeconds(Stats.INSTANCE), 30,
 -- Ohne Lauf nur Hinweis, keine Rückfrage
 enter(nil)
 wow.popup = nil
+if not LevelTimerOptions:IsShown() then SlashCmdList.LEVELTIMER("config") end
 expectTrue("Button klickbar", wow.click(addon.L.INSTANCE_RESET))
 -- Der Lauf ist nach dem Verlassen noch offen (Händlergang), also auch hier Rückfrage
 expectTrue("offener Lauf draußen: Rückfrage", wow.popup ~= nil)

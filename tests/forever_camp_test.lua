@@ -170,7 +170,7 @@ expect("Rechtsklick beendet", Display.IsMoving(), false)
 expect("danach versteckt", camp:IsShown(), false)
 
 LevelTimerDB.campPos = { "TOP", "TOP", 100, -200 }
-addon.Set("campScale", 1)
+addon.ApplySettings()  -- neue Position übernehmen (ns.Set mit gleichem Wert wendet nichts an)
 addon.Set("campScale", 2)
 expect("Größe: Abstand x umgerechnet", LevelTimerDB.campPos[3], 50)
 expect("Größe: Abstand y umgerechnet", LevelTimerDB.campPos[4], -100)
