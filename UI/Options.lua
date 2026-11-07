@@ -545,7 +545,7 @@ for _, group in ipairs(ns.STAT_GROUPS) do
   end
   addToggles(statToggles)
   if group == "STAT_GROUP_INSTANCE" then
-    addButton("INSTANCE_RESET", function() ns.ConfirmInstanceReset() end)
+    addButton("INSTANCE_RESET", function() ns.Instances.ConfirmReset() end)
   end
 end
 addSubPage("OPTIONS_PAGE_ROW_ORDER")

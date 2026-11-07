@@ -201,6 +201,7 @@ UI\Layouts\XpBar.lua
 UI\Layouts\Tiles.lua
 UI\DisplayVisibility.lua
 UI\TimerWindow.lua
+UI\InstanceReset.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
 Lib\Export.lua

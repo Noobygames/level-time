@@ -51,7 +51,7 @@ local instanceTab = Widgets.CreateTab(window, Theme.Font("label"))
 instanceTab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 instanceTab:SetScript("OnClick", function(_, mouseButton)
   if mouseButton == "RightButton" then
-    ns.ConfirmInstanceReset()
+    ns.Instances.ConfirmReset()
   else
     ns.Set("windowScope", Stats.INSTANCE)
   end
@@ -139,47 +139,6 @@ end
 
 function TimerWindow.ActiveLayout()
   return layout and layout.id
-end
-
----------------------------------------------------------------------------
--- Automatisch zum Reiter Instanz wechseln (Einstellung autoInstanceTab): beim Betreten hin, beim Verlassen
--- zurück zum vorigen Reiter, außer man hat inzwischen selbst gewechselt
----------------------------------------------------------------------------
-local scopeBeforeInstance
-
-ns.InstanceCopy.OnEnter(function()
-  if not ns.db.autoInstanceTab or scopeBeforeInstance or ns.db.windowScope == Stats.INSTANCE then return end
-  scopeBeforeInstance = ns.db.windowScope
-  ns.Set("windowScope", Stats.INSTANCE)
-end)
-
-ns.InstanceCopy.OnLeave(function()
-  local previous = scopeBeforeInstance
-  scopeBeforeInstance = nil
-  if ns.db.windowScope ~= Stats.INSTANCE then return end  -- man hat selbst gewechselt
-  if previous then
-    ns.Set("windowScope", previous)
-  elseif ns.db.autoInstanceTab then
-    ns.Set("windowScope", Stats.LEVEL)  -- der Merker ging bei /reload in der Instanz verloren
-  end
-end)
-
----------------------------------------------------------------------------
--- Instanz-Lauf zurücksetzen
----------------------------------------------------------------------------
-local RESET_INSTANCE_POPUP = "LEVELTIMER_RESET_INSTANCE"
-
-local confirmInstanceReset = Widgets.ConfirmPopup(RESET_INSTANCE_POPUP, "INSTANCE_RESET_CONFIRM", function()
-  if ns.Instances.ResetCurrent() then ns.Print(L.INSTANCE_RESET_DONE) end
-end)
-
-function ns.ConfirmInstanceReset()
-  local run = ns.Instances.GetCurrentRun()
-  if not run then
-    ns.Print(L.INSTANCE_RESET_NONE)
-    return
-  end
-  confirmInstanceReset(run.name)
 end
 
 ---------------------------------------------------------------------------
