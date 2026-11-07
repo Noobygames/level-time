@@ -1012,6 +1012,7 @@ addToggles({
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
   toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
   toggle("TOOLTIP_GUILD_RANK_TOGGLE", "tooltipGuildRank"),
+  toggle("INFO_CARDS", "infoCards"),
 })
 local tooltipAnchors = {}
 for _, value in ipairs(ns.Tooltip.ANCHOR_ORDER) do

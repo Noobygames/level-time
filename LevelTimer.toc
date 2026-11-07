@@ -181,6 +181,7 @@ Assist\Emergency.lua
 Assist\HideFrames.lua
 Assist\CharacterFrame.lua
 Assist\DressUp.lua
+Assist\InfoCard.lua
 Assist\ClassColors.lua
 Assist\PlayerChain.lua
 Assist\DruidManaBar.lua
