@@ -139,7 +139,11 @@ local function display(message, color, sound, spec, sample)
   shownAt = GetTime()
   shown:SetAlpha(0)
   shown:Show()
-  if sound and ns.db and ns.db.alertSound then Alerts.PlaySound() end
+  local playSound = sound and ns.db and ns.db.alertSound
+  ns.Debug("alert", "shown %s: card %s, icon %s, sample %s, sound %s, waiting %s, duration %s, scale %s",
+    message, spec ~= nil, spec and (spec.icon or spec.texture), sample == true, playSound and true or false, #queue,
+    duration(), shown:GetScale())
+  if playSound then Alerts.PlaySound() end
 end
 
 -- Einblenden, halten, ausblenden; danach die nächste wartende (Banner und Karte teilen sich den Ablauf)
@@ -180,6 +184,7 @@ function Alerts.Show(message, color, options)
       if #held >= MAX_QUEUE then table.remove(held, 1) end
       table.insert(held, { message, color, options })
     end
+    ns.Debug("alert", "in combat: %s", options.combat)
     return
   end
   if options.immediate then queue = {} end
@@ -187,6 +192,7 @@ function Alerts.Show(message, color, options)
   if moving or (isShowing() and not options.immediate) then
     if #queue >= MAX_QUEUE then table.remove(queue, 1) end
     table.insert(queue, { message, color, options.sound, options.notice })
+    ns.Debug("alert", "queued (%s waiting, moving %s)", #queue, moving or false)
     return
   end
   display(message, color, options.sound, options.notice)
@@ -391,6 +397,7 @@ ns.OnLogout(function() moving = false end)
 ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   local waiting = held
   held = {}
+  if #waiting > 0 then ns.Debug("alert", "combat over, showing %s held", #waiting) end
   for _, entry in ipairs(waiting) do
     local options = entry[3]
     Alerts.Show(entry[1], entry[2], { sound = options.sound, notice = options.notice })

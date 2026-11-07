@@ -87,12 +87,16 @@ local function update(unit)
   local plate = plateOf(unit)
   if not plate then return end
   local show = ns.db and ns.db.questMarks and isQuestUnit(unit)
+  local wasShown = marks[plate] ~= nil and marks[plate]:IsShown()
   if show then
     local mark = markFor(plate)
     layout(mark, plate)
     mark:Show()
   elseif marks[plate] then
     marks[plate]:Hide()
+  end
+  if (show and true or false) ~= (wasShown and true or false) then
+    ns.Debug("questmarks", "%s %s (health bar %s)", show and "mark" or "unmark", UnitName(unit), healthBarOf(plate) ~= nil)
   end
 end
 

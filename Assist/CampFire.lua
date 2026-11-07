@@ -73,10 +73,12 @@ local function hintVisible(isHint)
   if not hintShownAt then
     if now < hintNextAt then return false end
     hintShownAt = now
+    ns.Debug("camp", "hint visible for %s s", HINT_SECONDS)
   end
   if now - hintShownAt >= HINT_SECONDS then
     hintShownAt = nil
     hintNextAt = now + ns.db.campHintPause * SECONDS_PER_MINUTE
+    ns.Debug("camp", "hint paused for %s min", ns.db.campHintPause)
     return false
   end
   return true
@@ -116,9 +118,12 @@ function CampFire.Check()
   if kind == "countdown" and previousKind ~= "countdown" then
     benefitsAtStart = baselineOf(benefits)
     countdownEndedAt = nil
+    ns.Debug("camp", "countdown started: %s s of %s, benefits before %s", state.remaining, state.duration, benefitsAtStart)
   elseif kind ~= "countdown" and previousKind == "countdown" then
     countdownEndedAt = GetTime()
+    ns.Debug("camp", "countdown ended, now %s", kind)
   end
+  if kind ~= previousKind then ns.Debug("camp", "state %s -> %s (combat %s)", previousKind, kind, ns.InCombat()) end
   previousKind = kind
 
   local finished = false

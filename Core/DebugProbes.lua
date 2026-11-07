@@ -640,3 +640,9 @@ DebugLog.OnStateChanged(function(enabled)
     probeEvents.SetActive(false)
   end
 end)
+
+-- Helfer für weitere Proben und Prüfungen (DebugChecks.lua, lädt nach allen Modulen)
+DebugLog.Probe = {
+  api = api, call = call, safe = safe, listOf = listOf, playerState = playerState, unitInfo = unitInfo,
+  MAX_EVENT_ARGS = MAX_EVENT_ARGS,
+}

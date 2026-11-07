@@ -19,6 +19,7 @@ local AFK_BREAK_SECONDS = 300
 local SECONDS_PER_MINUTE = 60
 
 local afkSince  -- GetTime() seit dem der Spieler am Stück AFK ist
+local waitLogged  -- fällige Erinnerung wartet (Kampf/Instanz) und steht schon im Debug-Log
 
 -- Spielzeit der Session ohne AFK-Zeit
 function BreakReminder.ActiveSeconds()
@@ -53,7 +54,13 @@ function BreakReminder.Check()
   end
   afkSince = nil
   local played = BreakReminder.SecondsSinceBreak()
-  if played < ns.db.breakMinutes * SECONDS_PER_MINUTE or not canShow() then return end
+  if played < ns.db.breakMinutes * SECONDS_PER_MINUTE then return end
+  if not canShow() then
+    if not waitLogged then ns.Debug("reminders", "break due after %s s, waits for combat/instance end", played) end
+    waitLogged = true
+    return
+  end
+  waitLogged = false
   takeBreak("reminder")
   local text = string.format(L.BREAK_REMINDER, ns.Format.Duration(played))
   ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR)

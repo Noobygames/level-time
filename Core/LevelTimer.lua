@@ -12,10 +12,6 @@ LevelTimerAPI = ns
 
 local PREFIX = "|cfff4c95d" .. ns.DISPLAY_NAME .. ":|r "
 
-function ns.Print(msg)
-  print(PREFIX .. msg)
-end
-
 -- Erweitertes Logging für /lt debug (ns.debug, bis /reload). Technische Zeilen für die
 -- Fehlersuche, daher englisch und nicht übersetzt. Werte werden zu Text, daher nur %s:
 -- ns.Debug("stats", "%s +%s", counter, amount)
@@ -50,10 +46,19 @@ local function record(area, text)
   if debugRecorder then pcall(debugRecorder, area, text) end  -- ein defektes Log darf nichts aufhalten
 end
 
--- Läuft gerade irgendein Logging? Für Aufrufer, die vor ns.Debug teure Vorarbeit leisten (Listen, Sortieren)
+-- Chatzeile mit Präfix; mit laufendem Debug-Log steht sie dort auch (Bereich "print"), damit sich gemeldete
+-- Ergebnisse (Hinweise, Ablehnungen, Zusammenfassungen) ohne Bildschirmfoto auswerten lassen
+function ns.Print(msg)
+  print(PREFIX .. msg)
+  record("print", msg)
+end
+
+-- Läuft gerade irgendein Logging (Chat mit /lt debug oder dauerhaftes Log)? Für Aufrufer, die vor ns.Debug teure
+-- Vorarbeit leisten (Listen, Sortieren, berechnete Werte)
 function ns.DebugActive()
   return ns.debug == true or debugRecorder ~= nil
 end
+ns.IsDebugging = ns.DebugActive
 
 -- Nur bei eingeschaltetem Logging (Chat mit /lt debug, dauerhaftes Log mit /lt debug log)
 function ns.Debug(area, format, ...)

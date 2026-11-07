@@ -33,6 +33,7 @@ end
 
 local function onHealthChanged()
   if UnitIsDeadOrGhost("player") then
+    if episode then ns.Debug("neardeath", "episode ended by death") end
     episode = nil
     return
   end
@@ -43,12 +44,16 @@ local function onHealthChanged()
     local justResurrected = resurrectedAt and GetTime() - resurrectedAt < RESURRECT_GRACE
     if fraction <= LOW_HEALTH and not justResurrected then
       episode = { lowest = fraction, cause = DeathCounter.PeekLastHit() }
+      ns.Debug("neardeath", "episode started at %s", fraction)
+    elseif fraction <= LOW_HEALTH then
+      ns.Debug("neardeath", "low health %s ignored, resurrected %s s ago", fraction, GetTime() - resurrectedAt)
     end
     return
   end
 
   episode.lowest = math.min(episode.lowest, fraction)
   if fraction >= RECOVERED_HEALTH then
+    ns.Debug("neardeath", "counted, lowest %s", episode.lowest)
     Stats.Increment(Stats.NEAR_DEATHS)
     Journal.AddNearDeath(math.floor(episode.lowest * 100 + 0.5), episode.cause)
     episode = nil
@@ -65,7 +70,10 @@ ns.RegisterEvent("PLAYER_DEAD", function() episode = nil end)
 
 -- Wiederbelebt mit wenig Leben ist kein Beinahe-Tod. PLAYER_ALIVE kommt auch beim Freilassen des Geistes.
 local function onPossiblyResurrected()
-  if not UnitIsDeadOrGhost("player") then resurrectedAt = GetTime() end
+  if not UnitIsDeadOrGhost("player") then
+    resurrectedAt = GetTime()
+    ns.Debug("neardeath", "resurrected at %s health", NearDeath.HealthFraction())
+  end
 end
 ns.RegisterEvent("PLAYER_ALIVE", onPossiblyResurrected)
 ns.RegisterEvent("PLAYER_UNGHOST", onPossiblyResurrected)

@@ -22,6 +22,7 @@ local PENDING_MAX = 200        -- Zeilen vor dem Login
 local MAX_STRING_LENGTH = 300  -- lange Texte (Chatzeilen, Aufrufstapel) werden gekürzt
 local MAX_TABLE_DEPTH = 7      -- Eintrag > result > Liste > Struktur > Felder; tiefer wird nicht ausgeschrieben
 local MAX_TABLE_ITEMS = 40
+DebugLog.MAX_TABLE_ITEMS = MAX_TABLE_ITEMS  -- längere Listen teilen Prüfungen selbst auf (DebugChecks.lua)
 local SECRET = "<secret>"
 local NULL = {}                -- Platzhalter für nil in Listen (JSON null), damit Lücken die Liste nicht abschneiden
 
@@ -246,22 +247,29 @@ ns.OnLogout(function()
   if DebugLog.IsEnabled() then write({ area = "session", reason = "logout" }) end
 end)
 
+-- Rückmeldung der Log-Befehle: im Chat, aber nicht im Log selbst (ns.Print schreibt sonst mit)
+local function feedback(text)
+  ns.SetDebugRecorder(nil)
+  ns.Print(text)
+  attach()
+end
+
 -- /lt debug log [clear|status]
 function DebugLog.Command(argument)
   if argument == "clear" then
     DebugLog.Clear()
-    ns.Print(L.DEBUG_LOG_CLEARED)
+    feedback(L.DEBUG_LOG_CLEARED)
   elseif argument == "status" then
-    ns.Print(string.format(L.DEBUG_LOG_STATUS, DebugLog.IsEnabled() and L.DEBUG_LOG_STATE_ON or L.DEBUG_LOG_STATE_OFF,
+    feedback(string.format(L.DEBUG_LOG_STATUS, DebugLog.IsEnabled() and L.DEBUG_LOG_STATE_ON or L.DEBUG_LOG_STATE_OFF,
       DebugLog.LineCount(), DebugLog.MAX_LINES))
   else
     DebugLog.SetEnabled(not DebugLog.IsEnabled())
-    ns.Print(DebugLog.IsEnabled() and L.DEBUG_LOG_ON or L.DEBUG_LOG_OFF)
+    feedback(DebugLog.IsEnabled() and L.DEBUG_LOG_ON or L.DEBUG_LOG_OFF)
   end
 end
 
 -- /lt debug check
 function DebugLog.CheckCommand()
   local count, failed = DebugLog.RunChecks()
-  ns.Print(string.format(L.DEBUG_CHECK_DONE, count, failed))
+  feedback(string.format(L.DEBUG_CHECK_DONE, count, failed))
 end

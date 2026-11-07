@@ -37,6 +37,16 @@ local function takeSnapshot()
     resting = resting and true or false, full = fullShare() }
 end
 
+-- Schätzung aus dem Stand beim Logout: Anteil am Balken und ob er voll ist; nil ohne brauchbaren Stand
+local function estimateFrom(snapshot)
+  if type(snapshot) ~= "table" or not snapshot.xpMax or snapshot.xpMax <= 0 then return nil end
+  local elapsed = math.max(0, time() - (snapshot.time or time()))
+  local perSecond = RESTING_SHARE / SECONDS_PER_BUBBLE_STEP * (snapshot.resting and 1 or OUTSIDE_FACTOR)
+  local full = snapshot.full or FULL_SHARE
+  local share = math.min(full, (snapshot.rested or 0) / snapshot.xpMax + elapsed * perSecond)
+  return share, share >= full
+end
+
 -- Geschätzter Erholungs-Pool als Anteil am Balken (1 = ein Level) und ob er voll ist; nil ohne Daten.
 -- Für den eingeloggten Charakter der echte Wert.
 function RestedEstimate.Get(characterKey)
@@ -47,13 +57,7 @@ function RestedEstimate.Get(characterKey)
     return share, share >= snapshot.full
   end
   local character = ns.Database.GetCharacters()[characterKey]
-  local snapshot = character and character.restSnapshot
-  if type(snapshot) ~= "table" or not snapshot.xpMax or snapshot.xpMax <= 0 then return nil end
-  local elapsed = math.max(0, time() - (snapshot.time or time()))
-  local perSecond = RESTING_SHARE / SECONDS_PER_BUBBLE_STEP * (snapshot.resting and 1 or OUTSIDE_FACTOR)
-  local full = snapshot.full or FULL_SHARE
-  local share = math.min(full, (snapshot.rested or 0) / snapshot.xpMax + elapsed * perSecond)
-  return share, share >= full
+  return estimateFrom(character and character.restSnapshot)
 end
 
 -- Text für die Historie: "85%" bzw. "150% (voll)"
@@ -81,6 +85,12 @@ local function announceFullAlts()
 end
 
 ns.OnLogin(announceFullAlts)
+
+-- Wie gut war die Schätzung für diesen Charakter? Schätzung aus dem Stand beim letzten Logout gegen den echten Wert
+ns.OnLogin(function()
+  local estimated = estimateFrom(ns.character.restSnapshot)
+  if estimated then ns.Debug("rested", "login: estimated %s, actual %s", estimated, RestedEstimate.Get(ns.characterKey)) end
+end)
 
 ns.OnLogout(function()
   ns.character.restSnapshot = takeSnapshot()
