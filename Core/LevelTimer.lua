@@ -243,38 +243,205 @@ end
 ---------------------------------------------------------------------------
 -- Events: mehrere Module können dasselbe Event abonnieren.
 -- Handler laufen in Registrierungsreihenfolge (= Ladereihenfolge der .toc).
+-- Eine Handler-Liste = { handlers = { ... }, keys = { ... } } (Profiler-Schlüssel je Handler). Abmelden baut eine
+-- neue Liste, damit eine gerade laufende Verteilung ihre alte Liste unverändert zu Ende läuft.
 ---------------------------------------------------------------------------
+local function newHandlerList()
+  return { handlers = {}, keys = {} }
+end
+
+local function addHandler(list, event, handler, source)
+  table.insert(list.handlers, handler)
+  table.insert(list.keys, "event " .. event .. " " .. source)
+end
+
+-- Kopie ohne den ersten Eintrag von handler; nil, wenn handler nicht in der Liste steht
+local function withoutHandler(list, handler)
+  local rest, found = newHandlerList(), false
+  for index, existing in ipairs(list.handlers) do
+    if existing == handler and not found then
+      found = true
+    else
+      table.insert(rest.handlers, existing)
+      table.insert(rest.keys, list.keys[index])
+    end
+  end
+  return found and rest or nil
+end
+
+local function dispatch(list, ...)
+  if list then runAll(list.handlers, ...) end
+end
+
+local function dispatchMeasured(measured, list, ...)
+  if not list then return end
+  local handlers, keys = list.handlers, list.keys
+  for index = 1, #handlers do
+    measured(keys[index], handlers[index], ...)
+  end
+end
+
 local eventFrame = CreateFrame("Frame")
-local eventHandlers = {}
-local eventKeys = {}  -- Profiler-Schlüssel je Event und Handler-Index: "event NAME Datei.lua:Zeile"
+local eventLists = {}  -- event -> Handler-Liste
+
+local function registerEvent(event, handler, source)
+  if not eventLists[event] then
+    if not pcall(eventFrame.RegisterEvent, eventFrame, event) then
+      return false
+    end
+    eventLists[event] = newHandlerList()
+  end
+  addHandler(eventLists[event], event, handler, source)
+  return true
+end
 
 -- Gibt false zurück, wenn der Client das Event nicht kennt (andere Spielversion).
 -- Das zugehörige Feature bleibt dann still aus, statt einen Fehler zu werfen.
 function ns.RegisterEvent(event, handler)
-  if not eventHandlers[event] then
-    if not pcall(eventFrame.RegisterEvent, eventFrame, event) then
-      return false
+  return registerEvent(event, handler, callerSource())
+end
+
+addProfiledScript(eventFrame, "OnEvent", function(_, event, ...)
+  dispatch(eventLists[event], ...)
+end, function(measured)
+  return function(_, event, ...) dispatchMeasured(measured, eventLists[event], ...) end
+end)
+
+---------------------------------------------------------------------------
+-- Unit-Events nur für bestimmte Einheiten: ns.RegisterUnitEvent("UNIT_AURA", "player", fn). Der Client meldet
+-- sie dann nur noch für diese Einheiten (Frame:RegisterUnitEvent, laut Blizzards SimpleFrameAPIDocumentation in
+-- allen Flavors, bis zu zwei Einheiten) statt für Gruppe, Ziel und jede Namensplakette. Für UNIT_HEALTH, UNIT_AURA,
+-- UNIT_SPELLCAST_*, UNIT_POWER_* usw. immer diesen Weg nehmen, wenn nur der Spieler (oder wenige Einheiten) zählt.
+-- Ein Frame je Event und Einheiten. Fehlt RegisterUnitEvent, filtert der Frame selbst nach dem ersten Argument.
+-- Handler bekommen dieselben Argumente wie bei ns.RegisterEvent (unit zuerst).
+---------------------------------------------------------------------------
+local unitEvents = {}  -- "EVENT unit1 unit2" -> { frame, event, unit1, unit2, filter, list }
+
+local function unitsOf(units)
+  if type(units) == "table" then return units[1], units[2] end
+  return units, nil
+end
+
+-- Event am Frame anmelden; false = Client kennt das Event nicht
+local function subscribeUnitEvent(entry)
+  local frame = entry.frame
+  if type(frame.RegisterUnitEvent) == "function" then
+    local ok, registered
+    if entry.unit2 then
+      ok, registered = pcall(frame.RegisterUnitEvent, frame, entry.event, entry.unit1, entry.unit2)
+    else
+      ok, registered = pcall(frame.RegisterUnitEvent, frame, entry.event, entry.unit1)
     end
-    eventHandlers[event] = {}
-    eventKeys[event] = {}
+    return ok and registered ~= false
   end
-  table.insert(eventHandlers[event], handler)
-  table.insert(eventKeys[event], "event " .. event .. " " .. callerSource())
+  entry.filter = true
+  return pcall(frame.RegisterEvent, frame, entry.event)
+end
+
+local function newUnitEvent(event, unit1, unit2)
+  local entry = { frame = CreateFrame("Frame"), event = event, unit1 = unit1, unit2 = unit2 }
+  local function wanted(unit)
+    return not entry.filter or unit == entry.unit1 or (entry.unit2 ~= nil and unit == entry.unit2)
+  end
+  addProfiledScript(entry.frame, "OnEvent", function(_, _, unit, ...)
+    if wanted(unit) then dispatch(entry.list, unit, ...) end
+  end, function(measured)
+    return function(_, _, unit, ...)
+      if wanted(unit) then dispatchMeasured(measured, entry.list, unit, ...) end
+    end
+  end)
+  return entry
+end
+
+local function registerUnitEvent(event, units, handler, source)
+  local unit1, unit2 = unitsOf(units)
+  local key = event .. " " .. unit1 .. " " .. (unit2 or "")
+  local entry = unitEvents[key]
+  if not entry then
+    entry = newUnitEvent(event, unit1, unit2)
+    unitEvents[key] = entry
+  end
+  if not entry.list then
+    if not subscribeUnitEvent(entry) then return false end
+    entry.list = newHandlerList()
+  end
+  addHandler(entry.list, event, handler, source)
   return true
 end
 
-local function onEvent(_, event, ...)
-  runAll(eventHandlers[event], ...)
+-- units = "player" oder { "player", "pet" }; false, wenn der Client das Event nicht kennt
+function ns.RegisterUnitEvent(event, units, handler)
+  return registerUnitEvent(event, units, handler, callerSource())
 end
 
-addProfiledScript(eventFrame, "OnEvent", onEvent, function(measured)
-  return function(_, event, ...)
-    local handlers, keys = eventHandlers[event], eventKeys[event]
-    for index = 1, #handlers do
-      measured(keys[index], handlers[index], ...)
+-- Handler wieder abmelden (normales oder Unit-Event); ist keiner mehr übrig, meldet der Frame das Event ab.
+-- Rückgabe: true, wenn der Handler registriert war.
+function ns.UnregisterEvent(event, handler)
+  local removed = false
+  local list = eventLists[event]
+  local rest = list and withoutHandler(list, handler)
+  if rest then
+    removed = true
+    if #rest.handlers == 0 then
+      eventFrame:UnregisterEvent(event)
+      eventLists[event] = nil
+    else
+      eventLists[event] = rest
     end
   end
-end)
+  for _, entry in pairs(unitEvents) do
+    rest = entry.event == event and entry.list and withoutHandler(entry.list, handler)
+    if rest then
+      removed = true
+      if #rest.handlers == 0 then
+        entry.frame:UnregisterEvent(event)
+        entry.list = nil
+      else
+        entry.list = rest
+      end
+    end
+  end
+  return removed
+end
+
+-- Handler, die gemeinsam an- und abgemeldet werden (z.B. nur solange eine Einstellung an ist oder das Debug-Log
+-- läuft): group.Add(event, units, handler) mit units = nil für normale Events; group.SetActive(active) liefert beim
+-- Anmelden die Events, die der Client nicht kennt.
+function ns.NewEventGroup()
+  local group, entries, active = {}, {}, false
+
+  local function subscribe(entry)
+    if entry.units then return registerUnitEvent(entry.event, entry.units, entry.handler, entry.source) end
+    return registerEvent(entry.event, entry.handler, entry.source)
+  end
+
+  function group.Add(event, units, handler)
+    local entry = { event = event, units = units, handler = handler, source = callerSource() }
+    table.insert(entries, entry)
+    if active then subscribe(entry) end
+  end
+
+  function group.SetActive(wanted)
+    wanted = wanted and true or false
+    local unknown = {}
+    if wanted == active then return unknown end
+    active = wanted
+    for _, entry in ipairs(entries) do
+      if not active then
+        ns.UnregisterEvent(entry.event, entry.handler)
+      elseif not subscribe(entry) then
+        table.insert(unknown, entry.event)
+      end
+    end
+    return unknown
+  end
+
+  function group.IsActive()
+    return active
+  end
+
+  return group
+end
 
 ---------------------------------------------------------------------------
 -- Wiederkehrende Aufgaben: fn(elapsed) etwa alle seconds Sekunden, erst nach dem Login (vorher

@@ -388,14 +388,14 @@ for _, event in ipairs({ "LOSS_OF_CONTROL_ADDED", "LOSS_OF_CONTROL_UPDATE", "PLA
     unknownEvents[#unknownEvents + 1] = event
   end
 end
-ns.RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", function(unit, ...)
-  if unit == "player" then writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", unit, ...) end
+ns.RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", "player", function(...)
+  writeCombatSample("UNIT_THREAT_SITUATION_UPDATE", ...)
 end)
 
 -- 300/316: gewirkte Zauber des Spielers, als Zählung je Spell-ID im Schnappschuss (einzeln wären es zu viele Zeilen)
 local castCounts = {}
-ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
-  if unit ~= "player" or not DebugLog.IsEnabled() or ns.IsSecret(spellId) or spellId == nil then return end
+ns.RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, spellId)
+  if not DebugLog.IsEnabled() or ns.IsSecret(spellId) or spellId == nil then return end
   local key = tostring(spellId)
   castCounts[key] = (castCounts[key] or 0) + 1
 end)
@@ -615,8 +615,8 @@ end)
 
 -- 327: Sind die entfernten Aura-IDs von UNIT_AURA im Kampf lesbar (Wasserschild-Ladungen verbraucht)? Einmal je Kampf.
 local auraRemovalLogged = false
-ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
-  if auraRemovalLogged or unit ~= "player" or not DebugLog.IsEnabled() or not InCombatLockdown() then return end
+ns.RegisterUnitEvent("UNIT_AURA", "player", function(_, updateInfo)
+  if auraRemovalLogged or not DebugLog.IsEnabled() or not InCombatLockdown() then return end
   if type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
   local removed = updateInfo.removedAuraInstanceIDs
   if removed == nil then return end

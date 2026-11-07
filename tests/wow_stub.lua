@@ -204,7 +204,19 @@ local frameMethods = {
     if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
     self._events[event] = true
   end,
-  UnregisterEvent = function(self, event) self._events[event] = nil end,
+  -- Wie im Client: das Event kommt nur noch für diese Einheiten (wow.fire prüft das erste Argument)
+  RegisterUnitEvent = function(self, event, ...)
+    if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
+    self._events[event] = true
+    self._unitEvents = rawget(self, "_unitEvents") or {}
+    self._unitEvents[event] = { ... }
+    wow.unitEventRegistrations = (wow.unitEventRegistrations or 0) + 1
+    return true
+  end,
+  UnregisterEvent = function(self, event)
+    self._events[event] = nil
+    if rawget(self, "_unitEvents") then self._unitEvents[event] = nil end
+  end,
   IsEventRegistered = function(self, event) return self._events[event] == true end,
 }
 
@@ -220,13 +232,32 @@ local function newFrame()
   frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
   return setmetatable(frame, {
-    __index = function(_, key) return frameMethods[key] or noop end,
+    -- false in frameMethods = Methode fehlt in diesem Client (nil statt No-Op)
+    __index = function(_, key)
+      local method = frameMethods[key]
+      if method == false then return nil end
+      return method or noop
+    end,
   })
+end
+
+-- Szenarien no_unit_events*: Client ohne Frame:RegisterUnitEvent (Rückfall: selbst nach Einheit filtern)
+if (SCENARIO or ""):match("^no_unit_events") then frameMethods.RegisterUnitEvent = false end
+
+-- Unit-Event für eine andere Einheit als angemeldet?
+local function filteredUnitEvent(frame, event, unit)
+  local unitEvents = rawget(frame, "_unitEvents")
+  local units = unitEvents and unitEvents[event]
+  if not units then return false end
+  for _, wanted in ipairs(units) do
+    if wanted == unit then return false end
+  end
+  return true
 end
 
 function wow.fire(event, ...)
   for _, frame in ipairs(frames) do
-    if frame._events[event] and frame._scripts.OnEvent then
+    if frame._events[event] and frame._scripts.OnEvent and not filteredUnitEvent(frame, event, ...) then
       frame._scripts.OnEvent(frame, event, ...)
     end
   end

@@ -284,8 +284,8 @@ for _, reminder in ipairs(ClassBuffs.REMINDERS) do
 end
 
 -- Im Kampf neu gewirkt: gemerkte Ablaufzeit auffrischen (Dauer vom letzten lesbaren Buff)
-ns.RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, spellId)
-  if unit ~= "player" or ns.IsSecret(spellId) then return end
+ns.RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, spellId)
+  if ns.IsSecret(spellId) then return end
   local name = spellName(spellId)
   if not name then return end
   for _, reminder in ipairs(ClassBuffs.REMINDERS) do
@@ -305,8 +305,8 @@ local function isRemoved(removed, instanceId)
   return false
 end
 
-ns.RegisterEvent("UNIT_AURA", function(unit, updateInfo)
-  if unit ~= "player" or type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
+ns.RegisterUnitEvent("UNIT_AURA", "player", function(_, updateInfo)
+  if type(updateInfo) ~= "table" or ns.IsSecret(updateInfo) then return end
   local removed = updateInfo.removedAuraInstanceIDs
   if type(removed) ~= "table" or ns.IsSecret(removed) then return end
   for _, reminder in ipairs(ClassBuffs.REMINDERS) do
