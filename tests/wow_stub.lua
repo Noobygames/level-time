@@ -438,6 +438,14 @@ end
 -- Geheime Werte (Retail/Forever): Tests setzen wow.SECRET als Rückgabe einer API
 wow.SECRET = setmetatable({}, { __tostring = function() return "<secret>" end })
 function issecretvalue(value) return value == wow.SECRET end
+-- xpcall wie im WoW-Client (reicht Argumente durch) für Szenarien native_xpcall_*; sonst Lua 5.1 wie gopher-lua
+if (SCENARIO or ""):match("^native_xpcall") then
+  local luaXpcall = xpcall
+  function xpcall(fn, handler, ...)
+    local count, args = select("#", ...), { ... }
+    return luaXpcall(function() return fn(unpack(args, 1, count)) end, handler)
+  end
+end
 -- Fehler-Handler des Clients: merkt sich Fehler, statt sie anzuzeigen
 wow.errors = {}
 function geterrorhandler() return function(message) table.insert(wow.errors, message) end end

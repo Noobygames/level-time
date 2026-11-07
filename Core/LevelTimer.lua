@@ -83,8 +83,8 @@ function ns.IsSecret(value)
 end
 
 -- Ruft fn geschützt auf: ein Fehler landet beim Fehler-Handler des Clients (BugSack, Fehlerfenster),
--- der Aufrufer läuft weiter. xpcall reicht in Lua 5.1 keine Argumente durch, daher die Closure.
--- Mit dauerhaftem Log steht der Fehler samt Aufrufstapel auch dort.
+-- der Aufrufer läuft weiter. Mit dauerhaftem Log steht der Fehler samt Aufrufstapel auch dort.
+-- Läuft für jedes Event, jeden Listener und jede Aufgabe, daher ohne neue Tabelle oder Closure je Aufruf.
 local function onError(message)
   if debugRecorder then
     record("error", tostring(message) .. (debugstack and ("\n" .. debugstack(2)) or ""))
@@ -92,10 +92,42 @@ local function onError(message)
   return geterrorhandler()(message)
 end
 
-local function safeCall(fn, ...)
-  local args, count = { ... }, select("#", ...)
-  return xpcall(function() return fn(unpack(args, 1, count)) end, onError)
+-- Der WoW-Client reicht xpcall-Argumente durch (alle Flavors, z.B. ExecuteFrameScript in Blizzards
+-- FunctionUtil.lua); Standard-Lua 5.1 (auch der Test-Stub) nicht. Das prüft die Probe einmal beim Laden.
+local XPCALL_PASSES_ARGS = (function()
+  local ok, passed = xpcall(function(value) return value end, onError, true)
+  return ok and passed == true
+end)()
+
+local function nativeSafeCall(fn, ...)
+  return xpcall(fn, onError, ...)
 end
+
+-- Ohne Argumente in xpcall: Argument-Plätze als Upvalues und ein festes Trampolin. Das Trampolin liest Funktion
+-- und Argumente, bevor es fn aufruft; ein verschachtelter Aufruf (ein Handler löst ein Event aus) überschreibt die
+-- Plätze also erst, wenn der äußere sie schon gelesen hat.
+local MAX_SLOTS = 20
+local slots = {}
+local slotFn, slotCount = nil, 0
+
+local function trampoline()
+  return slotFn(unpack(slots, 1, slotCount))
+end
+
+local function slotSafeCall(fn, ...)
+  local count = select("#", ...)
+  if count > MAX_SLOTS then
+    local args = { ... }
+    return xpcall(function() return fn(unpack(args, 1, count)) end, onError)
+  end
+  slots[1], slots[2], slots[3], slots[4], slots[5], slots[6], slots[7], slots[8], slots[9], slots[10],
+    slots[11], slots[12], slots[13], slots[14], slots[15], slots[16], slots[17], slots[18], slots[19],
+    slots[20] = ...
+  slotFn, slotCount = fn, count
+  return xpcall(trampoline, onError)
+end
+
+local safeCall = XPCALL_PASSES_ARGS and nativeSafeCall or slotSafeCall
 ns.SafeCall = safeCall
 -- Ungemessener Aufruf für den Profiler (Core/Profiler.lua), der ns.SafeCall beim Messen ersetzt
 ns.RawSafeCall = safeCall
@@ -178,8 +210,8 @@ end
 -- Alle Callbacks einer Liste, jeder für sich geschützt: ein fehlerhaftes Modul hält die anderen
 -- (z.B. beim Level-Up oder Logout) nicht auf
 local function runAll(callbacks, ...)
-  for _, callback in ipairs(callbacks) do
-    ns.SafeCall(callback, ...)
+  for index = 1, #callbacks do
+    ns.SafeCall(callbacks[index], ...)
   end
 end
 

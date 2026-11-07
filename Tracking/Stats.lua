@@ -88,15 +88,18 @@ function Stats.OnIncrement(listener)
   table.insert(incrementListeners, listener)
 end
 
+-- Bereiche, die jede Erhöhung zählen (fest, damit Increment keine Tabelle je Aufruf baut)
+local COUNTED_SCOPES = { Stats.LEVEL, Stats.SESSION }
+
 function Stats.Increment(counter, amount)
   amount = amount or 1
   ns.Debug("stats", "%s +%s", counter, amount)
-  for _, scope in ipairs({ Stats.LEVEL, Stats.SESSION }) do
-    local counters = countersOf(scope)
+  for index = 1, #COUNTED_SCOPES do
+    local counters = countersOf(COUNTED_SCOPES[index])
     counters[counter] = (counters[counter] or 0) + amount
   end
-  for _, listener in ipairs(incrementListeners) do
-    ns.SafeCall(listener, counter, amount)
+  for index = 1, #incrementListeners do
+    ns.SafeCall(incrementListeners[index], counter, amount)
   end
 end
 

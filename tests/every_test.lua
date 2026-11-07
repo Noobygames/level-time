@@ -39,3 +39,29 @@ addon.RegisterEvent("PLAYER_REGEN_ENABLED", function() handled = true end)
 wow.fire("PLAYER_REGEN_ENABLED")
 expect("zweiter Handler läuft", handled, true)
 wow.errors = {}  -- absichtlich ausgelöste Fehler
+
+-- ns.SafeCall ohne Tabelle je Aufruf: Argumente (auch nil-Lücken und viele), Rückgaben, verschachtelte Aufrufe
+local function pack(...) return { n = select("#", ...), ... } end
+local result = pack(addon.SafeCall(function(...) return select("#", ...), ... end, 1, nil, 3, nil))
+expect("ok", result[1], true)
+expect("Anzahl mit nil am Ende", result[2], 4)
+expect("erstes Argument", result[3], 1)
+expect("drittes Argument", result[5], 3)
+local many = {}
+for i = 1, 25 do many[i] = i end
+local okMany, count, last = addon.SafeCall(function(...) return select("#", ...), (select(25, ...)) end,
+  unpack(many, 1, 25))
+expect("mehr als 20 Argumente: ok", okMany, true)
+expect("mehr als 20 Argumente", count, 25)
+expect("letztes von 25", last, 25)
+local outer, inner
+addon.SafeCall(function(a, b)
+  addon.SafeCall(function(x) inner = x end, "innen")
+  outer = a .. b
+end, "au", "ßen")
+expect("verschachtelt: innen", inner, "innen")
+expect("verschachtelt: außen behält seine Argumente", outer, "außen")
+local okError = addon.SafeCall(function(value) error(value) end, "kaputt mit Argument")
+expect("Fehler: false", okError, false)
+expectTrue("Fehler mit Argument beim Handler", tostring(wow.errors[#wow.errors]):find("kaputt mit Argument", 1, true))
+wow.errors = {}

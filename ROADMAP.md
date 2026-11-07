@@ -129,6 +129,7 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 CPU-Last senken, ohne eine Funktion wegzunehmen (Speicher darf dafür steigen). Grundlage: Performance-Review der Event-Verteilung, Aufgaben, Aura-Scans und Fenster.
 
 - [x] 330. **Profiler** (S–M): `/lt debug perf [on|off|report [n]|reset]` misst jeden Event-Handler, jede `ns.Every`-Aufgabe, jeden Listener (Zähler, XP, Journal, Login, Apply) und die OnUpdate-Skripte der Fenster: Summe, Aufrufe, Maximum in ms (`debugprofilestop`) und Speicherzuwachs (`collectgarbage("count")`). Aus kostet nichts (Verteiler werden nur beim Einschalten ausgetauscht). Bericht im Chat, mit Debug-Log auch dort. **Erledigt: Profiler, `Core/Profiler.lua`.**
+- [x] 331. **Event-Verteilung ohne Müll** (S): `ns.SafeCall` baute je Event, Handler, Listener und Aufgabe eine Tabelle und eine Closure. Jetzt `xpcall(fn, onError, ...)` (der WoW-Client reicht Argumente in allen Flavors durch, Blizzards `ExecuteFrameScript`); ohne diese Fähigkeit (Lua 5.1, Test-Stub) feste Argument-Plätze mit Trampolin. `Stats.Increment` ohne Tabelle je Aufruf. **Erledigt: Verteilung ohne Allokation.**
 
 ## v2.18: Qualitätssicherung
 
