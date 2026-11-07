@@ -198,7 +198,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   columns = QUEST_SPLIT_COLUMNS,
   records = QuestSplits.GetRecords,
   footer = HistoryTables.CountCells,
-  revision = ns.Journal.Revision,
+  revision = ns.Journal.RevisionOf("questLog"),
   hint = "QUEST_SPLITS_HINT",
 }))
 

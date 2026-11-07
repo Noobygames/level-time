@@ -59,7 +59,7 @@ function DeathMap.Refresh(force)
   if not overlay or not map.GetMapID then return end
   local mapID = map:GetMapID()
   local width, height = overlay:GetWidth(), overlay:GetHeight()
-  local key = table.concat({ tostring(mapID), ns.Journal.Revision(), width, height }, ":")
+  local key = table.concat({ tostring(mapID), ns.Journal.Revision("deathLog"), width, height }, ":")
   if not force and key == shownFor then return end
   shownFor = key
   local deaths = type(mapID) == "number" and DeathMap.DeathsOn(mapID) or {}

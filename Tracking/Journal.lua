@@ -69,16 +69,31 @@ function Journal.OnAdd(listener)
   table.insert(addListeners, listener)
 end
 
--- Neuen Eintrag an den Eingang character[logName] anhängen; über INBOX_LIMIT (nur ohne Archiv) fallen die ältesten weg
--- Stand der Journale: steigt bei jeder Änderung (neuer Eintrag, nachgetragene Ursache, herausgenommener Lauf)
+-- Stand der Journale: steigt bei jeder Änderung (neuer Eintrag, nachgetragene Ursache, herausgenommener Lauf), einmal
+-- gesamt und je Log, damit eine Tod-Ansicht nicht bei jedem Kill neu rechnet
 local revision = 0
+local logRevisions = {}  -- [logName] = Stand dieses Logs
 
-function Journal.Revision()
-  return revision .. ":" .. ns.JournalArchive.Version()
+local function changed(logName)
+  revision = revision + 1
+  logRevisions[logName] = (logRevisions[logName] or 0) + 1
 end
 
+-- Stand eines Logs (logName) oder aller Logs (ohne Argument), jeweils mit dem Archiv-Stand
+function Journal.Revision(logName)
+  local own = revision
+  if logName then own = logRevisions[logName] or 0 end
+  return own .. ":" .. ns.JournalArchive.Version()
+end
+
+-- Funktion ohne Argument für TableView/Charts (revision = Journal.RevisionOf("killLog"))
+function Journal.RevisionOf(logName)
+  return function() return Journal.Revision(logName) end
+end
+
+-- Neuen Eintrag an den Eingang character[logName] anhängen; über INBOX_LIMIT (nur ohne Archiv) fallen die ältesten weg
 local function append(logName, entry)
-  revision = revision + 1
+  changed(logName)
   ns.Debug("journal", "%s: %s", logName, entry.name or entry.killer or entry.link or entry.environment or "-")
   local log = ns.character[logName]
   table.insert(log, entry)
@@ -158,7 +173,7 @@ function Journal.TakeLastInstanceRun(name)
   local log = ns.character.instanceLog
   local last = log[#log]
   if not last or last.name ~= name then return nil end
-  revision = revision + 1
+  changed("instanceLog")
   return table.remove(log)
 end
 
@@ -172,7 +187,7 @@ function Journal.AddDeath(cause)
 end
 
 function Journal.SetDeathCause(entry, cause)
-  revision = revision + 1
+  changed("deathLog")
   entry.killer = cause.killer
   entry.spell = cause.spell
   entry.environment = cause.environment
