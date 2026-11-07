@@ -2245,3 +2245,23 @@ Texturen sehen gut aus (ja/nein, welche nicht):
 Farben verständlich (ja/nein):
 Fehler:
 ```
+
+### 150. Tabellenköpfe, Split-Kopfzeile, Unterstrich und Legende (Roadmap 203, 215, 216)
+
+- [ ] geprüft
+
+1. `/lt history` auf Französisch und Spanisch: Kills, Tode, Quests, Level: kein Spaltenkopf abgeschnitten
+   („Rare-Elite“, „Muertes“, „Misiones“, „Victimes“, „Abatidos“); Tabelle nicht breiter als vorher.
+2. Split-Liste: oben „Level / Zeit / ±“ in leiser Farbe, Spalten darunter bündig; Maus über der Liste zeigt den Tooltip.
+3. Aktive Reiter (Optionen, Seitenleiste, Historie, Hauptfenster) haben einen feinen Strich unter dem Text.
+4. Historie > Diagramme (Zeit je Level, Kills je Tag): rechts oben „laufend / heute“ mit blauem Feld.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Köpfe vollständig (ja/nein, welche nicht):
+Kopfzeile ok (ja/nein):
+Unterstrich und Legende sichtbar (ja/nein):
+Fehler:
+```
