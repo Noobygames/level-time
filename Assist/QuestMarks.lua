@@ -18,6 +18,7 @@ local BAR_HEIGHT_FACTOR = 1.5  -- das Bild hat Rand, daher etwas höher als der 
 local REFRESH_SECONDS = 1
 
 local marks = {}  -- [Namensplakette] = Markierungs-Frame
+local anchors = {}  -- [Markierung] = { target, height } der letzten Verankerung (Anker setzen löst ein Layout aus)
 local units = {}  -- sichtbare Namensplaketten: [Einheit] = Plakette (beim Entfernen liefert das Spiel sie evtl. nicht mehr)
 
 function QuestMarks.IsAvailable()
@@ -45,12 +46,18 @@ local function healthBarOf(plate)
 end
 
 -- Symbol links vom Lebensbalken, etwas höher als dieser (Größe-Regler skaliert darüber hinaus);
--- ohne Balken über der Plakette. Läuft bei jedem Update, weil sich der Balken ändert (z.B. Ziel größer).
+-- ohne Balken über der Plakette. Läuft bei jedem Update, weil sich der Balken ändern kann (z.B. Ziel größer);
+-- neu verankert wird nur, wenn sich Balken oder Höhe geändert haben.
 local function layout(mark, plate)
   local bar = healthBarOf(plate)
   local height = bar and bar:GetHeight()
+  if not (type(height) == "number" and not ns.IsSecret(height) and height > 0) then height = nil end
+  local target = height and bar or plate
+  local anchor = anchors[mark]
+  if anchor and anchor.target == target and anchor.height == height then return end
+  anchors[mark] = { target = target, height = height }
   mark:ClearAllPoints()
-  if type(height) == "number" and not ns.IsSecret(height) and height > 0 then
+  if height then
     mark:SetSize(height * BAR_HEIGHT_FACTOR, height * BAR_HEIGHT_FACTOR)
     mark:SetPoint("RIGHT", bar, "LEFT", -GAP, 0)
   else
@@ -108,7 +115,7 @@ ns.RegisterEvent("NAME_PLATE_UNIT_REMOVED", function(unit)
 end)
 
 -- Questziele ändern sich beim Spielen (Ziel erfüllt, Quest abgegeben): regelmäßig nachsehen
-ns.Every(REFRESH_SECONDS, refreshAll)
+ns.Every(REFRESH_SECONDS, refreshAll, function(db) return db.questMarks end)
 
 ns.RegisterApply(function(db)
   for _, mark in pairs(marks) do mark:SetScale(QuestMarks.CurrentScale()) end

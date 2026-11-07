@@ -65,3 +65,30 @@ local okError = addon.SafeCall(function(value) error(value) end, "kaputt mit Arg
 expect("Fehler: false", okError, false)
 expectTrue("Fehler mit Argument beim Handler", tostring(wow.errors[#wow.errors]):find("kaputt mit Argument", 1, true))
 wow.errors = {}
+
+-- enabled(db): ausgeschaltete Aufgaben laufen nicht; ausgewertet nach ApplySettings, nicht je Bild
+local gated = { runs = 0, checks = 0, elapsed = nil }
+addon.Every(1, function(elapsed) gated.runs, gated.elapsed = gated.runs + 1, elapsed end, function(db)
+  gated.checks = gated.checks + 1
+  return db.foodTimer
+end)
+addon.Set("foodTimer", false)
+local checks = gated.checks
+wow.update(1)
+wow.update(1)
+expect("aus: läuft nicht", gated.runs, 0)
+expect("Prädikat nicht je Bild", gated.checks, checks)
+wow.update(5)
+addon.Set("foodTimer", true)
+wow.update(0.5)
+expect("an: elapsed beginnt neu", gated.runs, 0)
+wow.update(0.5)
+expect("an: läuft", gated.runs, 1)
+expect("an: elapsed seit dem Einschalten", gated.elapsed, 1)
+-- Fehler im Prädikat: Aufgabe läuft weiter (wie ohne Prädikat), Fehler beim Handler
+addon.Every(1, function() gated.broken = true end, function() error("kaputtes Prädikat") end)
+addon.ApplySettings()
+wow.update(1)
+expect("kaputtes Prädikat: läuft", gated.broken, true)
+expectTrue("kaputtes Prädikat gemeldet", #wow.errors > 0)
+wow.errors = {}

@@ -29,6 +29,7 @@ function TimerDisplay.Create(config)
   frame:SetFrameStrata("HIGH")
 
   local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
+  local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
   local override  -- Vorschau oder Verschiebemodus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
 
@@ -44,7 +45,10 @@ function TimerDisplay.Create(config)
     if current.kind == "countdown" then
       local remaining = remainingOf(current)
       local seconds = math.ceil(remaining)
-      card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+      if seconds ~= shownSeconds then
+        shownSeconds = seconds
+        card.SetTime(config.formatTime and config.formatTime(seconds) or string.format(ns.L.SECONDS_SHORT, seconds))
+      end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
     local alpha = math.min(1, (now - shownAt) / FADE_IN_SECONDS)
@@ -58,6 +62,7 @@ function TimerDisplay.Create(config)
   end
 
   local function setCard(state)
+    shownSeconds = nil  -- Card.Set misst mit einem Platzhalter-Text, die Zahl kommt danach neu
     card.Set({
       color = config.colors[state.kind],
       icon = state.spellId,

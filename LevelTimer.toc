@@ -30,6 +30,7 @@ Core\Profiles.lua
 Lib\ChatPatterns.lua
 Lib\GroupChat.lua
 Lib\GroupRole.lua
+Lib\NamePlates.lua
 Lib\Bags.lua
 Lib\Items.lua
 Lib\QuestLog.lua

@@ -102,7 +102,7 @@ function FoodTimer.Check()
   end
 end
 
-ns.Every(CHECK_INTERVAL, FoodTimer.Check)
+ns.Every(CHECK_INTERVAL, FoodTimer.Check, function(db) return db.foodTimer end)
 
 ns.OnLogin(reset)
 

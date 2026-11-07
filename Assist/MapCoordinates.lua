@@ -64,11 +64,14 @@ local function create()
   display.text = display:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   display.text:SetPoint("BOTTOM", map.ScrollContainer or map, "BOTTOM", 0, BOTTOM_OFFSET)
   local elapsedSince = UPDATE_SECONDS
+  local function refresh()
+    ns.Widgets.SetTextIfChanged(display.text, MapCoordinates.Text(map))
+  end
   ns.SetUpdateScript(display, "MapCoordinates", function(_, elapsed)
     elapsedSince = elapsedSince + elapsed
     if elapsedSince < UPDATE_SECONDS then return end
     elapsedSince = 0
-    ns.SafeCall(function() display.text:SetText(MapCoordinates.Text(map)) end)
+    ns.SafeCall(refresh)
   end)
   display:SetShown(ns.db and ns.db.mapCoordinates or false)
   ns.Debug("mapcoords", "attached to WorldMapFrame")

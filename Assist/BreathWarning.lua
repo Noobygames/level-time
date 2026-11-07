@@ -108,5 +108,5 @@ ns.RegisterEvent("PLAYER_ENTERING_WORLD", function()
   end
 end)
 
-ns.Every(CHECK_SECONDS, BreathWarning.Check)
+ns.Every(CHECK_SECONDS, BreathWarning.Check, function(db) return db.warnBreath end)
 ns.OnLogin(function() running = {} end)

@@ -144,7 +144,7 @@ end
 -- Regelmäßig prüfen statt auf UNIT_AURA zu hören: der Countdown läuft in der Anzeige selbst weiter,
 -- und die Prüfung ist billig
 if CampFire.IsAvailable() then
-  ns.Every(CHECK_INTERVAL, CampFire.Check)
+  ns.Every(CHECK_INTERVAL, CampFire.Check, wanted)
 end
 
 ns.OnLogin(reset)

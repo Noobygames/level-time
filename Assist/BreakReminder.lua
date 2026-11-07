@@ -59,5 +59,5 @@ function BreakReminder.Check()
   ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR)
 end
 
-ns.Every(CHECK_SECONDS, BreakReminder.Check)
+ns.Every(CHECK_SECONDS, BreakReminder.Check, function(db) return db.remindBreak end)
 ns.OnLogin(function() afkSince = nil end)

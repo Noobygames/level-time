@@ -246,6 +246,7 @@ end
 
 function ns.ApplySettings()
   runAll(applyCallbacks, ns.db)
+  ns.RefreshTasks()
 end
 
 function ns.Set(key, value)
@@ -461,20 +462,40 @@ end
 -- gibt es weder ns.db noch ns.character). elapsed = tatsächlich vergangene Zeit seit dem letzten Lauf.
 -- Ein gemeinsamer Frame statt eines OnUpdate-Frames je Modul. Jede Aufgabe läuft geschützt
 -- (ns.SafeCall), die übrigen laufen bei einem Fehler weiter.
+-- enabled(db) (optional) sagt, ob die Aufgabe gerade etwas zu tun hat (z.B. Einstellung an). Ausgewertet wird es
+-- nicht je Bild, sondern nach jedem ns.ApplySettings und bei ns.RefreshTasks() (für Zustände ohne Einstellung,
+-- z.B. das Debug-Log). Ausgeschaltete Aufgaben kosten nichts; beim Einschalten beginnt ihr elapsed bei 0. Nur für
+-- Aufgaben, die bei false sowieso sofort zurückkehren würden, damit sich nichts ändert.
 ---------------------------------------------------------------------------
 local repeatingTasks = {}
 local taskFrame = CreateFrame("Frame")
 
-function ns.Every(seconds, fn)
-  table.insert(repeatingTasks, { interval = seconds, fn = fn, elapsed = 0, key = "task " .. callerSource() })
+function ns.Every(seconds, fn, enabled)
+  table.insert(repeatingTasks, {
+    interval = seconds, fn = fn, elapsed = 0, key = "task " .. callerSource(), enabled = enabled,
+    active = enabled == nil,
+  })
+end
+
+-- enabled-Prädikate neu auswerten; ein fehlerhaftes Prädikat lässt die Aufgabe laufen (wie ohne Prädikat)
+function ns.RefreshTasks()
+  if not ns.db then return end
+  for _, task in ipairs(repeatingTasks) do
+    if task.enabled then
+      local ok, wanted = ns.SafeCall(task.enabled, ns.db)
+      local active = not ok or wanted and true or false
+      if active and not task.active then task.elapsed = 0 end
+      task.active = active
+    end
+  end
 end
 
 -- run(task, due) führt eine fällige Aufgabe aus (ungemessen oder gemessen)
 local function tickTasks(elapsed, run)
   if not ns.character then return end
   for _, task in ipairs(repeatingTasks) do
-    task.elapsed = task.elapsed + elapsed
-    if task.elapsed >= task.interval then
+    if task.active then task.elapsed = task.elapsed + elapsed end
+    if task.active and task.elapsed >= task.interval then
       local due = task.elapsed
       task.elapsed = 0
       run(task, due)
