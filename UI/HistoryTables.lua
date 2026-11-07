@@ -290,7 +290,8 @@ local COMPARE_COLUMNS = {
     end },
   counterColumn("HISTORY_DEATHS", Stats.DEATHS, 36),
   goldColumn(50),
-  { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
+  { header = "HISTORY_COVERAGE", width = 50, tip = "HISTORY_COVERAGE_TIP",
+    value = function(r) return ns.Coverage.Text(r.coverage) end,
     sort = function(r) return r.coverage end },
   -- Geschätzter Erholungs-Pool (RestedEstimate.lua), für Twinks seit ihrem Logout hochgerechnet
   { header = "HISTORY_RESTED", width = 44, value = function(r) return ns.RestedEstimate.Text(r.key) end,

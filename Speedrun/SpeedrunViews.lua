@@ -3,10 +3,13 @@
 -- Speedrun-Rekorde von speedrun.com je Abschnitt (WorldRecords.lua).
 -- Läufe: Klick wählt den Lauf als festen Vergleich der Splits, Rechtsklick markiert ihn als Favorit,
 -- Shift+Klick zeigt ihn als Text zum Teilen; Favoriten stehen oben. Buttons: alle Läufe sichern, importieren. Suchfeld filtert nach Name und Klasse (wie jede Tabelle über alle Zellen).
+-- Namen in Läufen und Rekorden ohne Realm (der steht im Tooltip der Zeile); nur wenn sich mehrere Läufe einen Namen
+-- teilen und auf verschiedenen Realms stehen, kommt der unterscheidende Teil des Realms dazu ("Nerzal (Realm 3 PvE)").
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
 local Format = ns.Format
+local Theme = ns.Theme
 local History = ns.History
 local Runs = ns.Runs
 local Splits = ns.Splits
@@ -15,21 +18,83 @@ local HistoryTables = ns.HistoryTables
 local GROUP = "HISTORY_GROUP_SPEEDRUN"
 local LEFT = "LEFT"
 local FAVORITE_MARK = "*"
+local REFERENCE_MARK = ">"  -- gewählter Vergleich der Splits (statt einer meist leeren Status-Spalte)
+local MISSING = "–"         -- keine Zeit für die Spanne, leise gefärbt
 
 local function className(classToken)
   local names = LOCALIZED_CLASS_NAMES_MALE
   return classToken and (names and names[classToken] or classToken) or ""
 end
 
--- Eigene Charaktere mit Streamer-Datenschutz, importierte Läufe mit Kennzeichen
+-- Voller Name: eigene Charaktere mit Streamer-Datenschutz (History.DisplayName), importierte mit Kennzeichen
 local function runName(run)
   if run.imported then return (run.name or "?") .. " " .. L.RUN_IMPORTED end
   return History.DisplayName(run.id)
 end
 
+local function realmWords(realm)
+  local words = {}
+  for word in (realm or ""):gmatch("%S+") do table.insert(words, word) end
+  return words
+end
+
+-- Teil des Realms von run, der ihn von gleichnamigen Läufen auf anderen Realms unterscheidet: ab dem ersten Wort,
+-- das von einem davon abweicht, mit einem Wort davor als Zusammenhang ("CAMWOW EU4 Realm 3 PvE" neben "... Realm 2
+-- PvE" -> "Realm 3 PvE"). nil, wenn alle auf demselben Realm stehen (z.B. importierter alter Lauf desselben Namens)
+local function distinctRealm(run, rivals)
+  local words = realmWords(run.realm)
+  local first
+  for _, other in ipairs(rivals) do
+    if other ~= run and (other.realm or "") ~= (run.realm or "") then
+      local otherWords = realmWords(other.realm)
+      local index = 1
+      while words[index] and words[index] == otherWords[index] do index = index + 1 end
+      first = math.min(first or index, index)
+    end
+  end
+  if not first or #words == 0 then return nil end
+  first = math.min(first, #words)
+  return table.concat(words, " ", math.max(1, first - 1), #words)
+end
+
+-- Kurzname je Lauf (Anzeigefeld run.shortName): nur der Name, bei gleichem Namen mehrerer Läufe mit kurzem Realm.
+-- Mit Streamer-Datenschutz zeigt DisplayName schon keinen Realm, dann bleibt es dabei.
+local function assignShortNames(runs)
+  local byName = {}
+  for _, run in ipairs(runs) do
+    local list = byName[run.name or "?"] or {}
+    byName[run.name or "?"] = list
+    table.insert(list, run)
+  end
+  for _, run in ipairs(runs) do
+    local rivals = byName[run.name or "?"]
+    local name = run.name or "?"
+    if ns.db.streamerPrivacy and not run.imported then
+      name = History.DisplayName(run.id)
+    elseif #rivals > 1 then
+      local realm = distinctRealm(run, rivals)
+      if realm then name = string.format("%s (%s)", name, realm) end
+    end
+    run.shortName = run.imported and (name .. " " .. L.RUN_IMPORTED) or name
+  end
+end
+
+-- Tooltip einer Zeile: voller Name (mit Realm, außer Datenschutz) und Klasse
+local function runTooltip(run)
+  local name = runName(run)
+  if run.imported and run.realm and not ns.db.streamerPrivacy then
+    name = string.format("%s - %s %s", run.name or "?", run.realm, L.RUN_IMPORTED)
+  end
+  return { name, className(run.class) }
+end
+
 local function isReference(run)
   local reference = ns.db.splitReference
   return ns.db.splitComparison == Splits.RUN and reference ~= nil and reference.id == run.id
+end
+
+local function runMarks(run)
+  return (run.favorite and FAVORITE_MARK or "") .. (isReference(run) and REFERENCE_MARK or "")
 end
 
 local function countLevels(times)
@@ -46,6 +111,7 @@ end
 local function runRecords()
   local from, to = Splits.ComparableRange()
   local favorites, others = {}, {}
+  assignShortNames(Runs.GetAll())
   for _, run in ipairs(Runs.GetAll()) do
     run.timeToLevel = Runs.SumOfLevels(run.times, from, to - 1)
     run.recordedLevels = countLevels(run.times)
@@ -56,25 +122,24 @@ local function runRecords()
   return favorites
 end
 
+-- Spaltenbreiten zusammen höchstens HistoryWindow.CONTENT_WIDTH minus Bildlaufleiste (tests/layout_fit_test.lua)
 local RUN_COLUMNS = {
-  { header = "HISTORY_FAVORITE", width = 18, align = LEFT,
-    value = function(r) return r.favorite and FAVORITE_MARK or "" end },
-  { header = "HISTORY_CHARACTER_NAME", width = 110, align = LEFT, value = runName },
-  { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.class) end },
-  { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.reachedLevel or "" end,
+  { header = "HISTORY_FAVORITE", width = 16, align = LEFT, tip = "HISTORY_FAVORITE_TIP", value = runMarks },
+  { header = "HISTORY_CHARACTER_NAME", width = 92, align = LEFT, value = function(r) return r.shortName end },
+  { header = "HISTORY_CLASS", width = 70, align = LEFT, value = function(r) return className(r.class) end },
+  { header = "HISTORY_LEVEL", width = 36, value = function(r) return r.reachedLevel or "" end,
     sort = function(r) return r.reachedLevel end },
-  { header = "HISTORY_LEVELS_RECORDED", width = 56, value = function(r) return r.recordedLevels end },
-  { header = "HISTORY_TIME_TO_CURRENT", width = 90, value = function(r)
-      return r.timeToLevel and Format.Duration(r.timeToLevel) or "-"
+  { header = "HISTORY_LEVELS_RECORDED", width = 40, tip = "HISTORY_LEVELS_RECORDED_TIP",
+    value = function(r) return r.recordedLevels end },
+  { header = "HISTORY_TIME_TO_CURRENT", width = 84, tip = "HISTORY_TIME_TO_CURRENT_TIP", value = function(r)
+      return r.timeToLevel and Format.Duration(r.timeToLevel) or Theme.Hex("muted") .. MISSING .. "|r"
     end, sort = function(r) return r.timeToLevel end },
-  { header = "HISTORY_COVERAGE", width = 50, value = function(r) return ns.Coverage.Text(r.coverage) end,
-    sort = function(r) return r.coverage end },
+  { header = "HISTORY_COVERAGE", width = 50, tip = "HISTORY_COVERAGE_TIP",
+    value = function(r) return ns.Coverage.Text(r.coverage) end, sort = function(r) return r.coverage end },
   { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
     value = function(r) return ns.RunCategory.Label(r.category) end },
-  { header = "HISTORY_RUN_CHECK", width = 60, value = function(r) return ns.RunCheck.StatusText(r) end },
-  { header = "HISTORY_RUN_STATUS", width = 70, value = function(r)
-      return isReference(r) and L.RUN_REFERENCE or ""
-    end },
+  { header = "HISTORY_RUN_CHECK", width = 56, tip = "HISTORY_RUN_CHECK_TIP",
+    value = function(r) return ns.RunCheck.StatusText(r) end },
 }
 
 local function runColor(run)
@@ -100,6 +165,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   records = runRecords,
   footer = HistoryTables.CountCells,
   rowColor = runColor,
+  rowTooltip = runTooltip,
   onRowClick = onRunClick,
   hint = "RUNS_HINT",
   buttons = {
@@ -125,6 +191,7 @@ end
 -- { level, seconds, run, ownSeconds }, höchstes Level zuerst
 local function recordRows()
   local best = {}
+  assignShortNames(Runs.GetAll())
   for _, run in ipairs(Runs.GetAll()) do
     if not run.imported then
       for level, seconds in pairs(run.bestTimes) do  -- ohne Teil-Level (Coverage.lua)
@@ -150,7 +217,7 @@ local RECORD_COLUMNS = {
     sort = function(r) return r.level end },
   { header = "HISTORY_BEST_TIME", width = 80, value = function(r) return Format.Duration(r.seconds) end,
     sort = function(r) return r.seconds end },
-  { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = function(r) return runName(r.run) end },
+  { header = "HISTORY_CHARACTER_NAME", width = 140, align = LEFT, value = function(r) return r.run.shortName end },
   { header = "HISTORY_CLASS", width = 80, align = LEFT, value = function(r) return className(r.run.class) end },
   { header = "HISTORY_RUN_CATEGORY", width = 64, align = LEFT,
     value = function(r) return ns.RunCategory.Label(r.run.category) end },
@@ -169,6 +236,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   records = recordRows,
   footer = HistoryTables.CountCells,
   rowColor = function(r) return r.isCurrent and Widgets.COLORS.highlight or HistoryTables.ClassColor(r.run) end,
+  rowTooltip = function(r) return runTooltip(r.run) end,
 }))
 
 ---------------------------------------------------------------------------
