@@ -31,10 +31,8 @@ local function newXpBar(window)
   bar.background = window:CreateTexture(nil, "ARTWORK")
   bar.background:SetColorTexture(unpack(XP_BAR_BACKGROUND))
   bar.rested = window:CreateTexture(nil, "ARTWORK", nil, 1)
-  bar.rested:SetColorTexture(unpack(XP_BAR_RESTED))
   bar.rested:SetPoint("TOPLEFT", bar.background)
   bar.quests = window:CreateTexture(nil, "ARTWORK", nil, 2)
-  bar.quests:SetColorTexture(unpack(XP_BAR_QUESTS))
   bar.quests:SetPoint("TOPLEFT", bar.background)
   bar.fill = window:CreateTexture(nil, "ARTWORK", nil, 3)
   bar.fill:SetPoint("TOPLEFT", bar.background)
@@ -54,6 +52,13 @@ local function newXpBar(window)
   ns.XpTooltip.Attach(bar.hover)
   bar:SetShown(false)
   return bar
+end
+
+-- Füllungen in der Balkentextur des Themes (themeBarTexture), Fortschritt in der Akzentfarbe; nach jedem Apply
+function XpBar:ApplyTexture()
+  Theme.SetBarTexture(self.rested, unpack(XP_BAR_RESTED))
+  Theme.SetBarTexture(self.quests, unpack(XP_BAR_QUESTS))
+  Theme.SetBarTexture(self.fill, Theme.RGB("accent"))
 end
 
 function XpBar:SetHeight(height)

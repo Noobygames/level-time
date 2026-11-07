@@ -137,6 +137,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **149. Lesbarkeit und Balken, Datenteil (Roadmap 361)**: check `361.readability` (Untergrenze, kleinste Größe, effektive kleinste Schrift je Anzeige, Balkenpfad und geladene Textur, LibSharedMedia-Balken)
+- **144. Blizzard-Einstellungsmenü, Datenteil (Roadmap 403)**: check `403.blizzardSettings` (Settings/InterfaceOptions vorhanden, Kategorie-ID, Strata von SettingsPanel und unserem Fenster), event `ADDON_ACTION_BLOCKED`
 - **132. Flugzeiten-Schätzung, Datenteil (Roadmap 370)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 - **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
 - **134. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
@@ -2107,6 +2109,18 @@ Komfort > Chat: „Chat bis an den Rand“, „Eigene Chat-Schriftgröße“ mit
 2. Schriftgröße an, Regler auf 10 und 26: alle Chatfenster (auch Kampflog) ändern sich sofort; Rechtsklick auf einen
    Reiter > Schriftgröße zeigt Blizzards Menü weiter normal.
 3. /reload: Größe bleibt; ausschalten: jedes Fenster bekommt seine vorherige Größe zurück.
+### 143. Rechtsklick auf Anzeigen öffnet ihre Einstellungen (Roadmap 404)
+
+- [ ] geprüft
+
+Außerhalb des Edit-Modus nacheinander rechtsklicken: Hauptfenster (und Level-/Session-Reiter), Split-Liste
+(`/lt splits`), Flug-Anzeige während eines Flugs, Essen-/Lagerfeuer-Anzeige (Vorschau in den Einstellungen),
+Level-Up-Fenster (Vorschau), Beute-Wurf-Karte (falls sichtbar).
+
+1. Jede Anzeige öffnet die Einstellungen auf ihrer eigenen Unterseite; ein zweiter Rechtsklick schließt sie.
+2. Linksklick auf das Level-Up-Fenster schließt es weiter; Ziehen von Hauptfenster/Split-Liste geht weiter.
+3. Die Einblendung (Level-Up-Banner, Warnungen) bleibt klickdurchlässig: Klick durch sie auf einen Gegner wählt ihn.
+4. Flug-/Essen-Anzeige: schluckt sie Klicks, die stören (z.B. auf Gegner hinter ihr)?
 
 **Antwort:**
 
@@ -2128,6 +2142,23 @@ Komfort > Fenster > Tooltip: „Tooltip in der Welt“, „Tooltip-Größe“, �
 2. Größe 150 %: Gegenstands-Tooltip und Vergleichs-Tooltip größer, Link im Chat anklicken (ItemRefTooltip) auch;
    zurück auf 100 %: wie vorher.
 3. Gildenrang: Spieler einer Gilde überfahren, hinter dem Gildennamen steht „(Rang)“; eigene Gilde ebenso.
+richtige Unterseite je Anzeige (ja/nein, welche nicht):
+Einblendung klickdurchlässig (ja/nein):
+Timer-Anzeigen stören (ja/nein):
+Fehler:
+```
+
+### 144. Eintrag im Blizzard-Einstellungsmenü (Roadmap 403)
+
+- [ ] geprüft
+
+Esc > Optionen > Reiter „AddOns“ > „Level Time“.
+
+1. Seite zeigt Titel, Kurztext (umbricht, nicht abgeschnitten) und den Button „Level-Time-Einstellungen öffnen“.
+2. Button: unser Fenster öffnet über dem Blizzard-Menü (nicht dahinter); Esc schließt erst unser Fenster, dann das Menü.
+3. Danach im Blizzard-Menü eine Einstellung ändern und „Schließen“: keine Meldung „Aktion blockiert“/kein Taint
+   (BugSack leer), Tastenbelegungen bleiben gespeichert.
+4. Französisch/Spanisch: Button-Text passt.
 
 **Antwort:**
 
@@ -2149,6 +2180,22 @@ Komfort > Fenster > Minimap: „Eckige Minimap“.
 2. Forever: Minimap drehen (Interface-Einstellung) bleibt eckig.
 3. Aus: wieder rund mit Rahmen (Retail: Maske `Interface\Masks\CircleMaskScalable`, Classic `Textures\MinimapMask`
    ungeprüft; Forever nutzt Blizzards UpdateMinimapConfig).
+Eintrag vorhanden (ja/nein):
+Fenster liegt oben (ja/nein):
+Taint/Fehler beim Schließen (ja/nein):
+Fehler:
+```
+
+### 145. Standard je Kategorie (Roadmap 405)
+
+- [ ] geprüft
+
+`/lt`, z.B. Einblendungen > Stil & Position: Stil, Dauer, Ton, Größe ändern.
+
+1. Unter der Seitenleiste steht „Standard“ (nicht über einem Eintrag, nicht abgeschnitten, auch in fr/es).
+2. Klick: Rückfrage nennt „Stil & Position“; Ja setzt nur diese Werte zurück (Ereignisse-Schalter bleiben), Chatzeile.
+3. „Rückgängig“ erscheint darunter und stellt die Werte wieder her; danach verschwindet es.
+4. Allgemein > Sprache & Minimap: „Standard“ zeigt den Minimap-Button wieder, seine Position am Rand bleibt.
 
 **Antwort:**
 
@@ -2168,6 +2215,21 @@ Komfort > Quest-Anzeige: „Questtext-Größe ändern“, Regler.
 1. Questgeber ansprechen: Text, Ziele und Überschrift in der Reglergröße, nichts abgeschnitten.
 2. Questlog (Classic: Questlog-Fenster, Retail/Forever: Kartenquests) ebenso.
 3. Aus: Blizzards Größen sofort zurück.
+Buttons gut platziert (ja/nein):
+nur die Kategorie zurückgesetzt (ja/nein):
+Rückgängig ok (ja/nein):
+Fehler:
+```
+
+### 146. Einklappbare Abschnitte (Roadmap 406)
+
+- [ ] geprüft
+
+`/lt` > Komfort > Ausblenden und Komfort > Quests.
+
+1. Ausblenden zeigt die Blizzard-Elemente in Gruppen (Einheitenrahmen, Minimap/Buffs/Tracker, Aktionsleisten, Weitere).
+2. Klick auf eine Überschrift („-“ davor) klappt sie ein („+“), die Gruppen darunter rücken ohne Lücke hoch.
+3. Suche nach einem Element einer eingeklappten Gruppe (z.B. „Zielrahmen“): Gruppe klappt auf, Treffer hervorgehoben.
 
 **Antwort:**
 
@@ -2186,6 +2248,22 @@ Komfort > Oberfläche > Bildschirmränder.
 1. An, oben 60, unten 80, seitlich 40: schwarze Balken, Aktionsleisten und Chat liegen darüber.
 2. Klicks auf die Spielwelt im Balkenbereich gehen weiter (Maus aus).
 3. Alt+Z (Oberfläche aus): Balken verschwinden mit.
+Gruppen sinnvoll (ja/nein):
+Einklappen ohne Lücken/Überlappung (ja/nein):
+Fehler:
+```
+
+### 147. Einfach/Erweitert (Roadmap 402)
+
+- [ ] geprüft
+
+`/lt`, Haken „Erweitert“ oben rechts neben dem X.
+
+1. Haken und Beschriftung überlappen weder Titel noch X (auch fr/es).
+2. Haken aus: z.B. Hinweise > Erinnerungen ohne Intervall-Regler, die Bausteine darunter rücken ohne Lücke nach;
+   Statistiken: „Reihenfolge“ und „Berechnung“ fehlen in der Seitenleiste, die übrigen rücken hoch.
+3. Suche „Leerlauf“: Treffer schaltet den Haken wieder an und zeigt die Seite.
+4. Haken bleibt nach /reload, wie er war.
 
 **Antwort:**
 
@@ -2205,6 +2283,20 @@ Komfort > System > „Bereit-Timer“.
 1. In einer Gruppe einen Bereitschaftscheck starten lassen: unter Blizzards Fenster „Bereitschaftscheck: 30 s“, zählt
    herunter, verschwindet nach Antwort/Ende.
 2. Schlachtfeld-Warteschlange bis zur Einladung: „Schlachtfeld betreten: 1:25“ oben in der Mitte.
+Platz oben rechts ok (ja/nein):
+Seiten ohne Lücken (ja/nein):
+Fehler:
+```
+
+### 148. Willkommenskarte (Roadmap 363)
+
+- [ ] geprüft
+
+Neuer Account-Stand (oder `/lt welcome`).
+
+1. Beim ersten Start mittig eine Karte mit drei Schritten; Texte nicht abgeschnitten (auch fr/es), Buttons in einer Zeile.
+2. Voreinstellung und Layout ändern das Hauptfenster sofort, das gewählte Layout ist hervorgehoben.
+3. „Position anpassen“ schließt die Karte und startet den Edit-Modus; Esc schließt die Karte.
 
 **Antwort:**
 
@@ -2246,6 +2338,23 @@ Komfort > Fenster > Charakterfenster: „Anprobe-Knöpfe“; Komfort > Oberfläc
 1. Strg+Klick auf ein Ausrüstungsteil: Anprobe offen, links neben „Zurücksetzen“ „Ausziehen“ und „Wappenrock“.
    Beide wirken auf das Modell; „Zurücksetzen“ zieht wieder an.
 2. Retail/Forever: Flugmeister, Flugkarte am Rand ziehen und mit Strg+Mausrad skalieren; Flugpunkte bleiben klickbar.
+Karte lesbar (ja/nein):
+Schritte wirken (ja/nein):
+Fehler:
+```
+
+### 149. Mindestschrift, Balkentexturen, Farbe nach Wert (Roadmap 361)
+
+- [ ] geprüft
+
+`/lt` > Allgemein > Aussehen.
+
+1. Mindestschriftgröße 10 pt, Schriftgröße -4: alle Anzeigen bleiben lesbar; Hauptfenster per Mausrad im Edit-Modus
+   lässt sich nicht kleiner ziehen, als die Schrift erlaubt.
+2. Balkentextur: Verlauf, Glanz, Blizzard nacheinander; XP-Balken und der Zeitbalken einer Karte (Essen/Flug-Vorschau)
+   ändern sich, Farben bleiben (Akzent, Erholung blau). Mit einem Addon, das LibSharedMedia lädt: dessen Balken in der Liste.
+3. Farbe nach Wert an: XP/h grün/rot je nach Schnitt der letzten Level; Theme „Farbsehschwäche“: blau/orange.
+4. Split-Liste mit Vergleich: „Gesamt“ hellgrün, wenn man vorn liegt, das laufende Level aber langsamer läuft.
 
 **Antwort:**
 
@@ -2266,6 +2375,21 @@ Komfort > Sozial „Communities als Freunde“.
 1. Gegenstand in der Tasche, Zauber im Zauberbuch, NPC in der Welt überfahren und Taste drücken: Kopierfenster mit
    Name, Art, ID und Wowhead-Link (Forever: Classic-Link, prüfen, ob der Link passt).
 2. Mitglied einer Charakter-Community lädt in eine Gruppe ein (mit „Gruppe von Freunden annehmen“): wird angenommen.
+Schrift lesbar, Grenze greift (ja/nein):
+Texturen sehen gut aus (ja/nein, welche nicht):
+Farben verständlich (ja/nein):
+Fehler:
+```
+
+### 159. Tabellenköpfe, Split-Kopfzeile, Unterstrich und Legende (Roadmap 203, 215, 216)
+
+- [ ] geprüft
+
+1. `/lt history` auf Französisch und Spanisch: Kills, Tode, Quests, Level: kein Spaltenkopf abgeschnitten
+   („Rare-Elite“, „Muertes“, „Misiones“, „Victimes“, „Abatidos“); Tabelle nicht breiter als vorher.
+2. Split-Liste: oben „Level / Zeit / ±“ in leiser Farbe, Spalten darunter bündig; Maus über der Liste zeigt den Tooltip.
+3. Aktive Reiter (Optionen, Seitenleiste, Historie, Hauptfenster) haben einen feinen Strich unter dem Text.
+4. Historie > Diagramme (Zeit je Level, Kills je Tag): rechts oben „laufend / heute“ mit blauem Feld.
 
 **Antwort:**
 
@@ -2273,5 +2397,8 @@ Komfort > Sozial „Communities als Freunde“.
 Client (Retail/Era/TBC/Forever):
 Infokarte ok, Link passt (ja/nein):
 Community-Einladung angenommen (ja/nein):
+Köpfe vollständig (ja/nein, welche nicht):
+Kopfzeile ok (ja/nein):
+Unterstrich und Legende sichtbar (ja/nein):
 Fehler:
 ```

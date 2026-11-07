@@ -482,6 +482,19 @@ ERR_INV_FULL = "Inventar ist voll."
 
 UISpecialFrames, SlashCmdList = {}, {}
 StaticPopupDialogs, YES, NO = {}, "Ja", "Nein"
+-- Blizzards Einstellungsmenü (alle vier Clients haben Settings): Anmeldungen in wow.settingsCategories.
+-- Szenarien legacy_options*: Client ohne Settings, nur InterfaceOptions_AddCategory (wow.interfaceOptions)
+wow.settingsCategories, wow.interfaceOptions = {}, {}
+if (SCENARIO or ""):match("^legacy_options") then
+  InterfaceOptions_AddCategory = function(frame) table.insert(wow.interfaceOptions, frame) end
+else
+  Settings = {
+    RegisterCanvasLayoutCategory = function(frame, name)
+      return { frame = frame, name = name, GetID = function() return name end }
+    end,
+    RegisterAddOnCategory = function(category) table.insert(wow.settingsCategories, category) end,
+  }
+end
 -- Dialog nicht anzeigen, sondern merken; Tests bestätigen mit StaticPopupDialogs[name].OnAccept
 function StaticPopup_Show(name, textArg1, textArg2, data)
   wow.popup = { name = name, text = textArg1, data = data }

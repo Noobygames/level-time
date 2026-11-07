@@ -837,3 +837,39 @@ check("371.blizzardFrames", function()
     editOverlays = ns.db.editBlizzardFrames, minimapAlpha = method(_G.Minimap, "GetAlpha"),
     minimapEffectiveAlpha = method(_G.Minimap, "GetEffectiveAlpha"), entries = chunked(entries) }
 end)
+
+-- 403: Eintrag im Blizzard-Einstellungsmenü: welche Schnittstelle der Client hat, ob die Kategorie steht (ID), Strata
+-- von SettingsPanel gegen unser Fenster (unser DIALOG muss darüber liegen)
+check("403.blizzardSettings", function()
+  local category = ns.BlizzardSettings.category
+  local settings = _G.Settings
+  local hasSettings = type(settings) == "table"
+  return {
+    settings = hasSettings,
+    canvasApi = hasSettings and type(settings.RegisterCanvasLayoutCategory) == "function",
+    legacyApi = type(_G.InterfaceOptions_AddCategory) == "function",
+    registered = category ~= nil,
+    categoryId = type(category) == "table" and method(category, "GetID") or nil,
+    canvasShown = method(ns.BlizzardSettings.canvas, "IsVisible"),
+    panelStrata = method(_G.SettingsPanel, "GetFrameStrata"),
+    optionsStrata = method(_G.LevelTimerOptions, "GetFrameStrata"),
+  }
+end)
+
+-- 361: Lesbarkeit und Balken: Untergrenze, kleinste zulässige Größe, effektive kleinste Schrift je Anzeige, gewählte
+-- Balkentextur samt Pfad und ob die eigene TGA lädt (GetTexture nach SetTexture), Zahl der LibSharedMedia-Balken
+check("361.readability", function()
+  local Theme = ns.Theme
+  local _, small = method(_G[Theme.Font("small")], "GetFont")
+  local displays = {}
+  for _, reg in ipairs(ns.Frames.All()) do
+    local scale = method(reg.frame, "GetEffectiveScale")
+    table.insert(displays, { id = reg.id, scale = ns.Frames.GetScale(reg.id),
+      effectiveSmall = small and scale and math.floor(small * scale * 10 + 0.5) / 10 })
+  end
+  local fill = ns.TimerWindow.Elements().xpBar.fill
+  return { minFont = ns.db.themeMinFontSize, minScale = Theme.MinReadableScale(), small = small,
+    displays = chunked(displays), bar = ns.db.themeBarTexture, barPath = Theme.BarTexturePath(ns.db.themeBarTexture),
+    xpFillTexture = method(fill, "GetTexture"), barChoices = #Theme.BarTextureChoices(), valueColors = ns.db.valueColors,
+    averageLevelXpRate = ns.Forecast.AverageLevelXpRate() }
+end)

@@ -40,6 +40,8 @@ local GRID_LINES = 4
 local MAX_AXIS_LABELS = 10
 local COLUMN_FILL = 0.7       -- Anteil des Platzes, den eine Säule einnimmt
 local MAX_COLUMN_SLOT = 48     -- breitester Platz je Säule; wenige Säulen füllen nicht die ganze Breite
+local LEGEND_SWATCH = 8        -- Farbfeld der Legende
+local LEGEND_SWATCH_GAP = 4
 
 function Charts.CreateColumnChart(parent, width, height)
   local chart = CreateFrame("Frame", nil, parent)
@@ -54,6 +56,15 @@ function Charts.CreateColumnChart(parent, width, height)
 
   local maxLabel = chart:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
   maxLabel:SetPoint("TOPLEFT")
+
+  -- Legende der blauen Hervorhebung (UX 216), nur wenn eine Säule hervorgehoben ist
+  local legendText = chart:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  legendText:SetPoint("TOPRIGHT")
+  local legendSwatch = chart:CreateTexture(nil, "ARTWORK")
+  legendSwatch:SetSize(LEGEND_SWATCH, LEGEND_SWATCH)
+  legendSwatch:SetPoint("RIGHT", legendText, "LEFT", -LEGEND_SWATCH_GAP, 0)
+  legendSwatch:SetColorTexture(unpack(HIGHLIGHT_COLOR))
+  chart.legendText = legendText
 
   local columns = {}  -- werden bei Bedarf angelegt und wiederverwendet
 
@@ -86,6 +97,11 @@ function Charts.CreateColumnChart(parent, width, height)
       maxValue = math.max(maxValue, item.value)
     end
     maxLabel:SetText(formatAxis(maxValue))
+    local highlighted = false
+    for _, item in ipairs(items) do highlighted = highlighted or item.highlight == true end
+    legendText:SetText(ns.L.CHART_HIGHLIGHT_LEGEND)
+    legendText:SetShown(highlighted)
+    legendSwatch:SetShown(highlighted)
 
     local slot = math.min(MAX_COLUMN_SLOT, width / math.max(1, #items))
     local labelStep = math.ceil(#items / MAX_AXIS_LABELS)

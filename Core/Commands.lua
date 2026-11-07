@@ -38,10 +38,11 @@ local commands = {
     ns.Print(L.RESET_DONE)
   end,
   edit = function() ns.EditMode.Toggle() end,
+  welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
   bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
-  resetinstance = function() ns.ConfirmInstanceReset() end,
+  resetinstance = function() ns.Instances.ConfirmReset() end,
   recap = function() ns.ToggleRecap() end,
   -- /lt copy: Zeilen des aktuellen Chatfensters zum Kopieren (ChatCopy.lua)
   copy = function() ns.ChatCopy.ShowCurrent() end,

@@ -20,6 +20,7 @@ local UPDATE_INTERVAL = 0.25          -- Sekunden zwischen zwei Anzeige-Updates
 local MIN_DAY_DIGITS = 2
 local SECONDS_PER_DAY = 86400
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -120 }
+local SETTINGS_PAGE = "OPTIONS_PAGE_WINDOW"  -- Rechtsklick auf Fenster und Reiter (Lib/Frames.lua)
 -- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key, Theme.lua)
 TimerWindow.BACKGROUND_DEFAULT = Theme.BACKGROUND_DEFAULT
 TimerWindow.CHROMA_COLORS = Theme.CHROMA
@@ -32,7 +33,7 @@ window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereits
 local function createScopeTab(scope)
   local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
     if mouseButton == "RightButton" then
-      ns.ToggleOptions()
+      ns.ToggleOptionsPage(SETTINGS_PAGE)
     else
       ns.Set("windowScope", scope)
     end
@@ -50,7 +51,7 @@ local instanceTab = Widgets.CreateTab(window, Theme.Font("label"))
 instanceTab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 instanceTab:SetScript("OnClick", function(_, mouseButton)
   if mouseButton == "RightButton" then
-    ns.ConfirmInstanceReset()
+    ns.Instances.ConfirmReset()
   else
     ns.Set("windowScope", Stats.INSTANCE)
   end
@@ -141,56 +142,6 @@ function TimerWindow.ActiveLayout()
 end
 
 ---------------------------------------------------------------------------
--- Automatisch zum Reiter Instanz wechseln (Einstellung autoInstanceTab): beim Betreten hin, beim Verlassen
--- zurück zum vorigen Reiter, außer man hat inzwischen selbst gewechselt
----------------------------------------------------------------------------
-local scopeBeforeInstance
-
-ns.InstanceCopy.OnEnter(function()
-  if not ns.db.autoInstanceTab or scopeBeforeInstance or ns.db.windowScope == Stats.INSTANCE then return end
-  scopeBeforeInstance = ns.db.windowScope
-  ns.Set("windowScope", Stats.INSTANCE)
-end)
-
-ns.InstanceCopy.OnLeave(function()
-  local previous = scopeBeforeInstance
-  scopeBeforeInstance = nil
-  if ns.db.windowScope ~= Stats.INSTANCE then return end  -- man hat selbst gewechselt
-  if previous then
-    ns.Set("windowScope", previous)
-  elseif ns.db.autoInstanceTab then
-    ns.Set("windowScope", Stats.LEVEL)  -- der Merker ging bei /reload in der Instanz verloren
-  end
-end)
-
----------------------------------------------------------------------------
--- Instanz-Lauf zurücksetzen
----------------------------------------------------------------------------
-local RESET_INSTANCE_POPUP = "LEVELTIMER_RESET_INSTANCE"
-
-StaticPopupDialogs[RESET_INSTANCE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function()
-    if ns.Instances.ResetCurrent() then ns.Print(L.INSTANCE_RESET_DONE) end
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
-
-function ns.ConfirmInstanceReset()
-  local run = ns.Instances.GetCurrentRun()
-  if not run then
-    ns.Print(L.INSTANCE_RESET_NONE)
-    return
-  end
-  StaticPopupDialogs[RESET_INSTANCE_POPUP].text = L.INSTANCE_RESET_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(RESET_INSTANCE_POPUP, run.name)
-end
-
----------------------------------------------------------------------------
 -- Position und Größe (Lib/Frames.lua): ziehbar, solange "Fixieren" aus ist; Größe hält die linke obere Ecke fest
 ---------------------------------------------------------------------------
 -- Sichtbarkeit: showTimer und die Regel windowVisibility; im Edit-Modus immer (auch ausgeschaltet)
@@ -206,16 +157,12 @@ local visibility = ns.DisplayVisibility.Attach({
 
 ns.Frames.Register({
   id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
-  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_WINDOW",
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = SETTINGS_PAGE,
   preview = function(on)
     visibility:SetEditing(on)
   end,
   hide = function() ns.Set("showTimer", false) end,
 })
-
-window:SetScript("OnMouseUp", function(_, mouseButton)
-  if mouseButton == "RightButton" then ns.ToggleOptions() end
-end)
 
 -- Ziehgriff unten rechts ändert die Größe; er hat schon um die linke obere Ecke skaliert
 local grip = Widgets.CreateResizeGrip(window, ns.Frames.ClampScale, function(scale)
@@ -274,7 +221,7 @@ ns.RegisterApply(function(db)
   for _, fontString in ipairs({ elements.time, elements.big }) do
     fontString:SetTextColor(Theme.RGB("accent"))  -- Akzentfarbe kann gewechselt haben
   end
-  elements.xpBar.fill:SetColorTexture(Theme.RGB("accent"))
+  elements.xpBar:ApplyTexture()  -- Akzentfarbe und Balkentextur können gewechselt haben
 
   grip:SetShown(not db.locked)
   visibility:Update()

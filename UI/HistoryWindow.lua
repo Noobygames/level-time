@@ -148,7 +148,7 @@ local MENU_ALPHA = 0.98
 
 local menu = CreateFrame("Frame", "LevelTimerHistoryMenu", panel, "BackdropTemplate")
 menu:SetFrameStrata("FULLSCREEN_DIALOG")
-menu:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+menu:SetBackdrop({ bgFile = Widgets.WHITE_TEXTURE, edgeFile = Widgets.WHITE_TEXTURE, edgeSize = 1 })
 local menuR, menuG, menuB = ns.Theme.RGB("background")
 menu:SetBackdropColor(menuR, menuG, menuB, MENU_ALPHA)
 menu:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
@@ -229,23 +229,13 @@ end)
 ---------------------------------------------------------------------------
 local DELETE_POPUP = "LEVELTIMER_DELETE_CHARACTER"
 
-StaticPopupDialogs[DELETE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, characterKey)
-    ns.DeleteCharacter(characterKey)
-    refresh()
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,  -- eigener Platz, kollidiert nicht mit Blizzard-Dialogen
-}
+local confirmDelete = Widgets.ConfirmPopup(DELETE_POPUP, "DELETE_CHARACTER_CONFIRM", function(characterKey)
+  ns.DeleteCharacter(characterKey)
+  refresh()
+end)
 
 local deleteButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT, function()
-  local character = History.GetCharacter(selectedCharacter)
-  StaticPopupDialogs[DELETE_POPUP].text = L.DELETE_CHARACTER_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(DELETE_POPUP, History.DisplayName(selectedCharacter), nil, selectedCharacter)
+  confirmDelete(History.DisplayName(selectedCharacter), selectedCharacter)
 end)
 deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
 

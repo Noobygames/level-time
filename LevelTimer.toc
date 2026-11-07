@@ -209,6 +209,7 @@ UI\Layouts\XpBar.lua
 UI\Layouts\Tiles.lua
 UI\DisplayVisibility.lua
 UI\TimerWindow.lua
+UI\InstanceReset.lua
 Speedrun\SplitList.lua
 Lib\Charts.lua
 Lib\Export.lua
@@ -225,8 +226,10 @@ UI\StreamMode.lua
 UI\MinimapButton.lua
 UI\Broker.lua
 UI\Options.lua
+UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
+UI\WelcomeCard.lua
 Core\Commands.lua

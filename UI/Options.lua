@@ -20,11 +20,23 @@ local builder = Builder.New({
   name = "LevelTimerOptions",
   alpha = 0.95,
   title = function() return ns.DISPLAY_NAME .. " - " .. L.SETTINGS end,
+  -- Schalter "Erweitert" oben rechts: aus = selten genutzte Bausteine verborgen
+  advanced = {
+    label = "OPTIONS_ADVANCED",
+    get = function(db) return db.optionsAdvanced end,
+    set = function(on) ns.Set("optionsAdvanced", on) end,
+  },
 })
 local addPage, finishPage, addSection, addSlider = builder.AddPage, builder.FinishPage, builder.AddSection, builder.AddSlider
 local addToggles, addButton, addFooterButton = builder.AddToggles, builder.AddButton, builder.AddFooterButton
 local addChooser, addHint = builder.AddChooser, builder.AddHint
 local toggle, localized = Builder.Toggle, Builder.Localized
+
+-- Baustein nur im Modus "Erweitert" (Roadmap 402): selten gebraucht, für Feineinstellungen
+local function advanced(definition)
+  definition.advanced = true
+  return definition
+end
 
 -- Sprachnamen stehen immer in der eigenen Sprache
 local function addLanguageChooser()
@@ -83,18 +95,10 @@ local function addBackgroundChooser()
 end
 
 -- Profile: Liste (Klick wechselt, Rechtsklick löscht), Name + Speichern, Export und Import
-StaticPopupDialogs[DELETE_PROFILE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, name)
-    if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
-    ns.ApplySettings()
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmProfileDelete = Widgets.ConfirmPopup(DELETE_PROFILE_POPUP, "PROFILE_DELETE_CONFIRM", function(name)
+  if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
+  ns.ApplySettings()
+end)
 
 -- Profil nach Rückfrage löschen (Rechtsklick in der Liste und /lt profile delete); nicht löschbare melden sich sofort
 function ns.ConfirmProfileDelete(name)
@@ -102,8 +106,7 @@ function ns.ConfirmProfileDelete(name)
     ns.Print(L.PROFILE_NOT_DELETED)
     return
   end
-  StaticPopupDialogs[DELETE_PROFILE_POPUP].text = L.PROFILE_DELETE_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(DELETE_PROFILE_POPUP, ns.Profiles.DisplayName(name), nil, name)
+  confirmProfileDelete(ns.Profiles.DisplayName(name), name)
 end
 
 local OVERWRITE_PROFILE_POPUP = "LEVELTIMER_OVERWRITE_PROFILE"
@@ -117,15 +120,7 @@ local function saveProfile(name)
   end
 end
 
-StaticPopupDialogs[OVERWRITE_PROFILE_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function(_, name) saveProfile(name) end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmOverwrite = Widgets.ConfirmPopup(OVERWRITE_PROFILE_POPUP, "PROFILE_OVERWRITE_CONFIRM", saveProfile)
 
 -- Einstellungen als Profil speichern (Button und /lt profile save); leerer Name meldet sich, ein vorhandenes
 -- Profil wird erst nach Rückfrage überschrieben. onSaved läuft nach dem Speichern.
@@ -135,8 +130,7 @@ function ns.ConfirmProfileSave(name, onSaved)
   if name == "" then
     ns.Print(L.PROFILE_NAME_EMPTY)
   elseif ns.Profiles.Exists(name) then
-    StaticPopupDialogs[OVERWRITE_PROFILE_POPUP].text = L.PROFILE_OVERWRITE_CONFIRM  -- aktuelle Sprache
-    StaticPopup_Show(OVERWRITE_PROFILE_POPUP, name, nil, name)
+    confirmOverwrite(name, name)
   else
     saveProfile(name)
   end
@@ -243,6 +237,8 @@ local function addThemeSection()
   addChooser({ label = "THEME_ACCENT", setting = "themeAccent", choices = accents })
   builder.AddCycleButton({
     label = "THEME_FONT",
+    advanced = true,
+    setting = "themeFont",
     choices = Theme.FontChoices,
     get = function(db) return db.themeFont end,
     set = function(key) ns.Set("themeFont", key) end,
@@ -250,6 +246,7 @@ local function addThemeSection()
   })
   addSlider({
     label = "THEME_FONT_SIZE",
+    setting = "themeFontSize",
     min = Theme.MIN_FONT_OFFSET,
     max = Theme.MAX_FONT_OFFSET,
     step = 1,
@@ -261,13 +258,42 @@ local function addThemeSection()
   for i, key in ipairs(Theme.OUTLINE_ORDER) do
     outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
   end
-  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = true })
+  -- Lesbarkeit: Untergrenze der effektiven Schriftgröße (auch gegen kleine Anzeigen), Balkentextur, Farbe nach Wert
+  builder.AddCycleButton({
+    label = "THEME_MIN_FONT_SIZE",
+    setting = "themeMinFontSize",
+    choices = function()
+      local choices = {}
+      for i, size in ipairs(Theme.MIN_READABLE_SIZES) do choices[i] = { key = size } end
+      return choices
+    end,
+    get = function(db) return db.themeMinFontSize end,
+    set = function(size) ns.Set("themeMinFontSize", size) end,
+    nameOf = function(size) return size == 0 and L.THEME_MIN_FONT_OFF or string.format(L.FONT_POINTS, size) end,
+  })
+  builder.AddCycleButton({
+    label = "THEME_BAR_TEXTURE",
+    setting = "themeBarTexture",
+    choices = Theme.BarTextureChoices,
+    get = function(db) return db.themeBarTexture end,
+    set = function(key) ns.Set("themeBarTexture", key) end,
+    nameOf = function(key)
+      if key == "" then return L.BAR_TEXTURE_FLAT end
+      for _, bar in ipairs(Theme.BUILTIN_BARS) do
+        if bar.key == key then return L["BAR_TEXTURE_" .. key:upper()] end
+      end
+      return key
+    end,
+  })
+  addToggles({ toggle("VALUE_COLORS", "valueColors") })
 end
 
 -- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige
 local function addVisibilityCycle(label, setting)
   builder.AddCycleButton({
     label = label,
+    setting = setting,
     choices = function()
       local choices = {}
       for i, mode in ipairs(ns.DisplayVisibility.MODES) do choices[i] = { key = mode } end
@@ -309,6 +335,7 @@ local function addDisplaySection()
   for index = 1, WindowModel.MAX_CHOSEN_ROWS do
     builder.AddCycleButton({
       label = "CHOSEN_ROW_" .. index,
+      setting = "compactRows",
       choices = rowChoices,
       get = function(db) return WindowModel.ChosenRowKey(db, index) end,
       set = function(key) WindowModel.SetChosenRow(ns.db, index, key) end,
@@ -318,9 +345,12 @@ local function addDisplaySection()
   end
   local textToggle = toggle("TEXT_LABELS", "textLabels")
   textToggle.enabled = layoutIs("text")
+  textToggle.advanced = true
   addToggles({ textToggle })
   addSlider({
     label = "TILE_COLUMNS",
+    advanced = true,
+    setting = "tileColumns",
     min = Layouts.Tiles.MIN_COLUMNS,
     max = Layouts.Tiles.MAX_COLUMNS,
     step = 1,
@@ -334,6 +364,8 @@ local function addDisplaySection()
   addChooser({ label = "XPBAR_TEXT", setting = "xpbarText", choices = textModes, enabled = layoutIs("xpbar") })
   addSlider({
     label = "XPBAR_WIDTH",
+    advanced = true,
+    setting = "xpbarWidth",
     min = Layouts.XpBar.MIN_WIDTH,
     max = Layouts.XpBar.MAX_WIDTH,
     step = 20,
@@ -349,6 +381,8 @@ local function addVisibilitySection()
   addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
   addSlider({
     label = "FADE_ALPHA",
+    advanced = true,
+    setting = "fadeAlpha",
     min = 0,
     max = 100,
     step = 5,
@@ -369,9 +403,11 @@ local function addRowOrderSection()
     end
     return shown[1] and shown[1].setting or ""
   end
-  addSection("SECTION_ROW_ORDER")
+  addSection("SECTION_ROW_ORDER", { advanced = true })
   builder.AddCycleButton({
     label = "ROW_ORDER_STAT",
+    advanced = true,
+    setting = "rowOrder",
     choices = function()
       local list = {}
       for i, stat in ipairs(WindowModel.ShownStats(ns.db)) do list[i] = { key = stat.setting, label = stat.label } end
@@ -400,7 +436,7 @@ local function addRowOrderSection()
     { label = "ROW_ORDER_UP", onClick = move(-1) },
     { label = "ROW_ORDER_DOWN", onClick = move(1) },
     { label = "ROW_ORDER_RESET", onClick = function() ns.Set("rowOrder", "") end },
-  })
+  }, { advanced = true })
 end
 
 -- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
@@ -414,6 +450,8 @@ local function addFrameScaleSlider(label, id)
     get = function() return toPercent(Frames.GetScale(id)) end,
     set = function(value) Frames.SetScale(id, value / 100) end,
     format = percent,
+    reset = { get = function() return Frames.GetStoredScale(id) end, set = function(scale) Frames.SetStoredScale(id, scale) end,
+      default = function() return nil end },
   })
 end
 
@@ -425,12 +463,20 @@ end
 -- sich nach der längsten Unterseite. Kategorie-Namen: OPTIONS_PAGE_* (Komfort: COMFORT_PAGE_*).
 local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
 
+-- Minimap-Button an/aus (Zurücksetzen je Unterseite): nur hide, nicht die Position am Rand
+local minimapReset = {
+  get = function() return ns.db.minimap.hide end,
+  set = function(hidden) ns.db.minimap.hide = hidden end,
+  default = function() return ns.Database.SettingDefault("minimap").hide end,
+}
+
 -- Allgemein: Hauptfenster, Layout, Aussehen, Sprache und Minimap, Stream
 addPage("SECTION_GENERAL")
 addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
 addSlider({
   label = "BG_OPACITY",
+  setting = "bgAlpha",
   min = 0,
   max = 100,
   step = 5,
@@ -443,8 +489,8 @@ addToggles({
   toggle("LOCK_FRAME", "locked"),
   toggle("SHOW_XP_BAR", "showXpBar"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
-  toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
-  toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end),
+  advanced(toggle("QUEST_XP_ON_BAR", "questXpOnBar")),
+  advanced(toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end)),
 })
 addVisibilitySection()
 addHint("OPTIONS_HINT")
@@ -456,7 +502,7 @@ addSubPage("SECTION_LANGUAGE")
 addLanguageChooser()
 addToggles({
   { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(not checked) end },
+    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 -- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
 addSubPage("OPTIONS_TAB_STREAM")
@@ -467,7 +513,7 @@ addToggles({
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
   -- Abkürzung zu "Minimap-Button anzeigen" (Sprache & Minimap), umgekehrt formuliert
   { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(checked) end },
+    set = function(checked) ns.SetMinimapHidden(checked) end, reset = minimapReset },
 })
 addBackgroundChooser()
 finishSubPages()
@@ -499,15 +545,17 @@ for _, group in ipairs(ns.STAT_GROUPS) do
   end
   addToggles(statToggles)
   if group == "STAT_GROUP_INSTANCE" then
-    addButton("INSTANCE_RESET", function() ns.ConfirmInstanceReset() end)
+    addButton("INSTANCE_RESET", function() ns.Instances.ConfirmReset() end)
   end
 end
 addSubPage("OPTIONS_PAGE_ROW_ORDER")
 addRowOrderSection()
 addSubPage("OPTIONS_PAGE_CALCULATION")
-addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
+addToggles({ advanced(toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk")) })
 addSlider({
   label = "IDLE_LIMIT",
+  advanced = true,
+  setting = "idleMinutes",
   min = ns.TimeBreakdown.MIN_IDLE_MINUTES,
   max = ns.TimeBreakdown.MAX_IDLE_MINUTES,
   step = 1,
@@ -517,6 +565,8 @@ addSlider({
 })
 addSlider({
   label = "TO_LEVEL_SAMPLES",
+  advanced = true,
+  setting = "toLevelSamples",
   min = ns.Experience.MIN_TO_LEVEL_SAMPLES,
   max = ns.Experience.MAX_TO_LEVEL_SAMPLES,
   step = 5,
@@ -562,6 +612,8 @@ if #classReminders > 0 then
 end
 addSlider({
   label = "REMINDER_INTERVAL",
+  advanced = true,
+  setting = "reminderInterval",
   min = ns.BuffReminder.MIN_INTERVAL,
   max = ns.BuffReminder.MAX_INTERVAL,
   step = 1,
@@ -573,6 +625,8 @@ addSlider({
 addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
 addSlider({
   label = "BREAK_MINUTES",
+  advanced = true,
+  setting = "breakMinutes",
   min = ns.BreakReminder.MIN_MINUTES,
   max = ns.BreakReminder.MAX_MINUTES,
   step = 15,
@@ -594,6 +648,8 @@ addToggles({
 })
 addSlider({
   label = "WARN_BREATH_BELOW",
+  advanced = true,
+  setting = "breathWarnSeconds",
   min = ns.BreathWarning.MIN_SECONDS,
   max = ns.BreathWarning.MAX_SECONDS,
   step = 1,
@@ -605,6 +661,7 @@ addSlider({
 if ns.GearWarnings.ShowsAmmoOptions() then
   addSlider({
     label = "WARN_AMMO_BELOW",
+    setting = "ammoLow",
     min = ns.GearWarnings.MIN_AMMO,
     max = ns.GearWarnings.MAX_AMMO,
     step = 20,
@@ -614,6 +671,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_CRITICAL_BELOW",
+    advanced = true,
+    setting = "ammoCritical",
     min = 0,
     max = ns.GearWarnings.MAX_CRITICAL_AMMO,
     step = 10,
@@ -623,6 +682,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   })
   addSlider({
     label = "WARN_AMMO_REPEAT",
+    advanced = true,
+    setting = "ammoRepeat",
     min = 0,
     max = ns.GearWarnings.MAX_AMMO_REPEAT,
     step = 1,
@@ -643,6 +704,8 @@ addToggles({
 })
 addSlider({
   label = "LOW_MANA_BELOW",
+  advanced = true,
+  setting = "lowManaPercent",
   min = ns.ManaCallout.MIN_PERCENT,
   max = ns.ManaCallout.MAX_PERCENT,
   step = 5,
@@ -675,6 +738,8 @@ addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
 addFrameScaleSlider("ALERT_SCALE", "alert")
 addSlider({
   label = "ALERT_DURATION",
+  advanced = true,
+  setting = "alertDuration",
   min = Alerts.MIN_DURATION,
   max = Alerts.MAX_DURATION,
   step = 1,
@@ -699,6 +764,8 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
 addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
 addSlider({
   label = "LEVEL_UP_DURATION",
+  advanced = true,
+  setting = "levelUpDuration",
   min = ns.LevelUpWindow.MIN_DURATION,
   max = ns.LevelUpWindow.MAX_DURATION,
   step = 1,
@@ -728,6 +795,8 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
     })
     addSlider({
       label = "CAMP_HINT_PAUSE",
+      advanced = true,
+      setting = "campHintPause",
       min = ns.CampFire.MIN_HINT_PAUSE,
       max = ns.CampFire.MAX_HINT_PAUSE,
       step = 1,
@@ -795,6 +864,7 @@ addToggles({
 })
 builder.AddTextInput({
   label = "INVITE_KEYWORD",
+  setting = "inviteKeyword",
   get = function(db) return db.inviteKeyword end,
   set = function(text) ns.Set("inviteKeyword", strtrim(text)) end,
 })
@@ -812,7 +882,7 @@ addToggles({
   toggle("HIDE_COMBAT_LOG_TAB", "hideCombatLogTab"),
   toggle("HIDE_CHAT_BUTTONS", "hideChatButtons"),
   toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
-  toggle("CHAT_ARROW_KEYS", "chatArrowKeys"),
+  advanced(toggle("CHAT_ARROW_KEYS", "chatArrowKeys")),
   toggle("NO_CHAT_FADE", "noChatFade"),
   toggle("UNCLAMP_CHAT", "unclampChat"),
   toggle("CHAT_FONT_OVERRIDE", "chatFontOverride", ns.ChatFontSize.IsAvailable),
@@ -904,6 +974,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
   if LootSparkles.CanSoftTarget() then
     addSlider({
       label = "LOOT_SPARKLE_SCALE",
+      setting = "lootSparkleScale",
       min = toPercent(ns.LootSparkle.MIN_SCALE),
       max = toPercent(ns.LootSparkle.MAX_SCALE),
       step = 5,
@@ -915,13 +986,50 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
 end
 -- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
 -- Oberfläche, Chat und Fenster); auch im Edit-Modus direkt am Element schaltbar
+-- In Gruppen mit einklappbaren Überschriften (Roadmap 406); unbekannte Einträge landen unter "Weitere"
+local BLIZZARD_GROUPS = {
+  { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
+    "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
+  { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
+    "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
+  { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
+    "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS" } },
+}
+local function addBlizzardHideGroups()
+  local groupOf = {}
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    for _, label in ipairs(group.labels) do groupOf[label] = index end
+  end
+  local lists, rest = {}, {}
+  for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
+    entry.resetKeys = { "hiddenBlizzardFrames" }
+    local index = groupOf[entry.label]
+    if index then
+      lists[index] = lists[index] or {}
+      table.insert(lists[index], entry)
+    else
+      table.insert(rest, entry)
+    end
+  end
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    if lists[index] then
+      addSection(group.section, { collapsible = true })
+      addToggles(lists[index])
+    end
+  end
+  if #rest > 0 then
+    addSection("SECTION_BLIZZ_OTHER", { collapsible = true })
+    addToggles(rest)
+  end
+end
+
 addSubPage("COMFORT_PAGE_HIDE")
 addSection("SECTION_BLIZZARD_FRAMES")
 addHint("BLIZZARD_FRAMES_HINT")
-addToggles(ns.BlizzardHide.Toggles())
+addBlizzardHideGroups()
 -- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
 addSubPage("COMFORT_PAGE_QUESTS")
-addSection("COMFORT_PAGE_AUTOMATION")
+addSection("COMFORT_PAGE_AUTOMATION", { collapsible = true })
 addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
   toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
@@ -931,20 +1039,21 @@ addToggles({
 })
 builder.AddTextInput({
   label = "QUEST_EXCLUDE",
+  setting = "questExclude",
   width = QUEST_EXCLUDE_WIDTH,
   get = function(db) return db.questExclude end,
   set = function(text) ns.Set("questExclude", strtrim(text)) end,
 })
-addSection("SECTION_QUEST_NOTICES")
+addSection("SECTION_QUEST_NOTICES", { collapsible = true })
 addToggles({
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
   toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })
-addSection("SECTION_QUEST_LEARNING")
+addSection("SECTION_QUEST_LEARNING", { collapsible = true })
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
-addSection("SECTION_QUEST_LOG")
+addSection("SECTION_QUEST_LOG", { collapsible = true })
 addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
 -- Quest-Anzeige: Questlevel, Quest-Buttons, Tooltips und Markierungen an Gegnern und NPCs
 addSubPage("COMFORT_PAGE_QUEST_DISPLAY")
@@ -977,6 +1086,7 @@ if ns.QuestMarks.IsAvailable() then
   addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
   addSlider({
     label = "QUEST_MARK_SCALE",
+    setting = "questMarkScale",
     min = toPercent(ns.QuestMarks.MIN_SCALE),
     max = toPercent(ns.QuestMarks.MAX_SCALE),
     step = 5,
@@ -1051,7 +1161,7 @@ addToggles({
   toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
   toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"),
   toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
-  toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal"),
+  advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
 })
 addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls")
 addSection("SECTION_DIALOGS")
@@ -1077,10 +1187,12 @@ addSection("SECTION_GRAPHICS")
 addToggles({
   toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
   toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
-  toggle("SET_WEATHER_DENSITY", "setWeatherDensity"),
+  advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
 })
 addSlider({
   label = "WEATHER_DENSITY",
+  advanced = true,
+  setting = "weatherDensity",
   min = ns.ScreenEffects.MIN_WEATHER,
   max = ns.ScreenEffects.MAX_WEATHER,
   step = 1,
@@ -1104,6 +1216,7 @@ addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
+  toggle("SHOW_SPLIT_HEADER", "splitListHeader"),
   toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
@@ -1113,6 +1226,7 @@ addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
 addSlider({
   label = "SPLIT_LIST_ROWS",
+  setting = "splitListRows",
   min = ns.SplitList.MIN_ROWS,
   max = ns.SplitList.MAX_ROWS,
   step = 1,
@@ -1124,13 +1238,15 @@ addSlider({
 addSubPage("OPTIONS_PAGE_COMPARE")
 addSplitComparisonChooser()
 addToggles({
-  toggle("PB_SAME_CLASS", "pbSameClass"),
+  advanced(toggle("PB_SAME_CLASS", "pbSameClass")),
   toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
   toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
   toggle("FRIEND_RACE", "friendRace"),
 })
 addSlider({
   label = "SPLIT_TOLERANCE",
+  advanced = true,
+  setting = "splitTolerancePercent",
   min = 0,
   max = ns.Splits.MAX_TOLERANCE_PERCENT,
   step = 1,
@@ -1142,13 +1258,14 @@ addSubPage("OPTIONS_PAGE_RECORDS")
 addSection("SECTION_WORLD_RECORDS")
 local recordToggles = {
   toggle("SHOW_WORLD_RECORDS", "showWorldRecords"),
-  toggle("SHOW_RECORDS_AGE", "showRecordsAge"),
+  advanced(toggle("SHOW_RECORDS_AGE", "showRecordsAge")),
 }
 -- Ein Schalter je Abschnitt der Rekord-Daten (1-10, 1-20, ...)
 for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
   table.insert(recordToggles, {
     text = function() return string.format(L.WORLD_RECORD_ROW, label) end,
     tip = "RECORD_BRACKET_TIP",
+    setting = "recordBrackets",
     get = function(db) return db.recordBrackets[label] ~= false end,
     set = function(checked)
       ns.db.recordBrackets[label] = checked
@@ -1194,18 +1311,9 @@ end)
 addFooterButton("RECAP_TITLE", function() ns.ToggleRecap() end)
 -- Neue Session nur nach Rückfrage (archiviert sofort und setzt die Werte zurück); /lt newsession ist schon eindeutig
 local NEW_SESSION_POPUP = "LEVELTIMER_NEW_SESSION"
-StaticPopupDialogs[NEW_SESSION_POPUP] = {
-  button1 = YES or "Yes",
-  button2 = NO or "No",
-  OnAccept = function() ns.StartNewSession() end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
+local confirmNewSession = Widgets.ConfirmPopup(NEW_SESSION_POPUP, "NEW_SESSION_CONFIRM", function() ns.StartNewSession() end)
 addFooterButton("NEW_SESSION", function()
-  StaticPopupDialogs[NEW_SESSION_POPUP].text = L.NEW_SESSION_CONFIRM  -- aktuelle Sprache
-  StaticPopup_Show(NEW_SESSION_POPUP, ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
+  confirmNewSession(ns.Format.Duration(ns.Stats.GetSeconds(ns.Stats.SESSION) or 0))
 end)
 
 builder.Finish()
@@ -1219,6 +1327,17 @@ function ns.ShowOptionsPage(pageKey)
   builder.Refresh(ns.db)
   builder.panel:Show()
   if pageKey then builder.ShowPage(pageKey) end
+end
+
+-- Rechtsklick auf eine Anzeige (Lib/Frames.lua): ihre Seite öffnen; ist genau sie schon offen, schließen
+function ns.ToggleOptionsPage(pageKey)
+  if not ns.db then return end
+  local tab, sub = builder.CurrentPage()
+  if builder.panel:IsShown() and (sub or tab) == pageKey then
+    builder.panel:Hide()
+  else
+    ns.ShowOptionsPage(pageKey)
+  end
 end
 
 function ns.ToggleOptions()

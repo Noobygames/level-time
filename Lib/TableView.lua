@@ -59,6 +59,51 @@ local function createRow(parent, columns, fontObject)
   return row
 end
 
+-- Spaltenbreiten aus den Kopftexten der gewählten Sprache (UX 203): jede Spalte mindestens so breit wie ihr Kopf samt
+-- Sortierzeichen; was zusätzlich gebraucht wird, geben die Spalten mit Spielraum über ihrem Kopf anteilig ab, damit
+-- die Tabelle ihre Gesamtbreite behält. Rückgabe: Breite je Spalte
+local SORT_MARKER_WIDTH = 10  -- Platz für "v "/"^ " vor dem Kopf
+
+local function fittedWidths(columns, headerCells)
+  local widths, needs, total, extra = {}, {}, 0, 0
+  for i, column in ipairs(columns) do
+    local need = math.ceil(headerCells[i]:GetStringWidth() or 0) + CELL_GAP + SORT_MARKER_WIDTH
+    needs[i] = need
+    widths[i] = math.max(column.width, need)
+    extra = extra + widths[i] - column.width
+    total = total + column.width
+  end
+  if extra <= 0 then return widths end
+  local slack = 0
+  for i in ipairs(columns) do slack = slack + math.max(0, widths[i] - needs[i]) end
+  local share = slack > 0 and math.min(1, extra / slack) or 0
+  local roomiest, sum = nil, 0
+  for i in ipairs(columns) do
+    local spare = math.max(0, widths[i] - needs[i])
+    widths[i] = widths[i] - math.floor(spare * share)
+    sum = sum + widths[i]
+    if not roomiest or widths[i] - needs[i] > widths[roomiest] - needs[roomiest] then roomiest = i end
+  end
+  -- Rundungsrest nimmt die Spalte mit dem meisten Spielraum
+  local overshoot = sum - total
+  if overshoot > 0 and widths[roomiest] - overshoot >= needs[roomiest] then
+    widths[roomiest] = widths[roomiest] - overshoot
+  end
+  return widths
+end
+
+-- Zellen einer Zeile auf neue Spaltenbreiten setzen
+local function placeCells(row, widths)
+  local x = 0
+  for i, cell in ipairs(row.cells) do
+    cell:ClearAllPoints()
+    cell:SetPoint("LEFT", x, 0)
+    cell:SetWidth(widths[i] - CELL_GAP)
+    x = x + widths[i]
+  end
+  row:SetWidth(x)
+end
+
 local function fillRow(row, cells, color)
   for i, cell in ipairs(row.cells) do
     cell:SetText(cells[i] or "")
@@ -216,7 +261,30 @@ function TableView.Create(definition)
       scrollTo(frame.offset - delta * WHEEL_STEP)
     end)
 
+    local headerButtons = {}  -- unten angelegt: Klick sortiert
+    local fittedLanguage      -- Sprache, für die die Spaltenbreiten gelten
+
+    -- Spalten an die Kopftexte anpassen, wenn sich die Sprache geändert hat (nicht je Aktualisierung)
+    local function fitColumns()
+      local language = ns.db and ns.db.language or ""
+      if fittedLanguage == language then return end
+      fittedLanguage = language
+      for i, column in ipairs(columns) do headerRow.cells[i]:SetText(L[column.header]) end
+      local widths = fittedWidths(columns, headerRow.cells)
+      for _, row in ipairs(rows) do placeCells(row, widths) end
+      placeCells(headerRow, widths)
+      placeCells(footerRow, widths)
+      local x = 0
+      for i, button in ipairs(headerButtons) do
+        button:ClearAllPoints()
+        button:SetPoint("TOPLEFT", x, 0)
+        button:SetSize(widths[i], ROW_HEIGHT)
+        x = x + widths[i]
+      end
+    end
+
     local function showHeaders()
+      fitColumns()
       for i, column in ipairs(columns) do
         local marker = ""
         if sort and sort.index == i then
@@ -271,6 +339,9 @@ function TableView.Create(definition)
       headerButton:SetPoint("TOPLEFT", x, 0)
       headerButton:SetSize(column.width, ROW_HEIGHT)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
+      -- Voller Kopftext, falls er trotz allem abgeschnitten ist
+      Widgets.AttachTooltip(headerButton, function() return L[column.header] end)
+      headerButtons[i] = headerButton
       x = x + column.width
     end
 

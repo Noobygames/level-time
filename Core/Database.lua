@@ -21,6 +21,9 @@ local SETTINGS_DEFAULTS = {
   themeFont = "",        -- "" = Schrift des Clients, sonst Name aus Theme.FontChoices
   themeFontSize = 0,     -- Versatz in Punkten auf alle Schriften der Anzeigen
   themeOutline = "none", -- "none", "outline" oder "thick"
+  themeMinFontSize = 0,  -- Untergrenze der effektiven Schriftgröße in Punkten (0 = aus, Theme.MIN_READABLE_SIZES)
+  themeBarTexture = "",  -- "" = einfarbig, sonst Schlüssel aus Theme.BarTextureChoices
+  valueColors = false,   -- XP/h-Werte nach Vergleich mit dem Schnitt färben (Roadmap 361)
   showTimer = true,
   showXpBar = true,
   -- Anordnung des Hauptfensters (UI/Layouts/): "table", "bar", "compact", "text", "clock", "xpbar", "tiles"
@@ -255,6 +258,8 @@ local SETTINGS_DEFAULTS = {
   showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
   showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
+  optionsAdvanced = true,
+  splitListHeader = true,  -- Kopfzeile Level / Zeit / ± über der Split-Liste (UX 215)  -- Einstellungsfenster: alle Bausteine; false = Modus "Einfach" (Roadmap 402)
 }
 
 -- Zähler für Level und Session gleichermaßen. Schlüssel siehe Stats.lua.
@@ -485,6 +490,7 @@ end
 local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   themeFontSize = { -4, 8 },
+  themeMinFontSize = { 0, 12 },
   splitListRows = { 3, 15 },
   tileColumns = { 1, 6 },
   xpbarWidth = { 200, 1200 },
@@ -670,6 +676,19 @@ end
 Database.SanitizeSettings = sanitizeSettings
 
 -- Fehlende Einstellungen mit Defaults füllen (z.B. nach dem Laden eines Profils)
+-- Tiefe Kopie (Tabellen der Einstellungen), andere Werte unverändert
+function Database.CopyValue(value)
+  if type(value) ~= "table" then return value end
+  local copy = {}
+  for key, inner in pairs(value) do copy[key] = Database.CopyValue(inner) end
+  return copy
+end
+
+-- Standardwert einer Einstellung als eigene Kopie (Zurücksetzen je Unterseite der Einstellungen)
+function Database.SettingDefault(key)
+  return Database.CopyValue(SETTINGS_DEFAULTS[key])
+end
+
 function Database.ApplySettingDefaults(settings)
   return applyDefaults(settings, SETTINGS_DEFAULTS)
 end

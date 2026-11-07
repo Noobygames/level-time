@@ -44,7 +44,7 @@ wow.logout()
 wow.login({ level = 10 })
 SlashCmdList.LEVELTIMER("config")
 wow.click(addon.L.STATISTICS)
-expectTrue("Button Rückgängig", wow.click(addon.L.PRESET_UNDO))
+expectTrue("Button Rückgängig", wow.clickOption("PRESET_UNDO"))  -- "Rückgängig" gibt es auch unter der Seitenleiste
 expect("Geld wieder an", LevelTimerDB.showMoney, true)
 expect("Erholung wieder an", LevelTimerDB.showRested, true)
 expect("Zwischenstand verworfen", LevelTimerDB.presetBackup, nil)

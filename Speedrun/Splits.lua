@@ -234,6 +234,21 @@ function Splits.LevelDeltaText(level)
   return deltaText(Splits.GetLevelDelta(level), Splits.GetReference(level), Splits.IsGoldSplit(level))
 end
 
+-- Summe aller Abweichungen; kippt das laufende Level gegen den Gesamtstand, heller (LiveSplit: vorn und verliert,
+-- hinten und holt auf); im Toleranzband des laufenden Levels wie gewohnt gelb
+function Splits.TotalDeltaText()
+  local total, current = Splits.GetTotalDelta(), Splits.GetCurrentDelta()
+  local style
+  if total and current and not Splits.IsWithinTolerance(current, Splits.GetReference(ns.level)) then
+    if total < 0 and current > 0 then
+      style = Format.SPLIT_AHEAD_LOSING
+    elseif total > 0 and current < 0 then
+      style = Format.SPLIT_BEHIND_GAINING
+    end
+  end
+  return Format.SplitDelta(total, style)
+end
+
 function Splits.CurrentDeltaText()
   return deltaText(Splits.GetCurrentDelta(), Splits.GetReference(ns.level), false)
 end

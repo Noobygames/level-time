@@ -29,7 +29,7 @@ local SECTION_HEADER_HEIGHT = 18
 local CLOSE_BUTTON_SIZE = 24
 local SCROLLBAR_WIDTH = 8
 local SCROLLBAR_THUMB_HEIGHT = 30
-local WHITE_TEXTURE = "Interface\\Buttons\\WHITE8x8"
+local WHITE_TEXTURE = Theme.WHITE_TEXTURE
 Widgets.WHITE_TEXTURE = WHITE_TEXTURE  -- einfarbige Fläche für Hintergründe und Balken
 
 local CHECKBOX_SIZE = 26
@@ -149,12 +149,21 @@ function Widgets.CreateSlider(parent, minValue, maxValue, step, onChange)
   return container
 end
 
--- Reiter als schlichter Text-Button; der aktive Reiter ist hervorgehoben
+-- Reiter als schlichter Text-Button; der aktive Reiter ist hervorgehoben: Farbe und Unterstrich (UX 216, damit er
+-- sich nicht nur durch die Farbe unterscheidet)
+local TAB_UNDERLINE_HEIGHT = 1
+local TAB_UNDERLINE_INSET = 2
+
 function Widgets.CreateTab(parent, fontObject, onClick)
   local tab = CreateFrame("Button", nil, parent)
   tab.label = tab:CreateFontString(nil, "OVERLAY", fontObject)
   tab.label:SetPoint("CENTER")
   tab:SetScript("OnClick", onClick)
+  tab.underline = tab:CreateTexture(nil, "OVERLAY")
+  tab.underline:SetHeight(TAB_UNDERLINE_HEIGHT)
+  tab.underline:SetPoint("TOPLEFT", tab.label, "BOTTOMLEFT", 0, -TAB_UNDERLINE_INSET)
+  tab.underline:SetPoint("TOPRIGHT", tab.label, "BOTTOMRIGHT", 0, -TAB_UNDERLINE_INSET)
+  tab.underline:Hide()
 
   function tab:SetLabel(text)
     self.label:SetText(text)
@@ -165,6 +174,9 @@ function Widgets.CreateTab(parent, fontObject, onClick)
   function tab:SetActive(active)
     local color = active and Widgets.COLORS.highlight or INACTIVE_TAB_COLOR
     self.label:SetTextColor(unpack(color))
+    local r, g, b = unpack(Widgets.COLORS.highlight)
+    self.underline:SetColorTexture(r, g, b, 1)
+    self.underline:SetShown(active and true or false)
   end
 
   return tab
@@ -178,11 +190,13 @@ local BUTTON_BACKDROP = {
   edgeSize = 1,
   insets = { left = 1, right = 1, top = 1, bottom = 1 },
 }
+-- Farben aus dem Theme (Tokens werden beim Preset-Wechsel an Ort und Stelle geändert), Deckkraft je Zustand
+local C = Theme.COLORS
 local BUTTON_COLORS = {
-  normal = { background = { 0.11, 0.12, 0.2, 0.95 }, border = { 0.5, 0.38, 0.14, 1 }, text = Widgets.COLORS.highlight },
-  hover = { background = { 0.18, 0.19, 0.3, 0.98 }, border = Widgets.COLORS.border, text = { 1, 1, 1 } },
-  pressed = { background = { 0.06, 0.07, 0.12, 1 }, border = Widgets.COLORS.border, text = Widgets.COLORS.highlight },
-  disabled = { background = { 0.08, 0.08, 0.1, 0.8 }, border = { 0.3, 0.3, 0.3, 1 }, text = { 0.5, 0.5, 0.5 } },
+  normal = { background = C.buttonFace, alpha = 0.95, border = C.buttonBorder, text = C.accent },
+  hover = { background = C.buttonFaceHover, alpha = 0.98, border = C.border, text = C.text },
+  pressed = { background = C.buttonFacePressed, alpha = 1, border = C.border, text = C.accent },
+  disabled = { background = C.buttonFaceDisabled, alpha = 0.8, border = C.buttonBorderDisabled, text = C.buttonTextDisabled },
 }
 
 function Widgets.CreateButton(parent, width, height, onClick)
@@ -202,8 +216,9 @@ function Widgets.CreateButton(parent, width, height, onClick)
     elseif hovered then
       colors = BUTTON_COLORS.hover
     end
-    button:SetBackdropColor(unpack(colors.background))
-    button:SetBackdropBorderColor(unpack(colors.border))
+    local face, border = colors.background, colors.border
+    button:SetBackdropColor(face[1], face[2], face[3], colors.alpha)
+    button:SetBackdropBorderColor(border[1], border[2], border[3], 1)
     button.label:SetTextColor(unpack(colors.text))
   end
   button:HookScript("OnEnter", function() hovered = true; paint() end)
@@ -273,12 +288,31 @@ function Widgets.CreateResizeGrip(frame, clamp, onDone)
 end
 
 local BUTTON_TEXT_PADDING = 24  -- Rand links und rechts zusammen
+Widgets.BUTTON_TEXT_PADDING = BUTTON_TEXT_PADDING  -- auch für Breitenrechnungen anderer Module (OptionsBuilder)
 
 -- Text setzen und den Button mindestens so breit machen, dass er hineinpasst (übersetzte Texte sind
 -- unterschiedlich lang); minWidth bleibt die kleinste Breite
 function Widgets.SetButtonText(button, text, minWidth)
   button:SetText(text)
   button:SetWidth(math.max(minWidth, math.ceil(button:GetTextWidth()) + BUTTON_TEXT_PADDING))
+end
+
+-- Rückfrage Ja/Nein über StaticPopup, Text aus L[textKey] in der Sprache zur Anzeigezeit (Roadmap 218).
+-- Rückgabe: show(textArg, data); onAccept(data) bekommt data aus show
+function Widgets.ConfirmPopup(name, textKey, onAccept)
+  StaticPopupDialogs[name] = {
+    button1 = YES or "Yes",
+    button2 = NO or "No",
+    OnAccept = function(_, data) onAccept(data) end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,  -- eigener Platz, kollidiert nicht mit Blizzard-Dialogen
+  }
+  return function(textArg, data)
+    StaticPopupDialogs[name].text = ns.L[textKey]
+    StaticPopup_Show(name, textArg, nil, data)
+  end
 end
 
 -- Abschnitts-Überschrift: Text mit feiner Linie bis zum rechten Rand
