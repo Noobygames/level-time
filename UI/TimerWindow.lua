@@ -206,7 +206,7 @@ local visibility = ns.DisplayVisibility.Attach({
 
 ns.Frames.Register({
   id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
-  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "SECTION_GENERAL",
+  keepTopLeft = true, dragWhenUnlocked = true, settingsPage = "OPTIONS_PAGE_WINDOW",
   preview = function(on)
     visibility:SetEditing(on)
   end,

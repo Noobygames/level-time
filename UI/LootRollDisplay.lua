@@ -241,7 +241,7 @@ card = ns.Card.Create("LevelTimerLootRolls")
 card.frame:SetFrameStrata("DIALOG")
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
-  settingsPage = "OPTIONS_TAB_COMFORT",
+  settingsPage = "COMFORT_PAGE_SYSTEM",
   preview = function(on)
     previewing = on and true or false
     LootRollDisplay.Refresh()

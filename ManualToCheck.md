@@ -2041,3 +2041,57 @@ Bericht (/lt debug perf report 25):
 Sitzungsdauer:
 Fehler:
 ```
+
+### 140. Einstellungen in Kategorien (Roadmap 380)
+
+- [ ] geprüft
+
+`/lt` öffnen, in Deutsch, Französisch und Spanisch (Allgemein > Sprache & Minimap).
+
+1. Reiter: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle außer Profile mit
+   Seitenleiste links, Inhalt rechts daneben, nichts überlappt (auch die rechte Schalter-Spalte nicht).
+2. Jede Kategorie einmal anklicken: das Fenster springt nicht in der Höhe, keine Seite braucht Scrollen (außer bei
+   kleinem Bildschirm/hoher UI-Skalierung), beim Kategoriewechsel steht die Seite oben.
+3. Komfort > Quests: Quest-Automatik, Questfortschritt, „Questlog fast voll“ und die Quest-Einblendungen stehen dort;
+   Allgemein > Stream und Einblendungen > Timer/Flüge funktionieren wie vorher.
+4. Edit-Modus (`/lt edit`): Rechtsklick auf Split-Liste, Einblendung, Level-Up-Fenster, Flug-Anzeige > „Einstellungen“
+   öffnet die passende Kategorie.
+5. Fenster schließen und wieder öffnen: dieselbe Kategorie ist noch gewählt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Sprache(n):
+Überlappungen (wo):
+Höhe/Scrollen ok (ja/nein):
+Sprünge aus dem Edit-Modus ok (ja/nein):
+Fehler:
+```
+
+### 141. Suche in den Einstellungen (Roadmap 381)
+
+- [ ] geprüft
+
+`/lt`, Suchfeld oben links („Suchen …“).
+
+1. „Repar“ tippen: Liste unter dem Feld mit „Automatisch reparieren — Komfort > Automatik“ usw., über Reitern und
+   Inhalt, nicht abgeschnitten; Mausrad/Klicks gehen nicht durch die Liste auf die Schalter darunter.
+2. Treffer anklicken: Reiter und Kategorie wechseln, der Schalter ist kurz hell hinterlegt (Fläche über Kästchen und
+   Text, nicht verrutscht), nach 2 s weg.
+3. Tiefe Einstellung (z.B. „Atem“, „Munition“ als Jäger) mit Enter: Seite scrollt so, dass sie oben steht.
+4. Ein Wort nur aus einem Tooltip (z.B. „Gruppenchat“): Treffer erscheinen hinter den Beschriftungs-Treffern.
+5. Esc im Feld leert es und schließt die Liste; Esc danach schließt das Fenster. Tippen in das Feld löst keine
+   Tastenbelegungen aus (Bewegen, Zauber).
+6. Französisch/Spanisch: Feld und Titel überlappen nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Liste lesbar und oben (ja/nein):
+Hervorhebung sitzt richtig (ja/nein):
+Scrollen zum Treffer (ja/nein):
+Tastatur ok (ja/nein):
+Fehler:
+```

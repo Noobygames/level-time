@@ -32,7 +32,7 @@ local FlightDisplay = ns.TimerDisplay.Create({
   name = "LevelTimerFlight",
   default = { "TOP", "TOP", 0, -160 },
   id = "flight", label = "EDIT_FRAME_FLIGHT", soundKey = "flightSound",
-  toggleKey = "flightTimer",
+  toggleKey = "flightTimer", settingsPage = "OPTIONS_PAGE_FLIGHTS",
   colors = COLORS,
   titleFor = titleFor,
   formatTime = formatTime,

@@ -1,5 +1,6 @@
--- Einstellungsfenster mit Reitern: Allgemein (Fenster, Sprache), Statistiken, Hinweise, Einblendungen, Komfort, Stream, Speedrun, Profile.
--- Darunter auf allen Reitern: Neue Session, Zusammenfassung, Historie.
+-- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle
+-- außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie, Layout bearbeiten,
+-- Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
 -- Nur der Inhalt; Aufbau, Tooltips, Breite und Aktualisierung übernimmt Lib/OptionsBuilder.lua.
 local _, ns = ...
 local L = ns.L
@@ -230,7 +231,6 @@ end
 -- Aussehen aller Anzeigen (Theme.lua): Preset, Akzentfarbe, Schriftart, -größe und Kontur
 local function addThemeSection()
   local Theme = ns.Theme
-  addSection("SECTION_THEME")
   local presets = {}
   for i, key in ipairs(Theme.ORDER) do
     presets[i] = { value = key, name = localized("THEME_PRESET_" .. key:upper()) }
@@ -280,7 +280,7 @@ local function addVisibilityCycle(label, setting)
 end
 
 -- Anzeige: Layout des Hauptfensters (UI/Layouts/), Einstellungen nur des gewählten Layouts (sonst ausgegraut),
--- gewählte Werte, Sichtbarkeit. Wirkt sofort, auch im Edit-Modus (Vorschau = das echte Fenster).
+-- gewählte Werte. Wirkt sofort, auch im Edit-Modus (Vorschau = das echte Fenster).
 local function addDisplaySection()
   local Layouts, WindowModel = ns.WindowLayouts, ns.WindowModel
   addSection("SECTION_DISPLAY")
@@ -342,6 +342,10 @@ local function addDisplaySection()
     format = tostring,
     enabled = layoutIs("xpbar"),
   })
+end
+
+-- Sichtbarkeit des Hauptfensters (immer, im Kampf, ...) und Deckkraft beim Ausblenden
+local function addVisibilitySection()
   addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
   addSlider({
     label = "FADE_ALPHA",
@@ -350,7 +354,7 @@ local function addDisplaySection()
     step = 5,
     get = function(db) return toPercent(db.fadeAlpha) end,
     set = function(value) ns.SetDeferred("fadeAlpha", value / 100) end,
-    format = function(value) return value .. "%" end,
+    format = percent,
   })
 end
 
@@ -417,9 +421,13 @@ end
 -- Inhalt
 ---------------------------------------------------------------------------
 
--- Allgemein: Fenster und grundlegende Einstellungen
+-- Jeder größere Reiter hat eine Seitenleiste mit Kategorien wie Komfort (Leatrix-Stil); die Fensterhöhe richtet
+-- sich nach der längsten Unterseite. Kategorie-Namen: OPTIONS_PAGE_* (Komfort: COMFORT_PAGE_*).
+local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
+
+-- Allgemein: Hauptfenster, Layout, Aussehen, Sprache und Minimap, Stream
 addPage("SECTION_GENERAL")
-addSection("SECTION_WINDOW")
+addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
 addSlider({
   label = "BG_OPACITY",
@@ -438,18 +446,43 @@ addToggles({
   toggle("QUEST_XP_ON_BAR", "questXpOnBar"),
   toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end),
 })
+addVisibilitySection()
 addHint("OPTIONS_HINT")
+addSubPage("OPTIONS_PAGE_LAYOUT")
 addDisplaySection()
+addSubPage("OPTIONS_PAGE_LOOK")
 addThemeSection()
-addSection("SECTION_LANGUAGE")
+addSubPage("SECTION_LANGUAGE")
 addLanguageChooser()
 addToggles({
   { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
     set = function(checked) ns.SetMinimapHidden(not checked) end },
 })
+-- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
+addSubPage("OPTIONS_TAB_STREAM")
+addToggles({
+  { label = "STREAM_MODE", get = function() return ns.StreamMode.IsEnabled() end,
+    set = function(checked) ns.StreamMode.SetEnabled(checked) end },
+  toggle("STREAMER_PRIVACY", "streamerPrivacy"),
+  toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
+  -- Abkürzung zu "Minimap-Button anzeigen" (Sprache & Minimap), umgekehrt formuliert
+  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(checked) end },
+})
+addBackgroundChooser()
+finishSubPages()
 finishPage()
 
--- Statistiken: ein Schalter je Stat-Zeile, direkt aus ns.STAT_LINES
+-- Statistiken: Voreinstellungen über allen Kategorien, dann je Stat-Gruppe eine Unterseite mit einem Schalter je
+-- Stat-Zeile direkt aus ns.STAT_LINES; Reihenfolge und Berechnung eigene Unterseiten
+local STAT_GROUP_PAGES = {
+  STAT_GROUP_XP = "OPTIONS_PAGE_STAT_XP",
+  STAT_GROUP_PROGRESS = "OPTIONS_PAGE_STAT_PROGRESS",
+  STAT_GROUP_COMBAT = "OPTIONS_PAGE_STAT_COMBAT",
+  STAT_GROUP_LOOT = "OPTIONS_PAGE_STAT_LOOT",
+  STAT_GROUP_INSTANCE = "OPTIONS_PAGE_STAT_INSTANCE",
+  STAT_GROUP_TIME_MONEY = "OPTIONS_PAGE_STAT_TIME_MONEY",
+}
 addPage("STATISTICS")
 addSection("SECTION_STAT_PRESETS")
 local presetButtons = {}
@@ -459,7 +492,7 @@ end
 table.insert(presetButtons, { label = "PRESET_UNDO", onClick = function() ns.UndoStatPreset() end })
 builder.AddButtonRow(presetButtons)
 for _, group in ipairs(ns.STAT_GROUPS) do
-  addSection(group)
+  addSubPage(STAT_GROUP_PAGES[group] or group)  -- neue Gruppe ohne eigenen Kurznamen: Gruppenname
   local statToggles = {}
   for _, line in ipairs(ns.STAT_LINES) do
     if line.group == group then table.insert(statToggles, toggle(line.label, line.setting, line.available)) end
@@ -469,8 +502,9 @@ for _, group in ipairs(ns.STAT_GROUPS) do
     addButton("INSTANCE_RESET", function() ns.ConfirmInstanceReset() end)
   end
 end
+addSubPage("OPTIONS_PAGE_ROW_ORDER")
 addRowOrderSection()
-addSection("SECTION_CALCULATION")
+addSubPage("OPTIONS_PAGE_CALCULATION")
 addToggles({ toggle("XP_RATE_WITHOUT_AFK", "xpRateWithoutAfk") })
 addSlider({
   label = "IDLE_LIMIT",
@@ -492,22 +526,26 @@ addSlider({
     return value == 0 and L.TO_LEVEL_SAMPLES_LEVEL or string.format(L.TO_LEVEL_SAMPLES_VALUE, value)
   end,
 })
+finishSubPages()
 finishPage()
 
--- Hinweise: Level-Up im Chat und Erinnerungen an Buffs
+-- Hinweise: Level-Up im Chat, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter Komfort > Quests)
 addPage("OPTIONS_TAB_NOTIFICATIONS")
-addSection("SECTION_LEVEL_UP")
+addSubPage("OPTIONS_PAGE_LEVEL_UP")
 addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains"),
   toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"), toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addAnnounceChooser()
 addSection("SECTION_PERSONAL_RECORDS")
 addToggles({ toggle("ANNOUNCE_RECORDS_TOGGLE", "announceRecords") })
+
+addSubPage("OPTIONS_PAGE_REMINDERS")
 addSection("SECTION_REMINDERS")
 addToggles({
   toggle("REMIND_FOOD_TOGGLE", "remindFood"),
   toggle("REMIND_CAMP_TOGGLE", "remindCamp", ns.BuffReminder.HasCampSystem),
   toggle("REMIND_SLEEPING_BAG_TOGGLE", "remindSleepingBag", ns.BuffReminder.HasSleepingBagSystem),
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
+  toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
 })
 -- Klassen-Hinweise: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
 local classReminders = ns.ClassBuffs.ForPlayerClass()
@@ -542,24 +580,17 @@ addSlider({
   set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 })
-addSection("SECTION_WARNINGS")
+
+addSubPage("OPTIONS_PAGE_WARNINGS")
 addHint("WARN_LOOK_HINT")
 addToggles({
   toggle("WARN_BAGS_FULL_TOGGLE", "warnBagsFull"),
   toggle("WARN_DURABILITY_TOGGLE", "warnDurability"),
-  toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
   toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
-  toggle("LOW_MANA_TOGGLE", "announceLowMana"),
-  toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
-  toggle("CC_OVER_TOGGLE", "announceControlOver"),
-  toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
-  toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
-  toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
-  toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
 addSlider({
   label = "WARN_BREATH_BELOW",
@@ -569,15 +600,6 @@ addSlider({
   get = function(db) return db.breathWarnSeconds end,
   set = function(value) ns.SetDeferred("breathWarnSeconds", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
-addSlider({
-  label = "LOW_MANA_BELOW",
-  min = ns.ManaCallout.MIN_PERCENT,
-  max = ns.ManaCallout.MAX_PERCENT,
-  step = 5,
-  get = function(db) return db.lowManaPercent end,
-  set = function(value) ns.SetDeferred("lowManaPercent", value) end,
-  format = percent,
 })
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then
@@ -609,20 +631,94 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
   })
 end
+
+-- Gruppe und Heiler: Ansagen im Gruppenchat
+addSubPage("OPTIONS_PAGE_GROUP")
+addToggles({
+  toggle("LOW_MANA_TOGGLE", "announceLowMana"),
+  toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
+  toggle("CC_OVER_TOGGLE", "announceControlOver"),
+  toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
+  toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
+})
+addSlider({
+  label = "LOW_MANA_BELOW",
+  min = ns.ManaCallout.MIN_PERCENT,
+  max = ns.ManaCallout.MAX_PERCENT,
+  step = 5,
+  get = function(db) return db.lowManaPercent end,
+  set = function(value) ns.SetDeferred("lowManaPercent", value) end,
+  format = percent,
+})
+finishSubPages()
 finishPage()
 
--- Timer: Lagerfeuer (nur WoW Forever), Essen und Flüge (überall, daher gibt es den Reiter immer)
-do
-  addPage("OPTIONS_TAB_TIMERS")
-  -- Größe und Vorschau einer Zeit-Anzeige (Lib/TimerDisplay.lua); Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
-  -- Zurücksetzen übernimmt der Edit-Modus (Button unten)
-  local function addTimerDisplayControls(prefix, display, frameId)
-    addFrameScaleSlider(prefix .. "_SCALE", frameId)
-    addButton(prefix .. "_PREVIEW", function() display.Preview() end)
-  end
+-- Einblendungen: welche Ereignisse, Aussehen und Position (Hinweise aus dem Reiter Hinweise nutzen dieselbe),
+-- Level-Up-Fenster und die Zeit-Anzeigen (Lagerfeuer, Essen, Flüge)
+addPage("OPTIONS_TAB_ALERTS")
+addSubPage("OPTIONS_PAGE_ALERT_KINDS")
+addSection("SECTION_ALERTS")
+addToggles({
+  toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp"),
+  toggle("ALERT_TOGGLE_RARE", "alertRareKill"),
+  toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
+  toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
+  toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
+  toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
+  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
+})
+addSubPage("OPTIONS_PAGE_ALERT_LOOK")
+addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
+  { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
+  { value = Alerts.STYLE_TEXT, name = localized("ALERT_STYLE_TEXT") },
+} })
+addFrameScaleSlider("ALERT_SCALE", "alert")
+addSlider({
+  label = "ALERT_DURATION",
+  min = Alerts.MIN_DURATION,
+  max = Alerts.MAX_DURATION,
+  step = 1,
+  get = function(db) return db.alertDuration end,
+  set = function(value) ns.SetDeferred("alertDuration", value) end,
+  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
+})
+addToggles({ toggle("ALERT_SOUND", "alertSound") })
+addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
+addSubPage("OPTIONS_PAGE_LEVEL_UP_WINDOW")
+addToggles({
+  toggle("LEVEL_UP_WINDOW_TOGGLE", "levelUpWindow"),
+  toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"),
+  toggle("LEVEL_UP_COMPACT", "levelUpCompact"),
+  toggle("LEVEL_UP_SOUND", "levelUpSound"),
+})
+addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
+  { value = "modern", name = localized("THEME_MODERN") },
+  { value = "alliance", name = localized("THEME_ALLIANCE") },
+  { value = "horde", name = localized("THEME_HORDE") },
+} })
+addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
+addSlider({
+  label = "LEVEL_UP_DURATION",
+  min = ns.LevelUpWindow.MIN_DURATION,
+  max = ns.LevelUpWindow.MAX_DURATION,
+  step = 1,
+  get = function(db) return db.levelUpDuration end,
+  set = function(value) ns.SetDeferred("levelUpDuration", value) end,
+  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
+})
+addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
+if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 
+-- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
+-- Zurücksetzen übernimmt der Edit-Modus (Button unten)
+local function addTimerDisplayControls(prefix, display, frameId)
+  addFrameScaleSlider(prefix .. "_SCALE", frameId)
+  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
+end
 
-  -- Lagerfeuer-Anzeige: nur in WoW Forever (dort gibt es den Lagerfeuer-Buff)
+-- Timer: Lagerfeuer (nur WoW Forever) und Essen (wo der Client die Buffs "Essen" und "Satt" kennt)
+if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
+  addSubPage("OPTIONS_TAB_TIMERS")
   if ns.CampFire.IsAvailable() then
     addSection("SECTION_CAMP")
     addToggles({
@@ -641,8 +737,6 @@ do
     })
     addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
   end
-
-  -- Essen-Timer: überall, wo der Client die Buffs "Essen" und "Satt" kennt
   if ns.FoodTimer.IsAvailable() then
     addSection("SECTION_FOOD")
     addToggles({
@@ -651,22 +745,22 @@ do
     })
     addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
   end
-
-  -- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times", ohne mitgelieferte Daten)
-  addSection("SECTION_FLIGHT")
-  addToggles({
-    toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
-    toggle("FLIGHT_SOUND", "flightSound"),
-    toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"),
-  })
-  addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
-  finishPage()
 end
 
--- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus (Automatik, Sozial, Chat, Oberfläche, System)
+-- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
+addSubPage("OPTIONS_PAGE_FLIGHTS")
+addToggles({
+  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
+  toggle("FLIGHT_SOUND", "flightSound"),
+  toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"),
+})
+addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+finishSubPages()
+finishPage()
+
+-- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus
 addPage("OPTIONS_TAB_COMFORT")
 addHint("COMFORT_HINT")
-local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
 addSubPage("COMFORT_PAGE_AUTOMATION")
 addSection("SECTION_MERCHANT")
 addToggles({
@@ -674,20 +768,6 @@ addToggles({
   toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
   toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
-})
-addSection("SECTION_QUESTS")
-addToggles({
-  toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
-  toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
-  toggle("AUTO_TURN_IN", "autoTurnIn"),
-  toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
-  toggle("SKIP_GOSSIP", "skipGossip"),
-})
-builder.AddTextInput({
-  label = "QUEST_EXCLUDE",
-  width = QUEST_EXCLUDE_WIDTH,
-  get = function(db) return db.questExclude end,
-  set = function(text) ns.Set("questExclude", strtrim(text)) end,
 })
 addSection("SECTION_CHARACTER")
 addToggles({
@@ -759,11 +839,6 @@ addToggles({
   toggle("HIDE_BLIZZARD_XP_BAR", "hideBlizzardXpBar", HideFrames.HasXpBar),
   toggle("HIDE_BLIZZARD_REP_BAR", "hideBlizzardRepBar", HideFrames.HasRepBar),
 })
--- Blizzard-Oberfläche: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen
--- schon oben bzw. unter Chat und Minimap); auch im Edit-Modus direkt am Element schaltbar
-addSection("SECTION_BLIZZARD_FRAMES")
-addHint("BLIZZARD_FRAMES_HINT")
-addToggles(ns.BlizzardHide.Toggles())
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
@@ -790,12 +865,41 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     })
   end
 end
--- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
+-- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
+-- Oberfläche, Chat und Fenster); auch im Edit-Modus direkt am Element schaltbar
+addSubPage("COMFORT_PAGE_HIDE")
+addSection("SECTION_BLIZZARD_FRAMES")
+addHint("BLIZZARD_FRAMES_HINT")
+addToggles(ns.BlizzardHide.Toggles())
+-- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
 addSubPage("COMFORT_PAGE_QUESTS")
+addSection("COMFORT_PAGE_AUTOMATION")
+addToggles({
+  toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
+  toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
+  toggle("AUTO_TURN_IN", "autoTurnIn"),
+  toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
+  toggle("SKIP_GOSSIP", "skipGossip"),
+})
+builder.AddTextInput({
+  label = "QUEST_EXCLUDE",
+  width = QUEST_EXCLUDE_WIDTH,
+  get = function(db) return db.questExclude end,
+  set = function(text) ns.Set("questExclude", strtrim(text)) end,
+})
+addSection("SECTION_QUEST_NOTICES")
+addToggles({
+  toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
+  toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
+  toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
+})
 addSection("SECTION_QUEST_LEARNING")
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
 addSection("SECTION_QUEST_LOG")
 addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
+-- Quest-Anzeige: Questlevel, Quest-Buttons, Tooltips und Markierungen an Gegnern und NPCs
+addSubPage("COMFORT_PAGE_QUEST_DISPLAY")
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
@@ -865,6 +969,17 @@ addToggles({
   toggle("EASY_DELETE", "easyDelete"),
   toggle("FASTER_MOVIE_SKIP", "fasterMovieSkip"),
 })
+addSection("SECTION_COMBAT_GROUP")
+addToggles({
+  toggle("COMBAT_PLATES", "combatPlates"),
+  toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
+})
+if ns.AddonListSort.IsAvailable() then
+  addSection("SECTION_ADDON_LIST")
+  addToggles({ toggle("SORT_ADDON_LIST", "sortAddonList") })
+end
+-- Grafik und Ton: Kamera, Bildschirmeffekte, Wetter, Stummschalten
+addSubPage("COMFORT_PAGE_GRAPHICS")
 addSection("SECTION_CAMERA")
 addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
 addSection("SECTION_GRAPHICS")
@@ -889,113 +1004,19 @@ for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
 end
 addSection("SECTION_SOUND")
 addToggles(muteToggles)
-addSection("SECTION_COMBAT_GROUP")
-addToggles({
-  toggle("COMBAT_PLATES", "combatPlates"),
-  toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
-})
-if ns.AddonListSort.IsAvailable() then
-  addSection("SECTION_ADDON_LIST")
-  addToggles({ toggle("SORT_ADDON_LIST", "sortAddonList") })
-end
 finishSubPages()
 finishPage()
 
--- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
-addPage("OPTIONS_TAB_STREAM")
-addSection("SECTION_STREAM")
-addToggles({
-  { label = "STREAM_MODE", get = function() return ns.StreamMode.IsEnabled() end,
-    set = function(checked) ns.StreamMode.SetEnabled(checked) end },
-  toggle("STREAMER_PRIVACY", "streamerPrivacy"),
-  toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
-  -- Abkürzung zu "Minimap-Button anzeigen" (Allgemein), umgekehrt formuliert
-  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(checked) end },
-})
-addBackgroundChooser()
-finishPage()
-
--- Einblendungen: welche Arten, Aussehen und Position (Hinweise aus dem Reiter Hinweise nutzen dieselbe)
-addPage("OPTIONS_TAB_ALERTS")
-addSection("SECTION_ALERTS")
-addToggles({
-  toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp"),
-  toggle("ALERT_TOGGLE_RARE", "alertRareKill"),
-  toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
-  toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
-  toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
-  toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
-  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
-  toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
-  toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
-})
-addSection("SECTION_LEVEL_UP_WINDOW")
-addToggles({
-  toggle("LEVEL_UP_WINDOW_TOGGLE", "levelUpWindow"),
-  toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"),
-  toggle("LEVEL_UP_COMPACT", "levelUpCompact"),
-  toggle("LEVEL_UP_SOUND", "levelUpSound"),
-})
-addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
-  { value = "modern", name = localized("THEME_MODERN") },
-  { value = "alliance", name = localized("THEME_ALLIANCE") },
-  { value = "horde", name = localized("THEME_HORDE") },
-} })
-addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
-addSlider({
-  label = "LEVEL_UP_DURATION",
-  min = ns.LevelUpWindow.MIN_DURATION,
-  max = ns.LevelUpWindow.MAX_DURATION,
-  step = 1,
-  get = function(db) return db.levelUpDuration end,
-  set = function(value) ns.SetDeferred("levelUpDuration", value) end,
-  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
-addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
-if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
-addSection("SECTION_ALERT_LOOK")
-addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
-  { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
-  { value = Alerts.STYLE_TEXT, name = localized("ALERT_STYLE_TEXT") },
-} })
-addFrameScaleSlider("ALERT_SCALE", "alert")
-addSlider({
-  label = "ALERT_DURATION",
-  min = Alerts.MIN_DURATION,
-  max = Alerts.MAX_DURATION,
-  step = 1,
-  get = function(db) return db.alertDuration end,
-  set = function(value) ns.SetDeferred("alertDuration", value) end,
-  format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
-addToggles({ toggle("ALERT_SOUND", "alertSound") })
-addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
-finishPage()
-
--- Speedrun: Splits, Split-Liste und Speedrun-Rekorde
+-- Speedrun: Split-Liste, Vergleich, Speedrun-Rekorde, Screenshots, SSF
 addPage("OPTIONS_TAB_SPEEDRUN")
+addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
   toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
-  toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
   toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
-  toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
-  toggle("FRIEND_RACE", "friendRace"),
-})
-addSplitComparisonChooser()
-addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })
-addSlider({
-  label = "SPLIT_TOLERANCE",
-  min = 0,
-  max = ns.Splits.MAX_TOLERANCE_PERCENT,
-  step = 1,
-  get = function(db) return db.splitTolerancePercent end,
-  set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
-  format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
 addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
@@ -1008,6 +1029,25 @@ addSlider({
   set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
 })
+-- Vergleich: wogegen die Splits laufen, Toleranz, Hinweise bei Bestzeiten, Rennen gegen Freunde
+addSubPage("OPTIONS_PAGE_COMPARE")
+addSplitComparisonChooser()
+addToggles({
+  toggle("PB_SAME_CLASS", "pbSameClass"),
+  toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
+  toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
+  toggle("FRIEND_RACE", "friendRace"),
+})
+addSlider({
+  label = "SPLIT_TOLERANCE",
+  min = 0,
+  max = ns.Splits.MAX_TOLERANCE_PERCENT,
+  step = 1,
+  get = function(db) return db.splitTolerancePercent end,
+  set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
+  format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
+})
+addSubPage("OPTIONS_PAGE_RECORDS")
 addSection("SECTION_WORLD_RECORDS")
 local recordToggles = {
   toggle("SHOW_WORLD_RECORDS", "showWorldRecords"),
@@ -1027,15 +1067,18 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
 end
 addToggles(recordToggles)
 addWorldRecordScopeChooser()
+addSubPage("OPTIONS_PAGE_SCREENSHOTS")
 addSection("SECTION_SCREENSHOTS")
 addToggles({
   toggle("MILESTONE_SCREENSHOTS", "milestoneScreenshots"),
   toggle("SCREENSHOT_FIRST_DUNGEON", "screenshotFirstDungeon"),
   toggle("SCREENSHOT_EPIC_LOOT", "screenshotEpicLoot"),
 })
+addSubPage("OPTIONS_PAGE_SSF")
 addSection("SECTION_SSF")
 addSsfCategoryChooser()
 addHint("SSF_HINT")
+finishSubPages()
 finishPage()
 
 -- Profile: Einstellungen benannt speichern, je Charakter wählen, als Text teilen
@@ -1076,8 +1119,10 @@ end)
 
 builder.Finish()
 ns.RegisterApply(builder.RefreshIfShown)
+ns.OptionsWindow = builder  -- Seiten, Suche und Hervorhebung (Tests)
 
--- Einstellungen auf einem Reiter öffnen (Locale-Key wie bei addPage), z.B. aus dem Menü des Edit-Modus
+-- Einstellungen auf einem Reiter oder einer Unterseite öffnen (Locale-Key wie bei addPage/addSubPage), z.B. aus dem
+-- Menü des Edit-Modus; ohne Key bleibt die zuletzt gezeigte Seite
 function ns.ShowOptionsPage(pageKey)
   if not ns.db then return end
   builder.Refresh(ns.db)

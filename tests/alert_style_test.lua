@@ -90,7 +90,7 @@ expect("ungültige Position fliegt raus", addon.Database.SanitizeSettings({ aler
 -- Optionen: Reiter und Buttons vorhanden
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Einblendungen", wow.click(L.OPTIONS_TAB_ALERTS))
-expectTrue("Button Vorschau", wow.click(L.ALERT_PREVIEW, true))
+expectTrue("Button Vorschau", wow.clickOption("ALERT_PREVIEW"))
 expect("Vorschau zeigt Level-Up", alert:IsShown(), true)
 expectTrue("Button Layout bearbeiten", wow.click(L.EDIT_MODE))
 expect("Button startet den Edit-Modus", Alerts.IsEditing(), true)

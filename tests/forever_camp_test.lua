@@ -198,7 +198,7 @@ expect("Position zurückgesetzt", LevelTimerDB.frames.camp, nil)
 ---------------------------------------------------------------------------
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Timer", wow.click(L.OPTIONS_TAB_TIMERS))
-expectTrue("Button Vorschau", wow.click(L.CAMP_PREVIEW))
+expectTrue("Button Vorschau", wow.clickOption("CAMP_PREVIEW"))
 expect("Vorschau zeigt Anzeige", camp:IsShown(), true)
 -- Layout bearbeiten (unten auf jedem Reiter): alle Anzeigen auf einmal, auch das Lagerfeuer
 expectTrue("Button Layout bearbeiten", wow.click(L.EDIT_MODE))
