@@ -13,6 +13,7 @@
 --   deadlineSucceeds   true = Ablauf der Frist ist Erfolg statt Scheitern (Regeln: "bis dahin durchgehalten")
 --   current(goal)      (optional) Stand beim Anlegen, wenn er ein Bestand ist (Gold, Items in den Taschen)
 --   manual             true = der Spieler zählt selbst (Goals.Step), kein Ereignis füttert die Art
+--   step(goal, delta)  (optional, manual) neuer Stand für einen Klick (z.B. nächsten Punkt der Checkliste abhaken)
 --   hasCount(goal)     (optional) false = nur erledigt/offen, kein Zählerstand auf Karte und in Listen
 --   countText(goal)    (optional) Stand als Text statt "12 / 100" (z.B. Gold)
 --   title(goal)        Überschrift der Karte

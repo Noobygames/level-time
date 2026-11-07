@@ -272,8 +272,19 @@ function Goals.Step(id, delta)
     return nil, string.format(L.SG_ERR_NO_GOAL, tostring(id or "?"))
   end
   if not Goals.IsManual(goal) then return nil, string.format(L.SG_ERR_NOT_MANUAL, goal.id) end
-  advance(goal, math.max(goal.start, goal.progress + delta))
+  local step = kinds[goal.kind].step
+  advance(goal, step and step(goal, delta) or math.max(goal.start, goal.progress + delta))
   return goal
+end
+
+-- Ziel (Stand und/oder Ziel) neu bewerten, z.B. eine Checkliste nach einem neuen Teilziel; schließt bei Erreichen ab
+function Goals.Update(goal, progress)
+  if goal.status ~= Goals.ACTIVE then return end
+  if progress == goal.progress then
+    notify("changed", goal)
+    return
+  end
+  advance(goal, progress)
 end
 
 -- amount dazuzählen bei allen laufenden Zielen dieser Art, für die matches(goal) stimmt. Abschließen baut den Index

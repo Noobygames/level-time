@@ -354,8 +354,11 @@ local function activeRow(index)
 end
 
 -- "#3  Text  (4 / 5)"; ohne Zähler nur Nummer und Text
+local NESTED_PREFIX = "    "  -- Teilziel einer Checkliste, eingerückt
+
 local function activeLabel(goal)
   local label = string.format("#%d  %s", goal.id, Goals.Title(goal))
+  if goal.parentId then label = NESTED_PREFIX .. label end
   if Goals.HasCount(goal) then label = string.format("%s  (%s)", label, Goals.CountText(goal)) end
   local left = ns.Deadlines.Text(goal)
   if left then label = label .. "  " .. left end

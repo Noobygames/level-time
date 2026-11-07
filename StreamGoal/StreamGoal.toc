@@ -26,6 +26,7 @@ Kinds\Explore.lua
 Kinds\Achievement.lua
 Kinds\Honor.lua
 Kinds\Rule.lua
+Kinds\Checklist.lua
 
 # Zusätze jeder Zielart: Frist
 Deadlines.lua

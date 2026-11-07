@@ -165,10 +165,20 @@ function Tracker.UpdateTimes()
 end
 LT.Every(1, Tracker.UpdateTimes, ns.Deadlines.Any)
 
+-- Ziele mit eigener Karte: laufende ohne Teilziele einer laufenden Checkliste (die stehen als Zeile in ihr)
+local shownGoals = {}
+local function cardGoals()
+  for i = #shownGoals, 1, -1 do shownGoals[i] = nil end
+  for _, goal in ipairs(Goals.Active()) do
+    if not ns.Checklist.IsNested(goal) then table.insert(shownGoals, goal) end
+  end
+  return shownGoals
+end
+
 -- Karten neu aufbauen: Inhalt aus den Zielen, gleiche Breite, untereinander
 function Tracker.Refresh()
   if not ns.db then return end
-  local active = Goals.Active()
+  local active = cardGoals()
   if editing and #active == 0 then
     Tracker.ShowSample()  -- etwas zum Greifen im Edit-Modus
     return

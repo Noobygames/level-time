@@ -1,6 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   deadline <Nr> <Dauer|off> [played] | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | sub <Checkliste> <Ziel> | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -12,7 +12,7 @@ local Format = ns.LT.Format
 local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
-ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE" }
+ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_SUB" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -24,9 +24,13 @@ local function help()
   for _, usage in ipairs(ns.EXTRA_USAGES) do ns.Print("  " .. L[usage]) end
 end
 
+-- Kurze Namen für /sg add
+local KIND_ALIASES = { list = "checklist" }
+
 local function add(rest)
   local kind, remainder = rest:match("^(%S+)%s*(.*)$")
-  local def = kind and Goals.GetKind(kind:lower())
+  kind = kind and kind:lower()
+  local def = kind and Goals.GetKind(KIND_ALIASES[kind] or kind)
   if not def or not def.parse or not Goals.IsAvailable(def.name) then
     ns.Print(string.format(L.SG_ERR_UNKNOWN_KIND, kind or "?"))
     return
@@ -102,6 +106,15 @@ local function deadline(argument)
   ns.Print(goalLine(goal) .. (ns.Deadlines.Text(goal) and ("  " .. ns.Deadlines.Text(goal)) or ""))
 end
 
+-- Laufendes Ziel als Teilziel an eine Checkliste hängen: "sub <Checkliste> <Ziel>"
+local function sub(argument)
+  local parentId, childId = argument:match("^(%S*)%s*(%S*)")
+  local parent, child = ownActiveGoal(parentId), ownActiveGoal(childId)
+  if not parent or not child then return end
+  local err = ns.Checklist.Attach(parent, child)
+  ns.Print(err or string.format(L.SG_CHAT_SUBGOAL, Goals.Title(child), Goals.Title(parent)))
+end
+
 local function toggleTracker()
   local shown = not ns.db.settings.showTracker
   Tracker.SetShown(shown)
@@ -120,6 +133,7 @@ local commands = {
   cancel = cancel,
   count = count,
   deadline = deadline,
+  sub = sub,
   tracker = toggleTracker,
   scale = scale,
   options = function() ns.Options.Toggle() end,

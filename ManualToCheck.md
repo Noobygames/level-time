@@ -2571,3 +2571,20 @@ Nackt mit Schonfrist (ja/nein):
 Flug erkannt (ja/nein):
 Fehler:
 ```
+
+### 179. Checkliste mit Teilzielen (Roadmap 304)
+
+- [ ] geprüft
+
+1. `/sg add list Holz; Boss; Ruf`, dann `/sg add kills 3` und `/sg sub <Liste> <Kills>`: eine Karte mit vier Zeilen und
+   Häkchen-Symbolen (keine grünen Quadrate), die Kills-Karte verschwindet; Zeilen umbrechen sauber.
+2. Klick hakt ab, Shift+Klick nimmt zurück; drei Kills: Zeile grün, Liste erreicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Symbole sichtbar (ja/nein):
+Teilziel zählt (ja/nein):
+Fehler:
+```
