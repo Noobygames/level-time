@@ -25,6 +25,7 @@ Core\Profiler.lua
 Lib\Theme.lua
 Lib\Format.lua
 Lib\TickCache.lua
+Lib\RecentCounter.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
 Lib\RecordCodec.lua
@@ -67,11 +68,13 @@ Tracking\DeathPlace.lua
 Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
+Tracking\RecentCounts.lua
 Tracking\QuestCounter.lua
 Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\ItemsLooted.lua
 Tracking\LootRolls.lua
 Tracking\QuestMobs.lua
 Tracking\QuestNpcs.lua

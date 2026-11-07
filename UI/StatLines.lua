@@ -24,11 +24,31 @@ local function xpRate(scope)
   return rate and Format.Number(rate) or PENDING
 end
 
+-- Anzahl je Stunde im Bereich (Kills, Gegenstände), über dieselbe Spielzeit wie XP/h (ohne AFK/Leerlauf, wenn eingestellt)
+local function perHour(counterName)
+  return function(scope)
+    local rate = Experience.CountRate(Stats.Get(scope, counterName), Experience.ScopeRateSeconds(scope))
+    return rate and Format.Number(rate) or PENDING
+  end
+end
+
 -- Unabhängig vom Bereich: Rate der letzten Minuten
 local function recentXpRate()
   if not Experience.IsLeveling() then return NO_VALUE end
   local rate = ns.RecentXpRate.Get()
   return rate and Format.Number(rate) or PENDING
+end
+
+-- Unabhängig vom Bereich: Summe bzw. hochgerechnete Rate eines Zählers in den letzten 15 Minuten (RecentCounts.lua)
+local function recentCount(counterName)
+  return function() return Format.Number(ns.RecentCounts.Count(counterName)) end
+end
+
+local function recentRate(counterName)
+  return function()
+    local rate = ns.RecentCounts.Rate(counterName)
+    return rate and Format.Number(rate) or PENDING
+  end
 end
 
 -- "~38": Kills bzw. Quests bis zum Level-Up beim Durchschnitt des Levels
@@ -225,11 +245,25 @@ ns.STAT_LINES = {
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
   { setting = "showPveKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVE_KILLS",
     rows = { { label = "ROW_PVE_KILLS", value = counter(Stats.PVE_KILLS) } } },
+  { setting = "showKillRate", group = "STAT_GROUP_COMBAT", label = "STAT_KILL_RATE",
+    rows = { { label = "ROW_KILL_RATE", value = perHour(Stats.PVE_KILLS) } } },
+  { setting = "showRecentKills", group = "STAT_GROUP_COMBAT", label = "STAT_RECENT_KILLS", rows = {
+    { label = "ROW_RECENT_KILLS", value = recentCount(Stats.PVE_KILLS) },
+    { label = "ROW_RECENT_KILL_RATE", value = recentRate(Stats.PVE_KILLS) },
+  } },
   { setting = "showPvpKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVP_KILLS",
     rows = { { label = "ROW_PVP_KILLS", value = counter(Stats.PVP_KILLS) } } },
   { setting = "showSpecialKills", group = "STAT_GROUP_COMBAT", label = "STAT_SPECIAL_KILLS", rows = {
     { label = "ROW_ELITE_KILLS", value = counter(Stats.ELITE_KILLS) },
     { label = "ROW_RARE_KILLS", value = counter(Stats.RARE_KILLS) },
+  } },
+  { setting = "showItemsLooted", group = "STAT_GROUP_LOOT", label = "STAT_ITEMS_LOOTED", rows = {
+    { label = "ROW_ITEMS_LOOTED", value = function(scope) return Format.Number(Stats.Get(scope, Stats.ITEMS_LOOTED)) end },
+    { label = "ROW_ITEM_RATE", value = perHour(Stats.ITEMS_LOOTED) },
+  } },
+  { setting = "showRecentItems", group = "STAT_GROUP_LOOT", label = "STAT_RECENT_ITEMS", rows = {
+    { label = "ROW_RECENT_ITEMS", value = recentCount(Stats.ITEMS_LOOTED) },
+    { label = "ROW_RECENT_ITEM_RATE", value = recentRate(Stats.ITEMS_LOOTED) },
   } },
   { setting = "showDeaths", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHS", rows = { { label = "ROW_DEATHS", value = deaths } } },
   { setting = "showKillsPerDeath", group = "STAT_GROUP_COMBAT", label = "STAT_KILLS_PER_DEATH",
@@ -293,7 +327,8 @@ ns.STAT_LINES = {
 }
 
 -- Gruppen für die Einstellungen (Reihenfolge der Abschnitte); jede Stat-Zeile nennt ihre group
-ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_INSTANCE", "STAT_GROUP_TIME_MONEY" }
+ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_LOOT", "STAT_GROUP_INSTANCE",
+  "STAT_GROUP_TIME_MONEY" }
 
 -- Voreinstellungen: genau diese Zeilen sind an, alle anderen aus
 ns.STAT_PRESETS = {
@@ -302,6 +337,9 @@ ns.STAT_PRESETS = {
     "showPveKills", "showDeaths", "showQuests", "showMoney" } },
   { label = "PRESET_DUNGEON", settings = { "showXpRate", "showXpGained", "showPveKills", "showDeaths",
     "showKillsPerDeath", "showNearDeaths", "showInstanceRun", "showInstanceLimit", "showInstancesToday" } },
+  -- Farm-Runde (Wunsch auf CurseForge, Roadmap 382): Tempo der Kills und der Beute, Gold/h steht in showIncome
+  { label = "PRESET_FARMING", settings = { "showPveKills", "showKillRate", "showRecentKills", "showItemsLooted",
+    "showRecentItems", "showIncome" } },
 }
 
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im
