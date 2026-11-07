@@ -18,6 +18,7 @@
 Locales\Locales.lua
 Lib\Migrate.lua
 Core\Database.lua
+Lib\Lifecycle.lua
 Core\LevelTimer.lua
 Core\Client.lua
 Core\DebugLog.lua
