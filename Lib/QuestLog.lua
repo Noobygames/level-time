@@ -118,11 +118,22 @@ function QuestLog.Entries()
 end
 
 -- "Durchnässte Säge: 0/1" -> "durchnässte säge" (klein, ohne Zähler, Doppelpunkt und Spiegelstrich); zum Vergleich
--- von Zieltexten mit Namen von Gegnern, Objekten und Gegenständen
+-- von Zieltexten mit Namen von Gegnern, Objekten und Gegenständen. Ergebnisse je Text zwischengespeichert (jeder
+-- Questlog-Durchlauf fragt dieselben Texte; vier gsub je Ziel erzeugten bei jedem Durchlauf neue Strings), bis
+-- NORMALIZED_MAX Texte gemerkt sind, dann beginnt der Speicher neu.
+local NORMALIZED_MAX = 500
+local normalized, normalizedCount = {}, 0
+
 function QuestLog.NormalizeObjective(text)
   if type(text) ~= "string" then return "" end
-  text = text:lower():gsub("%d+%s*/%s*%d+", ""):gsub("%d+%s*%%", "")
-  return (text:gsub("^[%s:%-]+", ""):gsub("[%s:%-]+$", ""))
+  local cached = normalized[text]
+  if cached then return cached end
+  local result = text:lower():gsub("%d+%s*/%s*%d+", ""):gsub("%d+%s*%%", "")
+  result = result:gsub("^[%s:%-]+", ""):gsub("[%s:%-]+$", "")
+  if normalizedCount >= NORMALIZED_MAX then normalized, normalizedCount = {}, 0 end
+  normalized[text] = result
+  normalizedCount = normalizedCount + 1
+  return result
 end
 
 -- Stand aus dem Zieltext ("Wolf getötet: 3/8" bzw. "3/8 Wolf getötet"), falls die Zahlen fehlen
