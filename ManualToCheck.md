@@ -2177,3 +2177,33 @@ Dungeon-Screenshot (ja/nein):
 Beute-Screenshot (ja/nein/nicht getestet):
 Fehler:
 ```
+
+### 107. Beute-Glitzer (Roadmap 330)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > Beute-Glitzer. Vorher ForeverLootSparkles und Lueur ausschalten (sonst meldet Level Time einen Konflikt und tut nichts). Nacheinander:
+
+1. Nur WoW Forever: „Quest-Gegenstände glitzern“ an. Ein Quest-Gegenstand auf dem Boden oder in einer Kiste glitzert. Unter Optionen > Grafik eine andere Voreinstellung wählen: nach etwa einer Sekunde glitzert es wieder. Schalter aus: Chatzeile „... erst nach einem Neustart ...“, nach dem Neustart kein Glitzern mehr.
+2. „Erzvorkommen glitzern“ und „Kräuter glitzern“ an, auf ein Vorkommen bzw. Kraut zugehen: zuerst gedämpfte Funken, in Reichweite hell mit kurzem Aufleuchten, mit zu niedriger Fertigkeit grau. NPCs und Briefkästen bekommen keine Namensplakette.
+3. „Quest-Objekte glitzern“ an: eine Kiste oder ein Sack eines offenen Questziels glitzert, nach erfülltem Ziel nicht mehr.
+4. „Leichen mit Beute glitzern“ an: nach dem Kampf glitzert die Leiche mit Beute (auch ein Boss), nach dem Plündern nicht mehr. Im Kampf glitzert nichts.
+5. „Größe der Funken“ auf 200 %: Funken deutlich größer.
+6. Alle Schalter aus: `/dump GetCVar("SoftTargetInteract"), GetCVar("SoftTargetIconGameObject"), GetCVar("SoftTargetNameplateInteract"), GetCVar("SoftTargetInteractRange")` zeigt wieder die Werte von vorher.
+7. Vor einem Erz, einem Kraut, einem Quest-Objekt und einer Leiche stehend je einmal `/lt debug log`, `/lt debug check`, danach `make debuglog` (Eintrag `lootSparkles.target`: Zeiger-Datei-ID, Pfad oder Atlas, Art, Reichweite).
+
+**Erwartet:** wie oben, keine Lua-Fehler, kein „Aktion blockiert“, kein Taint-Fehler beim Öffnen von Bearbeitungsmodus oder Optionen. In Retail und Classic Era/TBC fehlt „Quest-Gegenstände glitzern“; dort prüfen, ob Erz/Kräuter überhaupt eine Plakette bekommen (ohne `UnitIsInInteractRange` gibt es dort kein „gedämpft“).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Quest-Gegenstände nach Voreinstellung wieder an (ja/nein/nicht vorhanden):
+Erz/Kräuter glitzern (ja/nein):
+Gedämpft/hell/grau stimmt (ja/nein):
+Quest-Objekte (ja/nein):
+Leichen mit Beute (ja/nein):
+CVars nach Ausschalten zurück (ja/nein):
+Debug-Eintrag lootSparkles.target (Zeiger):
+Fehler:
+```

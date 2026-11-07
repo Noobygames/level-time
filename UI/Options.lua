@@ -582,6 +582,29 @@ if ns.QuestMarks.IsAvailable() then
     format = percent,
   })
 end
+-- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
+local LootSparkles = ns.LootSparkles
+if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
+  addSection("SECTION_LOOT_SPARKLES")
+  addToggles({
+    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
+    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
+  })
+  if LootSparkles.CanSoftTarget() then
+    addSlider({
+      label = "LOOT_SPARKLE_SCALE",
+      min = toPercent(ns.LootSparkle.MIN_SCALE),
+      max = toPercent(ns.LootSparkle.MAX_SCALE),
+      step = 5,
+      get = function(db) return toPercent(db.lootSparkleScale) end,
+      set = function(value) ns.Set("lootSparkleScale", value / 100) end,
+      format = percent,
+    })
+  end
+end
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),

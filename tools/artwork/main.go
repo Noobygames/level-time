@@ -21,6 +21,7 @@ func main() {
 	previewPath := flag.String("preview", "", "Optional: Icon zusätzlich als PNG zum Ansehen")
 	goalLogoPath := flag.String("goal-logo", "curseforge/streamgoal/logo.png", "Ziel für das Level-Time-Goals-Logo (PNG)")
 	goalIconPath := flag.String("goal-icon", "StreamGoal/Media/Icon.tga", "Ziel für das Level-Time-Goals-Icon (TGA)")
+	glintPath := flag.String("glint", "Media/Glint.tga", "Ziel für das Funkeln der Beute-Glitzer (TGA)")
 	flag.Parse()
 
 	if err := run(*logoPath, *iconPath, *previewPath); err != nil {
@@ -31,6 +32,19 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
+	if err := runGlint(*glintPath); err != nil {
+		fmt.Fprintln(os.Stderr, "Fehler:", err)
+		os.Exit(1)
+	}
+}
+
+func runGlint(path string) error {
+	glint := renderGlint(glintSize)
+	if err := writeFile(path, func(f *os.File) error { return writeTGA(f, glint) }); err != nil {
+		return err
+	}
+	fmt.Printf("Funkeln: %s\n", path)
+	return nil
 }
 
 func run(logoPath, iconPath, previewPath string) error {

@@ -144,6 +144,10 @@ local SETTINGS_DEFAULTS = {
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
+  -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken
+  lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
+  lootSparkleCorpses = false, lootSparkleScale = 1,
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
   questTargetButton = false, -- Knopf "/targetexact" für einen Questgegner auf den Namensplaketten
@@ -433,6 +437,7 @@ local SETTING_RANGES = {
   foodScale = { 0.5, 2 },
   flightScale = { 0.5, 2 },
   questMarkScale = { 0.5, 2 },
+  lootSparkleScale = { 0.5, 2 },
   weatherDensity = { 0, 3 },
 }
 

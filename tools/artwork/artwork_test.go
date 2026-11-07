@@ -49,3 +49,19 @@ func TestGoalArtwork(t *testing.T) {
 		t.Errorf("Icon-Ecke sollte transparent sein, Alpha = %d", a)
 	}
 }
+
+func TestGlintIsBrightInTheMiddleAndTransparentAtTheEdges(t *testing.T) {
+	glint := renderGlint(glintSize)
+	if a := glint.NRGBAAt(glintSize/2, glintSize/2).A; a != 255 {
+		t.Errorf("Mitte sollte voll hell sein, Alpha = %d", a)
+	}
+	for _, p := range [][2]int{{0, 0}, {glintSize - 1, 0}, {0, glintSize / 2}, {glintSize / 2, glintSize - 1}} {
+		if a := glint.NRGBAAt(p[0], p[1]).A; a != 0 {
+			t.Errorf("Rand %v sollte transparent sein, Alpha = %d", p, a)
+		}
+	}
+	// Strahl: auf der Achse heller als daneben
+	if on, off := glint.NRGBAAt(glintSize*3/4, glintSize/2).A, glint.NRGBAAt(glintSize*3/4, glintSize/2+8).A; on <= off {
+		t.Errorf("Strahl fehlt: auf der Achse %d, daneben %d", on, off)
+	}
+}

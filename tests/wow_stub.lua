@@ -210,6 +210,35 @@ local frameMethods = {
 
 local function noop() end
 
+-- Texturen merken Datei oder Atlas (SetUnitCursorTexture im Test schreibt so das Zeiger-Symbol)
+frameMethods.SetTexture = function(self, texture) self._texture = texture end
+frameMethods.GetTexture = function(self) return rawget(self, "_texture") end
+frameMethods.GetAtlas = function(self) return rawget(self, "_atlas") end
+
+-- Animationen: nur Abspielzustand (group:IsPlaying) und Skripte (OnLoop, OnFinished); Werte werden nicht ausgewertet.
+-- frame._animationGroups listet die Gruppen eines Frames bzw. einer Textur für Prüfungen.
+local function newAnimationGroup()
+  local group = { _playing = false, _scripts = {}, _animations = {} }
+  group.Play = function(self) self._playing = true end
+  group.Stop = function(self) self._playing = false end
+  group.IsPlaying = function(self) return self._playing end
+  group.SetScript = function(self, name, handler) self._scripts[name] = handler end
+  group.GetScript = function(self, name) return self._scripts[name] end
+  group.CreateAnimation = function(self, kind)
+    local animation = setmetatable({ _kind = kind }, { __index = function() return noop end })
+    table.insert(self._animations, animation)
+    return animation
+  end
+  return setmetatable(group, { __index = function() return noop end })
+end
+
+frameMethods.CreateAnimationGroup = function(self)
+  local group = newAnimationGroup()
+  self._animationGroups = rawget(self, "_animationGroups") or {}
+  table.insert(self._animationGroups, group)
+  return group
+end
+
 local function newFrame()
   local frame = {
     _shown = true, _scripts = {}, _events = {}, _text = "",
