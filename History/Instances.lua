@@ -8,7 +8,8 @@
 -- eine andere Kopie, wird dort geteilt.
 -- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation }
 -- (reputation fehlt bei älteren Läufen).
--- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt.
+-- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt. Den offenen Lauf
+-- anderer Charaktere wandelt erst deren Login um: Summarize versteht deshalb beide Formen (Historie zeigt ihn).
 local _, ns = ...
 local Stats = ns.Stats
 local Journal = ns.Journal
@@ -16,6 +17,14 @@ local InstanceCopy = ns.InstanceCopy
 
 local Instances = {}
 ns.Instances = Instances
+
+-- Felder des Journal-Eintrags (counters.*) und ihre Zähler beim Zusammenführen. Kills im Eintrag sind PvE und PvP
+-- zusammen und fließen zurück in die PvE-Kills.
+local RECORD_COUNTERS = {
+  { field = "kills", counter = Stats.PVE_KILLS },
+  { field = "deaths", counter = Stats.DEATHS },
+  { field = "reputation", counter = Stats.REPUTATION },
+}
 
 local runningSince  -- GetTime(), seit dem die Uhr des offenen Laufs läuft (nil = angehalten)
 
@@ -96,14 +105,6 @@ local function newRun(name, instanceType, startedAt, level)
   }
 end
 
-local function copyCounters(counters)
-  local copy = {}
-  for counter, value in pairs(counters) do
-    copy[counter] = value
-  end
-  return copy
-end
-
 local function finish()
   if not currentRun() then return end
   ns.Debug("instances", "run finished: %s, %s s", currentRun().name, Instances.GetRunSeconds(currentRun()))
@@ -130,7 +131,7 @@ end
 
 -- Stand vor einem Wiedereintritt, dessen Kopie noch nicht feststeht
 local function snapshot(run)
-  return { seconds = run.seconds, stats = copyCounters(run.stats), at = time(), level = ns.level }
+  return { seconds = run.seconds, stats = ns.Database.CopyCounters(run.stats), at = time(), level = ns.level }
 end
 
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
@@ -194,9 +195,9 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     run.seconds = run.seconds + previous.seconds
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
-    stats[Stats.PVE_KILLS] = (stats[Stats.PVE_KILLS] or 0) + previous.counters.kills
-    stats[Stats.DEATHS] = (stats[Stats.DEATHS] or 0) + previous.counters.deaths
-    stats[Stats.REPUTATION] = (stats[Stats.REPUTATION] or 0) + (previous.counters.reputation or 0)
+    for _, mapping in ipairs(RECORD_COUNTERS) do
+      stats[mapping.counter] = (stats[mapping.counter] or 0) + (previous.counters[mapping.field] or 0)
+    end
   end
 end)
 
@@ -213,20 +214,23 @@ InstanceCopy.OnReset(function(name)
   if run and run.name == name then finish() end
 end)
 
--- Lauf aus einer älteren Version (xp, counters) auf den vollen Zählersatz bringen
+-- Voller Zählersatz aus den alten Feldern xp, kills, deaths
+local function convert(xp, kills, deaths)
+  local stats = ns.Database.NewCounters()
+  stats[Stats.XP_GAINED] = xp
+  stats[Stats.PVE_KILLS] = kills
+  stats[Stats.DEATHS] = deaths
+  return stats
+end
+
+-- Lauf aus einer älteren Version (xp, counters; Stand davor mit xp, kills, deaths) auf den vollen Zählersatz bringen
 local function upgrade(run)
   if run.stats then return end
-  run.stats = ns.Database.NewCounters()
-  run.stats[Stats.XP_GAINED] = run.xp
-  run.stats[Stats.PVE_KILLS] = run.counters.kills
-  run.stats[Stats.DEATHS] = run.counters.deaths
+  run.stats = convert(run.xp, run.counters.kills, run.counters.deaths)
   run.xp, run.counters = nil, nil
-  if run.unconfirmed and not run.unconfirmed.stats then
-    local before = run.unconfirmed
-    before.stats = ns.Database.NewCounters()
-    before.stats[Stats.XP_GAINED] = before.xp
-    before.stats[Stats.PVE_KILLS] = before.kills
-    before.stats[Stats.DEATHS] = before.deaths
+  local before = run.unconfirmed
+  if before and not before.stats then
+    before.stats = convert(before.xp, before.kills, before.deaths)
     before.xp, before.kills, before.deaths = nil, nil, nil
   end
 end

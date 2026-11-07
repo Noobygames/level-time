@@ -130,11 +130,7 @@ end
 
 -- Kopie aller Zähler eines Bereichs, z.B. für die Historie
 function Stats.Snapshot(scope)
-  local copy = {}
-  for counter, value in pairs(countersOf(scope)) do
-    copy[counter] = value
-  end
-  return copy
+  return ns.Database.CopyCounters(countersOf(scope))
 end
 
 -- Gespielte Sekunden im Bereich (Level: vom Server, nil bis zur ersten Antwort)

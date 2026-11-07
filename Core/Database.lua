@@ -697,6 +697,15 @@ function Database.NewCounters()
   return applyDefaults({}, COUNTER_DEFAULTS)
 end
 
+-- Flache Kopie eines Zählersatzes (Stats.Snapshot, Stand eines Instanz-Laufs)
+function Database.CopyCounters(counters)
+  local copy = {}
+  for counter, value in pairs(counters) do
+    copy[counter] = value
+  end
+  return copy
+end
+
 function Database.CharacterKey(name, realm)
   return name .. "-" .. realm
 end
