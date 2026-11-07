@@ -2498,3 +2498,19 @@ Bestand folgt (ja/nein):
 Bank mitgezählt (ja/nein):
 Fehler:
 ```
+
+### 175. Erkundung und Zonen (Roadmap 307)
+
+- [ ] geprüft
+
+1. `/sg add explore 2`, zwei neue Gebiete entdecken (auch auf Max-Level ohne XP): Karte zählt je Gebiet genau eins.
+2. `/sg add explore <Nachbarzone>`: beim Betreten abgehakt; in der Zone selbst angelegt: Meldung „schon erreicht“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Entdecken zählt einmal je Gebiet (ja/nein, doppelt/gar nicht):
+Zone erreicht (ja/nein):
+Fehler:
+```

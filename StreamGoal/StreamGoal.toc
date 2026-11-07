@@ -22,6 +22,7 @@ Kinds\Gold.lua
 Kinds\Quests.lua
 Kinds\Skill.lua
 Kinds\Owned.lua
+Kinds\Explore.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
