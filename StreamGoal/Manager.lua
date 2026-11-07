@@ -468,7 +468,7 @@ local historyView = LT.TableView.Create({
     for _, goal in ipairs(records) do
       if goal.status == Goals.DONE then done = done + 1 end
     end
-    return { string.format("%d / %d", done, #records) }
+    return { string.format(L.SG_HISTORY_FOOTER, done, #records, ns.Rewards.TotalPoints()) }
   end,
   rowColor = function(goal) return STATUS_COLORS[goal.status] or Theme.COLORS.muted end,
 })

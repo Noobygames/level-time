@@ -2654,3 +2654,20 @@ Stufe und Balken stimmen (ja/nein):
 Ruf gewinnen zählt (ja/nein):
 Fehler:
 ```
+
+### 184. Belohnung und Punkte (Roadmap 308)
+
+- [ ] geprüft
+
+1. Ziel mit Belohnung „Zuschauer wählen die Zone“ und 25 Punkten: Karte zeigt die Zeile unter dem Titel, die
+   Einblendung beim Erreichen nennt sie; Historie unten „… · 25 Punkte“.
+2. `/sg`: Formular mit allen Zusätzen (Frist, Wiederholen, Belohnung, Punkte) passt ins Fenster, auch auf Französisch.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Belohnung auf Karte und Einblendung (ja/nein):
+Formular passt (ja/nein):
+Fehler:
+```

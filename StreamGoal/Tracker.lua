@@ -249,9 +249,10 @@ local function announceDone(goal)
   if settings.sound then Alerts.PlaySound() end
   if not settings.doneAlert then return end
   local def = Goals.GetKind(goal.kind)
+  local reward = ns.Rewards.Line(goal)
   Alerts.Show(title, Theme.COLORS.success, {
     notice = { icon = def.icon, texture = def.texture and def.texture(goal) or nil, title = L.SG_NOTICE_DONE,
-      body = title },
+      body = reward and (title .. "\n" .. reward) or title },
   })
 end
 

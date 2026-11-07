@@ -1,6 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> | points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -13,7 +13,8 @@ local Format = LT.Format
 local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
-ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_SUB", "SG_USAGE_PACK" }
+ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
+  "SG_USAGE_PACK" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -120,6 +121,44 @@ local function repeatGoal(argument)
   ns.Print(goalLine(goal) .. (ns.Recurring.Text(goal) and ("  " .. ns.Recurring.Text(goal)) or ""))
 end
 
+-- Belohnung: "reward 3 Zuschauer wählen die Zone", "reward 3 off"
+local function reward(argument)
+  local id, text = argument:match("^(%S*)%s*(.-)$")
+  local goal = ownActiveGoal(id)
+  if not goal then return end
+  local err = ns.Rewards.SetReward(goal, text:lower() ~= "off" and text or nil)
+  if err then
+    ns.Print(err)
+    return
+  end
+  Goals.Changed(goal)
+  ns.Print(goalLine(goal) .. "  " .. (ns.Rewards.Line(goal) or ""))
+end
+
+-- Punkte: "points" = Summe, "points 3 10" setzt, "points 3 off" entfernt
+local function points(argument)
+  local id, value = argument:match("^(%S*)%s*(%S*)")
+  if id == "" then
+    ns.Print(string.format(L.SG_CHAT_POINTS, ns.Rewards.TotalPoints(LT.characterKey), ns.Rewards.TotalPoints()))
+    return
+  end
+  local goal = ownActiveGoal(id)
+  if not goal then return end
+  local off = value:lower() == "off"
+  local err
+  if not off and not tonumber(value) then
+    err = string.format(L.SG_ERR_POINTS, ns.Rewards.MAX_POINTS)
+  else
+    err = ns.Rewards.SetPoints(goal, tonumber(value))
+  end
+  if err then
+    ns.Print(err)
+    return
+  end
+  Goals.Changed(goal)
+  ns.Print(goalLine(goal) .. "  " .. (ns.Rewards.Line(goal) or ""))
+end
+
 -- Laufendes Ziel als Teilziel an eine Checkliste hängen: "sub <Checkliste> <Ziel>"
 local function sub(argument)
   local parentId, childId = argument:match("^(%S*)%s*(%S*)")
@@ -174,6 +213,8 @@ local commands = {
   count = count,
   deadline = deadline,
   sub = sub,
+  reward = reward,
+  points = points,
   ["repeat"] = repeatGoal,
   pack = pack,
   tracker = toggleTracker,

@@ -30,10 +30,11 @@ Kinds\Checklist.lua
 Kinds\Dungeon.lua
 Kinds\Reputation.lua
 
-# Zusätze jeder Zielart: Frist, Wiederholung; Vorlagen
+# Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Vorlagen
 Deadlines.lua
 Packs.lua
 Recurring.lua
+Rewards.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
