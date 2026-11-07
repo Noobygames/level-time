@@ -85,6 +85,7 @@ function Card.Create(name)
   end
 
   local hasIcon, hasBody, hasTime = false, false, false
+  local shownIcon, shownTexture  -- zuletzt gesetztes Symbol (icon bzw. texture aus card.Set)
 
   local function layout()
     local textLeft = ACCENT_WIDTH + PADDING + (hasIcon and ICON_SIZE + ICON_GAP or 0)
@@ -120,7 +121,11 @@ function Card.Create(name)
     title:SetTextColor(r, g, b)
     hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)
-    if hasIcon then
+    -- Gleiches Symbol wie beim letzten Mal: nicht neu auflösen und setzen (Roadmap 382; Level Time Goals baut seine
+    -- Karten bei jedem Apply und Fortschritt neu, Quest-Einblendungen kommen in Serien mit demselben Symbol)
+    local sameIcon = hasIcon and spec.texture == shownTexture and spec.icon == shownIcon and icon:GetTexture() ~= nil
+    shownTexture, shownIcon = spec.texture, spec.icon
+    if hasIcon and not sameIcon then
       local texture = spec.texture or iconTexture(spec.icon)
       icon:SetTexture(texture)
       -- Fehlt die Textur im Client, zeigt er ein grünes Quadrat; das Log zeigt, was aufgelöst wurde (Roadmap 237, 244)
