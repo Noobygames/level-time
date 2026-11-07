@@ -27,15 +27,36 @@ local marks = {}  -- [Namensplakette] = Markierungs-Frame
 local anchors = {}  -- [Markierung] = { target, height } der letzten Verankerung (Anker setzen löst ein Layout aus)
 local units = {}  -- sichtbare Namensplaketten: [Einheit] = Plakette (beim Entfernen liefert das Spiel sie evtl. nicht mehr)
 
-function QuestMarks.IsAvailable()
+-- Ohne C_QuestLog.UnitIsRelatedToActiveQuest (Classic Era/TBC) markiert es gelernte Questgegner (QuestMobs.lua)
+function QuestMarks.HasClientQuestUnits()
   return C_QuestLog ~= nil and C_QuestLog.UnitIsRelatedToActiveQuest ~= nil
-    and C_NamePlate ~= nil and C_NamePlate.GetNamePlateForUnit ~= nil
+end
+
+function QuestMarks.IsAvailable()
+  return C_NamePlate ~= nil and C_NamePlate.GetNamePlateForUnit ~= nil
+end
+
+local function readable(value)
+  if ns.IsSecret(value) then return nil end
+  return value
+end
+
+-- Gelernter Gegner eines offenen Ziels: nur lebende Nicht-Spieler
+local function isLearnedQuestUnit(unit)
+  if readable(UnitIsPlayer(unit)) ~= false or readable(UnitIsDead(unit)) ~= false then return false end
+  return ns.QuestMobs.IsQuestMob(readable(UnitName(unit)))
 end
 
 -- Nach erfülltem Ziel meldet das Spiel selbst false (im Spiel geprüft)
 local function isQuestUnit(unit)
+  if not QuestMarks.HasClientQuestUnits() then return isLearnedQuestUnit(unit) end
   local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
   return not ns.IsSecret(related) and related == true
+end
+
+-- Zähler fürs Symbol: aus dem Tooltip, sonst aus dem gelernten Ziel im Questlog
+local function progressText(unit)
+  return ns.QuestTooltip.ProgressText(unit) or ns.QuestMobs.ProgressOf(readable(UnitName(unit))) or ""
 end
 
 function QuestMarks.CurrentScale()
@@ -102,7 +123,7 @@ local function update(unit)
   if show then
     local mark = markFor(plate)
     layout(mark, plate)
-    local progress = ns.db.questMarkProgress and ns.QuestTooltip.ProgressText(unit) or ""
+    local progress = ns.db.questMarkProgress and progressText(unit) or ""
     ns.Widgets.SetTextIfChanged(mark.progress, progress)
     mark:Show()
   elseif marks[plate] then

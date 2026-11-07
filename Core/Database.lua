@@ -144,6 +144,7 @@ local SETTINGS_DEFAULTS = {
   moveFrames = false,       -- Standardfenster des Spiels verschiebbar machen (MoveFrames.lua)
   questMarks = false,       -- Symbol über Gegnern und NPCs einer aktiven Quest (QuestMarks.lua)
   questMarkScale = 1,
+  questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
   -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
   -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken

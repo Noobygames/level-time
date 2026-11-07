@@ -63,9 +63,11 @@ Tracking\NearDeath.lua
 Tracking\TimeBreakdown.lua
 Tracking\RecentXpRate.lua
 Tracking\QuestCounter.lua
+Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\QuestMobs.lua
 Tracking\MoneyCounter.lua
 Tracking\Reputation.lua
 

@@ -2319,3 +2319,27 @@ Zähler sichtbar und richtig (ja/nein):
 Tooltip-Zeilen laut Debug-Log (Typen/Text):
 Fehler:
 ```
+
+### 113. Questgegner und Quest-Gegenstände lernen (Roadmap 341)
+
+- [ ] geprüft
+
+Komfort > Quests > Lernen: „Questgegner und -gegenstände lernen“ an, `/lt debug log` an. Eine Tötungsquest („töte 8 X“) und eine Sammelquest („bringe 4 Y“, Y droppt von Gegnern) annehmen und je drei Ziele erledigen, dazu einen grauen Gegner für eine Quest töten, falls möglich.
+
+1. `/lt debug check`, danach `make debuglog`: Eintrag `quests.learned` nennt die gelernten Namen (`openMobs`), die `quests`-Zeilen „objective .../... rose (...): learned true“.
+2. Classic Era/TBC: Komfort > Quests > Kill-Quest-Markierung an. Gelernte Gegner bekommen nach dem zweiten Kill das Quest-Symbol (mit „Zielstand am Symbol“ auch den Zähler aus dem Questlog); Mouseover zeigt „Quest: Name (3/8)“.
+3. Mit einem Twink dieselbe Quest annehmen: die Gegner sind sofort markiert (Classic) bzw. der Zielknopf kennt sie.
+4. Ziel erfüllt: Markierung und Tooltipzeile verschwinden.
+
+**Erwartet:** keine falschen Zuordnungen (z.B. ein zufällig gleichzeitig getöteter anderer Gegner bleibt unter 2 Treffern), keine Lua-Fehler. Retail/Forever: Tooltipzeile erscheint nicht (der Client zeigt eigene Questzeilen).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Gelernt laut Debug-Log (Namen):
+Markierung/Tooltip in Classic (ja/nein):
+Twink sofort markiert (ja/nein):
+Falsche Zuordnungen:
+Fehler:
+```

@@ -1104,6 +1104,10 @@ ns.locales = {
     COMFORT_PAGE_QUESTS = "Quests",
     QUEST_MARK_PROGRESS_TOGGLE = "Zielstand am Symbol",
     QUEST_MARK_PROGRESS_TOGGLE_TIP = "Zeigt links vom Quest-Symbol den Stand des ersten offenen Ziels, z.B. 3/8. Gelesen aus den Questzeilen des Tooltips (Retail und WoW Forever; Classic nur, wenn der Tooltip dort Questziele nennt) und nur nach Änderungen am Questlog neu.",
+    SECTION_QUEST_LEARNING = "Lernen",
+    QUEST_LEARNING_TOGGLE = "Questgegner und -gegenstände lernen",
+    QUEST_LEARNING_TOGGLE_TIP = "Merkt sich, welcher Gegner oder Gegenstand ein Questziel weiterbringt (Kill oder Beute kurz vor dem Anstieg), für alle Charaktere des Accounts. Damit markiert Classic Questgegner ohne Spielunterstützung, der Zielknopf kennt mehr Namen und Tooltips nennen die Quest. Nur eigene Spieldaten, keine fremde Datenbank.",
+    TOOLTIP_QUEST_LINE = "Quest: %s",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2201,6 +2205,10 @@ ns.locales = {
     COMFORT_PAGE_QUESTS = "Quests",
     QUEST_MARK_PROGRESS_TOGGLE = "Progress next to the mark",
     QUEST_MARK_PROGRESS_TOGGLE_TIP = "Shows the count of the first open objective left of the quest mark, e.g. 3/8. Read from the quest lines of the unit tooltip (Retail and WoW Forever; Classic only if its tooltip lists quest objectives) and refreshed only when the quest log changes.",
+    SECTION_QUEST_LEARNING = "Learning",
+    QUEST_LEARNING_TOGGLE = "Learn quest mobs and items",
+    QUEST_LEARNING_TOGGLE_TIP = "Remembers which mob or item advances a quest objective (kill or loot right before the count rises), for all characters of the account. Classic then marks quest mobs without game support, the target button knows more names and tooltips name the quest. Only your own game data, no third-party database.",
+    TOOLTIP_QUEST_LINE = "Quest: %s",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3298,6 +3306,10 @@ ns.locales = {
     COMFORT_PAGE_QUESTS = "Quêtes",
     QUEST_MARK_PROGRESS_TOGGLE = "Progression à côté du marqueur",
     QUEST_MARK_PROGRESS_TOGGLE_TIP = "Affiche à gauche du marqueur de quête l'état du premier objectif ouvert, p. ex. 3/8. Lu dans les lignes de quête de l'infobulle (Retail et WoW Forever ; Classic seulement si l'infobulle y indique les objectifs) et mis à jour seulement quand le journal de quêtes change.",
+    SECTION_QUEST_LEARNING = "Apprentissage",
+    QUEST_LEARNING_TOGGLE = "Apprendre ennemis et objets de quête",
+    QUEST_LEARNING_TOGGLE_TIP = "Retient quel ennemi ou objet fait avancer un objectif de quête (victime ou butin juste avant la hausse), pour tous les personnages du compte. Classic marque alors les ennemis de quête sans aide du jeu, le bouton de cible connaît plus de noms et les infobulles nomment la quête. Uniquement vos propres données, aucune base externe.",
+    TOOLTIP_QUEST_LINE = "Quête : %s",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4395,6 +4407,10 @@ ns.locales = {
     COMFORT_PAGE_QUESTS = "Misiones",
     QUEST_MARK_PROGRESS_TOGGLE = "Progreso junto al marcador",
     QUEST_MARK_PROGRESS_TOGGLE_TIP = "Muestra a la izquierda del marcador de misión el progreso del primer objetivo abierto, p. ej. 3/8. Se lee de las líneas de misión del tooltip (Retail y WoW Forever; Classic solo si su tooltip muestra objetivos) y solo se actualiza cuando cambia el registro de misiones.",
+    SECTION_QUEST_LEARNING = "Aprendizaje",
+    QUEST_LEARNING_TOGGLE = "Aprender enemigos y objetos de misión",
+    QUEST_LEARNING_TOGGLE_TIP = "Recuerda qué enemigo u objeto hace avanzar un objetivo de misión (muerte o botín justo antes del aumento), para todos los personajes de la cuenta. Así Classic marca enemigos de misión sin ayuda del juego, el botón de objetivo conoce más nombres y los tooltips nombran la misión. Solo tus propios datos, sin base de datos ajena.",
+    TOOLTIP_QUEST_LINE = "Misión: %s",
   },
 }
 

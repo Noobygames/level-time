@@ -614,6 +614,8 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
 end
 -- Quests: Markierungen, Anzeigen und Helfer rund um den Questlog
 addSubPage("COMFORT_PAGE_QUESTS")
+addSection("SECTION_QUEST_LEARNING")
+addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning") })
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),

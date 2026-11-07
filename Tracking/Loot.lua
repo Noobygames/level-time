@@ -54,6 +54,13 @@ local function guessSource()
   return nil
 end
 
+-- Jede eigene Beute (alle Qualitäten), z.B. zum Lernen von Quest-Gegenständen: listener(link, quantity)
+local selfLootListeners = {}
+function Loot.OnSelfLoot(listener)
+  ns.RememberSource(listener, "Loot.lua")
+  table.insert(selfLootListeners, listener)
+end
+
 if #lootFormats > 0 then
   ns.RegisterEvent("CHAT_MSG_LOOT", function(message)
     if ns.IsSecret(message) then return end
@@ -61,6 +68,7 @@ if #lootFormats > 0 then
     if not args then return end
 
     local link = args[1]
+    for _, listener in ipairs(selfLootListeners) do ns.SafeCall(listener, link, tonumber(args[2]) or 1) end
     local quality = Loot.QualityOf(link)
     if not quality or quality < MIN_QUALITY then return end
 

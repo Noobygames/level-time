@@ -45,7 +45,7 @@ local function inCombat()
 end
 
 function QuestItem.CanTarget()
-  return ns.QuestMarks.IsAvailable()
+  return ns.QuestMarks.IsAvailable() and ns.QuestMarks.HasClientQuestUnits()
 end
 
 -- Quests mit benutzbarem Item: { questID, index, link, itemId, texture }
