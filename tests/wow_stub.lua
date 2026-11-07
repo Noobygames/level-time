@@ -938,6 +938,13 @@ function CompleteQuest() questAction("complete") end
 function GetQuestMoneyToGet() return state.questMoney end
 function GetNumQuestChoices() return #state.questChoices end
 function GetQuestItemLink(kind, index) return kind == "choice" and state.questChoices[index] or nil end
+-- 5. Wert isUsable: state.questChoiceUnusable[i] = true für nicht benutzbare Wahlen
+function GetQuestItemInfo(kind, index)
+  if kind ~= "choice" or not state.questChoices[index] then return nil end
+  return "Wahl " .. index, 134000, 1, 2, not (state.questChoiceUnusable or {})[index]
+end
+-- Angelegte Ausrüstung: state.equipped[platz] = Link
+function GetInventoryItemLink(_, slot) return (state.equipped or {})[slot] end
 function GetQuestReward(choice) questAction("reward", choice) end
 
 C_Item = {
@@ -947,10 +954,16 @@ C_Item = {
     return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
   end,
   -- Wie im Client: nichts für unbekannte IDs, sonst itemID, Typ, Untertyp, Platz, Symbol, Klasse, Unterklasse
-  GetItemInfoInstant = function(itemID)
+  GetItemInfoInstant = function(item)
+    local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
     local icon = state.itemIcons[itemID]
     if not icon then return nil end
-    return itemID, "Rüstung", "Leder", "INVTYPE_FEET", icon, 4, 2
+    return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
+  end,
+  -- Itemlevel je itemID: state.itemLevels
+  GetDetailedItemLevelInfo = function(item)
+    local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
+    return (state.itemLevels or {})[itemID]
   end,
 }
 

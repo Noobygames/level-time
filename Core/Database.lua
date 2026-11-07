@@ -148,6 +148,7 @@ local SETTINGS_DEFAULTS = {
   questMarkScale = 1,
   questCleanupButton = false, -- Knopf "Graue Quests" am Questlog (QuestCleanup.lua)
   warnQuestLogFull = false,   -- Hinweis bei fast vollem Questlog
+  rewardHint = false,         -- Goldmünze und Itemlevel-Gewinn auf Questbelohnungen (RewardHint.lua)
   questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
   -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,

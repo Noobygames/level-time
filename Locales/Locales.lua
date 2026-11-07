@@ -1131,6 +1131,8 @@ ns.locales = {
     HISTORY_TAB_TURN_IN = "Abgabe",
     HISTORY_LEVEL_SHARE = "% Level",
     TURN_IN_HINT = "Abgabebereite Quests des eingeloggten Charakters mit XP und Anteil am Level, zum Bündeln vor dem Ruhestein.",
+    REWARD_HINT_TOGGLE = "Belohnung empfehlen",
+    REWARD_HINT_TOGGLE_TIP = "Markiert bei Questbelohnungen zur Auswahl die mit dem höchsten Händlerpreis (Goldmünze) und die benutzbare mit dem größten Itemlevel-Gewinn gegenüber deiner Ausrüstung (+N). Im Questfenster und in den Questdetails; wählt nichts aus.",
   },
   enUS = {
     SECTION_SCREENSHOTS = "Milestone screenshots",
@@ -2255,6 +2257,8 @@ ns.locales = {
     HISTORY_TAB_TURN_IN = "Turn-in",
     HISTORY_LEVEL_SHARE = "% level",
     TURN_IN_HINT = "Quests of the logged-in character that are ready to turn in, with XP and share of the level, to bundle them before using the hearthstone.",
+    REWARD_HINT_TOGGLE = "Recommend reward",
+    REWARD_HINT_TOGGLE_TIP = "Marks the quest reward choice with the highest vendor price (gold coin) and the usable one with the biggest item level gain over your gear (+N). In the quest window and the quest details; does not pick anything.",
   },
   frFR = {
     SECTION_SCREENSHOTS = "Captures d'étapes",
@@ -3379,6 +3383,8 @@ ns.locales = {
     HISTORY_TAB_TURN_IN = "À rendre",
     HISTORY_LEVEL_SHARE = "% niveau",
     TURN_IN_HINT = "Quêtes du personnage connecté prêtes à être rendues, avec PX et part du niveau, pour les regrouper avant la pierre de foyer.",
+    REWARD_HINT_TOGGLE = "Recommander la récompense",
+    REWARD_HINT_TOGGLE_TIP = "Marque parmi les récompenses au choix celle au prix de vente le plus élevé (pièce d'or) et l'utilisable au plus grand gain de niveau d'objet par rapport à votre équipement (+N). Dans la fenêtre de quête et les détails ; ne choisit rien.",
   },
   esES = {
     SECTION_SCREENSHOTS = "Capturas de hitos",
@@ -4503,6 +4509,8 @@ ns.locales = {
     HISTORY_TAB_TURN_IN = "Entregar",
     HISTORY_LEVEL_SHARE = "% nivel",
     TURN_IN_HINT = "Misiones del personaje conectado listas para entregar, con PX y parte del nivel, para agruparlas antes de la piedra de hogar.",
+    REWARD_HINT_TOGGLE = "Recomendar recompensa",
+    REWARD_HINT_TOGGLE_TIP = "Marca entre las recompensas a elegir la de mayor precio de venta (moneda de oro) y la utilizable con mayor ganancia de nivel de objeto respecto a tu equipo (+N). En la ventana de misión y en los detalles; no elige nada.",
   },
 }
 

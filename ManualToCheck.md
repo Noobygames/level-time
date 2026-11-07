@@ -2435,3 +2435,26 @@ Liste und Summen richtig (ja/nein):
 Quest-Tooltip (ja/nein):
 Fehler:
 ```
+
+### 118. Belohnungsempfehlung (Roadmap 346)
+
+- [ ] geprüft
+
+Komfort > Quests: „Belohnung empfehlen“ an. Eine Quest mit mehreren Belohnungen zur Auswahl abgeben (Questfenster) und vorher im Questlog die Details derselben Quest ansehen.
+
+1. Die Wahl mit dem höchsten Händlerpreis hat oben links eine Goldmünze; die benutzbare Wahl mit dem größten Itemlevel-Gewinn unten links „+N“ in Grün.
+2. Beim ersten Öffnen (Items noch nicht im Cache) erscheinen die Symbole kurz verzögert.
+3. Sitzen die Symbole sauber auf den Knöpfen (auch im Questlog-Detail)? Überdecken sie Anzahl oder Name?
+4. `/lt debug log`, danach `make debuglog`: Zeile „reward hint: value …, upgrade …, log …“.
+
+**Erwartet:** keine automatische Wahl, keine Lua-Fehler; Ringe/Schmuck vergleichen mit dem schwächeren angelegten.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Münze richtig (ja/nein):
++N richtig (ja/nein):
+Im Questlog-Detail (ja/nein):
+Fehler:
+```

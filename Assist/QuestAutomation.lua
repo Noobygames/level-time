@@ -120,21 +120,9 @@ ns.RegisterEvent("QUEST_PROGRESS", function()
   CompleteQuest()
 end)
 
--- Verkaufswert einer Belohnung zur Auswahl; nil, solange der Client das Item nicht kennt
-local function choiceValue(index)
-  local link = GetQuestItemLink("choice", index)
-  return link and ns.Items.GetSellPrice(link)
-end
-
--- Belohnung mit dem höchsten Verkaufswert; nil, wenn ein Wert noch unbekannt ist
+-- Belohnung mit dem höchsten Verkaufswert; nil, wenn ein Wert noch unbekannt ist (Lib/QuestRewards.lua)
 local function mostValuableChoice(count)
-  local best, bestValue
-  for index = 1, count do
-    local value = choiceValue(index)
-    if not value then return nil end
-    if not bestValue or value > bestValue then best, bestValue = index, value end
-  end
-  return best
+  return (ns.QuestRewards.MostValuable(count))
 end
 
 -- Welche Belohnung genommen wird; nil = Spieler wählt selbst

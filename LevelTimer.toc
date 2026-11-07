@@ -35,6 +35,7 @@ Lib\Bags.lua
 Lib\Items.lua
 Lib\QuestLog.lua
 Lib\QuestTooltip.lua
+Lib\QuestRewards.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\Widgets.lua
@@ -135,6 +136,7 @@ Assist\InviteInfo.lua
 Assist\Merchant.lua
 Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
+Assist\RewardHint.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\ScreenText.lua

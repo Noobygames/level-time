@@ -625,6 +625,7 @@ addToggles({
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
   toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
+  toggle("REWARD_HINT_TOGGLE", "rewardHint"),
 })
 builder.AddButtonRow({
   { label = "QUEST_ITEM_MOVE", onClick = function() ns.QuestItem.SetMoving(not ns.QuestItem.IsMoving()) end },
