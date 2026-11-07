@@ -218,6 +218,7 @@ Lib\Export.lua
 Lib\TableOrder.lua
 Lib\TableView.lua
 Lib\OptionsBuilder.lua
+UI\CharacterMenu.lua
 UI\HistoryWindow.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua

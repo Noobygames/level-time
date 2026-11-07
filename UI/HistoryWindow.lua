@@ -27,6 +27,7 @@ local CLOSE_BUTTON_GAP = 28  -- Platz für den Schließen-Knopf oben rechts
 local TAB_GAP = 12
 local SUBTAB_GAP = 10
 local UPDATE_INTERVAL = 1  -- Sekunden; hält laufende Einträge aktuell
+local NAME_COLOR = { 1, 1, 1 }  -- Charaktername ohne bekannte Klasse
 
 local panel = Widgets.CreatePanel("LevelTimerHistory", 0.95)
 panel:SetWidth(HistoryWindow.CONTENT_WIDTH + 2 * MARGIN)  -- Höhe hängt von den Unterreiter-Zeilen ab (refresh)
@@ -138,90 +139,21 @@ local nextButton = Widgets.CreateButton(panel, ARROW_SIZE, ARROW_SIZE, function(
 nextButton:SetText(">")
 nextButton:SetPoint("TOPRIGHT", -MARGIN, CHARACTER_ROW_TOP + 4)
 
----------------------------------------------------------------------------
--- Liste aller Charaktere: Klick auf den Namen. Mehr als MENU_ROWS Einträge scrollen mit dem Mausrad.
----------------------------------------------------------------------------
-local MENU_ROWS = 12
-local MENU_ROW_HEIGHT = 18
-local MENU_PADDING = 8
-local MENU_ALPHA = 0.98
-
-local menu = CreateFrame("Frame", "LevelTimerHistoryMenu", panel, "BackdropTemplate")
-menu:SetFrameStrata("FULLSCREEN_DIALOG")
-menu:SetBackdrop({ bgFile = Widgets.WHITE_TEXTURE, edgeFile = Widgets.WHITE_TEXTURE, edgeSize = 1 })
-local menuR, menuG, menuB = ns.Theme.RGB("background")
-menu:SetBackdropColor(menuR, menuG, menuB, MENU_ALPHA)
-menu:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
-menu:EnableMouse(true)
-menu:EnableMouseWheel(true)
-menu:Hide()
-table.insert(UISpecialFrames, "LevelTimerHistoryMenu")
-
--- Unsichtbarer Fänger hinter dem Menü: ein Klick irgendwo im Fenster schließt es
-local menuCatcher = CreateFrame("Button", nil, panel)
-menuCatcher:SetAllPoints(panel)
-menuCatcher:SetFrameStrata("FULLSCREEN_DIALOG")
-menuCatcher:SetFrameLevel(menu:GetFrameLevel() - 1)
-menuCatcher:SetScript("OnClick", function() menu:Hide() end)
-menuCatcher:Hide()
-menu:HookScript("OnShow", function() menuCatcher:Show() end)
-menu:HookScript("OnHide", function() menuCatcher:Hide() end)
-
-local menuRows = {}
-local menuOffset = 0
-
-local function refreshMenu()
-  local keys = History.GetCharacterKeys()
-  menuOffset = math.max(0, math.min(menuOffset, #keys - MENU_ROWS))
-  local shown = math.min(#keys, MENU_ROWS)
-  local widest = 0
-  for i = 1, shown do
-    local row = menuRows[i]
-    if not row then
-      row = Widgets.CreateTab(menu, "GameFontHighlight", function(self)
-        selectedCharacter = self.characterKey
-        menu:Hide()
-        refresh()
-      end)
-      row:SetPoint("TOPLEFT", MENU_PADDING, -MENU_PADDING - (i - 1) * MENU_ROW_HEIGHT)
-      row:SetPoint("TOPRIGHT", -MENU_PADDING, -MENU_PADDING - (i - 1) * MENU_ROW_HEIGHT)
-      menuRows[i] = row
-    end
-    local key = keys[i + menuOffset]
-    row.characterKey = key
-    row:SetLabel(History.DisplayName(key))
-    local character = History.GetCharacter(key)
-    local classColor = RAID_CLASS_COLORS and character.class and RAID_CLASS_COLORS[character.class]
-    local r, g, b = 1, 1, 1
-    if classColor then r, g, b = classColor.r, classColor.g, classColor.b end
-    row.label:SetTextColor(r, g, b)
-    row:Show()
-    widest = math.max(widest, row:GetWidth())
-  end
-  for i = shown + 1, #menuRows do menuRows[i]:Hide() end
-  menu:SetSize(widest + 2 * MENU_PADDING, shown * MENU_ROW_HEIGHT + 2 * MENU_PADDING)
-end
-
-menu:SetScript("OnMouseWheel", function(_, delta)
-  menuOffset = menuOffset - delta
-  refreshMenu()
-end)
+-- Liste aller Charaktere (UI/CharacterMenu.lua): Klick auf den Namen
+local menu = ns.CharacterMenu.Create(panel, {
+  name = "LevelTimerHistoryMenu", anchor = characterName,
+  onSelect = function(characterKey)
+    selectedCharacter = characterKey
+    refresh()
+  end,
+})
 
 local nameButton = CreateFrame("Button", nil, panel)
 nameButton:SetAllPoints(characterName)
-nameButton:SetScript("OnClick", function()
-  if menu:IsShown() then
-    menu:Hide()
-    return
-  end
-  refreshMenu()
-  menu:ClearAllPoints()
-  menu:SetPoint("TOP", characterName, "BOTTOM", 0, -4)
-  menu:Show()
-end)
+nameButton:SetScript("OnClick", function() menu.Toggle() end)
 Widgets.AttachTooltip(nameButton, function() return L.HISTORY end, function() return L.HISTORY_CHARACTER_LIST_TIP end)
 panel:HookScript("OnHide", function()
-  menu:Hide()
+  menu.Hide()
 end)
 
 ---------------------------------------------------------------------------
@@ -242,12 +174,7 @@ deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
 local function showCharacterName(characterKey)
   local character = History.GetCharacter(characterKey)
   characterName:SetText(string.format(L.HISTORY_CHARACTER, History.DisplayName(characterKey), character.currentLevel.level))
-  local classColor = RAID_CLASS_COLORS and character.class and RAID_CLASS_COLORS[character.class]
-  if classColor then
-    characterName:SetTextColor(classColor.r, classColor.g, classColor.b)
-  else
-    characterName:SetTextColor(1, 1, 1)
-  end
+  characterName:SetTextColor(unpack(ns.Theme.ClassColor(character.class, NAME_COLOR)))
 end
 
 ---------------------------------------------------------------------------

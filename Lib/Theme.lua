@@ -137,14 +137,15 @@ end
 ---------------------------------------------------------------------------
 -- Farben
 ---------------------------------------------------------------------------
-local function classColor()
-  local class = UnitClass and select(2, UnitClass("player"))
+-- Klassenfarbe als { r, g, b } zum Klassen-Kürzel (RAID_CLASS_COLORS), sonst fallback (auch nil)
+function Theme.ClassColor(class, fallback)
   local color = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
-  return color and { color.r, color.g, color.b } or nil
+  if color then return { color.r, color.g, color.b } end
+  return fallback
 end
 
 local function accentFor(key)
-  if key == "class" then return classColor() end
+  if key == "class" then return Theme.ClassColor(UnitClass and select(2, UnitClass("player"))) end
   return Theme.ACCENTS[key]
 end
 

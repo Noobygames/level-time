@@ -344,9 +344,7 @@ local PERSONAL_RECORD_COLUMNS = {
 
 -- Vergleich: Zeilen in Klassenfarbe
 local function classColor(record)
-  local color = RAID_CLASS_COLORS and record.class and RAID_CLASS_COLORS[record.class]
-  if color then return { color.r, color.g, color.b } end
-  return WHITE
+  return ns.Theme.ClassColor(record.class, WHITE)
 end
 
 -- Summenzeile für Level und Sessions: Spaltenwerte der Summe, vorne "Gesamt"
