@@ -20,6 +20,12 @@
 --               verschwindet. Sichtbare Questgegner auf Namensplaketten sind ohnehin in der Nähe und bleiben.
 --               Ort und Entscheidungen werden zwischengespeichert und bei Zonenwechsel (ZONE_CHANGED*,
 --               PLAYER_ENTERING_WORLD) bzw. Questlog-Änderung (QUEST_LOG_UPDATE) verworfen.
+-- Aktualisiert wird ereignisgesteuert (Roadmap 371): Questlog, Taschen, Zone, Namensplaketten, Kampfende und
+-- Einstellungen setzen Merker; der Sekundentakt arbeitet nur, wenn ein Merker steht. Die Item-Kandidaten bleiben bis
+-- zur nächsten Questlog- oder Taschenänderung gespeichert (C_QuestLog.GetInfo erzeugt je Eintrag eine Tabelle).
+-- Ohne Ereignis neu gewählt wird nur nach Abstand (Retail/Forever, alle DISTANCE_SECONDS, nur bei mindestens zwei
+-- Kandidaten) und der Zielknopf, solange Plaketten stehen (Gegner sterben, ohne dass die Plakette verschwindet) oder
+-- sich die gelernten Namen ändern; beides ohne neue Tabellen, das Makro entsteht nur bei geänderten Namen.
 -- Attribute, Anzeigen und Verstecken der sicheren Knöpfe nur außerhalb des Kampfs; im Kampf wird es gemerkt und bei
 -- PLAYER_REGEN_ENABLED nachgeholt. Der Halter (Position und Größe über Lib/Frames.lua, Edit-Modus) wird
 -- durch die sicheren Kinder selbst geschützt und deshalb ebenfalls nur außerhalb des Kampfs angefasst.
@@ -35,6 +41,7 @@ local BUTTON_SIZE = 36
 local GAP = 4
 local LABEL_HEIGHT = 14  -- Beschriftung über den Knöpfen (nur im Edit-Modus sichtbar)
 local REFRESH_SECONDS = 1
+local DISTANCE_SECONDS = 3     -- Abstand zur Quest neu vergleichen (nur mit mehreren Kandidaten)
 local MAX_MACRO = 255          -- Länge eines Makros
 local MARKER_LINE = "\n/tm [exists,nodead] !8"  -- 8 = Totenkopf
 local DEFAULT_POS = { "CENTER", "CENTER", 0, -180 }
@@ -48,6 +55,11 @@ local acceptedAt = {}                         -- [questID] = GetTime() der Annah
 local here                                    -- QuestLog.Here(), bis zum nächsten Zonenwechsel
 local zoneCache = {}                          -- [questID] = { inZone, signals }
 local headers                                 -- [questID] = Questlog-Überschrift, bis zur nächsten Questlog-Änderung
+local candidates                              -- QuestItem.Candidates(), bis zur nächsten Questlog-/Taschenänderung
+local itemDirty, targetDirty = true, true     -- Item bzw. Zielknopf neu bestimmen
+local nextDistanceAt = 0                      -- GetTime(), ab wann der Abstand wieder verglichen wird
+local inZoneCount = 0                         -- Kandidaten der Zone bei der letzten Wahl
+local shownMobNames                           -- zuletzt gelesene QuestMobs.OpenMobNames()-Liste (Identität)
 
 local function readable(value)
   if ns.IsSecret(value) then return nil end
@@ -79,12 +91,28 @@ function QuestItem.Candidates()
   return list
 end
 
+local function markAll()
+  itemDirty, targetDirty = true, true
+end
+
 local function forgetZones()
   here, zoneCache = nil, {}
+  markAll()
 end
 
 local function forgetQuestLog()
-  headers, zoneCache = nil, {}
+  headers, zoneCache, candidates = nil, {}, nil
+  markAll()
+end
+
+local function forgetItems()
+  candidates = nil
+  itemDirty = true
+end
+
+local function cachedCandidates()
+  if not candidates then candidates = QuestItem.Candidates() end
+  return candidates
 end
 
 function QuestItem.Here()
@@ -139,8 +167,10 @@ end
 -- Nächste Quest der Zone (Abstand), sonst die zuletzt angenommene, sonst die erste
 function QuestItem.Pick()
   local best, bestDistance, bestAccepted
-  for _, candidate in ipairs(QuestItem.Candidates()) do
+  local count = 0
+  for _, candidate in ipairs(cachedCandidates()) do
     if QuestItem.IsInZone(candidate.questID) then
+      count = count + 1
       local distance = distanceOf(candidate.questID)
       local accepted = acceptedAt[candidate.questID] or 0
       local better
@@ -156,6 +186,7 @@ function QuestItem.Pick()
       if better then best, bestDistance, bestAccepted = candidate, distance, accepted end
     end
   end
+  inZoneCount = count
   return best
 end
 
@@ -163,21 +194,32 @@ local function isLivingMob(unit)
   return UnitExists(unit) and readable(UnitIsPlayer(unit)) == false and readable(UnitIsDead(unit)) == false
 end
 
--- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt)
+-- Wiederverwendete Listen des Sekundentakts (keine neuen Tabellen, solange sich nichts ändert)
+local plateList, nameList, seenNames, visibleSet = {}, {}, {}, {}
+
+local function clearList(list)
+  for index = #list, 1, -1 do list[index] = nil end
+end
+
+local function clearSet(set)
+  for key in pairs(set) do set[key] = nil end
+end
+
+-- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt), alphabetisch in plateList
 local function plateNames()
-  local names = {}
-  if not QuestItem.CanTarget() then return names end
+  clearList(plateList)
+  if not QuestItem.CanTarget() then return plateList end
   for unit in pairs(ns.NamePlates.Active()) do
     if isLivingMob(unit) then
       local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
       local name = readable(UnitName(unit))
       if not ns.IsSecret(related) and related == true and type(name) == "string" and name ~= "" then
-        names[#names + 1] = name
+        plateList[#plateList + 1] = name
       end
     end
   end
-  table.sort(names)
-  return names
+  table.sort(plateList)
+  return plateList
 end
 
 -- Gehört ein gelernter Gegner zu einer offenen Quest dieser Zone? Ohne bekannte Quest: ja
@@ -190,25 +232,36 @@ local function learnedHere(name)
   return false
 end
 
--- Namen für den Zielknopf: gelernte Gegner offener Ziele (nur Quests der Zone), danach die sichtbaren Questgegner
--- (ohne Doppelte)
-function QuestItem.TargetNames()
-  local names, seen = {}, {}
-  local function add(name)
-    if not seen[name] then
-      seen[name] = true
-      names[#names + 1] = name
-    end
+local function addName(name)
+  if not seenNames[name] then
+    seenNames[name] = true
+    nameList[#nameList + 1] = name
   end
+end
+
+-- Wie QuestItem.TargetNames, aber in die wiederverwendete nameList (nicht festhalten)
+local function collectTargetNames()
+  clearList(nameList)
+  clearSet(seenNames)
+  clearSet(visibleSet)
   local visible = plateNames()
-  local visibleSet = {}
   for _, name in ipairs(visible) do visibleSet[name] = true end
+  shownMobNames = nil
   if ns.db.questLearning then
-    for _, name in ipairs(ns.QuestMobs.OpenMobNames()) do
-      if not visibleSet[name] and learnedHere(name) then add(name) end
+    shownMobNames = ns.QuestMobs.OpenMobNames()
+    for _, name in ipairs(shownMobNames) do
+      if not visibleSet[name] and learnedHere(name) then addName(name) end
     end
   end
-  for _, name in ipairs(visible) do add(name) end
+  for _, name in ipairs(visible) do addName(name) end
+  return nameList
+end
+
+-- Namen für den Zielknopf: gelernte Gegner offener Ziele (nur Quests der Zone), danach die sichtbaren Questgegner
+-- (ohne Doppelte); eigene Liste
+function QuestItem.TargetNames()
+  local names = {}
+  for index, name in ipairs(collectTargetNames()) do names[index] = name end
   return names
 end
 
@@ -316,8 +369,26 @@ local function setItem(candidate)
   shown.itemId = itemId
 end
 
+local NO_NAMES = {}
+local builtNames, builtMarker = {}, nil  -- Namen und Marker, aus denen das gezeigte Makro entstand
+
+-- Gleiche Namen und gleicher Marker wie beim letzten Makro? (Vergleich ohne neue Tabellen)
+local function sameNames(names, marker)
+  if marker ~= builtMarker or #names ~= #builtNames then return false end
+  for index = 1, #names do
+    if names[index] ~= builtNames[index] then return false end
+  end
+  return true
+end
+
 local function setTarget(names)
-  local macro, count = QuestItem.TargetMacro(names or {}, ns.db and ns.db.questTargetMarker)
+  names = names or NO_NAMES
+  local marker = ns.db and ns.db.questTargetMarker or false
+  if sameNames(names, marker) then return end
+  clearList(builtNames)
+  for index = 1, #names do builtNames[index] = names[index] end
+  builtMarker = marker
+  local macro, count = QuestItem.TargetMacro(names, marker)
   if macro then
     if macro ~= shown.target then targetButton:SetAttribute("macrotext", macro) end
     targetButton:Show()
@@ -339,8 +410,10 @@ function QuestItem.Refresh()
   pending = false
   local db = ns.db
   local itemBefore, targetBefore = shown.itemId, shown.target
+  itemDirty, targetDirty = false, false
+  nextDistanceAt = GetTime() + DISTANCE_SECONDS
   setItem(db and db.questItemButton and QuestItem.Pick() or nil)
-  setTarget(db and db.questTargetButton and QuestItem.TargetNames() or nil)
+  setTarget(db and db.questTargetButton and collectTargetNames() or nil)
   if shown.itemId ~= itemBefore or shown.target ~= targetBefore then
     ns.Debug("questitem", "item %s (link %s), target %s", shown.itemId, itemButton.link, shown.target)
   end
@@ -352,9 +425,11 @@ create()
 ns.RegisterEvent("QUEST_ACCEPTED", function(...)
   local questID = readable((select(select("#", ...), ...)))  -- Era: questIndex, questID; Retail/Forever: questID
   if type(questID) == "number" then acceptedAt[questID] = GetTime() end
+  forgetQuestLog()
 end)
 -- Einstellungen anwenden: Text, Position (Profilwechsel) und Knöpfe; im Kampf aufgeschoben
 local function apply()
+  markAll()
   if inCombat() then
     pending = true
     return
@@ -379,11 +454,35 @@ end
 for _, event in ipairs({ "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "PLAYER_ENTERING_WORLD" }) do
   ns.RegisterEvent(event, onZoneChanged)
 end
--- Questlog geändert: Überschriften und Zonen-Entscheidungen verwerfen; die Knöpfe folgen mit dem Sekundentakt
+-- Questlog geändert: Überschriften, Kandidaten und Zonen-Entscheidungen verwerfen; die Knöpfe folgen mit dem
+-- Sekundentakt (QUEST_LOG_UPDATE kommt oft mehrmals hintereinander, eingelesen wird höchstens einmal je Takt)
 ns.RegisterEvent("QUEST_LOG_UPDATE", forgetQuestLog)
+ns.RegisterEvent("QUEST_REMOVED", forgetQuestLog)
+ns.RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player", forgetQuestLog)
+-- Taschen: Anzahl auf dem Knopf, Quest-Items können dazukommen oder wegfallen
+ns.RegisterEvent("BAG_UPDATE_DELAYED", forgetItems)
+local function plateChanged() targetDirty = true end
+ns.RegisterEvent("NAME_PLATE_UNIT_ADDED", plateChanged)
+ns.RegisterEvent("NAME_PLATE_UNIT_REMOVED", plateChanged)
 
-ns.Every(REFRESH_SECONDS, function()
-  if buttonsWanted() or (holder and holder:IsShown()) then QuestItem.Refresh() end
-end)
+-- Ohne Ereignis: nach Abstand neu wählen (nur mit mehreren Kandidaten, wo der Client Abstände kennt)
+local function distanceDue(db)
+  return db.questItemButton and inZoneCount >= 2 and C_QuestLog ~= nil and C_QuestLog.GetDistanceSqToQuest ~= nil
+    and GetTime() >= nextDistanceAt
+end
+
+-- Zielknopf: stehende Plaketten (Gegner sterben, Namen werden lesbar) und neu gelernte Namen
+local function targetMayChange(db)
+  if not db.questTargetButton then return false end
+  if next(ns.NamePlates.Active()) ~= nil and QuestItem.CanTarget() then return true end
+  return db.questLearning and ns.QuestMobs.OpenMobNames() ~= shownMobNames
+end
+
+local function tick()
+  local db = ns.db
+  if itemDirty or targetDirty or distanceDue(db) or targetMayChange(db) then QuestItem.Refresh() end
+end
+
+ns.Every(REFRESH_SECONDS, tick, function() return buttonsWanted() or (holder ~= nil and holder:IsShown()) end)
 
 ns.RegisterApply(apply)
