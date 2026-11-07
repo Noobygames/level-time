@@ -178,6 +178,7 @@ local SETTINGS_DEFAULTS = {
   hideKeybindText = false, hideMacroText = false, rangeColor = false,
   hideBossBanner = false, hideEventToasts = false, hideAlerts = false, hideStanceBar = false,
   hideRestAnimation = false, hidePortraitNumbers = false,
+  hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
   tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua

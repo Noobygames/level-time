@@ -13,6 +13,18 @@
 --   hidePortraitNumbers  Schadens- und Heilzahlen auf Spieler- und Begleiterporträt (CombatFeedback): die Texte werden
 --                        nach Blizzards Show sofort versteckt (hooksecurefunc). Retail/Forever HitIndicator.HitText,
 --                        Classic PlayerHitIndicator, überall PetHitIndicator.
+--   hideBlizzardXpBar    Blizzards Erfahrungsleiste (Level Time zeigt eine eigene), hideBlizzardRepBar die Rufleiste.
+--                        Alle Clients (live, classic_era, classic_anniversary, forever) haben den StatusTrackingBarManager
+--                        mit zwei Behältern (Main/SecondaryStatusTrackingBarContainer, Systeme von Blizzards Edit Mode);
+--                        jeder Behälter hat je Art eine eigene Leiste in container.bars[StatusTrackingBarInfo.BarsEnum.*].
+--                        Ausgeblendet wird nur per Alpha 0 und Maus aus an der Leiste (samt ExhaustionTick) und am Rahmen
+--                        des Behälters (BarFrameTexture, Classic MainMenuBarTextures/StandaloneTextures), solange der
+--                        Behälter eine ausgeblendete Art zeigt. Kein Hide/SetParent/Layout-Aufruf: der Behälter bleibt
+--                        für Edit Mode und ManageFramePositions unverändert (die Lücke über der Aktionsleiste bleibt).
+--                        Blizzard setzt Alpha nur am Behälter (Ein-/Ausblend-Animation), nie an Leiste oder Rahmen;
+--                        wechselt die gezeigte Art (ApplyPendingBarToShow, hooksecurefunc), wird neu angewendet.
+--                        Nur außerhalb des Kampfs, im Kampf geändert wird nach PLAYER_REGEN_ENABLED nachgeholt.
+--                        Ältere Clients ohne Manager: MainMenuExpBar (mit ExhaustionTick) und ReputationWatchBar.
 -- Abgemeldete Ereignisse werden nur wieder angemeldet, wenn sie vorher angemeldet waren (IsEventRegistered).
 local _, ns = ...
 
@@ -38,6 +50,9 @@ local HIDDEN = 0
 
 local setAlpha = ns.Overrides.Alpha()
 local setParent = ns.Overrides.Parent()
+local setMouse = ns.Overrides.New(
+  function(frame) return frame:IsMouseEnabled() end,
+  function(frame, enabled) frame:EnableMouse(enabled) end)
 
 -- Ereignisse eines Frames umkehrbar abmelden: nur die, die angemeldet waren, kommen später zurück
 local muted = {}  -- Frame -> Liste abgemeldeter Ereignisse
@@ -100,12 +115,75 @@ function HideFrames.StanceBar()
   return StanceBar
 end
 
+-- Statusleisten: Arten wie StatusTrackingBarInfo.BarsEnum (Werte als Rückfall, falls die Tabelle fehlt)
+local BAR_KINDS = { experience = 4, reputation = 1 }
+local BAR_ENUM_KEYS = { experience = "Experience", reputation = "Reputation" }
+local CONTAINER_NAMES = { "MainStatusTrackingBarContainer", "SecondaryStatusTrackingBarContainer" }
+local LEGACY_BARS = { experience = "MainMenuExpBar", reputation = "ReputationWatchBar" }
+local ART_LISTS = { "MainMenuBarTextures", "StandaloneTextures" }
+
+function HideFrames.BarIndex(kind)
+  local enum = type(StatusTrackingBarInfo) == "table" and StatusTrackingBarInfo.BarsEnum
+  local index = type(enum) == "table" and enum[BAR_ENUM_KEYS[kind]]
+  return type(index) == "number" and index or BAR_KINDS[kind]
+end
+
+-- Behälter des StatusTrackingBarManager (barContainers, sonst die globalen Namen)
+function HideFrames.StatusBarContainers()
+  local list = {}
+  local containers = child(StatusTrackingBarManager, "barContainers")
+  if containers then
+    for _, container in ipairs(containers) do
+      if type(container) == "table" then table.insert(list, container) end
+    end
+  else
+    for _, name in ipairs(CONTAINER_NAMES) do
+      if type(_G[name]) == "table" then table.insert(list, _G[name]) end
+    end
+  end
+  return list
+end
+
+-- Leisten einer Art (eine je Behälter; ältere Clients der eine globale Frame)
+function HideFrames.StatusBars(kind)
+  local list = {}
+  local index = HideFrames.BarIndex(kind)
+  for _, container in ipairs(HideFrames.StatusBarContainers()) do
+    local bar = child(child(container, "bars"), index)
+    if bar then table.insert(list, bar) end
+  end
+  local legacy = _G[LEGACY_BARS[kind]]
+  if #list == 0 and type(legacy) == "table" then table.insert(list, legacy) end
+  return list
+end
+
+-- Gezeigte Art eines Behälters (StatusTrackingBarContainerMixin.shownBarIndex, -1 = keine)
+function HideFrames.ShownBarIndex(container)
+  local index = container.shownBarIndex
+  return type(index) == "number" and index or nil
+end
+
+-- Rahmen-Texturen eines Behälters (Retail/Forever BarFrameTexture, Classic die beiden Textur-Listen)
+function HideFrames.ContainerArt(container)
+  local list = {}
+  local frameTexture = child(container, "BarFrameTexture")
+  if frameTexture then table.insert(list, frameTexture) end
+  for _, key in ipairs(ART_LISTS) do
+    for _, texture in ipairs(child(container, key) or {}) do
+      if type(texture) == "table" then table.insert(list, texture) end
+    end
+  end
+  return list
+end
+
 function HideFrames.HasBossBanner() return BossBanner ~= nil end
 function HideFrames.HasEventToasts() return EventToastManagerFrame ~= nil end
 function HideFrames.HasAlerts() return AlertFrame ~= nil end
 function HideFrames.HasStanceBar() return HideFrames.StanceBar() ~= nil end
 function HideFrames.HasRestAnimation() return #HideFrames.RestFrames() > 0 end
 function HideFrames.HasPortraitNumbers() return #HideFrames.HitTexts() > 0 end
+function HideFrames.HasXpBar() return #HideFrames.StatusBars("experience") > 0 end
+function HideFrames.HasRepBar() return #HideFrames.StatusBars("reputation") > 0 end
 
 ---------------------------------------------------------------------------
 -- Haltungsleiste (geschützte Knöpfe: nicht im Kampf)
@@ -130,6 +208,74 @@ end
 
 ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if stancePending then applyStanceBar() end
+end)
+
+---------------------------------------------------------------------------
+-- Erfahrungs- und Rufleiste (Alpha und Maus, nur außerhalb des Kampfs)
+---------------------------------------------------------------------------
+local statusPending = false
+local statusHooked = {}  -- Behälter -> true, sobald ApplyPendingBarToShow nachgehakt ist
+local lastStatusState
+
+local function setBarHidden(bar, hidden)
+  setAlpha(bar, hidden, HIDDEN)
+  setMouse(bar, hidden, false)
+  local tick = child(bar, "ExhaustionTick") or (bar == _G.MainMenuExpBar and child(_G, "ExhaustionTick")) or nil
+  if tick then setMouse(tick, hidden, false) end
+end
+
+local function anyStatusBarHidden(db)
+  return db.hideBlizzardXpBar == true or db.hideBlizzardRepBar == true
+end
+
+-- Nach einem Wechsel der gezeigten Art (z.B. Max-Level: Ruf statt Erfahrung) den Rahmen neu setzen
+local function hookContainer(container)
+  if statusHooked[container] or type(container.ApplyPendingBarToShow) ~= "function" then return end
+  statusHooked[container] = true
+  hooksecurefunc(container, "ApplyPendingBarToShow", function()
+    if anyStatusBarHidden(ns.db) or statusPending then HideFrames.ApplyStatusBars() end
+  end)
+end
+
+function HideFrames.ApplyStatusBars()
+  local db = ns.db
+  if not db then return end
+  if inCombat() then
+    statusPending = true
+    ns.Debug("overrides", "status bars: waiting for combat end")
+    return
+  end
+  statusPending = false
+  local hidden = {}
+  for kind in pairs(BAR_KINDS) do
+    local hide = (kind == "experience" and db.hideBlizzardXpBar or kind == "reputation" and db.hideBlizzardRepBar)
+      == true
+    hidden[HideFrames.BarIndex(kind)] = hide
+    for _, bar in ipairs(HideFrames.StatusBars(kind)) do setBarHidden(bar, hide) end
+  end
+  local containers = HideFrames.StatusBarContainers()
+  for _, container in ipairs(containers) do
+    -- Rahmen nur weg, solange der Behälter eine ausgeblendete Art zeigt
+    local artHidden = hidden[HideFrames.ShownBarIndex(container)] == true
+    for _, texture in ipairs(HideFrames.ContainerArt(container)) do setAlpha(texture, artHidden, HIDDEN) end
+    if anyStatusBarHidden(db) then hookContainer(container) end
+  end
+  -- Nur bei Änderung loggen (Apply läuft bei jeder Einstellung)
+  local state = string.format("%s/%s/%d", tostring(db.hideBlizzardXpBar), tostring(db.hideBlizzardRepBar), #containers)
+  if state ~= lastStatusState then
+    lastStatusState = state
+    ns.Debug("overrides", "status bars: xp hidden %s, rep hidden %s, containers %s", db.hideBlizzardXpBar,
+      db.hideBlizzardRepBar, #containers)
+  end
+end
+
+ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
+  if statusPending then HideFrames.ApplyStatusBars() end
+end)
+
+-- WoW Forever: die Leisten stehen im eigenen Blizzard-Addon Blizzard_StatusTrackingBar
+ns.RegisterEvent("ADDON_LOADED", function(name)
+  if name == "Blizzard_StatusTrackingBar" and ns.db then HideFrames.ApplyStatusBars() end
 end)
 
 ---------------------------------------------------------------------------
@@ -160,6 +306,7 @@ function HideFrames.Apply(db)
     for _, text in ipairs(HideFrames.HitTexts()) do text:Hide() end
   end
   applyStanceBar()
+  HideFrames.ApplyStatusBars()
 end
 
 ns.RegisterApply(HideFrames.Apply)

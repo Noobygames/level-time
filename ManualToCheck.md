@@ -1797,3 +1797,30 @@ Flach/Minimal sauber (ja/nein, was fällt auf):
 Schriften/Kontur ok (ja/nein):
 Fehler:
 ```
+
+### 131. Blizzard-XP- und Rufleiste ausblenden (Roadmap 365)
+
+- [ ] geprüft
+
+Komfort > Oberfläche > „Blizzard-XP-Leiste ausblenden“ und „Blizzard-Rufleiste ausblenden“ (eine Fraktion beobachten), dazu der Schalter in der Leiste von `/lt edit`. Vorher und nachher `/lt debug check` (Prüfung `365.blizzardXpBar`).
+
+1. XP-Leiste aus: Blizzards Erfahrungsleiste samt Rahmen und Ruhe-Marke ist weg, Mausover zeigt keinen Tooltip; die Aktionsleisten bleiben, wo sie waren (Lücke darüber).
+2. Rufleiste aus: die Leiste der beobachteten Fraktion ist weg, die XP-Leiste bleibt (wenn sie an ist).
+3. Im Kampf umschalten: ändert sich erst nach dem Kampf, kein „Aktion blockiert“.
+4. Wieder an: beide Leisten sehen aus wie vorher (Rahmen, Text bei Mausover, Ruhe-Marke).
+5. Retail/Forever: Esc > Bearbeitungsmodus, die Leisten verschieben: kein Taint-Hinweis, nach dem Verlassen bleiben ausgeblendete Leisten unsichtbar.
+6. Level-Up auf Max-Level oder andere Fraktion beobachten: Blizzard wechselt die Leiste im Behälter, der Rahmen folgt (bleibt nicht leer stehen).
+
+**Erwartet:** keine Lua-Fehler, kein Taint-Hinweis; Classic: ob die Lücke über der Hauptleiste stört (Blizzard zeigt die Max-Level-Leiste nicht, weil der Behälter weiter da ist).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+XP-Leiste weg (ja/nein):
+Rufleiste weg (ja/nein):
+Kampf wartet (ja/nein):
+Zurück wie vorher (ja/nein):
+Lücke stört (ja/nein):
+Fehler:
+```

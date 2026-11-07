@@ -15,7 +15,7 @@ local CHECKS = {
   "286.bracketForecast", "287.ssf", "288.customSplits", "290.runs", "293.friendRace", "246.battleground",
   "329.social.target", "329.chat.windows", "329.chat.colors", "329.classColors", "329.characterFrame", "329.minimap",
   "357.theme", "358.frames.positions", "359.editMode",
-  "364.lootRoll.api",
+  "364.lootRoll.api", "365.blizzardXpBar",
 }
 
 wow.login()

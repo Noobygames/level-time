@@ -29,6 +29,7 @@ local TOOLBAR_PADDING = 12
 local TOOLBAR_BUTTON_WIDTH = 90
 local BUTTON_HEIGHT = 22
 local BUTTON_GAP = 6
+local CHECK_GAP = 4  -- Abstand Schalter zur Knopfzeile
 local POPUP_WIDTH = 220
 local POPUP_PADDING = 10
 local PERCENT = 100
@@ -288,7 +289,7 @@ local function updateGrid()
 end
 
 ---------------------------------------------------------------------------
--- Leiste oben: Titel, Hinweis, Raster, Alle zurücksetzen, Fertig; nimmt die Tastatur (Pfeile, Esc)
+-- Leiste oben: Titel, Hinweis, Schalter Blizzard-XP-Leiste, Raster, Alle zurücksetzen, Fertig; nimmt die Tastatur
 ---------------------------------------------------------------------------
 local toolbar = Widgets.CreatePanel("LevelTimerEditMode", 0.95)
 toolbar:SetFrameStrata("FULLSCREEN_DIALOG")
@@ -321,6 +322,27 @@ toolbarButton("EDIT_MODE_RESET_ALL", function()
 end)
 toolbarButton("EDIT_MODE_DONE", function() EditMode.Leave() end)
 
+-- Blizzards Erfahrungsleiste gleich beim Anordnen ausblenden (dieselbe Einstellung wie Komfort > Oberfläche)
+local xpBarCheck = Widgets.CreateCheckbox(toolbar, function(checked) ns.Set("hideBlizzardXpBar", checked) end)
+Widgets.AttachTooltip(xpBarCheck, function() return L.HIDE_BLIZZARD_XP_BAR end,
+  function() return L.HIDE_BLIZZARD_XP_BAR_TIP end)
+toolbar.xpBarCheck = xpBarCheck
+
+-- Schalter über der Knopfzeile, mittig; liefert Breite und Höhe (0, wenn es die Leiste im Client nicht gibt)
+local function layoutXpBarCheck()
+  local available = ns.HideFrames.HasXpBar()
+  xpBarCheck:SetShown(available)
+  if not available then return 0, 0 end
+  xpBarCheck.label:SetText(L.HIDE_BLIZZARD_XP_BAR)
+  xpBarCheck:SetChecked(ns.db.hideBlizzardXpBar == true)
+  local labelWidth = Widgets.CHECKBOX_LABEL_GAP + (xpBarCheck.label:GetStringWidth() or 0)
+  xpBarCheck:SetHitRectInsets(0, -labelWidth, 0, 0)  -- Beschriftung gehört zur Klick- und Tooltip-Fläche
+  local width = xpBarCheck:GetWidth() + labelWidth
+  xpBarCheck:ClearAllPoints()
+  xpBarCheck:SetPoint("BOTTOMLEFT", toolbar, "BOTTOM", -width / 2, TOOLBAR_PADDING + BUTTON_HEIGHT + CHECK_GAP)
+  return width, xpBarCheck:GetHeight() + CHECK_GAP
+end
+
 local function layoutToolbar()
   toolbar.title:SetText(L.EDIT_MODE_TITLE)
   toolbar.hint:SetText(L.EDIT_MODE_HINT)
@@ -340,8 +362,10 @@ local function layoutToolbar()
     end
     previous = button
   end
-  local textWidth = math.max(toolbar.title:GetStringWidth() or 0, toolbar.hint:GetStringWidth() or 0)
-  toolbar:SetSize(math.max(width, textWidth) + 2 * TOOLBAR_PADDING, 3 * TOOLBAR_PADDING + 2 * 14 + BUTTON_HEIGHT)
+  local checkWidth, checkHeight = layoutXpBarCheck()
+  local textWidth = math.max(toolbar.title:GetStringWidth() or 0, toolbar.hint:GetStringWidth() or 0, checkWidth)
+  toolbar:SetSize(math.max(width, textWidth) + 2 * TOOLBAR_PADDING,
+    3 * TOOLBAR_PADDING + 2 * 14 + BUTTON_HEIGHT + checkHeight)
 end
 
 -- Tastatur: Pfeile und Esc nimmt die Leiste selbst, alles andere geht weiter ans Spiel (Laufen bleibt möglich).
