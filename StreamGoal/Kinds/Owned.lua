@@ -22,6 +22,7 @@ end
 
 Goals.RegisterKind("owned", {
   label = "SG_KIND_OWNED",
+  group = "loot",
   usage = "SG_USAGE_OWNED",
   color = LT.Theme.COLORS.info,
   icon = ICON,

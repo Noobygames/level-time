@@ -1,12 +1,15 @@
 -- Fenster von Level Time Goals (/sg): Reiter "Ziele" (Formular für ein neues Ziel, laufende Ziele mit Zählen und
 -- Abbrechen) und Reiter "Historie" (Tabelle aller abgeschlossenen, abgebrochenen und gescheiterten Ziele, gebaut mit
--- TableView von Level Time: Filter, Sortieren, CSV-Export). Fußzeile: Tracker an/aus, Einstellungen, Verschieben.
+-- TableView von Level Time: Filter, Sortieren, CSV-Export). Fußzeile: Tracker an/aus, Einstellungen, Layout bearbeiten.
 -- Formular: je Zielart eine eigene Fläche aus def.form (Kinds.lua und Kinds/*.lua):
 --   form = { amount = Locale-Key der Zahl (nil = keine Zahl), fields = { Feld, ... } }
---   Feld: { type = "text", param, label, width optional } | { type = "choice", param, label, values = { Wert, ... },
---         labels = { [Wert] = Locale-Key } } | { type = "check", param, label }
+--   Feld: { type = "text", param, label, numeric optional, short optional } | { type = "choice", param, label,
+--         values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label }
 -- Daraus entstehen params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
--- Reiter der Zielarten brechen in weitere Zeilen um, wenn die Sprache breitere Texte hat.
+-- Breiten je Feldart: Zahlen und kurze Texte (numeric, short) NUMBER_BOX_WIDTH, Texte bis zum rechten Rand, Auswahl
+-- CHOICE_WIDTH (wächst mit dem Text); alle Felder beginnen hinter der breitesten Beschriftung aller Formulare.
+-- Zielarten: Reiterzeile der Gruppen (Goals.KIND_GROUPS), darunter die Arten der gewählten Gruppe; beide Zeilen brechen
+-- um, wenn die Sprache breitere Texte hat.
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -27,15 +30,18 @@ local FOOTER_HEIGHT = 34
 local ROW = 26                  -- Höhe einer Formularzeile
 local MIN_LABEL_WIDTH = 120
 local LABEL_GAP = 12            -- Abstand zwischen der breitesten Beschriftung und den Feldern
-local AMOUNT_BOX_WIDTH = 70
-local TEXT_BOX_WIDTH = 300
+local NUMBER_BOX_WIDTH = 80     -- Zahlen und kurze Texte (Frist)
+local TEXT_BOX_START = 120       -- Breite eines Textfelds vor dem ersten Layout (danach bis zum rechten Rand)
 local BOX_HEIGHT = 20
 local BOX_BORDER = 6            -- InputBoxTemplate zeichnet seinen Rand links außerhalb
-local CHOICE_MIN_WIDTH = 140
+local CHECK_INSET = -4          -- UICheckButtonTemplate hat links Luft im Bild
+local CHOICE_WIDTH = 160
 local ADD_MIN_WIDTH = 120
 local KIND_TAB_ROW = 22
 local KIND_TAB_GAP = 14
 local KIND_TABS_TOP = -24
+local KIND_ROW_GAP = 2          -- zwischen Gruppen- und Artenzeile
+local EMPTY_BUTTON_GAP = 6      -- "Vorlagen öffnen" unter dem Hinweis ohne aktive Ziele
 local ACTIVE_ROW = 22
 local CANCEL_WIDTH = 80
 local STEP_WIDTH = 24           -- Knöpfe "-" und "+" bei selbst gezählten Zielen
@@ -48,13 +54,15 @@ local STEP_UP, STEP_DOWN = 1, -1
 ---------------------------------------------------------------------------
 local panel = Widgets.CreatePanel("StreamGoalWindow", 0.95)
 panel:SetSize(CONTENT_WIDTH + 2 * MARGIN, -PAGE_TOP + PAGE_HEIGHT + FOOTER_HEIGHT + MARGIN)
-panel:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
+-- Mittig, nicht darüber: das Fenster ist hoch und stieß sonst bei großer UI-Skalierung an den oberen Rand, wo das
+-- Schließen-Kreuz abgeschnitten wirkte
+panel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 panel:SetFrameStrata("DIALOG")
 panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, "StreamGoalWindow")  -- mit ESC schließen
-Widgets.CreateCloseButton(panel)
+Manager.closeButton = Widgets.CreateCloseButton(panel)  -- innen oben rechts wie bei den Fenstern von Level Time
 Manager.panel = panel
 
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -108,7 +116,10 @@ formHeader:SetPoint("TOPLEFT")
 formHeader:SetPoint("TOPRIGHT")
 
 local selectedKind = Goals.KindOrder()[1]
+local selectedGroup = Goals.GroupOf(selectedKind)
+local lastKindOfGroup = {}  -- [Gruppe] = zuletzt gewählte Art, beim Zurückwechseln wieder gewählt
 local kindTabs = {}
+local groupTabs = {}     -- [Gruppe] = Reiter
 local forms = {}         -- [Art] = { frame, rows = { { label, widget, field } }, amountBox }
 local allLabels = {}     -- alle Beschriftungen der Formulare (Breite der Beschriftungsspalte)
 
@@ -132,7 +143,7 @@ end
 
 -- Auswahl: Linksklick nächster, Rechtsklick voriger Wert
 local function createChoice(parent, field, form)
-  local button = Widgets.CreateButton(parent, CHOICE_MIN_WIDTH, BOX_HEIGHT + 2, nil)
+  local button = Widgets.CreateButton(parent, CHOICE_WIDTH, BOX_HEIGHT + 2, nil)
   button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   button:SetScript("OnClick", function(_, mouseButton)
     local values = field.values
@@ -154,7 +165,7 @@ local function buildForm(spec)
   form.frame:Hide()
   local y = 0
   if spec.amount then
-    form.amountBox = createBox(form.frame, AMOUNT_BOX_WIDTH, true)
+    form.amountBox = createBox(form.frame, NUMBER_BOX_WIDTH, true)
     table.insert(form.rows, { label = createLabel(form.frame, y), widget = form.amountBox, labelKey = spec.amount,
       y = y, box = true })
     y = y - ROW
@@ -163,7 +174,6 @@ local function buildForm(spec)
     local row = { field = field, y = y }
     if field.type == "check" then
       row.widget = Widgets.CreateCheckbox(form.frame, function() end)
-      row.widget:SetPoint("TOPLEFT", -4, y + 2)
     else
       row.label = createLabel(form.frame, y)
       row.labelKey = field.label
@@ -171,8 +181,10 @@ local function buildForm(spec)
         form.choices[field.param] = field.values[1]
         row.widget = createChoice(form.frame, field, form)
       else
-        row.widget = createBox(form.frame, field.width or TEXT_BOX_WIDTH, field.numeric)
+        local narrow = field.numeric or field.short
+        row.widget = createBox(form.frame, narrow and NUMBER_BOX_WIDTH or TEXT_BOX_START, field.numeric)
         row.box = true
+        row.fullWidth = not narrow
       end
     end
     table.insert(form.rows, row)
@@ -182,6 +194,11 @@ local function buildForm(spec)
   return form
 end
 
+for _, group in ipairs(Goals.KIND_GROUPS) do
+  groupTabs[group.key] = Widgets.CreateTab(goalsPage, Theme.Font("title"), function()
+    Manager.SelectGroup(group.key)
+  end)
+end
 for _, kind in ipairs(Goals.KindOrder()) do
   kindTabs[kind] = Widgets.CreateTab(goalsPage, Theme.Font("body"), function() Manager.SelectKind(kind) end)
   forms[kind] = buildForm(Goals.GetKind(kind).form or {})
@@ -190,35 +207,64 @@ end
 local extrasForm = buildForm({ fields = Goals.ExtraFields() })
 extrasForm.frame:Show()
 
--- Reiter hinter den vorigen setzen oder in die nächste Zeile, wenn er nicht mehr passt
-local function placeKindTab(tab, kind, left, row)
-  tab:SetLabel(L[Goals.GetKind(kind).label])
-  local width = tab:GetWidth()
-  if left > 0 and left + width > CONTENT_WIDTH then
-    left, row = 0, row + 1
+-- Im Client verfügbare Arten einer Gruppe
+local function availableKinds(group)
+  local list = {}
+  for _, kind in ipairs(Goals.KindsOfGroup(group)) do
+    if Goals.IsAvailable(kind) then table.insert(list, kind) end
   end
-  tab:ClearAllPoints()
-  tab:SetPoint("TOPLEFT", left, KIND_TABS_TOP - row * KIND_TAB_ROW)
-  return left + width + KIND_TAB_GAP, row
+  return list
 end
 
--- Reiter der verfügbaren Zielarten in Zeilen umbrechen; Rückgabe: Höhe aller Zeilen
-local function layoutKindTabs()
+-- Reiter { tab, text } ab y = top nebeneinander, in die nächste Zeile, wenn einer nicht mehr passt; Rückgabe: Höhe
+local function layoutTabRows(entries, top)
   local left, row = 0, 0
-  for _, kind in ipairs(Goals.KindOrder()) do
-    local tab = kindTabs[kind]
-    local available = Goals.IsAvailable(kind)
-    tab:SetShown(available)
-    if available then
-      left, row = placeKindTab(tab, kind, left, row)
+  for _, entry in ipairs(entries) do
+    entry.tab:SetLabel(entry.text)
+    local width = entry.tab:GetWidth()
+    if left > 0 and left + width > CONTENT_WIDTH then
+      left, row = 0, row + 1
     end
+    entry.tab:ClearAllPoints()
+    entry.tab:SetPoint("TOPLEFT", left, top - row * KIND_TAB_ROW)
+    left = left + width + KIND_TAB_GAP
   end
   return (row + 1) * KIND_TAB_ROW
 end
 
+-- Zeile der Gruppen (ohne Gruppen, deren Arten der Client nicht kennt), darunter die Arten der gewählten Gruppe;
+-- Rückgabe: Höhe beider Zeilen
+local function layoutKindTabs()
+  local groupEntries = {}
+  for _, group in ipairs(Goals.KIND_GROUPS) do
+    local tab = groupTabs[group.key]
+    local available = #availableKinds(group.key) > 0
+    tab:SetShown(available)
+    tab:SetActive(group.key == selectedGroup)
+    if available then table.insert(groupEntries, { tab = tab, text = L[group.label] }) end
+  end
+  local groupsHeight = layoutTabRows(groupEntries, KIND_TABS_TOP) + KIND_ROW_GAP
+  local kindEntries = {}
+  for _, kind in ipairs(Goals.KindOrder()) do
+    local shown = Goals.GroupOf(kind) == selectedGroup and Goals.IsAvailable(kind)
+    kindTabs[kind]:SetShown(shown)
+    if shown then table.insert(kindEntries, { tab = kindTabs[kind], text = L[Goals.GetKind(kind).label] }) end
+  end
+  return groupsHeight + layoutTabRows(kindEntries, KIND_TABS_TOP - groupsHeight)
+end
 
--- Breite der Beschriftungsspalte: breiteste Beschriftung aller Formulare (fr/es sind länger)
+
+-- Breite der Beschriftungsspalte: breiteste Beschriftung aller Formulare (fr/es sind länger); setzt vorher die
+-- Texte der gewählten Sprache, damit schon das erste Layout richtig misst
 local function labelColumnWidth()
+  for _, form in pairs(forms) do
+    for _, row in ipairs(form.rows) do
+      if row.label then row.label:SetText(L[row.labelKey]) end
+    end
+  end
+  for _, row in ipairs(extrasForm.rows) do
+    if row.label then row.label:SetText(L[row.labelKey]) end
+  end
   local widest = MIN_LABEL_WIDTH
   for _, label in ipairs(allLabels) do
     widest = math.max(widest, math.ceil(label:GetStringWidth() or 0) + LABEL_GAP)
@@ -226,19 +272,22 @@ local function labelColumnWidth()
   return widest
 end
 
+-- Felder hinter die Beschriftungsspalte; Haken stehen in der Feldspalte (ihr Text rechts daneben), Textfelder reichen
+-- bis zum rechten Rand
 local function refreshForm(form, labelWidth)
   for _, row in ipairs(form.rows) do
     local field = row.field
-    if row.label then row.label:SetText(L[row.labelKey]) end
+    row.widget:ClearAllPoints()
     if field and field.type == "check" then
       row.widget.label:SetText(L[field.label])
+      row.widget:SetPoint("TOPLEFT", labelWidth + CHECK_INSET, row.y + 2)
     else
-      row.widget:ClearAllPoints()
       row.widget:SetPoint("TOPLEFT", labelWidth + (row.box and BOX_BORDER or 0), row.y + (row.box and 0 or 2))
     end
+    if row.fullWidth then row.widget:SetWidth(CONTENT_WIDTH - labelWidth - BOX_BORDER) end
     if field and field.type == "choice" then
       local value = form.choices[field.param]
-      Widgets.SetButtonText(row.widget, L[field.labels[value]], CHOICE_MIN_WIDTH)
+      Widgets.SetButtonText(row.widget, L[field.labels[value]], CHOICE_WIDTH)
     end
   end
 end
@@ -323,9 +372,14 @@ end
 ---------------------------------------------------------------------------
 local activeHeader = Widgets.CreateSectionHeader(goalsPage)
 
-local emptyText = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
+-- Ohne aktive Ziele: Hinweis und ein Weg zu den Vorlagen statt einer leeren Fläche
+local emptyText = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 emptyText:SetTextColor(Theme.RGB("muted"))
 emptyText:SetJustifyH("LEFT")
+local packsButton = Widgets.CreateButton(goalsPage, ADD_MIN_WIDTH, BOX_HEIGHT + 2, function()
+  if pages.packs then showPage("packs") end
+end)
+Manager.packsButton = packsButton
 
 local activeRows = {}
 local activeTop = 0  -- y der Überschrift "Aktive Ziele" (hängt von Reiterzeilen und Formular ab)
@@ -398,6 +452,7 @@ local function renderActive()
   local active = listedGoals()
   emptyText:SetText(L.SG_ACTIVE_EMPTY)
   emptyText:SetShown(#active == 0)
+  packsButton:SetShown(#active == 0 and pages.packs ~= nil)
   for i = 1, math.max(#active, #activeRows) do
     local goal = active[i]
     if goal then
@@ -427,7 +482,7 @@ function Manager.CancelGoal(id)
 end
 
 ---------------------------------------------------------------------------
--- Fußzeile: Tracker an/aus, Einstellungen, Verschieben
+-- Fußzeile: Tracker an/aus, Einstellungen, Layout bearbeiten
 ---------------------------------------------------------------------------
 local trackerCheck = Widgets.CreateCheckbox(panel, function(checked) Tracker.SetShown(checked) end)
 trackerCheck:SetPoint("BOTTOMLEFT", MARGIN - 4, 8)
@@ -435,10 +490,14 @@ local settingsButton = Widgets.CreateButton(panel, FOOTER_BUTTON_MIN_WIDTH, BOX_
   ns.Options.Toggle(Tracker.SETTINGS_PAGE)
 end)
 settingsButton:SetPoint("BOTTOMRIGHT", -MARGIN, 12)
-local moveButton = Widgets.CreateButton(panel, FOOTER_BUTTON_MIN_WIDTH, BOX_HEIGHT + 2, function()
-  LT.EditMode.Toggle()  -- Edit-Modus von Level Time: alle Anzeigen verschieben
+-- Edit-Modus von Level Time (alle Anzeigen samt Ziel-Karten verschieben und skalieren); das Fenster geht dafür zu,
+-- damit es die Karten nicht verdeckt (im Kampf startet der Modus nicht, dann bleibt es offen)
+local editButton = Widgets.CreateButton(panel, FOOTER_BUTTON_MIN_WIDTH, BOX_HEIGHT + 2, function()
+  if LT.EditMode.Enter() then panel:Hide() end
 end)
-moveButton:SetPoint("BOTTOMRIGHT", settingsButton, "BOTTOMLEFT", -6, 0)
+editButton:SetPoint("BOTTOMRIGHT", settingsButton, "BOTTOMLEFT", -6, 0)
+Widgets.AttachTooltip(editButton, function() return L.EDIT_MODE end, function() return L.EDIT_MODE_TIP end)
+Manager.editButton = editButton
 
 ---------------------------------------------------------------------------
 -- Reiter "Historie"
@@ -490,12 +549,33 @@ Manager.history = historyView.Create(historyPage, CONTENT_WIDTH, PAGE_HEIGHT)
 function Manager.SelectKind(kind)
   if not Goals.IsAvailable(kind) then return end
   selectedKind = kind
+  selectedGroup = Goals.GroupOf(kind)
+  lastKindOfGroup[selectedGroup] = kind
   errorText:SetText("")
   Manager.Refresh()
 end
 
+-- Gruppe wählen: ihre zuletzt gewählte Art, sonst die erste verfügbare
+function Manager.SelectGroup(group)
+  local kind = lastKindOfGroup[group] or availableKinds(group)[1]
+  if kind then Manager.SelectKind(kind) end
+end
+
 function Manager.SelectedKind()
   return selectedKind
+end
+
+function Manager.SelectedGroup()
+  return selectedGroup
+end
+
+-- Reiter einer Art bzw. Gruppe (Tests)
+function Manager.KindTab(kind)
+  return kindTabs[kind]
+end
+
+function Manager.GroupTab(group)
+  return groupTabs[group]
 end
 
 -- Feld des Formulars der gewählten Art (Tests): param oder "amount" für die Zahl
@@ -536,6 +616,9 @@ local function layoutGoalsPage()
   activeHeader:SetPoint("TOPRIGHT", 0, activeTop)
   emptyText:ClearAllPoints()
   emptyText:SetPoint("TOPLEFT", 0, activeTop - ACTIVE_ROW)
+  packsButton:ClearAllPoints()
+  packsButton:SetPoint("TOPLEFT", emptyText, "BOTTOMLEFT", 0, -EMPTY_BUTTON_GAP)
+  Widgets.SetButtonText(packsButton, L.SG_OPEN_PACKS, ADD_MIN_WIDTH)
 end
 
 -- Alle Texte (Sprache!), Felder der gewählten Art und laufende Ziele neu setzen
@@ -553,7 +636,7 @@ function Manager.Refresh()
   trackerCheck.label:SetText(L.SG_SHOW_TRACKER)
   trackerCheck:SetChecked(ns.db.settings.showTracker)
   Widgets.SetButtonText(settingsButton, L.SG_SETTINGS, FOOTER_BUTTON_MIN_WIDTH)
-  Widgets.SetButtonText(moveButton, L.SG_MOVE, FOOTER_BUTTON_MIN_WIDTH)
+  Widgets.SetButtonText(editButton, L.EDIT_MODE, FOOTER_BUTTON_MIN_WIDTH)
   local page = pages[shownPage]
   if panel:IsShown() and page.render then page.render() end
 end

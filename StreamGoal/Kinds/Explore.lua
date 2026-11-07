@@ -30,6 +30,7 @@ end
 
 Goals.RegisterKind("explore", {
   label = "SG_KIND_EXPLORE",
+  group = "progress",
   usage = "SG_USAGE_EXPLORE",
   color = LT.Theme.COLORS.info,
   icon = ICON,

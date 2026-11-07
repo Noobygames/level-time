@@ -23,6 +23,7 @@ end
 
 Goals.RegisterKind("dungeon", {
   label = "SG_KIND_DUNGEON",
+  group = "combat",
   usage = "SG_USAGE_DUNGEON",
   color = LT.Theme.COLORS.best,
   icon = ICON,

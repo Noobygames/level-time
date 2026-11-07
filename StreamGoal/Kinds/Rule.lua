@@ -43,6 +43,7 @@ end
 
 Goals.RegisterKind("rule", {
   label = "SG_KIND_RULE",
+  group = "fun",
   usage = "SG_USAGE_RULE",
   color = LT.Theme.COLORS.warning,
   icon = ICON,

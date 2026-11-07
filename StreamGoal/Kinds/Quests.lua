@@ -74,6 +74,7 @@ end
 
 Goals.RegisterKind("quest", {
   label = "SG_KIND_QUEST",
+  group = "quests",
   usage = "SG_USAGE_QUEST",
   color = LT.Theme.COLORS.neutral,
   icon = ICON,

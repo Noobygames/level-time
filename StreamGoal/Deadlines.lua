@@ -109,7 +109,7 @@ end
 ---------------------------------------------------------------------------
 Goals.RegisterExtra("deadline", {
   fields = {
-    { type = "text", param = "deadline", label = "SG_FORM_DEADLINE", width = 90 },
+    { type = "text", param = "deadline", label = "SG_FORM_DEADLINE", short = true },
     { type = "choice", param = "deadlineMode", label = "SG_FORM_DEADLINE_MODE", values = Deadlines.MODES,
       labels = Deadlines.MODE_LABELS },
   },

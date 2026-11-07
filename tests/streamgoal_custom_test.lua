@@ -107,6 +107,7 @@ expect("Linksklick hakt ab", todo.status, Goals.DONE)
 SlashCmdList.STREAMGOAL("add custom 3 Drei Wölfe zähmen")
 local wolves = Goals.Active()[1]
 SlashCmdList.STREAMGOAL("")
+expect("Gruppe Regeln & Spaß", wow.click(L.SG_GROUP_FUN), true)
 expect("Reiter eigene Ziele", wow.click(L.SG_KIND_CUSTOM), true)
 expect("Plus-Knopf", wow.click("+"), true)
 expect("Plus zählt", wolves.progress, 1)
