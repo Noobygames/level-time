@@ -28,9 +28,10 @@ Kinds\Honor.lua
 Kinds\Rule.lua
 Kinds\Checklist.lua
 
-# Zusätze jeder Zielart: Frist; Vorlagen
+# Zusätze jeder Zielart: Frist, Wiederholung; Vorlagen
 Deadlines.lua
 Packs.lua
+Recurring.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua

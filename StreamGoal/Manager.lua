@@ -21,7 +21,7 @@ ns.Manager = Manager
 
 local MARGIN = 16
 local CONTENT_WIDTH = 600
-local PAGE_HEIGHT = 480
+local PAGE_HEIGHT = 520
 local PAGE_TOP = -66
 local FOOTER_HEIGHT = 34
 local ROW = 26                  -- Höhe einer Formularzeile

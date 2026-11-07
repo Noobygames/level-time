@@ -1,6 +1,6 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   deadline <Nr> <Dauer|off> [played] | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -13,7 +13,7 @@ local Format = LT.Format
 local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
-ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_SUB", "SG_USAGE_PACK" }
+ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_SUB", "SG_USAGE_PACK" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -107,6 +107,19 @@ local function deadline(argument)
   ns.Print(goalLine(goal) .. (ns.Deadlines.Text(goal) and ("  " .. ns.Deadlines.Text(goal)) or ""))
 end
 
+-- Wiederholung: "repeat 3 daily", "repeat 3 weekly", "repeat 3 none"
+local function repeatGoal(argument)
+  local id, period = argument:match("^(%S*)%s*(%S*)")
+  local goal = ownActiveGoal(id)
+  if not goal then return end
+  if not ns.Recurring.Set(goal, period:lower()) then
+    ns.Print(L.SG_ERR_REPEAT)
+    return
+  end
+  Goals.Changed(goal)
+  ns.Print(goalLine(goal) .. (ns.Recurring.Text(goal) and ("  " .. ns.Recurring.Text(goal)) or ""))
+end
+
 -- Laufendes Ziel als Teilziel an eine Checkliste hängen: "sub <Checkliste> <Ziel>"
 local function sub(argument)
   local parentId, childId = argument:match("^(%S*)%s*(%S*)")
@@ -161,6 +174,7 @@ local commands = {
   count = count,
   deadline = deadline,
   sub = sub,
+  ["repeat"] = repeatGoal,
   pack = pack,
   tracker = toggleTracker,
   scale = scale,

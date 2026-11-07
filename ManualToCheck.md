@@ -2605,3 +2605,20 @@ Reiter-Layout ok (ja/nein):
 Teilen/Importieren ok (ja/nein):
 Fehler:
 ```
+
+### 181. Wiederkehrende Ziele (Roadmap 310)
+
+- [ ] geprüft
+
+1. Tägliches Ziel anlegen und erreichen; nach Mitternacht (oder am nächsten Tag beim Login) ist es neu da, die Karte
+   zeigt „Täglich · Serie 1“.
+2. Einen Tag auslassen: das alte steht in der Historie als „Gescheitert (Zeitraum vorbei)“, Serie wieder 0.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Erneuert nach Mitternacht/Login (ja/nein):
+Serie stimmt (ja/nein):
+Fehler:
+```

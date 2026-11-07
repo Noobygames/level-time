@@ -99,7 +99,8 @@ function Goals.CopyFlat(values)
 end
 
 -- Zusätze, die jede Zielart haben kann (Frist, Belohnung, Punkte): Goals.RegisterExtra(name, { fields = Formularfelder
--- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras) });
+-- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras),
+-- line(goal) optional: Zeile auf der Karte });
 -- extras = Tabelle aus Formular oder Befehl (Felder je Zusatz)
 local extraHandlers = {}
 local extraFields = {}
@@ -197,10 +198,15 @@ function Goals.Title(goal)
   return kinds[goal.kind].title(goal)
 end
 
--- Zweite Zeile der Karte (nil = keine)
+-- Zweite Zeile der Karte (nil = keine): Zeile der Art, darunter die der Zusätze (line(goal) einer Anmeldung)
 function Goals.Body(goal)
   local def = kinds[goal.kind]
-  return def.body and def.body(goal) or nil
+  local body = def.body and def.body(goal) or nil
+  for _, handler in ipairs(extraHandlers) do
+    local line = handler.line and handler.line(goal)
+    if line then body = body and (body .. "\n" .. line) or line end
+  end
+  return body
 end
 
 -- Stand als Text "12 / 100"; Arten mit eigener Einheit (Gold) formatieren selbst
