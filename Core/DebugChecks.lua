@@ -907,7 +907,8 @@ check("430.sleep.state", function()
     jumpHook = api("JumpOrAscendStart") ~= nil, sitHook = api("SitStandOrDescendStart") ~= nil,
     moving = call("IsPlayerMoving"),
     timer = state and { phase = state.phase, signal = state.signal, stacks = state.stacks,
-      elapsed = GetTime() - state.startedAt } or false,
+      duration = state.duration, elapsed = GetTime() - state.startedAt } or false,
+    rolledOut = SleepTimer.RolledOut(),
     shown = ns.SleepDisplay.ShownKind(),
   }
 end)
