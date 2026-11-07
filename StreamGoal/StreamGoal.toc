@@ -29,6 +29,7 @@ Kinds\Rule.lua
 Kinds\Checklist.lua
 Kinds\Dungeon.lua
 Kinds\Reputation.lua
+Kinds\Bingo.lua
 
 # Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Vorlagen
 Deadlines.lua
@@ -41,6 +42,7 @@ Tracking.lua
 
 # Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
 Tracker.lua
+BingoView.lua
 Manager.lua
 PacksView.lua
 Options.lua

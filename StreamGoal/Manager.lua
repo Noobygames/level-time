@@ -384,8 +384,18 @@ local function hideRow(row)
   row.minus:Hide()
 end
 
+-- Laufende Ziele für die Liste: ohne Felder eines Bingo-Scheins (die zeigt der Schein)
+local listed = {}
+local function listedGoals()
+  for i = #listed, 1, -1 do listed[i] = nil end
+  for _, goal in ipairs(Goals.Active()) do
+    if not goal.cell then table.insert(listed, goal) end
+  end
+  return listed
+end
+
 local function renderActive()
-  local active = Goals.Active()
+  local active = listedGoals()
   emptyText:SetText(L.SG_ACTIVE_EMPTY)
   emptyText:SetShown(#active == 0)
   for i = 1, math.max(#active, #activeRows) do

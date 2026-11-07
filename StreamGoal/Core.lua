@@ -32,6 +32,8 @@ ns.SETTING_DEFAULTS = {
   doneChat = true,       -- Chatzeile beim Erreichen
   maxCards = 6,          -- so viele Karten zeigt der Tracker, der Rest als "+n weitere"
   cardColors = "kind",   -- "kind" = Farbe der Zielart, "accent" = Akzentfarbe des Themes für alle
+  showBingo = true,      -- Bingo-Schein am Bildschirm (BingoView.lua)
+  bingoAnnounce = false, -- BINGO in den Gruppenchat
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
 

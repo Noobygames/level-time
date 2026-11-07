@@ -14,7 +14,7 @@ local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
 ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
-  "SG_USAGE_PACK" }
+  "SG_USAGE_PACK", "SG_USAGE_BINGO_TEXT" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -70,7 +70,9 @@ local function list()
     ns.Print(L.SG_LIST_EMPTY)
     return
   end
-  for _, goal in ipairs(active) do ns.Print(goalLine(goal)) end
+  for _, goal in ipairs(active) do
+    if not goal.cell then ns.Print(goalLine(goal)) end
+  end
 end
 
 local function cancel(argument)
@@ -194,6 +196,24 @@ local function pack(argument)
   end
 end
 
+-- Bingo: "bingo [3|5]" (neuer Schein), "bingo text <Text>" (eigenes Feld), "bingo texts", "bingo clear"
+local function bingo(argument)
+  local action, rest = argument:match("^(%S*)%s*(.-)$")
+  local Bingo = ns.Bingo
+  action = action:lower()
+  if action == "text" then
+    local err = Bingo.AddText(rest)
+    ns.Print(err or string.format(L.SG_CHAT_BINGO_TEXT, #Bingo.Texts()))
+  elseif action == "texts" then
+    for index, text in ipairs(Bingo.Texts()) do ns.Print(index .. ". " .. text) end
+  elseif action == "clear" then
+    Bingo.ClearTexts()
+    ns.Print(L.SG_CHAT_BINGO_CLEARED)
+  else
+    add("bingo " .. argument)
+  end
+end
+
 local function toggleTracker()
   local shown = not ns.db.settings.showTracker
   Tracker.SetShown(shown)
@@ -217,6 +237,7 @@ local commands = {
   points = points,
   ["repeat"] = repeatGoal,
   pack = pack,
+  bingo = bingo,
   tracker = toggleTracker,
   scale = scale,
   options = function() ns.Options.Toggle() end,

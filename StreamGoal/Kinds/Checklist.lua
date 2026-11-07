@@ -62,7 +62,8 @@ end
 -- Teilziel anhängen: child muss laufen, dem Charakter gehören und darf selbst keine Checkliste sein
 function Checklist.Attach(parent, child)
   if not parent or parent.kind ~= "checklist" or parent.status ~= Goals.ACTIVE then return L.SG_ERR_NOT_CHECKLIST end
-  if not child or child.status ~= Goals.ACTIVE or child == parent or child.kind == "checklist" then
+  if not child or child.status ~= Goals.ACTIVE or child == parent or child.kind == "checklist" or child.cell
+    or child.kind == "bingo" then
     return L.SG_ERR_SUBGOAL
   end
   child.parentId = parent.id
@@ -133,7 +134,7 @@ Goals.RegisterKind("checklist", {
 Goals.OnChange(function(event, goal)
   if not goal or not goal.parentId or event == "added" then return end
   local parent = Goals.Get(goal.parentId)
-  if not parent or parent.status ~= Goals.ACTIVE then return end
+  if not parent or parent.status ~= Goals.ACTIVE or parent.kind ~= "checklist" then return end
   if event == "progress" or event == "changed" then
     Goals.Changed(parent)  -- Zeile des Teilziels neu (Titel mit Stand)
   else

@@ -17,6 +17,7 @@
 --   step(goal, delta)  (optional, manual) neuer Stand für einen Klick (z.B. nächsten Punkt der Checkliste abhaken)
 --   hasCount(goal)     (optional) false = nur erledigt/offen, kein Zählerstand auf Karte und in Listen
 --   countText(goal)    (optional) Stand als Text statt "12 / 100" (z.B. Gold)
+--   afterCreate(goal)  (optional) nach dem Anlegen, vor der Meldung "added" (Bingo legt seine Felder an)
 --   title(goal)        Überschrift der Karte
 --   body(goal)         zweite Zeile (optional)
 -- Params der Grundarten:

@@ -2676,3 +2676,21 @@ Belohnung auf Karte und Einblendung (ja/nein):
 Formular passt (ja/nein):
 Fehler:
 ```
+
+### 185. Bingo (Roadmap 305)
+
+- [ ] geprüft
+
+1. `/sg bingo 3`: Raster mit neun Feldern neben dem Tracker, Texte lesbar (zwei, drei Zeilen je Feld, auch fr/es);
+   Kills/Quests haken sich selbst ab und färben das Feld grün, eigene Felder per Klick.
+2. Volle Reihe: „BINGO!“-Einblendung, Raster verschwindet; mit „BINGO in den Gruppenchat“ in einer Gruppe eine Zeile.
+3. `/sg bingo 5`: 5×5 mit „FREI“ in der Mitte passt auf den Bildschirm; `/lt edit` zeigt den Beispielschein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Raster lesbar (ja/nein):
+BINGO und Ansage (ja/nein):
+Fehler:
+```

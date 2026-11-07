@@ -93,8 +93,8 @@ end
 
 -- Eingaben anlegen, so viele wie Platz ist; Rückgabe: Anzahl angelegt, erster Fehlertext
 local function createAll(entries)
-  if #Goals.Active() + #entries > Goals.MAX_ACTIVE then
-    return 0, string.format(L.SG_ERR_PACK_ROOM, #entries, Goals.MAX_ACTIVE - #Goals.Active())
+  if Goals.UsedSlots() + #entries > Goals.MAX_ACTIVE then
+    return 0, string.format(L.SG_ERR_PACK_ROOM, #entries, Goals.MAX_ACTIVE - Goals.UsedSlots())
   end
   local created, firstError = 0, nil
   for _, entry in ipairs(entries) do
@@ -121,7 +121,7 @@ local function activeEntries()
   local entries = {}
   for _, goal in ipairs(Goals.Active()) do
     local source = goal.source
-    if source and not goal.parentId then
+    if source and not goal.parentId and not goal.cell then
       table.insert(entries, { kind = goal.kind, params = Goals.CopyFlat(source.params), target = source.target,
         extras = Goals.CopyFlat(source.extras) })
     end

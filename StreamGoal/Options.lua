@@ -57,7 +57,7 @@ builder.AddPage("SG_OPTIONS_PAGE_GOALS")
 
 builder.AddSubPage(Tracker.SETTINGS_PAGE)
 builder.AddSection("SG_OPTIONS_SECTION_CARDS")
-builder.AddToggles({ toggle("SG_SHOW_TRACKER", "showTracker") })
+builder.AddToggles({ toggle("SG_SHOW_TRACKER", "showTracker"), toggle("SG_OPTIONS_SHOW_BINGO", "showBingo") })
 builder.AddSlider({
   label = "SG_OPTIONS_MAX_CARDS",
   min = ns.MIN_CARDS, max = ns.MAX_CARDS, step = 1,
@@ -107,6 +107,7 @@ builder.AddToggles({
   toggle("SG_SOUND", "sound"),
   toggle("SG_OPTIONS_DONE_ALERT", "doneAlert"),
   toggle("SG_OPTIONS_DONE_CHAT", "doneChat"),
+  toggle("SG_OPTIONS_BINGO_ANNOUNCE", "bingoAnnounce"),
 })
 
 -- Daten: Ziele gelöschter Charaktere und die Historie entfernen, beides mit Rückfrage

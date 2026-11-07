@@ -39,17 +39,18 @@ local function index()
     and cached.stamp == stamp then
     return cached
   end
-  local list, byKind, byId = {}, {}, {}
+  local list, byKind, byId, slots = {}, {}, {}, 0
   for _, goal in ipairs(goals) do
     byId[goal.id] = byId[goal.id] or goal
     if goal.status == Goals.ACTIVE and goal.character == LT.characterKey then
       table.insert(list, goal)
       byKind[goal.kind] = byKind[goal.kind] or {}
       table.insert(byKind[goal.kind], goal)
+      if not goal.cell then slots = slots + 1 end
     end
   end
   active = { goals = goals, count = #goals, character = LT.characterKey, stamp = stamp, list = list,
-    byKind = byKind, byId = byId }
+    byKind = byKind, byId = byId, slots = slots }
   return active
 end
 
@@ -123,9 +124,14 @@ local function validateExtras(extras)
   end
 end
 
--- Neues Ziel für den eingeloggten Charakter; extras optional (Goals.RegisterExtra). Rückgabe: Ziel, oder nil und
--- eine Fehlermeldung (übersetzt)
-function Goals.Create(kind, params, target, extras)
+-- Belegte Plätze (höchstens MAX_ACTIVE): laufende Ziele ohne Felder eines Bingo-Scheins (goal.cell)
+function Goals.UsedSlots()
+  return index().slots
+end
+
+-- Neues Ziel für den eingeloggten Charakter; extras optional (Goals.RegisterExtra), parent optional: Feld eines
+-- Bingo-Scheins (goal.parentId, goal.cell; belegt keinen Platz). Rückgabe: Ziel, oder nil und Fehlertext (übersetzt)
+function Goals.Create(kind, params, target, extras, parent)
   local def = kinds[kind]
   if not def or not Goals.IsAvailable(kind) then return nil, string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
   params = params or {}
@@ -134,7 +140,9 @@ function Goals.Create(kind, params, target, extras)
   if def.prepare then target = def.prepare(params, target) end
   local err = def.validate(params, target) or validateExtras(extras)
   if err then return nil, err end
-  if #Goals.Active() >= Goals.MAX_ACTIVE then return nil, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
+  if not parent and Goals.UsedSlots() >= Goals.MAX_ACTIVE then
+    return nil, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE)
+  end
 
   local start = def.initial and def.initial(params) or 0
   local goal = {
@@ -157,9 +165,11 @@ function Goals.Create(kind, params, target, extras)
     if def.startAtCurrent then goal.start = now end
   end
   for _, handler in ipairs(extraHandlers) do handler.apply(goal, extras) end
+  if parent then goal.parentId, goal.cell = parent.id, true end
   ns.db.nextId = goal.id + 1
   table.insert(ns.db.goals, goal)
   changed()
+  if def.afterCreate then def.afterCreate(goal) end  -- z.B. Bingo legt seine Felder an
   notify("added", goal)
   return goal
 end
