@@ -959,6 +959,15 @@ for _, value in ipairs(ns.Tooltip.ANCHOR_ORDER) do
   table.insert(tooltipAnchors, { value = value, name = localized("TOOLTIP_ANCHOR_" .. value:upper()) })
 end
 addChooser({ label = "TOOLTIP_ANCHOR", setting = "tooltipAnchor", choices = tooltipAnchors })
+addSlider({
+  label = "TOOLTIP_SCALE",
+  min = toPercent(ns.Tooltip.MIN_SCALE),
+  max = toPercent(ns.Tooltip.MAX_SCALE),
+  step = 5,
+  get = function(db) return toPercent(db.tooltipScale) end,
+  set = function(value) ns.SetDeferred("tooltipScale", value / 100) end,
+  format = percent,
+})
 -- Minimap: Mausrad und Zoom-Knöpfe nur in Classic (Retail/Forever haben beides schon anders gelöst)
 local MinimapTweaks = ns.MinimapTweaks
 addSection("SECTION_MINIMAP")

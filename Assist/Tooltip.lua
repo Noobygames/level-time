@@ -10,6 +10,8 @@
 --                        am Mauszeiger statt in der Ecke: "cursor", "cursorLeft", "cursorRight"; "default" = Blizzard.
 --                        Post-Hook auf GameTooltip_SetDefaultAnchor (SharedTooltipTemplates.lua in allen Clients,
 --                        Classic zusätzlich GameTooltip.lua) setzt danach nur SetOwner neu; Blizzards Funktion bleibt.
+--   tooltipScale         Größe der Spiel-Tooltips (GameTooltip, ItemRefTooltip und ihre Vergleichs-Tooltips), 1 = Blizzard;
+--                        umkehrbar über Overrides (SetScale, Tooltips sind nicht geschützt).
 -- Anschluss: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit) in allen Clients mit dem Tooltip-
 -- Datensystem (Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua: Post-Calls laufen vor tooltip:Show(), auch in
 -- Classic Era); sonst OnTooltipSetUnit. Verstecken im Kampf über HookScript("OnShow"), weil der Post-Call vor
@@ -142,6 +144,21 @@ local function hookAnchor()
   hooksecurefunc("GameTooltip_SetDefaultAnchor", Tooltip.OnDefaultAnchor)
 end
 
+-- Größe: alle Tooltips, die beim Überfahren und bei Links erscheinen; fehlende Frames fallen weg
+Tooltip.MIN_SCALE = 0.5
+Tooltip.MAX_SCALE = 2
+Tooltip.SCALED_FRAMES = { "GameTooltip", "ShoppingTooltip1", "ShoppingTooltip2", "ItemRefTooltip",
+  "ItemRefShoppingTooltip1", "ItemRefShoppingTooltip2" }
+
+local setScale = ns.Overrides.New(
+  function(frame) return frame:GetScale() end,
+  function(frame, scale) frame:SetScale(scale) end)
+
+function Tooltip.ApplyScale(scale)
+  scale = math.max(Tooltip.MIN_SCALE, math.min(Tooltip.MAX_SCALE, tonumber(scale) or 1))
+  for _, name in ipairs(Tooltip.SCALED_FRAMES) do setScale(_G[name], scale ~= 1, scale) end
+end
+
 local hooked = false
 
 local function hook()
@@ -163,6 +180,7 @@ end
 
 ns.RegisterApply(function(db)
   if Tooltip.ANCHORS[db.tooltipAnchor] then hookAnchor() end
+  Tooltip.ApplyScale(db.tooltipScale)
   if db.tooltipClassColors or db.tooltipTarget or db.tooltipHideInCombat or db.tooltipKillsToLevel
     or db.questLearning then hook() end
 end)
