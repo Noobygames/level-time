@@ -7,7 +7,6 @@
 -- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
 local _, ns = ...
-local L = ns.L
 local Widgets = ns.Widgets
 local Format = ns.Format
 
@@ -141,9 +140,18 @@ local TableOrder = ns.TableOrder
 --   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS,
 --   appendOnly optional: records() liefert älteste zuerst dieselbe Liste, die nur hinten wächst (oder eine neue);
 --   angezeigt neueste zuerst, ohne Kopie und mit Zwischenspeicher je Eintrag (TableOrder.NewAppendOnly). footer
---   bekommt dann records = nil, nur count. Einträge ändern sich nicht, außer edits() optional meldet es }
+--   bekommt dann records = nil, nur count. Einträge ändern sich nicht, außer edits() optional meldet es,
+--   locale, language(), export optional: Texte, gewählte Sprache (Teil der Zwischenspeicher-Schlüssel) und das
+--   Export-Fenster (ToCsv, Show); ohne Angabe die von Level Time }
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
+local function addonLanguage()
+  return ns.db and ns.db.language or ""
+end
+
 function TableView.Create(definition)
+  local L = definition.locale or ns.L
+  local language = definition.language or addonLanguage
+  local export = definition.export or ns.Export
   local columns = definition.columns
   local rowColor = definition.rowColor or defaultRowColor
 
@@ -266,9 +274,9 @@ function TableView.Create(definition)
 
     -- Spalten an die Kopftexte anpassen, wenn sich die Sprache geändert hat (nicht je Aktualisierung)
     local function fitColumns()
-      local language = ns.db and ns.db.language or ""
-      if fittedLanguage == language then return end
-      fittedLanguage = language
+      local current = language()
+      if fittedLanguage == current then return end
+      fittedLanguage = current
       for i, column in ipairs(columns) do headerRow.cells[i]:SetText(L[column.header]) end
       local widths = fittedWidths(columns, headerRow.cells)
       for _, row in ipairs(rows) do placeCells(row, widths) end
@@ -302,7 +310,7 @@ function TableView.Create(definition)
     -- Stand, bei dessen Änderung appendOnly-Zwischenspeicher verfallen: Sprache (Texte) und nachgetragene Werte
     local function cacheEpoch()
       local edits = definition.edits and definition.edits() or ""
-      return (ns.db and ns.db.language or "") .. ":" .. edits
+      return language() .. ":" .. edits
     end
 
     -- Filter und Sortierung auf alle Einträge anwenden und neu zeichnen
@@ -374,11 +382,11 @@ function TableView.Create(definition)
         end
         table.insert(rowsText, cells)
       end
-      return ns.Export.ToCsv(headers, rowsText, L.CSV_SEPARATOR)
+      return export.ToCsv(headers, rowsText, L.CSV_SEPARATOR)
     end
 
     local exportButton = Widgets.CreateButton(frame, EXPORT_BUTTON_WIDTH, FILTER_HEIGHT + 2, function()
-      ns.Export.Show(L[definition.tab], frame:BuildCsv())
+      export.Show(L[definition.tab], frame:BuildCsv())
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
 
@@ -417,7 +425,7 @@ function TableView.Create(definition)
       -- laufende Eintrag (live), ersetzt updateLive ihn, wo das reicht.
       local newest = allRecords[definition.appendOnly and #allRecords or 1]
       local freshness = definition.revision and definition.revision() or math.floor(GetTime() / REFRESH_SECONDS)
-      local signature = table.concat({ characterKey or "", ns.db and ns.db.language or "", #allRecords,
+      local signature = table.concat({ characterKey or "", language(), #allRecords,
         newest and (newest.time or newest.startedAt or 0) or 0, freshness }, ":")
       local live = table.concat({ newest and newest.seconds or 0, newest and newest.xp or 0 }, ":")
       local urgent = selectionChanged or force or characterKey ~= lastCharacterKey

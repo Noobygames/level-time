@@ -1,7 +1,7 @@
 -- Baukasten für Einstellungsfenster mit Reitern: legt Steuerelemente von oben nach unten auf der
 -- aktuellen Seite an und hält sie aktuell.
 -- Jedes Steuerelement registriert eine refresh(db)-Funktion; Refresh(db) (nach jeder Änderung über
--- ns.Set/ns.ApplySettings) zeigt den aktuellen Stand und die gewählte Sprache.
+-- host.set/host.apply) zeigt den aktuellen Stand und die gewählte Sprache.
 -- Schalter mit available() == false (z.B. nur in WoW Forever) werden gar nicht angelegt.
 -- Abhängige Bausteine: enabled(db) optional bei Schaltern, Reglern, Auswahlzeilen und Zyklus-Buttons; false = ausgegraut
 -- und nicht bedienbar (z.B. Einstellungen eines anderen Layouts), geprüft bei jedem Refresh.
@@ -16,14 +16,29 @@
 -- Zeilen (Roadmap 402, 405, 406): jeder Add*-Aufruf ist ein Eintrag seiner Seite (Höhe, Anker, Widgets, Abschnitt).
 -- Ausgeblendete Einträge (advanced = true im Modus "Einfach", eingeklappter Abschnitt) verschieben die folgenden um
 -- ihre Höhe nach oben (relayout); Unterseiten ohne sichtbaren Eintrag fallen aus der Seitenleiste.
--- Zurücksetzen je Unterseite: Bausteine mit setting (Schlüssel in ns.db) oder reset = { get, set, default } liefern,
+-- Zurücksetzen je Unterseite: Bausteine mit setting (Schlüssel in den Einstellungen) oder reset = { get, set, default } liefern,
 -- was der Button "Standard" unter der Seitenleiste zurücksetzt (Rückfrage, danach "Rückgängig").
+-- Anbindung an das Addon (Sprache, Einstellungen, Chat) über einen host (OptionsBuilder.New({ host }), Toggle);
+-- ohne Angabe gilt Level Time (DEFAULT_HOST).
 local _, ns = ...
-local L = ns.L
 local Widgets = ns.Widgets
 
 local OptionsBuilder = {}
 ns.OptionsBuilder = OptionsBuilder
+
+-- host = { L = Texte, db() -> Einstellungen, set(key, value), apply(), default(key) -> Standardwert,
+--          copy(value) -> Kopie eines Werts (Rückgängig), print(message) }
+local DEFAULT_HOST = {
+  L = ns.L,
+  db = function() return ns.db end,
+  set = function(key, value) ns.Set(key, value) end,
+  apply = function() ns.ApplySettings() end,
+  default = function(key) return ns.Database.SettingDefault(key) end,
+  copy = function(value) return ns.Database.CopyValue(value) end,
+  print = function(message) ns.Print(message) end,
+}
+OptionsBuilder.DEFAULT_HOST = DEFAULT_HOST
+local L = DEFAULT_HOST.L  -- statische Helfer (Localized); im Fenster gilt host.L
 
 local MIN_WIDTH = 320
 local MARGIN = 16
@@ -88,28 +103,29 @@ local ROW_BUTTON = OptionsBuilder.ROW_BUTTON
 local BUTTON_HEIGHT = OptionsBuilder.BUTTON_HEIGHT
 local CHOOSER_TAB_GAP = OptionsBuilder.CHOOSER_TAB_GAP
 
--- Schalter für eine Einstellung in ns.db; available() optional (z.B. nur in WoW Forever)
-function OptionsBuilder.Toggle(label, key, available)
+-- Schalter für eine Einstellung; available() optional (z.B. nur in WoW Forever), host optional (Standard: Level Time)
+function OptionsBuilder.Toggle(label, key, available, host)
+  host = host or DEFAULT_HOST
   return {
     label = label,
     get = function(db) return db[key] end,
-    set = function(checked) ns.Set(key, checked) end,
+    set = function(checked) host.set(key, checked) end,
     available = available,
     setting = key,  -- Zurücksetzen je Unterseite
   }
 end
 
--- Zurücksetzen eines Bausteins: Schlüssel in ns.db (Standard aus Database.SettingDefault) oder eigene Funktionen
+-- Zurücksetzen eines Bausteins: Schlüssel in den Einstellungen (Standard aus host.default) oder eigene Funktionen
 -- reset = { get() -> Wert, set(Wert), default() -> Wert }. Liste, da ein Baustein mehrere Einstellungen tragen kann.
-local function resetsOf(definition)
+local function resetsOf(definition, host)
   local list = {}
   if not definition then return list end
   local keys = definition.resetKeys or (definition.setting and { definition.setting }) or {}
   for _, key in ipairs(keys) do
     table.insert(list, {
-      get = function() return ns.Database.CopyValue(ns.db[key]) end,
-      set = function(value) ns.db[key] = value end,
-      default = function() return ns.Database.SettingDefault(key) end,
+      get = function() return host.copy(host.db()[key]) end,
+      set = function(value) host.db()[key] = value end,
+      default = function() return host.default(key) end,
     })
   end
   if definition.reset then table.insert(list, definition.reset) end
@@ -121,9 +137,11 @@ function OptionsBuilder.Localized(key)
   return function() return L[key] end
 end
 
--- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text }
+-- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text, host (optional, siehe DEFAULT_HOST) }
 function OptionsBuilder.New(options)
   local builder = {}
+  local host = options.host or DEFAULT_HOST
+  local L = host.L
 
   local panel = Widgets.CreatePanel(options.name, options.alpha)
   panel:SetWidth(MIN_WIDTH)  -- wächst mit den Texten der gewählten Sprache (fitWidth)
@@ -195,7 +213,7 @@ function OptionsBuilder.New(options)
   local function beginItem(definition, isSection)
     local item = {
       owner = page, startY = nextRowY, anchors = {}, widgets = {}, shift = 0, placedShift = 0, hidden = false,
-      advanced = definition and definition.advanced or false, resets = resetsOf(definition),
+      advanced = definition and definition.advanced or false, resets = resetsOf(definition, host),
       section = not isSection and sectionOf[page] or nil, isSection = isSection,
     }
     itemsOf[page] = itemsOf[page] or {}
@@ -661,7 +679,7 @@ function OptionsBuilder.New(options)
       local cell = { checkbox = checkbox, column = column, y = y, advanced = toggle.advanced }
       table.insert(toggleCells, cell)
       table.insert(item.cells, cell)
-      for _, reset in ipairs(resetsOf(toggle)) do table.insert(item.resets, reset) end
+      for _, reset in ipairs(resetsOf(toggle, host)) do table.insert(item.resets, reset) end
       local tipKey = toggle.tip or (toggle.label .. "_TIP")
       local function title() return checkbox.label:GetText() end
       addTooltip(checkbox, tipKey, title)
@@ -752,7 +770,7 @@ function OptionsBuilder.New(options)
     local anchor = label
     for _, choice in ipairs(chooser.choices) do
       local tab = track(Widgets.CreateTab(page, "GameFontHighlight", function()
-        ns.Set(chooser.setting, choice.value)
+        host.set(chooser.setting, choice.value)
       end))
       tab:SetPoint("LEFT", anchor, "RIGHT", CHOOSER_TAB_GAP, 0)
       anchor = tab
@@ -779,7 +797,7 @@ function OptionsBuilder.New(options)
     addRow(label, 0)
     local button = track(Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function(_, mouseButton)
       local choices = cycle.choices()
-      local current = cycle.get(ns.db)
+      local current = cycle.get(host.db())
       local index = 1
       for i, choice in ipairs(choices) do
         if choice.key == current then index = i end
@@ -1175,8 +1193,8 @@ function OptionsBuilder.New(options)
     for i, reset in ipairs(resets) do backup[i] = { reset = reset, value = reset.get() } end
     for _, reset in ipairs(resets) do reset.set(reset.default()) end
     backups[entry] = backup
-    ns.Print(string.format(L.OPTIONS_RESET_DONE, L[entry.key]))
-    ns.ApplySettings()
+    host.print(string.format(L.OPTIONS_RESET_DONE, L[entry.key]))
+    host.apply()
     return true
   end
 
@@ -1187,8 +1205,8 @@ function OptionsBuilder.New(options)
     if not backup then return false end
     for _, saved in ipairs(backup) do saved.reset.set(saved.value) end
     backups[entry] = nil
-    ns.Print(string.format(L.OPTIONS_RESET_UNDONE, L[entry.key]))
-    ns.ApplySettings()
+    host.print(string.format(L.OPTIONS_RESET_UNDONE, L[entry.key]))
+    host.apply()
     return true
   end
 
@@ -1276,12 +1294,12 @@ function OptionsBuilder.New(options)
   end
 
   function catchUp()
-    if not next(stale) or not ns.db or not panel:IsShown() then return end
+    if not next(stale) or not host.db() or not panel:IsShown() then return end
     local done
     for _, refresher in ipairs(refreshers) do
       local owner = refresher.owner
       if owner and stale[owner] and owner:IsVisible() then
-        refresher.run(ns.db)
+        refresher.run(host.db())
         done = done or {}
         done[owner] = true
       end
@@ -1305,7 +1323,7 @@ function OptionsBuilder.New(options)
   end
 
   panel:SetScript("OnShow", function()
-    if refreshPending and ns.db then builder.Refresh(ns.db) else catchUp() end
+    if refreshPending and host.db() then builder.Refresh(host.db()) else catchUp() end
   end)
 
   return builder
