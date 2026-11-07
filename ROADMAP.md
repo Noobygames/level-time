@@ -472,7 +472,7 @@ Schwerpunkt: Struktur und Wartbarkeit nach dem Code- und Architektur-Review, ohn
 - [x] 84. **Unterordner** (M): `Lib/`, `Core/`, `Tracking/`, `History/`, `Speedrun/`, `Assist/`, `UI/` statt 66 Dateien im Hauptordner (`.toc`-Änderung: Client neu starten).
 - [ ] 85. **Locales je Sprache** (S–M): `Locales/Core.lua` plus eine Datei je Sprache statt 1.700 Zeilen in einer.
 - [ ] 86. **Standardwerte je Modul** (M): Module melden ihre Einstellungen und Zähler selbst an (`ns.RegisterDefaults`), statt alles zentral in `Database.lua`.
-- [ ] 87. **Migrationen ohne Fachmodule** (S): Charakter-Migrationen v4/v5 rufen nicht mehr `ns.Daily` auf (eigener Helfer).
+- [x] 87. **Migrationen ohne Fachmodule** (S): Charakter-Migrationen v4/v5 rufen nicht mehr `ns.Daily` auf (eigener Helfer). **Erledigt: `migrationDayEntry` in `Core/Database.lua` (Tagesschlüssel und Felder wie `Daily.Entry` zum Zeitpunkt der Migration, bewusst eingefroren: eine Migration soll sich nicht ändern, wenn das Fachmodul es tut); `Database.lua` ruft kein Fachmodul mehr auf (außer der Formprüfung über `ns.BlizzardHide`, falls geladen).**
 - [x] 88. **Zyklen auflösen** (S–M): `Stats.GetSeconds` bekommt die Zeitquellen (Session, /played) übergeben statt sie selbst zu kennen; Ladereihenfolge = Abhängigkeiten. **Erledigt (mit 222): Zeitquellen melden sich über `Stats.RegisterScope` an (`PlayedTime.GetLevelSeconds`, `Session.GetSeconds`, Instanz-Lauf), `Stats.lua` ruft weder `ns.Session` noch `ns.PlayedTime` noch `ns.Instances` auf.**
 - [ ] 89. **Test-Stub teilen** (S): `tests/wow_stub.lua` nach API-Bereichen aufteilen (Händler, Quests, Taschen, Chat, ...).
 

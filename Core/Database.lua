@@ -334,6 +334,22 @@ local CHARACTER_DEFAULTS = {
 -- Migrationen für die Daten eines Charakters, Schlüssel = Zielversion.
 -- Laufen auch für frische (leere) Daten und müssen daher fehlende Felder vertragen.
 Database.CHARACTER_SCHEMA_VERSION = 5
+
+-- Tageseintrag für die Migrationen v4/v5, ohne Fachmodul (Daily.lua lädt später und gehört zur Historie). Form und
+-- Schlüssel wie Daily.Entry/Daily.DayKey zum Zeitpunkt der Migration; Daily ergänzt später fehlende Felder.
+local MIGRATION_DAY_FIELDS = { seconds = 0, kills = 0, deaths = 0, xp = 0, moneyIn = 0, moneyOut = 0 }
+local DAY_KEY_FORMAT = "%Y-%m-%d"
+
+local function migrationDayEntry(dailyStats, timestamp)
+  local key = date(DAY_KEY_FORMAT, timestamp)
+  local entry = dailyStats[key] or {}
+  for field, default in pairs(MIGRATION_DAY_FIELDS) do
+    entry[field] = entry[field] or default
+  end
+  dailyStats[key] = entry
+  return entry
+end
+
 local characterMigrations = {
   [2] = function(data)  -- kills (nur PvE) -> counters.pveKills
     data.counters = data.counters or {}
@@ -349,7 +365,7 @@ local characterMigrations = {
     data.dailyStats = data.dailyStats or {}
     for _, session in ipairs(data.sessionHistory or {}) do
       if session.startedAt and session.seconds then
-        local entry = ns.Daily.Entry(data.dailyStats, session.startedAt)
+        local entry = migrationDayEntry(data.dailyStats, session.startedAt)
         entry.seconds = entry.seconds + session.seconds
       end
     end
@@ -357,11 +373,11 @@ local characterMigrations = {
   [5] = function(data)  -- Tageswerte zählen Kills und Tode: aus dem vorhandenen Journal übernehmen
     data.dailyStats = data.dailyStats or {}
     for _, kill in ipairs(data.killLog or {}) do
-      local entry = ns.Daily.Entry(data.dailyStats, kill.time)
+      local entry = migrationDayEntry(data.dailyStats, kill.time)
       entry.kills = entry.kills + 1
     end
     for _, death in ipairs(data.deathLog or {}) do
-      local entry = ns.Daily.Entry(data.dailyStats, death.time)
+      local entry = migrationDayEntry(data.dailyStats, death.time)
       entry.deaths = entry.deaths + 1
     end
   end,
