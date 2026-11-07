@@ -137,6 +137,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **130. Beute-Würfe: Daten je Client (Roadmap 364)**: check `364.lootRoll.api` (Quelle legacy/drops/chat, vorhandene `LOOT_ROLL_*`-Formate roh, `GroupLootFrame1..4` mit rollID, verfolgte Würfe mit Zählung), events `START_LOOT_ROLL` (extra: Link, Item-Info, aktive IDs), `CANCEL_LOOT_ROLL`, `LOOT_HISTORY_ROLL_CHANGED` (extra: `C_LootHistory.GetItem`/`GetPlayerInfo`, gleiche rollID wie beim Start?), `LOOT_HISTORY_UPDATE_DROP` (extra: Drop mit Zuständen, auch bei Trash?), `CHAT_MSG_LOOT` (Würfelzeilen lesbar oder `<secret>`), debug `lootroll` (start, chat … zugeordnet, secret loot chat line skipped, complete … winner), `print` (Ergebnis-Zeile); Einstellungen `lootRoll*`
+- **149. Lesbarkeit und Balken, Datenteil (Roadmap 361)**: check `361.readability` (Untergrenze, kleinste Größe, effektive kleinste Schrift je Anzeige, Balkenpfad und geladene Textur, LibSharedMedia-Balken)
 - **144. Blizzard-Einstellungsmenü, Datenteil (Roadmap 403)**: check `403.blizzardSettings` (Settings/InterfaceOptions vorhanden, Kategorie-ID, Strata von SettingsPanel und unserem Fenster), event `ADDON_ACTION_BLOCKED`
 - **132. Flugzeiten-Schätzung, Datenteil (Roadmap 370)**: check `258.flight.estimates` bei offener Flugkarte (taxiMapID, ob `C_TaxiMap` nodeIDs liefert, Strecken, Faktoren), debug `flight` (takeoff … source/seconds/distance/hops, recorded … factor, landed … expected)
 - **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
@@ -2219,5 +2220,28 @@ Neuer Account-Stand (oder `/lt welcome`).
 Client (Retail/Era/TBC/Forever):
 Karte lesbar (ja/nein):
 Schritte wirken (ja/nein):
+Fehler:
+```
+
+### 149. Mindestschrift, Balkentexturen, Farbe nach Wert (Roadmap 361)
+
+- [ ] geprüft
+
+`/lt` > Allgemein > Aussehen.
+
+1. Mindestschriftgröße 10 pt, Schriftgröße -4: alle Anzeigen bleiben lesbar; Hauptfenster per Mausrad im Edit-Modus
+   lässt sich nicht kleiner ziehen, als die Schrift erlaubt.
+2. Balkentextur: Verlauf, Glanz, Blizzard nacheinander; XP-Balken und der Zeitbalken einer Karte (Essen/Flug-Vorschau)
+   ändern sich, Farben bleiben (Akzent, Erholung blau). Mit einem Addon, das LibSharedMedia lädt: dessen Balken in der Liste.
+3. Farbe nach Wert an: XP/h grün/rot je nach Schnitt der letzten Level; Theme „Farbsehschwäche“: blau/orange.
+4. Split-Liste mit Vergleich: „Gesamt“ hellgrün, wenn man vorn liegt, das laufende Level aber langsamer läuft.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Schrift lesbar, Grenze greift (ja/nein):
+Texturen sehen gut aus (ja/nein, welche nicht):
+Farben verständlich (ja/nein):
 Fehler:
 ```

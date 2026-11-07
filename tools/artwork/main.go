@@ -22,6 +22,7 @@ func main() {
 	goalLogoPath := flag.String("goal-logo", "curseforge/streamgoal/logo.png", "Ziel für das Level-Time-Goals-Logo (PNG)")
 	goalIconPath := flag.String("goal-icon", "StreamGoal/Media/Icon.tga", "Ziel für das Level-Time-Goals-Icon (TGA)")
 	glintPath := flag.String("glint", "Media/Glint.tga", "Ziel für das Funkeln der Beute-Glitzer (TGA)")
+	barsDir := flag.String("bars", "Media", "Ordner für die Balkentexturen (TGA)")
 	flag.Parse()
 
 	if err := run(*logoPath, *iconPath, *previewPath); err != nil {
@@ -36,6 +37,22 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
+	if err := runBars(*barsDir); err != nil {
+		fmt.Fprintln(os.Stderr, "Fehler:", err)
+		os.Exit(1)
+	}
+}
+
+func runBars(dir string) error {
+	for name, brightness := range barKinds {
+		path := filepath.Join(dir, name+".tga")
+		bar := renderBar(brightness)
+		if err := writeFile(path, func(f *os.File) error { return writeTGA(f, bar) }); err != nil {
+			return err
+		}
+		fmt.Printf("Balken: %s\n", path)
+	}
+	return nil
 }
 
 func runGlint(path string) error {

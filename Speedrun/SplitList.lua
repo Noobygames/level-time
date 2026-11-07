@@ -121,7 +121,7 @@ function SplitList.BuildFooterLines()
   local lines = {}
   if db.splitListShowCustom then SplitList.AddCustomSplitLines(lines) end
   if db.splitListShowTotal then
-    table.insert(lines, { L.SPLIT_LIST_TOTAL, "", Format.SplitDelta(Splits.GetTotalDelta()) })
+    table.insert(lines, { L.SPLIT_LIST_TOTAL, "", Splits.TotalDeltaText() })
   end
   if db.splitListShowPlayed then
     local played = ns.PlayedTime.GetTotalSeconds()

@@ -21,6 +21,9 @@ local SETTINGS_DEFAULTS = {
   themeFont = "",        -- "" = Schrift des Clients, sonst Name aus Theme.FontChoices
   themeFontSize = 0,     -- Versatz in Punkten auf alle Schriften der Anzeigen
   themeOutline = "none", -- "none", "outline" oder "thick"
+  themeMinFontSize = 0,  -- Untergrenze der effektiven Schriftgröße in Punkten (0 = aus, Theme.MIN_READABLE_SIZES)
+  themeBarTexture = "",  -- "" = einfarbig, sonst Schlüssel aus Theme.BarTextureChoices
+  valueColors = false,   -- XP/h-Werte nach Vergleich mit dem Schnitt färben (Roadmap 361)
   showTimer = true,
   showXpBar = true,
   -- Anordnung des Hauptfensters (UI/Layouts/): "table", "bar", "compact", "text", "clock", "xpbar", "tiles"
@@ -470,6 +473,7 @@ end
 local SETTING_RANGES = {
   bgAlpha = { 0, 1 },
   themeFontSize = { -4, 8 },
+  themeMinFontSize = { 0, 12 },
   splitListRows = { 3, 15 },
   tileColumns = { 1, 6 },
   xpbarWidth = { 200, 1200 },

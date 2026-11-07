@@ -271,7 +271,7 @@ ns.RegisterApply(function(db)
   for _, fontString in ipairs({ elements.time, elements.big }) do
     fontString:SetTextColor(Theme.RGB("accent"))  -- Akzentfarbe kann gewechselt haben
   end
-  elements.xpBar.fill:SetColorTexture(Theme.RGB("accent"))
+  elements.xpBar:ApplyTexture()  -- Akzentfarbe und Balkentextur können gewechselt haben
 
   grip:SetShown(not db.locked)
   visibility:Update()

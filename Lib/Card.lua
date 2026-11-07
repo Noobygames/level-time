@@ -68,8 +68,7 @@ function Card.Create(name)
   barBack:SetHeight(BAR_HEIGHT)
   barBack:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", ACCENT_WIDTH + PADDING, PADDING - 2)
   barBack:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -PADDING, PADDING - 2)
-  local barFill = frame:CreateTexture(nil, "ARTWORK", nil, 1)
-  barFill:SetColorTexture(1, 1, 1, 1)
+  local barFill = frame:CreateTexture(nil, "ARTWORK", nil, 1)  -- Farbe und Textur setzt card.Set
   barFill:SetHeight(BAR_HEIGHT)
   barFill:SetPoint("TOPLEFT", barBack)
 
@@ -117,7 +116,7 @@ function Card.Create(name)
   function card.Set(spec)
     local r, g, b = unpack(spec.color)
     accent:SetColorTexture(r, g, b, 1)
-    barFill:SetColorTexture(r, g, b, 1)
+    ns.Theme.SetBarTexture(barFill, r, g, b, 1)
     title:SetTextColor(r, g, b)
     hasIcon = spec.texture ~= nil or spec.icon ~= nil
     icon:SetShown(hasIcon)

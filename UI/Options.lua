@@ -277,6 +277,34 @@ local function addThemeSection()
     outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
   end
   addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = true })
+  -- Lesbarkeit: Untergrenze der effektiven Schriftgröße (auch gegen kleine Anzeigen), Balkentextur, Farbe nach Wert
+  builder.AddCycleButton({
+    label = "THEME_MIN_FONT_SIZE",
+    setting = "themeMinFontSize",
+    choices = function()
+      local choices = {}
+      for i, size in ipairs(Theme.MIN_READABLE_SIZES) do choices[i] = { key = size } end
+      return choices
+    end,
+    get = function(db) return db.themeMinFontSize end,
+    set = function(size) ns.Set("themeMinFontSize", size) end,
+    nameOf = function(size) return size == 0 and L.THEME_MIN_FONT_OFF or string.format(L.FONT_POINTS, size) end,
+  })
+  builder.AddCycleButton({
+    label = "THEME_BAR_TEXTURE",
+    setting = "themeBarTexture",
+    choices = Theme.BarTextureChoices,
+    get = function(db) return db.themeBarTexture end,
+    set = function(key) ns.Set("themeBarTexture", key) end,
+    nameOf = function(key)
+      if key == "" then return L.BAR_TEXTURE_FLAT end
+      for _, bar in ipairs(Theme.BUILTIN_BARS) do
+        if bar.key == key then return L["BAR_TEXTURE_" .. key:upper()] end
+      end
+      return key
+    end,
+  })
+  addToggles({ toggle("VALUE_COLORS", "valueColors") })
 end
 
 -- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige

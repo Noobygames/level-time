@@ -28,8 +28,10 @@ local SCALE_EPSILON = 0.001
 local registry = {}  -- id -> Anmeldung
 local order = {}     -- Anmeldungen in Reihenfolge
 
+-- Untergrenze: MIN_SCALE oder, mit Mindestschriftgröße (Theme), so groß, dass die kleinste Schrift lesbar bleibt
 function Frames.ClampScale(scale)
-  return math.max(Frames.MIN_SCALE, math.min(Frames.MAX_SCALE, scale))
+  local minimum = math.max(Frames.MIN_SCALE, ns.Theme.MinReadableScale() or 0)
+  return math.max(minimum, math.min(Frames.MAX_SCALE, scale))
 end
 
 function Frames.Get(id)

@@ -18,10 +18,23 @@ local function counter(name)
   return function(scope) return tostring(Stats.Get(scope, name)) end
 end
 
+-- Farbe nach Wert (Einstellung valueColors, Roadmap 361): über dem Vergleichswert gut, darunter schlecht, dazwischen
+-- (VALUE_TOLERANCE) ungefärbt; Farben aus dem Theme (Farbsehschwäche: Blau/Orange)
+local VALUE_TOLERANCE = 0.1
+local function compared(text, value, reference)
+  if not ns.db.valueColors or not value or not reference or reference <= 0 then return text end
+  local ratio = value / reference
+  if ratio >= 1 + VALUE_TOLERANCE then return ns.Theme.Hex("good") .. text .. "|r" end
+  if ratio <= 1 - VALUE_TOLERANCE then return ns.Theme.Hex("bad") .. text .. "|r" end
+  return text
+end
+
+-- XP/h des Bereichs, gefärbt gegen den Schnitt der letzten Level
 local function xpRate(scope)
   if not Experience.IsLeveling() then return NO_VALUE end
   local rate = Experience.GetRatePerHour(scope)
-  return rate and Format.Number(rate) or PENDING
+  if not rate then return PENDING end
+  return compared(Format.Number(rate), rate, ns.db.valueColors and ns.Forecast.AverageLevelXpRate() or nil)
 end
 
 -- Anzahl je Stunde im Bereich (Kills, Gegenstände), über dieselbe Spielzeit wie XP/h (ohne AFK/Leerlauf, wenn eingestellt)
@@ -33,10 +46,12 @@ local function perHour(counterName)
 end
 
 -- Unabhängig vom Bereich: Rate der letzten Minuten
+-- gefärbt gegen die XP/h des laufenden Levels (schneller oder langsamer als bisher in diesem Level)
 local function recentXpRate()
   if not Experience.IsLeveling() then return NO_VALUE end
   local rate = ns.RecentXpRate.Get()
-  return rate and Format.Number(rate) or PENDING
+  if not rate then return PENDING end
+  return compared(Format.Number(rate), rate, ns.db.valueColors and Experience.GetRatePerHour(Stats.LEVEL) or nil)
 end
 
 -- Unabhängig vom Bereich: Summe bzw. hochgerechnete Rate eines Zählers in den letzten 15 Minuten (RecentCounts.lua)
@@ -103,11 +118,6 @@ local function deaths(scope)
     text = ns.Theme.Hex("bad") .. text .. "|r"
   end
   return text
-end
-
--- Split: "-1m 05s" grün (schneller), "+3m 12s" rot (langsamer), "-" ohne Vergleich
-local function splitText(getDelta)
-  return function() return Format.SplitDelta(getDelta()) end
 end
 
 -- Session-Ziel: "Level 30: 45 %, 1h 20m" bzw. "Level 30 erreicht"
@@ -240,7 +250,7 @@ ns.STAT_LINES = {
     rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
     { label = "ROW_SPLIT_LEVEL", value = function() return ns.Splits.CurrentDeltaText() end },
-    { label = "ROW_SPLIT_TOTAL", value = splitText(ns.Splits.GetTotalDelta) },
+    { label = "ROW_SPLIT_TOTAL", value = function() return ns.Splits.TotalDeltaText() end },
   } },
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
   { setting = "showPveKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVE_KILLS",

@@ -6,7 +6,7 @@
 -- Farben sind Tabellen, die beim Anwenden an Ort und Stelle überschrieben werden: wer sich eine Farbe merkt
 -- (local COLOR = Theme.COLORS.good), sieht nach einem Preset-Wechsel beim nächsten Zeichnen die neue.
 -- Lädt vor allen UI-Modulen; sein Apply läuft daher vor ihren (Schriften und Farben stehen, wenn sie messen).
-local _, ns = ...
+local addonName, ns = ...
 
 local Theme = {}
 ns.Theme = Theme
@@ -28,6 +28,8 @@ local CLASSIC_COLORS = {
   neutral = { 1, 208 / 255, 64 / 255 },  -- gleichauf (Toleranzband), knapp am Limit
   best = { 192 / 255, 112 / 255, 1 },    -- Gold-Split (neue Bestzeit, lila wie bei Sprint)
   goodOnChroma = { 77 / 255, 210 / 255, 1 },  -- "schneller" auf grünem Chroma-Grund (OBS stanzt Grün aus)
+  goodLosing = { 0.6, 0.9, 0.6 },    -- vorn, das laufende Level verliert aber Zeit (LiveSplit "ahead, losing")
+  badGaining = { 1, 0.62, 0.55 },    -- hinten, das laufende Level holt aber auf (LiveSplit "behind, gaining")
   success = { 0.35, 1, 0.45 },       -- fertig/erreicht (Karten)
   info = { 0.55, 0.8, 1 },           -- Hinweise, Flüge
   warning = { 1, 0.6, 0.2 },
@@ -56,6 +58,7 @@ Theme.PRESETS = {
     colors = {
       good = { 0.3, 0.65, 1 }, success = { 0.3, 0.65, 1 }, goodOnChroma = { 0.3, 0.65, 1 },
       bad = { 1, 0.55, 0.1 }, neutral = { 0.95, 0.95, 0.95 },
+      goodLosing = { 0.62, 0.8, 1 }, badGaining = { 1, 0.8, 0.5 },  -- hell statt Rot-Grün-Abstufung
     },
   },
 }
@@ -155,6 +158,8 @@ end
 -- Schriften
 ---------------------------------------------------------------------------
 local fonts = {}     -- Name des Font-Objekts -> { font, role, outlined }
+local readableSize = 0      -- Untergrenze der Schrift (themeMinFontSize, 0 = aus), s. Lesbarkeit unten
+local smallestFontSize = 0  -- kleinste Rolle nach dem Anwenden
 local defaults = {}  -- Rolle -> { face, size, flags } des Blizzard-Objekts
 local OUTLINED_SUFFIX = "Outline"
 
@@ -222,14 +227,82 @@ local function applyFonts(db)
   local face = Theme.FontPath(db.themeFont)
   local outline = OUTLINE_FLAGS[db.themeOutline]
   local offset = db.themeFontSize or 0
+  local floor = math.max(MIN_FONT_SIZE, readableSize)
+  smallestFontSize = 0
   for _, entry in pairs(fonts) do
     local default = defaults[entry.role]
     if default and default[1] then
       local flags = (outline and outline ~= "") and outline or (entry.outlined and OUTLINE_FLAGS.outline)
         or (default[3] or "")
-      entry.font:SetFont(face or default[1], math.max(MIN_FONT_SIZE, default[2] + offset), flags)
+      local size = math.max(floor, default[2] + offset)
+      entry.font:SetFont(face or default[1], size, flags)
+      smallestFontSize = smallestFontSize == 0 and size or math.min(smallestFontSize, size)
     end
   end
+end
+
+---------------------------------------------------------------------------
+-- Balkentexturen (themeBarTexture, Roadmap 361): "" = einfarbig wie bisher, eigene TGA aus tools/artwork (weiß in
+-- Graustufen, eingefärbt per SetVertexColor), Blizzards Statusleiste und, falls ein anderes Addon LibSharedMedia
+-- geladen hat, dessen "statusbar"-Medien
+---------------------------------------------------------------------------
+local MEDIA = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
+local FLAT_TEXTURE = "Interface\\Buttons\\WHITE8x8"
+local BUILTIN_BARS = {
+  { key = "smooth", path = MEDIA .. "BarSmooth" },
+  { key = "gloss", path = MEDIA .. "BarGloss" },
+  { key = "blizzard", path = "Interface\\TargetingFrame\\UI-StatusBar" },
+}
+Theme.BUILTIN_BARS = BUILTIN_BARS
+
+-- Auswahl: { { key, name } }; name nil = Text aus den Locales (BAR_TEXTURE_<KEY>), Medien mit ihrem Namen
+function Theme.BarTextureChoices()
+  local choices = { { key = "" } }
+  local seen = {}
+  for _, bar in ipairs(BUILTIN_BARS) do
+    table.insert(choices, { key = bar.key })
+    seen[bar.key] = true
+  end
+  local media = sharedMedia()
+  if media and media.List then
+    for _, name in ipairs(media:List("statusbar") or {}) do
+      if not seen[name] then
+        table.insert(choices, { key = name, name = name })
+        seen[name] = true
+      end
+    end
+  end
+  return choices
+end
+
+-- Pfad der gewählten Balkentextur; einfarbig, wenn nichts gewählt ist oder ein gemerktes Medium fehlt
+function Theme.BarTexturePath(key)
+  if not key or key == "" then return FLAT_TEXTURE end
+  for _, bar in ipairs(BUILTIN_BARS) do
+    if bar.key == key then return bar.path end
+  end
+  local media = sharedMedia()
+  return media and media.Fetch and media:Fetch("statusbar", key, true) or FLAT_TEXTURE
+end
+
+local barTexture = FLAT_TEXTURE
+
+-- Füllung eines Balkens in der gewählten Textur und Farbe (statt SetColorTexture)
+function Theme.SetBarTexture(texture, r, g, b, a)
+  texture:SetTexture(barTexture)
+  texture:SetVertexColor(r, g, b, a or 1)
+end
+
+---------------------------------------------------------------------------
+-- Lesbarkeit (themeMinFontSize, Roadmap 361): keine Rolle kleiner als die Untergrenze, und keine Anzeige so klein
+-- skaliert, dass ihre kleinste Schrift effektiv (Punktgröße x Größe der Anzeige) darunter fällt. 0 = aus.
+---------------------------------------------------------------------------
+Theme.MIN_READABLE_SIZES = { 0, 8, 9, 10, 11, 12 }
+
+-- Kleinste Größe einer Anzeige, bei der die Untergrenze noch hält (1 = nicht verkleinern); nil = keine Grenze
+function Theme.MinReadableScale()
+  if readableSize <= 0 or smallestFontSize <= 0 then return nil end
+  return math.min(1, readableSize / smallestFontSize)
 end
 
 -- Höhe einer Rolle in Punkten (für Zeilenhöhen, die der Schrift folgen sollen)
@@ -348,7 +421,9 @@ end
 function Theme.Apply(db)
   active = Theme.PRESETS[db.theme] or Theme.PRESETS[Theme.DEFAULT]
   applyColors(active, db.themeAccent)
+  readableSize = db.themeMinFontSize or 0
   applyFonts(db)
+  barTexture = Theme.BarTexturePath(db.themeBarTexture)
   for frame, alpha in pairs(panels) do Theme.ApplyPanel(frame, alpha) end
   for frame in pairs(cards) do Theme.ApplyCard(frame) end
 end
