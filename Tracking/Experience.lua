@@ -32,6 +32,13 @@ function Experience.CalculateRate(xp, seconds)
   return xp / seconds * SECONDS_PER_HOUR
 end
 
+-- Anzahl pro Stunde (Kills, Gegenstände) aus Anzahl und Spielzeit; anders als CalculateRate auch 0, sobald die
+-- Zeit aussagekräftig ist (eine Farm-Runde ohne Kill ist eine Aussage). nil, solange zu wenig Zeit gemessen ist.
+function Experience.CountRate(count, seconds)
+  if not seconds or seconds < MIN_SECONDS_FOR_RATE then return nil end
+  return (count or 0) / seconds * SECONDS_PER_HOUR
+end
+
 -- Spielzeit, auf die sich Raten und Prognosen beziehen: ohne AFK-Zeit (xpRateWithoutAfk) und ohne Leerlauf
 -- (idleMinutes > 0), wenn eingestellt; beide Zeiten aus TimeBreakdown.lua. Auch für Historie-Einträge.
 function Experience.RateSeconds(seconds, afkSeconds, idleSeconds)

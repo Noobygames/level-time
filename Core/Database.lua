@@ -233,6 +233,7 @@ local SETTINGS_DEFAULTS = {
   showSpending = false,  -- Ausgaben nach Art und Schrott-Erlös (siehe MoneyCounter.lua)
   showIncome = false,    -- Einnahmen nach Art und Gold/h (siehe MoneyCounter.lua)
   showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
+  showKillRate = false,    -- Kills (PvE) je Stunde im Bereich
   minimap = { hide = false, angle = 225 },
 }
 

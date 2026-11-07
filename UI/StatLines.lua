@@ -24,6 +24,14 @@ local function xpRate(scope)
   return rate and Format.Number(rate) or PENDING
 end
 
+-- Anzahl je Stunde im Bereich (Kills, Gegenstände), über dieselbe Spielzeit wie XP/h (ohne AFK/Leerlauf, wenn eingestellt)
+local function perHour(counterName)
+  return function(scope)
+    local rate = Experience.CountRate(Stats.Get(scope, counterName), Experience.ScopeRateSeconds(scope))
+    return rate and Format.Number(rate) or PENDING
+  end
+end
+
 -- Unabhängig vom Bereich: Rate der letzten Minuten
 local function recentXpRate()
   if not Experience.IsLeveling() then return NO_VALUE end
@@ -225,6 +233,8 @@ ns.STAT_LINES = {
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
   { setting = "showPveKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVE_KILLS",
     rows = { { label = "ROW_PVE_KILLS", value = counter(Stats.PVE_KILLS) } } },
+  { setting = "showKillRate", group = "STAT_GROUP_COMBAT", label = "STAT_KILL_RATE",
+    rows = { { label = "ROW_KILL_RATE", value = perHour(Stats.PVE_KILLS) } } },
   { setting = "showPvpKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVP_KILLS",
     rows = { { label = "ROW_PVP_KILLS", value = counter(Stats.PVP_KILLS) } } },
   { setting = "showSpecialKills", group = "STAT_GROUP_COMBAT", label = "STAT_SPECIAL_KILLS", rows = {
