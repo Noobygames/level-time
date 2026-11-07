@@ -22,7 +22,9 @@ end
 -- Tooltip-Zeile für einen Slot der offenen Karte (nil = nichts anzeigen)
 function FlightTooltip.Line(slot)
   if not (ns.db.flightTimer and ns.db.flightTimeTooltip) then return nil end
-  if TaxiNodeGetType(slot) ~= ns.FlightMap.REACHABLE then return nil end
+  if ns.IsSecret(slot) then return nil end
+  local nodeType = TaxiNodeGetType(slot)
+  if ns.IsSecret(nodeType) or nodeType ~= ns.FlightMap.REACHABLE then return nil end
   local known = ns.FlightTimer.Lookup(slot)
   if not known then return nil end
   local time = formatTime(known.seconds)
