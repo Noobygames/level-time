@@ -2466,3 +2466,19 @@ Link per Shift-Klick (ja/nein):
 Schon erledigte Quest erkannt (ja/nein):
 Fehler:
 ```
+
+### 173. Berufs-Ziel (Roadmap 297)
+
+- [ ] geprüft
+
+1. `/sg add skill <aktuell+2> <Beruf>`: Karte startet beim aktuellen Wert (Retail/Forever: Hauptberufe, Kochen, Angeln),
+   Fertigkeit steigern zählt mit.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Startwert stimmt (ja/nein):
+Steigen zählt (ja/nein):
+Fehler:
+```
