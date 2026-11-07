@@ -448,10 +448,21 @@ check("259.questLevels.log", function()
   return { enabled = ns.db.questLevels, entries = entries }
 end)
 
--- 268: Kandidaten für den Quest-Item-Knopf, Wahl, Zielname
+-- 268: Kandidaten für den Quest-Item-Knopf (mit Zone je Quest und Ort des Spielers), Wahl, Zielname
 check("268.questItem.pick", function()
   local pick = ns.QuestItem.Pick()
-  return { candidates = ns.QuestItem.Candidates(), pick = pick and { itemId = pick.itemId, questID = pick.questID },
+  local candidates = ns.QuestItem.Candidates()
+  for _, candidate in ipairs(candidates) do
+    local inZone, signals = ns.QuestItem.ZoneOf(candidate.questID)
+    candidate.inZone, candidate.zoneSignals = inZone, signals
+    candidate.questMap = ns.QuestLog.QuestMap(candidate.questID)
+  end
+  local here = ns.QuestItem.Here()
+  local names = {}
+  for name in pairs(here.names) do names[#names + 1] = name end
+  table.sort(names)
+  return { candidates = candidates, pick = pick and { itemId = pick.itemId, questID = pick.questID },
+    zoneOnly = ns.db.questButtonsZoneOnly, here = { mapID = here.mapID, zone = here.zone, names = names },
     targets = ns.QuestItem.TargetNames(), canTarget = ns.QuestItem.CanTarget(),
     buttons = framesByName({ "LevelTimerQuestItemButton", "LevelTimerQuestTargetButton" }) }
 end)

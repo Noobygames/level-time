@@ -1824,3 +1824,29 @@ Zurück wie vorher (ja/nein):
 Lücke stört (ja/nein):
 Fehler:
 ```
+
+### 132. Quest-Knöpfe nur in der Zone der Quest (Roadmap 366)
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Item-Knopf“, „Questgegner-Zielknopf“ und „Quest-Knöpfe nur in der Zone der Quest“ an. Zwei Quests mit benutzbarem Gegenstand aus verschiedenen Zonen im Log. Datenteil per Debug-Log: debug `questitem` (quest … zone …), check `268.questItem.pick` (`here`, `inZone` und `zoneSignals` je Kandidat).
+
+1. In der Zone der ersten Quest: der Knopf zeigt deren Gegenstand, nicht den der anderen Zone.
+2. In die andere Zone reisen (oder fliegen): der Knopf wechselt beim Zonenwechsel ohne Verzögerung zum anderen Gegenstand; im Kampf erst danach.
+3. In einer Zone ohne passende Quest: Knopf weg (Klassen- oder Saisonquests mit Gegenstand bleiben sichtbar).
+4. In einer Höhle oder einem Gebäude mit eigener Karte (z.B. Mine): der Knopf bleibt wie in der Zone darüber.
+5. Schalter aus: der Knopf zeigt wieder die nächste bzw. zuletzt angenommene Quest wie vorher.
+
+**Erwartet:** keine Lua-Fehler, kein „Aktion blockiert“; nichts verschwindet, was in der Zone gebraucht wird.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Richtiger Gegenstand je Zone (ja/nein):
+Wechsel beim Zonenwechsel (ja/nein):
+Fremde Zone: Knopf weg (ja/nein):
+Höhle/Gebäude ok (ja/nein):
+Fehlt etwas zu Unrecht (welche Quest, Überschrift im Log):
+Fehler:
+```
