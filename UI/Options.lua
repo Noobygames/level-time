@@ -521,6 +521,7 @@ do
   addToggles({
     toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
     toggle("FLIGHT_SOUND", "flightSound"),
+    toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"),
   })
   addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
   finishPage()

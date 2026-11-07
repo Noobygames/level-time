@@ -125,6 +125,7 @@ Assist\FoodTimer.lua
 Assist\FlightMap.lua
 Assist\FlightTimes.lua
 Assist\FlightTimer.lua
+Assist\FlightTooltip.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua
