@@ -7,7 +7,8 @@
 --   killer/spell: Verursacher und Zauber des letzten Treffers, environment: Umgebungsschaden
 --   (z.B. "FALLING"); alle drei nil, wenn die Ursache nicht bekannt ist.
 --   mapID/x/y: Ort auf der Karte (nil in Instanzen), lastWords: letzte eigene Chatzeile (DeathPlace.lua)
--- Quest-Eintrag: { time, level, zone, questID, name, xp, money }
+-- Quest-Eintrag: { time, level, zone, questID, name, xp, money, duration, delta }
+--   duration: /played-Sekunden von Annahme bis Abgabe, delta: Abweichung zur bisherigen Bestzeit (QuestSplits.lua)
 -- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID }
 -- Beute:        { time, level, zone, link, name, quality, quantity, source }
 -- Beinahe-Tod:  { time, level, zone, lowestPercent, killer, spell, environment }
@@ -47,7 +48,7 @@ Journal.LOGS = {
     { path = "y" }, { path = "lastWords", kind = VALUE } } },
   questLog = { max = Journal.MAX_QUESTS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "questID" },
-    { path = "name", kind = VALUE }, { path = "xp" }, { path = "money" } } },
+    { path = "name", kind = VALUE }, { path = "xp" }, { path = "money" }, { path = "duration" }, { path = "delta" } } },
   instanceLog = { max = Journal.MAX_INSTANCE_RUNS, fields = {
     { path = "time" }, { path = "name", kind = VALUE }, { path = "instanceType", kind = VALUE }, { path = "seconds" },
     { path = "level" }, { path = "xp" }, { path = "counters.kills" }, { path = "counters.deaths" },

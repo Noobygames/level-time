@@ -761,6 +761,7 @@ addToggles({
   toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
   toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
   toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
+  toggle("QUEST_SPLIT_NOTICE", "questSplitNotice"),
 })
 addSplitComparisonChooser()
 addToggles({ toggle("PB_SAME_CLASS", "pbSameClass") })

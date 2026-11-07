@@ -166,6 +166,37 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
 }))
 
 ---------------------------------------------------------------------------
+-- Quest-Splits: Dauer jeder Quest von der Annahme bis zur Abgabe gegen die Bestzeit je Quest (QuestSplits.lua)
+---------------------------------------------------------------------------
+local QuestSplits = ns.QuestSplits
+
+local QUEST_SPLIT_COLUMNS = {
+  { header = "HISTORY_QUEST", width = 170, align = LEFT, value = function(r) return r.name or L.UNKNOWN_NAME end },
+  { header = "HISTORY_LEVEL", width = 40, value = function(r) return r.level or "" end,
+    sort = function(r) return r.level end },
+  { header = "HISTORY_XP", width = 56, value = function(r) return r.xp and Format.Number(r.xp) or "-" end,
+    sort = function(r) return r.xp end },
+  { header = "HISTORY_TIME", width = 64, value = function(r) return Format.Duration(r.duration) end,
+    sort = function(r) return r.duration end },
+  { header = "HISTORY_BEST_TIME", width = 64, value = function(r)
+      local best = QuestSplits.GetBest(r.questID)
+      return best and Format.Duration(best) or "-"
+    end, sort = function(r) return QuestSplits.GetBest(r.questID) end },
+  { header = "HISTORY_DELTA", width = 70, value = function(r) return Format.SplitDelta(r.delta) end,
+    sort = function(r) return r.delta end },
+}
+
+ns.HistoryWindow.AddView(ns.TableView.Create({
+  tab = "HISTORY_TAB_QUEST_SPLITS",
+  group = GROUP,
+  columns = QUEST_SPLIT_COLUMNS,
+  records = QuestSplits.GetRecords,
+  footer = HistoryTables.CountCells,
+  revision = ns.Journal.Revision,
+  hint = "QUEST_SPLITS_HINT",
+}))
+
+---------------------------------------------------------------------------
 -- Speedrun-Rekorde (speedrun.com): je Abschnitt gesamt und je Klasse, mit deiner /played-Zeit
 ---------------------------------------------------------------------------
 local WorldRecords = ns.WorldRecords

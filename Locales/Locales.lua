@@ -9,6 +9,11 @@ ns.languages = {
 
 ns.locales = {
   deDE = {
+    HISTORY_TAB_QUEST_SPLITS = "Quest-Splits",
+    QUEST_SPLITS_HINT = "Dauer von der Annahme bis zur Abgabe (/played), Bestzeit je Quest über alle Charaktere; Abweichung zur Bestzeit vor dieser Abgabe.",
+    QUEST_SPLIT = "Quest „%s“ in %s %s",
+    QUEST_SPLIT_NOTICE = "Quest-Splits im Chat",
+    QUEST_SPLIT_NOTICE_TIP = "Bei jeder Abgabe eine Chatzeile mit der Dauer seit der Annahme und der Abweichung zur Bestzeit dieser Quest. Alle Quest-Splits: Historie > Speedrun > Quest-Splits.",
     SHOW_CUSTOM_SPLITS = "Eigene Splits in der Liste",
     SHOW_CUSTOM_SPLITS_TIP = "Die letzten drei eigenen Splits (/lt split [Name], /lt split undo, Tastenbelegung unter AddOns) mit /played-Zeit und Abweichung zur Vorlage (/lt split template speichert die Splits eines Charakters als Vorlage für neue).",
     CUSTOM_SPLIT_SET = "Split „%s“ bei %s %s",
@@ -1028,6 +1033,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Einblendung und Chatzeile, wenn du einen persönlichen Rekord brichst: meiste XP in 60 Minuten, beste Session-XP/h (ab 30 min), größter XP-Gewinn, bester Instanz-Lauf und schnellstes Level. Rekorde gelten über alle Charaktere und stehen in der Historie.",
   },
   enUS = {
+    HISTORY_TAB_QUEST_SPLITS = "Quest splits",
+    QUEST_SPLITS_HINT = "Time from accepting to turning in (/played), best time per quest over all characters; difference to the best time before this turn-in.",
+    QUEST_SPLIT = "Quest \"%s\" in %s %s",
+    QUEST_SPLIT_NOTICE = "Quest splits in chat",
+    QUEST_SPLIT_NOTICE_TIP = "On every turn-in a chat line with the time since accepting and the difference to the best time of this quest. All quest splits: History > Speedrun > Quest splits.",
     SHOW_CUSTOM_SPLITS = "Own splits in the list",
     SHOW_CUSTOM_SPLITS_TIP = "The last three own splits (/lt split [name], /lt split undo, key binding under AddOns) with /played time and difference to the template (/lt split template saves a character's splits as template for new ones).",
     CUSTOM_SPLIT_SET = "Split \"%s\" at %s %s",
@@ -2047,6 +2057,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alert and chat line when you break a personal record: most XP in 60 minutes, best session XP/h (from 30 min), biggest XP gain, best instance run and fastest level. Records count across all characters and are listed in the history.",
   },
   frFR = {
+    HISTORY_TAB_QUEST_SPLITS = "Écarts de quêtes",
+    QUEST_SPLITS_HINT = "Durée de l'acceptation au rendu (/played), meilleur temps par quête sur tous les personnages ; écart au meilleur temps avant ce rendu.",
+    QUEST_SPLIT = "Quête « %s » en %s %s",
+    QUEST_SPLIT_NOTICE = "Écarts de quêtes dans le chat",
+    QUEST_SPLIT_NOTICE_TIP = "À chaque rendu, une ligne de chat avec la durée depuis l'acceptation et l'écart au meilleur temps de cette quête. Tous les écarts : Historique > Speedrun > Écarts de quêtes.",
     SHOW_CUSTOM_SPLITS = "Écarts personnels dans la liste",
     SHOW_CUSTOM_SPLITS_TIP = "Les trois derniers écarts personnels (/lt split [nom], /lt split undo, raccourci sous AddOns) avec temps /played et écart au modèle (/lt split template enregistre les écarts d'un personnage comme modèle pour les nouveaux).",
     CUSTOM_SPLIT_SET = "Écart « %s » à %s %s",
@@ -3066,6 +3081,11 @@ ns.locales = {
     ANNOUNCE_RECORDS_TOGGLE_TIP = "Alerte et ligne de discussion quand vous battez un record personnel : plus de PX en 60 minutes, meilleure PX/h de session (dès 30 min), plus gros gain de PX, meilleure instance et niveau le plus rapide. Les records valent pour tous les personnages et figurent dans l'historique.",
   },
   esES = {
+    HISTORY_TAB_QUEST_SPLITS = "Parciales de misiones",
+    QUEST_SPLITS_HINT = "Tiempo desde aceptar hasta entregar (/played), mejor tiempo por misión en todos los personajes; diferencia con el mejor tiempo antes de esta entrega.",
+    QUEST_SPLIT = "Misión «%s» en %s %s",
+    QUEST_SPLIT_NOTICE = "Parciales de misiones en el chat",
+    QUEST_SPLIT_NOTICE_TIP = "En cada entrega una línea de chat con el tiempo desde la aceptación y la diferencia con el mejor tiempo de esta misión. Todos los parciales: Historial > Speedrun > Parciales de misiones.",
     SHOW_CUSTOM_SPLITS = "Parciales propios en la lista",
     SHOW_CUSTOM_SPLITS_TIP = "Los tres últimos parciales propios (/lt split [nombre], /lt split undo, atajo en AddOns) con tiempo /played y diferencia con la plantilla (/lt split template guarda los parciales de un personaje como plantilla para los nuevos).",
     CUSTOM_SPLIT_SET = "Parcial «%s» en %s %s",

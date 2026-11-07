@@ -2071,3 +2071,20 @@ Splits und undo (ja/nein):
 Vorlage beim zweiten Charakter (ja/nein):
 Fehler:
 ```
+
+### 101. Quest-Splits (Roadmap 289)
+
+- [ ] geprüft
+
+Speedrun > „Quest-Splits im Chat“ an. Eine Quest annehmen, erledigen, abgeben; mit einem zweiten Charakter dieselbe Quest schneller. Historie > Speedrun > Quest-Splits öffnen.
+
+**Erwartet:** Bei der Abgabe Chatzeile „Quest „Name“ in 5m 12s -“, beim zweiten Charakter mit grüner Abweichung. Die Tabelle zeigt Quest, Level, XP, Zeit, Bestzeit und Abweichung. Classic: Annahme über Questlog-Index und ID funktioniert.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Dauer stimmt (ja/nein):
+Bestzeit und Abweichung (ja/nein):
+Fehler:
+```
