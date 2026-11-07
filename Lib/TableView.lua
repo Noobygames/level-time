@@ -71,14 +71,14 @@ end
 -- abgeschnitten (voller Text im Tooltip). Rückgabe: Breite je Spalte
 local SORT_MARKER_WIDTH = 10  -- Platz für "v "/"^ " vor dem Kopf
 
--- Zuviel über maxTotal von den Spalten nehmen, die über ihre festgelegte Breite gewachsen sind
+-- Zuviel über maxTotal (mindestens die festgelegte Gesamtbreite) von den Spalten nehmen, die gewachsen sind
 local function capWidths(columns, widths, maxTotal)
   local sum, grown = 0, 0
   for i, column in ipairs(columns) do
     sum = sum + widths[i]
     grown = grown + math.max(0, widths[i] - column.width)
   end
-  local excess = sum - maxTotal
+  local excess = sum - math.max(maxTotal, tableWidth(columns))  -- nie schmaler als festgelegt
   if excess <= 0 or grown <= 0 then return widths end
   local share = math.min(1, excess / grown)
   for i, column in ipairs(columns) do
