@@ -220,7 +220,7 @@ ns.STAT_LINES = {
   { setting = "showMaxLevelEta", group = "STAT_GROUP_XP", label = "STAT_MAX_LEVEL_ETA",
     rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
-    { label = "ROW_SPLIT_LEVEL", value = splitText(ns.Splits.GetCurrentDelta) },
+    { label = "ROW_SPLIT_LEVEL", value = function() return ns.Splits.CurrentDeltaText() end },
     { label = "ROW_SPLIT_TOTAL", value = splitText(ns.Splits.GetTotalDelta) },
   } },
   { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },

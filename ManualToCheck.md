@@ -1984,3 +1984,20 @@ Stundenlimit laut Server (5/10):
 Tageslimit laut Server (30/keins):
 Fehler:
 ```
+
+### 96. Gold-Splits (Roadmap 284)
+
+- [ ] geprüft
+
+Speedrun > „Gold-Splits melden“ an, Split-Liste an (`/lt splits`). Mit einem Charakter ein Level schneller abschließen als jeder andere eigene Charakter dafür gebraucht hat.
+
+**Erwartet:** Beim Level-Up Chatzeile „Gold-Split! Level N in … (−… gegen die Bestzeit)“ und Raid-Warnungs-Ton; in der Split-Liste steht die Abweichung dieses Levels lila statt grün.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Chatzeile und Ton (ja/nein):
+Lila in der Split-Liste (ja/nein):
+Fehler:
+```

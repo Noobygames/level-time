@@ -6,6 +6,8 @@
 --   "run"        ein gewählter Lauf (db.splitReference = { id, name, times }, /lt compare Name oder
 --                Klick in der Ansicht "Läufe"); die Zeiten werden beim Wählen kopiert und bleiben fest
 -- Abweichung < 0 = schneller als der Vergleich. Ohne Vergleichswert für ein Level gibt es keinen Split.
+-- Gold-Split: abgeschlossenes Level schneller als die Bestzeit aller anderen Charaktere (unabhängig vom
+-- Vergleich), lila in der Split-Liste; Einstellung goldSplitNotice meldet ihn beim Level-Up mit Ton.
 local _, ns = ...
 local Stats = ns.Stats
 local History = ns.History
@@ -90,8 +92,8 @@ local REFERENCES = {
 
 -- Neu berechnet, wenn sich Vergleich, Level, eingeloggter Charakter oder die Zahl der Charaktere
 -- ändert (Löschen). Innerhalb eines Levels bleibt der Vergleich damit fest.
-local cachedTimes
-local cachedFor
+-- Zwischenspeicher je Art: caches[name] = { key, times }
+local caches = {}
 
 local function cacheKey()
   local count = 0
@@ -104,16 +106,21 @@ end
 -- Login (auch der Neustart nach dem Löschen des eingeloggten Charakters, bei gleicher Zahl der
 -- Charaktere) baut den Vergleich neu
 ns.OnLogin(function()
-  cachedTimes = nil
+  caches = {}
 end)
 
-local function referenceTimes()
+local function cached(name, build)
   local key = cacheKey()
-  if cachedTimes and cachedFor == key then return cachedTimes end
-  local build = REFERENCES[ns.db.splitComparison] or REFERENCES[Splits.BEST]
-  cachedTimes, cachedFor = build(), key
-  ns.Debug("splits", "reference rebuilt (%s)", key)
-  return cachedTimes
+  local entry = caches[name]
+  if entry and entry.key == key then return entry.times end
+  entry = { key = key, times = build() }
+  caches[name] = entry
+  ns.Debug("splits", "%s rebuilt (%s)", name, key)
+  return entry.times
+end
+
+local function referenceTimes()
+  return cached("reference", REFERENCES[ns.db.splitComparison] or REFERENCES[Splits.BEST])
 end
 
 ---------------------------------------------------------------------------
@@ -121,6 +128,18 @@ end
 ---------------------------------------------------------------------------
 function Splits.GetReference(level)
   return referenceTimes()[level]
+end
+
+-- Bestzeit eines Levels über alle anderen Charaktere (ohne Teil-Level), unabhängig vom Vergleich
+function Splits.GetBestTime(level)
+  return cached("best", bestPerLevel)[level]
+end
+
+-- Gold-Split: eigenes, vollständig erfasstes Level schneller als jede bisherige Bestzeit dafür
+function Splits.IsGoldSplit(level)
+  local record = ns.character.levelHistory[level]
+  local best = Splits.GetBestTime(level)
+  return record ~= nil and not record.partial and record.seconds ~= nil and best ~= nil and record.seconds < best
 end
 
 -- Abweichung des laufenden Levels zum Vergleich; nil ohne Vergleichswert oder solange /played fehlt
@@ -156,7 +175,7 @@ function Splits.SetReferenceRun(run)
   local times = {}
   for level, seconds in pairs(run.times) do times[level] = seconds end
   ns.db.splitReference = { id = run.id, name = run.name, times = times }
-  cachedTimes = nil  -- auch bei gleicher Wahl neu lesen (der Lauf kann sich seit dem letzten Mal geändert haben)
+  caches = {}  -- auch bei gleicher Wahl neu lesen (der Lauf kann sich seit dem letzten Mal geändert haben)
   ns.Set("splitComparison", Splits.RUN)
 end
 
@@ -175,3 +194,27 @@ function Splits.GetReferenceName()
   if History.GetCharacter(reference.id) then return History.DisplayName(reference.id) end
   return reference.name
 end
+
+---------------------------------------------------------------------------
+-- Anzeige
+---------------------------------------------------------------------------
+local Format = ns.Format
+
+-- Abweichung eines abgeschlossenen Levels als Text, Gold-Splits lila
+function Splits.LevelDeltaText(level)
+  return Format.SplitDelta(Splits.GetLevelDelta(level), Splits.IsGoldSplit(level) and Format.SPLIT_GOLD or nil)
+end
+
+function Splits.CurrentDeltaText()
+  return Format.SplitDelta(Splits.GetCurrentDelta())
+end
+
+-- Gold-Split beim Level-Up melden (Chatzeile und Ton, Einstellung goldSplitNotice). Läuft nach
+-- History.lua (Ladereihenfolge), der Level-Eintrag steht also schon.
+ns.OnLevelCompleted(function(level)
+  if not ns.db.goldSplitNotice or not Splits.IsGoldSplit(level) then return end
+  local seconds, best = ns.character.levelHistory[level].seconds, Splits.GetBestTime(level)
+  ns.Debug("splits", "gold split level %s: %s < %s", level, seconds, best)
+  ns.Print(string.format(ns.L.GOLD_SPLIT, level, Format.Duration(seconds), Format.SignedDuration(seconds - best)))
+  if ns.Alerts then ns.Alerts.PlaySound() end
+end)

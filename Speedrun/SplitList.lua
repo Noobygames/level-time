@@ -51,16 +51,19 @@ end
 -- Inhalt
 ---------------------------------------------------------------------------
 
--- { level, seconds, delta } für das laufende Level und die zuletzt abgeschlossenen, neueste zuerst
+-- { level, seconds, delta, deltaText, gold } für das laufende Level und die zuletzt abgeschlossenen,
+-- neueste zuerst
 function SplitList.BuildLines()
   local lines = {
-    { level = ns.level, seconds = Stats.GetSeconds(Stats.LEVEL), delta = Splits.GetCurrentDelta() },
+    { level = ns.level, seconds = Stats.GetSeconds(Stats.LEVEL), delta = Splits.GetCurrentDelta(),
+      deltaText = Splits.CurrentDeltaText() },
   }
   local level = ns.level - 1
   while #lines < ns.db.splitListRows and level >= 1 do
     local record = ns.character.levelHistory[level]
     if record then
-      table.insert(lines, { level = level, seconds = record.seconds, delta = Splits.GetLevelDelta(level) })
+      table.insert(lines, { level = level, seconds = record.seconds, delta = Splits.GetLevelDelta(level),
+        deltaText = Splits.LevelDeltaText(level), gold = Splits.IsGoldSplit(level) })
     end
     level = level - 1
   end
@@ -131,7 +134,7 @@ local function render()
   local lines = SplitList.BuildLines()
   for i, line in ipairs(lines) do
     setCells(getRow(i), tostring(line.level),
-      line.seconds and Format.Duration(line.seconds) or "...", Format.SplitDelta(line.delta))
+      line.seconds and Format.Duration(line.seconds) or "...", line.deltaText)
   end
   local used = #lines
   for _, line in ipairs(SplitList.BuildFooterLines()) do

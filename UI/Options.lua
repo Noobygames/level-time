@@ -749,6 +749,7 @@ addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
   toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
   toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
+  toggle("GOLD_SPLIT_NOTICE", "goldSplitNotice"),
 })
 addSplitComparisonChooser()
 addSlider({

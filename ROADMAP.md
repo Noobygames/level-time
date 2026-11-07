@@ -72,7 +72,7 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 ### v2.22: Speedrun (Priorität 3)
 
-- [ ] 284. **Gold-Splits** (S): Neue Bestzeit je Level lila, mit Ton und Chatzeile (Sprint, Speed Splits).
+- [x] 284. **Gold-Splits** (S): Neue Bestzeit je Level lila, mit Ton und Chatzeile (Sprint, Speed Splits). **Erledigt: `Splits.GetBestTime`/`IsGoldSplit`/`LevelDeltaText` (Bestzeit aller anderen Charaktere ohne Teil-Level, unabhängig vom Vergleich), Gold-Splits in der Split-Liste lila (`Format.SPLIT_GOLD`); Einstellung `goldSplitNotice` (Speedrun, aus) meldet sie beim Level-Up mit Chatzeile und Ton.**
 - [ ] 285. **Toleranzband und Klassen-PB** (S): Abweichung innerhalb ±max(3 s, x % der Referenz) gelb (einstellbar, Sprint); Vergleich `pb` optional nur gegen eigene Charaktere derselben Klasse (OnlySplits).
 - [ ] 286. **Prognose gegen PB und Weltrekord** (S): Split-Liste zeigt die voraussichtliche Endzeit der Klammer (1–10/20/60) und den Abstand zu PB, Summe der Bestzeiten und Rekord (Chromely). Nutzt `Forecast`.
 - [ ] 287. **SSF-Regelhelfer (speedrun.com, SUNLA)** (M): Ruhe-XP-Balken gegen die Grenze der Kategorie (1–20: 2 Balken, 1–60: 40), Instanz-IDs je Stunde `/played` (aus `InstanceLimit`), Logout-Zähler (höchstens 3 bzw. 5), Uhr mit Datum für den VOD-Nachweis, Hinweis bei Handel/Post/Auktionshaus. Kategorie wählbar. Kein Run-Verbot, nur Anzeige.
