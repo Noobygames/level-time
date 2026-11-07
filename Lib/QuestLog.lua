@@ -25,6 +25,26 @@ function QuestLog.Count()
   return GetNumQuestLogEntries and readable((GetNumQuestLogEntries())) or 0
 end
 
+-- Anzahl Quests im Log (ohne Überschriften, auch unter eingeklappten): 2. Rückgabewert von
+-- C_QuestLog.GetNumQuestLogEntries (Retail/Forever: numShownEntries, numQuests) bzw. GetNumQuestLogEntries (Classic)
+function QuestLog.QuestCount()
+  local _, quests
+  if useInfoApi() then
+    _, quests = C_QuestLog.GetNumQuestLogEntries()
+  elseif GetNumQuestLogEntries then
+    _, quests = GetNumQuestLogEntries()
+  end
+  quests = readable(quests)
+  return type(quests) == "number" and quests or #QuestLog.Entries()
+end
+
+-- Höchstzahl annehmbarer Quests: C_QuestLog.GetMaxNumQuestsCanAccept (alle Clients laut Doku), sonst MAX_QUESTS
+function QuestLog.MaxQuests()
+  local max = C_QuestLog and C_QuestLog.GetMaxNumQuestsCanAccept and readable(C_QuestLog.GetMaxNumQuestsCanAccept())
+  if type(max) == "number" and max > 0 then return max end
+  return type(MAX_QUESTS) == "number" and MAX_QUESTS or nil
+end
+
 -- suggestedGroup: Zahl > 0; ältere Clients liefern evtl. einen Text ("Elite", "Gruppe")
 local function isGroup(suggested)
   suggested = readable(suggested)

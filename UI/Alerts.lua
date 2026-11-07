@@ -82,6 +82,7 @@ Alerts.ICONS = {
   rest = iconPath("INV_Misc_PocketWatch_02"),
   questComplete = iconPath("INV_Misc_Note_01"),
   questObjective = iconPath("INV_Misc_Note_01"),
+  questLog = iconPath("INV_Misc_Book_09"),
 }
 
 local shownAt

@@ -378,6 +378,7 @@ addToggles({
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
 addSlider({
@@ -616,6 +617,8 @@ end
 addSubPage("COMFORT_PAGE_QUESTS")
 addSection("SECTION_QUEST_LEARNING")
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning") })
+addSection("SECTION_QUEST_LOG")
+addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton") })
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),

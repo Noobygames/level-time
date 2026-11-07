@@ -2389,3 +2389,27 @@ XP richtig (ja/nein):
 Im Kampf zurückgehalten (ja/nein):
 Fehler:
 ```
+
+### 116. Graue Quests aufräumen, Questlog fast voll (Roadmap 344)
+
+- [ ] geprüft
+
+Komfort > Quests > Questlog: Knopf „Graue Quests“ an; Hinweise > Warnungen: „Questlog fast voll“ an. Ein Charakter mit mindestens zwei grauen Quests.
+
+1. Questlog öffnen (Classic: L, Retail/Forever: Karte mit Questliste): unter dem Fenster steht „Graue Quests (N)“; Lage und Größe ok? Überdeckt er etwas?
+2. Klick: Rückfrage mit den Namen. „Nein“: nichts passiert. „Ja“: die grauen Quests verschwinden nacheinander aus dem Log, sonst keine. Danach `/lt debug log` mit `make debuglog`: Zeilen „abandoned gray quest …“.
+3. Gibt es nach dem Abbruch einen Fehler „Aktion blockiert“/„Interface-Aktion fehlgeschlagen“? (Abbrechen ist laut Doku nicht geschützt, aber ungeprüft.)
+4. So viele Quests annehmen, bis nur noch 2 Plätze frei sind: einmal Hinweis „N von M Quests im Log“.
+
+**Erwartet:** nie ohne Bestätigung abgebrochen, keine Lua-Fehler; Classic: graue Quests stimmen mit der grauen Farbe im Log überein.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Knopf sichtbar und gut platziert (ja/nein):
+Nur graue abgebrochen (ja/nein):
+Blockiert-Fehler (ja/nein):
+Hinweis „fast voll“ (ja/nein):
+Fehler:
+```
