@@ -181,6 +181,7 @@ Assist\RaidRestrictions.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
 UI\WindowModel.lua
+UI\XpTooltip.lua
 UI\WindowElements.lua
 UI\Layouts\Layouts.lua
 UI\Layouts\Bar.lua

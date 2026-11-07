@@ -670,6 +670,12 @@ check("360.window.layout", function()
     outlined = { method(_G[ns.Theme.Font("small", true)], "GetFont") } }
 end)
 
+-- XP-Tooltip (Wunsch zu 360): Zeilen wie beim Überfahren des Balkens und die Rohwerte dahinter
+check("360.xpTooltip", function()
+  return { content = ns.XpTooltip.Build(), xp = call("UnitXP", "player"), xpMax = call("UnitXPMax", "player"),
+    rested = call("GetXPExhaustion"), questReady = ns.QuestLogXp.Get() }
+end)
+
 -- 362: Sichtbarkeitsregeln: Einstellung, Zustand der Regeln (Kampf, Instanz, Leveln) und was die Rahmen zeigen
 check("362.visibility", function()
   return { window = ns.db.windowVisibility, splitList = ns.db.splitListVisibility, fade = ns.db.fadeAlpha,

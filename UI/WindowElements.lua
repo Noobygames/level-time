@@ -1,5 +1,5 @@
 -- Bausteine des Hauptfensters, die sich die Layouts (UI/Layouts/) teilen: Reiter (von TimerWindow angelegt), Zeit,
--- große Zeit mit Unterzeile, XP-Balken, Textfelder des schmalen Balkens, Zeilen (Bezeichnung + Wert) und
+-- große Zeit mit Unterzeile, XP-Balken mit Tooltip, Textfelder des schmalen Balkens, Zeilen (Bezeichnung + Wert) und
 -- Kacheln. Zeilen und Kacheln entstehen nach Bedarf (Pool). Texte setzen die Layouts über Widgets.SetTextIfChanged,
 -- daher gibt es sie nur hier und nie mit SetText von außen.
 local _, ns = ...
@@ -21,7 +21,7 @@ local Elements = {}
 Elements.__index = Elements
 
 ---------------------------------------------------------------------------
--- XP-Balken: Grund, Erholungs-Bonus, fertige Quests, Fortschritt
+-- XP-Balken: Grund, Erholungs-Bonus, fertige Quests, Fortschritt; darüber eine Mausfläche für den Tooltip
 ---------------------------------------------------------------------------
 local XpBar = {}
 XpBar.__index = XpBar
@@ -40,6 +40,18 @@ local function newXpBar(window)
   bar.fill:SetPoint("TOPLEFT", bar.background)
   bar.parts = { bar.background, bar.rested, bar.quests, bar.fill }
 
+  -- Mausfläche: Tooltip mit genauen Zahlen; Ziehen und Rechtsklick gehen an das Fenster weiter
+  bar.hover = CreateFrame("Frame", nil, window)
+  bar.hover:SetAllPoints(bar.background)
+  bar.hover:EnableMouse(true)
+  bar.hover:RegisterForDrag("LeftButton")
+  for _, script in ipairs({ "OnDragStart", "OnDragStop", "OnMouseUp" }) do
+    bar.hover:SetScript(script, function(_, ...)
+      local handler = window:GetScript(script)
+      if handler then handler(window, ...) end
+    end)
+  end
+  ns.XpTooltip.Attach(bar.hover)
   bar:SetShown(false)
   return bar
 end
@@ -62,6 +74,7 @@ function XpBar:SetShown(shown, questsShown)
   self.shown = shown
   for _, part in ipairs(self.parts) do part:SetShown(shown) end
   self.quests:SetShown(shown and questsShown or false)
+  self.hover:SetShown(shown)
   self.drawn = nil
 end
 

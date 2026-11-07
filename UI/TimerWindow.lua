@@ -197,7 +197,7 @@ end
 local visibility = ns.DisplayVisibility.Attach({
   frame = window, setting = "windowVisibility",
   enabled = function() return ns.db.showTimer end,
-  children = { levelTab, sessionTab, instanceTab },
+  children = { levelTab, sessionTab, instanceTab, elements.xpBar.hover },
   onHover = function(hovered)
     elements.hovered = hovered  -- Layout "xpbar": Texte bei Mauskontakt
     if ns.db and window:IsShown() then refresh() end

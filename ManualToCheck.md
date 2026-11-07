@@ -137,6 +137,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **127. Positionen nach Update und Profilwechsel (Roadmap 358)**: check `358.frames.positions` (gespeicherter Eintrag je Anzeige gegen Anker und Größe des Rahmens), vor und nach `/reload`, nach `/lt reset`
 - **128. Edit-Modus und Blizzards Bearbeitungsmodus, Datenteil (Roadmap 359)**: check `359.editMode` (Blizzard-Modus vorhanden und eingehängt), debug `edit` (enter/leave, dropped … snap), event `ADDON_ACTION_BLOCKED`
 - **129. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
+- **130. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
 - **131. Sichtbarkeitsregeln, Datenteil (Roadmap 362)**: check `362.visibility` (Regel, Kampf, Instanz, Leveln, `IsMouseOver`, Alpha und Sichtbarkeit beider Rahmen) im Kampf, in einer Instanz und mit der Maus über dem Fenster
 
 ---
@@ -1806,6 +1807,26 @@ Client (Retail/Era/TBC/Forever):
 Layouts ok (je Layout ja/nein):
 Text-Layout lesbar (ja/nein):
 Reihenfolge ok (ja/nein):
+Fehler:
+```
+
+### 130. XP-Tooltip (Roadmap 360)
+
+- [ ] geprüft
+
+Maus auf den XP-Balken (Tabelle, Leiste, Kompakt, Uhr, Kacheln und Layout XP-Balken), einmal mit und einmal ohne Erholung.
+
+1. Tooltip unter dem Balken: „XP: 12.345 / 31.700 (38,9 %)“, „Bis zum Level-Up“, Erholungs-XP mit Anteil am Level und wie viel vom Rest sie deckt, fertige Quests (wenn welche abgabebereit sind).
+2. Während der Tooltip offen ist, einen Gegner töten: die Zahlen ändern sich sofort.
+3. Fenster lässt sich auch über dem Balken ziehen, Rechtsklick auf den Balken öffnet die Einstellungen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltip ok (ja/nein):
+Aktualisiert beim Kill (ja/nein):
+Ziehen über dem Balken (ja/nein):
 Fehler:
 ```
 
