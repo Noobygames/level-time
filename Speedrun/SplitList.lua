@@ -11,6 +11,7 @@
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
+local Theme = ns.Theme
 local Format = ns.Format
 local Stats = ns.Stats
 local Splits = ns.Splits
@@ -25,7 +26,8 @@ ns.SplitList = SplitList
 local UPDATE_INTERVAL = 0.5
 local PADDING_X = 12
 local PADDING_Y = 8
-local ROW_HEIGHT = 14
+local ROW_HEIGHT = 14  -- bei Schriftgröße-Versatz 0 (themeFontSize); wächst mit der Schrift
+local MIN_ROW_HEIGHT = 10
 local COLUMN_GAP = 12
 local MIN_WIDTH = 140
 local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
@@ -33,7 +35,7 @@ local DEFAULT_POSITION = { "TOPLEFT", "TOPLEFT", 20, -200 }
 local panel = Widgets.CreatePanel("LevelTimerSplits", 0.8)
 panel:Hide()
 
-local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+local title = panel:CreateFontString(nil, "OVERLAY", Theme.Font("label"))
 title:SetPoint("TOPLEFT", PADDING_X, -PADDING_Y)
 
 -- Zeilen: Level links, Zeit und Abweichung rechtsbündig in eigenen Spalten
@@ -43,10 +45,10 @@ local function getRow(index)
   if rows[index] then return rows[index] end
   local function cell(font) return panel:CreateFontString(nil, "OVERLAY", font) end
   rows[index] = {
-    level = cell("GameFontNormalSmall"),
-    time = cell("GameFontHighlightSmall"),
-    delta = cell("GameFontHighlightSmall"),
-    friend = cell("GameFontHighlightSmall"),
+    level = cell(Theme.Font("label")),
+    time = cell(Theme.Font("small")),
+    delta = cell(Theme.Font("small")),
+    friend = cell(Theme.Font("small")),
   }
   return rows[index]
 end
@@ -152,7 +154,12 @@ local function setCells(row, levelText, timeText, deltaText, friendText)
 end
 
 -- Spalten so breit wie ihr breitester Text, Fenster entsprechend
+local function rowHeight()
+  return math.max(MIN_ROW_HEIGHT, ROW_HEIGHT + (ns.db.themeFontSize or 0))
+end
+
 local function layout(count)
+  local height = rowHeight()
   local levelWidth, timeWidth, deltaWidth, friendWidth = 0, 0, 0, 0
   for i = 1, count do
     levelWidth = math.max(levelWidth, rows[i].level:GetStringWidth())
@@ -164,7 +171,7 @@ local function layout(count)
   local deltaRight = timeRight + COLUMN_GAP + deltaWidth
   local friendSpace = friendWidth > 0 and COLUMN_GAP + friendWidth or 0
   for i = 1, count do
-    local y = -PADDING_Y - i * ROW_HEIGHT
+    local y = -PADDING_Y - i * height
     local row = rows[i]
     row.level:ClearAllPoints()
     row.level:SetPoint("TOPLEFT", PADDING_X, y)
@@ -181,7 +188,7 @@ local function layout(count)
   end
   local width = deltaRight + friendSpace + PADDING_X
   panel:SetSize(math.max(MIN_WIDTH, width, title:GetStringWidth() + 2 * PADDING_X),
-    2 * PADDING_Y + (count + 1) * ROW_HEIGHT)
+    2 * PADDING_Y + (count + 1) * height)
 end
 
 local function render()
@@ -274,7 +281,7 @@ end
 ns.RegisterApply(function(db)
   applyPosition(db)
   grip:SetShown(not db.locked)
-  TimerWindow.ApplyBackground(panel, db)
+  Theme.ApplyBackground(panel, db)
   panel:SetShown(db.showSplitList)
   if db.showSplitList then render() end
 end)

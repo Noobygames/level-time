@@ -11,7 +11,7 @@ local Experience = ns.Experience
 local DeathCounter = ns.DeathCounter
 
 local NO_VALUE = "-"
-local DEATH_COLOR = "|cffff4040"  -- Tode rot, damit sie (z.B. im Stream) auffallen (Einstellung highlightDeaths)
+-- Tode rot (Theme-Farbe bad), damit sie (z.B. im Stream) auffallen (Einstellung highlightDeaths)
 local PENDING = "..."  -- noch nicht aussagekräftig (z.B. /played hat noch nicht geantwortet)
 
 local function counter(name)
@@ -41,7 +41,6 @@ local function countToLevel(xpCounter, countCounter)
 end
 
 -- Questlog-XP (QuestLogXp.lua): fertige und offene Quests, und ob die Abgabe für das Level-Up reicht
-local LEVEL_UP_COLOR = "|cff40ff40"
 
 local function questLogXp(index)
   return function()
@@ -55,7 +54,7 @@ local function questTurnInLevelUp()
   if not Experience.IsLeveling() then return NO_VALUE end
   local missing = ns.QuestLogXp.MissingAfterTurnIn()
   if missing <= 0 then
-    return LEVEL_UP_COLOR .. string.format(ns.L.QUEST_XP_LEVEL_UP_YES, Format.Number(-missing)) .. "|r"
+    return ns.Theme.Hex("good") .. string.format(ns.L.QUEST_XP_LEVEL_UP_YES, Format.Number(-missing)) .. "|r"
   end
   return string.format(ns.L.QUEST_XP_LEVEL_UP_NO, Format.Number(missing))
 end
@@ -81,7 +80,7 @@ local function deaths(scope)
     text = string.format("%d (%s)", count, Format.Duration(deadSeconds))
   end
   if count > 0 and ns.db.highlightDeaths then
-    text = DEATH_COLOR .. text .. "|r"
+    text = ns.Theme.Hex("bad") .. text .. "|r"
   end
   return text
 end

@@ -8,6 +8,7 @@
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
+local Theme = ns.Theme
 local Format = ns.Format
 local Stats = ns.Stats
 
@@ -37,12 +38,9 @@ local XP_BAR_HEIGHT = 6
 local XP_BAR_BACKGROUND = { 1, 1, 1, 0.1 }
 local XP_BAR_RESTED = { 0.3, 0.55, 1, 0.6 }
 local XP_BAR_QUESTS = { 1, 0.8, 0.2, 0.75 }  -- XP der fertigen Quests (Einstellung questXpOnBar)
--- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key)
-TimerWindow.BACKGROUND_DEFAULT = "default"
-TimerWindow.CHROMA_COLORS = {
-  green = { 0, 1, 0 },
-  magenta = { 1, 0, 1 },
-}
+-- Einstellung "windowBackground": Standard oder einfarbig zum Freistellen in OBS (Chroma-Key, Theme.lua)
+TimerWindow.BACKGROUND_DEFAULT = Theme.BACKGROUND_DEFAULT
+TimerWindow.CHROMA_COLORS = Theme.CHROMA
 local BAR_PADDING_X = 10              -- Info-Leiste: Rand links und rechts
 local BAR_ITEM_GAP = 14               -- Info-Leiste: Abstand zwischen zwei Einträgen
 local BAR_LABEL_GAP = 4               -- Info-Leiste: Abstand zwischen Bezeichnung und Wert
@@ -53,7 +51,7 @@ window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereits
 -- Reiter wählen den Bereich (Einstellung windowScope)
 -- Linksklick wählt den Bereich, Rechtsklick öffnet wie auf dem Fenster die Einstellungen
 local function createScopeTab(scope)
-  local tab = Widgets.CreateTab(window, "GameFontNormalSmall", function(_, mouseButton)
+  local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
     if mouseButton == "RightButton" then
       ns.ToggleOptions()
     else
@@ -67,7 +65,7 @@ end
 local levelTab = createScopeTab(Stats.LEVEL)
 local sessionTab = createScopeTab(Stats.SESSION)
 
-local instanceTab = Widgets.CreateTab(window, "GameFontNormalSmall")
+local instanceTab = Widgets.CreateTab(window, Theme.Font("label"))
 
 -- Rechtsklick auf den Instanz-Reiter (oder Button/Befehl): Daten des Laufs zurücksetzen, nach Rückfrage
 instanceTab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -83,8 +81,7 @@ Widgets.AttachTooltip(instanceTab, function() return L.TAB_INSTANCE end, functio
 Widgets.AttachTooltip(levelTab, function() return string.format(L.TAB_LEVEL, ns.level) end, function() return L.TAB_LEVEL_TIP end)
 Widgets.AttachTooltip(sessionTab, function() return L.TAB_SESSION end, function() return L.TAB_SESSION_TIP end)
 
-local timeText = window:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-timeText:SetTextColor(unpack(Widgets.COLORS.highlight))
+local timeText = window:CreateFontString(nil, "OVERLAY", Theme.Font("number"))
 
 -- XP-Balken unter der Zeit: Fortschritt im Level, Erholungs-Bonus als helleres Stück dahinter
 local xpBarBackground = window:CreateTexture(nil, "ARTWORK")
@@ -100,7 +97,6 @@ xpBarQuests:SetColorTexture(unpack(XP_BAR_QUESTS))
 xpBarQuests:SetPoint("TOPLEFT", xpBarBackground)
 xpBarQuests:SetHeight(XP_BAR_HEIGHT)
 local xpBarFill = window:CreateTexture(nil, "ARTWORK", nil, 3)
-xpBarFill:SetColorTexture(unpack(Widgets.COLORS.highlight))
 xpBarFill:SetPoint("TOPLEFT", xpBarBackground)
 xpBarFill:SetHeight(XP_BAR_HEIGHT)
 local xpBarParts = { xpBarBackground, xpBarRested, xpBarFill }
@@ -114,8 +110,8 @@ for _, stat in ipairs(ns.STAT_LINES) do
       stat = stat,
       setting = stat.setting,
       definition = rowDefinition,
-      label = window:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall"),
-      value = window:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"),
+      label = window:CreateFontString(nil, "OVERLAY", Theme.Font("label")),
+      value = window:CreateFontString(nil, "OVERLAY", Theme.Font("small")),
     })
   end
 end
@@ -338,16 +334,6 @@ function updateLayout(db)
   end
 end
 
--- Hintergrund aus den Einstellungen (auch für weitere Anzeigen wie die Split-Liste)
-function TimerWindow.ApplyBackground(frame, db)
-  local chroma = TimerWindow.CHROMA_COLORS[db.windowBackground]
-  if chroma then
-    Widgets.SetSolidBackground(frame, chroma)
-  else
-    Widgets.SetDefaultBackground(frame, db.bgAlpha)
-  end
-end
-
 ---------------------------------------------------------------------------
 -- Automatisch zum Reiter Instanz wechseln (Einstellung autoInstanceTab): beim Betreten hin, beim Verlassen
 -- zurück zum vorigen Reiter, außer man hat inzwischen selbst gewechselt
@@ -483,7 +469,9 @@ ns.RegisterEvent("DISABLE_XP_GAIN", relayout)
 ns.RegisterApply(function(db)
   updateLayout(db)
   refreshTexts()
-  TimerWindow.ApplyBackground(window, db)
+  Theme.ApplyBackground(window, db)
+  timeText:SetTextColor(Theme.RGB("accent"))  -- Akzentfarbe kann gewechselt haben
+  xpBarFill:SetColorTexture(Theme.RGB("accent"))
 
   -- Anderes Profil: dessen Position und Größe. Sonst Größe aus den Einstellungen (Regler);
   -- beim Login ist sie schon gesetzt

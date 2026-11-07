@@ -8,8 +8,8 @@ local L = ns.L
 local MIN_SCALE = 0.5  -- Grenzen des Reglers in den Einstellungen
 local MAX_SCALE = 2
 local COLORS = {
-  countdown = { 1, 0.82, 0 },
-  done = { 0.35, 1, 0.45 },
+  countdown = ns.Theme.COLORS.gold,
+  done = ns.Theme.COLORS.success,
 }
 
 local function titleFor(kind)

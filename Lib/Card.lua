@@ -20,7 +20,6 @@ local MAX_TEXT_WIDTH = 280      -- längere Texte brechen um
 local LINE_GAP = 2
 local BAR_HEIGHT = 5
 local BAR_GAP = 6
-local BACKGROUND_COLOR = { 0.03, 0.04, 0.08, 0.82 }
 local BAR_BACK_COLOR = { 1, 1, 1, 0.12 }
 local BODY_COLOR = { 1, 1, 1 }
 local FALLBACK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -42,9 +41,7 @@ function Card.Create(name)
   frame:Hide()
   card.frame = frame
 
-  local background = frame:CreateTexture(nil, "BACKGROUND")
-  background:SetColorTexture(unpack(BACKGROUND_COLOR))
-  background:SetAllPoints(frame)
+  ns.Theme.RegisterCard(frame)  -- Grund (und im Stil flat ein Rand) aus dem Theme
 
   local accent = frame:CreateTexture(nil, "BORDER")
   accent:SetColorTexture(1, 1, 1, 1)
@@ -56,12 +53,12 @@ function Card.Create(name)
   icon:SetSize(ICON_SIZE, ICON_SIZE)
   icon:SetPoint("TOPLEFT", ACCENT_WIDTH + PADDING, -PADDING)
 
-  local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  local title = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("title"))
   title:SetJustifyH("LEFT")
-  local body = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  local body = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("body"))
   body:SetJustifyH("LEFT")
   body:SetTextColor(unpack(BODY_COLOR))
-  local timeText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+  local timeText = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("huge"))
   timeText:SetJustifyH("LEFT")
   timeText:SetTextColor(1, 1, 1)
   frame.title, frame.body, frame.time = title, body, timeText

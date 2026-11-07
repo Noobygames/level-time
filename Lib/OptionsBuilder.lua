@@ -123,6 +123,17 @@ function OptionsBuilder.New(options)
     end
   end
 
+  -- Reiter nach seinem Locale-Key zeigen (z.B. "Einstellungen" einer Anzeige im Edit-Modus); false = unbekannt
+  function builder.ShowPage(labelKey)
+    for _, entry in ipairs(pages) do
+      if entry.key == labelKey then
+        showPage(entry)
+        return true
+      end
+    end
+    return false
+  end
+
   -- Neue Seite beginnen; folgende Add*-Aufrufe landen darauf
   function builder.AddPage(labelKey)
     -- Jede Seite scrollt: Inhalt (frame) in einem Scrollbereich zwischen Reitern und Buttons. Die Inhaltskoordinaten
@@ -344,6 +355,35 @@ function OptionsBuilder.New(options)
     end
     nextRowY = nextRowY - ROW_CHOOSER
     onRefresh(function() setMeasuredText(label, "SetText", L[chooser.label]) end)
+  end
+
+  -- Auswahl aus einer langen oder veränderlichen Liste als ein Button hinter der Beschriftung: Linksklick nächster,
+  -- Rechtsklick voriger Eintrag. cycle = { label = Locale-Key, choices() -> { { key, name } }, get(db) -> key,
+  -- set(key), nameOf(key) -> Text für die Anzeige }; Tooltip aus <label>_TIP
+  function builder.AddCycleButton(cycle)
+    local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    addRow(label, 0)
+    local button = Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function(_, mouseButton)
+      local choices = cycle.choices()
+      local current = cycle.get(ns.db)
+      local index = 1
+      for i, choice in ipairs(choices) do
+        if choice.key == current then index = i end
+      end
+      local step = mouseButton == "RightButton" and -1 or 1
+      cycle.set(choices[(index - 1 + step) % #choices + 1].key)
+    end)
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP, 0)
+    addTooltip(button, cycle.label .. "_TIP", localized(cycle.label))
+    table.insert(chooserRows, { label = label, tabs = { button } })
+    nextRowY = nextRowY - ROW_CHOOSER
+    onRefresh(function(db)
+      setMeasuredText(label, "SetText", L[cycle.label])
+      if setMeasuredText(button, "SetText", cycle.nameOf(cycle.get(db))) then
+        Widgets.SetButtonText(button, button:GetText(), BUTTON_ROW_MIN_WIDTH)
+      end
+    end)
   end
 
   -- Eingabefeld hinter einer Beschriftung: input = { label = Locale-Key, get(db) -> Text, set(Text), width optional };

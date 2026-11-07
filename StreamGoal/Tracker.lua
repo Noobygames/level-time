@@ -16,7 +16,7 @@ ns.Tracker = Tracker
 
 local CARD_GAP = 6
 local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -40, -220 }
-local DONE_COLOR = { 0.4, 0.9, 0.4 }
+local DONE_COLOR = LT.Theme.COLORS.success
 local MIN_SCALE, MAX_SCALE = 0.5, 2
 
 Tracker.MIN_SCALE, Tracker.MAX_SCALE = MIN_SCALE, MAX_SCALE
@@ -141,7 +141,7 @@ function Tracker.ShowSample()
   local card = cardAt(1)
   card.goal = nil
   updateCardMouse(card)
-  card.Set({ color = { 0.96, 0.79, 0.36 }, icon = Alerts.ICONS.levelUp,
+  card.Set({ color = LT.Theme.COLORS.accent, icon = Alerts.ICONS.levelUp,
     title = string.format(L.SG_GOAL_LEVEL, 20), time = true })
   card.SetTime("12 / 20")
   card.frame:Show()

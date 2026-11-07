@@ -10,9 +10,9 @@ local MIN_SCALE = 0.5
 local MAX_SCALE = 2
 local ICON = "Interface\\Icons\\Ability_Mount_Wyvern_01"
 local COLORS = {
-  countdown = { 0.55, 0.8, 1 },
-  hint = { 0.55, 0.8, 1 },
-  done = { 0.35, 1, 0.45 },
+  countdown = ns.Theme.COLORS.info,
+  hint = ns.Theme.COLORS.info,
+  done = ns.Theme.COLORS.success,
 }
 
 local function titleFor(kind)

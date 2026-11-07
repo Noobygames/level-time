@@ -31,15 +31,15 @@ local ACCENT_HEIGHT = 4
 local BORDER = 1
 local FADE_IN, FADE_OUT = 0.25, 0.7
 local SAMPLE_DURATION = 8
-local GAIN_COLOR = "|cff55ff77"
 local QUESTION_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+local BACKGROUND_ALPHA = 0.94
 local MOVING = "moving"  -- Wert von override im Verschiebemodus
 
 -- Farben je Theme: Grund, Akzent (Leiste und Rahmen), Titel
 local THEME_COLORS = {
-  modern = { background = { 0.03, 0.04, 0.08, 0.94 }, accent = { 1, 0.82, 0 }, title = { 1, 0.9, 0.45 } },
-  alliance = { background = { 0.03, 0.06, 0.16, 0.94 }, accent = { 0.3, 0.55, 1 }, title = { 0.75, 0.88, 1 } },
-  horde = { background = { 0.15, 0.03, 0.03, 0.94 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
+  modern = { background = ns.Theme.COLORS.surface, accent = ns.Theme.COLORS.gold, title = { 1, 0.9, 0.45 } },
+  alliance = { background = { 0.03, 0.06, 0.16 }, accent = { 0.3, 0.55, 1 }, title = { 0.75, 0.88, 1 } },
+  horde = { background = { 0.15, 0.03, 0.03 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
 }
 
 local frame = CreateFrame("Frame", "LevelTimerLevelUp", UIParent)
@@ -145,7 +145,7 @@ end
 
 local function applyTheme()
   local theme = THEME_COLORS[ns.db.levelUpTheme] or THEME_COLORS.modern
-  setColor(background, theme.background)
+  setColor(background, theme.background, BACKGROUND_ALPHA)
   setColor(accent, theme.accent)
   setColor(divider, theme.accent, 0.5)
   for _, line in pairs(border) do setColor(line, theme.accent, 0.6) end
@@ -169,7 +169,7 @@ local function fillRow(index, gain)
   else
     row.value:SetText("")
   end
-  row.delta:SetText(string.format("%s+%d|r", GAIN_COLOR, gain.delta))
+  row.delta:SetText(string.format("%s+%d|r", ns.Theme.Hex("success"), gain.delta))
   return row
 end
 
@@ -201,7 +201,7 @@ end
 local function layoutCompact(gains, top, width)
   local parts = {}
   for _, gain in ipairs(gains and gains.rows or {}) do
-    table.insert(parts, string.format("%s %s+%d|r", gain.label, GAIN_COLOR, gain.delta))
+    table.insert(parts, string.format("%s %s+%d|r", gain.label, ns.Theme.Hex("success"), gain.delta))
   end
   if gains and gains.talents then table.insert(parts, string.format(L.GAIN_TALENTS, gains.talents)) end
   if #parts == 0 then return width, top end

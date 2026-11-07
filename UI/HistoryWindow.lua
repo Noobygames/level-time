@@ -144,11 +144,13 @@ nextButton:SetPoint("TOPRIGHT", -MARGIN, CHARACTER_ROW_TOP + 4)
 local MENU_ROWS = 12
 local MENU_ROW_HEIGHT = 18
 local MENU_PADDING = 8
+local MENU_ALPHA = 0.98
 
 local menu = CreateFrame("Frame", "LevelTimerHistoryMenu", panel, "BackdropTemplate")
 menu:SetFrameStrata("FULLSCREEN_DIALOG")
 menu:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-menu:SetBackdropColor(0.04, 0.05, 0.1, 0.98)
+local menuR, menuG, menuB = ns.Theme.RGB("background")
+menu:SetBackdropColor(menuR, menuG, menuB, MENU_ALPHA)
 menu:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
 menu:EnableMouse(true)
 menu:EnableMouseWheel(true)

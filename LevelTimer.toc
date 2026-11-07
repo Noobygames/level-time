@@ -22,6 +22,7 @@ Core\Client.lua
 Core\DebugLog.lua
 Core\DebugProbes.lua
 Core\Profiler.lua
+Lib\Theme.lua
 Lib\Format.lua
 Lib\Serializer.lua
 Lib\Fnv.lua

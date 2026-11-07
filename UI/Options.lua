@@ -227,6 +227,43 @@ local function toPercent(fraction)
   return math.floor(fraction * 100 + 0.5)
 end
 
+-- Aussehen aller Anzeigen (Theme.lua): Preset, Akzentfarbe, Schriftart, -größe und Kontur
+local function addThemeSection()
+  local Theme = ns.Theme
+  addSection("SECTION_THEME")
+  local presets = {}
+  for i, key in ipairs(Theme.ORDER) do
+    presets[i] = { value = key, name = localized("THEME_PRESET_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME", setting = "theme", choices = presets })
+  local accents = {}
+  for i, key in ipairs(Theme.ACCENT_ORDER) do
+    accents[i] = { value = key, name = localized(key == "" and "ACCENT_DEFAULT" or "ACCENT_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME_ACCENT", setting = "themeAccent", choices = accents })
+  builder.AddCycleButton({
+    label = "THEME_FONT",
+    choices = Theme.FontChoices,
+    get = function(db) return db.themeFont end,
+    set = function(key) ns.Set("themeFont", key) end,
+    nameOf = function(key) return key == "" and L.THEME_FONT_DEFAULT or key end,
+  })
+  addSlider({
+    label = "THEME_FONT_SIZE",
+    min = Theme.MIN_FONT_OFFSET,
+    max = Theme.MAX_FONT_OFFSET,
+    step = 1,
+    get = function(db) return db.themeFontSize end,
+    set = function(value) ns.SetDeferred("themeFontSize", value) end,
+    format = function(value) return value > 0 and "+" .. value or tostring(value) end,
+  })
+  local outlines = {}
+  for i, key in ipairs(Theme.OUTLINE_ORDER) do
+    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
+end
+
 ---------------------------------------------------------------------------
 -- Inhalt
 ---------------------------------------------------------------------------
@@ -263,6 +300,7 @@ addToggles({
 })
 addButton("RESET_WINDOW", function() TimerWindow.ResetLayout() end)
 addHint("OPTIONS_HINT")
+addThemeSection()
 addSection("SECTION_LANGUAGE")
 addLanguageChooser()
 addToggles({

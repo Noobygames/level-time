@@ -163,6 +163,8 @@ local frameMethods = {
   GetVertexColor = function(self) return unpack(rawget(self, "_vertexColor") or { 1, 1, 1, 1 }) end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
+  SetColorTexture = function(self, r, g, b, a) self._colorTexture = { r, g, b, a or 1 } end,
+  SetTextColor = function(self, r, g, b, a) self._textColor = { r, g, b, a or 1 } end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
   SetPoint = function(self, ...) table.insert(self._points, { ... }) end,
   ClearAllPoints = function(self) self._points = {} end,
@@ -407,6 +409,23 @@ CreateFrame = function(_, name, parent)
   return frame
 end
 UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), newFrame(), newFrame()
+-- Font-Objekte: CreateFont legt ein benanntes an; SetFont/GetFont merken Schrift, Größe und Flags, CopyFontObject
+-- übernimmt sie (Blizzards Objekte haben im Stub FRIZQT__ in 12)
+local function newFont()
+  local font = newFrame()
+  font._font = { "Fonts\FRIZQT__.TTF", 12, "" }
+  font.SetFont = function(self, face, size, flags) self._font = { face, size, flags } end
+  font.GetFont = function(self) return unpack(self._font) end
+  font.CopyFontObject = function(self, source) self._font = { source:GetFont() } end
+  return font
+end
+function CreateFont(name)
+  local font = newFont()
+  if name then _G[name] = font end
+  return font
+end
+GameFontNormal, GameFontHighlight, GameFontNormalSmall = newFont(), newFont(), newFont()
+GameFontHighlightSmall, GameFontNormalHuge = newFont(), newFont()
 -- Fehlerfenster und Zonentext; UIErrorsFrame merkt Meldungen in _messages
 UIErrorsFrame, ZoneTextFrame, SubZoneTextFrame = newFrame(), newFrame(), newFrame()
 UIErrorsFrame._events.UI_ERROR_MESSAGE = true

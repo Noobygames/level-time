@@ -7,18 +7,13 @@ ns.Widgets = Widgets
 -- Eigenes Addon-Icon (Media/Icon.tga, erzeugt mit "make artwork"); auch als IconTexture in der .toc
 Widgets.ICON = "Interface\\AddOns\\" .. addonName .. "\\Media\\Icon"
 
+-- Kurznamen für Farben aus Theme.lua (dieselben Tabellen, folgen also dem gewählten Preset)
+local Theme = ns.Theme
 Widgets.COLORS = {
-  background = { 0.04, 0.05, 0.1 },
-  border = { 0.72, 0.53, 0.17 },
-  highlight = { 0.96, 0.79, 0.36 },
-  muted = { 0.72, 0.72, 0.72 },  -- Hinweise: lesbar, aber leiser als normaler Text
-}
-
-local PANEL_BACKDROP = {
-  bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-  edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-  edgeSize = 14,
-  insets = { left = 3, right = 3, top = 3, bottom = 3 },
+  background = Theme.COLORS.background,
+  border = Theme.COLORS.border,
+  highlight = Theme.COLORS.accent,
+  muted = Theme.COLORS.muted,  -- Hinweise: lesbar, aber leiser als normaler Text
 }
 
 local SLIDER_BACKDROP = {
@@ -28,7 +23,7 @@ local SLIDER_BACKDROP = {
   insets = { left = 3, right = 3, top = 6, bottom = 6 },
 }
 
-local INACTIVE_TAB_COLOR = { 0.55, 0.55, 0.55 }
+local INACTIVE_TAB_COLOR = Theme.COLORS.inactive
 local TAB_PADDING = 8
 local SECTION_HEADER_HEIGHT = 18
 local CLOSE_BUTTON_SIZE = 24
@@ -56,9 +51,7 @@ end
 
 function Widgets.CreatePanel(name, backgroundAlpha)
   local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
-  panel:SetBackdrop(PANEL_BACKDROP)
-  panel:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
-  Widgets.SetBackgroundAlpha(panel, backgroundAlpha)
+  Theme.RegisterPanel(panel, backgroundAlpha)  -- Grund und Rand im Stil des Themes, auch nach einem Wechsel
   panel:SetMovable(true)
   panel:EnableMouse(true)
   panel:SetClampedToScreen(true)
@@ -78,21 +71,9 @@ function Widgets.SetScaleKeepingTopLeft(frame, scale)
   end
 end
 
-function Widgets.SetBackgroundAlpha(panel, alpha)
-  local r, g, b = unpack(Widgets.COLORS.background)
-  panel:SetBackdropColor(r, g, b, alpha)
-end
-
--- Vollfarbiger Hintergrund ohne Rahmen (z.B. Chroma-Key für Streams); color = { r, g, b }
-function Widgets.SetSolidBackground(panel, color)
-  local r, g, b = unpack(color)
-  panel:SetBackdropColor(r, g, b, 1)
-  panel:SetBackdropBorderColor(0, 0, 0, 0)
-end
-
+-- Feste Deckkraft eines Fensters im Stil des Themes (z.B. Zusammenfassung ohne Chroma-Grund)
 function Widgets.SetDefaultBackground(panel, alpha)
-  Widgets.SetBackgroundAlpha(panel, alpha)
-  panel:SetBackdropBorderColor(unpack(Widgets.COLORS.border))
+  Theme.RegisterPanel(panel, alpha)
 end
 
 -- Tooltip bei Mauskontakt. title() und text() liefern die Texte in der aktuellen Sprache;

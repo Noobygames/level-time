@@ -30,15 +30,16 @@ Alerts.MAX_DURATION = 10
 local MAX_TEXT_WIDTH = 520   -- längere Texte brechen um
 local MAX_QUEUE = 4          -- wartende Einblendungen; bei mehr fällt die älteste weg
 local QUEUED_HOLD = 1.5      -- Anzeigedauer, solange weitere warten
+local Theme = ns.Theme
 local COLORS = {
-  levelUp = { 1, 0.82, 0 },
+  levelUp = Theme.COLORS.gold,
   rare = { 0.75, 0.75, 1 },
   elite = { 1, 0.5, 0.1 },
   loot = { 0.64, 0.21, 0.93 },
-  nearDeath = { 1, 0.25, 0.25 },
-  quest = { 0.45, 1, 0.45 },
+  nearDeath = Theme.COLORS.bad,
+  quest = Theme.COLORS.success,
 }
-Alerts.WARNING_COLOR = { 1, 0.6, 0.2 }   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
+Alerts.WARNING_COLOR = Theme.COLORS.warning   -- Hinweise beim Leveln (fehlende Buffs, Taschen, ...)
 Alerts.REMINDER_COLOR = COLORS.levelUp   -- Hinweise zum Level-Up (Lehrer)
 
 local frame = CreateFrame("Frame", "LevelTimerAlert", UIParent)
@@ -47,7 +48,7 @@ frame:SetPoint(DEFAULT_POSITION[1], UIParent, DEFAULT_POSITION[2], DEFAULT_POSIT
 frame:SetFrameStrata("HIGH")
 frame:SetClampedToScreen(true)
 
-frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+frame.text = frame:CreateFontString(nil, "OVERLAY", Theme.Font("huge"))
 frame.text:SetPoint("CENTER")
 frame:Hide()
 

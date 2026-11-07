@@ -13,6 +13,12 @@ local SETTINGS_DEFAULTS = {
   bgAlpha = 0.8,
   windowBackground = "default",  -- "default", "green" oder "magenta" (Chroma-Key, siehe TimerWindow.lua)
   locked = false,
+  -- Aussehen aller Anzeigen (siehe Theme.lua)
+  theme = "classic",     -- "classic", "flat", "minimal" oder "colorblind"
+  themeAccent = "",      -- "" = Akzent des Presets, sonst Theme.ACCENTS oder "class"
+  themeFont = "",        -- "" = Schrift des Clients, sonst Name aus Theme.FontChoices
+  themeFontSize = 0,     -- Versatz in Punkten auf alle Schriften der Anzeigen
+  themeOutline = "none", -- "none", "outline" oder "thick"
   showTimer = true,
   showXpBar = true,
   compactMode = false,  -- nur Zeit, XP-Balken und XP/h (siehe TimerWindow.lua)
@@ -431,6 +437,7 @@ end
 local SETTING_RANGES = {
   scale = { 0.5, 2 },
   bgAlpha = { 0, 1 },
+  themeFontSize = { -4, 8 },
   splitListScale = { 0.5, 2 },
   splitListRows = { 3, 15 },
   splitTolerancePercent = { 0, 10 },

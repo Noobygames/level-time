@@ -1697,3 +1697,30 @@ Hinweis beim Händler (ja/nein):
 Falsche Vorschläge:
 Fehler:
 ```
+
+### 126. Themes, Akzent, Schrift und Kontur (Roadmap 357)
+
+- [ ] geprüft
+
+Allgemein > Aussehen. Hauptfenster, Split-Liste (Speedrun) und eine Einblendung (Einblendungen > Vorschau) sichtbar machen.
+
+1. Stil „Klassisch“: sieht aus wie vor dem Update (goldener Tooltip-Rand, dunkler Grund, Karten ohne Rand).
+2. „Flach“: dunkler Grund mit feinem grauem 1-px-Rand an Fenster, Split-Liste, Einstellungen und Karten; keine Lücken an den Ecken.
+3. „Minimal“: kein Rand, Grund deutlich durchscheinender.
+4. „Farbsehschwäche“: Split-Abweichungen und „Level-Up mit Quests“ blau statt grün, Tode und „langsamer“ orange statt rot.
+5. Akzent Blau/Grün/Lila/Klasse: Zeit, XP-Balken und aktiver Reiter färben sich um, Gold-Elemente (Level-Up) bleiben.
+6. Schriftart durchklicken (Links-/Rechtsklick), Schriftgröße +4 und −2, Kontur dünn/dick: Fenster wächst mit, nichts wird abgeschnitten; mit ElvUI/SharedMedia erscheinen deren Schriften.
+7. Deckkraft 0 (Allgemein > Fenster): kein schwebender Goldrahmen mehr.
+8. Chroma Grün (Stream): weiterhin deckend grün ohne Rand, auch im Stil „Flach“.
+
+**Erwartet:** live ohne /reload, keine Lua-Fehler; ruRU/zh-Clients: „Spiel-Standard“ zeigt alle Zeichen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Klassisch wie vorher (ja/nein):
+Flach/Minimal sauber (ja/nein, was fällt auf):
+Schriften/Kontur ok (ja/nein):
+Fehler:
+```

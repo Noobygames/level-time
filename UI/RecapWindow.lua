@@ -126,8 +126,8 @@ end
 
 -- Chroma-Hintergrund des Zeitfensters (Stream, OBS) übernehmen, sonst der eigene dunkle
 local function applyBackground(db)
-  if ns.TimerWindow.CHROMA_COLORS[db.windowBackground] then
-    ns.TimerWindow.ApplyBackground(panel, db)
+  if ns.Theme.CHROMA[db.windowBackground] then
+    ns.Theme.ApplyBackground(panel, db)
   else
     Widgets.SetDefaultBackground(panel, BACKGROUND_ALPHA)
   end
