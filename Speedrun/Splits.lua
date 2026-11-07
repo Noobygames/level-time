@@ -115,8 +115,11 @@ ns.OnLogin(function()
   caches = {}
 end)
 
+-- Im Anzeige-Takt (TickCache) nur einmal: GetTotalDelta fragt den Vergleich je Level ab
+local tickCacheKey = ns.TickCache.Memo(cacheKey)
+
 local function cached(name, build)
-  local key = cacheKey()
+  local key = tickCacheKey()
   local entry = caches[name]
   if entry and entry.key == key then return entry.times end
   entry = { key = key, times = build() }
@@ -164,8 +167,9 @@ function Splits.GetLevelDelta(level)
   return record.seconds - reference
 end
 
--- Summe der Abweichungen aller Level mit Vergleichswert, inklusive des laufenden; nil ohne Vergleichswert
-function Splits.GetTotalDelta()
+-- Summe der Abweichungen aller Level mit Vergleichswert, inklusive des laufenden; nil ohne Vergleichswert.
+-- Im Anzeige-Takt einmal (Zeile "Split gesamt" und Split-Liste)
+local function totalDelta()
   local total
   for level in pairs(ns.character.levelHistory) do
     local delta = level < ns.level and Splits.GetLevelDelta(level)
@@ -175,6 +179,7 @@ function Splits.GetTotalDelta()
   if current then total = (total or 0) + current end
   return total
 end
+Splits.GetTotalDelta = ns.TickCache.Memo(totalDelta)
 
 -- Lauf als festen Vergleich wählen: Zeiten werden kopiert (siehe chosenRun)
 function Splits.SetReferenceRun(run)

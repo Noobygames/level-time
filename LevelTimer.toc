@@ -24,6 +24,7 @@ Core\DebugProbes.lua
 Core\Profiler.lua
 Lib\Theme.lua
 Lib\Format.lua
+Lib\TickCache.lua
 Lib\Serializer.lua
 Lib\Fnv.lua
 Lib\RecordCodec.lua

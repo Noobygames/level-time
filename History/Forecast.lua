@@ -66,8 +66,9 @@ local function secondsForLaterLevels(targetLevel, remaining)
   return (targetLevel - ns.level - 1) * perLevel
 end
 
--- Geschätzte Spielzeit bis zum Erreichen von targetLevel; nil, solange keine Schätzung möglich ist
-function Forecast.SecondsToLevel(targetLevel)
+-- Geschätzte Spielzeit bis zum Erreichen von targetLevel; nil, solange keine Schätzung möglich ist.
+-- Im Anzeige-Takt (TickCache) je Ziel einmal: Max-Level-Zeile und Session-Ziel fragen oft dasselbe Level ab.
+local function secondsToLevel(targetLevel)
   if not Experience.IsLeveling() then return nil end
   if targetLevel <= ns.level then return 0 end
   local remaining = Experience.GetSecondsToLevel(Stats.LEVEL)
@@ -75,6 +76,7 @@ function Forecast.SecondsToLevel(targetLevel)
   if targetLevel == ns.level + 1 then return remaining end
   return remaining + secondsForLaterLevels(targetLevel, remaining)
 end
+Forecast.SecondsToLevel = ns.TickCache.Memo(secondsToLevel)
 
 function Forecast.SecondsToMaxLevel()
   if not GetMaxPlayerLevel then return nil end

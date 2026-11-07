@@ -186,7 +186,7 @@ end
 
 -- XP-Quellen im Bereich: { kills, quests, explore, gather, other, total }. "Sonstige" ist der Rest (Berufe, Ereignisse, ...).
 -- Entdecken und Sammeln zählt XpSources.lua.
-function Experience.GetSources(scope)
+local function getSources(scope)
   local sources = {
     kills = Stats.Get(scope, Stats.XP_KILLS),
     quests = Stats.Get(scope, Stats.XP_QUESTS),
@@ -198,6 +198,8 @@ function Experience.GetSources(scope)
   sources.other = sources.total - known
   return sources
 end
+-- Im Anzeige-Takt (TickCache) je Bereich einmal; die fünf Zeilen der XP-Quellen teilen sich die Tabelle (nicht ändern)
+Experience.GetSources = ns.TickCache.Memo(getSources)
 
 ---------------------------------------------------------------------------
 -- Gewonnene XP: Differenz zum letzten Stand. Liegt ein Level-Up dazwischen, zählt der Rest des
