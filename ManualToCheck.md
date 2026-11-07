@@ -2123,3 +2123,20 @@ Level der Gruppenmitglieder lesbar (ja/nein):
 Filter (ja/nein):
 Fehler:
 ```
+
+### 104. LiveSplit-Export (Roadmap 292)
+
+- [ ] geprüft
+
+Mit einem Charakter, der einige Level erfasst hat: `/lt runs lss` (oder Historie > Speedrun > Läufe > „LiveSplit“). Text mit Strg+A, Strg+C kopieren, in eine Datei `run.lss` speichern und in LiveSplit öffnen (Rechtsklick > Open Splits).
+
+**Erwartet:** LiveSplit öffnet die Datei ohne Fehler, zeigt Segmente „Level N“ mit Personal Best und Bestsegmenten (Sum of Best).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+LiveSplit öffnet die Datei (ja/nein):
+Zeiten stimmen (ja/nein):
+Fehler:
+```

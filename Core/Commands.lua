@@ -58,7 +58,8 @@ local commands = {
       ns.Print(L.PROFILE_UNKNOWN)
     end
   end,
-  -- /lt runs import | backup | verify: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen
+  -- /lt runs import | backup | verify | lss: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen,
+  -- Level-Splits als LiveSplit-Datei
   runs = function(argument)
     if argument == "import" then
       ns.ShowRunImport()
@@ -66,6 +67,8 @@ local commands = {
       ns.Export.Show(L.RUNS_BACKUP, ns.Runs.ExportAll())
     elseif argument == "verify" then
       ns.RunCheck.PrintAll()
+    elseif argument == "lss" then
+      ns.LiveSplitExport.Show()
     else
       printHelp()
     end
