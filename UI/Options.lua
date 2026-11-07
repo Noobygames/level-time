@@ -996,6 +996,13 @@ addToggles({
   toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable),
   toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
 })
+if ns.PlayerChain.IsAvailable() then
+  local chains = {}
+  for _, value in ipairs(ns.PlayerChain.ORDER) do
+    table.insert(chains, { value = value, name = localized("PLAYER_CHAIN_" .. value:upper()) })
+  end
+  addChooser({ label = "PLAYER_CHAIN", setting = "playerChain", choices = chains })
+end
 addSection("SECTION_TOOLTIP")
 addToggles({
   toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),

@@ -202,6 +202,7 @@ local SETTINGS_DEFAULTS = {
   hideBlizzardXpBar = false, hideBlizzardRepBar = false,  -- Blizzards Erfahrungs- und Rufleiste (HideFrames.lua)
   characterDurability = false, characterVolume = false,  -- Charakterfenster (CharacterFrame.lua)
   classColorPlayerFrame = false,  -- Namenshintergrund des Spielerrahmens in Klassenfarbe (ClassColors.lua)
+  playerChain = "off",  -- Drache am Spielerrahmen: off/elite/rare/rareelite (PlayerChain.lua)
   classColorFrames = false,  -- Klassenfarbe im Namenshintergrund von Ziel und Fokus (ClassColors.lua)
   tooltipClassColors = false, tooltipTarget = false, tooltipHideInCombat = false, tooltipKillsToLevel = false,  -- Tooltip.lua
   tooltipGuildRank = false,  -- Gildenrang im Tooltip (Tooltip.lua)
