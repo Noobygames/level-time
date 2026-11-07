@@ -281,13 +281,14 @@ expect("Max-Level: Balken weg", elements.xpBar.background:IsShown(), false)
 addon.Set("windowVisibility", "hideAtMaxLevel")
 expect("Max-Level: versteckt", window:IsShown(), false)
 
--- Einstellungen: was nur ein anderes Layout nutzt, ist ausgegraut und nicht bedienbar
+-- Einstellungen (Allgemein > Layout): was nur ein anderes Layout nutzt, ist ausgegraut und nicht bedienbar
 SlashCmdList.LEVELTIMER("config")
 local tileSlider = wow.findFrame(function(frame)
   local label = rawget(frame, "label")
   return label and label._text == L.TILE_COLUMNS and rawget(frame, "slider") ~= nil
 end)
 expectTrue("Regler Spalten gefunden", tileSlider ~= nil)
+addon.OptionsWindow.ShowPage("OPTIONS_PAGE_LAYOUT")  -- Unterseite zeigen: nur sichtbare Seiten folgen sofort
 addon.Set("windowLayout", "table")
 expect("Tabelle: Spalten ausgegraut", tileSlider:GetAlpha(), 0.4)
 expect("Tabelle: Regler gesperrt", tileSlider.slider:IsMouseEnabled(), false)

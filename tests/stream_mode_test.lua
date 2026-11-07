@@ -45,4 +45,5 @@ expect("Minimap-Button sichtbar", hideMinimap:GetChecked(), false)
 hideMinimap:SetChecked(true)
 hideMinimap._scripts.OnClick(hideMinimap)
 expect("ausgeblendet", LevelTimerDB.minimap.hide, true)
+addon.OptionsWindow.ShowPage("SECTION_LANGUAGE")  -- verborgene Unterseiten holen Änderungen beim Zeigen nach
 expect("Allgemein folgt", checkboxFor(addon.L.SHOW_MINIMAP):GetChecked(), false)
