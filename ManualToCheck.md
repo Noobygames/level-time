@@ -143,6 +143,11 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **133. Layouts des Hauptfensters, Datenteil (Roadmap 360)**: check `360.window.layout` (aktives Layout, Zeilen, Breite jedes sichtbaren Texts gegen die Fensterbreite, `IsTruncated`, Schrift mit Kontur) je Layout und Sprache
 - **134. XP-Tooltip, Datenteil (Roadmap 360)**: check `360.xpTooltip` (Zeilen wie beim Überfahren, Rohwerte `UnitXP`, `UnitXPMax`, `GetXPExhaustion`, fertige Quest-XP)
 - **135. Sichtbarkeitsregeln, Datenteil (Roadmap 362)**: check `362.visibility` (Regel, Kampf, Instanz, Leveln, `IsMouseOver`, Alpha und Sichtbarkeit beider Rahmen) im Kampf, in einer Instanz und mit der Maus über dem Fenster
+- **173. Berufs-Ziel, Datenteil (Roadmap 297)**: check `297.goals.skills` (Format `SKILL_RANK_UP`, Classic-Fertigkeitsliste, Berufe mit Wert aus `GetProfessions`)
+- **175./176. Erkundung und Ehre, Datenteil (Roadmap 307, 309)**: check `307.goals.formats` (Formate `ERR_ZONE_EXPLORED`/`_XP`, `COMBATLOG_HONORGAIN`/`_NO_RANK`/`COMBATLOG_HONORAWARD`, Erfolgs-API vorhanden), debug `goal:tracking` (discovered …, honor …)
+- **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
+- **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
+- **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
 
 ---
 

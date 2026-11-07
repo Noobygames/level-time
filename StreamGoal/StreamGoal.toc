@@ -45,3 +45,6 @@ Manager.lua
 PacksView.lua
 Options.lua
 Commands.lua
+
+# Debug-Checks für offene Fragen im Spiel (/lt debug check)
+DebugChecks.lua
