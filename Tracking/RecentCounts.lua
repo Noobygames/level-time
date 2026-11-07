@@ -1,6 +1,6 @@
--- Kills der letzten WINDOW Sekunden und das daraus hochgerechnete Tempo je Stunde, damit man beim Farmen sieht, ob
--- das Tempo gerade hält (Wunsch auf CurseForge, Roadmap 382). Wie RecentXpRate unabhängig vom Bereich und nur seit
--- Login bzw. /reload: die Zeitpunkte liegen im Speicher (Ringpuffer je Zähler, Lib/RecentCounter.lua), gefüllt über
+-- Kills und erbeutete Gegenstände der letzten WINDOW Sekunden und das daraus hochgerechnete Tempo je Stunde, damit
+-- man beim Farmen sieht, ob das Tempo gerade hält (Wunsch auf CurseForge, Roadmap 382). Wie RecentXpRate unabhängig
+-- vom Bereich und nur seit Login bzw. /reload: die Zeitpunkte liegen im Speicher (Ringpuffer je Zähler, Lib/RecentCounter.lua), gefüllt über
 -- Stats.OnIncrement. Abfragen kosten je Anzeige-Takt einen Vergleich, solange nichts aus dem Fenster fällt.
 local _, ns = ...
 local Stats = ns.Stats
@@ -15,6 +15,7 @@ local SECONDS_PER_HOUR = 3600
 -- Zähler (Schlüssel aus Stats.lua), deren letzte Minuten gezählt werden
 local recent = {
   [Stats.PVE_KILLS] = ns.RecentCounter.New(RecentCounts.WINDOW),
+  [Stats.ITEMS_LOOTED] = ns.RecentCounter.New(RecentCounts.WINDOW),
 }
 local startedAt = 0  -- GetTime() beim Login: bis das erste Fenster voll ist, zählt die Zeit seitdem
 

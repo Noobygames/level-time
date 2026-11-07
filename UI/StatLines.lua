@@ -257,6 +257,14 @@ ns.STAT_LINES = {
     { label = "ROW_ELITE_KILLS", value = counter(Stats.ELITE_KILLS) },
     { label = "ROW_RARE_KILLS", value = counter(Stats.RARE_KILLS) },
   } },
+  { setting = "showItemsLooted", group = "STAT_GROUP_LOOT", label = "STAT_ITEMS_LOOTED", rows = {
+    { label = "ROW_ITEMS_LOOTED", value = function(scope) return Format.Number(Stats.Get(scope, Stats.ITEMS_LOOTED)) end },
+    { label = "ROW_ITEM_RATE", value = perHour(Stats.ITEMS_LOOTED) },
+  } },
+  { setting = "showRecentItems", group = "STAT_GROUP_LOOT", label = "STAT_RECENT_ITEMS", rows = {
+    { label = "ROW_RECENT_ITEMS", value = recentCount(Stats.ITEMS_LOOTED) },
+    { label = "ROW_RECENT_ITEM_RATE", value = recentRate(Stats.ITEMS_LOOTED) },
+  } },
   { setting = "showDeaths", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHS", rows = { { label = "ROW_DEATHS", value = deaths } } },
   { setting = "showKillsPerDeath", group = "STAT_GROUP_COMBAT", label = "STAT_KILLS_PER_DEATH",
     rows = { { label = "ROW_KILLS_PER_DEATH", value = killsPerDeath } } },
@@ -319,7 +327,8 @@ ns.STAT_LINES = {
 }
 
 -- Gruppen für die Einstellungen (Reihenfolge der Abschnitte); jede Stat-Zeile nennt ihre group
-ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_INSTANCE", "STAT_GROUP_TIME_MONEY" }
+ns.STAT_GROUPS = { "STAT_GROUP_XP", "STAT_GROUP_PROGRESS", "STAT_GROUP_COMBAT", "STAT_GROUP_LOOT", "STAT_GROUP_INSTANCE",
+  "STAT_GROUP_TIME_MONEY" }
 
 -- Voreinstellungen: genau diese Zeilen sind an, alle anderen aus
 ns.STAT_PRESETS = {
@@ -328,6 +337,9 @@ ns.STAT_PRESETS = {
     "showPveKills", "showDeaths", "showQuests", "showMoney" } },
   { label = "PRESET_DUNGEON", settings = { "showXpRate", "showXpGained", "showPveKills", "showDeaths",
     "showKillsPerDeath", "showNearDeaths", "showInstanceRun", "showInstanceLimit", "showInstancesToday" } },
+  -- Farm-Runde (Wunsch auf CurseForge, Roadmap 382): Tempo der Kills und der Beute, Gold/h steht in showIncome
+  { label = "PRESET_FARMING", settings = { "showPveKills", "showKillRate", "showRecentKills", "showItemsLooted",
+    "showRecentItems", "showIncome" } },
 }
 
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im

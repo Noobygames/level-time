@@ -34,7 +34,9 @@ function ChatPatterns.CompileGlobals(globalNames, stringCapture)
   for _, globalName in ipairs(globalNames) do
     local format = _G[globalName]
     if format then
-      table.insert(compiled, ChatPatterns.Compile(format, stringCapture))
+      local entry = ChatPatterns.Compile(format, stringCapture)
+      entry.name = globalName  -- welcher globale String gepasst hat (MatchAny gibt den Eintrag zurück)
+      table.insert(compiled, entry)
     end
   end
   return compiled
@@ -54,11 +56,12 @@ function ChatPatterns.Match(message, compiled)
   return args
 end
 
--- Erstes passende Format einer Liste (Reihenfolge: speziellere Formate zuerst)
+-- Erstes passende Format einer Liste (Reihenfolge: speziellere Formate zuerst); Rückgabe: Argumente und der
+-- passende Eintrag (mit name bei CompileGlobals)
 function ChatPatterns.MatchAny(message, compiledList)
   for _, compiled in ipairs(compiledList) do
     local args = ChatPatterns.Match(message, compiled)
-    if args then return args end
+    if args then return args, compiled end
   end
   return nil
 end

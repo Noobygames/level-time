@@ -235,6 +235,8 @@ local SETTINGS_DEFAULTS = {
   showReputation = false,  -- Rufgewinn und Ruf/h (siehe Reputation.lua)
   showKillRate = false,    -- Kills (PvE) je Stunde im Bereich
   showRecentKills = false,  -- Kills der letzten 15 min und Kills/h daraus (siehe RecentCounts.lua)
+  showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
+  showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
 }
 
@@ -277,6 +279,7 @@ local COUNTER_DEFAULTS = {
   incomeTrade = 0,
   incomeOther = 0,
   reputation = 0,
+  itemsLooted = 0,
 }
 
 local CHARACTER_DEFAULTS = {

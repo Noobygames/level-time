@@ -74,6 +74,7 @@ Tracking\QuestWatch.lua
 Tracking\QuestLogXp.lua
 Tracking\XpSources.lua
 Tracking\Loot.lua
+Tracking\ItemsLooted.lua
 Tracking\LootRolls.lua
 Tracking\QuestMobs.lua
 Tracking\QuestNpcs.lua

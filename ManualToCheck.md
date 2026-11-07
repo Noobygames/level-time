@@ -1888,6 +1888,35 @@ Anzeige grau mit ~, danach normal (ja/nein):
 Fehler:
 ```
 
+### 142. Kills und Beute je Stunde (Roadmap 382)
+
+- [ ] geprüft
+
+Statistiken > Voreinstellung „Farmen“ (oder einzeln: Kämpfe > Kills/h und Kills der letzten 15 min, Beute >
+Gegenstände erbeutet und Gegenstände der letzten 15 min). 15 Minuten farmen, dabei einmal beim Händler etwas kaufen.
+
+1. Reiter Level/Session/Instanz: Kills/h und Gegenstände/h ändern sich je Reiter; mit „XP/h ohne AFK“ und kurzem AFK
+   steigen sie wie XP/h.
+2. Kills (15 min) zählt jeden Kill sofort, nach einer Pause fallen alte Kills heraus (Zahl sinkt ohne Kill).
+3. Ein Stapel (z.B. 5 Leinenstoff) zählt 5; graue Beute zählt; Beute anderer Gruppenmitglieder zählt nicht.
+4. Kauf beim Händler: Gegenstände bleiben gleich; Questbelohnung zählt.
+5. Layout Leiste und Kacheln, Sprache Französisch/Spanisch: Kurzlabels lesbar, nichts abgeschnitten.
+6. Historie > Sessions und Level: Spalten Kills/h und Items/h passen in die Breite.
+
+**Erwartet:** keine Lua-Fehler.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Raten je Reiter ok (ja/nein):
+15 min gleitet (ja/nein):
+Stapel/Kauf richtig (ja/nein):
+Beute in Instanzen gezählt (ja/nein):
+Layouts/Spalten passen (ja/nein):
+Fehler:
+```
+
 ### 133. Layouts des Hauptfensters (Roadmap 360)
 
 - [ ] geprüft

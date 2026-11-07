@@ -469,6 +469,7 @@ TRANSFER_ABORT_TOO_MANY_INSTANCES = "Ihr habt in letzter Zeit zu viele Instanzen
 LOOT_ITEM_SELF = "Ihr erhaltet Beute: %s."
 LOOT_ITEM_SELF_MULTIPLE = "Ihr erhaltet Beute: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "Ihr erhaltet einen Gegenstand: %s."
+LOOT_ITEM_PUSHED_SELF_MULTIPLE = "Ihr erhaltet einen Gegenstand: %sx%d."
 LOOT_ITEM_CREATED_SELF = "Ihr stellt her: %s."
 LOOT_ITEM_CREATED_SELF_MULTIPLE = "Ihr stellt her: %sx%d."
 -- Würfeln um Beute wie im deutschen Classic-Era-Client (Ketho/BlizzardInterfaceResources classic_era deDE)
