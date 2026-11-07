@@ -24,6 +24,12 @@
 -- Liefert die Historie Daten zu einem Wurf, ersetzt sie dessen Stand ganz (Chatzeilen zählen dann nicht mehr dazu),
 -- damit nichts doppelt zählt. Die Events sind nur angemeldet, solange eine der Einstellungen an ist (Event-Gruppe).
 local _, ns = ...
+
+-- Einstellungen (alle aus; LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im
+-- Tooltip, Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
+ns.Database.RegisterDefaults({
+  settings = { lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false },
+})
 local ChatPatterns = ns.ChatPatterns
 
 local LootRolls = {}

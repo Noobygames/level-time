@@ -27,6 +27,16 @@
 -- einmal je Login im Chat, statt sich mit ihnen abzuwechseln.
 local _, ns = ...
 
+-- Einstellungen (alle aus): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter, Quest-Objekte und
+-- Leichen mit Beute (Soft-Targeting), Größe der Funken
+ns.Database.RegisterDefaults({
+  settings = {
+    lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
+    lootSparkleCorpses = false, lootSparkleScale = 1,
+  },
+  ranges = { lootSparkleScale = { 0.5, 2 } },
+})
+
 local LootSparkles = {}
 ns.LootSparkles = LootSparkles
 

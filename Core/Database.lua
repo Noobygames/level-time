@@ -181,13 +181,8 @@ local SETTINGS_DEFAULTS = {
   questLeftovers = false,     -- Gegenstände erledigter Quests als Verkaufsvorschlag (QuestLeftovers.lua)
   questLearning = false,    -- Questgegner und Quest-Gegenstände lernen, accountweit (QuestMobs.lua)
   questMarkProgress = false, -- Zielstand ("3/8") neben dem Quest-Symbol (QuestMarks.lua, Lib/QuestTooltip.lua)
-  -- Beute-Glitzer (LootSparkles.lua): Quest-Gegenstände (CVar, nur Forever), beim Annähern Erz, Kräuter,
-  -- Quest-Objekte und Leichen mit Beute (Soft-Targeting), Größe der Funken
-  lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
-  lootSparkleCorpses = false, lootSparkleScale = 1,
-  -- Beute-Würfe (LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im Tooltip,
-  -- Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
-  lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false,
+  -- Beute-Glitzer (lootSparkle*) und Beute-Würfe (lootRoll*) melden ihre Standardwerte selbst an
+  -- (Database.RegisterDefaults in Assist/LootSparkles.lua und Tracking/LootRolls.lua)
   questTextResize = false, questTextSize = 14,  -- Größe der Quest-Schriften (QuestTextSize.lua)
   questLevels = false,      -- "[12]" vor Questnamen in Log, Gesprächen und Tracker (QuestLevels.lua)
   questItemButton = false,   -- sicherer Knopf für das Quest-Item der nächsten Quest (QuestItemButton.lua)
@@ -503,7 +498,6 @@ local SETTING_RANGES = {
   levelUpDuration = { 3, 20 },
   campHintPause = { 1, 30 },
   questMarkScale = { 0.5, 2 },
-  lootSparkleScale = { 0.5, 2 },
   weatherDensity = { 0, 3 },
 }
 
@@ -689,6 +683,24 @@ end
 
 function Database.NewCounters()
   return applyDefaults({}, COUNTER_DEFAULTS)
+end
+
+-- Module melden eigene Standardwerte beim Laden an (vor dem Login, also vor Database.Load):
+-- defaults = { settings = { Schlüssel = Standard }, ranges = { Schlüssel = { min, max } }, counters = { ... } }.
+-- Ein Schlüssel darf nur einmal vorkommen (hier oder in einem Modul); doppelt ist ein Fehler beim Laden.
+function Database.RegisterDefaults(defaults)
+  for key, value in pairs(defaults.settings or {}) do
+    assert(SETTINGS_DEFAULTS[key] == nil, "setting default registered twice: " .. key)
+    SETTINGS_DEFAULTS[key] = value
+  end
+  for key, range in pairs(defaults.ranges or {}) do
+    assert(SETTING_RANGES[key] == nil, "setting range registered twice: " .. key)
+    SETTING_RANGES[key] = range
+  end
+  for key, value in pairs(defaults.counters or {}) do
+    assert(COUNTER_DEFAULTS[key] == nil, "counter default registered twice: " .. key)
+    COUNTER_DEFAULTS[key] = value
+  end
 end
 
 -- Erster Start des Addons auf diesem Account (LevelTimerStatsDB.introShown noch nicht gesetzt)?
