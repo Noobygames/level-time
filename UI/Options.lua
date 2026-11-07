@@ -619,6 +619,8 @@ addToggles({
   toggle("HIDE_STANCE_BAR", "hideStanceBar", HideFrames.HasStanceBar),
   toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation),
   toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers),
+  toggle("HIDE_BLIZZARD_XP_BAR", "hideBlizzardXpBar", HideFrames.HasXpBar),
+  toggle("HIDE_BLIZZARD_REP_BAR", "hideBlizzardRepBar", HideFrames.HasRepBar),
 })
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })

@@ -640,3 +640,30 @@ check("359.editMode", function()
     blizzard = type(manager) == "table", enter = type(manager) == "table" and type(manager.EnterEditMode) == "function",
     hooked = ns.EditMode.blizzardHooked == true, combat = call("InCombatLockdown") }
 end)
+
+-- 365: Blizzards Erfahrungs- und Rufleiste: gefundene Behälter und Leisten mit Zustand (Alpha, Maus, Rahmen)
+check("365.blizzardXpBar", function()
+  local HideFrames = ns.HideFrames
+  local function bars(kind)
+    local list = {}
+    for _, bar in ipairs(HideFrames.StatusBars(kind)) do
+      local state = frameState(bar)
+      state.name, state.mouse = frameName(bar), method(bar, "IsMouseEnabled")
+      table.insert(list, state)
+    end
+    return list
+  end
+  local containers = {}
+  for _, container in ipairs(HideFrames.StatusBarContainers()) do
+    local state = frameState(container)
+    local art = HideFrames.ContainerArt(container)
+    state.name, state.shownBar, state.art = frameName(container), HideFrames.ShownBarIndex(container), #art
+    state.artAlpha = art[1] and method(art[1], "GetAlpha")
+    table.insert(containers, state)
+  end
+  return { hideXp = ns.db.hideBlizzardXpBar, hideRep = ns.db.hideBlizzardRepBar,
+    manager = type(_G.StatusTrackingBarManager) == "table", experienceIndex = HideFrames.BarIndex("experience"),
+    reputationIndex = HideFrames.BarIndex("reputation"), containers = containers, xp = bars("experience"),
+    rep = bars("reputation"), legacyXp = frameState(_G.MainMenuExpBar),
+    maxLevelBar = frameState(_G.MainMenuBarMaxLevelBar), combat = call("InCombatLockdown") }
+end)
