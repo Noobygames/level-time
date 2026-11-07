@@ -259,6 +259,7 @@ local presetButtons = {}
 for i, preset in ipairs(ns.STAT_PRESETS) do
   presetButtons[i] = { label = preset.label, onClick = function() ns.ApplyStatPreset(preset) end }
 end
+table.insert(presetButtons, { label = "PRESET_UNDO", onClick = function() ns.UndoStatPreset() end })
 builder.AddButtonRow(presetButtons)
 for _, group in ipairs(ns.STAT_GROUPS) do
   addSection(group)

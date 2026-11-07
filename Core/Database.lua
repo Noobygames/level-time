@@ -460,6 +460,13 @@ local OPTIONAL_SETTINGS = {
     end
     return true
   end,
+  presetBackup = function(value)  -- Zeilen vor der letzten Voreinstellung (StatLines.lua), Einstellung -> an/aus
+    if type(value) ~= "table" then return false end
+    for key, on in pairs(value) do
+      if type(key) ~= "string" or type(on) ~= "boolean" then value[key] = nil end
+    end
+    return true
+  end,
   splitReference = function(value)  -- fester Vergleichslauf (Splits.lua)
     return type(value) == "table" and type(value.name) == "string" and isLevelTimes(value.times)
   end,

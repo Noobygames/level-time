@@ -305,14 +305,34 @@ ns.STAT_PRESETS = {
     "showKillsPerDeath", "showNearDeaths", "showInstanceRun", "showInstanceLimit", "showInstancesToday" } },
 }
 
+-- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im
+-- Profil), damit "Rückgängig" ihn auch nach /reload wiederherstellt
 function ns.ApplyStatPreset(preset)
-  local on = {}
+  local on, backup = {}, {}
   for _, setting in ipairs(preset.settings) do on[setting] = true end
   for _, stat in ipairs(ns.STAT_LINES) do
+    backup[stat.setting] = ns.db[stat.setting] and true or false
     ns.db[stat.setting] = on[stat.setting] or false
   end
+  ns.db.presetBackup = backup
   ns.ApplySettings()
-  ns.Print(string.format(ns.L.PRESET_APPLIED, ns.L[preset.label]))
+  ns.Print(string.format(ns.L.PRESET_APPLIED, ns.L[preset.label]) .. " " .. ns.L.PRESET_APPLIED_UNDO)
+end
+
+-- Stand vor der letzten Voreinstellung wiederherstellen; false, wenn es keinen gibt
+function ns.UndoStatPreset()
+  local backup = ns.db.presetBackup
+  if not backup then
+    ns.Print(ns.L.PRESET_NOTHING_TO_UNDO)
+    return false
+  end
+  for _, stat in ipairs(ns.STAT_LINES) do
+    if backup[stat.setting] ~= nil then ns.db[stat.setting] = backup[stat.setting] end
+  end
+  ns.db.presetBackup = nil
+  ns.ApplySettings()
+  ns.Print(ns.L.PRESET_UNDONE)
+  return true
 end
 
 -- Zeile eingeschaltet und im Client verfügbar
