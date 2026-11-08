@@ -143,8 +143,14 @@ builder.AddToggles({
   toggle("SG_OPTIONS_WHEEL_TICK", "wheelTickSound"),
 })
 builder.AddSlider(slider("SG_OPTIONS_WHEEL_REROLLS", "wheelRerolls", ns.Wheel.MAX_REROLLS))
+local resultSlider = slider("SG_OPTIONS_WHEEL_RESULT", "wheelResultSeconds", ns.MAX_WHEEL_RESULT_SECONDS)
+resultSlider.format = function(value)
+  return value == 0 and L.SG_OPTIONS_WHEEL_RESULT_PINNED or string.format(L.SG_OPTIONS_WHEEL_RESULT_SECONDS, value)
+end
+builder.AddSlider(resultSlider)
 builder.AddButtonRow({
   { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
+  { label = "SG_WHEEL_REROLL", onClick = function() ns.Commands.Wheel("reroll") end },
   { label = "SG_WHEEL_OPEN_POOL", onClick = function() ns.Manager.Toggle("wheel") end },
 })
 

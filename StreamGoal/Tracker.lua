@@ -3,7 +3,8 @@
 -- (Einstellung), weitere Ziele fasst eine Zeile "+n weitere" zusammen. Beim Erreichen eines Ziels erscheint die
 -- Einblendung von Level Time (Alerts.Show) und eine Chatzeile (beides abschaltbar).
 -- Klicks: Rechtsklick öffnet die Einstellungen der Anzeige; selbst gezählte Ziele (Goals.IsManual) zählt ein
--- Linksklick eins hoch, Shift+Linksklick eins zurück. Arten mit tooltip (Item) zeigen beim Überfahren ihren Tooltip.
+-- Linksklick eins hoch, Shift+Linksklick eins zurück; der abschließende Klick will bestätigt werden (ClickStep.lua).
+-- Arten mit tooltip (Item) zeigen beim Überfahren ihren Tooltip.
 -- Farben und Schriften kommen aus dem Theme von Level Time (Karten melden sich in Card.Create selbst an).
 local _, ns = ...
 local LT = ns.LT
@@ -23,7 +24,6 @@ Tracker.SETTINGS_PAGE = ns.SETTINGS_PAGES.TRACKER
 local CARD_GAP = 6
 local MORE_GAP = 4
 local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -40, -220 }
-local STEP_UP, STEP_DOWN = 1, -1
 local TOOLTIP_ANCHOR = "ANCHOR_LEFT"  -- Karten stehen meist am rechten Rand
 local SAMPLE_LEVEL, SAMPLE_PROGRESS, SAMPLE_FRACTION = 20, 12, 0.6
 
@@ -58,9 +58,7 @@ local function onCardClick(card, mouseButton)
     Tracker.ToggleSettings()
     return
   end
-  local goal = card.goal
-  if not goal or not Goals.IsManual(goal) then return end
-  Goals.Step(goal.id, IsShiftKeyDown() and STEP_DOWN or STEP_UP)
+  ns.ClickStep.Click(card.goal, IsShiftKeyDown())
 end
 
 -- Tooltip einer Karte: der der Zielart (Item) bzw. der Titel, dazu die Klicks
@@ -147,7 +145,7 @@ local function fillCard(card, goal)
     icon = def.icon,
     texture = def.texture and def.texture(goal) or nil,
     title = Goals.Title(goal),
-    body = Goals.Body(goal),
+    body = ns.ClickStep.IsArmed(goal) and L.SG_CARD_CONFIRM or Goals.Body(goal),
     time = line ~= nil,
     timeText = line,
   })

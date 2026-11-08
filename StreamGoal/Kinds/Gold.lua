@@ -53,7 +53,7 @@ Goals.RegisterKind("gold", {
   countText = function(goal)
     return string.format("%s / %s", Kinds.GoldText(goal.progress), Kinds.GoldText(goal.target))
   end,
-  title = function(goal) return string.format(L[TITLES[goal.params.mode]], gold(goal.target)) end,
+  title = function(goal) return Kinds.Counted(TITLES[goal.params.mode], gold(goal.target)) end,
 })
 
 -- "1.234g" mit der Gold-Einheit von Level Time (L.UNIT_GOLD_SHORT), ohne Silber und Kupfer

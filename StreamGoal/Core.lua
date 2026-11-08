@@ -42,10 +42,12 @@ ns.SETTING_DEFAULTS = {
   wheelRerolls = 2,        -- Neuwürfe je Drehung
   wheelAnimation = true,   -- Rad drehen sehen (aus = Ergebnis sofort, weniger Bewegung)
   wheelTickSound = true,   -- Klicken je Stück, das am Zeiger vorbeidreht
+  wheelResultSeconds = 15, -- so lange bleiben Rad und Ergebnis stehen; 0 = bis Klick auf die Karte oder nächste Drehung
   minimapButton = true,    -- eigener Minimap-Button (MinimapButton.lua)
   minimapAngle = 200,      -- Winkel am Minimap-Rand in Grad, neben dem von Level Time (225)
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
+ns.MAX_WHEEL_RESULT_SECONDS = 60
 -- Unterseiten des Einstellungsfensters (Options.lua); Anzeigen und Reiter des Fensters /sg öffnen "ihre" Seite
 ns.SETTINGS_PAGES = {
   TRACKER = "SG_OPTIONS_PAGE_TRACKER",
@@ -105,6 +107,10 @@ LT.OnLogin(function()
   end
   if type(settings.wheelRerolls) ~= "number" or settings.wheelRerolls < 0 or settings.wheelRerolls > 5 then
     settings.wheelRerolls = ns.SETTING_DEFAULTS.wheelRerolls
+  end
+  local resultSeconds = settings.wheelResultSeconds
+  if type(resultSeconds) ~= "number" or resultSeconds < 0 or resultSeconds > ns.MAX_WHEEL_RESULT_SECONDS then
+    settings.wheelResultSeconds = ns.SETTING_DEFAULTS.wheelResultSeconds
   end
   -- Früher pos = { Punkt, Bezugspunkt, x, y } und scale; jetzt ein Eintrag wie bei Level Time (Lib/Frames.lua)
   if settings.pos ~= nil or settings.scale ~= nil then

@@ -71,11 +71,14 @@ Goals.RegisterKind("reputation", {
   usage = "SG_USAGE_REPUTATION",
   color = LT.Theme.COLORS.good,
   icon = ICON,
-  form = { amount = "SG_FORM_REP_AMOUNT", fields = {
+  -- Modus zuerst, die Fraktion immer; dann nur die Rufpunkte (gewinnen) bzw. die Stufe (erreichen)
+  form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_REP_MODE", values = MODES, labels = MODE_LABELS },
     { type = "text", param = "faction", label = "SG_FORM_REP_FACTION" },
+    { type = "amount", label = "SG_FORM_REP_AMOUNT", showIf = { mode = "gain" } },
     { type = "choice", param = "standing", label = "SG_FORM_REP_STANDING_LEVEL", values = STANDINGS,
-      labels = { [5] = "SG_STANDING_5", [6] = "SG_STANDING_6", [7] = "SG_STANDING_7", [8] = "SG_STANDING_8" } },
+      labels = { [5] = "SG_STANDING_5", [6] = "SG_STANDING_6", [7] = "SG_STANDING_7", [8] = "SG_STANDING_8" },
+      showIf = { mode = "standing" } },
   } },
   -- "add rep 1000 <Fraktion>" (gewinnen) oder "add rep honored <Fraktion>" (Stufe)
   parse = function(args, rest)

@@ -1,7 +1,8 @@
 -- Bingo-Schein am Bildschirm (Roadmap 305): Raster aus Feldern (Text des Feld-Ziels, Stand), erledigte Felder in der
 -- Erfolgsfarbe des Themes, freie Mitte bei 5x5. Verschiebbar über den Edit-Modus von Level Time (Beispielschein in
--- der Vorschau). Linksklick auf ein selbst gezähltes Feld hakt es ab, Shift+Linksklick zurück, Rechtsklick öffnet die
--- Einstellungen. Neu aufgebaut nur bei Änderungen der Ziele (Goals.OnChange) und Einstellungen.
+-- der Vorschau). Linksklick auf ein selbst gezähltes Feld hakt es ab (mit Bestätigung, ClickStep.lua),
+-- Shift+Linksklick zurück, Rechtsklick öffnet die Einstellungen. Neu aufgebaut nur bei Änderungen der Ziele
+-- (Goals.OnChange) und Einstellungen.
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -22,7 +23,6 @@ local DONE_ALPHA, OPEN_ALPHA = 0.55, 0.85
 local SAMPLE_SIZE = 3
 local SAMPLE_DONE = { [1] = true, [5] = true }
 local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -280, -220 }
-local STEP_UP, STEP_DOWN = 1, -1
 
 local frame = CreateFrame("Frame", "StreamGoalBingo", UIParent)
 frame:SetSize(1, 1)
@@ -42,10 +42,7 @@ local function onCellClick(cell, mouseButton)
     ns.Tracker.ToggleSettings()
     return
   end
-  local goal = cell.goal
-  if goal and Goals.IsManual(goal) and goal.status == Goals.ACTIVE then
-    Goals.Step(goal.id, IsShiftKeyDown() and STEP_DOWN or STEP_UP)
-  end
+  ns.ClickStep.Click(cell.goal, IsShiftKeyDown())
 end
 
 local function cellAt(index)
@@ -74,6 +71,7 @@ end
 
 local function cellText(goal)
   local text = Goals.Title(goal)
+  if ns.ClickStep.IsArmed(goal) then return text .. "\n" .. L.SG_CARD_CONFIRM end
   if Goals.HasCount(goal) and goal.status == Goals.ACTIVE then text = text .. "\n" .. Goals.CountText(goal) end
   return text
 end

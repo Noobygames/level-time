@@ -20,11 +20,26 @@ expect("keine eigene Karte für Felder", StreamGoalCard2 == nil or not StreamGoa
 expect("eine Karte für den Schein", StreamGoalCard1.title._text, Goals.Title(board))
 expect("Feld zeigt seinen Text", StreamGoalBingoCell1.text._text, Goals.Title(Goals.Get(board.params.cells[1])))
 
--- Felder per Klick: erste Reihe voll = BINGO
-local function clickCell(index)
+-- Felder per Klick: erste Reihe voll = BINGO. Abhaken braucht zwei Klicks (der erste merkt nur vor, ClickStep.lua)
+local function clickCellOnce(index)
   local cell = _G["StreamGoalBingoCell" .. index]
   cell._scripts.OnMouseUp(cell, "LeftButton")
 end
+local function clickCell(index)
+  clickCellOnce(index)
+  clickCellOnce(index)
+end
+local firstCell = Goals.Get(board.params.cells[1])
+clickCellOnce(1)
+expect("ein Klick hakt nicht ab", firstCell.status, Goals.ACTIVE)
+expect("Feld bittet um zweiten Klick", StreamGoalBingoCell1.text._text,
+  Goals.Title(firstCell) .. "\n" .. L.SG_CARD_CONFIRM)
+-- Ein anderes Feld vorzumerken hebt die erste Vormerkung auf
+clickCellOnce(2)
+expect("Vormerkung gewechselt", streamGoal.ClickStep.IsArmed(firstCell), false)
+expect("erstes Feld wieder normal", StreamGoalBingoCell1.text._text, Goals.Title(firstCell))
+wow.advance(streamGoal.ClickStep.CONFIRM_SECONDS + 1)
+wow.runTimers()
 clickCell(1)
 clickCell(5)
 expect("noch kein Bingo", board.status, Goals.ACTIVE)

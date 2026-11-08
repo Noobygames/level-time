@@ -114,7 +114,7 @@ Goals.RegisterKind("checklist", {
     local done = evaluate(goal)
     return done
   end,
-  title = function(goal) return string.format(L.SG_GOAL_CHECKLIST, #goal.params.items + #Checklist.Children(goal)) end,
+  title = function(goal) return Kinds.Counted("SG_GOAL_CHECKLIST", #goal.params.items + #Checklist.Children(goal)) end,
   body = function(goal)
     local lines = {}
     for _, item in ipairs(goal.params.items) do
