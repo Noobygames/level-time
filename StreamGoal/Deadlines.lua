@@ -87,12 +87,12 @@ function Deadlines.Remaining(goal)
   return math.max(0, deadline.at - current)
 end
 
--- "noch 01h 12m 05s" bzw. "noch 2h 5m Spielzeit"
+-- "noch 1h 12m", "noch 5m 50s" bzw. "noch 2h 05m Spielzeit" (zwei größte Einheiten, passt auf die Karte)
 function Deadlines.Text(goal)
   local remaining = Deadlines.Remaining(goal)
   if not remaining then return nil end
   local key = goal.deadline.mode == Deadlines.PLAYED and "SG_DEADLINE_LEFT_PLAYED" or "SG_DEADLINE_LEFT"
-  return string.format(L[key], LT.Format.Clock(remaining))
+  return string.format(L[key], LT.Format.Duration(remaining))
 end
 
 -- Hat ein laufendes Ziel des eingeloggten Charakters eine Frist?

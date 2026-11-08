@@ -236,11 +236,14 @@ function Goals.History()
   return list
 end
 
--- Anteil 0..1 zwischen Startstand und Ziel
+-- Anteil 0..1 zwischen Startstand und Ziel; Arten mit partial(goal) (0..1 bis zum nächsten Stand, z.B. XP im
+-- laufenden Level) füllen den Balken auch zwischen zwei Ständen
 function Goals.Fraction(goal)
   local span = goal.target - goal.start
   if span <= 0 then return 1 end
-  return math.max(0, math.min(1, (goal.progress - goal.start) / span))
+  local def = kinds[goal.kind]
+  local partial = def and def.partial and def.partial(goal) or 0
+  return math.max(0, math.min(1, (goal.progress - goal.start + partial) / span))
 end
 
 function Goals.Title(goal)

@@ -582,6 +582,7 @@ Schwerpunkt: Werte, die Zuschauer im Spielbild sehen und verstehen. Addons haben
 
 ## Erledigt
 
+- v2.25.1: Fix Level Time Goals: Zielkarten so breit wie Stand und Restzeit (lief rechts über), Restzeit kompakt („noch 5m 50s“), Balken von Level-Zielen füllt sich mit den XP im laufenden Level
 - v2.14.0: 241. Munitionswarnung einstellbar, mit zweiter Schwelle „fast leer“ und Wiederholung; 242. Essen-Timer (Restzeit beim Essen, „Satt aktiv“), neuer Baustein `Lib/TimerDisplay.lua`; Fix: Lagerfeuer meldete erste Lagervorteile nicht
 - v2.15.0: 243. Reiter „Timer“, Munitions-Optionen nur für Jäger; 244. Einblendungen als Karten mit Symbol; 245. Lagerfeuer-Hinweis nur kurz mit einstellbarer Pause; Fix: Verschiebemodus endet beim Schließen der Einstellungen
 - v2.13.0: 240. Kill-Quest-Mobs markieren (Symbol links vom Lebensbalken der Namensplakette, über `C_QuestLog.UnitIsRelatedToActiveQuest`)

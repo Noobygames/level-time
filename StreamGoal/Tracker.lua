@@ -149,8 +149,8 @@ local function fillCard(card, goal)
     title = Goals.Title(goal),
     body = Goals.Body(goal),
     time = line ~= nil,
+    timeText = line,
   })
-  if line then card.SetTime(line) end
   updateCardMouse(card)
   card.frame:Show()
 end
@@ -164,6 +164,15 @@ function Tracker.UpdateTimes()
   end
 end
 LT.Every(1, Tracker.UpdateTimes, ns.Deadlines.Any)
+
+-- Balken der gezeigten Karten neu (XP im laufenden Level füllt den Balken eines Level-Ziels)
+function Tracker.UpdateFractions()
+  if not frame:IsShown() then return end
+  for _, card in ipairs(cards) do
+    if card.goal and card.frame:IsShown() then card.SetFraction(Goals.Fraction(card.goal)) end
+  end
+end
+LT.RegisterEvent("PLAYER_XP_UPDATE", Tracker.UpdateFractions)
 
 -- Ziele mit eigener Karte: laufende ohne Teilziele einer laufenden Checkliste (die stehen als Zeile in ihr)
 local shownGoals = {}

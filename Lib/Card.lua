@@ -3,6 +3,7 @@
 --   local card = Card.Create("MeinFrame")
 --   card.Set({ color = { r, g, b }, icon = Pfad oder Spell-ID, title = "...", body = "...", time = true })
 --   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
+--   timeText = erster Text der großen Zeile (optional); die Breite reicht für ihn und für eine zweistellige Zahl
 --   card.SetTime("42 s"); card.SetFraction(0.7)
 -- card.frame ist der Rahmen (Position, Skalierung, Ein-/Ausblenden macht der Aufrufer); card.frame.title,
 -- .body und .time sind die Textfelder, .icon das Symbol.
@@ -84,6 +85,7 @@ function Card.Create(name)
   end
 
   local hasIcon, hasBody, hasTime = false, false, false
+  local initialTime  -- timeText aus card.Set
   local shownIcon, shownTexture  -- zuletzt gesetztes Symbol (icon bzw. texture aus card.Set)
 
   local function layout()
@@ -105,6 +107,11 @@ function Card.Create(name)
       timeText:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -LINE_GAP)
       ns.Widgets.SetTextIfChanged(timeText, string.format(ns.L.SECONDS_SHORT, 99))  -- breiteste Zahl
       local width, timeHeight = measure(timeText)
+      if initialTime then
+        -- Längere Zeilen wie "28 / 30  noch 5m 50s" bekommen ihre Breite, statt über den Rand zu laufen
+        ns.Widgets.SetTextIfChanged(timeText, initialTime)
+        width = math.max(width, (measure(timeText)))
+      end
       widest, height = math.max(widest, width), height + LINE_GAP + timeHeight
     end
     frame:SetWidth(math.max(MIN_WIDTH, textLeft + widest + PADDING))
@@ -112,7 +119,7 @@ function Card.Create(name)
   end
 
   -- spec = { color, icon (Pfad oder Spell-ID, optional), texture (Pfad oder Datei-ID, optional), title,
-  --          body (optional), time (true = Zahl und Balken) }
+  --          body (optional), time (true = Zahl und Balken), timeText (optional) }
   function card.Set(spec)
     local r, g, b = unpack(spec.color)
     accent:SetColorTexture(r, g, b, 1)
@@ -138,6 +145,7 @@ function Card.Create(name)
     body:SetShown(hasBody)
     body:SetText(spec.body or "")
     hasTime = spec.time and true or false
+    initialTime = hasTime and spec.timeText or nil
     timeText:SetShown(hasTime)
     barBack:SetShown(hasTime)
     barFill:SetShown(hasTime)
