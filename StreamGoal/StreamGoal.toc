@@ -66,7 +66,8 @@ Window\WheelPage.lua
 Window\CollectionPage.lua
 Window\HistoryPage.lua
 
-# Einstellungen und Befehle
+# Minimap-Button, Einstellungen und Befehle
+MinimapButton.lua
 Options.lua
 Commands.lua
 

@@ -2846,3 +2846,31 @@ Sammlung und Import ok (ja/nein):
 Andere Sprachen ohne Überlappung (ja/nein):
 Fehler:
 ```
+
+### 192. Minimap-Button von Level Time Goals (Roadmap 434)
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Datei `StreamGoal/MinimapButton.lua`).
+
+1. Am Rand der Minimap steht neben dem Button von Level Time ein zweiter mit dem Goals-Icon; das Icon sitzt sauber im
+   runden Rahmen (nicht verschoben, nicht abgeschnitten).
+2. Tooltip: „Level Time Goals“, Zahl der laufenden Ziele, bis zu fünf Ziele mit Stand, darunter die Klicks.
+3. Linksklick öffnet/schließt `/sg`, Shift+Linksklick die Historie, Rechtsklick die Einstellungen von Goals,
+   Shift+Rechtsklick den Edit-Modus.
+4. Ziehen schiebt den Button um die Minimap; nach `/reload` steht er an derselben Stelle.
+5. `/sg minimap` blendet ihn aus (Chat-Hinweis) und wieder ein; Einstellungen > Tracker > „Minimap-Button anzeigen“
+   ebenso, auch nach `/reload`.
+6. Mit einem Addon, das Minimap-Buttons sammelt (z.B. MinimapButtonButton, Leatrix Plus), wird er wie der von Level
+   Time behandelt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Button sichtbar, Icon sitzt (ja/nein):
+Tooltip und Klicks ok (ja/nein):
+Position nach /reload (ja/nein):
+Ausblenden per Befehl und Einstellung (ja/nein):
+Fehler:
+```

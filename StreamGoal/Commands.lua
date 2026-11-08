@@ -2,7 +2,7 @@
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
 --   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> |
 --   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | own ... | import | collection |
---   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | options | move | scale | help
+--   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | minimap | options | move | scale | help
 -- Ältere Befehle bleiben: "bingo text|texts|clear" (heute eigene Ziele, wie "own add|list"), "pack import".
 local _, ns = ...
 local Goals = ns.Goals
@@ -281,6 +281,7 @@ local commands = {
   bingo = bingo,
   wheel = wheel,
   tracker = toggleTracker,
+  minimap = function() ns.MinimapButton.Toggle() end,
   scale = scale,
   options = function() ns.Options.Toggle() end,
   config = function() ns.Options.Toggle() end,

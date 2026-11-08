@@ -36,6 +36,7 @@ Set goals for your stream and show them as cards on screen. Viewers see at a gla
 
 - **Live cards** in the look of your Level Time theme, stacked in one tracker; move and scale them in Level Time's edit mode, right-click for settings
 - **Settings window** (`/sg options`) with search: number of cards, card colors, size, sound, alert, chat line, own pages for bingo and the wheel, clean-up of goals from deleted characters
+- **Minimap button**: left click opens the window, Shift+left the history, right click the settings, Shift+right edit mode; the tooltip lists your running goals. Turn it off under Settings > Tracker or with `/sg minimap`
 - **History**: every finished, cancelled or failed goal in a table you can filter, sort and export as CSV
 - **Window** (`/sg`): tabs Goals (form for every goal type, extras behind "More options", active goals), Bingo, Wheel, Collection and History
 - Languages follow Level Time: English, German, French, Spanish
@@ -62,6 +63,7 @@ Set goals for your stream and show them as cards on screen. Viewers see at a gla
 | `/sg pack hardcore`                              | Add a built-in pack                             |
 | `/sg list` / `/sg cancel <Nr>` / `/sg history`   | List active goals, cancel one, show the history |
 | `/sg tracker` / `/sg move` / `/sg scale <0.5-2>` | Show or hide, move and resize the cards         |
+| `/sg minimap`                                    | Show or hide the minimap button                 |
 
 `/streamgoal` works as an alias for `/sg`.
 

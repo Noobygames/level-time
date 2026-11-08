@@ -113,6 +113,15 @@ builder.AddButtonRow({
   { label = "EDIT_MODE", onClick = function() LT.EditMode.Toggle() end },
   { label = "SG_RESET_POSITION", onClick = function() Frames.Reset(Tracker.FRAME_ID) end },
 })
+builder.AddSection("SG_OPTIONS_SECTION_MINIMAP")
+builder.AddToggles({
+  {
+    label = "SG_SHOW_MINIMAP",
+    get = function() return settings().minimapButton end,
+    set = function(checked) ns.MinimapButton.SetShown(checked) end,
+    reset = settingReset("minimapButton"),
+  },
+})
 
 -- Bingo: Schein am Bildschirm und BINGO-Meldung; der Editor ist der Reiter "Bingo" im Fenster
 builder.AddSubPage(PAGES.BINGO)
