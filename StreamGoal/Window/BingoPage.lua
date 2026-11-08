@@ -1,7 +1,7 @@
--- Reiter "Bingo" im Fenster /sg (Roadmap 431): Schein selbst füllen. Links das Raster des Entwurfs (Feld anklicken =
--- auswählen, Rechtsklick = leeren), rechts alle Einträge des Pools (mitgelieferte und eigene Ziele, TableView mit
--- Filter); ein Klick auf einen Eintrag setzt ihn ins gewählte Feld und springt zum nächsten leeren. Freier Text landet
--- als eigenes Ziel im gewählten Feld. "Schein anlegen" füllt leere Felder zufällig (wie /sg bingo).
+-- Reiter "Bingo" im Fenster /sg (Roadmap 431): Schein selbst füllen. Links Größe und Raster des Entwurfs (Feld anklicken
+-- = auswählen, Rechtsklick = leeren), rechts alle Ziele zur Wahl (mitgelieferte und eigene, TableView mit Filter); ein
+-- Klick auf ein Ziel setzt es ins gewählte Feld und springt zum nächsten leeren. Darunter: freier Text als eigenes Ziel
+-- direkt ins Feld, dann die Knopfzeile mit der Hauptaktion "Schein anlegen" rechts (leere Felder werden zufällig).
 -- Entwurf in StreamGoalDB.bingoDraft = { size = 3|5, picks = { [Feld] = Pool-Schlüssel } } (bleibt über /reload).
 local _, ns = ...
 local LT = ns.LT
@@ -17,7 +17,6 @@ local Theme = LT.Theme
 local BingoEditor = {}
 ns.BingoEditor = BingoEditor
 
-local HEADER_HEIGHT = 24
 local SIZE_TABS_TOP = -26
 local TAB_GAP = 14
 local GRID_TOP = -50
@@ -26,16 +25,16 @@ local CELL_GAP = 3
 local CELL_TEXT_INSET = 3
 local COLUMN_GAP = 16
 local TABLE_HEIGHT = 330
-local ROW = 26
-local BOX_HEIGHT = 20
-local BOX_BORDER = 6
-local BUTTON_MIN_WIDTH = 90
-local BUTTON_GAP = 6
-local LABEL_GAP = 8
+local CONTROLS_GAP = 10
+local HINT_GAP = 12
 local ALPHA = { selected = 0.6, picked = 0.45, random = 0.85, free = 0.55 }
 local CELL_COLORS = { selected = "accent", picked = "info", random = "surface", free = "success" }
+local SIZE_LABELS = { [3] = "SG_BINGO_3", [5] = "SG_BINGO_5" }
 
-local page = Manager.AddPage("bingo", "SG_TAB_BINGO", function() BingoEditor.Render() end)
+local page = Manager.AddPage({
+  key = "bingo", label = "SG_TAB_BINGO", settingsPage = ns.SETTINGS_PAGES.BINGO,
+  render = function() BingoEditor.Render() end,
+})
 
 local header = Widgets.CreateSectionHeader(page)
 header:SetPoint("TOPLEFT")
@@ -141,7 +140,9 @@ end
 -- Größe: Reiter "3 × 3" und "5 × 5"
 local sizeTabs = {}
 for _, size in ipairs(Bingo.SIZES) do
-  sizeTabs[size] = Widgets.CreateTab(page, Theme.Font("body"), function() BingoEditor.SetSize(size) end)
+  local tab = Widgets.CreateTab(page, Theme.Font("body"), function() BingoEditor.SetSize(size) end)
+  Widgets.AttachTooltip(tab, function() return L[SIZE_LABELS[size]] end, function() return L.SG_BINGO_SIZE_TIP end)
+  sizeTabs[size] = tab
 end
 
 function BingoEditor.SetSize(size)
@@ -156,9 +157,9 @@ function BingoEditor.SetSize(size)
 end
 
 ---------------------------------------------------------------------------
--- Einträge rechts
+-- Ziele zur Wahl (rechts)
 ---------------------------------------------------------------------------
--- Eintrag ins gewählte Feld, dann zum nächsten leeren Feld
+-- Ziel ins gewählte Feld, dann zum nächsten leeren Feld
 function BingoEditor.Assign(key)
   local value = draft()
   if Bingo.IsFreeCell(value.size, selected) then selected = nextOpen(1) end
@@ -171,8 +172,7 @@ local candidates = LT.TableView.Create({
   tab = "SG_TAB_BINGO",
   columns = {
     { header = "SG_COL_GOAL", width = 214, align = "LEFT", value = function(item) return Pool.Title(item) end },
-    { header = "SG_COL_SOURCE", width = 90, align = "LEFT",
-      value = function(item) return item.premade and L.SG_POOL_PREMADE or L.SG_POOL_OWN end },
+    { header = "SG_COL_SOURCE", width = 90, align = "LEFT", value = Pool.SourceText },
   },
   records = function() return Pool.Items() end,
   footer = function(_, records) return { string.format(L.SG_BINGO_EDIT_FOOTER, #records) } end,
@@ -185,23 +185,19 @@ local candidates = LT.TableView.Create({
 
 local tableWidth = Manager.PAGE_WIDTH - GRID_SIDE - COLUMN_GAP
 local holder = CreateFrame("Frame", nil, page)
-holder:SetPoint("TOPLEFT", GRID_SIDE + COLUMN_GAP, -HEADER_HEIGHT)
+holder:SetPoint("TOPLEFT", GRID_SIDE + COLUMN_GAP, -Manager.HEADER_HEIGHT)
 holder:SetSize(tableWidth, TABLE_HEIGHT)
 local candidateTable = candidates.Create(holder, tableWidth, TABLE_HEIGHT)
 BingoEditor.table = candidateTable
 
 ---------------------------------------------------------------------------
--- Unten: freier Text, Knöpfe, Hinweis
+-- Unten: freier Text ins Feld, Knopfzeile, Hinweis
 ---------------------------------------------------------------------------
-local controlsTop = -HEADER_HEIGHT - TABLE_HEIGHT - 10
+local controlsTop = -Manager.HEADER_HEIGHT - TABLE_HEIGHT - CONTROLS_GAP
 
-local textLabel = page:CreateFontString(nil, "OVERLAY", Theme.Font("title"))
-textLabel:SetJustifyH("LEFT")
+local textLabel = Manager.CreateLabel(page)
 textLabel:SetPoint("TOPLEFT", 0, controlsTop - 4)
-local textBox = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
-textBox:SetHeight(BOX_HEIGHT)
-textBox:SetAutoFocus(false)
-textBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+local textBox = Manager.CreateTextBox(page, function() BingoEditor.AddText() end)
 BingoEditor.textBox = textBox
 
 -- Freier Text als eigenes Ziel ins gewählte Feld
@@ -216,17 +212,8 @@ function BingoEditor.AddText()
   BingoEditor.Assign(Pool.OwnKey(entry.id))
   return entry
 end
-textBox:SetScript("OnEnterPressed", function() BingoEditor.AddText() end)
 
-local function button(labelKey, onClick)
-  local widget = Widgets.CreateButton(page, BUTTON_MIN_WIDTH, BOX_HEIGHT + 2, onClick)
-  widget.labelKey = labelKey
-  Widgets.AttachTooltip(widget, function() return L[labelKey] end, function() return L[labelKey .. "_TIP"] end)
-  return widget
-end
-
-local textButton = button("SG_BINGO_EDIT_TEXT", function() BingoEditor.AddText() end)
-textButton:SetPoint("TOPRIGHT", 0, controlsTop)
+local textButton = Manager.CreateButton(page, "SG_BINGO_EDIT_TEXT", function() BingoEditor.AddText() end)
 
 -- Schein aus dem Entwurf anlegen; der Entwurf wird danach geleert
 function BingoEditor.CreateBoard()
@@ -243,23 +230,17 @@ function BingoEditor.CreateBoard()
   return board
 end
 
-local createButton = button("SG_BINGO_EDIT_CREATE", function() BingoEditor.CreateBoard() end)
-createButton:SetPoint("TOPRIGHT", 0, controlsTop - ROW - 4)
-local clearAllButton = button("SG_BINGO_EDIT_CLEAR_ALL", function()
+local createButton = Manager.CreateButton(page, "SG_BINGO_EDIT_CREATE", function() BingoEditor.CreateBoard() end)
+local clearAllButton = Manager.CreateButton(page, "SG_BINGO_EDIT_CLEAR_ALL", function()
   draft().picks = {}
   selected = nextOpen(1)
   BingoEditor.Render()
 end)
-clearAllButton:SetPoint("RIGHT", createButton, "LEFT", -BUTTON_GAP, 0)
-local clearButton = button("SG_BINGO_EDIT_CLEAR", function() BingoEditor.ClearCell() end)
-clearButton:SetPoint("RIGHT", clearAllButton, "LEFT", -BUTTON_GAP, 0)
-local buttons = { textButton, createButton, clearAllButton, clearButton }
+local clearButton = Manager.CreateButton(page, "SG_BINGO_EDIT_CLEAR", function() BingoEditor.ClearCell() end)
+local actionButtons = { createButton, clearAllButton, clearButton }  -- Hauptaktion rechts
 
-local hint = page:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
-hint:SetTextColor(Theme.RGB("muted"))
-hint:SetJustifyH("LEFT")
-hint:SetWidth(Manager.PAGE_WIDTH)
-hint:SetPoint("TOPLEFT", 0, controlsTop - 2 * ROW - 12)
+local hint = Manager.CreateHint(page)
+hint:SetPoint("TOPLEFT", 0, controlsTop - 2 * Manager.ROW - HINT_GAP)
 
 function BingoEditor.Render()
   if not ns.db then return end
@@ -267,7 +248,7 @@ function BingoEditor.Render()
   local left = 0
   for _, size in ipairs(Bingo.SIZES) do
     local tab = sizeTabs[size]
-    tab:SetLabel(L[size == 3 and "SG_BINGO_3" or "SG_BINGO_5"])
+    tab:SetLabel(L[SIZE_LABELS[size]])
     tab:SetActive(draft().size == size)
     tab:ClearAllPoints()
     tab:SetPoint("TOPLEFT", left, SIZE_TABS_TOP)
@@ -275,12 +256,10 @@ function BingoEditor.Render()
   end
   if selected > cellCount() or Bingo.IsFreeCell(draft().size, selected) then selected = nextOpen(1) end
   renderGrid()
-  for _, widget in ipairs(buttons) do Widgets.SetButtonText(widget, L[widget.labelKey], BUTTON_MIN_WIDTH) end
+  Manager.SetLabels({ textButton, createButton, clearAllButton, clearButton })
   textLabel:SetText(L.SG_OWN_TEXT)
-  textBox:ClearAllPoints()
-  textBox:SetPoint("LEFT", textLabel, "RIGHT", LABEL_GAP + BOX_BORDER, 0)
-  textBox:SetWidth(Manager.PAGE_WIDTH - math.ceil(textLabel:GetStringWidth() or 0) - LABEL_GAP - BOX_BORDER
-    - textButton:GetWidth() - BUTTON_GAP)
+  Manager.FitBox(textLabel, textBox, Manager.AlignRight({ textButton }, page, "TOPRIGHT", controlsTop))
+  Manager.AlignRight(actionButtons, page, "TOPRIGHT", controlsTop - Manager.ROW - 4)
   hint:SetText(L.SG_BINGO_EDIT_HINT)
   candidateTable:Render(nil, false, true)
 end
@@ -288,4 +267,9 @@ end
 -- Gewähltes Feld (Tests)
 function BingoEditor.Selected()
   return selected
+end
+
+-- Knöpfe der Seite (Tests: Überlappung)
+function BingoEditor.Buttons()
+  return actionButtons
 end

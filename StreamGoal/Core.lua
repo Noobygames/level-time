@@ -44,6 +44,14 @@ ns.SETTING_DEFAULTS = {
   wheelTickSound = true,   -- Klicken je Stück, das am Zeiger vorbeidreht
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
+-- Unterseiten des Einstellungsfensters (Options.lua); Anzeigen und Reiter des Fensters /sg öffnen "ihre" Seite
+ns.SETTINGS_PAGES = {
+  TRACKER = "SG_OPTIONS_PAGE_TRACKER",
+  BINGO = "SG_OPTIONS_PAGE_BINGO",
+  WHEEL = "SG_OPTIONS_PAGE_WHEEL",
+  NOTICES = "SG_OPTIONS_PAGE_NOTICES",
+  DATA = "SG_OPTIONS_PAGE_DATA",
+}
 
 -- Nach jeder Änderung der Einstellungen (und bei Sprach- oder Theme-Wechsel in Level Time): Anzeigen neu aufbauen
 local applyListeners = {}

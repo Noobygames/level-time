@@ -121,6 +121,7 @@ end
 Goals.RegisterKind("bingo", {
   label = "SG_KIND_BINGO",
   group = "fun",
+  inForm = false,  -- eigener Reiter "Bingo" im Fenster (Felder selbst wählen oder zufällig)
   usage = "SG_USAGE_BINGO",
   color = LT.Theme.COLORS.gold,
   icon = ICON,
@@ -196,6 +197,7 @@ function Bingo.Texts()
   return texts
 end
 
+-- Rückgabe: Anzahl gelöschter Texte
 function Bingo.ClearTexts()
-  Library.RemoveTexts()
+  return Library.RemoveTexts()
 end

@@ -18,7 +18,7 @@ local Tracker = {}
 ns.Tracker = Tracker
 
 Tracker.FRAME_ID = "streamGoal"
-Tracker.SETTINGS_PAGE = "SG_OPTIONS_PAGE_TRACKER"
+Tracker.SETTINGS_PAGE = ns.SETTINGS_PAGES.TRACKER
 
 local CARD_GAP = 6
 local MORE_GAP = 4

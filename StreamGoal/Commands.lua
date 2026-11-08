@@ -1,6 +1,9 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
---   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> | points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | list | cancel <Nr> | history | tracker | options | move | scale <0.5-2> | help
+--   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> |
+--   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | own ... | import | collection |
+--   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | options | move | scale | help
+-- Ältere Befehle bleiben: "bingo text|texts|clear" (heute eigene Ziele, wie "own add|list"), "pack import".
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -14,7 +17,7 @@ local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
 ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
-  "SG_USAGE_PACK", "SG_USAGE_BINGO_TEXT", "SG_USAGE_WHEEL" }
+  "SG_USAGE_PACK", "SG_USAGE_OWN", "SG_USAGE_IMPORT", "SG_USAGE_WHEEL" }
 
 -- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
 local function help()
@@ -170,8 +173,8 @@ local function sub(argument)
   ns.Print(err or string.format(L.SG_CHAT_SUBGOAL, Goals.Title(child), Goals.Title(parent)))
 end
 
--- Vorlagen: "pack" (Liste), "pack <Name>" (anlegen), "pack save <Name>", "pack delete <Name>",
--- "pack export <Name>", "pack import" (Fenster zum Einfügen); ohne Fenster reicht der Reiter "Vorlagen"
+-- Pakete: "pack" (Liste), "pack <Name>" (anlegen), "pack save <Name>", "pack delete <Name>",
+-- "pack export <Name>", "pack import" (Fenster zum Einfügen, wie /sg import)
 local function pack(argument)
   local action, name = argument:match("^(%S*)%s*(.-)$")
   local Packs = ns.Packs
@@ -187,37 +190,65 @@ local function pack(argument)
     ns.Print(Packs.Delete(name) and string.format(L.SG_CHAT_PACK_DELETED, name)
       or string.format(L.SG_ERR_PACK_UNKNOWN, name))
   elseif action == "export" then
-    local text = Packs.Export(name)
-    if text then LT.Export.Show(Packs.Label(name), text) else ns.Print(string.format(L.SG_ERR_PACK_UNKNOWN, name)) end
+    if not ns.Sharing.SharePack(name) then ns.Print(string.format(L.SG_ERR_PACK_UNKNOWN, name)) end
   elseif action == "import" then
-    Manager.Toggle("packs")
+    ns.Sharing.ShowImport()
   else
-    ns.PacksView.Apply(strtrim(argument))
+    ns.CollectionView.ApplyPack(strtrim(argument))
   end
 end
 
--- Bingo: "bingo [3|5]" (neuer Schein), "bingo text <Text>" (eigenes Feld), "bingo texts", "bingo clear"
+-- Eigene Ziele: "own" (Liste mit Nummern), "own add <Text>", "own remove <Nr>", "own share"
+local function own(argument)
+  local action, rest = argument:match("^(%S*)%s*(.-)$")
+  local Library = ns.Library
+  action = action:lower()
+  if action == "add" then
+    local entry, err = Library.AddText(rest)
+    ns.Print(entry and string.format(L.SG_CHAT_OWN_SAVED, entry.params.text) or err)
+  elseif action == "remove" then
+    local id = tonumber(rest)
+    ns.Print(id and Library.Remove(id) and L.SG_CHAT_OWN_REMOVED or string.format(L.SG_ERR_OWN_UNKNOWN, rest))
+  elseif action == "share" then
+    ns.Sharing.ShareOwn()
+  elseif action == "" or action == "list" then
+    local items = ns.Pool.OwnItems()
+    if #items == 0 then ns.Print(L.SG_OWN_EMPTY) end
+    for _, item in ipairs(items) do ns.Print(string.format("%d. %s", item.ownId, ns.Pool.Title(item))) end
+  else
+    ns.Print("  " .. L.SG_USAGE_OWN)
+  end
+end
+
+-- Bingo: "bingo [3|5]" (neuer Schein, Felder zufällig), "bingo edit" (Reiter Bingo: Felder selbst wählen);
+-- früher eigene Bingo-Texte, heute freie eigene Ziele: "bingo text <Text>", "bingo texts", "bingo clear"
 local function bingo(argument)
   local action, rest = argument:match("^(%S*)%s*(.-)$")
   local Bingo = ns.Bingo
   action = action:lower()
-  if action == "text" then
+  if action == "edit" then
+    Manager.Toggle("bingo")
+  elseif action == "text" then
     local err = Bingo.AddText(rest)
     ns.Print(err or string.format(L.SG_CHAT_BINGO_TEXT, #Bingo.Texts()))
   elseif action == "texts" then
     for index, text in ipairs(Bingo.Texts()) do ns.Print(index .. ". " .. text) end
   elseif action == "clear" then
-    Bingo.ClearTexts()
-    ns.Print(L.SG_CHAT_BINGO_CLEARED)
+    ns.Print(string.format(L.SG_CHAT_BINGO_CLEARED, Bingo.ClearTexts()))
   else
     add("bingo " .. argument)
   end
 end
 
--- Glücksrad: "wheel" dreht, "wheel reroll" verwirft das letzte Ergebnis und dreht neu
+-- Glücksrad: "wheel" dreht, "wheel reroll" verwirft das letzte Ergebnis und dreht neu, "wheel edit" öffnet den Reiter
 local function wheel(argument)
+  local action = argument:lower()
+  if action == "edit" then
+    Manager.Toggle("wheel")
+    return
+  end
   local ok, err
-  if argument:lower() == "reroll" then ok, err = ns.Wheel.Reroll() else ok, err = ns.Wheel.Spin() end
+  if action == "reroll" then ok, err = ns.Wheel.Reroll() else ok, err = ns.Wheel.Spin() end
   if not ok and err then ns.Print(err) end
 end
 
@@ -244,6 +275,9 @@ local commands = {
   points = points,
   ["repeat"] = repeatGoal,
   pack = pack,
+  own = own,
+  import = function() ns.Sharing.ShowImport() end,
+  collection = function() Manager.Toggle("collection") end,
   bingo = bingo,
   wheel = wheel,
   tracker = toggleTracker,

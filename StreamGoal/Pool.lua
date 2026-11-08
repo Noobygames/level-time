@@ -63,7 +63,7 @@ end
 
 local function resolveOwn(entry)
   return { key = Pool.OwnKey(entry.id), premade = false, ownId = entry.id, kind = entry.kind,
-    params = Goals.CopyFlat(entry.params), target = entry.target }
+    params = Goals.CopyFlat(entry.params), target = entry.target, createdAt = entry.createdAt }
 end
 
 -- Alle im Client verfügbaren Einträge: erst die mitgelieferten, dann die eigenen (neue Liste)
@@ -72,10 +72,22 @@ function Pool.Items()
   for _, entry in ipairs(Pool.PREMADE) do
     if Goals.IsAvailable(entry.kind) then table.insert(items, resolvePremade(entry)) end
   end
+  for _, item in ipairs(Pool.OwnItems()) do table.insert(items, item) end
+  return items
+end
+
+-- Nur die eigenen Ziele, im Client verfügbare (neue Liste; Reiter "Sammlung")
+function Pool.OwnItems()
+  local items = {}
   for _, entry in ipairs(Library.Entries()) do
     if Goals.IsAvailable(entry.kind) then table.insert(items, resolveOwn(entry)) end
   end
   return items
+end
+
+-- Herkunft für Tabellen: mitgeliefert oder eigenes Ziel
+function Pool.SourceText(item)
+  return item.premade and L.SG_POOL_PREMADE or L.SG_POOL_OWN
 end
 
 -- Eintrag zu einem Schlüssel, nil = unbekannt (z.B. gelöschtes eigenes Ziel)

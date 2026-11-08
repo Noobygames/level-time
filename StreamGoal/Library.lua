@@ -2,8 +2,9 @@
 -- StreamGoalDB.library = { nextId, entries = { { id, kind, params, target, createdAt }, ... } }.
 -- Ein Eintrag ist eine Eingabe wie in einem Paket (Packs.lua): kind, params (flach, vor prepare) und target; angelegt
 -- wird daraus erst beim Ziehen (Goals.Create prüft dann Bestand und Plätze). Entstehen über "Als eigenes Ziel
--- speichern" im Formular (jede Zielart), als freier Text (Bingo-Editor, Glücksrad, /sg bingo text) oder per Import.
--- Teilen im Text-Format der Pakete ("LT1:goals:..."), ein Paket-Text lässt sich auch hier einlesen.
+-- speichern" im Formular (jede Zielart), als freier Text (Sammlung, Bingo-Editor, /sg own add) oder per Import.
+-- Teilen im Text-Format der Pakete ("LT1:goals:..." mit own = true, Sharing.lua); ein Paket-Text lässt sich hier
+-- ebenfalls einlesen.
 local _, ns = ...
 local Goals = ns.Goals
 local Packs = ns.Packs
@@ -114,7 +115,7 @@ function Library.Export()
     table.insert(entries, { kind = entry.kind, params = Goals.CopyFlat(entry.params), target = entry.target })
   end
   if #entries == 0 then return nil end
-  return Packs.Encode(L.SG_OWN_GOALS, entries)
+  return Packs.Encode(L.SG_OWN_GOALS, entries, true)
 end
 
 -- Text einlesen; jeder Eintrag wird wie von Hand geprüft. Rückgabe: Anzahl übernommen, oder nil und Fehlertext

@@ -36,29 +36,37 @@ Kinds\Checklist.lua
 Kinds\Dungeon.lua
 Kinds\Reputation.lua
 
-# Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Vorlagen
+# Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Pakete
 Deadlines.lua
 Packs.lua
 Recurring.lua
 Rewards.lua
 
-# Eigene Ziele und der Pool für Bingo und Glücksrad, danach Bingo (zieht aus dem Pool)
+# Eigene Ziele und der Pool für Bingo und Glücksrad, Teilen/Import, danach Bingo (zieht aus dem Pool)
 Library.lua
 Pool.lua
+Sharing.lua
 Kinds\Bingo.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
 
-# Anzeige: Karten am Bildschirm, Fenster mit Formular und Historie, Einstellungen, Befehle
+# Anzeige am Bildschirm: Karten, Bingo-Schein, Glücksrad
 Tracker.lua
 BingoView.lua
 WheelDisplay.lua
 Wheel.lua
-Manager.lua
-PacksView.lua
-BingoEditor.lua
-WheelView.lua
+
+# Fenster /sg: Rahmen und Bausteine, dann je Reiter eine Datei (Reihenfolge = Reiter)
+Window\Manager.lua
+Window\GoalForm.lua
+Window\GoalsPage.lua
+Window\BingoPage.lua
+Window\WheelPage.lua
+Window\CollectionPage.lua
+Window\HistoryPage.lua
+
+# Einstellungen und Befehle
 Options.lua
 Commands.lua
 

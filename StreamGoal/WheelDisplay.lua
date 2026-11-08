@@ -227,7 +227,7 @@ end
 
 LT.Frames.Register({
   id = WheelDisplay.FRAME_ID, frame = frame, label = "SG_EDIT_WHEEL", default = DEFAULT_POSITION,
-  settingsPage = ns.Tracker.SETTINGS_PAGE,
+  settingsPage = ns.SETTINGS_PAGES.WHEEL,
   store = {
     get = function() return ns.db and ns.db.settings.wheelFrame end,
     set = function(entry) ns.db.settings.wheelFrame = entry end,

@@ -145,7 +145,7 @@ end
 
 LT.Frames.Register({
   id = BingoView.FRAME_ID, frame = frame, label = "SG_EDIT_BINGO", default = DEFAULT_POSITION,
-  settingsPage = ns.Tracker.SETTINGS_PAGE,
+  settingsPage = ns.SETTINGS_PAGES.BINGO,
   store = {
     get = function() return ns.db and ns.db.settings.bingoFrame end,
     set = function(entry) ns.db.settings.bingoFrame = entry end,

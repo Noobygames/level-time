@@ -1,5 +1,6 @@
--- Level Time Goals, Roadmap 431: eigene Ziele (aus dem Formular jeder Art oder als Text), Pool des Glücksrads mit
--- an/aus, Bingo-Schein selbst füllen (leere Felder zufällig), Teilen und Importieren der eigenen Ziele.
+-- Level Time Goals, Roadmap 431 und 433: eigene Ziele (aus dem Formular jeder Art oder als Text in der Sammlung),
+-- Einträge des Glücksrads an/aus, Bingo-Schein selbst füllen (leere Felder zufällig), Teilen und ein Import für
+-- Pakete und eigene Ziele.
 local Goals = streamGoal.Goals
 local Library = streamGoal.Library
 local Pool = streamGoal.Pool
@@ -8,6 +9,8 @@ local Bingo = streamGoal.Bingo
 local Manager = streamGoal.Manager
 local WheelView = streamGoal.WheelView
 local BingoEditor = streamGoal.BingoEditor
+local CollectionView = streamGoal.CollectionView
+local Sharing = streamGoal.Sharing
 local L = streamGoal.L
 
 wow.login({ level = 10 })
@@ -28,7 +31,7 @@ expect("gleiches Ziel nur einmal", Library.Add("kills", { source = "any" }, 7), 
 expect("ungültige Eingabe abgelehnt", select(2, Library.Add("level", {}, 5)), string.format(L.SG_ERR_LEVEL, 10))
 expect("Bingo kann kein eigenes Ziel sein", select(2, Library.Add("bingo", { size = 3 })), L.SG_ERR_OWN_KIND)
 Manager.SelectKind("bingo")
-expect("Knopf bei Bingo verborgen", Manager.saveOwnButton:IsShown(), false)
+expect("Bingo nicht im Formular wählbar", Manager.SelectedKind(), "kills")
 
 -- Pool: mitgelieferte zuerst, dann eigene; im Rad an/aus per Klick
 local items = Pool.Items()
@@ -36,40 +39,84 @@ expect("mitgelieferte zuerst", items[1].premade, true)
 expect("eigenes zuletzt", items[#items].key, Pool.OwnKey(own.id))
 expect("Titel des Texts", Pool.Title(Pool.Get("p:text1")), L.SG_BINGO_TEXT_1)
 expect("unbekannter Schlüssel", Pool.Get("o:999"), nil)
+expect("Herkunft mitgeliefert", Pool.SourceText(items[1]), L.SG_POOL_PREMADE)
+expect("Herkunft eigenes Ziel", Pool.SourceText(items[#items]), L.SG_POOL_OWN)
+expectTrue("eigenes Ziel heißt anders als die Zielart Freitext", L.SG_POOL_OWN ~= L.SG_KIND_CUSTOM)
 
 Manager.Toggle("wheel")
 expect("Seite offen", Manager.ShownPage(), "wheel")
 local records = WheelView.table:GetVisibleRecords()
 expect("Tabelle zeigt den Pool", #records, #items)
-WheelView.OnRowClick(Pool.Get("p:kills10"), "LeftButton")
+WheelView.OnRowClick(Pool.Get("p:kills10"))
 expect("abgeschaltet", Wheel.IsEnabled("p:kills10"), false)
 expect("nicht im Rad", #Wheel.Pool(), #items - 1)
-WheelView.OnRowClick(Pool.Get("p:kills10"), "LeftButton")
+WheelView.OnRowClick(Pool.Get("p:kills10"))
 expect("wieder an", Wheel.IsEnabled("p:kills10"), true)
-WheelView.OnRowClick(Pool.Get("p:kills10"), "RightButton")
-expect("mitgelieferte lassen sich nicht löschen", wow.popup, nil)
+expectTrue("Alle aus", wow.click(L.SG_WHEEL_ALL_OFF))
+expect("alle aus", #Wheel.Pool(), 0)
+expectTrue("Alle an", wow.click(L.SG_WHEEL_ALL_ON))
+expect("alle an", #Wheel.Pool(), #items)
 
--- Freier Text im Glücksrad-Reiter
-WheelView.textBox:SetText("Einen Murloc umarmen")
+-- Einstellungen des Rads direkt auf der Seite (dieselben wie im Einstellungsfenster)
+local levelUpCheck = WheelView.checks[1]
+levelUpCheck:SetChecked(true)
+levelUpCheck._scripts.OnClick(levelUpCheck)
+expect("Level-Up-Drehen an", StreamGoalDB.settings.wheelOnLevelUp, true)
+levelUpCheck:SetChecked(false)
+levelUpCheck._scripts.OnClick(levelUpCheck)
+expect("Level-Up-Drehen aus", StreamGoalDB.settings.wheelOnLevelUp, false)
+
+-- Freier Text in der Sammlung
+Manager.Toggle("collection")
+CollectionView.SelectSection("own")
+expect("Teilen bei eigenen Zielen", CollectionView.shareOwnButton:IsShown(), true)
+CollectionView.textBox:SetText("Einen Murloc umarmen")
 expectTrue("Text hinzufügen", wow.click(L.SG_OWN_ADD_TEXT))
 local hug = Library.Entries()[2]
 expect("Text gespeichert", hug.params.text, "Einen Murloc umarmen")
 expect("neue eigene Ziele sind im Rad", Wheel.IsEnabled(Pool.OwnKey(hug.id)), true)
+expect("Tabelle der Sammlung", #CollectionView.ownTable:GetVisibleRecords(), 2)
 
--- Teilen und Importieren (Paket-Format)
+-- Teilen und ein Import für beides: eigene Ziele tragen eine Kennung, Pakete nicht
 local text = Library.Export()
 expect("Paket-Format", text:sub(1, 9), "LT1:goals")
+expect("Kennung eigene Ziele", select(3, streamGoal.Packs.Decode(text, Library.MAX_ENTRIES)), true)
 expect("Unsinn abgelehnt", select(2, Library.Import("quatsch")), L.SG_ERR_IMPORT)
-expect("schon vorhanden: nichts neu", Library.Import(text), 0)
+expect("Unsinn im gemeinsamen Import", select(2, Sharing.Import("quatsch")), false)
+expect("schon vorhanden: nichts neu", Sharing.Import(text), string.format(L.SG_CHAT_OWN_IMPORTED, 0))
 local packText = streamGoal.Packs.Export("hardcore")
-expect("Paket-Text als eigene Ziele", Library.Import(packText), 3)
+expect("Paket-Text bleibt ein Paket", Sharing.Import(packText),
+  string.format(L.SG_CHAT_PACK_IMPORTED, L.SG_PACK_HARDCORE))
+expectTrue("als Paket gespeichert", StreamGoalDB.packs[L.SG_PACK_HARDCORE] ~= nil)
+expect("Paket-Text als eigene Ziele (Bibliothek direkt)", Library.Import(packText), 3)
 expect("fünf eigene Ziele", #Library.Entries(), 5)
+-- Älterer Text eigener Ziele ohne Kennung: am Namen erkannt
+local legacy = streamGoal.Packs.Encode(streamGoal.locales.enUS.SG_OWN_GOALS,
+  { { kind = "custom", params = { text = "Alter Text" } } })
+expect("alter Text eigener Ziele", Sharing.Import(legacy), string.format(L.SG_CHAT_OWN_IMPORTED, 1))
+expect("sechs eigene Ziele", #Library.Entries(), 6)
+
+-- Linksklick legt ein eigenes Ziel sofort an
+CollectionView.OnOwnRowClick(Pool.Get(Pool.OwnKey(hug.id)), "LeftButton")
+local started = Goals.Active()[1]
+expect("angelegt", started and started.params.text, "Einen Murloc umarmen")
+Goals.Cancel(started.id)
 
 -- Löschen per Rechtsklick mit Rückfrage
-WheelView.OnRowClick(Pool.Get(Pool.OwnKey(hug.id)), "RightButton")
+CollectionView.OnOwnRowClick(Pool.Get(Pool.OwnKey(hug.id)), "RightButton")
 expect("Rückfrage", wow.popup.name, "STREAMGOAL_REMOVE_OWN")
 StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)
 expect("gelöscht", Library.Get(hug.id), nil)
+
+-- Befehle für eigene Ziele
+SlashCmdList.STREAMGOAL("own add Per Befehl")
+local byCommand = Library.Entries()[#Library.Entries()]
+expect("own add", byCommand.params.text, "Per Befehl")
+SlashCmdList.STREAMGOAL("own remove " .. byCommand.id)
+expect("own remove", Library.Get(byCommand.id), nil)
+SlashCmdList.STREAMGOAL("own remove 999")
+expect("own remove unbekannt",
+  wow.printed[#wow.printed]:find(string.format(L.SG_ERR_OWN_UNKNOWN, "999"), 1, true) ~= nil, true)
 
 -- Bingo selbst füllen: Feld 1 eigenes Ziel, Feld 2 mitgelieferter Text, Feld 3 freier Text, Rest zufällig
 Manager.Toggle("bingo")
@@ -120,3 +167,11 @@ expect("nicht als gewählt gemerkt", big.params.chosen, nil)
 
 -- Ältere Scheine ohne chosen laufen weiter
 expect("Fortschritt zählt", Bingo.DoneCount(big), 1)
+
+-- Befehle zum Öffnen der Reiter
+SlashCmdList.STREAMGOAL("wheel edit")
+expect("wheel edit", Manager.ShownPage(), "wheel")
+SlashCmdList.STREAMGOAL("bingo edit")
+expect("bingo edit", Manager.ShownPage(), "bingo")
+SlashCmdList.STREAMGOAL("collection")
+expect("collection", Manager.ShownPage(), "collection")
