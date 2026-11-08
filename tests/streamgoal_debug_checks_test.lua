@@ -6,7 +6,7 @@ local function hasLine(text)
 end
 
 local CHECKS = { "300.goals.potionSpells", "297.goals.skills", "307.goals.formats", "303.goals.reputation",
-  "432.goals.wheel" }
+  "432.goals.wheel", "439.goals.escape", "439.goals.moments" }
 
 wow.login()
 SlashCmdList.LEVELTIMER("debug check")

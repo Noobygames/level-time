@@ -73,8 +73,19 @@ function UnitSelectionColor(unit)
 end
 RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 }, MAGE = { r = 0.25, g = 0.78, b = 0.92 } }
 function UnitRace() return state.race[1], state.race[2], state.race[3] end
-function UnitIsDeadOrGhost() return state.dead end
-function UnitHealth() return state.health end
+-- Spieler: state.dead/health; andere Einheiten: units[unit].dead/health (sonst wie der Spieler)
+local function otherUnit(unit)
+  return unit and unit ~= "player" and state.units[unit] or nil
+end
+function UnitIsDeadOrGhost(unit)
+  local other = otherUnit(unit)
+  if other then return other.dead == true end
+  return state.dead
+end
+function UnitHealth(unit)
+  local other = otherUnit(unit)
+  return other and other.health or state.health
+end
 function IsInGuild() return state.inGuild end
 function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
 -- Spieler: state.inCombat; andere Einheiten: state.units[unit].combat
@@ -106,6 +117,8 @@ function IsResting() return state.resting end
 C_Spell = {
   GetSpellName = function(spellID) return state.spellNames[spellID] end,
   GetSpellTexture = function(spellID) return "Interface\Icons\Spell_" .. spellID end,
+  -- Hilfreiche Zauber: state.helpfulSpells[spellID] = true
+  IsSpellHelpful = function(spellID) return (state.helpfulSpells or {})[spellID] == true end,
 }
 -- Beschränkte Auren (Retail/Forever, z.B. Bosskampf): wie im Client bricht die Abfrage mit Fehler ab
 -- Einzelne Auren per Spell-ID: state.secretSpellAuras[id] = true sperrt sie; aktiv ist eine Spell-ID, wenn ein Buff
@@ -140,6 +153,14 @@ function UnitGroupRolesAssigned() return state.role or "NONE" end
 -- Gegner: units[unit].hostile (UnitCanAttack), units[unit].tanking (1. Wert von UnitDetailedThreatSituation),
 -- Ziel des Gegners als units[unit .. "target"]
 function UnitCanAttack(_, unit) return state.units[unit] ~= nil and state.units[unit].hostile == true end
+-- Von Spielern gesteuert (Begleiter): units[unit].playerControlled, Spieler selbst immer
+function UnitPlayerControlled(unit)
+  if unit == "player" then return true end
+  local other = state.units[unit]
+  return other ~= nil and (other.playerControlled == true or other.isPlayer == true)
+end
+-- Unterstützbar (befreundet): units[unit].friendly
+function UnitCanAssist(_, unit) return unit == "player" or (state.units[unit] ~= nil and state.units[unit].friendly == true) end
 function UnitDetailedThreatSituation(_, unit)
   local enemy = state.units[unit]
   if enemy == nil then return nil end

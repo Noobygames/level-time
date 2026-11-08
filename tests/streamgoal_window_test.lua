@@ -159,7 +159,7 @@ SlashCmdList.STREAMGOAL("")
 for _, language in ipairs({ "frFR", "esES", "enUS", "deDE" }) do
   addon.Set("language", language)
   local picker = Manager.picker
-  expectTrue(language .. ": Name passt in die Kachel", picker:NeededWidth() <= picker.tileWidth)
+  expectTrue(language .. ": Name passt in die Kachel", picker:Fits())
   for _, kind in ipairs(Goals.KindOrder()) do
     local tile = Manager.KindTile(kind)
     if tile and tile:IsShown() then

@@ -35,6 +35,14 @@ Kinds\Rule.lua
 Kinds\Checklist.lua
 Kinds\Dungeon.lua
 Kinds\Reputation.lua
+Kinds\Escape.lua
+Kinds\Moment.lua
+Kinds\Moments\Rare.lua
+Kinds\Moments\Fall.lua
+Kinds\Moments\Emotes.lua
+Kinds\Moments\Swim.lua
+Kinds\Moments\Heal.lua
+Kinds\Moments\Merchant.lua
 
 # Zusätze jeder Zielart: Frist, Wiederholung, Belohnung; Pakete
 Deadlines.lua

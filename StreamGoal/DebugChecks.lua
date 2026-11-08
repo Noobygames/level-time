@@ -82,3 +82,34 @@ DebugLog.AddCheck("432.goals.wheel", function()
     playSound = PlaySound ~= nil,
   }
 end)
+
+-- 439: Weglaufen: kennt der Client die Zauber, die den Kampf ohne Weglaufen beenden, und was liefern die Einheiten?
+DebugLog.AddCheck("439.goals.escape", function()
+  local spells = {}
+  for spellID in pairs(ns.EscapeGoals.COMBAT_DROP_SPELLS) do
+    spells[tostring(spellID)] = safe(spellName(spellID)) or false
+  end
+  local result = ns.EscapeGoals.Snapshot()
+  result.dropSpells = spells
+  return result
+end)
+
+-- 439: Momente: welche Erkennungen der Client kann und welche APIs es dafür gibt
+DebugLog.AddCheck("439.goals.moments", function()
+  local rewards = ns.db and ns.db.questRewards and ns.db.questRewards[LT.characterKey]
+  local rewardCount = 0
+  for _ in pairs(rewards or {}) do rewardCount = rewardCount + 1 end
+  return {
+    modes = table.concat(ns.Moments.MODES, ","),
+    swimming = IsSwimming ~= nil and safe(IsSwimming()) or false,
+    falling = IsFalling ~= nil and safe(IsFalling()) or false,
+    glidingInfo = C_PlayerInfo ~= nil and C_PlayerInfo.GetGlidingInfo ~= nil,
+    performEmote = C_ChatInfo ~= nil and C_ChatInfo.PerformEmote ~= nil,
+    doEmote = DoEmote ~= nil,
+    spellHelpful = C_Spell ~= nil and C_Spell.IsSpellHelpful ~= nil,
+    buybackItemId = C_MerchantFrame ~= nil and C_MerchantFrame.GetBuybackItemID ~= nil,
+    buybackLink = GetBuybackItemLink ~= nil,
+    buyback = BuybackItem ~= nil,
+    questRewards = rewardCount,
+  }
+end)

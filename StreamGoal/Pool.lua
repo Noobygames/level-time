@@ -13,9 +13,13 @@ local Pool = {}
 ns.Pool = Pool
 
 local PREMADE_PREFIX, OWN_PREFIX = "p:", "o:"
+local TEXT_KIND = "custom"
 
 -- Mitgelieferte Einträge; target(level) = Ziel abhängig vom aktuellen Level, text = Locale-Key eines Textes. Mindestens
--- 24 Einträge, damit ein 5x5-Bingo ohne eigene Vorlagen keine Felder wiederholt (Kinds/Bingo.lua)
+-- 24 Einträge, damit ein 5x5-Bingo ohne eigene Vorlagen keine Felder wiederholt (Kinds/Bingo.lua).
+-- Texte, die das Spiel erkennt (Roadmap 439), haben zusätzlich eine Art (kind ~= "custom", params, target): kann der
+-- Client die Art bzw. den Modus nicht erkennen (Goals.Check lehnt ab), wird daraus der Text zum Abhaken (Freitext).
+local function one() return 1 end
 Pool.PREMADE = {
   { key = "kills10", kind = "kills", params = { source = "pve" }, target = function() return 10 end },
   { key = "kills25", kind = "kills", params = { source = "pve" }, target = function() return 25 end },
@@ -31,19 +35,19 @@ Pool.PREMADE = {
   { key = "dungeon3", kind = "dungeon", params = {}, target = function() return 3 end },
   { key = "level1", kind = "level", params = {}, target = function(level) return level + 1 end },
   { key = "honor100", kind = "honor", params = {}, target = function() return 100 end },
-  { key = "text1", kind = "custom", text = "SG_BINGO_TEXT_1" },
-  { key = "text2", kind = "custom", text = "SG_BINGO_TEXT_2" },
-  { key = "text3", kind = "custom", text = "SG_BINGO_TEXT_3" },
-  { key = "text4", kind = "custom", text = "SG_BINGO_TEXT_4" },
-  { key = "text5", kind = "custom", text = "SG_BINGO_TEXT_5" },
+  { key = "text1", kind = "moment", params = { mode = "rare" }, target = one, text = "SG_BINGO_TEXT_1" },
+  { key = "text2", kind = "moment", params = { mode = "fall" }, target = one, text = "SG_BINGO_TEXT_2" },
+  { key = "text3", kind = "moment", params = { mode = "greet" }, target = one, text = "SG_BINGO_TEXT_3" },
+  { key = "text4", kind = "moment", params = { mode = "sellreward" }, target = one, text = "SG_BINGO_TEXT_4" },
+  { key = "text5", kind = "escape", params = {}, target = one, text = "SG_BINGO_TEXT_5" },
   { key = "text6", kind = "custom", text = "SG_BINGO_TEXT_6" },
   { key = "text7", kind = "custom", text = "SG_BINGO_TEXT_7" },
   { key = "text8", kind = "custom", text = "SG_BINGO_TEXT_8" },
-  { key = "text9", kind = "custom", text = "SG_BINGO_TEXT_9" },
+  { key = "text9", kind = "moment", params = { mode = "heal" }, target = one, text = "SG_BINGO_TEXT_9" },
   { key = "text10", kind = "custom", text = "SG_BINGO_TEXT_10" },
-  { key = "text11", kind = "custom", text = "SG_BINGO_TEXT_11" },
-  { key = "text12", kind = "custom", text = "SG_BINGO_TEXT_12" },
-  { key = "text13", kind = "custom", text = "SG_BINGO_TEXT_13" },
+  { key = "text11", kind = "moment", params = { mode = "swim" }, target = one, text = "SG_BINGO_TEXT_11" },
+  { key = "text12", kind = "moment", params = { mode = "dance" }, target = one, text = "SG_BINGO_TEXT_12" },
+  { key = "text13", kind = "moment", params = { mode = "buyback" }, target = one, text = "SG_BINGO_TEXT_13" },
   { key = "text14", kind = "custom", text = "SG_BINGO_TEXT_14" },
 }
 
@@ -56,13 +60,16 @@ end
 -- Mitgelieferter Eintrag für das aktuelle Level (Texte in der gewählten Sprache)
 local function resolvePremade(entry)
   local params = Goals.CopyFlat(entry.params)
-  local target
-  if entry.text then
-    params.text = L[entry.text]
-  else
-    target = entry.target(LT.level)
+  local kind, target = entry.kind, entry.target and entry.target(LT.level)
+  if entry.text and (kind == TEXT_KIND or Goals.Check(kind, params, target)) then
+    kind, params, target = TEXT_KIND, { text = L[entry.text] }, nil
   end
-  return { key = PREMADE_PREFIX .. entry.key, premade = true, kind = entry.kind, params = params, target = target }
+  return { key = PREMADE_PREFIX .. entry.key, premade = true, kind = kind, params = params, target = target }
+end
+
+-- Gibt es den mitgelieferten Eintrag in diesem Client? Texte immer (notfalls als Freitext)
+local function premadeAvailable(entry)
+  return entry.text ~= nil or Goals.IsAvailable(entry.kind)
 end
 
 -- Schlüssel einer Vorlage
@@ -79,7 +86,7 @@ end
 function Pool.Items()
   local items = {}
   for _, entry in ipairs(Pool.PREMADE) do
-    if Goals.IsAvailable(entry.kind) then table.insert(items, resolvePremade(entry)) end
+    if premadeAvailable(entry) then table.insert(items, resolvePremade(entry)) end
   end
   for _, item in ipairs(Pool.OwnItems()) do table.insert(items, item) end
   return items
@@ -109,7 +116,7 @@ function Pool.Get(key)
   end
   local name = key:match("^" .. PREMADE_PREFIX .. "(.+)$")
   for _, entry in ipairs(Pool.PREMADE) do
-    if entry.key == name and Goals.IsAvailable(entry.kind) then return resolvePremade(entry) end
+    if entry.key == name and premadeAvailable(entry) then return resolvePremade(entry) end
   end
 end
 

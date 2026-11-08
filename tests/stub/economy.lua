@@ -109,9 +109,19 @@ C_Container = {
   UseContainerItem = function(bag, slot)
     local info = state.bags[bag][slot]
     state.bags[bag][slot] = nil
+    state.buyback = state.buyback or {}
+    table.insert(state.buyback, info.itemID)
     serverMoneyUpdate((state.sellPrices[info.itemID] or 0) * info.stackCount)
   end,
 }
+-- Rückkauf-Fenster: state.buyback = { itemID, ... } (verkaufte Items, ältestes zuerst); BuybackItem nimmt eins heraus
+function GetNumBuybackItems() return #(state.buyback or {}) end
+function GetBuybackItemLink(index)
+  local itemID = (state.buyback or {})[index]
+  return itemID and ("|cffffffff|Hitem:" .. itemID .. "::::::::|h[Item " .. itemID .. "]|h|r") or nil
+end
+C_MerchantFrame = { GetBuybackItemID = function(index) return (state.buyback or {})[index] end }
+function BuybackItem(index) table.remove(state.buyback or {}, index) end
 -- Quest-Aktionen landen in wow.questActions, z.B. { "accept" } oder { "selectAvailable", 123 }
 wow.questActions = {}
 local function questAction(...) table.insert(wow.questActions, { ... }) end
