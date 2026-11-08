@@ -148,6 +148,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
+- **190. Glücksrad, Datenteil (Roadmap 432)**: check `432.goals.wheel` (`SetRotation`/`GetRotation` an den Stücken, Tick-Ton `SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON`, `PlaySound`)
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 
 ---
@@ -2769,5 +2770,79 @@ Client (Forever):
 Startet bei /schlafen bzw. Benutzen (ja/nein):
 Stapel-Hinweise kommen (ja/nein, wie viele in 180 s):
 Abbruch beim Aufstehen (ja/nein):
+Fehler:
+```
+
+### 190. Level Time Goals: Glücksrad dreht sich, Bingo selbst füllen, eigene Ziele
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Dateien und Texturen in `StreamGoal/`).
+
+1. `/sg`, Reiter „Glücksrad“: Tabelle mit allen mitgelieferten und eigenen Zielen; Klick schaltet „an/aus“ um.
+   Eigene Texte hinzufügen und eigene Ziele löschen geht seit Roadmap 433 im Reiter „Sammlung“ (siehe 191).
+2. „Glücksrad drehen“: in der Bildschirmmitte erscheint ein rundes Rad mit 12 farbigen Stücken, Zeiger oben, Nabe in
+   der Mitte. Es läuft schnell an, wird über etwa 4 s langsamer, dreht sich dabei mehrmals; die Zeile darunter zeigt
+   das Stück unter dem Zeiger. Am Ende steht der Zeiger auf dem Stück, dessen Ziel angelegt wird (Karte unter dem
+   Rad, Chatzeile). Klicken je Stück hörbar und nicht zu laut. Auf jedem Client: Stücke drehen sich sauber um die
+   Mitte (keine abgeschnittenen Ecken, keine Lücken zwischen den Stücken).
+3. Einstellungen > Glücksrad (seit Roadmap 433 eigene Unterseite): „Rad drehen lassen“ aus = Ergebnis sofort;
+   „Klicken beim Drehen“ aus = still.
+4. `/lt edit`: das Rad lässt sich verschieben und skalieren.
+5. Reiter „Ziele“: Art wählen, Werte eingeben, „Als eigenes Ziel speichern“: nichts wird angelegt, das Ziel steht im
+   Glücksrad- und Bingo-Reiter.
+6. Reiter „Bingo“: Feld anklicken, rechts ein Ziel anklicken (springt zum nächsten Feld), einen Text „Ins Feld“;
+   Rechtsklick leert ein Feld. „Schein anlegen“: gewählte Felder stehen an ihrer Stelle, leere sind zufällig. Lange
+   Texte in den kleinen 5×5-Feldern bleiben lesbar (Tooltip zeigt den ganzen Text). Französisch/Spanisch: Knöpfe
+   überlappen nicht.
+7. Wer vorher eigene Bingo-Texte hatte (`/sg bingo texts`): sie stehen jetzt als eigene Ziele im Glücksrad-Reiter,
+   die mitgelieferten Texte sind dort aus.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rad sichtbar, dreht und landet richtig (ja/nein):
+Stücke sauber, Farben ok (ja/nein):
+Tick-Ton ok (ja/nein):
+Eigene Ziele und Bingo-Editor ok (ja/nein):
+Fehler:
+```
+
+### 191. Level Time Goals aufgeräumt (Roadmap 433)
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Dateien unter `StreamGoal/Window/` und `StreamGoal/Locales/`).
+
+1. `/sg`: Reiter in der Reihenfolge Ziele | Bingo | Glücksrad | Sammlung | Historie, jeder mit Tooltip. Gespeicherte
+   Ziele, Pakete, eigene Ziele, Bingo-Entwurf und Rad-Einstellungen von vorher sind alle noch da.
+2. Reiter „Ziele“: Frist, Wiederholung, Belohnung und Punkte sind zugeklappt; „+ Weitere Optionen“ klappt sie auf,
+   „- Weniger Optionen“ wieder zu. „Ziel hinzufügen“ steht ganz rechts, daneben „Als eigenes Ziel speichern“. Ein
+   Fehler (z.B. Level unter dem aktuellen) steht in einer eigenen roten Zeile und überdeckt nichts. Überschrift
+   „Aktive Ziele (n/6)“. Kein Bingo-Reiter mehr unter „Regeln & Spaß“; die Art „Eigenes“ heißt jetzt „Freitext“.
+   Tooltips auf Gruppen- und Artenreitern (Arten bzw. Chatbefehl), auf +, - und Abbrechen.
+3. Ohne aktive Ziele: „Pakete ansehen“ öffnet Sammlung > Pakete.
+4. Reiter „Glücksrad“: Klick schaltet einen Eintrag an/aus, „Alle an“/„Alle aus“ (mit Filter nur die gefundenen),
+   Haken „Bei jedem Level-Up drehen“ und „Rad drehen lassen“ stimmen mit Einstellungen > Glücksrad überein.
+5. Reiter „Sammlung“: Unterreiter „Pakete“ (Übernehmen ganz rechts, Teilen, bei eigenen Löschen; unten „Laufende
+   Ziele als Paket speichern“) und „Eigene Ziele“ (Linksklick legt an, Rechtsklick löscht mit Rückfrage, freier Text
+   hinzufügen). Oben rechts „Importieren“: ein Paket-Text landet unter Pakete, ein Text von „Eigene Ziele teilen“
+   unter Eigene Ziele (auch ein Text aus der Version vor diesem Update).
+6. „Einstellungen“ unten rechts öffnet je Reiter die passende Unterseite (Ziele: Tracker, Bingo: Bingo, Glücksrad:
+   Glücksrad, Historie: Daten). Rechtsklick auf Bingo-Schein bzw. Rad am Bildschirm ebenso.
+7. In Englisch, Französisch und Spanisch (`/lt` > Sprache): nichts überlappt oder ragt über den Rand, vor allem die
+   Knopfzeilen im Reiter Ziele, Glücksrad und Sammlung.
+8. `/sg own`, `/sg own add Test`, `/sg import`, `/sg collection`, `/sg bingo edit`, `/sg wheel edit` funktionieren;
+   alte Befehle (`/sg pack import`, `/sg bingo text …`) ebenso.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Daten von vorher da (ja/nein):
+Reiter, Zusätze, Knopfzeilen ok (ja/nein):
+Sammlung und Import ok (ja/nein):
+Andere Sprachen ohne Überlappung (ja/nein):
 Fehler:
 ```

@@ -16,6 +16,8 @@ SlashCmdList.STREAMGOAL("")
 local Manager = streamGoal.Manager
 Manager.SelectKind("kills")
 Manager.FormWidget("amount"):SetText("2")
+expect("Zusätze zugeklappt", Manager.ExtrasShown(), false)
+Manager.ToggleExtras(true)
 expectTrue("Auswahl Täglich", wow.click(L.SG_FORM_REPEAT_NONE))
 local first = Manager.AddFromForm()
 StreamGoalWindow:Hide()

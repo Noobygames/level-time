@@ -1,12 +1,14 @@
 -- Einstellungsfenster von Level Time Goals (Roadmap 312), gebaut mit dem OptionsBuilder von Level Time: Seitenleiste
--- (Tracker, Meldungen, Daten), Suche, "Standard" je Unterseite, Tooltips aus <LABEL>_TIP. Die Werte stehen in
--- StreamGoalDB.settings (nicht in den Einstellungen von Level Time), daher hat jeder Baustein eigene get/set und
--- reset-Funktionen. Rechtsklick auf den Tracker und der Knopf "Einstellungen" im Edit-Modus öffnen die Unterseite
--- Tracker (LT.RegisterOptionsWindow).
+-- (Tracker, Bingo, Glücksrad, Meldungen, Daten; Bingo und Glücksrad wie die Reiter im Fenster /sg), Suche, "Standard"
+-- je Unterseite, Tooltips aus <LABEL>_TIP. Die Werte stehen in StreamGoalDB.settings (nicht in den Einstellungen von
+-- Level Time), daher hat jeder Baustein eigene get/set und reset-Funktionen. Rechtsklick auf eine Anzeige (Karten,
+-- Bingo-Schein, Rad), "Einstellungen" im Edit-Modus und im Fenster /sg öffnen die passende Unterseite
+-- (ns.SETTINGS_PAGES, LT.RegisterOptionsWindow).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
 local Tracker = ns.Tracker
+local PAGES = ns.SETTINGS_PAGES
 local L = ns.L
 local Frames = LT.Frames
 local Widgets = LT.Widgets
@@ -50,14 +52,25 @@ local function toggle(label, key)
   }
 end
 
+local function slider(label, key, max)
+  return {
+    label = label,
+    min = 0, max = max, step = 1,
+    get = function() return settings()[key] end,
+    set = function(value) ns.SetSetting(key, value) end,
+    format = function(value) return tostring(value) end,
+    reset = settingReset(key),
+  }
+end
+
 ---------------------------------------------------------------------------
--- Seite "Ziele": Tracker, Meldungen, Daten
+-- Seite "Ziele": Tracker, Bingo, Glücksrad, Meldungen, Daten
 ---------------------------------------------------------------------------
 builder.AddPage("SG_OPTIONS_PAGE_GOALS")
 
-builder.AddSubPage(Tracker.SETTINGS_PAGE)
+builder.AddSubPage(PAGES.TRACKER)
 builder.AddSection("SG_OPTIONS_SECTION_CARDS")
-builder.AddToggles({ toggle("SG_SHOW_TRACKER", "showTracker"), toggle("SG_OPTIONS_SHOW_BINGO", "showBingo") })
+builder.AddToggles({ toggle("SG_SHOW_TRACKER", "showTracker") })
 builder.AddSlider({
   label = "SG_OPTIONS_MAX_CARDS",
   min = ns.MIN_CARDS, max = ns.MAX_CARDS, step = 1,
@@ -101,31 +114,41 @@ builder.AddButtonRow({
   { label = "SG_RESET_POSITION", onClick = function() Frames.Reset(Tracker.FRAME_ID) end },
 })
 
-builder.AddSection("SG_OPTIONS_SECTION_WHEEL")
-builder.AddToggles({ toggle("SG_OPTIONS_WHEEL_LEVELUP", "wheelOnLevelUp") })
-builder.AddSlider({
-  label = "SG_OPTIONS_WHEEL_REROLLS",
-  min = 0, max = ns.Wheel.MAX_REROLLS, step = 1,
-  get = function() return settings().wheelRerolls end,
-  set = function(value) ns.SetSetting("wheelRerolls", value) end,
-  format = function(value) return tostring(value) end,
-  reset = settingReset("wheelRerolls"),
+-- Bingo: Schein am Bildschirm und BINGO-Meldung; der Editor ist der Reiter "Bingo" im Fenster
+builder.AddSubPage(PAGES.BINGO)
+builder.AddSection("SG_OPTIONS_SECTION_BINGO")
+builder.AddToggles({
+  toggle("SG_OPTIONS_SHOW_BINGO", "showBingo"),
+  toggle("SG_OPTIONS_BINGO_ANNOUNCE", "bingoAnnounce"),
 })
 builder.AddButtonRow({
-  { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
+  { label = "SG_OPEN_BINGO_EDITOR", onClick = function() ns.Manager.Toggle("bingo") end },
 })
 
-builder.AddSubPage("SG_OPTIONS_PAGE_NOTICES")
+-- Glücksrad: Drehen, Neuwürfe, Animation; was das Rad ziehen darf, steht im Reiter "Glücksrad"
+builder.AddSubPage(PAGES.WHEEL)
+builder.AddSection("SG_OPTIONS_SECTION_WHEEL")
+builder.AddToggles({
+  toggle("SG_OPTIONS_WHEEL_LEVELUP", "wheelOnLevelUp"),
+  toggle("SG_OPTIONS_WHEEL_ANIMATION", "wheelAnimation"),
+  toggle("SG_OPTIONS_WHEEL_TICK", "wheelTickSound"),
+})
+builder.AddSlider(slider("SG_OPTIONS_WHEEL_REROLLS", "wheelRerolls", ns.Wheel.MAX_REROLLS))
+builder.AddButtonRow({
+  { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
+  { label = "SG_WHEEL_OPEN_POOL", onClick = function() ns.Manager.Toggle("wheel") end },
+})
+
+builder.AddSubPage(PAGES.NOTICES)
 builder.AddSection("SG_OPTIONS_SECTION_DONE")
 builder.AddToggles({
   toggle("SG_SOUND", "sound"),
   toggle("SG_OPTIONS_DONE_ALERT", "doneAlert"),
   toggle("SG_OPTIONS_DONE_CHAT", "doneChat"),
-  toggle("SG_OPTIONS_BINGO_ANNOUNCE", "bingoAnnounce"),
 })
 
 -- Daten: Ziele gelöschter Charaktere und die Historie entfernen, beides mit Rückfrage
-builder.AddSubPage("SG_OPTIONS_PAGE_DATA")
+builder.AddSubPage(PAGES.DATA)
 builder.AddSection("SG_OPTIONS_SECTION_CLEANUP")
 local info = builder.Page():CreateFontString(nil, "OVERLAY", Theme.Font("small"))
 info:SetJustifyH("LEFT")
@@ -190,11 +213,8 @@ function Options.Toggle(pageKey)
   end
 end
 
-local pages = {}
-for _, key in ipairs({ "SG_OPTIONS_PAGE_GOALS", Tracker.SETTINGS_PAGE, "SG_OPTIONS_PAGE_NOTICES",
-  "SG_OPTIONS_PAGE_DATA" }) do
-  pages[key] = true
-end
+local pages = { SG_OPTIONS_PAGE_GOALS = true }
+for _, key in pairs(PAGES) do pages[key] = true end
 LT.RegisterOptionsWindow({ pages = pages, show = Options.Show, toggle = Options.Toggle })
 
 -- Geänderte Einstellungen, Ziele (Zähler unter "Daten"), Sprache: offenes Fenster aktuell halten

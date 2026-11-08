@@ -5,7 +5,8 @@
 --   color, icon        Farbe (Theme-Token von Level Time) und Symbol der Karte (Alerts.ICONS: Zahl = Spell-ID, sonst Pfad)
 --   texture(goal)      (optional) eigenes Symbol des Ziels (Pfad oder Datei-ID, z.B. das Item), nil = icon
 --   tooltip(goal, tt)  (optional) füllt den Tooltip beim Überfahren der Karte (tt = GameTooltip, schon verankert)
---   form               Felder im Fenster (Manager.lua: amount, fields)
+--   form               Felder im Fenster (Window/GoalForm.lua: amount, fields)
+--   inForm             false = kein Reiter im Formular des Reiters "Ziele" (Bingo hat einen eigenen Reiter)
 --   parse(args, rest)  /sg add <Art> ...: Wörter und Rest der Eingabe -> params, target
 --   usage              Locale-Key der Befehlszeile für /sg help
 --   validate(params, target) -> Fehlertext oder nil

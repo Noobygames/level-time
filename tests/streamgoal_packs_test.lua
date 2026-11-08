@@ -28,16 +28,22 @@ expect("ohne Namen", Packs.Save(" "), L.SG_ERR_PACK_NAME)
 expect("Name eines fertigen Pakets", Packs.Save("hardcore"), L.SG_ERR_PACK_NAME)
 
 SlashCmdList.STREAMGOAL("")
-expectTrue("Reiter Vorlagen", wow.click(L.SG_TAB_PACKS))
-streamGoal.PacksView.nameBox:SetText("Wolfstag")
+expectTrue("Reiter Sammlung", wow.click(L.SG_TAB_COLLECTION))
+expect("Pakete zuerst", streamGoal.CollectionView.Section(), "packs")
+expect("Teilen eigener Ziele nur dort", streamGoal.CollectionView.shareOwnButton:IsShown(), false)
+streamGoal.CollectionView.nameBox:SetText("Wolfstag")
 expectTrue("Speichern", wow.click(L.SG_PACK_SAVE))
 local saved = StreamGoalDB.packs["Wolfstag"]
 expectTrue("Paket gespeichert", saved ~= nil and #saved.goals == 2)
 expect("Eingabe der Kette", saved.goals[1].params.input, "101 102")
 expect("Frist als Eingabe", saved.goals[2].extras.deadline, "7200s")
 
--- Teilen und Importieren
+-- Teilen und Importieren (ein Import für Pakete und eigene Ziele)
+expectTrue("Teilen-Knopf", wow.click(L.SG_PACK_SHARE))
+SlashCmdList.STREAMGOAL("import")
+SlashCmdList.STREAMGOAL("pack import")
 local text = Packs.Export("Wolfstag")
+expect("Paket ohne Kennung eigener Ziele", select(3, Packs.Decode(text)), false)
 expect("Text mit Kennung", text:sub(1, 9), "LT1:goals")
 expect("kein |", text:find("|", 1, true), nil)
 Packs.Delete("Wolfstag")
@@ -46,13 +52,13 @@ local name = Packs.Import(text)
 expect("Name aus dem Text", name, "Wolfstag")
 
 for _, goal in ipairs(Goals.Active()) do Goals.Cancel(goal.id) end
-streamGoal.PacksView.Apply("Wolfstag")
+streamGoal.CollectionView.ApplyPack("Wolfstag")
 expect("importiertes Paket angelegt", #Goals.Active(), 2)
 expect("Kette wieder da", Goals.Active()[1].params.quests[2], 102)
 expect("Frist wieder da", Goals.Active()[2].deadline.seconds, 7200)
 
 -- Löschen mit Rückfrage
-streamGoal.PacksView.Render()
+streamGoal.CollectionView.Render()
 wow.click(L.SG_PACK_DELETE)
 expect("fertige Pakete lassen sich nicht löschen", wow.popup, nil)
 expectTrue("Löschen-Knopf", wow.click(L.SG_PACK_DELETE, true))

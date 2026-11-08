@@ -1,22 +1,22 @@
--- Glücksrad (Roadmap 306): ein Zufallsziel aus dem Pool von Bingo (Ziele relativ zum Level und eigene Texte, siehe
--- Kinds/Bingo.lua) per Befehl/Knopf oder bei jedem Level-Up (settings.wheelOnLevelUp). Vor dem Ergebnis läuft eine
--- kurze Dreh-Animation auf einer eigenen Karte (Lib/Card.lua, an der Stelle des Trackers): SPIN_STEPS Titel nacheinander
--- mit wachsender Pause über C_Timer (kein OnUpdate). Neu drehen ersetzt das letzte Ergebnis, höchstens
--- settings.wheelRerolls-mal je Drehung. Stand in StreamGoalDB.wheel = { goalId, rerollsLeft }.
+-- Glücksrad (Roadmap 306, 431, 432): ein Zufallsziel aus dem eigenen Pool des Rads per Befehl/Knopf oder bei jedem
+-- Level-Up (settings.wheelOnLevelUp). Pool = alle Einträge aus Pool.lua (mitgelieferte und eigene Ziele) außer den
+-- abgeschalteten (StreamGoalDB.wheel.pool.off[key] = true; neue eigene Ziele sind an). Der Eintrag steht schon beim
+-- Start fest, das Rad (WheelDisplay.lua) landet auf ihm; danach wird das Ziel angelegt und auf einer Karte unter dem
+-- Rad gezeigt. Neu drehen ersetzt das letzte Ergebnis, höchstens settings.wheelRerolls-mal je Drehung.
+-- Stand in StreamGoalDB.wheel = { goalId, rerollsLeft, pool = { off = { [key] = true } } } (fehlende Felder erlaubt).
 -- Offen: Abstimmung der Zuschauer (Twitch-Chat ist für Addons nicht lesbar).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
+local Pool = ns.Pool
+local WheelDisplay = ns.WheelDisplay
 local L = ns.L
 
 local Wheel = {}
 ns.Wheel = Wheel
 
 Wheel.MAX_REROLLS = 5
-local SPIN_STEPS = 8
-local FIRST_DELAY = 0.08
-local DELAY_GROWTH = 1.35
-local RESULT_SECONDS = 2
+local RESULT_SECONDS = 3
 local ICON = "Interface\\Icons\\INV_Misc_Bag_10"
 local spinning = false
 
@@ -26,69 +26,116 @@ Wheel.card = card
 
 local function state()
   ns.db.wheel = type(ns.db.wheel) == "table" and ns.db.wheel or {}
-  return ns.db.wheel
+  local wheel = ns.db.wheel
+  wheel.pool = type(wheel.pool) == "table" and wheel.pool or {}
+  wheel.pool.off = type(wheel.pool.off) == "table" and wheel.pool.off or {}
+  return wheel
 end
 
--- Titel eines Pool-Eintrags ohne Ziel anzulegen (für die Animation)
-local function entryTitle(entry)
-  local def = Goals.GetKind(entry.kind)
-  local preview = { kind = entry.kind, params = Goals.CopyFlat(entry.params), target = entry.target or 1, progress = 0,
-    start = 0 }
-  if def.prepare then preview.target = def.prepare(preview.params, preview.target) or preview.target end
-  local ok, title = pcall(def.title, preview)
-  return ok and title or L[def.label]
+---------------------------------------------------------------------------
+-- Pool des Rads
+---------------------------------------------------------------------------
+function Wheel.IsEnabled(key)
+  return not state().pool.off[key]
 end
 
-local function showCard(title, done)
-  card.Set({ color = done and LT.Theme.COLORS.success or LT.Theme.COLORS.gold, icon = ICON, title = L.SG_WHEEL,
-    body = title })
+function Wheel.SetEnabled(key, enabled)
+  state().pool.off[key] = (not enabled) or nil
+end
+
+-- Eingeschaltete Einträge, gemischt (neue Liste)
+function Wheel.Pool()
+  local items = {}
+  for _, item in ipairs(Pool.Items()) do
+    if Wheel.IsEnabled(item.key) then table.insert(items, item) end
+  end
+  return Pool.Shuffle(items)
+end
+
+---------------------------------------------------------------------------
+-- Drehen
+---------------------------------------------------------------------------
+local function showCard(goal)
+  card.Set({ color = LT.Theme.COLORS.success, icon = ICON, title = L.SG_WHEEL, body = Goals.Title(goal) })
   card.frame:ClearAllPoints()
-  card.frame:SetPoint("TOPRIGHT", ns.Tracker.frame, "TOPLEFT", -8, 0)
+  card.frame:SetPoint("TOP", WheelDisplay.frame, "BOTTOM", 0, -6)
   card.frame:Show()
 end
 
--- Erstes Pool-Ergebnis, das sich anlegen lässt (schon erreichte Ziele lehnt die Art ab)
-local function createFrom(pool)
+-- Erster Eintrag, der die Prüfung besteht (schon erreichte Ziele lehnt erst Goals.Create ab)
+local function pick(items)
   local lastError
-  for _, entry in ipairs(pool) do
-    local goal, err = Goals.Create(entry.kind, Goals.CopyFlat(entry.params), entry.target)
-    if goal then return goal end
+  for index, item in ipairs(items) do
+    local err = Goals.Check(item.kind, item.params, item.target)
+    if not err then return index end
     lastError = err
-    if Goals.UsedSlots() >= Goals.MAX_ACTIVE then break end
   end
   return nil, lastError
 end
 
--- Drehen; rerolls = verbleibende Neuwürfe für diese Drehung. Rückgabe: false und Fehlertext, wenn nicht möglich
+-- Stücke des Rads: die ersten SLICES Einträge (der gezogene ist dabei), bei weniger reihum wiederholt.
+-- Rückgabe: Titel je Stück und ein Stück des gezogenen Eintrags (zufällig unter seinen Wiederholungen)
+local function slicesFor(items, chosen)
+  local shown = { items[chosen] }
+  for index, item in ipairs(items) do
+    if index ~= chosen and #shown < WheelDisplay.SLICES then table.insert(shown, item) end
+  end
+  Pool.Shuffle(shown)
+  local titles, hits = {}, {}
+  for slice = 1, WheelDisplay.SLICES do
+    local item = shown[(slice - 1) % #shown + 1]
+    titles[slice] = Pool.Title(item)
+    if item == items[chosen] then table.insert(hits, slice) end
+  end
+  return titles, hits[math.random(#hits)]
+end
+
+-- Gezogenen Eintrag anlegen; scheitert er (z.B. Bestand schon erreicht), der nächste anlegbare
+local function createResult(items, chosen)
+  local goal, err = Pool.Create(items[chosen])
+  if goal then return goal end
+  for index, item in ipairs(items) do
+    if index ~= chosen then
+      goal = Pool.Create(item)
+      if goal then return goal end
+      if Goals.UsedSlots() >= Goals.MAX_ACTIVE then break end
+    end
+  end
+  return nil, err
+end
+
+local function finish(items, chosen, rerollsLeft)
+  spinning = false
+  local goal, err = createResult(items, chosen)
+  if not goal then
+    WheelDisplay.Hide()
+    ns.Print(err or L.SG_WHEEL_EMPTY)
+    return
+  end
+  local wheel = state()
+  wheel.goalId, wheel.rerollsLeft = goal.id, rerollsLeft
+  showCard(goal)
+  ns.Print(string.format(L.SG_CHAT_WHEEL, Goals.Title(goal), rerollsLeft))
+  C_Timer.After(RESULT_SECONDS, function()
+    if spinning then return end
+    card.frame:Hide()
+    WheelDisplay.Hide()
+  end)
+end
+
+-- Drehen; rerollsLeft = verbleibende Neuwürfe für diese Drehung. Rückgabe: false und Fehlertext, wenn nicht möglich
 local function spin(rerollsLeft)
   if spinning then return false, L.SG_WHEEL_BUSY end
   if Goals.UsedSlots() >= Goals.MAX_ACTIVE then return false, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
-  local pool = ns.Bingo.ShuffledPool()
-  if #pool == 0 then return false, L.SG_WHEEL_EMPTY end
+  local items = Wheel.Pool()
+  if #items == 0 then return false, L.SG_WHEEL_EMPTY end
+  local chosen, err = pick(items)
+  if not chosen then return false, err end
+  ns.Debug("wheel", "pick %s", items[chosen].key)
   spinning = true
-  local step, delay = 0, FIRST_DELAY
-  local function tick()
-    step = step + 1
-    if step <= SPIN_STEPS then
-      showCard(entryTitle(pool[(step - 1) % #pool + 1]), false)
-      delay = delay * DELAY_GROWTH
-      C_Timer.After(delay, tick)
-      return
-    end
-    spinning = false
-    local goal, err = createFrom(pool)
-    if not goal then
-      card.frame:Hide()
-      ns.Print(err or L.SG_WHEEL_EMPTY)
-      return
-    end
-    local wheel = state()
-    wheel.goalId, wheel.rerollsLeft = goal.id, rerollsLeft
-    showCard(Goals.Title(goal), true)
-    ns.Print(string.format(L.SG_CHAT_WHEEL, Goals.Title(goal), rerollsLeft))
-    C_Timer.After(RESULT_SECONDS, function() if not spinning then card.frame:Hide() end end)
-  end
-  tick()
+  card.frame:Hide()
+  local titles, target = slicesFor(items, chosen)
+  WheelDisplay.Spin(titles, target, function() finish(items, chosen, rerollsLeft) end)
   return true
 end
 

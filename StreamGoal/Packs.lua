@@ -150,17 +150,23 @@ end
 ---------------------------------------------------------------------------
 -- Teilen als Text
 ---------------------------------------------------------------------------
+-- Eingaben { { kind, params, target, extras } } als Text "LT1:goals:..."; own = true kennzeichnet eigene Ziele
+-- (Library.lua), damit ein Import sie von Paketen unterscheidet (Sharing.lua)
+function Packs.Encode(name, entries, own)
+  return LT.Serializer.Encode(Packs.SERIAL_KIND, { name = name, goals = entries, own = own or nil })
+end
+
 function Packs.Export(key)
   local entries = goalsOf(key)
   if not entries then return nil end
-  return LT.Serializer.Encode(Packs.SERIAL_KIND, { name = Packs.Label(key), goals = entries })
+  return Packs.Encode(Packs.Label(key), entries)
 end
 
--- Eingelesenes prüfen: nur bekannte Arten, flache Eingaben, Zahl oder nichts als Ziel, höchstens MAX_PACK_GOALS
-local function sanitize(data)
+-- Eingelesenes prüfen: nur bekannte Arten, flache Eingaben, Zahl oder nichts als Ziel, höchstens limit Einträge
+local function sanitize(data, limit)
   if type(data) ~= "table" or type(data.goals) ~= "table" then return nil end
   local entries = {}
-  for index = 1, MAX_PACK_GOALS do
+  for index = 1, limit do
     local entry = data.goals[index]
     if entry == nil then break end
     if type(entry) ~= "table" or type(entry.kind) ~= "string" or not Goals.GetKind(entry.kind) then return nil end
@@ -170,13 +176,18 @@ local function sanitize(data)
   end
   if #entries == 0 then return nil end
   local name = type(data.name) == "string" and strtrim(data.name) or ""
-  return entries, name
+  return entries, name, data.own == true
+end
+
+-- Text lesen und prüfen; limit = höchstens so viele Einträge (Standard: ein Paket). Rückgabe: Eingaben, Name und ob es
+-- eigene Ziele sind (own), oder nil
+function Packs.Decode(text, limit)
+  return sanitize(LT.Serializer.Decode(Packs.SERIAL_KIND, strtrim(text or "")), limit or MAX_PACK_GOALS)
 end
 
 -- Text einlesen und als eigenes Paket speichern (Name aus dem Text, sonst "Import"); Rückgabe: Name oder nil, Fehler
 function Packs.Import(text)
-  local data = LT.Serializer.Decode(Packs.SERIAL_KIND, strtrim(text or ""))
-  local entries, name = sanitize(data)
+  local entries, name = Packs.Decode(text)
   if not entries then return nil, L.SG_ERR_IMPORT end
   if name == "" or builtin(name) or ns.Kinds.TextLength(name) > Packs.MAX_NAME_LENGTH then
     name = L.SG_PACK_IMPORTED

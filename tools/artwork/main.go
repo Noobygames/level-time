@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -23,6 +24,7 @@ func main() {
 	goalIconPath := flag.String("goal-icon", "StreamGoal/Media/Icon.tga", "Ziel für das Level-Time-Goals-Icon (TGA)")
 	glintPath := flag.String("glint", "Media/Glint.tga", "Ziel für das Funkeln der Beute-Glitzer (TGA)")
 	barsDir := flag.String("bars", "Media", "Ordner für die Balkentexturen (TGA)")
+	wheelDir := flag.String("wheel", "StreamGoal/Media", "Ordner für die Teile des Glücksrads von Level Time Goals (TGA)")
 	flag.Parse()
 
 	if err := run(*logoPath, *iconPath, *previewPath); err != nil {
@@ -41,6 +43,31 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
+	if err := runWheel(*wheelDir); err != nil {
+		fmt.Fprintln(os.Stderr, "Fehler:", err)
+		os.Exit(1)
+	}
+}
+
+func runWheel(dir string) error {
+	parts := []struct {
+		name string
+		img  *image.NRGBA
+	}{
+		{"WheelSlice", renderWheelSlice(wheelSliceSize)},
+		{"WheelRim", renderWheelRim(wheelSliceSize)},
+		{"WheelHub", renderWheelHub(wheelHubSize)},
+		{"WheelPointer", renderWheelPointer(wheelPointerSize)},
+	}
+	for _, part := range parts {
+		path := filepath.Join(dir, part.name+".tga")
+		img := part.img
+		if err := writeFile(path, func(f *os.File) error { return writeTGA(f, img) }); err != nil {
+			return err
+		}
+		fmt.Printf("Glücksrad: %s\n", path)
+	}
+	return nil
 }
 
 func runBars(dir string) error {
