@@ -1,12 +1,17 @@
 -- Graphen der Historie: Reiter "Graphen" mit einem Unterreiter je Diagramm.
--- Daten aus Analysis.lua, Darstellung aus Charts.lua.
+-- Daten aus Analysis.lua, Darstellung aus Charts.lua. Unter jedem Diagramm eine Hinweiszeile (<Reiter-Key>_HINT): was
+-- die Achsen zeigen und was hervorgehoben ist, wie der Hinweis unter den Tabellen.
 local _, ns = ...
 local L = ns.L
 local Format = ns.Format
 local Analysis = ns.Analysis
 local Charts = ns.Charts
+local Widgets = ns.Widgets
 
 local GROUP = "HISTORY_TAB_CHARTS"
+local HINT_LINES = 2          -- so viele Zeilen hat der Hinweis höchstens (umgebrochen)
+local HINT_LINE_HEIGHT = 12
+local HINT_GAP = 4            -- Abstand zwischen Diagramm und Hinweis
 
 -- Level mit einer Nachkommastelle ("23.4"), ganze Level ohne
 local function formatLevel(level)
@@ -22,6 +27,16 @@ local function createChartView(tab, kind, data, axis, revision)
   local function create(parent, width, height)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetAllPoints(parent)
+
+    local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    hint:SetTextColor(unpack(Widgets.COLORS.muted))
+    hint:SetPoint("BOTTOMLEFT", 0, 0)
+    hint:SetPoint("BOTTOMRIGHT", 0, 0)
+    hint:SetJustifyH("LEFT")
+    hint:SetWordWrap(true)
+    hint:SetMaxLines(HINT_LINES)
+    frame.hint = hint  -- Tests
+    height = height - HINT_LINES * HINT_LINE_HEIGHT - HINT_GAP
 
     local chart
     if kind == "column" then
@@ -40,6 +55,7 @@ local function createChartView(tab, kind, data, axis, revision)
 
     local lastKey
     function frame:Render(characterKey)
+      Widgets.SetTextIfChanged(hint, L[tab .. "_HINT"])
       if revision then
         local key = table.concat({ characterKey or "", ns.db and ns.db.language or "", revision() }, ":")
         if key == lastKey then return end

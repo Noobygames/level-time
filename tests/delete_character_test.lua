@@ -10,7 +10,7 @@ wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Wolf stirbt, Ihr bekommt 100 Erfahrung.")
 expectTrue("Zweitchar gespeichert", LevelTimerStatsDB.characters["Zweitchar-Testrealm"] ~= nil)
 
 SlashCmdList.LEVELTIMER("history")
-expectTrue("Reiter Timeline", wow.click("Timeline"))
+expectTrue("Reiter Timeline", wow.click("Verlauf"))
 expectTrue("Löschen-Knopf", wow.click("Daten löschen"))
 expect("Rückfrage für eingeloggten Charakter", wow.popup.data, "Zweitchar-Testrealm")
 StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)

@@ -21,9 +21,9 @@ local function titleFor(kind)
   return L.FLIGHT_TITLE
 end
 
--- Restzeit als "4:10" (Flüge dauern Minuten), geschätzt als "~4:10"
+-- Restzeit wie die übrigen Anzeigen ("4m 10s", nicht "4:10", das man als Uhrzeit liest), geschätzt als "~4m 10s"
 local function formatTime(seconds, state)
-  local text = string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
+  local text = ns.Format.Duration(seconds)
   if state and state.estimated then return "~" .. text end
   return text
 end

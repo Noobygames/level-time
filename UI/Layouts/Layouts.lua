@@ -150,6 +150,7 @@ function Layouts.Stack(options)
         row.value:SetJustifyH("RIGHT")
       end
       row.value:Show()
+      el:SetHoverData(row.hover, model.rows[index])
       y = y + fontSize(row.label) + Layouts.LINE_GAP
     end
     el:HideRowsFrom(#model.rows + 1)

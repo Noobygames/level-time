@@ -31,7 +31,8 @@ expect("Bildlauf zurückgesetzt", killTable.offset, 0)
 
 -- Graphen: alle Diagramme anklickbar
 expectTrue("Reiter Graphen", wow.click("Graphen"))
-for _, chart in ipairs({ "Zeit/Level", "XP/h/Level", "Kills/Tag", "Top-Gegner", "Ursachen", "XP/h/Zone", "Zeit/Tag", "Zeit/Woche", "XP-Verlauf" }) do
+for _, chart in ipairs({ "Zeit je Level", "XP/h je Level", "Kills je Tag", "Häufigste Gegner", "Todesursachen", "XP/h je Zone",
+  "Spielzeit je Tag", "Spielzeit je Woche", "XP der Session" }) do
   expectTrue("Diagramm " .. chart, wow.click(chart))
 end
 
@@ -40,7 +41,7 @@ wow.logout()
 wow.login({ name = "Neuling", level = 1 })
 SlashCmdList.LEVELTIMER("history")
 SlashCmdList.LEVELTIMER("history")
-expectTrue("leere Rangliste", wow.click("Ursachen"))
+expectTrue("leere Rangliste", wow.click("Todesursachen"))
 
 -- Reitergruppen: Unterreiter nur in der gewählten Gruppe sichtbar
 local function tabWithLabel(text)
@@ -50,10 +51,10 @@ local function tabWithLabel(text)
   end)
 end
 expectTrue("Gruppe Level", wow.click("Level"))
-expect("Unterreiter Timeline sichtbar", tabWithLabel("Timeline"):IsShown(), true)
+expect("Unterreiter Timeline sichtbar", tabWithLabel("Verlauf"):IsShown(), true)
 expect("Journal-Unterreiter versteckt", tabWithLabel("Kills"):IsShown(), false)
 expectTrue("Sessions ohne Unterreiter", wow.click("Sessions"))
-expect("Timeline versteckt", tabWithLabel("Timeline"):IsShown(), false)
+expect("Timeline versteckt", tabWithLabel("Verlauf"):IsShown(), false)
 
 -- Zuletzt gewählter Reiter wird gemerkt (Einstellung historyTab)
 SlashCmdList.LEVELTIMER("history")

@@ -112,7 +112,7 @@ local function deaths(scope)
   local deadSeconds = DeathCounter.GetDeadSeconds(scope)
   local text = tostring(count)
   if deadSeconds >= 1 then
-    text = string.format("%d (%s)", count, Format.Duration(deadSeconds))
+    text = string.format(ns.L.DEATHS_WITH_DEAD_TIME, count, Format.Duration(deadSeconds))  -- "2 (6m 38s tot)"
   end
   if count > 0 and ns.db.highlightDeaths then
     text = ns.Theme.Hex("bad") .. text .. "|r"

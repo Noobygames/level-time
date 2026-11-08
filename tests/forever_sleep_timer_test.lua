@@ -42,7 +42,7 @@ local STACK_PREFIX = L.SLEEP_STACK:match("^(.-)%%d")
 local function stackNotices() return countPrinted(STACK_PREFIX) end
 local function stacksTitle(stacks) return string.format(L.SLEEP_TITLE_STACKS, stacks, SleepTimer.MAX_STACKS) end
 local function sleep() C_ChatInfo.PerformEmote("SLEEP") end
-local function seconds(value) return string.format(L.SECONDS_SHORT, value) end
+local function seconds(value) return addon.Format.Duration(value) end
 
 expect("zunächst versteckt", card:IsShown(), false)
 

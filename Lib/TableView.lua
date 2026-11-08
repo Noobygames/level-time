@@ -6,7 +6,8 @@
 -- (Standard: erste Spalte links, Zahlen rechts), sort(record) = Sortierschlüssel, wenn der Zellentext
 -- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
--- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes (ohne tip zeigt er den Sortier-Hinweis).
+-- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes; ohne tip gilt <header>_TIP, wenn es den Text
+-- gibt (eine Erklärung je Spaltenkopf, in allen Tabellen gleich), sonst zeigt er den Sortier-Hinweis.
 -- Werkzeugzeile: Export und weitere Buttons links (so breit wie ihr Text), Suchfeld rechts; reicht der Platz nicht
 -- (lange Sprachen, viele Buttons), wird das Suchfeld schmaler und rutscht notfalls in eine zweite Zeile.
 local _, ns = ...
@@ -161,9 +162,11 @@ local TableOrder = ns.TableOrder
 --   onRowClick(record, mouseButton) optional,
 --   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
 --   rowTooltip(record) optional: { Titel, Zeile, ... } als eigener Tooltip der Zeile (wenn rowLink nichts liefert),
---   hint = Locale-Key oder function() -> Text optional (bricht in der Tabellenbreite um, die Zeilen rücken nach oben),
+--   hint = Locale-Key oder function(characterKey) -> Text optional (bricht in der Tabellenbreite um, die Zeilen rücken
+--   nach oben),
 --   empty = Locale-Key oder function(characterKey) -> Text optional: Hinweis ohne Einträge (Standard TABLE_EMPTY),
---   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
+--   buttons = { { label = Locale-Key, onClick(), tip = Locale-Key optional (Standard <label>_TIP) }, ... } optional
+--   (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
 --   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS,
 --   appendOnly optional: records() liefert älteste zuerst dieselbe Liste, die nur hinten wächst (oder eine neue);
@@ -174,6 +177,30 @@ local TableOrder = ns.TableOrder
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
 local function addonLanguage()
   return ns.db and ns.db.language or ""
+end
+
+-- Text zu key, nil, wenn es ihn nicht gibt (L liefert für unbekannte Keys den Key selbst)
+local function optionalText(L, key)
+  local text = L[key]
+  if text ~= key then return text end
+  return nil
+end
+
+-- Tooltip-Text eines Spaltenkopfs (siehe oben); L optional (Standard ns.L), auch für Tests
+local function headerTip(L, column)
+  if column.tip then return L[column.tip] end
+  return optionalText(L, column.header .. "_TIP") or L.TABLE_SORT_HINT
+end
+
+function TableView.HeaderTip(column, L)
+  return headerTip(L or ns.L, column)
+end
+
+-- Tooltip eines Buttons der Werkzeugzeile: Beschriftung als Titel, Erklärung aus tip oder <label>_TIP
+-- (ohne Text keiner)
+local function attachButtonTip(L, widget, label, tip)
+  Widgets.AttachTooltip(widget, function() return L[label] end,
+    function() return optionalText(L, tip or label .. "_TIP") end)
 end
 
 function TableView.Create(definition)
@@ -290,6 +317,7 @@ function TableView.Create(definition)
     for i, button in ipairs(definition.buttons or {}) do
       local widget = Widgets.CreateButton(frame, EXTRA_BUTTON_WIDTH, FILTER_HEIGHT + 2, button.onClick)
       extraButtons[i] = { widget = widget, label = button.label }
+      attachButtonTip(L, widget, button.label, button.tip)
     end
 
     local function draw()
@@ -433,7 +461,7 @@ function TableView.Create(definition)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
       -- Voller Kopftext (falls er trotz allem abgeschnitten ist), darunter was die Spalte zeigt oder wie man sortiert
       Widgets.AttachTooltip(headerButton, function() return L[column.header] end, function()
-        return column.tip and L[column.tip] or L.TABLE_SORT_HINT
+        return headerTip(L, column)
       end)
       headerButtons[i] = headerButton
       x = x + column.width
@@ -476,6 +504,7 @@ function TableView.Create(definition)
       export.Show(L[definition.tab], frame:BuildCsv())
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
+    attachButtonTip(L, exportButton, "EXPORT")
 
     -- Werkzeugzeile in der gewählten Sprache: Buttons so breit wie ihr Text nebeneinander, rechts "Filter" und das
     -- Suchfeld. Passt das Feld nicht mehr in voller Breite daneben, wird es schmaler (bis FILTER_MIN_WIDTH), sonst
@@ -532,7 +561,7 @@ function TableView.Create(definition)
     local shownHint
     local function showHint()
       local text = definition.hint
-      if type(text) == "function" then text = text() elseif text then text = L[text] end
+      if type(text) == "function" then text = text(frame.characterKey) elseif text then text = L[text] end
       text = text or L.TABLE_SORT_HINT
       if text == shownHint then return false end
       shownHint = text

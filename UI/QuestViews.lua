@@ -94,7 +94,7 @@ local EFFICIENCY_COLUMNS = {
   { header = "HISTORY_AVERAGE_TIME", width = 64, value = function(r)
       return r.averageSeconds and Format.Duration(r.averageSeconds) or "-"
     end, sort = function(r) return r.averageSeconds end },
-  { header = "HISTORY_XP", width = 64, value = function(r)
+  { header = "HISTORY_AVERAGE_XP", width = 64, value = function(r)
       return r.averageXp and Format.Number(math.floor(r.averageXp + 0.5)) or "-"
     end, sort = function(r) return r.averageXp end },
   { header = "HISTORY_XP_PER_MINUTE", width = 64, value = function(r)
