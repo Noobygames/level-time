@@ -33,10 +33,7 @@ local commands = {
     ns.Set("locked", false)
     ns.Print(L.UNLOCKED)
   end,
-  reset = function()
-    ns.Frames.ResetAll()  -- Position und Größe aller Anzeigen
-    ns.Print(L.RESET_DONE)
-  end,
+  reset = function() ns.EditMode.ConfirmResetAll() end,  -- Position und Größe aller Anzeigen, nach Rückfrage
   edit = function() ns.EditMode.Toggle() end,
   welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,

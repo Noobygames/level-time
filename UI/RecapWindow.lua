@@ -67,19 +67,23 @@ end
 -- Zeilen { label, value } der laufenden Session
 function RecapWindow.BuildRows()
   local session = ns.character.currentSession
-  return {
+  local rows = {
     { L.RECAP_CHARACTER, History.DisplayName(ns.characterKey) },
     { L.RECAP_TIME, Format.Duration(Stats.GetSeconds(Stats.SESSION)) },
     { L.RECAP_LEVELS, string.format("%d > %d", session.startLevel or ns.level, ns.level) },
     { L.RECAP_XP, xpWithRate() },
     { L.RECAP_KILLS, tostring(Stats.GetTotalKills(Stats.SESSION)) },
     { L.ROW_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.DEATHS)) },
-    { L.ROW_NEAR_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.NEAR_DEATHS)) },
-    { L.ROW_QUESTS, tostring(Stats.Get(Stats.SESSION, Stats.QUESTS)) },
-    { L.ROW_MONEY, Format.Money(Stats.Get(Stats.SESSION, Stats.MONEY_EARNED)) },
-    { L.RECAP_BEST_LOOT, bestLoot() },
-    { L.RECAP_DANGER, mostDangerous() },
   }
+  -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (sonst stünde hier immer eine falsche 0)
+  if ns.NearDeath.IsAvailable() then
+    table.insert(rows, { L.ROW_NEAR_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.NEAR_DEATHS)) })
+  end
+  table.insert(rows, { L.ROW_QUESTS, tostring(Stats.Get(Stats.SESSION, Stats.QUESTS)) })
+  table.insert(rows, { L.ROW_MONEY, Format.Money(Stats.Get(Stats.SESSION, Stats.MONEY_EARNED)) })
+  table.insert(rows, { L.RECAP_BEST_LOOT, bestLoot() })
+  table.insert(rows, { L.RECAP_DANGER, mostDangerous() })
+  return rows
 end
 
 ---------------------------------------------------------------------------

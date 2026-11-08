@@ -327,10 +327,21 @@ local gridButton = toolbarButton("EDIT_MODE_GRID", function()
   updateGrid()
 end)
 Widgets.AttachTooltip(gridButton, function() return L.EDIT_MODE_GRID end, function() return L.EDIT_MODE_GRID_TIP end)
-toolbarButton("EDIT_MODE_RESET_ALL", function()
+-- Position und Größe aller Anzeigen zurücksetzen, nur nach Rückfrage (Knopf und /lt reset): lässt sich nicht
+-- rückgängig machen
+local confirmResetAll = Widgets.ConfirmPopup(ns.PopupKey("RESET_ALL_FRAMES"), "RESET_ALL_CONFIRM", function()
   Frames.ResetAll()
   for _, overlay in pairs(overlays) do paintOverlay(overlay) end
+  ns.Print(L.RESET_DONE)
 end)
+
+function EditMode.ConfirmResetAll()
+  confirmResetAll()
+end
+
+local resetAllButton = toolbarButton("EDIT_MODE_RESET_ALL", EditMode.ConfirmResetAll)
+Widgets.AttachTooltip(resetAllButton, function() return L.EDIT_MODE_RESET_ALL end,
+  function() return L.EDIT_MODE_RESET_ALL_TIP end)
 toolbarButton("EDIT_MODE_DONE", function() EditMode.Leave() end)
 
 -- Schalter über der Knopfzeile, untereinander und mittig: definition = { label, tip (Locale-Schlüssel), get(db),

@@ -255,7 +255,8 @@ function Model:Build(db, source, alwaysXpBar)
   self.time.text = scopeTimeText(open, seconds)
 
   for _, row in ipairs(self.rows) do
-    row.value = open and row.definition.value(scope) or NO_VALUE
+    -- Ohne offenen Bereich (Instanz ohne Lauf) "-", außer bei Zeilen, die vom Bereich nicht abhängen (StatLines globalRow)
+    row.value = (open or row.definition.global) and row.definition.value(scope) or NO_VALUE
   end
   readXpBar(self.xpBar, db, leveling, alwaysXpBar)
   return self

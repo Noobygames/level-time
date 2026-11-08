@@ -2874,3 +2874,35 @@ Position nach /reload (ja/nein):
 Ausblenden per Befehl und Einstellung (ja/nein):
 Fehler:
 ```
+
+### 193. UX-Review: Hinweise, Reiter, Rückfragen und Instanz-Reiter
+
+- [ ] geprüft
+
+1. `/lt history` auf Französisch und Spanisch: die Hauptreiter laufen nicht über den rechten Rand, passen sie nicht in
+   eine Zeile, brechen sie in eine zweite um; Unterreiter und Inhalt rücken darunter, nichts überlappt.
+2. Historie > Quests > Abgabe, Speedrun > Quest-Splits, Quests > Effizienz, Geld: der graue Hinweis unten bricht in der
+   Fensterbreite um (zwei Zeilen), läuft nicht links aus dem Fenster und überdeckt die Summenzeile nicht.
+3. Quests > Abgabe für einen anderen Charakter: „Nur für den eingeloggten Charakter …“; eigener Charakter ohne fertige
+   Quest: „Keine Quest ist abgabebereit.“. In einer Tabelle etwas in den Filter tippen, das nicht vorkommt: „Keine
+   Treffer für …“.
+4. `/lt edit` > „Alle zurücksetzen“: Tooltip, dann Rückfrage; „Nein“ ändert nichts, „Ja“ setzt alle Anzeigen zurück.
+   `/lt reset` fragt ebenso.
+5. Hauptfenster auf Reiter „Instanz“ ohne Lauf: Instanzlimit, Instanzen heute, Ohne Tod, XP/h (15 min) zeigen Werte,
+   Zähler wie Kills „-“.
+6. Rechtsklick auf den Reiter „Instanz“ öffnet die Einstellungen (wie Level/Session), Shift+Rechtsklick fragt nach dem
+   Zurücksetzen des Durchgangs.
+7. Retail/Forever: `/lt recap` hat keine Zeile „Beinahe-Tode“; Classic Era/TBC: die Zeile ist da.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hauptreiter passen (ja/nein, Sprache):
+Hinweise umbrochen, nichts überdeckt (ja/nein, welcher nicht):
+Leer- und Kein-Treffer-Text (ja/nein):
+Rückfrage Alle zurücksetzen und /lt reset (ja/nein):
+Instanz-Reiter ohne Lauf und Rechtsklick ok (ja/nein):
+Recap Beinahe-Tode passend (ja/nein):
+Fehler:
+```

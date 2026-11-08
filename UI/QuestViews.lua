@@ -82,6 +82,10 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   revision = function() return revision end,
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "TURN_IN_HINT",
+  -- Andere Charaktere: leer, weil nur der eigene Questlog lesbar ist (nicht "noch nichts aufgezeichnet")
+  empty = function(characterKey)
+    return characterKey == ns.characterKey and L.TURN_IN_EMPTY or L.TURN_IN_OTHER_CHARACTER
+  end,
 }))
 
 local EFFICIENCY_COLUMNS = {
