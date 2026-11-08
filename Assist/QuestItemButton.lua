@@ -45,7 +45,8 @@ ns.QuestItem = QuestItem
 
 local BUTTON_SIZE = 36
 local GAP = 4
-local LABEL_HEIGHT = 14  -- Beschriftung über den Knöpfen (nur im Edit-Modus sichtbar)
+local TITLE_PADDING = 8   -- Luft links und rechts neben dem Titel
+local LABEL_HEIGHT = 14  -- Titel "Ziele & Items" über den Knöpfen
 local REFRESH_SECONDS = 1
 local DISTANCE_SECONDS = 3     -- Abstand zur Quest neu vergleichen (nur mit mehreren Kandidaten)
 local MAX_MACRO = 255          -- Länge eines Makros
@@ -332,10 +333,8 @@ local function create()
   holder.background = holder:CreateTexture(nil, "BACKGROUND")
   holder.background:SetAllPoints()
   holder.background:SetColorTexture(unpack(MOVE_BACKGROUND))
-  holder.background:Hide()
   holder.label = holder:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
   holder.label:SetPoint("TOP", 0, -1)
-  holder.label:Hide()
 
   itemButton = createSecureButton(ns.GlobalName("QuestItemButton"), "item")
   itemButton:SetPoint("BOTTOMLEFT", holder, "BOTTOMLEFT", 0, 0)
@@ -352,11 +351,12 @@ local function create()
   ns.Frames.Register({
     id = "questItem", frame = holder, label = "EDIT_FRAME_QUEST_ITEM", default = DEFAULT_POS, protected = true,
     settingsPage = "COMFORT_PAGE_QUEST_DISPLAY",
+    -- Rahmen mit Titel immer sichtbar; am Titel/Rand ziehbar, solange "Anzeigen fixieren" aus ist (nie im Kampf:
+    -- protected, die sicheren Knöpfe hängen am Halter)
+    clickable = true, dragWhenUnlocked = true, actionsTip = true,
     preview = function(on)
       if inCombat() then return end
       editing = on
-      holder.background:SetShown(on)
-      holder.label:SetShown(on)
       QuestItem.Refresh()
     end,
     hide = function()
@@ -457,6 +457,8 @@ local function apply()
     return
   end
   holder.label:SetText(L.QUEST_ITEM_MOVE_LABEL)
+  -- Titel in jeder Sprache ganz im Rahmen (fr/es länger als die zwei Knöpfe)
+  holder:SetWidth(math.max(BUTTON_SIZE * 2 + GAP, math.ceil(holder.label:GetStringWidth() or 0) + TITLE_PADDING))
   QuestItem.Refresh()
 end
 

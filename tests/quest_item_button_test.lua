@@ -124,6 +124,8 @@ addon.Set("questTargetButton", false)
 addon.EditMode.Enter()
 expectTrue("Edit-Modus: Halter sichtbar", bar:IsShown())
 expect("Griff beschriftet", bar.label:GetText(), L.QUEST_ITEM_MOVE_LABEL)
+expectTrue("Rahmen mit Titel immer sichtbar", bar.label:IsShown() and bar.background:IsShown())
+expectTrue("außerhalb des Edit-Modus ziehbar", bar:GetScript("OnDragStart") ~= nil)
 addon.EditMode.Leave()
 wow.state.combatLockdown = true
 expect("im Kampf kein Edit-Modus", addon.EditMode.Enter(), false)
