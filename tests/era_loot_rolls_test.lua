@@ -115,6 +115,7 @@ expectTrue("Gewinner auf der Karte", LevelTimerLootRolls.body:GetText():find("ge
 -- der Gewinner feststeht oder die Würfelzeit lange abgelaufen ist
 wow.fire("START_LOOT_ROLL", 3, 60000)
 expect("Karte für den Ring", LevelTimerLootRolls:IsShown(), true)
+expectTrue("Links im Text mit Tooltip", LevelTimerLootRolls:GetScript("OnHyperlinkEnter") ~= nil)
 wow.fire("CANCEL_LOOT_ROLL", 3)
 expect("nach eigener Wahl bleibt die Karte", LevelTimerLootRolls:IsShown(), true)
 wow.advance(60 + 31)
