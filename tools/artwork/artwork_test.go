@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"math"
 	"testing"
 )
 
@@ -79,5 +80,38 @@ func TestBarTextures(t *testing.T) {
 	smooth := renderBar(barKinds["BarSmooth"])
 	if top, bottom := smooth.NRGBAAt(0, 0).R, smooth.NRGBAAt(0, barTextureHeight-1).R; top <= bottom {
 		t.Errorf("BarSmooth: oben %d nicht heller als unten %d", top, bottom)
+	}
+}
+
+func TestWheelSliceCoversOneTwelfthPointingUp(t *testing.T) {
+	slice := renderWheelSlice(wheelSliceSize)
+	mid := wheelSliceSize / 2
+	if a := slice.NRGBAAt(mid, wheelSliceSize/4).A; a != 255 {
+		t.Errorf("oben in der Mitte sollte deckend sein, Alpha = %d", a)
+	}
+	for _, p := range [][2]int{{mid, wheelSliceSize * 3 / 4}, {wheelSliceSize / 4, mid}, {0, 0}, {mid, 0}} {
+		if a := slice.NRGBAAt(p[0], p[1]).A; a != 0 {
+			t.Errorf("(%d,%d) sollte transparent sein, Alpha = %d", p[0], p[1], a)
+		}
+	}
+	covered := 0.0
+	for y := 0; y < wheelSliceSize; y++ {
+		for x := 0; x < wheelSliceSize; x++ {
+			covered += float64(slice.NRGBAAt(x, y).A) / 255
+		}
+	}
+	half := float64(wheelSliceSize) / 2
+	want := math.Pi * wheelRadius * wheelRadius * half * half / wheelSlices
+	if math.Abs(covered-want)/want > 0.05 {
+		t.Errorf("Fläche = %.0f, erwartet etwa %.0f", covered, want)
+	}
+}
+
+func TestWheelPointerPointsDown(t *testing.T) {
+	pointer := renderWheelPointer(wheelPointerSize)
+	top := pointer.NRGBAAt(wheelPointerSize/4, wheelPointerSize/8).A
+	bottom := pointer.NRGBAAt(wheelPointerSize/4, wheelPointerSize*7/8).A
+	if top == 0 || bottom != 0 {
+		t.Errorf("oben breit, unten spitz erwartet: oben %d, unten %d", top, bottom)
 	}
 }

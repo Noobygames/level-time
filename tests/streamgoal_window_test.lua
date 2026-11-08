@@ -126,4 +126,10 @@ for _, language in ipairs({ "frFR", "esES", "enUS", "deDE" }) do
       end
     end
   end
+  -- Reiter der Seiten (Ziele, Historie, Vorlagen, Bingo, Glücksrad) nebeneinander im Fenster
+  local used = 0
+  for index, tab in ipairs(Manager.PageTabs()) do
+    used = used + tab:GetWidth() + (index > 1 and 14 or 0)
+  end
+  expectTrue(language .. ": Seiten-Reiter in der Breite", used <= CONTENT_WIDTH)
 end

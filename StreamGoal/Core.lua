@@ -2,7 +2,8 @@
 -- Das Addon hängt per "## Dependencies: LevelTimer" von Level Time ab; Ereignisse, Login, Karten, Fenster,
 -- Tabellen und Texte kommen von dort, hier liegt nur, was zu den Zielen gehört.
 --
--- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, packs, settings }.
+-- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, packs, settings,
+-- library (eigene Ziele, Library.lua), wheel (Glücksrad, Wheel.lua), bingoDraft (Bingo-Editor, BingoEditor.lua) }.
 -- Es existiert erst ab PLAYER_LOGIN (ns.OnLogin), vorher nie anfassen.
 local _, ns = ...
 
@@ -22,7 +23,10 @@ function ns.Debug(area, format, ...)
   LT.Debug("goal:" .. area, format, ...)
 end
 
-ns.SCHEMA_VERSION = 1
+ns.SCHEMA_VERSION = 2
+-- Umbauten der gespeicherten Daten: ns.MIGRATIONS[Version] = function(db) (eingetragen von den Dateien, deren Daten
+-- sich ändern; laufen beim Login einmal für jede Version über der gespeicherten, auch auf leeren Daten)
+ns.MIGRATIONS = {}
 -- Einstellungen in StreamGoalDB.settings (Seite im Einstellungsfenster: Options.lua); Position und Größe des Trackers
 -- stehen in settings.frame (Lib/Frames.lua von Level Time)
 ns.SETTING_DEFAULTS = {
@@ -36,6 +40,8 @@ ns.SETTING_DEFAULTS = {
   bingoAnnounce = false, -- BINGO in den Gruppenchat
   wheelOnLevelUp = false,  -- Glücksrad bei jedem Level-Up drehen (Wheel.lua)
   wheelRerolls = 2,        -- Neuwürfe je Drehung
+  wheelAnimation = true,   -- Rad drehen sehen (aus = Ergebnis sofort, weniger Bewegung)
+  wheelTickSound = true,   -- Klicken je Stück, das am Zeiger vorbeidreht
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
 
@@ -74,7 +80,10 @@ end
 LT.OnLogin(function()
   StreamGoalDB = StreamGoalDB or {}
   local db = StreamGoalDB
-  db.schemaVersion = math.max(db.schemaVersion or 0, ns.SCHEMA_VERSION)
+  for version = (tonumber(db.schemaVersion) or 0) + 1, ns.SCHEMA_VERSION do
+    if ns.MIGRATIONS[version] then ns.MIGRATIONS[version](db) end
+  end
+  db.schemaVersion = math.max(tonumber(db.schemaVersion) or 0, ns.SCHEMA_VERSION)
   db.nextId = db.nextId or 1
   db.goals = db.goals or {}
   db.packs = type(db.packs) == "table" and db.packs or {}  -- eigene Vorlagen (Packs.lua)

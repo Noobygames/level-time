@@ -5,9 +5,10 @@ local Bingo = streamGoal.Bingo
 local L = streamGoal.L
 
 wow.login({ level = 10 })
-StreamGoalDB.settings.bingoTexts = { "Feld A", "Feld B", "Feld C", "Feld D", "Feld E", "Feld F", "Feld G", "Feld H",
-  "Feld I" }
-Bingo.POOL = {}  -- nur eigene Texte: Felder zum Abhaken, Reihenfolge egal
+streamGoal.Pool.PREMADE = {}  -- nur eigene Texte: Felder zum Abhaken, Reihenfolge egal
+for _, text in ipairs({ "Feld A", "Feld B", "Feld C", "Feld D", "Feld E", "Feld F", "Feld G", "Feld H", "Feld I" }) do
+  streamGoal.Library.AddText(text)
+end
 
 SlashCmdList.STREAMGOAL("bingo 3")
 local board = Goals.Active()[1]
@@ -49,13 +50,14 @@ expect("keine laufenden Ziele", #Goals.Active(), 0)
 
 -- Eigene Texte per Befehl
 SlashCmdList.STREAMGOAL("bingo clear")
-expect("mitgelieferte Texte", Bingo.Texts()[1], L.SG_BINGO_TEXT_1)
+expect("keine eigenen Texte", #Bingo.Texts(), 0)
 SlashCmdList.STREAMGOAL("bingo text Einen Fisch fangen")
 expect("eigener Text", Bingo.Texts()[1], "Einen Fisch fangen")
 
 -- Gruppenansage
 StreamGoalDB.settings.bingoAnnounce = true
-StreamGoalDB.settings.bingoTexts = { "X" }
+Bingo.ClearTexts()
+Bingo.AddText("X")
 wow.state.groupMembers = 2
 SlashCmdList.STREAMGOAL("bingo 3")
 local third = Goals.Active()[1]

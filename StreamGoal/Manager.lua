@@ -6,6 +6,8 @@
 --   Feld: { type = "text", param, label, numeric optional, short optional } | { type = "choice", param, label,
 --         values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label }
 -- Daraus entstehen params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
+-- "Als eigenes Ziel speichern" legt dieselbe Eingabe (ohne Zusätze) unter den eigenen Zielen ab (Library.lua): für
+-- selbst gewählte Bingo-Felder und das Glücksrad.
 -- Breiten je Feldart: Zahlen und kurze Texte (numeric, short) NUMBER_BOX_WIDTH, Texte bis zum rechten Rand, Auswahl
 -- CHOICE_WIDTH (wächst mit dem Text); alle Felder beginnen hinter der breitesten Beschriftung aller Formulare.
 -- Zielarten: Reiterzeile der Gruppen (Goals.KIND_GROUPS), darunter die Arten der gewählten Gruppe; beide Zeilen brechen
@@ -103,6 +105,13 @@ end
 
 function Manager.ShownPage()
   return panel:IsShown() and shownPage or nil
+end
+
+-- Reiter der Seiten in ihrer Reihenfolge (Tests: passen alle in die Breite)
+function Manager.PageTabs()
+  local tabs = {}
+  for _, key in ipairs(pageOrder) do table.insert(tabs, pages[key].tab) end
+  return tabs
 end
 
 local goalsPage = Manager.AddPage("goals", "SG_TAB_GOALS")
@@ -295,7 +304,6 @@ end
 local errorText = goalsPage:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 errorText:SetTextColor(Theme.RGB("bad"))
 errorText:SetJustifyH("LEFT")
-errorText:SetWidth(CONTENT_WIDTH - ADD_MIN_WIDTH - 2 * LABEL_GAP)
 
 local function boxText(box)
   return strtrim(box:GetText() or "")
@@ -347,6 +355,29 @@ function Manager.AddFromForm()
 end
 
 local addButton = Widgets.CreateButton(goalsPage, ADD_MIN_WIDTH, BOX_HEIGHT + 2, function() Manager.AddFromForm() end)
+
+-- Eingabe der gewählten Art als eigenes Ziel speichern (Zusätze wie Frist gehören zum laufenden Ziel, nicht dazu)
+function Manager.SaveFormAsOwn()
+  local form = forms[selectedKind]
+  local params, target = readForm(form)
+  local entry, err = ns.Library.Add(selectedKind, params, target)
+  if not entry then
+    errorText:SetText(err or "")
+    return nil
+  end
+  errorText:SetText("")
+  ns.Print(string.format(L.SG_CHAT_OWN_SAVED, ns.Pool.Title(entry)))
+  clearForm(form)
+  return entry
+end
+
+local saveOwnButton = Widgets.CreateButton(goalsPage, ADD_MIN_WIDTH, BOX_HEIGHT + 2, function()
+  Manager.SaveFormAsOwn()
+end)
+saveOwnButton:SetPoint("RIGHT", addButton, "LEFT", -BUTTON_GAP, 0)
+Widgets.AttachTooltip(saveOwnButton, function() return L.SG_FORM_SAVE_OWN end,
+  function() return L.SG_FORM_SAVE_OWN_TIP end)
+Manager.saveOwnButton = saveOwnButton
 
 -- Shift-Klick auf ein Item (Taschen, Beute, Chat) fügt den Link in das fokussierte Textfeld ein
 -- Blizzards Chat ruft ChatFrameUtil.InsertLink; ChatEdit_InsertLink ist nur ein Deprecation-Alias (fehlt ohne
@@ -608,8 +639,11 @@ local function layoutGoalsPage()
   addButton:ClearAllPoints()
   addButton:SetPoint("TOPRIGHT", 0, addY)
   Widgets.SetButtonText(addButton, L.SG_FORM_ADD, ADD_MIN_WIDTH)
+  Widgets.SetButtonText(saveOwnButton, L.SG_FORM_SAVE_OWN, ADD_MIN_WIDTH)
+  saveOwnButton:SetShown(selectedKind ~= "bingo")
   errorText:ClearAllPoints()
   errorText:SetPoint("TOPLEFT", 0, addY - 4)
+  errorText:SetWidth(CONTENT_WIDTH - addButton:GetWidth() - saveOwnButton:GetWidth() - BUTTON_GAP - 2 * LABEL_GAP)
   activeTop = addY - ROW - 10
   activeHeader:ClearAllPoints()
   activeHeader:SetPoint("TOPLEFT", 0, activeTop)

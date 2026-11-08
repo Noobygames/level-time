@@ -148,6 +148,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
+- **190. Glücksrad, Datenteil (Roadmap 432)**: check `432.goals.wheel` (`SetRotation`/`GetRotation` an den Stücken, Tick-Ton `SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON`, `PlaySound`)
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 
 ---
@@ -2769,5 +2770,40 @@ Client (Forever):
 Startet bei /schlafen bzw. Benutzen (ja/nein):
 Stapel-Hinweise kommen (ja/nein, wie viele in 180 s):
 Abbruch beim Aufstehen (ja/nein):
+Fehler:
+```
+
+### 190. Level Time Goals: Glücksrad dreht sich, Bingo selbst füllen, eigene Ziele
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Dateien und Texturen in `StreamGoal/`).
+
+1. `/sg`, Reiter „Glücksrad“: Tabelle mit allen Vorgaben und eigenen Zielen; Linksklick schaltet „an/aus“ um,
+   Rechtsklick auf ein eigenes Ziel fragt nach und löscht es. Unten „Eigener Text“ + „Hinzufügen“.
+2. „Glücksrad drehen“: in der Bildschirmmitte erscheint ein rundes Rad mit 12 farbigen Stücken, Zeiger oben, Nabe in
+   der Mitte. Es läuft schnell an, wird über etwa 4 s langsamer, dreht sich dabei mehrmals; die Zeile darunter zeigt
+   das Stück unter dem Zeiger. Am Ende steht der Zeiger auf dem Stück, dessen Ziel angelegt wird (Karte unter dem
+   Rad, Chatzeile). Klicken je Stück hörbar und nicht zu laut. Auf jedem Client: Stücke drehen sich sauber um die
+   Mitte (keine abgeschnittenen Ecken, keine Lücken zwischen den Stücken).
+3. Einstellungen > Tracker > Glücksrad: „Rad drehen lassen“ aus = Ergebnis sofort; „Klicken beim Drehen“ aus = still.
+4. `/lt edit`: das Rad lässt sich verschieben und skalieren.
+5. Reiter „Ziele“: Art wählen, Werte eingeben, „Als eigenes Ziel speichern“: nichts wird angelegt, das Ziel steht im
+   Glücksrad- und Bingo-Reiter.
+6. Reiter „Bingo“: Feld anklicken, rechts ein Ziel anklicken (springt zum nächsten Feld), einen Text „Ins Feld“;
+   Rechtsklick leert ein Feld. „Schein anlegen“: gewählte Felder stehen an ihrer Stelle, leere sind zufällig. Lange
+   Texte in den kleinen 5×5-Feldern bleiben lesbar (Tooltip zeigt den ganzen Text). Französisch/Spanisch: Knöpfe
+   überlappen nicht.
+7. Wer vorher eigene Bingo-Texte hatte (`/sg bingo texts`): sie stehen jetzt als eigene Ziele im Glücksrad-Reiter,
+   die mitgelieferten Texte sind dort aus.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rad sichtbar, dreht und landet richtig (ja/nein):
+Stücke sauber, Farben ok (ja/nein):
+Tick-Ton ok (ja/nein):
+Eigene Ziele und Bingo-Editor ok (ja/nein):
 Fehler:
 ```
