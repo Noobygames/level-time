@@ -196,6 +196,7 @@ function TimerDisplay.Create(config)
     id = config.id, frame = frame, label = config.label, default = config.default,
     settingsPage = config.settingsPage or "OPTIONS_TAB_TIMERS", available = config.available, preview = setEditing,
     clickable = true,  -- Rechtsklick öffnet die Einstellungen (klein, steht, wo der Spieler sie hingezogen hat)
+    actionsTip = true,  -- Tooltip sagt das (UX W22)
     hide = config.toggleKey and function() ns.Set(config.toggleKey, false) end or nil,
   })
 

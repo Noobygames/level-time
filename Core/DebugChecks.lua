@@ -395,9 +395,13 @@ end)
 
 -- 157: Hilfe-Zeilen und Willkommenshinweis
 check("157.help", function()
-  local lines = {}
-  for line in ns.L.HELP:gmatch("[^\n]+") do lines[#lines + 1] = line end
-  return { lines = #lines, introShown = LevelTimerStatsDB and LevelTimerStatsDB.introShown }
+  local function count(text)
+    local lines = 0
+    for _ in text:gmatch("[^\n]+") do lines = lines + 1 end
+    return lines
+  end
+  return { lines = count(ns.L.HELP), allLines = count(ns.L.HELP_ALL),
+    introShown = LevelTimerStatsDB and LevelTimerStatsDB.introShown }
 end)
 
 -- 175: Level-Einträge (XP = Bedarf des alten Levels?) gegen die XP-Tabelle

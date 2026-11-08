@@ -257,8 +257,11 @@ local SETTINGS_DEFAULTS = {
   showItemsLooted = false,  -- erbeutete Gegenstände und Gegenstände/h im Bereich (siehe ItemsLooted.lua)
   showRecentItems = false,  -- Gegenstände der letzten 15 min und Gegenstände/h daraus
   minimap = { hide = false, angle = 225 },
-  optionsAdvanced = true,
-  splitListHeader = true,  -- Kopfzeile Level / Zeit / ± über der Split-Liste (UX 215)  -- Einstellungsfenster: alle Bausteine; false = Modus "Einfach" (Roadmap 402)
+  -- Einstellungsfenster: true = alle Bausteine, false = Modus "Einfach" (Roadmap 402). Neue Installationen starten
+  -- einfach (UX S1); wer den Schlüssel noch nicht gespeichert hat, aber schon Einstellungen hat, behält "alle"
+  -- (keepAllOptionsForExisting)
+  optionsAdvanced = false,
+  splitListHeader = true,  -- Kopfzeile Level / Zeit / ± über der Split-Liste (UX 215)
 }
 
 -- Zähler für Level und Session gleichermaßen. Schlüssel siehe Stats.lua.
@@ -773,10 +776,25 @@ local function loadCharacter(stats)
   return key, data
 end
 
+-- Bestehende Einstellungen ohne optionsAdvanced stammen aus der Zeit, als "alle Optionen" der Standard war:
+-- dabei bleiben (auch in gespeicherten Profilen), nur neue Installationen starten im Modus "Einfach". Die
+-- Stream-Sicherung bleibt außen vor: sie enthält nur Stream-Werte und spielt beim Ausschalten alles zurück
+local function keepAllOptionsForExisting(settings)
+  if next(settings) == nil then return end
+  local function keep(values)
+    if values.optionsAdvanced == nil then values.optionsAdvanced = true end
+  end
+  keep(settings)
+  for _, profile in pairs(type(settings.profiles) == "table" and settings.profiles or {}) do
+    if type(profile) == "table" then keep(profile) end
+  end
+end
+
 -- Erst ab PLAYER_LOGIN aufrufen, vorher hat der Client die SavedVariables nicht geladen.
 -- Rückgabe: Einstellungen, Schlüssel und Daten des eingeloggten Charakters.
 function Database.Load()
   LevelTimerDB = LevelTimerDB or {}
+  keepAllOptionsForExisting(LevelTimerDB)
   migrate(LevelTimerDB, settingsMigrations, SETTINGS_SCHEMA_VERSION)
   applyDefaults(LevelTimerDB, SETTINGS_DEFAULTS)
   LevelTimerStatsDB = applyDefaults(LevelTimerStatsDB or {}, { characters = {} })

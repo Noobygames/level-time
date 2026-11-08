@@ -251,14 +251,14 @@ ns.Frames.Register({
     if panel:IsShown() then render() end
   end,
   hide = function() ns.Set("showSplitList", false) end,
+  -- Tooltip: was die Spalten bedeuten und wogegen verglichen wird (UX 215), darunter die Bedienung (UX W22)
+  resizable = true,
+  actionsTitle = function() return L.SPLIT_LIST_TITLE end,
+  actionsTip = function()
+    return string.format(L.SPLIT_LIST_TIP, L["COMPARE_CHOICE_" .. (ns.db.splitComparison == ns.Splits.BEST and "BEST"
+      or ns.db.splitComparison == ns.Splits.PERSONAL_BEST and "PB" or "RUN")])
+  end,
 })
-
--- Tooltip: was die Spalten bedeuten und wogegen verglichen wird (UX 215)
-Widgets.AttachTooltip(panel, function() return L.SPLIT_LIST_TITLE end, function()
-  if ns.EditMode and ns.EditMode.IsActive() then return nil end
-  return string.format(L.SPLIT_LIST_TIP, L["COMPARE_CHOICE_" .. (ns.db.splitComparison == ns.Splits.BEST and "BEST"
-    or ns.db.splitComparison == ns.Splits.PERSONAL_BEST and "PB" or "RUN")])
-end)
 
 -- Ziehgriff unten rechts ändert die eigene Größe, wie beim Hauptfenster
 local grip = Widgets.CreateResizeGrip(panel, ns.Frames.ClampScale, function(scale)

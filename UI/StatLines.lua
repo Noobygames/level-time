@@ -376,6 +376,23 @@ function ns.ApplyStatPreset(preset)
   ns.Print(string.format(ns.L.PRESET_APPLIED, ns.L[preset.label]) .. " " .. ns.L.PRESET_APPLIED_UNDO)
 end
 
+-- Voreinstellung, deren Zeilen gerade genau an sind (alle anderen aus); nil = eigene Auswahl
+function ns.ActiveStatPreset(db)
+  for _, preset in ipairs(ns.STAT_PRESETS) do
+    local on = {}
+    for _, setting in ipairs(preset.settings) do on[setting] = true end
+    local matches = true
+    for _, stat in ipairs(ns.STAT_LINES) do
+      if (db[stat.setting] and true or false) ~= (on[stat.setting] or false) then
+        matches = false
+        break
+      end
+    end
+    if matches then return preset end
+  end
+  return nil
+end
+
 -- Stand vor der letzten Voreinstellung wiederherstellen; false, wenn es keinen gibt
 function ns.UndoStatPreset()
   local backup = ns.db.presetBackup

@@ -18,6 +18,7 @@ XpBarLayout.MODES = { XpBarLayout.ALWAYS, XpBarLayout.MOUSEOVER, XpBarLayout.NEV
 Layouts.XpBar = XpBarLayout
 
 local FIELD_INSET = 6
+local FIELD_GAP = 12    -- Mindestabstand zwischen den Textfeldern (links/Mitte/rechts)
 local TEXT_PADDING = 4  -- Balken höher als die Schrift
 local EMPTY = { shown = true, xp = 0, max = 1, rested = 0 }
 local setText = ns.WindowElements.SetText
@@ -73,9 +74,17 @@ function layout.Render(el, model, db)
   return setText(el.fields[3], Layouts.JoinRows(model)) or changed
 end
 
--- Feste Breite aus der Einstellung (wie eine Statusleiste)
-function layout.Measure(_, _, db)
-  return math.max(XpBarLayout.MIN_WIDTH, math.min(XpBarLayout.MAX_WIDTH, db.xpbarWidth))
+-- Breite aus der Einstellung (wie eine Statusleiste), aber nie schmaler als die drei Texte nebeneinander (UX W20):
+-- die Mitte steht zentriert, also braucht jede Seite Platz für den breiteren Randtext. Auch bei "nur bei
+-- Mauskontakt", damit der Balken beim Überfahren nicht springt
+function layout.Measure(el, _, db)
+  local width = math.max(XpBarLayout.MIN_WIDTH, math.min(XpBarLayout.MAX_WIDTH, db.xpbarWidth))
+  if db.xpbarText == XpBarLayout.NEVER then return width end
+  local left = el.fields[1]:GetStringWidth() or 0
+  local middle = el.fields[2]:GetStringWidth() or 0
+  local right = el.fields[3]:GetStringWidth() or 0
+  local needed = math.ceil(middle + 2 * (math.max(left, right) + FIELD_INSET + FIELD_GAP))
+  return math.min(XpBarLayout.MAX_WIDTH, math.max(width, needed))
 end
 
 -- Leerer Balken auf Max-Level und ohne Daten

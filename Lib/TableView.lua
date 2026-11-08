@@ -614,5 +614,5 @@ function TableView.Create(definition)
     return frame
   end
 
-  return { tab = definition.tab, group = definition.group, Create = create }
+  return { tab = definition.tab, group = definition.group, hint = definition.hint, Create = create }
 end

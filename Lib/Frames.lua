@@ -221,6 +221,37 @@ function Frames.CanDrag(reg)
 end
 
 ---------------------------------------------------------------------------
+-- Bedienhinweis (UX W22): was Rechtsklick, Ziehen, Griff und /lt edit bei dieser Anzeige tun, je eine Zeile
+---------------------------------------------------------------------------
+function Frames.ActionsText(id)
+  local reg = registry[id]
+  if not reg then return nil end
+  local L = ns.L
+  local lines = {}
+  if reg.settingsPage and not reg.protected and reg.rightClickSettings ~= false then
+    table.insert(lines, L.FRAME_ACTION_SETTINGS)
+  end
+  if Frames.CanDrag(reg) then table.insert(lines, L.FRAME_ACTION_DRAG) end
+  if reg.resizable then table.insert(lines, L.FRAME_ACTION_RESIZE) end
+  table.insert(lines, L.FRAME_ACTION_EDIT)
+  return table.concat(lines, "\n")
+end
+
+-- actionsTip = true (nur der Bedienhinweis) oder function() -> Erklärung davor (nil = nur der Hinweis); Titel aus
+-- actionsTitle() oder dem Namen der Anzeige. Im Edit-Modus kein Tooltip, dort erklärt die Leiste die Gesten
+local function attachActionsTip(reg)
+  local Widgets = ns.Widgets
+  local title = reg.actionsTitle or function() return ns.L[reg.label] end
+  Widgets.AttachTooltip(reg.frame, title, function()
+    if ns.EditMode and ns.EditMode.IsActive() then return nil end
+    local actions = Frames.ActionsText(reg.id)
+    local intro = type(reg.actionsTip) == "function" and reg.actionsTip() or nil
+    if not intro then return actions end
+    return intro .. "\n\n" .. actions
+  end)
+end
+
+---------------------------------------------------------------------------
 -- Anmeldung
 ---------------------------------------------------------------------------
 function Frames.Register(config)
@@ -238,6 +269,7 @@ function Frames.Register(config)
       ns.ToggleOptionsPage(reg.settingsPage)
     end)
   end
+  if reg.actionsTip then attachActionsTip(reg) end
   if reg.dragWhenUnlocked then
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", function(self)

@@ -89,6 +89,7 @@ local function createEntry(tabKey)
   entry.tabButton = entryTabs:Add(function()
     selectView(entry, entry.selected)
   end)
+  Widgets.AttachTooltip(entry.tabButton, function() return L[entry.tab] end, function() return HistoryWindow.EntryTip(entry) end)
   table.insert(entries, entry)
   selectedEntry = selectedEntry or entry
   return entry
@@ -98,7 +99,34 @@ end
 -- Ansichten
 ---------------------------------------------------------------------------
 
--- view = { tab = Locale-Key, group = Locale-Key (optional),
+-- Text zu key, nil, wenn es ihn nicht gibt (L liefert für unbekannte Keys den Key selbst)
+local function optionalText(key)
+  local text = L[key]
+  if text ~= key then return text end
+  return nil
+end
+
+-- Tooltip eines Unterreiters (UX W23): <tab>_TIP, sonst der Hinweis der Ansicht (Graphen <tab>_HINT, Tabellen hint)
+function HistoryWindow.ViewTip(view)
+  local text = optionalText(view.tab .. "_TIP") or optionalText(view.tab .. "_HINT")
+  if text then return text end
+  local hint = view.hint
+  if type(hint) == "function" then return hint(selectedCharacter or ns.characterKey) end
+  if type(hint) == "string" then return optionalText(hint) end
+  return nil
+end
+
+-- Tooltip eines Hauptreiters: <tab>_TIP, bei einer Ansicht deren Tooltip, sonst die Namen der Unterreiter
+function HistoryWindow.EntryTip(entry)
+  local text = optionalText(entry.tab .. "_TIP")
+  if text then return text end
+  if #entry.members == 1 then return HistoryWindow.ViewTip(entry.members[1]) end
+  local names = {}
+  for i, view in ipairs(entry.members) do names[i] = L[view.tab] end
+  return string.format(L.HISTORY_GROUP_CONTAINS, table.concat(names, ", "))
+end
+
+-- view = { tab = Locale-Key, group = Locale-Key (optional), hint = Locale-Key oder function(characterKey) (optional),
 --          Create = function(parent, width, height) -> frame mit Render(characterKey, selectionChanged) }
 function HistoryWindow.AddView(view)
   view.frame = view.Create(content, HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
@@ -113,6 +141,7 @@ function HistoryWindow.AddView(view)
   view.subtabButton = entry.subtabs:Add(function()
     selectView(entry, view)
   end)
+  Widgets.AttachTooltip(view.subtabButton, function() return L[view.tab] end, function() return HistoryWindow.ViewTip(view) end)
 
   table.insert(entry.members, view)
   entry.selected = entry.selected or view
@@ -248,6 +277,11 @@ end
 -- Für Tests: Hauptreiter (Buttons) und die obere Kante der ersten Unterreiter-Zeile
 function HistoryWindow.MainTabs()
   return entryTabs.tabs
+end
+
+-- Für Tests: alle Reiter-Einträge { tab, members = { view, ... }, tabButton }
+function HistoryWindow.Entries()
+  return entries
 end
 
 function HistoryWindow.SubtabsTop()

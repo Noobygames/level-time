@@ -155,6 +155,7 @@ elements.watchHover = function(frame) visibility:WatchHover(frame) end
 ns.Frames.Register({
   id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,
   keepTopLeft = true, dragWhenUnlocked = true, settingsPage = SETTINGS_PAGE,
+  actionsTip = true, resizable = true,  -- Tooltip über Hintergrund und Zeit: Rechtsklick, Ziehen, Griff, /lt edit (UX W22)
   preview = function(on)
     visibility:SetEditing(on)
   end,

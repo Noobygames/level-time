@@ -2986,6 +2986,77 @@ Begriffe im XP-Tooltip und in der Historie (ja/nein):
 Fehler:
 ```
 
+### 197. UX-Review Paket 3: Modus „Einfach“ und Profile
+
+- [ ] geprüft
+
+1. Neue Installation (Level Time-SavedVariables `LevelTimerDB` vorher umbenennen, nach dem Test zurück): `/lt` öffnet
+   im Modus „Einfach“; der Schalter oben rechts heißt „Alle Optionen zeigen“ (enUS „Show all options“) und passt neben
+   die Suche, auch in frFR/esES.
+2. Bestehende Installation (eigenes `LevelTimerDB`): der Schalter steht wie vorher (an, wenn du nie umgeschaltet hast).
+3. Im Modus „Einfach“: Komfort > Oberfläche zeigt nur die Hauptschalter (Ränder ohne die drei Regler, Beute-Glitzer
+   ohne Größe), Komfort > Chat ohne Schriftgröße, Allgemein > Aussehen mit „Kontur“, aber ohne Mindestschriftgröße,
+   Balkentextur und „Farbe nach Wert“. Keine Seite der Seitenleiste ist leer, die Bausteine rücken ohne Lücken nach.
+4. Reiter Profile: oben „Aktiv: Standard (genutzt von N Charakteren)“, Tooltip listet die Charaktere; vor dem Feld
+   steht „Neues Profil:“, „Als Profil speichern“ ist grau, bis ein Name im Feld steht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Neu: einfach, Beschriftung passt (ja/nein, Sprache):
+Bestehend: Schalter unverändert (ja/nein):
+Einfach-Modus ohne leere Seiten und Lücken (ja/nein, wo):
+Profile: Aktiv-Zeile, Beschriftung, grauer Knopf (ja/nein):
+Fehler:
+```
+
+### 198. UX-Review Paket 3: Willkommenskarte, Hilfe und erster Start
+
+- [ ] geprüft
+
+1. Erster Start (oder `/lt welcome`): Voreinstellungen und Layouts sind Reiter; Maus darüber erklärt sie, die aktive
+   Voreinstellung und das aktive Layout sind unterstrichen. Zeile „3. Streamst du?“ mit Schalter Stream-Modus, Fußtext
+   zu Historie, `/lt welcome` und `/lt help` über den Knöpfen; nichts überlappt (auch frFR/esES).
+2. Beim ersten Start steht im Chat nur „Level Time ist bereit. /lt öffnet die Einstellungen, /lt help zeigt die
+   Befehle.“
+3. `/lt help` zeigt drei kurze Zeilen, `/lt help all` alle Befehle; `/lt quatsch` und `/lt runs x` melden eine Zeile
+   mit dem Verweis auf die Hilfe.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Karte: Tooltips, Hervorhebung, Stream, Fuß, kein Überlappen (ja/nein, Sprache):
+Chatzeile beim ersten Start (ja/nein):
+Hilfe kurz/lang, unbekannter Befehl (ja/nein):
+Fehler:
+```
+
+### 199. UX-Review Paket 3: Bedienhinweise an Anzeigen und Historie
+
+- [ ] geprüft
+
+1. Maus über den Hintergrund oder die Zeit des Hauptfensters: Tooltip „Hauptfenster“ mit Rechtsklick, Ziehen (fehlt bei
+   „Fixieren“), Griff und `/lt edit`; über einer Zeile weiter nur die Erklärung der Zeile. Flug-, Essen-, Lagerfeuer-
+   und Schlafsack-Karte sowie die Split-Liste zeigen den Hinweis ebenso, im Edit-Modus nicht.
+2. Edit-Modus: der Hinweis steht in zwei Zeilen, die Leiste ist schmaler als vorher und nichts überlappt.
+3. `/lt history`: Maus über einen Hauptreiter oder Unterreiter (z.B. „Verlauf“, „Zeitaufteilung“, „Effizienz“,
+   „Abgabebereit“) zeigt, was die Ansicht enthält.
+4. Layout „XP-Balken“ mit Breite 200 und drei gewählten Werten: der Balken wird breiter, links, Mitte und rechts
+   überlappen nicht; mit Texten „Nie“ bleibt er bei 200.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bedienhinweis an Fenster, Karten, Split-Liste (ja/nein, welche nicht):
+Edit-Modus-Hinweis zweizeilig (ja/nein):
+Historien-Reiter erklärt (ja/nein, welche nicht):
+XP-Balken ohne Überlappen (ja/nein):
+Fehler:
+```
+
 ### 200. Level Time Goals: Glücksrad über dem Fenster, Ergebnis bleibt, Neu drehen per Knopf
 
 - [ ] geprüft
