@@ -1,6 +1,6 @@
 -- Formular einer Zielart (oder der Zusätze) im Reiter "Ziele" aus einer Beschreibung (def.form, Kinds.lua):
 --   spec = { amount = Locale-Key der Zahl (nil = keine Zahl, sonst erste Zeile), amountTip optional,
---            fields = { Feld, ... } }
+--            amountDefault = function() -> Zahl optional (Vorschlag, z.B. nächstes Level), fields = { Feld, ... } }
 --   Feld: { type = "text", param, label, numeric optional, short optional, links optional } | { type = "choice", param,
 --         label, values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label } |
 --         { type = "amount", label } (die Zahl an dieser Stelle statt spec.amount, z.B. hinter der Modus-Auswahl)
@@ -82,12 +82,12 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     table.insert(form.rows, row)
   end
   -- Zahl (Ziel) ohne field: Read liefert sie als target
-  local function addAmount(labelKey, showIf, tip)
+  local function addAmount(labelKey, showIf, tip, default)
     local box = Manager.CreateTextBox(form.frame, onEnter, true)
     box:SetWidth(NUMBER_BOX_WIDTH)
-    addRow({ widget = box, labelKey = labelKey, box = true, showIf = showIf, tip = tip })
+    addRow({ widget = box, labelKey = labelKey, box = true, showIf = showIf, tip = tip, default = default })
   end
-  if spec.amount then addAmount(spec.amount, nil, spec.amountTip) end
+  if spec.amount then addAmount(spec.amount, nil, spec.amountTip, spec.amountDefault) end
   -- Zeile eines Felds mit param (Haken, Auswahl, Text)
   local function addField(field)
     local row = { field = field, showIf = field.showIf }
@@ -152,11 +152,26 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     end
   end
 
+  -- Vorschläge (row.default) in leere Felder; ein unveränderter Vorschlag folgt dem neuen Wert (nach einem Level-Up
+  -- steht dann wieder das nächste Level da, nicht das alte)
+  function form:FillDefaults()
+    for _, row in ipairs(self.rows) do
+      if row.default then
+        local text = strtrim(row.widget:GetText() or "")
+        if text == "" or text == row.prefilled then
+          row.prefilled = tostring(row.default())
+          row.widget:SetText(row.prefilled)
+        end
+      end
+    end
+  end
+
   -- Felder hinter die Beschriftungsspalte; Haken stehen in der Feldspalte (ihr Text rechts daneben), Textfelder
   -- reichen bis zum rechten Rand
   function form:Layout(labelWidth)
     self:SetTexts()
     self:Stack()
+    self:FillDefaults()
     for _, row in ipairs(self.rows) do
       local field = row.field
       row.widget:ClearAllPoints()
@@ -196,11 +211,13 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     return params, target
   end
 
-  -- Textfelder leeren (Auswahl und Haken bleiben: das nächste Ziel derselben Art nutzt sie meist wieder)
+  -- Textfelder leeren (Auswahl und Haken bleiben: das nächste Ziel derselben Art nutzt sie meist wieder), Vorschläge
+  -- wieder eintragen
   function form:Clear()
     for _, row in ipairs(self.rows) do
       if row.box then row.widget:SetText("") end
     end
+    self:FillDefaults()
   end
 
   -- Alles auf den Anfang: Textfelder leer, Auswahl auf den ersten Wert, Haken aus (Zusätze nach "Ziel hinzufügen",

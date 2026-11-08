@@ -3,7 +3,8 @@
 -- Tabellen und Texte kommen von dort, hier liegt nur, was zu den Zielen gehört.
 --
 -- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, packs, settings,
--- library (Vorlagen, Library.lua), wheel (Glücksrad, Wheel.lua), bingoDraft (Bingo-Editor, BingoEditor.lua) }.
+-- library (Vorlagen, Library.lua), wheel (Glücksrad, Wheel.lua), bingoDraft (Bingo-Editor, BingoEditor.lua),
+-- introShown (Einstiegs-Hinweis im Chat gezeigt) }.
 -- Es existiert erst ab PLAYER_LOGIN (ns.OnLogin), vorher nie anfassen.
 local _, ns = ...
 
@@ -121,6 +122,19 @@ LT.OnLogin(function()
     settings.pos, settings.scale = nil, nil
   end
   ns.db = db
+end)
+
+-- Einstieg beim ersten Start auf dem Account: eine Chatzeile, wie man das erste Ziel anlegt. Wer schon Ziele hat (Update
+-- von einer Version ohne diesen Hinweis), bekommt ihn nicht mehr.
+function ns.TakeFirstStart()
+  local db = ns.db
+  if db.introShown then return false end
+  db.introShown = true
+  return #db.goals == 0
+end
+
+LT.OnLogin(function()
+  if ns.TakeFirstStart() then ns.Print(ns.L.SG_INTRO) end
 end)
 
 LT.RegisterApply(function() ns.ApplySettings() end)

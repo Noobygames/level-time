@@ -207,8 +207,15 @@ SlashCmdList.STREAMGOAL("scale 9")
 expect("Größe begrenzt", StreamGoalDB.settings.frame.scale, 2)
 expect("Tracker in neuer Größe", StreamGoalTracker:GetScale(), 2)
 SlashCmdList.STREAMGOAL("move")
+-- Kurze Hilfe: Befehle für jeden Tag und der Weg zur vollen Hilfe
 local printedBefore = #wow.printed
 SlashCmdList.STREAMGOAL("help")
+expect("kurze Hilfe", wow.printed[printedBefore + 1]:find(L.SG_HELP_SHORT, 1, true) ~= nil, true)
+expect("kurze Hilfe: wenige Zeilen", #wow.printed - printedBefore, 2 + #streamGoal.SHORT_HELP)
+expect("kurze Hilfe nennt help all", wow.printed[#wow.printed]:find("help all", 1, true) ~= nil, true)
+-- Volle Hilfe mit der Syntax jeder Zielart
+printedBefore = #wow.printed
+SlashCmdList.STREAMGOAL("help all")
 expect("Hilfe", wow.printed[printedBefore + 1]:find(L.SG_HELP, 1, true) ~= nil, true)
 local availableKinds = 0
 for _, kind in ipairs(Goals.KindOrder()) do
@@ -216,6 +223,12 @@ for _, kind in ipairs(Goals.KindOrder()) do
 end
 expect("Hilfe nennt jede verfügbare Zielart", #wow.printed - printedBefore, 1 + availableKinds + #streamGoal.EXTRA_USAGES)
 expect("Hilfe mit Syntax", wow.printed[printedBefore + 2]:find(L.SG_USAGE_LEVEL, 1, true) ~= nil, true)
+-- Tippfehler: eine Zeile mit dem Hinweis auf /sg help statt der ganzen Hilfe
+printedBefore = #wow.printed
+SlashCmdList.STREAMGOAL("lsit")
+expect("unbekannter Befehl: eine Zeile", #wow.printed - printedBefore, 1)
+expect("unbekannter Befehl: Meldung", lastPrint():find(string.format(L.SG_ERR_UNKNOWN_COMMAND, "lsit"), 1, true) ~= nil,
+  true)
 
 ---------------------------------------------------------------------------
 -- Obergrenze und Reload im fertigen Schlachtfeld

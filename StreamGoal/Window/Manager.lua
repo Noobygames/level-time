@@ -74,6 +74,16 @@ function Manager.AttachTooltip(frame, title, lines)
   frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
+-- Tooltip einer Tabellenzeile mit einem Eintrag des Pools (Bingo, Glücksrad, Sammlung; TableView rowTooltip): voller
+-- Titel (die Spalte schneidet ab), Art und Herkunft, dann je Zeile von clicks, was ein Klick hier tut. So sagt jede
+-- Tabelle selbst, was ihr Klick bewirkt, auch wenn dieselben Einträge auf jeder Seite etwas anderes tun.
+function Manager.PoolRowTip(item, clicks)
+  local lines = { ns.Pool.Title(item),
+    string.format(L.SG_ROW_TIP_KIND, L[Goals.GetKind(item.kind).label], ns.Pool.SourceText(item)) }
+  for _, line in ipairs(clicks) do table.insert(lines, line) end
+  return lines
+end
+
 -- Texte der Knöpfe aus CreateButton in der gewählten Sprache (Breite wächst mit dem Text)
 function Manager.SetLabels(buttons)
   for _, button in ipairs(buttons) do Widgets.SetButtonText(button, L[button.labelKey], button.minWidth) end
@@ -122,6 +132,30 @@ function Manager.CreateHint(parent)
   return hint
 end
 
+-- Fehlerzeile einer Seite: Fehler der Knöpfe stehen im Fenster, wo man gerade hinschaut (eine Chatzeile übersieht man
+-- vor dem Stream leicht). Rot, eine Zeile über die ganze Breite; beim Wechsel der Seite geleert.
+local errorLines = {}
+
+function Manager.CreateErrorLine(parent)
+  local line = parent:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+  line:SetTextColor(Theme.RGB("bad"))
+  line:SetJustifyH("LEFT")
+  line:SetWidth(CONTENT_WIDTH)
+  line:SetWordWrap(false)
+  table.insert(errorLines, line)
+  return line
+end
+
+local function clearErrors()
+  for _, line in ipairs(errorLines) do line:SetText("") end
+end
+
+-- Fehler in die Zeile (nil = leeren); Rückgabe: true, wenn ein Fehler steht (Aufrufer kann dann abbrechen)
+function Manager.ShowError(line, err)
+  line:SetText(err or "")
+  return err ~= nil
+end
+
 -- Zeile "Beschriftung [Feld ......] [Knöpfe]": das Feld füllt den Platz zwischen Beschriftung und Knöpfen
 -- (Knöpfe vorher mit AlignRight gesetzt); Rückgabe: Breite des Felds
 function Manager.FitBox(label, box, buttonsWidth, width)
@@ -146,6 +180,7 @@ panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, "StreamGoalWindow")  -- mit ESC schließen
+panel:HookScript("OnHide", clearErrors)  -- ein alter Fehler soll beim nächsten Öffnen nicht mehr dastehen
 Manager.closeButton = Widgets.CreateCloseButton(panel)  -- innen oben rechts wie bei den Fenstern von Level Time
 Manager.panel = panel
 
@@ -157,6 +192,7 @@ local pageOrder = {}
 local shownPage = DEFAULT_PAGE
 
 local function showPage(name)
+  if name ~= shownPage then clearErrors() end
   shownPage = name
   for key, page in pairs(pages) do
     page.frame:SetShown(key == name)
@@ -263,7 +299,10 @@ function Manager.Toggle(page)
     panel:Hide()
     return
   end
-  if page and pages[page] then shownPage = page end
+  if page and pages[page] then
+    if page ~= shownPage then clearErrors() end
+    shownPage = page
+  end
   panel:Show()
   Manager.Refresh()
 end

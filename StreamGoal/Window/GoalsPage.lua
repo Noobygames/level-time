@@ -148,15 +148,11 @@ end
 ---------------------------------------------------------------------------
 -- Knopfzeile und Fehler
 ---------------------------------------------------------------------------
-local errorText = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
-errorText:SetTextColor(Theme.RGB("bad"))
-errorText:SetJustifyH("LEFT")
-errorText:SetWidth(Manager.PAGE_WIDTH)
-errorText:SetWordWrap(false)
+local errorText = Manager.CreateErrorLine(page)
 Manager.errorText = errorText  -- Tests: gezeigter Fehler
 
 local function showError(err)
-  errorText:SetText(err or "")
+  Manager.ShowError(errorText, err)
 end
 
 function Manager.AddFromForm()
@@ -230,11 +226,13 @@ end
 local activeHeader = Widgets.CreateSectionHeader(page)
 Manager.activeHeader = activeHeader
 
--- Ohne laufende Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche
+-- Ohne laufende Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche; wer noch nie ein Ziel hatte,
+-- liest dort die drei Schritte zum ersten Ziel
 local emptyText = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 emptyText:SetTextColor(Theme.RGB("muted"))
 emptyText:SetJustifyH("LEFT")
 emptyText:SetWidth(Manager.PAGE_WIDTH)
+Manager.emptyText = emptyText  -- Tests: gezeigter Hinweis
 local packsButton = Manager.CreateButton(page, "SG_OPEN_PACKS", function()
   if ns.CollectionView then ns.CollectionView.SelectSection("packs") end
   Manager.ShowPage("collection")
@@ -333,7 +331,7 @@ end
 function Manager.RenderActive()
   local active = listedGoals()
   activeHeader:SetText(string.format(L.SG_ACTIVE_TITLE, Goals.UsedSlots(), Goals.MAX_ACTIVE))
-  emptyText:SetText(L.SG_ACTIVE_EMPTY)
+  emptyText:SetText(#ns.db.goals == 0 and L.SG_ACTIVE_EMPTY_FIRST or L.SG_ACTIVE_EMPTY)
   emptyText:SetShown(#active == 0)
   packsButton:SetShown(#active == 0)
   for i = 1, math.max(#active, #activeRows) do

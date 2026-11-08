@@ -4,6 +4,15 @@ Set goals for your stream and show them as goal cards on screen. Viewers see at 
 
 **Requires [Level Time](https://www.curseforge.com/wow/addons/level-time).** Level Time Goals builds on its cards, alerts, themes and tables, so install both.
 
+## Quick start
+
+1. Type `/sg` to open the window.
+2. Pick a goal kind (Level is preselected with your next level, Free text sits right next to it) and enter a number or text.
+3. Click **Add goal**: the goal card appears on screen. Free-text goals are ticked off by clicking the card (twice, so a stray click does nothing).
+4. Want more? **Bingo** tab > **Create card**, **Wheel** tab > **Spin the wheel**, or **Collection** > Packs to add a ready-made set.
+
+Templates are saved goals that bingo cards and the wheel draw from; a pack adds several goals at once; the Collection tab holds both.
+
 ## Goal types
 
 - **Reach a level**: "Level 30 today"
@@ -27,7 +36,7 @@ Set goals for your stream and show them as goal cards on screen. Viewers see at 
 - **Deadline** in real time or played time, countdown on the card, "failed" when it runs out
 - **Daily or weekly** goals that renew themselves, with a streak
 - **Reward text and points**, shown on the card and in the alert, total points in the history
-- **Templates**: "Save as template" stores a goal from the form without starting it; bingo cards and the wheel draw from templates, and one click adds a template as a goal
+- **Templates**: "Save as template" stores a goal from the form without starting it; bingo cards and the wheel draw from templates, and "Add as goal" in the Collection starts one
 - **Packs**: several goals (with deadlines and rewards) added at once; built-in sets (Hardcore start, Self-found, Dungeon tour, Explorer), or save your running goals as a pack
 - **Collection**: templates and packs in one place, share them as text and import with one button
 - **Wheel of fortune**: a real spinning wheel picks your next goal; choose which built-in and own templates are on it, limited rerolls, optionally on every level-up, animation can be turned off
@@ -48,7 +57,7 @@ Set goals for your stream and show them as goal cards on screen. Viewers see at 
 | ------------------------------------------------ | ----------------------------------------------- |
 | `/sg`                                            | Open the window                                 |
 | `/sg options`                                    | Open the settings                               |
-| `/sg help`                                       | List all commands and goal types                |
+| `/sg help` / `/sg help all`                      | Everyday commands / all commands and goal types |
 | `/sg add level 20`                               | Goal: reach level 20                            |
 | `/sg add kills 50 pve`                           | Goal: 50 PvE kills                              |
 | `/sg add gold 100 [own]`                         | Goal: earn (or own) 100 gold                    |
