@@ -102,7 +102,11 @@ builder.AddButtonRow({
 })
 
 builder.AddSection("SG_OPTIONS_SECTION_WHEEL")
-builder.AddToggles({ toggle("SG_OPTIONS_WHEEL_LEVELUP", "wheelOnLevelUp") })
+builder.AddToggles({
+  toggle("SG_OPTIONS_WHEEL_LEVELUP", "wheelOnLevelUp"),
+  toggle("SG_OPTIONS_WHEEL_ANIMATION", "wheelAnimation"),
+  toggle("SG_OPTIONS_WHEEL_TICK", "wheelTickSound"),
+})
 builder.AddSlider({
   label = "SG_OPTIONS_WHEEL_REROLLS",
   min = 0, max = ns.Wheel.MAX_REROLLS, step = 1,
@@ -113,6 +117,7 @@ builder.AddSlider({
 })
 builder.AddButtonRow({
   { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
+  { label = "SG_WHEEL_OPEN_POOL", onClick = function() ns.Manager.Toggle("wheel") end },
 })
 
 builder.AddSubPage("SG_OPTIONS_PAGE_NOTICES")

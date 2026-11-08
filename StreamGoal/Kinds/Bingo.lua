@@ -1,12 +1,16 @@
--- Zielart Bingo (Roadmap 305): ein Schein mit 3x3 oder 5x5 Feldern (5x5 mit freier Mitte). Jedes Feld ist ein Ziel
--- einer anderen Art (goal.cell, goal.parentId = Schein; belegt keinen der MAX_ACTIVE-Plätze), gezogen aus Bingo.POOL
--- (Ziele relativ zum Level, zählen sich selbst wie jedes Ziel) und den eigenen Texten (settings.bingoTexts, abhaken per
--- Klick). Eine volle Reihe, Spalte oder Diagonale = BINGO: der Schein ist erreicht, die übrigen Felder werden
--- abgebrochen, große Einblendung, optional eine Ansage in den Gruppenchat (settings.bingoAnnounce).
--- params: { size = 3|5, cells = { [Feld] = Ziel-ID oder FREE } } (Felder zeilenweise)
+-- Zielart Bingo (Roadmap 305, 431): ein Schein mit 3x3 oder 5x5 Feldern (5x5 mit freier Mitte). Jedes Feld ist ein
+-- Ziel einer anderen Art (goal.cell, goal.parentId = Schein; belegt keinen der MAX_ACTIVE-Plätze). Felder kann der
+-- Spieler selbst wählen (Bingo-Editor im Fenster: Einträge aus Pool.lua, also mitgelieferte und eigene Ziele); die
+-- übrigen zieht der Schein zufällig aus allen Einträgen des Pools. Eine volle Reihe, Spalte oder Diagonale = BINGO:
+-- der Schein ist erreicht, die übrigen Felder werden abgebrochen, große Einblendung, optional eine Ansage in den
+-- Gruppenchat (settings.bingoAnnounce).
+-- params: { size = 3|5, cells = { [Feld] = Ziel-ID oder FREE }, chosen = { [Feld] = Pool-Schlüssel } }
+--   (Felder zeilenweise; chosen nur bei selbst gewählten Feldern, ältere Scheine haben es nicht)
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
+local Pool = ns.Pool
+local Library = ns.Library
 local L = ns.L
 
 local Bingo = {}
@@ -14,54 +18,13 @@ ns.Bingo = Bingo
 
 Bingo.SIZES = { 3, 5 }
 Bingo.FREE = 0           -- freies Feld (Mitte bei 5x5)
-Bingo.MAX_TEXTS = 30
 local ICON = "Interface\\Icons\\INV_Misc_Note_02"
 local FREE_CENTER_SIZE = 5
-local DEFAULT_TEXTS = 6  -- SG_BINGO_TEXT_1..6
+local pendingPicks  -- { [Feld] = Pool-Schlüssel } für den Schein, den Bingo.CreateBoard gerade anlegt
 
--- Felder, die sich selbst zählen; target(level)
-Bingo.POOL = {
-  { kind = "kills", params = { source = "pve" }, target = function() return 10 end },
-  { kind = "kills", params = { source = "pve" }, target = function() return 25 end },
-  { kind = "kills", params = { source = "any" }, target = function() return 50 end },
-  { kind = "quest", params = { mode = "count" }, target = function() return 2 end },
-  { kind = "quest", params = { mode = "count" }, target = function() return 5 end },
-  { kind = "quest", params = { mode = "count" }, target = function() return 10 end },
-  { kind = "gold", params = { mode = "earn" }, target = function() return 1 end },
-  { kind = "gold", params = { mode = "earn" }, target = function() return 5 end },
-  { kind = "explore", params = { mode = "count" }, target = function() return 1 end },
-  { kind = "explore", params = { mode = "count" }, target = function() return 3 end },
-  { kind = "dungeon", params = {}, target = function() return 1 end },
-  { kind = "dungeon", params = {}, target = function() return 3 end },
-  { kind = "level", params = {}, target = function(level) return level + 1 end },
-  { kind = "honor", params = {}, target = function() return 100 end },
-}
-
--- Eigene Texte oder, solange keine da sind, die mitgelieferten
-function Bingo.Texts()
-  local own = ns.db.settings.bingoTexts
-  if type(own) == "table" and #own > 0 then return own end
-  local texts = {}
-  for index = 1, DEFAULT_TEXTS do table.insert(texts, L["SG_BINGO_TEXT_" .. index]) end
-  return texts
-end
-
--- Pool gemischt (auch für das Glücksrad): Einträge { kind, params, target }
+-- Pool gemischt: alle Einträge aus Pool.lua (neue Liste)
 function Bingo.ShuffledPool()
-  local entries = {}
-  for _, entry in ipairs(Bingo.POOL) do
-    if Goals.IsAvailable(entry.kind) then
-      table.insert(entries, { kind = entry.kind, params = Goals.CopyFlat(entry.params), target = entry.target(LT.level) })
-    end
-  end
-  for _, text in ipairs(Bingo.Texts()) do
-    table.insert(entries, { kind = "custom", params = { text = text } })
-  end
-  for index = #entries, 2, -1 do
-    local other = math.random(index)
-    entries[index], entries[other] = entries[other], entries[index]
-  end
-  return entries
+  return Pool.Shuffle(Pool.Items())
 end
 
 local function cellCount(size)
@@ -72,26 +35,53 @@ local function isFree(board, index)
   return board.params.size == FREE_CENTER_SIZE and index == math.ceil(cellCount(board.params.size) / 2)
 end
 
--- Felder anlegen; reicht der Pool nicht (oder lehnt eine Art ab, z.B. schon erreicht), wird weiter gezogen und
--- notfalls wiederholt
+-- Freies Feld bei dieser Größe? (Bingo-Editor)
+function Bingo.IsFreeCell(size, index)
+  return isFree({ params = { size = size } }, index)
+end
+
+-- Selbst gewähltes Feld anlegen; nil, wenn der Eintrag fehlt (gelöschtes eigenes Ziel) oder abgelehnt wird
+local function createPick(board, key)
+  local item = Pool.Get(key)
+  if not item then return nil end
+  local cell, err = Pool.Create(item, board)
+  if not cell then ns.Debug("bingo", "pick %s failed: %s", key, err) end
+  return cell
+end
+
+-- Felder anlegen: erst die selbst gewählten (pendingPicks), dann zufällig aus dem Pool; reicht der Pool nicht (oder
+-- lehnt eine Art ab, z.B. schon erreicht), wird weiter gezogen und notfalls wiederholt
 local function fill(board)
   local size = board.params.size
+  local picks = pendingPicks or {}
+  pendingPicks = nil
   local pool = Bingo.ShuffledPool()
-  local cells, next, attempts = {}, 1, 0
+  local cells, chosen, cursor, attempts = {}, {}, 1, 0
   for index = 1, cellCount(size) do
     if isFree(board, index) then
       cells[index] = Bingo.FREE
     else
-      local cell
-      while not cell and attempts < cellCount(size) * 4 do
-        local entry = pool[(next - 1) % #pool + 1]
-        next, attempts = next + 1, attempts + 1
-        cell = Goals.Create(entry.kind, Goals.CopyFlat(entry.params), entry.target, {}, board)
+      local cell = picks[index] and createPick(board, picks[index])
+      if cell then chosen[index] = picks[index] end
+      while not cell and #pool > 0 and attempts < cellCount(size) * 4 do
+        local item = pool[(cursor - 1) % #pool + 1]
+        cursor, attempts = cursor + 1, attempts + 1
+        cell = Pool.Create(item, board)
       end
       cells[index] = cell and cell.id or Bingo.FREE
     end
   end
   board.params.cells = cells
+  if next(chosen) then board.params.chosen = chosen end
+end
+
+-- Neuer Schein; picks = { [Feld] = Pool-Schlüssel } optional (leere Felder zufällig). Rückgabe wie Goals.Create
+function Bingo.CreateBoard(size, picks)
+  pendingPicks = picks
+  local ok, board, err = pcall(Goals.Create, "bingo", { size = size })
+  pendingPicks = nil
+  if not ok then error(board) end
+  return board, err
 end
 
 -- Ist das Feld erledigt? (freies Feld immer)
@@ -192,17 +182,20 @@ Goals.OnChange(function(event, goal)
 end)
 
 ---------------------------------------------------------------------------
--- Eigene Texte (Befehle)
+-- Eigene Texte (Befehle /sg bingo text|texts|clear): freie Texte unter den eigenen Zielen (Library.lua)
 ---------------------------------------------------------------------------
 function Bingo.AddText(text)
-  local clean, err = ns.Kinds.CleanText(text, L.SG_ERR_TEXT)
-  if not clean then return err end
-  local texts = type(ns.db.settings.bingoTexts) == "table" and ns.db.settings.bingoTexts or {}
-  if #texts >= Bingo.MAX_TEXTS then return string.format(L.SG_ERR_BINGO_TEXTS, Bingo.MAX_TEXTS) end
-  table.insert(texts, clean)
-  ns.db.settings.bingoTexts = texts
+  local _, err = Library.AddText(text)
+  return err
+end
+
+-- Texte der eigenen freien Ziele
+function Bingo.Texts()
+  local texts = {}
+  for _, entry in ipairs(Library.Texts()) do table.insert(texts, entry.params.text) end
+  return texts
 end
 
 function Bingo.ClearTexts()
-  ns.db.settings.bingoTexts = {}
+  Library.RemoveTexts()
 end

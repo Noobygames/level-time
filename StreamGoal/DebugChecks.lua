@@ -71,3 +71,14 @@ DebugLog.AddCheck("303.goals.reputation", function()
   end
   return { retail = retail and true or false, classic = GetFactionInfo ~= nil, first = first or false }
 end)
+
+-- 432: kann der Client die Stücke des Glücksrads drehen, und gibt es den Tick-Ton?
+DebugLog.AddCheck("432.goals.wheel", function()
+  local slice = ns.WheelDisplay.SliceTexture(1)
+  return {
+    setRotation = type(slice.SetRotation) == "function",
+    getRotation = type(slice.GetRotation) == "function" and slice:GetRotation() or false,
+    tickSound = SOUNDKIT and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or false,
+    playSound = PlaySound ~= nil,
+  }
+end)

@@ -157,6 +157,16 @@ function Goals.UsedSlots()
   return index().slots
 end
 
+-- Eingabe prüfen, ohne ein Ziel anzulegen (eigene Ziele für Bingo und Glücksrad): Art bekannt, prepare und validate
+-- auf Kopien. Bestand (def.current) und freie Plätze prüft erst Goals.Create. Rückgabe: Fehlertext oder nil
+function Goals.Check(kind, params, target)
+  local def = kinds[kind]
+  if not def or not Goals.IsAvailable(kind) then return string.format(L.SG_ERR_UNKNOWN_KIND, tostring(kind)) end
+  local copy = Goals.CopyFlat(params)
+  if def.prepare then target = def.prepare(copy, target) end
+  return def.validate(copy, target)
+end
+
 -- Neues Ziel für den eingeloggten Charakter; extras optional (Goals.RegisterExtra), parent optional: Feld eines
 -- Bingo-Scheins (goal.parentId, goal.cell; belegt keinen Platz). Rückgabe: Ziel, oder nil und Fehlertext (übersetzt)
 function Goals.Create(kind, params, target, extras, parent)
