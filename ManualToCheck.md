@@ -3292,3 +3292,32 @@ Minimap-Knopf und Stream-Seite (ja/nein):
 Goals-Einstellungen ohne Reiterzeile (ja/nein):
 Fehler:
 ```
+
+### 220. Quest-Item-Knopf: benutzbare Gegenstände ohne Quest-Item im Questlog
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Item-Knopf“ an. Eine Quest, bei der ein Gegenstand aus den Taschen benutzt werden muss, der im
+Questlog/Tracker keinen eigenen Knopf hat (z.B. Teldrassil: „Geätzte Phiole“ am Mondbrunnen, Ziel „Gefüllte geätzte
+Phiole“). Datenteil per Debug-Log: debug `questitem` (bag item … for quest … via handed/questInfo/objective/learned,
+item … handed over with quest …), check `268.questItem.bagItems` (benutzbare Gegenstände mit den Rohfeldern von
+`GetContainerItemQuestInfo`: isQuestItem, questID, isActive; Taschen-Kandidaten mit Quelle).
+
+1. Am Ort der Quest (z.B. im Mondbrunnen): der Knopf zeigt die Phiole; Klick benutzt sie, danach liegt die gefüllte
+   Phiole in den Taschen und der Knopf verschwindet (die gefüllte Phiole ist ein Ziel, kein Knopf).
+2. Eine Quest annehmen, bei der der Questgeber einen benutzbaren Gegenstand mitgibt: der Knopf zeigt ihn, auch nach
+   `/reload`.
+3. Ein Heiltrank, Essen oder ein anderer benutzbarer Gegenstand ohne Quest erscheint nie auf dem Knopf.
+4. Quests mit eigenem Quest-Item (Tracker-Knopf) zeigen weiter dieses Item.
+5. Mit „Questreste“ an: nach Abgabe der Phiolen-Quest wird die Phiole nicht als Rest gemeldet, ein mitgegebener
+   Gegenstand schon.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Phiole am Mondbrunnen gezeigt (ja/nein):
+Mitgegebener Gegenstand gezeigt (ja/nein, welche Quest):
+Fremde Gegenstände auf dem Knopf (welche):
+Fehler:
+```

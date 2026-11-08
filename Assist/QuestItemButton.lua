@@ -6,6 +6,10 @@
 --               über SecureActionButtonTemplate type "item" mit "item:<ID>" (SECURE_ACTIONS.item ->
 --               SecureCmdItemParse, Blizzard_FrameXML/SecureTemplates.lua in allen Zweigen); UseQuestLogSpecialItem
 --               selbst ist geschützt.
+--               Quests ohne solches Item: benutzbare Gegenstände aus den Taschen (QuestBagItems.lua: beim Annehmen
+--               erhalten, GetContainerItemQuestInfo, Name im offenen Zieltext, gelernt). Das Quest-Item des
+--               Questlogs gewinnt immer; candidate.source sagt, woher der Kandidat stammt ("special" oder die Quelle
+--               aus QuestBagItems.SOURCES).
 --   "Nächste"   Retail/Forever C_QuestLog.GetDistanceSqToQuest (kleinster lesbarer Abstand); Classic kennt keinen
 --               Abstand: die zuletzt angenommene Quest mit Item, sonst die erste im Log.
 --   Ziel        Namensplaketten, die C_QuestLog.UnitIsRelatedToActiveQuest als Questgegner meldet (wie QuestMarks.lua,
@@ -75,19 +79,23 @@ function QuestItem.CanTarget()
 end
 
 -- Quests mit benutzbarem Item, unabhängig von der Zone (QuestLeftovers braucht alle):
--- { questID, index, header, link, itemId, texture }
+-- { questID, index, header, link, itemId, texture, source }; erst die Quest-Items des Questlogs, dann die aus den
+-- Taschen für die übrigen Quests
 function QuestItem.Candidates()
-  local list = {}
-  if not GetQuestLogSpecialItemInfo then return list end
-  for _, entry in ipairs(ns.QuestLog.Entries()) do
-    local link, texture = GetQuestLogSpecialItemInfo(entry.index)
+  local list, taken = {}, {}
+  local entries = ns.QuestLog.Entries()
+  for _, entry in ipairs(entries) do
+    local link, texture
+    if GetQuestLogSpecialItemInfo then link, texture = GetQuestLogSpecialItemInfo(entry.index) end
     link, texture = readable(link), readable(texture)
-    local itemId = type(link) == "string" and tonumber(link:match("item:(%d+)"))
+    local itemId = type(link) == "string" and tonumber((link:match("item:(%d+)")))
     if itemId then
+      taken[entry.questID] = true
       table.insert(list, { questID = entry.questID, index = entry.index, header = entry.header, link = link,
-        itemId = itemId, texture = texture })
+        itemId = itemId, texture = texture, source = "special" })
     end
   end
+  for _, candidate in ipairs(ns.QuestBagItems.Find(entries, taken)) do table.insert(list, candidate) end
   return list
 end
 
