@@ -5,7 +5,10 @@
 --              (Blizzards Text, z.B. "Betäubt") und timeRemaining; gezählt werden HEALER_BLOCKING_TYPES.
 --   Notlösung  WoW Forever (Debug-Log mit Schlaf, 1.60.1): locType, displayText, timeRemaining und spellID sind
 --              geheim, lesbar nur displayType und priority; HasFullControl() blieb im Schlaf true. Ein Eintrag mit
---              displayType FULL_DISPLAY (Blizzards große Kontrollverlust-Anzeige) meldet "kann nicht heilen".
+--              displayType FULL_DISPLAY (Blizzards große Kontrollverlust-Anzeige) meldet "kann nicht heilen", aber erst ab
+--              priority MIN_SECRET_PRIORITY: Wurzeln kamen in Forever ebenfalls mit displayType 2, aber priority 1
+--              (Debug-Log 2026-11-08, Heiler im Dungeon von Wucherwurzeln festgehalten, heilen ging weiter);
+--              andere Einträge hatten 3 und 5. Was die Stufen genau bedeuten, dokumentiert Blizzard nicht.
 -- Je Kontrollverlust eine Nachricht, höchstens alle REPEAT_SECONDS; bei gesperrtem Chat (GroupChat.Locked) nicht.
 -- Entwarnung (eigene Einstellung announceControlOver): fällt die Anzahl (lesbar, auch in Forever) auf 0, folgt
 -- "wieder frei (nach N s)", gemessen ab Beginn (auch ohne Warnung, solange man Heiler in der Instanz ist); die
@@ -22,7 +25,8 @@ local HEALER_BLOCKING_TYPES = {
   POSSESS = true, SILENCE = true, PACIFYSILENCE = true, SCHOOL_INTERRUPT = true,
 }
 local REPEAT_SECONDS = 3
-local FULL_DISPLAY = 2   -- displayType der großen Anzeige (im Schlaf gesehen; Wurzeln noch nicht geprüft)
+local FULL_DISPLAY = 2   -- displayType der großen Anzeige (Schlaf und Wurzeln)
+local MIN_SECRET_PRIORITY = 2  -- Forever: priority 1 = Wurzeln (heilen geht), darüber zählt als "kann nicht heilen"
 
 local lastSent
 local controlledSince  -- GetTime(), seit dem ein heilverhindernder Kontrollverlust läuft
@@ -79,7 +83,12 @@ end
 
 -- Art geheim, aber große Anzeige: verhindert das Heilen
 local function isSecretFullDisplay(data)
-  return type(data) == "table" and readable(data.locType) == nil and readable(data.displayType) == FULL_DISPLAY
+  if type(data) ~= "table" or readable(data.locType) ~= nil or readable(data.displayType) ~= FULL_DISPLAY then
+    return false
+  end
+  local priority = readable(data.priority)
+  ns.Debug("announce", "secret control: displayType %s, priority %s", data.displayType, priority)
+  return type(priority) ~= "number" or priority >= MIN_SECRET_PRIORITY
 end
 
 -- Nur bei neuem Kontrollverlust (ADDED); UPDATE kommt laufend, solange er anhält

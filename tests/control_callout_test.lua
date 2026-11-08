@@ -49,9 +49,14 @@ expect("Wurzeln: nichts", #wow.sentChat, 3)
 free()
 expect("ohne CC kein Ende", #wow.sentChat, 3)
 
--- WoW Forever: Art geheim, große Anzeige
+-- WoW Forever: Art geheim, große Anzeige; priority 1 (Wurzeln, im Debug-Log gesehen) hindert nicht am Heilen
 wow.advance(5)
-cc({ { locType = wow.SECRET, displayText = wow.SECRET, timeRemaining = wow.SECRET, displayType = 2 } })
+cc({ { locType = wow.SECRET, displayText = wow.SECRET, timeRemaining = wow.SECRET, displayType = 2, priority = 1 } })
+expect("geheim, Wurzeln: nichts", #wow.sentChat, 3)
+free()
+expect("geheim, Wurzeln: kein Ende", #wow.sentChat, 3)
+wow.advance(5)
+cc({ { locType = wow.SECRET, displayText = wow.SECRET, timeRemaining = wow.SECRET, displayType = 2, priority = 5 } })
 expect("geheim: kann nicht heilen", sent(L.CC_ANNOUNCE_GENERIC), 1)
 wow.advance(15)
 free()
