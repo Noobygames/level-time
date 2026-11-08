@@ -74,11 +74,12 @@ end
 
 Goals.RegisterKind("checklist", {
   label = "SG_KIND_CHECKLIST",
+  group = "quests",
   usage = "SG_USAGE_CHECKLIST",
   color = LT.Theme.COLORS.accent,
   icon = ICON,
   manual = true,
-  form = { fields = { { type = "text", param = "text", label = "SG_FORM_CHECKLIST", width = 360 } } },
+  form = { fields = { { type = "text", param = "text", label = "SG_FORM_CHECKLIST" } } },
   -- "add list Holz sammeln; Boss legen; Ruf freundlich"
   parse = function(_, rest) return { text = rest }, nil end,
   prepare = function(params)

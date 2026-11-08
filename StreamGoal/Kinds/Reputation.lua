@@ -67,6 +67,7 @@ end
 
 Goals.RegisterKind("reputation", {
   label = "SG_KIND_REPUTATION",
+  group = "progress",
   usage = "SG_USAGE_REPUTATION",
   color = LT.Theme.COLORS.good,
   icon = ICON,

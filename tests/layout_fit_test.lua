@@ -119,3 +119,68 @@ for _, language in ipairs({ "frFR", "esES", "deDE", "enUS" }) do
   local saveButton = wow.findFrame(function(frame) return frame._text == addon.L.PROFILE_SAVE end)
   expectTrue(language .. ": Speichern-Button passt", saveButton and saveButton:GetWidth() >= saveButton:GetTextWidth())
 end
+
+---------------------------------------------------------------------------
+-- Tabellen: Buttons der Werkzeugzeile überdecken "Filter" und das Suchfeld nie (Speedrun > Läufe hat die meisten
+-- Buttons); die Spalten passen neben die Bildlaufleiste
+---------------------------------------------------------------------------
+local SCROLLBAR_ROOM = 14  -- Abstand und Breite der Bildlaufleiste (TableView.lua)
+
+local function checkToolbar(language)
+  addon.Set("language", language)
+  if not LevelTimerHistory:IsShown() then SlashCmdList.LEVELTIMER("history") end
+  expectTrue(language .. ": Reiter Speedrun", wow.click(addon.L.HISTORY_GROUP_SPEEDRUN))
+  expectTrue(language .. ": Unterreiter Läufe", wow.click(addon.L.HISTORY_TAB_RUNS))
+  local view = wow.shownTable()
+  local width = addon.HistoryWindow.CONTENT_WIDTH
+
+  -- rechter Rand des letzten Buttons links oben, Suchfeld oben rechts
+  local buttonsRight, box = 0, nil
+  wow.findFrame(function(frame)
+    if rawget(frame, "_parent") ~= view then return false end
+    local point = frame._points[1]
+    if point and point[1] == "TOPLEFT" and point[3] == -1 and rawget(frame, "label") then
+      buttonsRight = math.max(buttonsRight, point[2] + frame:GetWidth())
+    elseif point and point[1] == "TOPRIGHT" then
+      box = frame
+    end
+    return false
+  end)
+  expectTrue(language .. ": Buttons gefunden", buttonsRight > 0)
+  expectTrue(language .. ": Suchfeld gefunden", box ~= nil)
+  local boxPoint = box._points[1]
+  local boxLeft = width + boxPoint[2] - box:GetWidth()
+  expectTrue(language .. ": Suchfeld in der Breite", boxLeft >= 0)
+  if view:ToolbarRows() == 1 then
+    local labelLeft = boxLeft - 8 - addon.L.FILTER:len() * 6
+    expectTrue(language .. ": Filter hinter den Buttons", labelLeft > buttonsRight)
+    expect(language .. ": Suchfeld in der ersten Zeile", boxPoint[3], -2)
+  else
+    expectTrue(language .. ": Suchfeld in eigener Zeile", boxPoint[3] < -2)
+  end
+
+  -- Spaltenköpfe: letzte Zelle endet vor der Bildlaufleiste
+  local header = wow.findFrame(function(frame)
+    local cells = rawget(frame, "cells")
+    return cells and rawget(frame, "_parent") == view and cells[2]._text == addon.L.HISTORY_CHARACTER_NAME
+  end)
+  local last = header.cells[#header.cells]
+  expectTrue(language .. ": Spalten passen", last._points[1][2] + last:GetWidth() <= width - SCROLLBAR_ROOM)
+end
+
+for _, language in ipairs({ "deDE", "frFR", "esES", "enUS" }) do checkToolbar(language) end
+
+-- Zu wenig Platz für das Suchfeld daneben: eigene zweite Zeile, die Tabelle rückt nach unten
+local narrow = addon.TableView.Create({
+  tab = "HISTORY_TAB_RUNS",
+  columns = { { header = "HISTORY_CHARACTER_NAME", width = 100, value = function(r) return r.name end } },
+  records = function() return { { name = "A" } } end,
+  footer = function() return {} end,
+  buttons = {
+    { label = "RUNS_BACKUP", onClick = function() end },
+    { label = "IMPORT", onClick = function() end },
+    { label = "LIVESPLIT_EXPORT", onClick = function() end },
+  },
+}).Create(CreateFrame("Frame"), 380, 300)
+narrow:Render("x", true)
+expect("schmale Tabelle: Suchfeld in zweiter Zeile", narrow:ToolbarRows(), 2)

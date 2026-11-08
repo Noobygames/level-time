@@ -6,6 +6,9 @@
 -- (Standard: erste Spalte links, Zahlen rechts), sort(record) = Sortierschlüssel, wenn der Zellentext
 -- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
+-- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes (ohne tip zeigt er den Sortier-Hinweis).
+-- Werkzeugzeile: Export und weitere Buttons links (so breit wie ihr Text), Suchfeld rechts; reicht der Platz nicht
+-- (lange Sprachen, viele Buttons), wird das Suchfeld schmaler und rutscht notfalls in eine zweite Zeile.
 local _, ns = ...
 local Widgets = ns.Widgets
 local Format = ns.Format
@@ -23,9 +26,12 @@ local LEFT, RIGHT = "LEFT", "RIGHT"
 local TOOLBAR_HEIGHT = 22     -- Zeile mit dem Suchfeld über der Tabelle
 local HINT_HEIGHT = 12       -- eigene Zeile unter der Summenzeile für den Hinweis (sonst überdeckt er die Summen)
 local FILTER_WIDTH = 150
+local FILTER_MIN_WIDTH = 90    -- schmaler wird das Suchfeld nicht, dann bekommt es eine eigene Zeile
 local FILTER_HEIGHT = 18
+local FILTER_LABEL_GAP = 8     -- Abstand "Filter" zum Feld (InputBoxTemplate zeichnet seinen Rand links außerhalb)
+local TOOLBAR_GAP = 6          -- Abstand zwischen den Buttons und zwischen Buttons und "Filter"
 local EXPORT_BUTTON_WIDTH = 70
-local EXTRA_BUTTON_WIDTH = 90   -- weitere Buttons der Ansicht (definition.buttons)
+local EXTRA_BUTTON_WIDTH = 90   -- weitere Buttons der Ansicht (definition.buttons), Mindestbreite
 -- Vor dem Text: bei schmalen Spalten wird das Ende abgeschnitten, die Richtung bleibt so sichtbar
 local SORT_DESCENDING = "v "
 local SORT_ASCENDING = "^ "
@@ -60,10 +66,29 @@ end
 
 -- Spaltenbreiten aus den Kopftexten der gewählten Sprache (UX 203): jede Spalte mindestens so breit wie ihr Kopf samt
 -- Sortierzeichen; was zusätzlich gebraucht wird, geben die Spalten mit Spielraum über ihrem Kopf anteilig ab, damit
--- die Tabelle ihre Gesamtbreite behält. Rückgabe: Breite je Spalte
+-- die Tabelle ihre Gesamtbreite behält. Reicht der Spielraum nicht und die Tabelle würde breiter als maxTotal (Platz
+-- links der Bildlaufleiste), geben die gewachsenen Spalten das Zuviel anteilig wieder ab; ihr Kopf wird dann
+-- abgeschnitten (voller Text im Tooltip). Rückgabe: Breite je Spalte
 local SORT_MARKER_WIDTH = 10  -- Platz für "v "/"^ " vor dem Kopf
 
-local function fittedWidths(columns, headerCells)
+-- Zuviel über maxTotal (mindestens die festgelegte Gesamtbreite) von den Spalten nehmen, die gewachsen sind
+local function capWidths(columns, widths, maxTotal)
+  local sum, grown = 0, 0
+  for i, column in ipairs(columns) do
+    sum = sum + widths[i]
+    grown = grown + math.max(0, widths[i] - column.width)
+  end
+  local excess = sum - math.max(maxTotal, tableWidth(columns))  -- nie schmaler als festgelegt
+  if excess <= 0 or grown <= 0 then return widths end
+  local share = math.min(1, excess / grown)
+  for i, column in ipairs(columns) do
+    local growth = math.max(0, widths[i] - column.width)
+    widths[i] = widths[i] - math.ceil(growth * share)
+  end
+  return widths
+end
+
+local function fittedWidths(columns, headerCells, maxTotal)
   local widths, needs, total, extra = {}, {}, 0, 0
   for i, column in ipairs(columns) do
     local need = math.ceil(headerCells[i]:GetStringWidth() or 0) + CELL_GAP + SORT_MARKER_WIDTH
@@ -88,7 +113,7 @@ local function fittedWidths(columns, headerCells)
   if overshoot > 0 and widths[roomiest] - overshoot >= needs[roomiest] then
     widths[roomiest] = widths[roomiest] - overshoot
   end
-  return widths
+  return capWidths(columns, widths, maxTotal)
 end
 
 -- Zellen einer Zeile auf neue Spaltenbreiten setzen
@@ -134,6 +159,7 @@ local TableOrder = ns.TableOrder
 --   rowColor(record) optional (Standard: laufender Eintrag hervorgehoben, sonst weiß),
 --   onRowClick(record, mouseButton) optional,
 --   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
+--   rowTooltip(record) optional: { Titel, Zeile, ... } als eigener Tooltip der Zeile (wenn rowLink nichts liefert),
 --   hint = Locale-Key oder function() -> Text optional,
 --   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
@@ -155,12 +181,18 @@ function TableView.Create(definition)
   local columns = definition.columns
   local rowColor = definition.rowColor or defaultRowColor
 
-  local function create(parent, _, height)
+  local function create(parent, width, height)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetAllPoints(parent)
     frame.offset = 0  -- Index vor dem ersten sichtbaren Eintrag
 
-    local visibleRows = math.floor((height - TOOLBAR_HEIGHT - HINT_HEIGHT) / ROW_HEIGHT) - 2  -- ohne Kopf- und Summenzeile
+    -- Sichtbare Zeilen ohne Kopf- und Summenzeile bei toolbarRows Werkzeugzeilen. Zeilen-Widgets gibt es für eine
+    -- Werkzeugzeile (der Normalfall); bei zwei bleiben die letzten verborgen
+    local function rowsFor(toolbarCount)
+      return math.floor((height - toolbarCount * TOOLBAR_HEIGHT - HINT_HEIGHT) / ROW_HEIGHT) - 2
+    end
+    local rowCapacity = rowsFor(1)
+    local visibleRows = rowCapacity
     local allRecords, records = {}, {}  -- alle Einträge bzw. gefiltert und sortiert (ohne appendOnly)
     local view = definition.appendOnly and TableOrder.NewAppendOnly(columns)  -- angezeigte Einträge mit appendOnly
     local function visibleCount()
@@ -174,13 +206,13 @@ function TableView.Create(definition)
     local filterText = ""
     local sort  -- { column, index, descending } oder nil (ursprüngliche Reihenfolge)
 
-    -- Suchfeld oben rechts
+    -- Suchfeld oben rechts (Breite und Zeile setzt layoutToolbar)
     local filterBox = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
     filterBox:SetSize(FILTER_WIDTH, FILTER_HEIGHT)
     filterBox:SetPoint("TOPRIGHT", -SCROLLBAR_GAP, -2)
     filterBox:SetAutoFocus(false)
     local filterLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    filterLabel:SetPoint("RIGHT", filterBox, "LEFT", -8, 0)
+    filterLabel:SetPoint("RIGHT", filterBox, "LEFT", -FILTER_LABEL_GAP, 0)
 
     local headerRow = createRow(frame, columns, "GameFontNormalSmall")
     headerRow:SetPoint("TOPLEFT", 0, -TOOLBAR_HEIGHT)
@@ -189,7 +221,7 @@ function TableView.Create(definition)
 
     local rows = {}
     local apply  -- unten definiert
-    for i = 1, visibleRows do
+    for i = 1, rowCapacity do
       rows[i] = createRow(frame, columns, "GameFontHighlightSmall")
       rows[i]:SetPoint("TOPLEFT", 0, -TOOLBAR_HEIGHT - i * ROW_HEIGHT)
     end
@@ -209,15 +241,28 @@ function TableView.Create(definition)
 
     -- Spiel-Tooltip des Links einer Zeile (Gegenstand, Quest). pcall: ein Client, der die Link-Art nicht kennt, zeigt
     -- dann einfach nichts statt eines Fehlers
-    if definition.rowLink then
+    -- Ohne Link: eigener Tooltip aus rowTooltip (erste Zeile als Titel, weitere weiß und umbrochen)
+    local function showRowTooltip(owner, record)
+      local link = definition.rowLink and definition.rowLink(record)
+      if link then
+        GameTooltip:SetOwner(owner, "ANCHOR_CURSOR")
+        if pcall(GameTooltip.SetHyperlink, GameTooltip, link) then GameTooltip:Show() else GameTooltip:Hide() end
+        return
+      end
+      local lines = definition.rowTooltip and definition.rowTooltip(record)
+      if not lines or not lines[1] then return end
+      GameTooltip:SetOwner(owner, "ANCHOR_CURSOR")
+      GameTooltip:SetText(lines[1], unpack(Widgets.COLORS.highlight))
+      for i = 2, #lines do GameTooltip:AddLine(lines[i], 1, 1, 1, true) end
+      GameTooltip:Show()
+    end
+
+    if definition.rowLink or definition.rowTooltip then
       for i, row in ipairs(rows) do
         row:EnableMouse(true)
         row:SetScript("OnEnter", function(self)
           local record = visibleAt(frame.offset + i)
-          local link = record and definition.rowLink(record)
-          if not link then return end
-          GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-          if pcall(GameTooltip.SetHyperlink, GameTooltip, link) then GameTooltip:Show() else GameTooltip:Hide() end
+          if record then showRowTooltip(self, record) end
         end)
         row:SetScript("OnLeave", function() GameTooltip:Hide() end)
       end
@@ -233,17 +278,16 @@ function TableView.Create(definition)
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
     hint:SetPoint("BOTTOMRIGHT", -SCROLLBAR_GAP, 0)
 
-    -- Weitere Buttons der Ansicht rechts neben dem Export-Button
+    -- Weitere Buttons der Ansicht rechts neben dem Export-Button (Position setzt layoutToolbar)
     local extraButtons = {}
     for i, button in ipairs(definition.buttons or {}) do
       local widget = Widgets.CreateButton(frame, EXTRA_BUTTON_WIDTH, FILTER_HEIGHT + 2, button.onClick)
-      widget:SetPoint("TOPLEFT", EXPORT_BUTTON_WIDTH + CELL_GAP + (i - 1) * (EXTRA_BUTTON_WIDTH + CELL_GAP), -1)
       extraButtons[i] = { widget = widget, label = button.label }
     end
 
     local function draw()
       for i, row in ipairs(rows) do
-        local record = visibleAt(frame.offset + i)
+        local record = i <= visibleRows and visibleAt(frame.offset + i)
         if record then
           fillRow(row, recordCells(columns, record), rowColor(record))
         else
@@ -261,8 +305,24 @@ function TableView.Create(definition)
     end
 
     scrollBar = Widgets.CreateScrollBar(frame, scrollTo)
-    scrollBar:SetPoint("TOPLEFT", tableWidth(columns) + SCROLLBAR_GAP, -TOOLBAR_HEIGHT - ROW_HEIGHT)
-    scrollBar:SetHeight(visibleRows * ROW_HEIGHT)
+
+    -- Kopf, Zeilen und Bildlaufleiste unter toolbarRows Werkzeugzeilen (1 oder 2, layoutToolbar); die Leiste rechts
+    -- der an die Kopftexte angepassten Spalten (fitColumns)
+    local toolbarRows, tableRight = 1, tableWidth(columns)
+    local function placeTable()
+      local top = toolbarRows * TOOLBAR_HEIGHT
+      visibleRows = math.min(rowCapacity, rowsFor(toolbarRows))
+      headerRow:ClearAllPoints()
+      headerRow:SetPoint("TOPLEFT", 0, -top)
+      for i, row in ipairs(rows) do
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", 0, -top - i * ROW_HEIGHT)
+      end
+      scrollBar:ClearAllPoints()
+      scrollBar:SetPoint("TOPLEFT", tableRight + SCROLLBAR_GAP, -top - ROW_HEIGHT)
+      scrollBar:SetHeight(visibleRows * ROW_HEIGHT)
+    end
+    placeTable()
 
     frame:EnableMouseWheel(true)
     frame:SetScript("OnMouseWheel", function(_, delta)
@@ -278,10 +338,12 @@ function TableView.Create(definition)
       if fittedLanguage == current then return end
       fittedLanguage = current
       for i, column in ipairs(columns) do headerRow.cells[i]:SetText(L[column.header]) end
-      local widths = fittedWidths(columns, headerRow.cells)
+      local widths = fittedWidths(columns, headerRow.cells, width - SCROLLBAR_GAP - scrollBar:GetWidth())
       for _, row in ipairs(rows) do placeCells(row, widths) end
       placeCells(headerRow, widths)
       placeCells(footerRow, widths)
+      tableRight = headerRow:GetWidth()
+      placeTable()
       local x = 0
       for i, button in ipairs(headerButtons) do
         button:ClearAllPoints()
@@ -347,8 +409,10 @@ function TableView.Create(definition)
       headerButton:SetPoint("TOPLEFT", x, 0)
       headerButton:SetSize(column.width, ROW_HEIGHT)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
-      -- Voller Kopftext, falls er trotz allem abgeschnitten ist
-      Widgets.AttachTooltip(headerButton, function() return L[column.header] end)
+      -- Voller Kopftext (falls er trotz allem abgeschnitten ist), darunter was die Spalte zeigt oder wie man sortiert
+      Widgets.AttachTooltip(headerButton, function() return L[column.header] end, function()
+        return column.tip and L[column.tip] or L.TABLE_SORT_HINT
+      end)
       headerButtons[i] = headerButton
       x = x + column.width
     end
@@ -390,6 +454,37 @@ function TableView.Create(definition)
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
 
+    -- Werkzeugzeile in der gewählten Sprache: Buttons so breit wie ihr Text nebeneinander, rechts "Filter" und das
+    -- Suchfeld. Passt das Feld nicht mehr in voller Breite daneben, wird es schmaler (bis FILTER_MIN_WIDTH), sonst
+    -- bekommt es eine eigene zweite Zeile und die Tabelle rückt nach unten. Nur bei Sprachwechsel, nicht je Render.
+    local toolbarLanguage
+    local function layoutToolbar()
+      local current = language()
+      if toolbarLanguage == current then return end
+      toolbarLanguage = current
+      Widgets.SetButtonText(exportButton, L.EXPORT, EXPORT_BUTTON_WIDTH)
+      local right = exportButton:GetWidth()
+      for _, button in ipairs(extraButtons) do
+        Widgets.SetButtonText(button.widget, L[button.label], EXTRA_BUTTON_WIDTH)
+        button.widget:ClearAllPoints()
+        button.widget:SetPoint("TOPLEFT", right + TOOLBAR_GAP, -1)
+        right = right + TOOLBAR_GAP + button.widget:GetWidth()
+      end
+      filterLabel:SetText(L.FILTER)
+      local labelWidth = math.ceil(filterLabel:GetStringWidth() or 0)
+      local room = width - SCROLLBAR_GAP - right - TOOLBAR_GAP - labelWidth - FILTER_LABEL_GAP
+      toolbarRows = room >= FILTER_MIN_WIDTH and 1 or 2
+      filterBox:ClearAllPoints()
+      filterBox:SetPoint("TOPRIGHT", -SCROLLBAR_GAP, -2 - (toolbarRows - 1) * TOOLBAR_HEIGHT)
+      filterBox:SetWidth(toolbarRows == 1 and math.min(FILTER_WIDTH, room) or FILTER_WIDTH)
+      placeTable()
+    end
+
+    -- Zeilen der Werkzeugzeile (1 oder 2), für Tests
+    function frame:ToolbarRows()
+      return toolbarRows
+    end
+
     -- Nur der laufende Eintrag (Level, Session, Instanz-Durchgang) hat sich geändert, z.B. seine Sekunden: ohne Filter
     -- und Sortierung steht er auch in der Anzeige vorne, dann reicht es, ihn dort zu ersetzen und neu zu zeichnen,
     -- statt jede Sekunde alle Einträge zu filtern und zu sortieren (Roadmap 213). Sonst wie bisher alles neu, außer
@@ -412,12 +507,10 @@ function TableView.Create(definition)
     -- force erzwingt das Neuzeichnen (nach Klick auf eine Zeile, die z.B. Favoriten ändert)
     function frame:Render(characterKey, selectionChanged, force)
       frame.characterKey = characterKey
-      filterLabel:SetText(L.FILTER)
-      exportButton:SetText(L.EXPORT)
+      layoutToolbar()
       local hintText = definition.hint
       if type(hintText) == "function" then hintText = hintText() elseif hintText then hintText = L[hintText] end
       hint:SetText(hintText or L.TABLE_SORT_HINT)
-      for _, button in ipairs(extraButtons) do button.widget:SetText(L[button.label]) end
       allRecords = definition.records(characterKey)
       if selectionChanged then frame.offset = 0 end
       -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren aller Einträge nur, wenn sich etwas geändert hat:

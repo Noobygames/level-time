@@ -47,6 +47,7 @@ end
 Goals.RegisterKind("achievement", {
   available = function() return GetAchievementInfo ~= nil end,
   label = "SG_KIND_ACHIEVEMENT",
+  group = "progress",
   usage = "SG_USAGE_ACHIEVEMENT",
   color = LT.Theme.COLORS.gold,
   icon = ICON,

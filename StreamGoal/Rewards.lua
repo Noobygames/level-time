@@ -56,7 +56,7 @@ end
 Goals.RegisterExtra("reward", {
   fields = {
     { type = "text", param = "reward", label = "SG_FORM_REWARD" },
-    { type = "text", param = "points", label = "SG_FORM_POINTS", width = 70, numeric = true },
+    { type = "text", param = "points", label = "SG_FORM_POINTS", numeric = true },
   },
   validate = function(extras)
     if extras.reward ~= nil and Kinds.TextLength(strtrim(extras.reward)) > Kinds.MAX_TEXT_LENGTH then

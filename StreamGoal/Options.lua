@@ -97,7 +97,7 @@ builder.AddSlider({
   },
 })
 builder.AddButtonRow({
-  { label = "SG_MOVE", onClick = function() LT.EditMode.Toggle() end },
+  { label = "EDIT_MODE", onClick = function() LT.EditMode.Toggle() end },
   { label = "SG_RESET_POSITION", onClick = function() Frames.Reset(Tracker.FRAME_ID) end },
 })
 

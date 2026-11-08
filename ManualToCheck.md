@@ -148,6 +148,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
+- **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 
 ---
 
@@ -2709,5 +2710,64 @@ Fehler:
 Client (Retail/Era/TBC/Forever):
 Animation flüssig (ja/nein):
 Neuwürfe und Level-Up ok (ja/nein):
+Fehler:
+```
+
+### 187. Fenster von Level Time Goals (/sg) aufgeräumt
+
+- [ ] geprüft
+
+1. `/sg`: das Schließen-Kreuz sitzt oben rechts vollständig im Fenster (auch nach Verschieben an den oberen Rand).
+2. Zielarten: oben eine Zeile mit Gruppen (Fortschritt, Kampf, Beute & Gold, Quests, Regeln & Spaß), darunter nur die
+   Arten der gewählten Gruppe; jede Art ist erreichbar, beim Zurückwechseln ist die zuletzt gewählte Art wieder da.
+   Auch auf Französisch/Spanisch kein Text über den rechten Rand.
+3. Formular: alle Felder beginnen in einer Spalte; Zahlen (Ziel, Frist, Punkte) gleich schmal, Textfelder (Belohnung,
+   Item, Eigenes) bis zum rechten Rand, Auswahl-Buttons gleich breit.
+4. Fußzeile: „Layout bearbeiten“ (Tooltip wie bei Level Time) schließt das Fenster und startet den Edit-Modus.
+5. Ohne aktive Ziele: Hinweis „Keine aktiven Ziele …“ und Button „Vorlagen öffnen“, der den Reiter Vorlagen zeigt.
+### 189. Schlafsack-Timer (Roadmap 430, WoW Forever)
+
+- [ ] geprüft
+
+1. Den „Gemütlichen Schlafsack“ benutzen: er wird nur ausgerollt, kurz erscheint „Schlafsack ausgerollt – /schlafen zum Ausruhen“ (kein Countdown). Zum Sack laufen bricht nichts ab.
+2. Mit unter 3 Stapeln „Gut erholt“ `/schlafen`: die Karte „Im Schlafsack ausruhen“ erscheint unter dem Essen-Timer und zählt von 180 s herunter. Bei jedem neuen Stapel kurz „Gut erholt ×N/3“ (Karte und Chatzeile), der Titel zeigt „×N/3“; bei Stapel 3 sofort „Fertig ausgeruht!“, sonst nach 180 s.
+3. Mit schon 3 Stapeln `/schlafen`: der Countdown zählt nur 60 s. Sobald der Buff wieder auf 2 Stunden aufgefrischt ist, kommt „Gut erholt aufgefrischt (2 Std.)“ und gleich „Fertig ausgeruht!“.
+4. Noch einmal hinlegen und nach ein paar Sekunden laufen, springen oder aufstehen: „Ausruhen abgebrochen“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kreuz im Fenster (ja/nein):
+Gruppen und Arten übersichtlich (ja/nein):
+Felder bündig (ja/nein):
+Layout bearbeiten / Vorlagen öffnen ok (ja/nein):
+Fehler:
+```
+
+### 188. Historie > Speedrun > Läufe: Kopfzeile, Namen, Werkzeugzeile
+
+- [ ] geprüft
+
+1. `/lt history`, Speedrun > Läufe: „Filter“ steht vollständig rechts neben „LiveSplit“ (kein „lter“), das Suchfeld
+   überlappt nichts; auf Französisch/Spanisch ggf. schmaler oder in einer eigenen Zeile darunter.
+2. Spaltenköpfe „Splits“ und „Quote“ statt zweimal „Erfasst“; Maus auf jeden Kopf zeigt eine Erklärung (auch
+   „Bis akt. Level“ und „Prüfcode“). Keine leere Status-Spalte mehr, die Tabelle endet vor der Bildlaufleiste.
+3. Namen ohne Realm („Nerzal“); Maus auf die Zeile zeigt „Name - Realm“ und Klasse. Zwei Charaktere gleichen Namens
+   auf verschiedenen Realms zeigen den unterscheidenden Teil des Realms in Klammern.
+4. Gewählter Vergleich (Klick auf einen Lauf) trägt „>“ in der ersten Spalte, Favoriten „*“.
+5. Auf Level 1 zeigt „Bis akt. Level“ ein gedämpftes „–“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Filter frei lesbar (ja/nein):
+Köpfe eindeutig, Tooltips ok (ja/nein):
+Namen und Tooltip ok (ja/nein):
+Client (Forever):
+Startet bei /schlafen bzw. Benutzen (ja/nein):
+Stapel-Hinweise kommen (ja/nein, wie viele in 180 s):
+Abbruch beim Aufstehen (ja/nein):
 Fehler:
 ```

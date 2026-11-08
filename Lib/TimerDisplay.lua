@@ -1,8 +1,10 @@
 -- Gemeinsamer Baustein für Zeit-Anzeigen als Karte (Lib/Card.lua): Lagerfeuer (UI/CampDisplay.lua),
--- Essen (UI/FoodDisplay.lua). Eine Anzeige kennt Zustände (kind), jeder mit Farbe und Titel:
+-- Essen (UI/FoodDisplay.lua), Schlafsack (UI/SleepDisplay.lua). Eine Anzeige kennt Zustände (kind), jeder mit
+-- Farbe und Titel:
 --   countdown  Restzeit als Zahl und leerlaufender Balken
 --   hint       Hinweis ohne Zeit, pulsiert leicht (config.pulseKind)
---   done       steht kurz mit "fertig" und verschwindet (endsAt)
+--   done       steht kurz mit "fertig" und verschwindet (endsAt); ShowEnd zeigt so auch andere Abschlüsse
+--              (z.B. "cancelled" mit eigener Farbe)
 -- config: { name, id und label (Edit-Modus, Lib/Frames.lua), default (Position), soundKey, colors[kind],
 --   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber im Edit-Modus), pulseKind,
 --   toggleKey (Einstellung, die "Ausblenden" im Edit-Modus abschaltet), available() optional,
@@ -110,7 +112,7 @@ function TimerDisplay.Create(config)
   function Display.Show(state)
     if override then return end
     if not state then
-      if not (current and current.kind == "done") then hide() end
+      if not (current and current.endsAt) then hide() end
       return
     end
     if current and current.kind == state.kind and current.title == state.title
@@ -137,12 +139,18 @@ function TimerDisplay.Create(config)
     return current and current.kind or nil
   end
 
-  function Display.ShowDone(spellId, title)
+  -- Abschluss, der kurz stehen bleibt: kind "done" (mit Ton nach db[soundKey]) oder ein eigener wie "cancelled"
+  function Display.ShowEnd(kind, spellId, title)
     if override then return end
-    display({ kind = "done", spellId = spellId, title = title, endsAt = GetTime() + DONE_SECONDS })
+    display({ kind = kind, spellId = spellId, title = title, endsAt = GetTime() + DONE_SECONDS })
+    if kind ~= "done" then return end
     local sound = ns.db and ns.db[config.soundKey]
     ns.Debug("timer", "%s done, sound %s", config.name, sound and true or false)
     if sound then ns.Alerts.PlaySound() end
+  end
+
+  function Display.ShowDone(spellId, title)
+    Display.ShowEnd("done", spellId, title)
   end
 
   ---------------------------------------------------------------------------

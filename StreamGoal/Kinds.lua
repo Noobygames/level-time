@@ -1,6 +1,7 @@
 -- Zielarten (Grundarten; weitere in Kinds/*.lua, je Datei Art, Formular, Befehl und Erfassung). Jede Art ist ein
 -- Eintrag mit:
 --   label              Locale-Key des Reiters im Fenster
+--   group              Gruppe der Reiterzeile darüber (Goals.KIND_GROUPS: progress, combat, loot, quests, fun)
 --   color, icon        Farbe (Theme-Token von Level Time) und Symbol der Karte (Alerts.ICONS: Zahl = Spell-ID, sonst Pfad)
 --   texture(goal)      (optional) eigenes Symbol des Ziels (Pfad oder Datei-ID, z.B. das Item), nil = icon
 --   tooltip(goal, tt)  (optional) füllt den Tooltip beim Überfahren der Karte (tt = GameTooltip, schon verankert)
@@ -146,6 +147,7 @@ end
 ---------------------------------------------------------------------------
 Goals.RegisterKind("level", {
   label = "SG_KIND_LEVEL",
+  group = "progress",
   usage = "SG_USAGE_LEVEL",
   color = COLORS.level,
   icon = Alerts.ICONS.levelUp,
@@ -162,6 +164,7 @@ Goals.RegisterKind("level", {
 
 Goals.RegisterKind("kills", {
   label = "SG_KIND_KILLS",
+  group = "combat",
   usage = "SG_USAGE_KILLS",
   color = COLORS.kills,
   icon = Alerts.ICONS.elite,
@@ -189,6 +192,7 @@ Goals.RegisterKind("kills", {
 
 Goals.RegisterKind("item", {
   label = "SG_KIND_ITEM",
+  group = "loot",
   usage = "SG_USAGE_ITEM",
   color = COLORS.item,
   icon = Alerts.ICONS.loot,
@@ -222,6 +226,7 @@ Goals.RegisterKind("item", {
 
 Goals.RegisterKind("bgwin", {
   label = "SG_KIND_BGWIN",
+  group = "combat",
   usage = "SG_USAGE_BGWIN",
   color = COLORS.bgwin,
   icon = BGWIN_ICON,
@@ -241,6 +246,7 @@ Goals.RegisterKind("bgwin", {
 
 Goals.RegisterKind("custom", {
   label = "SG_KIND_CUSTOM",
+  group = "fun",
   usage = "SG_USAGE_CUSTOM",
   color = COLORS.custom,
   icon = CUSTOM_ICON,

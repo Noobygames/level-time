@@ -18,6 +18,7 @@ local FORMATS = { "COMBATLOG_HONORGAIN", "COMBATLOG_HONORGAIN_NO_RANK", "COMBATL
 
 Goals.RegisterKind("honor", {
   label = "SG_KIND_HONOR",
+  group = "combat",
   usage = "SG_USAGE_HONOR",
   color = LT.Theme.COLORS.bad,
   icon = ICON,

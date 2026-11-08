@@ -783,8 +783,8 @@ local function addTimerDisplayControls(prefix, display, frameId)
   addButton(prefix .. "_PREVIEW", function() display.Preview() end)
 end
 
--- Timer: Lagerfeuer (nur WoW Forever) und Essen (wo der Client die Buffs "Essen" und "Satt" kennt)
-if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
+-- Timer: Lagerfeuer und Schlafsack (nur WoW Forever) und Essen (wo der Client die Buffs "Essen" und "Satt" kennt)
+if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() or ns.SleepTimer.IsAvailable() then
   addSubPage("OPTIONS_TAB_TIMERS")
   if ns.CampFire.IsAvailable() then
     addSection("SECTION_CAMP")
@@ -813,6 +813,15 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() then
       toggle("FOOD_SOUND", "foodSound"),
     })
     addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
+  end
+  if ns.SleepTimer.IsAvailable() then
+    addSection("SECTION_SLEEP")
+    addToggles({
+      toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
+      toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
+      toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
+    })
+    addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
   end
 end
 

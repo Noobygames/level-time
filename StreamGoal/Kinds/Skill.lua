@@ -46,6 +46,7 @@ end
 
 Goals.RegisterKind("skill", {
   label = "SG_KIND_SKILL",
+  group = "progress",
   usage = "SG_USAGE_SKILL",
   color = LT.Theme.COLORS.goodLosing,
   icon = ICON,

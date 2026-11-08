@@ -20,6 +20,7 @@ end
 
 Goals.RegisterKind("gold", {
   label = "SG_KIND_GOLD",
+  group = "loot",
   usage = "SG_USAGE_GOLD",
   color = LT.Theme.COLORS.gold,
   icon = ICON,

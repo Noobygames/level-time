@@ -66,6 +66,34 @@ function Goals.KindOrder()
   return kindOrder
 end
 
+-- Gruppen der Zielarten im Fenster (Reiterzeile über den Arten), in dieser Reihenfolge; eine Art nennt ihre Gruppe in
+-- def.group. Arten ohne bekannte Gruppe zeigt die letzte, damit jede Art erreichbar bleibt.
+Goals.KIND_GROUPS = {
+  { key = "progress", label = "SG_GROUP_PROGRESS" },
+  { key = "combat", label = "SG_GROUP_COMBAT" },
+  { key = "loot", label = "SG_GROUP_LOOT" },
+  { key = "quests", label = "SG_GROUP_QUESTS" },
+  { key = "fun", label = "SG_GROUP_FUN" },
+}
+
+-- Gruppe (key) einer Art
+function Goals.GroupOf(kind)
+  local group = kinds[kind] and kinds[kind].group
+  for _, entry in ipairs(Goals.KIND_GROUPS) do
+    if entry.key == group then return group end
+  end
+  return Goals.KIND_GROUPS[#Goals.KIND_GROUPS].key
+end
+
+-- Arten einer Gruppe in Anmelde-Reihenfolge (neue Liste), auch die im Client nicht verfügbaren
+function Goals.KindsOfGroup(group)
+  local list = {}
+  for _, kind in ipairs(kindOrder) do
+    if Goals.GroupOf(kind) == group then table.insert(list, kind) end
+  end
+  return list
+end
+
 -- Gibt es die Art in diesem Client? def.available() optional (z.B. Erfolge nicht in Classic Era)
 function Goals.IsAvailable(kind)
   local def = kinds[kind]

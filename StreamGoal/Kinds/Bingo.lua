@@ -130,6 +130,7 @@ end
 
 Goals.RegisterKind("bingo", {
   label = "SG_KIND_BINGO",
+  group = "fun",
   usage = "SG_USAGE_BINGO",
   color = LT.Theme.COLORS.gold,
   icon = ICON,
