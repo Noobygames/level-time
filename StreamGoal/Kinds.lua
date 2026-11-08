@@ -160,7 +160,8 @@ Goals.RegisterKind("level", {
   usage = "SG_USAGE_LEVEL",
   color = COLORS.level,
   icon = Alerts.ICONS.levelUp,
-  form = { amount = "SG_FORM_TARGET_LEVEL" },
+  -- vorbelegt mit dem nächsten Level: das häufigste Ziel braucht so nur einen Klick
+  form = { amount = "SG_FORM_TARGET_LEVEL", amountDefault = function() return LT.level + 1 end },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target)
     if type(target) ~= "number" or target <= LT.level then
@@ -260,14 +261,19 @@ Goals.RegisterKind("bgwin", {
   end,
 })
 
+-- Freitext ist die naheliegendste Art fürs Streamen ("Ragnaros legen"): in der ersten Gruppe direkt neben Level, damit
+-- sie ohne Gruppenwechsel erreichbar ist; im Formular steht der Text (Pflicht) vor dem optionalen Zähler
 Goals.RegisterKind("custom", {
   label = "SG_KIND_CUSTOM",
-  group = "fun",
+  group = "progress",
   usage = "SG_USAGE_CUSTOM",
   color = COLORS.custom,
   icon = CUSTOM_ICON,
   manual = true,
-  form = { amount = "SG_FORM_COUNTER", fields = { { type = "text", param = "text", label = "SG_FORM_TEXT" } } },
+  form = { fields = {
+    { type = "text", param = "text", label = "SG_FORM_TEXT" },
+    { type = "amount", label = "SG_FORM_COUNTER" },
+  } },
   -- Eine führende Zahl ist der Zähler ("add custom 5 Alle Quests für RFC"), ohne Zahl ein Ziel zum Abhaken
   parse = function(args, rest)
     local counter = tonumber(args[1])

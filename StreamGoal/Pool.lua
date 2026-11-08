@@ -14,7 +14,8 @@ ns.Pool = Pool
 
 local PREMADE_PREFIX, OWN_PREFIX = "p:", "o:"
 
--- Mitgelieferte Einträge; target(level) = Ziel abhängig vom aktuellen Level, text = Locale-Key eines Textes
+-- Mitgelieferte Einträge; target(level) = Ziel abhängig vom aktuellen Level, text = Locale-Key eines Textes. Mindestens
+-- 24 Einträge, damit ein 5x5-Bingo ohne eigene Vorlagen keine Felder wiederholt (Kinds/Bingo.lua)
 Pool.PREMADE = {
   { key = "kills10", kind = "kills", params = { source = "pve" }, target = function() return 10 end },
   { key = "kills25", kind = "kills", params = { source = "pve" }, target = function() return 25 end },
@@ -36,6 +37,14 @@ Pool.PREMADE = {
   { key = "text4", kind = "custom", text = "SG_BINGO_TEXT_4" },
   { key = "text5", kind = "custom", text = "SG_BINGO_TEXT_5" },
   { key = "text6", kind = "custom", text = "SG_BINGO_TEXT_6" },
+  { key = "text7", kind = "custom", text = "SG_BINGO_TEXT_7" },
+  { key = "text8", kind = "custom", text = "SG_BINGO_TEXT_8" },
+  { key = "text9", kind = "custom", text = "SG_BINGO_TEXT_9" },
+  { key = "text10", kind = "custom", text = "SG_BINGO_TEXT_10" },
+  { key = "text11", kind = "custom", text = "SG_BINGO_TEXT_11" },
+  { key = "text12", kind = "custom", text = "SG_BINGO_TEXT_12" },
+  { key = "text13", kind = "custom", text = "SG_BINGO_TEXT_13" },
+  { key = "text14", kind = "custom", text = "SG_BINGO_TEXT_14" },
 }
 
 -- Schlüssel der mitgelieferten Texte (Migration der früheren eigenen Bingo-Texte, Library.lua)

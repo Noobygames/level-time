@@ -2,7 +2,8 @@
 -- Filter, Sortieren) mit allen mitgelieferten und Vorlagen; Klick schaltet einen Eintrag für das Rad an/aus.
 -- Unten links die wichtigsten Einstellungen des Rads (dieselben wie unter Einstellungen > Glücksrad), rechts oben
 -- "Alle an"/"Alle aus" (für die gefilterten Zeilen), darunter die Hauptaktion "Glücksrad drehen" und links daneben
--- "Neu drehen (noch N)", solange das letzte Ergebnis Neuwürfe übrig hat. Vorlagen
+-- "Neu drehen (noch N)", solange das letzte Ergebnis Neuwürfe übrig hat; Fehler (kein Platz, nichts im Rad) stehen in
+-- der Fehlerzeile über den Einstellungen. Vorlagen
 -- entstehen und werden gelöscht in der Sammlung (CollectionPage.lua).
 local _, ns = ...
 local LT = ns.LT
@@ -16,7 +17,7 @@ local Theme = LT.Theme
 local WheelView = {}
 ns.WheelView = WheelView
 
-local BOTTOM_HEIGHT = 60        -- zwei Zeilen Einstellungen unter der Tabelle
+local BOTTOM_HEIGHT = 80        -- Fehlerzeile und zwei Zeilen Einstellungen unter der Tabelle
 local CHECK_ROW = 24
 local CHECK_INSET = -4          -- UICheckButtonTemplate hat links Luft im Bild
 -- Haken unter der Tabelle: Einstellung und Locale-Key (Tooltip aus <Key>_TIP, wie im Einstellungsfenster)
@@ -70,6 +71,9 @@ local poolView = LT.TableView.Create({
   onRowClick = function(item, mouseButton)
     if mouseButton ~= "RightButton" then WheelView.OnRowClick(item) end
   end,
+  rowTooltip = function(item)
+    return Manager.PoolRowTip(item, { Wheel.IsEnabled(item.key) and L.SG_WHEEL_ROW_TIP_ON or L.SG_WHEEL_ROW_TIP_OFF })
+  end,
   hint = "SG_WHEEL_POOL_HINT",
 })
 
@@ -92,10 +96,22 @@ for index, entry in ipairs(CHECKS) do
 end
 WheelView.checks = checks
 
-local spinButton = Manager.CreateButton(page, "SG_WHEEL_SPIN", function() ns.Commands.Wheel("") end)
+local errorLine = Manager.CreateErrorLine(page)
+errorLine:SetPoint("BOTTOMLEFT", 0, #CHECKS * CHECK_ROW + 2)
+WheelView.errorLine = errorLine  -- Tests: gezeigter Fehler
+
+-- Drehen bzw. neu drehen; ein Fehler steht in der Fehlerzeile (Ergebnis und Neuwürfe meldet das Rad selbst im Chat)
+function WheelView.Spin(reroll)
+  local ok, err
+  if reroll then ok, err = Wheel.Reroll() else ok, err = Wheel.Spin() end
+  Manager.ShowError(errorLine, not ok and err or nil)
+  return ok
+end
+
+local spinButton = Manager.CreateButton(page, "SG_WHEEL_SPIN", function() WheelView.Spin(false) end)
 WheelView.spinButton = spinButton
 -- "Neu drehen (noch N)" links neben der Hauptaktion, nur solange das gezeigte Ergebnis Neuwürfe übrig hat
-local rerollButton = Manager.CreateButton(page, "SG_WHEEL_REROLL", function() ns.Commands.Wheel("reroll") end)
+local rerollButton = Manager.CreateButton(page, "SG_WHEEL_REROLL", function() WheelView.Spin(true) end)
 WheelView.rerollButton = rerollButton
 local spinButtons = { spinButton, rerollButton }
 local allOnButton = Manager.CreateButton(page, "SG_WHEEL_ALL_ON", function() WheelView.SetAllShown(true) end)

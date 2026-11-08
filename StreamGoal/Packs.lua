@@ -91,6 +91,15 @@ local function goalsOf(key)
   return own and own.goals or nil
 end
 
+-- Titel der Ziele eines Pakets, ohne sie anzulegen (Tooltip in der Sammlung); fertige für das aktuelle Level
+function Packs.Titles(key)
+  local titles = {}
+  for _, entry in ipairs(goalsOf(key) or {}) do
+    if Goals.GetKind(entry.kind) then table.insert(titles, ns.Pool.Title(entry)) end
+  end
+  return titles
+end
+
 -- Eingaben anlegen, so viele wie Platz ist; Rückgabe: Anzahl angelegt, erster Fehlertext
 local function createAll(entries)
   if Goals.UsedSlots() + #entries > Goals.MAX_ACTIVE then

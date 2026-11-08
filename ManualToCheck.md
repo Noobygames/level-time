@@ -3000,3 +3000,37 @@ Begriffe einheitlich (ja/nein, Stellen):
 Tooltip laufende Ziele (ja/nein):
 Fehler:
 ```
+
+### 203. Level Time Goals: Einstieg, Fehler im Fenster, Klicks erklärt, Bingo ohne Wiederholung
+
+- [ ] geprüft
+
+1. Frischer Account (oder `StreamGoalDB` gelöscht): beim ersten Login steht im Chat einmal „Willkommen! /sg öffnet das
+   Fenster …“. Steht die Zeile nach den Login-Zeilen von Level Time noch sichtbar da? Nach `/reload` und beim nächsten
+   Charakter kommt sie nicht wieder.
+2. `/sg` ohne je ein Ziel: unter „Laufende Ziele“ stehen die drei Schritte und darunter „Pakete ansehen“. Level ist
+   gewählt und das Feld zeigt das nächste Level; „Ziel hinzufügen“ legt es mit einem Klick an. Freitext steht in der
+   ersten Reiterzeile neben Level, das Textfeld steht über dem Zähler.
+3. Fehler im Fenster: Bingo „Ins Feld“ mit leerem Text, Glücksrad mit allen Einträgen aus „Glücksrad drehen“,
+   Sammlung „Paket speichern“ ohne laufende Ziele: der Fehler steht rot auf der Seite (nicht abgeschnitten, nichts
+   überdeckt), nach einem Reiterwechsel oder Schließen ist er weg.
+4. Sammlung > Vorlagen: Klick auf eine Zeile wählt sie nur aus (gold, Zeile „Gewählt: …“), „Als Ziel anlegen“ und
+   „Löschen“ darunter wirken auf sie. Sammlung > Pakete: Maus über einem Paketnamen listet seine Ziele; fertige Pakete
+   haben nur „Übernehmen“, eigene zusätzlich „Teilen“ und „Löschen“.
+5. Maus über Zeilen der Tabellen in Bingo (Klick: in Feld N setzen), Glücksrad (im Rad / nicht im Rad) und Vorlagen:
+   Tooltip mit vollem Titel, Art · Herkunft und dem Klick. Maus über ein Feld des Bingo-Scheins am Bildschirm: voller
+   Text, Stand, „Linksklick, dann nochmal …“ bzw. „Zählt automatisch“ und „Rechtsklick: Einstellungen“.
+6. `/sg bingo 5` mehrmals ohne eigene Vorlagen: kein Feld doppelt; bei 3 × 3 nie zwei Felder derselben Art (z.B.
+   10 und 25 Kreaturen). Passen die neuen Texte (Vor einem NPC tanzen, …) in die 72-px-Felder?
+7. `/sg help`: sieben Zeilen; `/sg help all`: alle Zielarten; `/sg lsit`: eine Zeile „Unbekannter Befehl …“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Einstiegszeile sichtbar / nur einmal (ja/nein):
+Fehlerzeilen lesbar, ohne Überdeckung (ja/nein, Seite):
+Tooltips Tabellen / Bingo-Schein (ja/nein):
+Bingo ohne Dubletten (ja/nein):
+Fehler:
+```
