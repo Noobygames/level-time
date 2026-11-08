@@ -491,6 +491,23 @@ check("268.questItem.pick", function()
     buttons = framesByName({ ns.GlobalName("QuestItemButton"), ns.GlobalName("QuestTargetButton") }) }
 end)
 
+-- 268: benutzbare Taschengegenstände mit den Rohfeldern von C_Container.GetContainerItemQuestInfo (laut Doku
+-- isQuestItem, questID, isActive in allen Zweigen; ob Forever questID/isActive für Quest-Gegenstände füllt, ist offen)
+-- und den Taschen-Kandidaten des Quest-Item-Knopfs mit ihrer Quelle
+check("268.questItem.bagItems", function()
+  local bagCandidates = {}
+  for _, candidate in ipairs(ns.QuestItem.Candidates()) do
+    if candidate.source ~= "special" then
+      bagCandidates[#bagCandidates + 1] = { questID = candidate.questID, itemId = candidate.itemId,
+        source = candidate.source }
+    end
+  end
+  return { api = api("C_Container.GetContainerItemQuestInfo") ~= nil,
+    itemSpell = api("C_Item.GetItemSpell") ~= nil or api("GetItemSpell") ~= nil,
+    usable = chunked(ns.QuestBagItems.Inspect()), candidates = bagCandidates,
+    startItems = ns.character.questStartItems or false }
+end)
+
 -- 269: Koordinatentext der Weltkarte und Spielerposition
 check("269.mapCoordinates", function()
   local map = _G.WorldMapFrame

@@ -101,6 +101,11 @@ function GetGuildBankMoney() return 0 end
 C_Container = {
   GetContainerNumSlots = function(bag) return state.bags[bag] and state.bagSlots or 0 end,
   GetContainerItemInfo = function(bag, slot) return state.bags[bag] and state.bags[bag][slot] end,
+  -- Questinfo je Platz: bags[bag][slot].questInfo = { isQuestItem, questID, isActive } (fehlt = kein Quest-Gegenstand)
+  GetContainerItemQuestInfo = function(bag, slot)
+    local info = state.bags[bag] and state.bags[bag][slot]
+    return info and info.questInfo or { isQuestItem = false, isActive = false }
+  end,
   GetContainerNumFreeSlots = function(bag)
     local entry = state.freeSlots[bag]
     if not entry then return 0, 0 end

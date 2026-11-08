@@ -185,6 +185,7 @@ Assist\LootRollReport.lua
 UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
 Assist\QuestTextSize.lua
+Assist\QuestBagItems.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua
 Assist\QuestLeftovers.lua

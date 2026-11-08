@@ -11,7 +11,7 @@ local CHECKS = {
   "settings.all", "window.rows.level", "window.rows.session", "window.rows.instance", "window.state", "frames.addon",
   "238.moveFrames.frames", "329.cvars", "95.daily.dst", "90.xp.rates", "118.maxLevel", "194.format.units",
   "145.chatCopy.lines", "157.help", "175.level.records", "280.deaths.recent", "237.alerts.icons",
-  "240.questMarks.plates", "249.trainer.cache", "253.coverage", "259.questLevels.log", "268.questItem.pick",
+  "240.questMarks.plates", "249.trainer.cache", "253.coverage", "259.questLevels.log", "268.questItem.pick", "268.questItem.bagItems",
   "269.mapCoordinates", "270.questLogXp", "271.rested.estimate", "272.personalRecords", "274.tooltip.killsToLevel",
   "276.money.periods", "277.playHours", "278.reputation", "279.progressCurve", "282.instances", "284.splitList.lines",
   "286.bracketForecast", "287.ssf", "288.customSplits", "290.runs", "293.friendRace", "246.battleground",
