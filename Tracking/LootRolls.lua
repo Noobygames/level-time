@@ -25,10 +25,11 @@
 -- damit nichts doppelt zählt. Die Events sind nur angemeldet, solange eine der Einstellungen an ist (Event-Gruppe).
 local _, ns = ...
 
--- Einstellungen (alle aus; LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua): Zähler am Würfelfenster, Namen im
--- Tooltip, Chatzeile mit Ergebnis, Ergebnis im Beute-Journal
+-- Einstellungen (LootRolls.lua, LootRollDisplay.lua, LootRollReport.lua, RollLog.lua): Zähler am Würfelfenster, Namen im
+-- Tooltip, Chatzeile mit Ergebnis, Ergebnis im Beute-Journal (alle aus) und Wurf-Historie (an)
 ns.Database.RegisterDefaults({
-  settings = { lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false },
+  settings = { lootRollCounts = false, lootRollNames = false, lootRollSummary = false, lootRollJournal = false,
+    lootRollHistory = true },
 })
 local ChatPatterns = ns.ChatPatterns
 
@@ -639,7 +640,7 @@ if dropHistory then
 end
 
 function LootRolls.IsWanted(db)
-  return db.lootRollCounts or db.lootRollSummary or db.lootRollJournal
+  return db.lootRollCounts or db.lootRollSummary or db.lootRollJournal or db.lootRollHistory
 end
 
 function LootRolls.HistorySource()

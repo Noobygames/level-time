@@ -15,6 +15,12 @@
 --   roll*: gewonnener Wurf (Wahl, Zahl, wie viele Bedarf/Gier/Passen/Entzaubern/Transmog gewählt haben), nur mit
 --   lootRollJournal und nur für selbst gewonnene Würfe (LootRollReport.lua); sonst nil
 -- Beinahe-Tod:  { time, level, zone, lowestPercent, killer, spell, environment }
+-- Wurf:         { time, level, zone, link, itemId, quality, winner, winnerClass, winnerRoll, winnerChoice, allPassed,
+--                 need, greed, disenchant, transmog, pass, ownChoice, ownRoll, instance, difficulty, runStart, name }
+--   jeder abgeschlossene Gruppen-Wurf (RollLog.lua); winner = Kurzname (nil = unbekannt oder alle gepasst),
+--   allPassed = 1 oder nil, need..pass = Zahl der Wahlen, own* = eigene Wahl und Zahl, instance/difficulty aus
+--   GetInstanceInfo (nil außerhalb), runStart = startedAt des offenen Instanz-Laufs (= time des Laufs im instanceLog),
+--   name = Gegenstandsname nur ohne Link
 --
 -- Speicher in zwei Teilen (Roadmap 252):
 --   Eingang  ns.character[logName] in LevelTimerStatsDB: die neuesten Einträge als Tabellen; alle laufenden Module
@@ -36,6 +42,7 @@ Journal.MAX_QUESTS = 50000
 Journal.MAX_INSTANCE_RUNS = 20000
 Journal.MAX_LOOT = 100000
 Journal.MAX_NEAR_DEATHS = 50000
+Journal.MAX_ROLLS = 100000
 Journal.INBOX_LIMIT = 20000
 Journal.INBOX_SLACK = 1000  -- so viele Einträge darf der Eingang über INBOX_LIMIT wachsen, dann wird in einem Zug gekürzt
 
@@ -65,6 +72,13 @@ Journal.LOGS = {
   nearDeathLog = { max = Journal.MAX_NEAR_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "lowestPercent" },
     { path = "killer", kind = VALUE }, { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
+  rollLog = { max = Journal.MAX_ROLLS, fields = {
+    { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
+    { path = "itemId" }, { path = "quality" }, { path = "winner", kind = VALUE }, { path = "winnerClass", kind = VALUE },
+    { path = "winnerRoll" }, { path = "winnerChoice", kind = VALUE }, { path = "allPassed" }, { path = "need" },
+    { path = "greed" }, { path = "disenchant" }, { path = "transmog" }, { path = "pass" },
+    { path = "ownChoice", kind = VALUE }, { path = "ownRoll" }, { path = "instance", kind = VALUE },
+    { path = "difficulty", kind = VALUE }, { path = "runStart" }, { path = "name", kind = VALUE } } },
 }
 
 -- Module, die auf neue Einträge reagieren (z.B. Einblendungen): listener(logName, entry)
@@ -177,6 +191,14 @@ function Journal.AddLoot(item)
   entry.quantity = item.quantity
   entry.source = item.source
   append("lootLog", entry)
+end
+
+-- Abgeschlossener Wurf (Felder siehe oben, ohne time/level/zone); Zeit, Stufe und Zone kommen dazu
+function Journal.AddRoll(roll)
+  local entry = baseEntry()
+  for key, value in pairs(roll) do entry[key] = value end
+  append("rollLog", entry)
+  return entry
 end
 
 -- Beendeter Instanz-Lauf (Form siehe Instances.lua); time = Betreten der Instanz

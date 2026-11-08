@@ -3388,3 +3388,28 @@ Mitgegebener Gegenstand gezeigt (ja/nein, welche Quest):
 Fremde Gegenstände auf dem Knopf (welche):
 Fehler:
 ```
+
+### 221. Wurf-Historie: wer was bekommen hat (Historie > Journal > Würfe)
+
+- [ ] geprüft
+
+Komfort > Beute: „Würfe in der Historie“ ist an (Standard). In einer Gruppe einen Dungeon mit Würfen um Beute
+spielen. Datenteil per Debug-Log: debug `lootroll` (`history: <Link> -> <Gewinner> (<Wurf>)`, allein
+`not recorded (no group)`).
+
+1. Nach jedem Wurf: Historie > Journal > Würfe zeigt Zeit, Gegenstand (Tooltip beim Überfahren, Qualitätsfarbe),
+   Gewinner in Klassenfarbe, dessen Wahl und Wurf, deine Wahl und deinen Wurf, Instanz mit Schwierigkeit.
+2. Alle passen: Zeile „Alle gepasst“; Gewinner nicht lesbar (Forever, geheime Zeilen): „Gewinner unbekannt“.
+3. Bedarf/Gier mit gleichen Gegenständen mehrfach: je Wurf genau eine Zeile, keine doppelten.
+4. Filter (z.B. Spielername) und CSV-Export funktionieren; nach `/reload` sind die Zeilen noch da.
+5. Allein (ohne Gruppe) entsteht keine Zeile.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zeilen je Wurf richtig (ja/nein, Abweichung):
+Schwierigkeit angezeigt (Text):
+Gewinner unbekannt/alle gepasst gesehen:
+Fehler:
+```

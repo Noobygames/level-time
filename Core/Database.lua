@@ -326,6 +326,7 @@ local CHARACTER_DEFAULTS = {
   instanceVisits = {},  -- zuletzt betretene Instanz-Kopie je Name: { zoneUID, leftAt } (siehe InstanceCopy.lua)
   lootLog = {},         -- seltene und bessere Beute, älteste zuerst (siehe Loot.lua)
   nearDeathLog = {},    -- Beinahe-Tode, älteste zuerst (siehe NearDeath.lua)
+  rollLog = {},         -- abgeschlossene Gruppen-Würfe um Beute, älteste zuerst (siehe RollLog.lua)
   zoneStats = {},       -- Spielzeit, XP, Kills und Tode je Zone (siehe Zones.lua)
   questStarts = {},     -- /played bei Annahme je Quest-ID, bis zur Abgabe (QuestSplits.lua)
   customSplits = {},    -- eigene Splits { name, played, time, level }, älteste zuerst (CustomSplits.lua)
