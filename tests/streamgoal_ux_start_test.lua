@@ -48,7 +48,7 @@ SlashCmdList.STREAMGOAL("")
 expect("Leerer Zustand erklärt die Schritte", Manager.emptyText and Manager.emptyText._text, L.SG_ACTIVE_EMPTY_FIRST)
 expect("Level vorgewählt", Manager.SelectedKind(), "level")
 expect("Freitext in der ersten Gruppe", Goals.GroupOf("custom"), Goals.KIND_GROUPS[1].key)
-expect("Freitext-Reiter ohne Gruppenwechsel sichtbar", Manager.KindTab("custom"):IsShown(), true)
+expect("Freitext-Kachel sichtbar", Manager.KindTile("custom"):IsShown(), true)
 local customRows = Manager.Form("custom").rows
 expect("Text zuerst", customRows[1].field and customRows[1].field.param, "text")
 expect("Zähler danach", customRows[2].labelKey, "SG_FORM_COUNTER")

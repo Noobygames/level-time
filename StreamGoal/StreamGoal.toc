@@ -61,6 +61,8 @@ Wheel.lua
 # Fenster /sg: Rahmen und Bausteine, dann je Reiter eine Datei (Reihenfolge = Reiter)
 Window\Manager.lua
 Window\GoalForm.lua
+Window\KindPicker.lua
+Window\SubGoalRows.lua
 Window\GoalsPage.lua
 Window\BingoPage.lua
 Window\WheelPage.lua

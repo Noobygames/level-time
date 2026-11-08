@@ -10,6 +10,9 @@
 --   Jedes Feld darf showIf = { [param einer Auswahl] = Wert } haben: es steht nur da, solange die Auswahl diesen Wert
 --   hat (Arten mit Modus zeigen so nur die Felder des gewählten Modus); versteckte Felder liest Read nicht.
 -- form:Read() liefert params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
+-- Bearbeiten eines laufenden Ziels: form:Fill(values, target) trägt Werte ein und merkt sie, form:Changes() nennt die
+-- seither geänderten params ("amount" = die Zahl), form:SetRowFilter(fn(param) -> gezeigt) blendet Zeilen aus, die sich
+-- nicht ändern lassen (nil = alle).
 -- Ändert sich eine Auswahl, läuft onChange(form) (die Seite ordnet neu an, weil die Höhe sich ändern kann).
 -- Breiten je Feldart: Zahlen und kurze Texte (numeric, short) NUMBER_BOX_WIDTH, Texte bis zum rechten Rand, Auswahl
 -- CHOICE_WIDTH (wächst mit dem Text); alle Felder beginnen hinter der breitesten Beschriftung aller Formulare
@@ -112,8 +115,14 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     if field.type == "amount" then addAmount(field.label, field.showIf, field.tip) else addField(field) end
   end
 
-  -- Steht die Zeile gerade da? (showIf passt zur Auswahl)
+  -- Name einer Zeile: param des Felds bzw. "amount" für die Zahl
+  local function paramOf(row)
+    return row.field and row.field.param or AMOUNT
+  end
+
+  -- Steht die Zeile gerade da? (Filter beim Bearbeiten, showIf passt zur Auswahl)
   function form:IsRowShown(row)
+    if self.rowFilter and not self.rowFilter(paramOf(row)) then return false end
     for param, value in pairs(row.showIf or {}) do
       if self.choices[param] ~= value then return false end
     end
@@ -246,10 +255,58 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     return false
   end
 
+  -- Eingabe einer Zeile als Text (Vergleich beim Bearbeiten): Textfeld, Auswahlwert oder "1"/"" für den Haken
+  local function valueText(row)
+    local field = row.field
+    if field and field.type == "choice" then return tostring(form.choices[field.param]) end
+    if field and field.type == "check" then return row.widget:GetChecked() and "1" or "" end
+    return strtrim(row.widget:GetText() or "")
+  end
+
+  -- Werte eintragen (Bearbeiten): values[param] für Felder, target für die Zahl; die eingetragenen Werte gelten als
+  -- Ausgangsstand für Changes()
+  function form:Fill(values, target)
+    values = values or {}
+    for _, row in ipairs(self.rows) do
+      local field = row.field
+      if not field then
+        row.widget:SetText(target ~= nil and tostring(target) or "")
+        row.prefilled = nil
+      elseif field.type == "choice" then
+        local value = values[field.param]
+        self.choices[field.param] = value ~= nil and value or field.values[1]
+      elseif field.type == "check" then
+        row.widget:SetChecked(values[field.param] and true or false)
+      else
+        local value = values[field.param]
+        row.widget:SetText(value ~= nil and tostring(value) or "")
+      end
+    end
+    self:SetTexts()
+    for _, row in ipairs(self.rows) do row.filled = valueText(row) end
+  end
+
+  -- Seit Fill geänderte Zeilen: { [param] = true }
+  function form:Changes()
+    local changed = {}
+    for _, row in ipairs(self.rows) do
+      if row.filled ~= nil and valueText(row) ~= row.filled then changed[paramOf(row)] = true end
+    end
+    return changed
+  end
+
+  -- Nur Zeilen zeigen, für die filter(param) stimmt (nil = alle); löscht den Ausgangsstand von Fill
+  function form:SetRowFilter(filter)
+    self.rowFilter = filter
+    if not filter then
+      for _, row in ipairs(self.rows) do row.filled = nil end
+    end
+  end
+
   -- Feld zu param, "amount" = die Zahl
   function form:Widget(param)
     for _, row in ipairs(self.rows) do
-      if (row.field and row.field.param or AMOUNT) == param then return row.widget end
+      if paramOf(row) == param then return row.widget end
     end
   end
 

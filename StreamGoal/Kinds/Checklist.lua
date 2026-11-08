@@ -1,7 +1,7 @@
 -- Zielart Checkliste mit Teilzielen (Roadmap 304): eine Karte mit Punkten zum Abhaken (freier Text) und Teilzielen
--- anderer Arten (laufende Ziele, mit /sg sub angehängt: child.parentId). Stand = erledigte Punkte + erreichte
--- Teilziele, Ziel = alle. Teilziele erscheinen nicht als eigene Karte, sondern als Zeile der Checkliste (der Tracker
--- fragt Checklist.IsNested); scheitert oder endet ein Teilziel ohne Erfolg, bleibt seine Zeile offen.
+-- anderer Arten (laufende Ziele, mit /sg sub oder beim Bearbeiten im Fenster angehängt: child.parentId). Stand =
+-- erledigte Punkte + erreichte Teilziele, Ziel = alle. Teilziele erscheinen nicht als eigene Karte, sondern als Zeile
+-- der Checkliste (der Tracker fragt Checklist.IsNested); scheitert oder endet ein Teilziel ohne Erfolg, bleibt seine Zeile offen.
 -- Klick auf die Karte hakt den nächsten offenen Punkt ab, Shift+Klick nimmt den letzten zurück.
 -- params: { items = { { text, done }, ... } }
 local _, ns = ...
@@ -68,6 +68,28 @@ function Checklist.Attach(parent, child)
   end
   child.parentId = parent.id
   reevaluate(parent)
+  Goals.Changed(child)
+  return nil
+end
+
+-- Laufende Ziele, die sich an parent hängen lassen (Fenster: Auswahl beim Bearbeiten), älteste zuerst
+function Checklist.Candidates(parent)
+  local list = {}
+  for _, goal in ipairs(Goals.Active()) do
+    if goal ~= parent and not goal.parentId and not goal.cell and goal.kind ~= "checklist" and goal.kind ~= "bingo" then
+      table.insert(list, goal)
+    end
+  end
+  return list
+end
+
+-- Teilziel wieder lösen: es läuft als eigenes Ziel (eigene Karte) weiter, die Checkliste zählt es nicht mehr.
+-- Rückgabe: Fehlertext oder nil
+function Checklist.Detach(child)
+  local parent = child and child.parentId and Goals.Get(child.parentId)
+  if not parent or child.status ~= Goals.ACTIVE then return L.SG_ERR_SUBGOAL end
+  child.parentId = nil
+  if parent.status == Goals.ACTIVE and parent.kind == "checklist" then reevaluate(parent) end
   Goals.Changed(child)
   return nil
 end

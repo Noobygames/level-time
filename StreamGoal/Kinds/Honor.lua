@@ -22,6 +22,7 @@ Goals.RegisterKind("honor", {
   usage = "SG_USAGE_HONOR",
   color = LT.Theme.COLORS.bad,
   icon = ICON,
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { amount = "SG_FORM_HONOR" },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target) return Kinds.ValidAmount(target) end,

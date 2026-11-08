@@ -49,8 +49,7 @@ expect("Einnahmen erreicht", earnGoal.status, Goals.DONE)
 
 -- Formular: Gold und Art
 SlashCmdList.STREAMGOAL("")
-expectTrue("Gruppe Beute", wow.click(L.SG_GROUP_LOOT))
-expectTrue("Reiter Gold", wow.click(L.SG_KIND_GOLD))
+expectTrue("Kachel Gold", wow.click(L.SG_KIND_GOLD))
 expectTrue("Art umschalten", wow.click(L.SG_FORM_GOLD_EARN))
 local form = streamGoal.Manager
 expect("gewählte Art", form.SelectedKind(), "gold")

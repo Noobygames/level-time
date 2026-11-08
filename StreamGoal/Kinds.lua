@@ -1,12 +1,14 @@
 -- Zielarten (Grundarten; weitere in Kinds/*.lua, je Datei Art, Formular, Befehl und Erfassung). Jede Art ist ein
 -- Eintrag mit:
---   label              Locale-Key des Reiters im Fenster
---   group              Gruppe der Reiterzeile darüber (Goals.KIND_GROUPS: progress, combat, loot, quests, fun)
+--   label              Locale-Key der Kachel im Fenster (Tooltip <label>_TIP)
+--   group              Gruppe für die Reihenfolge der Kacheln (Goals.KIND_GROUPS: progress, combat, loot, quests, fun)
 --   color, icon        Farbe (Theme-Token von Level Time) und Symbol der Karte (Alerts.ICONS: Zahl = Spell-ID, sonst Pfad)
 --   texture(goal)      (optional) eigenes Symbol des Ziels (Pfad oder Datei-ID, z.B. das Item), nil = icon
 --   tooltip(goal, tt)  (optional) füllt den Tooltip beim Überfahren der Karte (tt = GameTooltip, schon verankert)
 --   form               Felder im Fenster (Window/GoalForm.lua: amount, fields)
---   inForm             false = kein Reiter im Formular des Reiters "Ziele" (Bingo hat einen eigenen Reiter)
+--   inForm             false = keine Kachel im Reiter "Ziele" (Bingo hat einen eigenen Reiter)
+--   editable           (optional) was sich am laufenden Ziel ändern lässt: { "amount" (Zielzahl), param, ... }
+--   editDerived        (optional) params, die prepare aus den editierbaren ableitet (Goals.Edit übernimmt sie mit)
 --   parse(args, rest)  /sg add <Art> ...: Wörter und Rest der Eingabe -> params, target
 --   usage              Locale-Key der Befehlszeile für /sg help
 --   validate(params, target) -> Fehlertext oder nil
@@ -162,6 +164,7 @@ Goals.RegisterKind("level", {
   icon = Alerts.ICONS.levelUp,
   -- vorbelegt mit dem nächsten Level: das häufigste Ziel braucht so nur einen Klick
   form = { amount = "SG_FORM_TARGET_LEVEL", amountDefault = function() return LT.level + 1 end },
+  editable = { "amount" },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target)
     if type(target) ~= "number" or target <= LT.level then
@@ -189,6 +192,7 @@ Goals.RegisterKind("kills", {
     { type = "choice", param = "source", label = "SG_FORM_SOURCE", values = Kinds.KILL_SOURCES, labels = SOURCE_LABELS },
     { type = "check", param = "battleground", label = "SG_FORM_ONLY_BG" },
   } },
+  editable = { "amount" },
   parse = function(args)
     local params = {}
     for _, word in ipairs(args) do
@@ -219,6 +223,7 @@ Goals.RegisterKind("item", {
     { type = "text", param = "item", label = "SG_FORM_ITEM", links = true },
     { type = "text", param = "boss", label = "SG_FORM_BOSS" },
   } },
+  editable = { "amount", "boss" },  -- die Notiz prüft nichts, nur die Karte zeigt sie
   parse = function(_, rest)
     local item, words = Kinds.SplitItemInput(rest)
     return { item = item }, tonumber(words[1]) or Kinds.DEFAULT_AMOUNT
@@ -248,6 +253,7 @@ Goals.RegisterKind("bgwin", {
   color = COLORS.bgwin,
   icon = BGWIN_ICON,
   form = { amount = "SG_FORM_AMOUNT", fields = { { type = "text", param = "battleground", label = "SG_FORM_BG" } } },
+  editable = { "amount" },
   parse = function(args)
     local name = table.concat(args, " ", 2)
     return { battleground = name ~= "" and name or nil }, tonumber(args[1]) or Kinds.DEFAULT_AMOUNT
@@ -261,8 +267,8 @@ Goals.RegisterKind("bgwin", {
   end,
 })
 
--- Freitext ist die naheliegendste Art fürs Streamen ("Ragnaros legen"): in der ersten Gruppe direkt neben Level, damit
--- sie ohne Gruppenwechsel erreichbar ist; im Formular steht der Text (Pflicht) vor dem optionalen Zähler
+-- Freitext ist die naheliegendste Art fürs Streamen ("Ragnaros legen"): in der ersten Gruppe, die Kachel steht direkt
+-- neben Level; im Formular steht der Text (Pflicht) vor dem optionalen Zähler
 Goals.RegisterKind("custom", {
   label = "SG_KIND_CUSTOM",
   group = "progress",
@@ -274,6 +280,8 @@ Goals.RegisterKind("custom", {
     { type = "text", param = "text", label = "SG_FORM_TEXT" },
     { type = "amount", label = "SG_FORM_COUNTER" },
   } },
+  editable = { "text", "amount" },  -- Tippfehler im Text, Zähler nachträglich
+  editDerived = { "counted" },
   -- Eine führende Zahl ist der Zähler ("add custom 5 Alle Quests für RFC"), ohne Zahl ein Ziel zum Abhaken
   parse = function(args, rest)
     local counter = tonumber(args[1])

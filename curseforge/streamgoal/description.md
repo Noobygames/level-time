@@ -7,7 +7,7 @@ Set goals for your stream and show them as goal cards on screen. Viewers see at 
 ## Quick start
 
 1. Type `/sg` to open the window.
-2. Pick a goal kind (Level is preselected with your next level, Free text sits right next to it) and enter a number or text.
+2. Pick a goal kind from the tiles (all kinds at a glance; Level is preselected with your next level, Free text sits right next to it) and enter a number or text.
 3. Click **Add goal**: the goal card appears on screen. Free-text goals are ticked off by clicking the card (twice, so a stray click does nothing).
 4. Want more? **Bingo** tab > **Create card**, **Wheel** tab > **Spin the wheel**, or **Collection** > Packs to add a ready-made set.
 
@@ -27,8 +27,8 @@ Templates are saved goals that bingo cards and the wheel draw from; a pack adds 
 - **Achievement** (clients with achievements) and **honor**
 - **Win battlegrounds**: N wins, optionally for one battleground
 - **Rules that can fail**: no death, no trade/mail/auction house, no flight paths, naked, no healing potions, until a level or a deadline
-- **Checklists** with your own items and other goals as sub-goals
-- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves, BINGO alert and optional group announcement. Fill the fields yourself (built-in or your own templates, or type a text) or let empty fields fill at random
+- **Checklists** with your own items and other goals as sub-goals (attach or detach them in the window under **Edit**)
+- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves, BINGO alert and optional group announcement. Fill the fields yourself (built-in or your own templates, a text, or **New goal for field** for any goal kind) or let empty fields fill at random
 - **Free text**: anything you like, with or without a counter you click up yourself
 
 ## Extras for every goal
@@ -47,7 +47,7 @@ Templates are saved goals that bingo cards and the wheel draw from; a pack adds 
 - **Settings window** (`/sg options`) with search: number of cards, card colors, size, sound, alert, chat line, own pages for bingo and the wheel, clean-up of goals from deleted characters
 - **Minimap button**: left click opens the window, Shift+left the history, right click the settings, Shift+right edit mode; the tooltip lists your running goals. Turn it off under Settings > Goal cards or with `/sg minimap`
 - **History**: every finished, cancelled or failed goal in a table you can filter, sort and export as CSV
-- **Window** (`/sg`): tabs Goals (form for every goal type, extras behind "More options", running goals), Bingo, Wheel, Collection and History; every goal type, form field and running goal explains itself in its tooltip
+- **Window** (`/sg`): tabs Goals (tiles for every goal type, form, extras behind "More options", running goals with **Edit** for number, text, deadline, repeat, reward, points and sub-goals), Bingo, Wheel, Collection and History; every goal type, form field and running goal explains itself in its tooltip
 - Languages follow Level Time: English, German, French, Spanish
 - Works with the same game versions as Level Time
 

@@ -70,5 +70,10 @@ Goals.RegisterExtra("reward", {
     Rewards.SetReward(goal, extras.reward)
     Rewards.SetPoints(goal, extras.points)
   end,
+  fill = function(goal) return { reward = goal.reward, points = goal.points } end,
+  update = function(goal, extras, changed)
+    if changed.reward then Rewards.SetReward(goal, extras.reward) end
+    if changed.points then Rewards.SetPoints(goal, extras.points) end
+  end,
   line = Rewards.Line,
 })

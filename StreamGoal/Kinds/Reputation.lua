@@ -72,6 +72,7 @@ Goals.RegisterKind("reputation", {
   color = LT.Theme.COLORS.good,
   icon = ICON,
   -- Modus zuerst, die Fraktion immer; dann nur die Rufpunkte (gewinnen) bzw. die Stufe (erreichen)
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_REP_MODE", values = MODES, labels = MODE_LABELS },
     { type = "text", param = "faction", label = "SG_FORM_REP_FACTION" },

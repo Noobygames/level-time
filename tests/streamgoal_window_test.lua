@@ -1,6 +1,6 @@
--- Level Time Goals, Fenster /sg: Schließen-Kreuz innen, Reiter Ziele/Bingo/Glücksrad/Sammlung/Historie, Zielarten in
--- Gruppen (jede Art mit Formular erreichbar, Bingo hat einen eigenen Reiter), einheitliche Feldbreiten, Zusätze
--- zugeklappt, Hinweis mit Paketen ohne aktive Ziele, "Einstellungen" öffnet die Unterseite des Reiters, "Layout
+-- Level Time Goals, Fenster /sg: Schließen-Kreuz innen, Reiter Ziele/Bingo/Glücksrad/Sammlung/Historie, Kacheln der
+-- Zielarten (jede Art mit Formular erreichbar, Bingo hat einen eigenen Reiter), einheitliche Feldbreiten, Zusätze
+-- zugeklappt, Hinweis mit Paketen ohne laufende Ziele, "Einstellungen" öffnet die Unterseite des Reiters, "Layout
 -- bearbeiten" in der Fußzeile.
 local Goals = streamGoal.Goals
 local Manager = streamGoal.Manager
@@ -36,7 +36,8 @@ expectTrue("Kreuz nicht rechts hinaus", closeX <= 0)
 expectTrue("Kreuz nicht oben hinaus", closeY <= 0)
 
 ---------------------------------------------------------------------------
--- Gruppen: jede Art gehört zu genau einer Gruppe, jede verfügbare Art ist über ihre Gruppe erreichbar
+-- Kacheln der Zielarten (UX G15): jede Art gehört zu genau einer Gruppe (Reihenfolge), jede verfügbare Art hat eine
+-- Kachel mit Namen und Tooltip, ein Klick wählt sie; alle Kacheln in der Seitenbreite
 ---------------------------------------------------------------------------
 local inGroup = {}
 for _, group in ipairs(Goals.KIND_GROUPS) do
@@ -48,7 +49,7 @@ end
 local function inForm(kind)
   return Goals.IsAvailable(kind) and Goals.GetKind(kind).inForm ~= false
 end
-expect("Bingo hat keinen Formular-Reiter", inForm("bingo"), false)
+expect("Bingo hat keine Kachel", inForm("bingo"), false)
 for _, kind in ipairs(Goals.KindOrder()) do
   expectTrue("Art " .. kind .. " hat eine Gruppe", inGroup[kind] ~= nil)
   expectTrue("Art " .. kind .. " hat eine eigene Gruppe", Goals.GetKind(kind).group == inGroup[kind])
@@ -59,30 +60,23 @@ local function rightEdge(frame)
   return point[#point - 1] + frame:GetWidth()
 end
 
-for _, group in ipairs(Goals.KIND_GROUPS) do
-  local groupTab = Manager.GroupTab(group.key)
-  expectTrue("Gruppe " .. group.key .. " sichtbar", groupTab:IsShown())
-  expect("Gruppe " .. group.key .. " beschriftet", groupTab.label._text, L[group.label])
-  expectTrue("Gruppe " .. group.key .. " in der Breite", rightEdge(groupTab) <= CONTENT_WIDTH)
-  groupTab._scripts.OnClick(groupTab)
-  expect("Gruppe " .. group.key .. " gewählt", Manager.SelectedGroup(), group.key)
-  for _, kind in ipairs(Goals.KindOrder()) do
-    local tab = Manager.KindTab(kind)
-    local member = Goals.GroupOf(kind) == group.key and inForm(kind)
-    expect(group.key .. ": Reiter " .. kind, tab:IsShown(), member)
-    if member then
-      expectTrue(group.key .. ": " .. kind .. " in der Breite", rightEdge(tab) <= CONTENT_WIDTH)
-      tab._scripts.OnClick(tab)
-      expect("Art " .. kind .. " gewählt", Manager.SelectedKind(), kind)
-    end
+for _, kind in ipairs(Goals.KindOrder()) do
+  local tile = Manager.KindTile(kind)
+  if inForm(kind) then
+    expectTrue("Kachel " .. kind .. " sichtbar", tile:IsShown())
+    expect("Kachel " .. kind .. " beschriftet", tile.label._text, L[Goals.GetKind(kind).label])
+    expectTrue("Kachel " .. kind .. " mit Tooltip", tile._scripts.OnEnter ~= nil)
+    expectTrue("Kachel " .. kind .. " in der Breite", rightEdge(tile) <= CONTENT_WIDTH)
+    tile._scripts.OnClick(tile, "LeftButton")
+    expect("Art " .. kind .. " gewählt", Manager.SelectedKind(), kind)
+    expect("Kachel " .. kind .. " hervorgehoben", Manager.KindTile(kind).selected, true)
+  else
+    expectTrue("keine Kachel für " .. kind, tile == nil or not tile:IsShown())
   end
 end
-
--- Zurück zu einer Gruppe: die dort zuletzt gewählte Art ist wieder da
-Manager.SelectKind("gold")
-Manager.SelectGroup("progress")
-Manager.SelectGroup("loot")
-expect("zuletzt gewählte Art der Gruppe", Manager.SelectedKind(), "gold")
+-- Reihenfolge der Kacheln folgt den Gruppen: Level oben links, Freitext gleich daneben
+local first = Manager.KindTile("level")._points[1]
+expect("Level oben links", first[#first - 1], 0)
 
 ---------------------------------------------------------------------------
 -- Feldbreiten: Zahlen einheitlich schmal, Texte bis zum rechten Rand, alle Felder in einer Spalte
@@ -159,21 +153,18 @@ expect("Fenster zu", StreamGoalWindow:IsShown(), false)
 addon.EditMode.Leave()
 
 ---------------------------------------------------------------------------
--- Lange Sprachen: Gruppen und Arten bleiben in der Breite
+-- Lange Sprachen: Kacheln bleiben in der Breite, ihr Name passt in die Kachel
 ---------------------------------------------------------------------------
 SlashCmdList.STREAMGOAL("")
 for _, language in ipairs({ "frFR", "esES", "enUS", "deDE" }) do
   addon.Set("language", language)
-  for _, group in ipairs(Goals.KIND_GROUPS) do
-    Manager.SelectGroup(group.key)
-    expect(language .. ": Gruppe " .. group.key, Manager.GroupTab(group.key).label._text, addon.L[group.label])
-    local groupTab = Manager.GroupTab(group.key)
-    expectTrue(language .. ": Gruppe " .. group.key .. " in der Breite", rightEdge(groupTab) <= CONTENT_WIDTH)
-    for _, kind in ipairs(Goals.KindsOfGroup(group.key)) do
-      local tab = Manager.KindTab(kind)
-      if tab:IsShown() then
-        expectTrue(language .. ": " .. kind .. " in der Breite", rightEdge(tab) <= CONTENT_WIDTH)
-      end
+  local picker = Manager.picker
+  expectTrue(language .. ": Name passt in die Kachel", picker:NeededWidth() <= picker.tileWidth)
+  for _, kind in ipairs(Goals.KindOrder()) do
+    local tile = Manager.KindTile(kind)
+    if tile and tile:IsShown() then
+      expect(language .. ": Kachel " .. kind, tile.label._text, addon.L[Goals.GetKind(kind).label])
+      expectTrue(language .. ": " .. kind .. " in der Breite", rightEdge(tile) <= CONTENT_WIDTH)
     end
   end
   -- Reiter der Seiten (Ziele, Bingo, Glücksrad, Sammlung, Historie) nebeneinander im Fenster

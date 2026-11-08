@@ -79,6 +79,7 @@ Goals.RegisterKind("quest", {
   color = LT.Theme.COLORS.neutral,
   icon = ICON,
   -- Modus zuerst; darunter nur das Feld des gewählten Modus (Anzahl bzw. Quests)
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_QUEST_MODE", values = MODES, labels = MODE_LABELS },
     { type = "amount", label = "SG_FORM_AMOUNT", showIf = { mode = "count" } },

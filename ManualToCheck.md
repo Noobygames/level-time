@@ -3113,3 +3113,35 @@ Tooltips Tabellen / Bingo-Schein (ja/nein):
 Bingo ohne Dubletten (ja/nein):
 Fehler:
 ```
+
+### 204. Level Time Goals: Kacheln der Zielarten, Ziele bearbeiten, Ziel fürs Bingo-Feld
+
+- [ ] geprüft
+
+1. `/sg`, Reiter „Ziele“: statt zweier Reiterzeilen steht oben ein Raster aus Kacheln, je Art Symbol, Name und ein
+   Farbstreifen in der Farbe der Art. Sind alle Symbole sichtbar (keine grünen/leeren Kästchen), ist kein Name
+   abgeschnitten, und passt das Raster in allen vier Sprachen in höchstens vier Zeilen? Gewählte Kachel heller, Maus
+   darüber zeigt Erklärung und gedämpft den Chatbefehl.
+2. Sechs Ziele anlegen, „+ Weitere Optionen“ aufklappen, Art Ruf wählen: steht die letzte Zeile der laufenden Ziele
+   noch ganz im Fenster (nichts überdeckt die Fußzeile)?
+3. Laufender Freitext > „Bearbeiten“: Kacheln weichen einem Hinweis, Text und Zähler sind vorbelegt, Zusätze offen.
+   Tippfehler korrigieren, Frist „30m“, „Speichern“: Karte zeigt den neuen Text und die Restzeit. Nochmal „Bearbeiten“:
+   die Frist steht als Restzeit (z.B. „29m“) da; nur Punkte ändern lässt die Frist unverändert.
+4. Checkliste und ein weiteres laufendes Ziel: „Bearbeiten“ an der Checkliste, unter „Teilziel anhängen“ das Ziel
+   wählen (Links-/Rechtsklick), „Anhängen“: es verschwindet als eigene Karte und steht als Zeile in der Checkliste;
+   „Lösen“ holt es zurück. Lange Titel im Auswahlknopf werden abgeschnitten statt über den Rand zu laufen.
+5. Reiter „Bingo“, ein Feld wählen, „Neues Ziel fürs Feld“: Reiter „Ziele“ mit Überschrift „Neues Ziel für das gewählte
+   Bingo-Feld“, ohne Zusätze. Art Item wählen, Item per Shift-Klick einfügen, „Ins Bingo-Feld setzen“: zurück im Bingo,
+   das Feld zeigt das Item, das nächste leere Feld ist gewählt. „Zurück“ statt Speichern ändert nichts.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kacheln: Symbole sichtbar / Namen ganz / Zeilen (je Sprache):
+Letzte Zeile im Fenster (ja/nein):
+Bearbeiten: Text / Frist / Punkte (ja/nein):
+Teilziele anhängen / lösen (ja/nein):
+Bingo-Feld über das Formular (ja/nein):
+Fehler:
+```

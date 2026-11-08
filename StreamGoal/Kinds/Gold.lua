@@ -24,6 +24,7 @@ Goals.RegisterKind("gold", {
   usage = "SG_USAGE_GOLD",
   color = LT.Theme.COLORS.gold,
   icon = ICON,
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { amount = "SG_FORM_GOLD", fields = {
     { type = "choice", param = "mode", label = "SG_FORM_GOLD_MODE", values = MODES, labels = MODE_LABELS },
   } },

@@ -1,7 +1,8 @@
 -- Reiter "Bingo" im Fenster /sg (Roadmap 431): Schein selbst füllen. Links Größe und Raster des Entwurfs (Feld anklicken
 -- = auswählen, Rechtsklick = leeren), rechts alle Ziele zur Wahl (mitgelieferte und eigene, TableView mit Filter); ein
 -- Klick auf ein Ziel setzt es ins gewählte Feld und springt zum nächsten leeren. Darunter: freier Text als Vorlage
--- direkt ins Feld, dann die Knopfzeile mit der Hauptaktion "Schein anlegen" rechts (leere Felder werden zufällig),
+-- direkt ins Feld, dann die Knopfzeile mit der Hauptaktion "Schein anlegen" rechts (leere Felder werden zufällig) und
+-- links "Neues Ziel fürs Feld" (Ziel jeder Art über das Formular im Reiter "Ziele", BingoEditor.NewGoalForCell),
 -- darunter die Fehlerzeile und der Hinweis (bei 5 × 5 mit Warnung, wenn der Pool weniger Einträge als Felder hat).
 -- Entwurf in StreamGoalDB.bingoDraft = { size = 3|5, picks = { [Feld] = Pool-Schlüssel } } (bleibt über /reload).
 local _, ns = ...
@@ -256,6 +257,21 @@ end)
 local clearButton = Manager.CreateButton(page, "SG_BINGO_EDIT_CLEAR", function() BingoEditor.ClearCell() end)
 local actionButtons = { createButton, clearAllButton, clearButton }  -- Hauptaktion rechts
 
+-- Ziel anderer Art fürs gewählte Feld (UX G4): der Reiter "Ziele" mit allen Arten öffnet sich im Vorlagen-Modus; seine
+-- Hauptaktion speichert die Vorlage, setzt sie hier ins Feld (dann das nächste leere) und kehrt zurück. So bleibt es
+-- bei einem Formular für alle Arten, statt die Felder jeder Art auf der vollen Bingo-Seite zu wiederholen.
+function BingoEditor.NewGoalForCell()
+  Manager.StartTemplate({
+    title = "SG_BINGO_TEMPLATE_TITLE",
+    button = "SG_BINGO_TEMPLATE_SAVE",
+    returnPage = "bingo",
+    onSaved = function(entry) BingoEditor.Assign(Pool.OwnKey(entry.id)) end,
+  })
+end
+
+local newGoalButton = Manager.CreateButton(page, "SG_BINGO_NEW_GOAL", function() BingoEditor.NewGoalForCell() end)
+BingoEditor.newGoalButton = newGoalButton
+
 errorLine:SetPoint("TOPLEFT", 0, controlsTop - 2 * Manager.ROW - 2)
 local hint = Manager.CreateHint(page)
 hint:SetPoint("TOPLEFT", 0, controlsTop - 2 * Manager.ROW - HINT_GAP - ERROR_HEIGHT)
@@ -283,10 +299,12 @@ function BingoEditor.Render()
   end
   if selected > cellCount() or Bingo.IsFreeCell(draft().size, selected) then selected = nextOpen(1) end
   renderGrid()
-  Manager.SetLabels({ textButton, createButton, clearAllButton, clearButton })
+  Manager.SetLabels({ textButton, createButton, clearAllButton, clearButton, newGoalButton })
   textLabel:SetText(L.SG_OWN_TEXT)
   Manager.FitBox(textLabel, textBox, Manager.AlignRight({ textButton }, page, "TOPRIGHT", controlsTop))
   Manager.AlignRight(actionButtons, page, "TOPRIGHT", controlsTop - Manager.ROW - 4)
+  newGoalButton:ClearAllPoints()
+  newGoalButton:SetPoint("TOPLEFT", 0, controlsTop - Manager.ROW - 4)
   hint:SetText(BingoEditor.HintText())
   candidateTable:Render(nil, false, true)
 end
@@ -296,7 +314,7 @@ function BingoEditor.Selected()
   return selected
 end
 
--- Knöpfe der Seite (Tests: Überlappung)
+-- Knöpfe der Aktionszeile (Tests: Überlappung), links "Neues Ziel fürs Feld"
 function BingoEditor.Buttons()
-  return actionButtons
+  return { newGoalButton, createButton, clearAllButton, clearButton }
 end

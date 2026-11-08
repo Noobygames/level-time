@@ -19,6 +19,7 @@ local TICK_SECONDS = 1
 local MAX_SECONDS = 365 * 24 * 3600
 local SECONDS = { d = 86400, h = 3600, m = 60, s = 1 }
 local DEFAULT_UNIT = 60  -- eine Zahl ohne Einheit = Minuten
+local EDIT_UNITS = { { "d", SECONDS.d }, { "h", SECONDS.h }, { "m", SECONDS.m } }
 
 -- Einheiten der Eingabe: d/h/m/s und die von Level Time in der gewählten Sprache (z.B. "T" für Tage)
 local function unitSeconds(letter)
@@ -95,6 +96,23 @@ function Deadlines.Text(goal)
   return string.format(L[key], LT.Format.Duration(remaining))
 end
 
+-- Restzeit als Eingabe fürs Formular beim Bearbeiten ("1h30m", auf Minuten aufgerundet; ParseDuration liest es
+-- wieder); nil ohne Frist
+function Deadlines.InputText(goal)
+  local remaining = Deadlines.Remaining(goal)
+  if not remaining then return nil end
+  local rest = math.max(SECONDS.m, math.ceil(remaining / SECONDS.m) * SECONDS.m)
+  local parts = {}
+  for _, unit in ipairs(EDIT_UNITS) do
+    local count = math.floor(rest / unit[2])
+    if count > 0 then
+      table.insert(parts, count .. unit[1])
+      rest = rest - count * unit[2]
+    end
+  end
+  return table.concat(parts)
+end
+
 -- Hat ein laufendes Ziel des eingeloggten Charakters eine Frist?
 function Deadlines.Any()
   if not ns.db then return false end
@@ -121,6 +139,20 @@ Goals.RegisterExtra("deadline", {
   apply = function(goal, extras)
     if extras.deadline == nil or extras.deadline == "" then return end
     Deadlines.Set(goal, Deadlines.ParseDuration(extras.deadline), extras.deadlineMode)
+  end,
+  -- Bearbeiten: Restzeit und Zeitrechnung vorbelegen; nur eine geänderte Eingabe setzt die Frist neu (ab jetzt),
+  -- ein geleertes Feld nimmt sie weg
+  fill = function(goal)
+    local mode = goal.deadline and goal.deadline.mode or Deadlines.REAL
+    return { deadline = Deadlines.InputText(goal), deadlineMode = mode }
+  end,
+  update = function(goal, extras, changed)
+    if not changed.deadline and not changed.deadlineMode then return end
+    if extras.deadline == nil or extras.deadline == "" then
+      Deadlines.Set(goal, nil)
+    else
+      Deadlines.Set(goal, Deadlines.ParseDuration(extras.deadline), extras.deadlineMode)
+    end
   end,
 })
 

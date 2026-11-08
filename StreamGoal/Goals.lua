@@ -66,14 +66,14 @@ function Goals.KindOrder()
   return kindOrder
 end
 
--- Gruppen der Zielarten im Fenster (Reiterzeile über den Arten), in dieser Reihenfolge; eine Art nennt ihre Gruppe in
--- def.group. Arten ohne bekannte Gruppe zeigt die letzte, damit jede Art erreichbar bleibt.
+-- Gruppen der Zielarten: Reihenfolge der Kacheln im Fenster (Window/KindPicker.lua), verwandte Arten stehen so
+-- nebeneinander; eine Art nennt ihre Gruppe in def.group. Arten ohne bekannte Gruppe stehen in der letzten.
 Goals.KIND_GROUPS = {
-  { key = "progress", label = "SG_GROUP_PROGRESS" },
-  { key = "combat", label = "SG_GROUP_COMBAT" },
-  { key = "loot", label = "SG_GROUP_LOOT" },
-  { key = "quests", label = "SG_GROUP_QUESTS" },
-  { key = "fun", label = "SG_GROUP_FUN" },
+  { key = "progress" },
+  { key = "combat" },
+  { key = "loot" },
+  { key = "quests" },
+  { key = "fun" },
 }
 
 -- Gruppe (key) einer Art
@@ -129,7 +129,8 @@ end
 
 -- Zusätze, die jede Zielart haben kann (Frist, Belohnung, Punkte): Goals.RegisterExtra(name, { fields = Formularfelder
 -- (wie def.form.fields, unter dem Formular jeder Art), validate(extras) -> Fehlertext oder nil, apply(goal, extras),
--- line(goal) optional: Zeile auf der Karte });
+-- line(goal) optional: Zeile auf der Karte, fill(goal) -> { param = Wert } und update(goal, extras, changed) optional:
+-- Bearbeiten eines laufenden Ziels, siehe Goals.Edit });
 -- extras = Tabelle aus Formular oder Befehl (Felder je Zusatz)
 local extraHandlers = {}
 local extraFields = {}
@@ -210,6 +211,83 @@ function Goals.Create(kind, params, target, extras, parent)
   if def.afterCreate then def.afterCreate(goal) end  -- z.B. Bingo legt seine Felder an
   notify("added", goal)
   return goal
+end
+
+---------------------------------------------------------------------------
+-- Laufendes Ziel bearbeiten (Fenster, UX G17)
+---------------------------------------------------------------------------
+-- Was sich an einem laufenden Ziel ändern lässt: def.editable = { "amount" (das Ziel), param, ... }. Nur Angaben,
+-- die den bisherigen Stand nicht entwerten (Text, Notiz, Zielzahl); Item, Modus oder Filter ändern hieße ein neues Ziel.
+function Goals.IsEditable(kind, param)
+  local def = kinds[kind]
+  for _, name in ipairs(def and def.editable or NO_GOALS) do
+    if name == param then return true end
+  end
+  return false
+end
+
+-- Zusätze eines laufenden Ziels als Eingabe fürs Formular (fill(goal) je Zusatz): { param = Wert }
+function Goals.ExtraValues(goal)
+  local values = {}
+  for _, handler in ipairs(extraHandlers) do
+    if handler.fill then
+      for param, value in pairs(handler.fill(goal)) do values[param] = value end
+    end
+  end
+  return values
+end
+
+-- Eingabe auf ein laufendes Ziel anwenden: params/target wie aus dem Formular (nur die in def.editable genannten
+-- zählen; def.editDerived = Werte, die prepare daraus ableitet, z.B. counted beim Freitext), extras die Zusätze,
+-- changedExtras[param] = true für jeden geänderten Zusatz (update(goal, extras, changedExtras) je Zusatz). Erst wird
+-- alles geprüft, dann geändert. Arten ohne editable behalten ihre Angaben (keine erneute Prüfung, die z.B. beim Ruf
+-- vom Zustand des Spiels abhinge). Rückgabe: Fehlertext oder nil
+local function editKindData(goal, def, params, target)
+  local editable = def.editable or NO_GOALS
+  if #editable == 0 then return nil end
+  local source = goal.source
+  local input = Goals.CopyFlat(source.params)
+  for _, name in ipairs(editable) do
+    if name ~= "amount" then input[name] = params and params[name] end
+  end
+  local editTarget = Goals.IsEditable(goal.kind, "amount")
+  local inputTarget = editTarget and target or source.target
+  local prepared = Goals.CopyFlat(input)
+  local preparedTarget = inputTarget
+  if def.prepare then preparedTarget = def.prepare(prepared, inputTarget) end
+  local err = def.validate(prepared, preparedTarget)
+  if err then return err end
+  if editTarget and preparedTarget ~= goal.target and preparedTarget <= goal.progress then
+    return string.format(L.SG_ERR_EDIT_TARGET, Goals.CountText(goal))
+  end
+  return nil, function()
+    for _, name in ipairs(editable) do
+      if name ~= "amount" then goal.params[name] = prepared[name] end
+    end
+    for _, name in ipairs(def.editDerived or NO_GOALS) do goal.params[name] = prepared[name] end
+    if editTarget then goal.target = preparedTarget end
+    source.params, source.target = input, inputTarget
+  end
+end
+
+function Goals.Edit(goal, params, target, extras, changedExtras)
+  if not goal or goal.status ~= Goals.ACTIVE or goal.character ~= LT.characterKey then
+    return string.format(L.SG_ERR_NO_GOAL, tostring(goal and goal.id or "?"))
+  end
+  local def = kinds[goal.kind]
+  goal.source = goal.source or { kind = goal.kind, params = {}, target = goal.target }
+  goal.source.extras = goal.source.extras or {}
+  extras = extras or {}
+  local err, apply = editKindData(goal, def, params, target)
+  err = err or validateExtras(extras)
+  if err then return err end
+  if apply then apply() end
+  for _, handler in ipairs(extraHandlers) do
+    if handler.update then handler.update(goal, extras, changedExtras or {}) end
+  end
+  changed()
+  notify("changed", goal)
+  return nil
 end
 
 -- Ein Zusatz (Frist, Belohnung) wurde nachträglich geändert: Anzeigen neu aufbauen

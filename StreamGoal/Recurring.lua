@@ -65,6 +65,10 @@ Goals.RegisterExtra("repeat", {
     if period == nil or period == Recurring.NONE then return end
     goal.recur = { period = period, key = Recurring.Key(period), streak = 0, best = 0 }
   end,
+  fill = function(goal) return { repeatPeriod = goal.recur and goal.recur.period or Recurring.NONE } end,
+  update = function(goal, extras, changed)
+    if changed.repeatPeriod then Recurring.Set(goal, extras.repeatPeriod or Recurring.NONE) end
+  end,
   line = function(goal) return Recurring.Text(goal) end,
 })
 

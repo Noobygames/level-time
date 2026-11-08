@@ -27,6 +27,7 @@ Goals.RegisterKind("dungeon", {
   usage = "SG_USAGE_DUNGEON",
   color = LT.Theme.COLORS.best,
   icon = ICON,
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { amount = "SG_FORM_AMOUNT", fields = {
     { type = "text", param = "boss", label = "SG_FORM_DUNGEON_BOSS" },
     { type = "text", param = "instance", label = "SG_FORM_DUNGEON_INSTANCE" },
