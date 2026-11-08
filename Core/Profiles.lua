@@ -8,6 +8,12 @@ local L = ns.L
 local Profiles = ns.ProfileStore.New({
   db = function() return ns.db end,
   characterKey = function() return ns.characterKey end,
+  -- alle Charaktere mit Statistiken (für "genutzt von N Charakteren" auf dem Reiter Profile)
+  characterKeys = function()
+    local keys = {}
+    for key in pairs(ns.Database.GetCharacters()) do table.insert(keys, key) end
+    return keys
+  end,
   normalize = function(db)
     ns.Database.MoveLegacyKeys(db)  -- Profil aus einer älteren Version (Positionen je Anzeige, Anordnung)
     ns.Database.ApplySettingDefaults(db)

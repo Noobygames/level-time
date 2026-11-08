@@ -4,6 +4,7 @@ local L = addon.L
 local options = addon.OptionsWindow
 
 wow.login()
+addon.Set("optionsAdvanced", true)  -- jede Einstellung: alle Optionen zeigen (neue Installationen starten einfach)
 SlashCmdList.LEVELTIMER("config")
 
 expect("leere Suche ohne Treffer", #options.Search(""), 0)

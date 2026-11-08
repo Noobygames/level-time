@@ -4,6 +4,9 @@ local L = addon.L
 local options = addon.OptionsWindow
 
 wow.login()
+-- Neue Installation startet einfach (UX S1); der Ablauf unten beginnt mit allen Optionen
+expect("Neuinstallation: einfach", LevelTimerDB.optionsAdvanced, false)
+addon.Set("optionsAdvanced", true)
 SlashCmdList.LEVELTIMER("config")
 
 local function entryOf(labelKey)
@@ -12,7 +15,7 @@ local function entryOf(labelKey)
   end
 end
 
-expect("Standard: Erweitert", LevelTimerDB.optionsAdvanced, true)
+expect("alle Optionen an", LevelTimerDB.optionsAdvanced, true)
 local mode = options.modeCheckbox
 expect("Schalter an", mode:GetChecked(), true)
 expectTrue("Schalter auffindbar", entryOf("OPTIONS_ADVANCED") ~= nil)
