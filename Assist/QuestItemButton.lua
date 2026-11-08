@@ -13,7 +13,9 @@
 --   "Nächste"   Retail/Forever C_QuestLog.GetDistanceSqToQuest (kleinster lesbarer Abstand); Classic kennt keinen
 --               Abstand: die zuletzt angenommene Quest mit Item, sonst die erste im Log.
 --   Ziel        Namensplaketten, die C_QuestLog.UnitIsRelatedToActiveQuest als Questgegner meldet (wie QuestMarks.lua,
---               nur wo es das gibt), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
+--               nur wo es das gibt) oder deren Tooltip ein offenes Questziel nennt (Lib/QuestTooltip.lua; Forever
+--               meldet Gegner, von denen man nur etwas looten muss, nicht als quest-related, Debug-Log 2026-11-08:
+--               Elementarsklave mit "Armschienen der Erdbindung: 0/4" im Tooltip, questRelated false), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
 --               fallen heraus). Knopf type "macro": "/cleartarget", je Name "/targetexact <Name>" (sichtbare Plaketten
 --               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
@@ -213,15 +215,28 @@ local function clearSet(set)
   for key in pairs(set) do set[key] = nil end
 end
 
+-- Nennt der Tooltip der Einheit ein offenes Questziel? (je Name zwischengespeichert, siehe QuestTooltip)
+local function hasOpenTooltipObjective(unit)
+  for _, entry in ipairs(ns.QuestTooltip.Objectives(unit)) do
+    if not entry.done then return true end
+  end
+  return false
+end
+
+local function isQuestUnit(unit)
+  local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
+  if not ns.IsSecret(related) and related == true then return true end
+  return hasOpenTooltipObjective(unit)
+end
+
 -- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt), alphabetisch in plateList
 local function plateNames()
   clearList(plateList)
   if not QuestItem.CanTarget() then return plateList end
   for unit in pairs(ns.NamePlates.Active()) do
     if isLivingMob(unit) then
-      local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
       local name = readable(UnitName(unit))
-      if not ns.IsSecret(related) and related == true and type(name) == "string" and name ~= "" then
+      if type(name) == "string" and name ~= "" and isQuestUnit(unit) then
         plateList[#plateList + 1] = name
       end
     end
