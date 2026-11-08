@@ -44,6 +44,34 @@ expectTrue("Kette angelegt", chain ~= nil)
 expect("Modus ids", chain.params.mode, "ids")
 expect("zwei Quests", #chain.params.quests, 2)
 
+-- Shift-Klick auf eine Quest im klassischen Questlog ohne offenes Chatfeld: der Quest-Link landet im Quest-Feld
+-- (Blizzard fügt ihn dort nur bei offenem Chat ein)
+local LINK = "|cffffff00|Hquest:201:10|h[Wölfe jagen]|h|r"
+wow.state.questLog = { { title = "Durotar", isHeader = true }, { questID = 201, title = "Wölfe jagen" } }
+GetQuestIDFromLogIndex = function(index) return wow.state.questLog[index] and wow.state.questLog[index].questID end
+GetQuestLink = function(questID) return questID == 201 and LINK or nil end
+local questButton = CreateFrame("Button")
+questButton:SetID(2)
+widget("input"):SetText("")
+widget("input"):SetFocus()
+wow.state.modifiedClick = true
+Manager.OnQuestLogClick(questButton)
+expect("Quest-Link im Feld", widget("input"):GetText(), LINK)
+local header = CreateFrame("Button")
+header:SetID(1)
+header.isHeader = true
+Manager.OnQuestLogClick(header)
+expect("Überschrift fügt nichts ein", widget("input"):GetText(), LINK)
+GetQuestLink = function() return nil end
+widget("input"):SetText("")
+Manager.OnQuestLogClick(questButton)
+expect("ohne Link: Quest-ID", widget("input"):GetText(), "201")
+local quests = Manager.AddFromForm()
+expectTrue("Ziel aus der Quest-ID", quests ~= nil and quests.params.quests[1] == 201)
+wow.state.modifiedClick = false
+GetQuestLink, GetQuestIDFromLogIndex = nil, nil
+widget("input"):ClearFocus()
+
 ---------------------------------------------------------------------------
 -- Erkundung: eine Zahl im versteckten Feld zählt nicht
 ---------------------------------------------------------------------------

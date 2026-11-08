@@ -220,6 +220,39 @@ elseif ChatEdit_InsertLink then
   hooksecurefunc("ChatEdit_InsertLink", insertLinkIntoField)
 end
 
+-- Shift-Klick auf eine Quest im klassischen Questlog (Classic Era/TBC, Forever mit QuestLogFrame): Blizzard fügt den
+-- Link dort nur ein, wenn ein Chat-Eingabefeld offen ist (QuestLogTitleButton_OnClick prüft
+-- ChatFrameUtil.GetActiveWindow), sonst kommt InsertLink nie an. Ohne offenes Chatfeld setzen wir den Quest-Link
+-- (GetQuestLink, Fallback die Quest-ID) selbst ins fokussierte Feld. Die Weltkarte (QuestMapLogTitleButton_OnClick)
+-- ruft InsertLink immer auf und läuft über den Hook oben.
+local function chatOpen()
+  return ChatFrameUtil and ChatFrameUtil.GetActiveWindow and ChatFrameUtil.GetActiveWindow() ~= nil
+end
+
+local function questIDOfButton(button)
+  local offset = FauxScrollFrame_GetOffset and QuestLogListScrollFrame and FauxScrollFrame_GetOffset(QuestLogListScrollFrame) or 0
+  local index = button:GetID() + offset
+  if GetQuestIDFromLogIndex then
+    local questID = GetQuestIDFromLogIndex(index)
+    if type(questID) == "number" and questID > 0 then return questID end
+  end
+  local entry = LT.QuestLog.Entry(index)
+  return entry and entry.questID
+end
+
+function Manager.OnQuestLogClick(button)
+  if not page:IsVisible() or button.isHeader == true or chatOpen() then return end
+  if not (IsModifiedClick and IsModifiedClick("CHATLINK")) then return end
+  local questID = questIDOfButton(button)
+  if not questID then return end
+  local link = GetQuestLink and GetQuestLink(questID)
+  if type(link) ~= "string" or LT.IsSecret(link) or link == "" then link = tostring(questID) end
+  insertLinkIntoField(link)
+end
+if QuestLogTitleButton_OnClick then
+  hooksecurefunc("QuestLogTitleButton_OnClick", Manager.OnQuestLogClick)
+end
+
 ---------------------------------------------------------------------------
 -- Bearbeiten eines laufenden Ziels (UX G17)
 ---------------------------------------------------------------------------

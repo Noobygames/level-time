@@ -472,7 +472,7 @@ ns.AddLocale("deDE", {
   SG_FORM_COUNTER_TIP = "Leer: ein Ziel zum Abhaken. Mit Zahl: so oft zählst du selbst weiter (Klick auf die Karte, + und - hier im Fenster).",
   SG_FORM_TEXT_TIP = "Was du schaffen willst, z.B. „Ragnaros legen“ (höchstens 80 Zeichen). Es zählt nichts automatisch.",
   SG_FORM_QUEST_MODE_TIP = "Anzahl abgeben: jede abgegebene Quest zählt. Bestimmte Quests: eine Quest oder eine Kette, die nur in der eingegebenen Reihenfolge zählt.",
-  SG_FORM_QUEST_INPUT_TIP = "Eine oder mehrere Quest-IDs oder -Links, mit Leerzeichen getrennt. Shift-Klick auf einen Quest-Link fügt ihn ins gewählte Feld ein. Schon abgegebene Quests zählen als erledigt.",
+  SG_FORM_QUEST_INPUT_TIP = "Eine oder mehrere Quest-IDs oder -Links, mit Leerzeichen getrennt. Ins Feld klicken, dann Shift-Klick auf eine Quest im Questlog, auf der Weltkarte oder auf einen Quest-Link im Chat: fügt sie ein. Schon abgegebene Quests zählen als erledigt.",
   SG_FORM_SKILL_RANK_TIP = "Der Fertigkeitswert, den du erreichen willst, z.B. 150.",
   SG_FORM_SKILL_TIP = "Name des Berufs wie im Spiel; ein Teil reicht (z.B. „Kräuter“).",
   SG_FORM_WITH_BANK_TIP = "Zählt auch Items in der Bank. Die Bank kennt das Spiel erst, nachdem du sie in dieser Sitzung einmal geöffnet hast.",

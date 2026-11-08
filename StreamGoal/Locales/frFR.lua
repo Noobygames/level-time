@@ -472,7 +472,7 @@ ns.AddLocale("frFR", {
   SG_FORM_COUNTER_TIP = "Vide : un objectif à cocher. Avec un nombre : vous comptez vous-même jusque-là (clic sur la carte, + et - ici dans la fenêtre).",
   SG_FORM_TEXT_TIP = "Ce que vous voulez accomplir, ex. « Vaincre Ragnaros » (80 caractères au maximum). Rien ne compte automatiquement.",
   SG_FORM_QUEST_MODE_TIP = "Rendre un nombre : chaque quête rendue compte. Quêtes précises : une quête ou une suite qui ne compte que dans l'ordre saisi.",
-  SG_FORM_QUEST_INPUT_TIP = "Une ou plusieurs ID ou liens de quêtes, séparés par des espaces. Maj+clic sur un lien de quête l'insère dans le champ choisi. Les quêtes déjà rendues comptent comme faites.",
+  SG_FORM_QUEST_INPUT_TIP = "Une ou plusieurs ID ou liens de quêtes, séparés par des espaces. Cliquez dans le champ, puis Maj+clic sur une quête du journal, de la carte ou sur un lien de quête du chat pour l'insérer. Les quêtes déjà rendues comptent comme faites.",
   SG_FORM_SKILL_RANK_TIP = "Le niveau de compétence à atteindre, ex. 150.",
   SG_FORM_SKILL_TIP = "Nom du métier comme dans le jeu ; une partie suffit (ex. « Herbo »).",
   SG_FORM_WITH_BANK_TIP = "Compte aussi les objets en banque. Le jeu ne connaît la banque qu'après l'avoir ouverte une fois dans la session.",

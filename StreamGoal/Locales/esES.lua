@@ -472,7 +472,7 @@ ns.AddLocale("esES", {
   SG_FORM_COUNTER_TIP = "Vacío: una meta para marcar. Con un número: cuentas tú hasta ahí (clic en la tarjeta, + y - aquí en la ventana).",
   SG_FORM_TEXT_TIP = "Lo que quieres lograr, p. ej. «Derrotar a Ragnaros» (80 caracteres como máximo). Nada cuenta automáticamente.",
   SG_FORM_QUEST_MODE_TIP = "Entregar un número: cuenta cada misión entregada. Misiones concretas: una misión o una cadena que solo cuenta en el orden indicado.",
-  SG_FORM_QUEST_INPUT_TIP = "Uno o varios ID o enlaces de misiones, separados por espacios. Mayús+clic en un enlace de misión lo inserta en el campo elegido. Las misiones ya entregadas cuentan como hechas.",
+  SG_FORM_QUEST_INPUT_TIP = "Uno o varios ID o enlaces de misiones, separados por espacios. Haz clic en el campo y luego Mayús+clic en una misión del registro, del mapa o en un enlace de misión del chat para insertarla. Las misiones ya entregadas cuentan como hechas.",
   SG_FORM_SKILL_RANK_TIP = "El nivel de habilidad que quieres alcanzar, p. ej. 150.",
   SG_FORM_SKILL_TIP = "Nombre de la profesión como en el juego; basta una parte (p. ej. «Hierbas»).",
   SG_FORM_WITH_BANK_TIP = "Cuenta también los objetos del banco. El juego solo conoce el banco después de abrirlo una vez en la sesión.",

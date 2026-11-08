@@ -472,7 +472,7 @@ ns.AddLocale("enUS", {
   SG_FORM_COUNTER_TIP = "Empty: a goal to tick off. With a number: you count up yourself that many times (click the card, + and - here in the window).",
   SG_FORM_TEXT_TIP = "What you want to achieve, e.g. \"Down Ragnaros\" (at most 80 characters). Nothing counts automatically.",
   SG_FORM_QUEST_MODE_TIP = "Turn in a number: every quest you turn in counts. Specific quests: one quest or a chain that only counts in the order entered.",
-  SG_FORM_QUEST_INPUT_TIP = "One or more quest IDs or links, separated by spaces. Shift-clicking a quest link inserts it into the focused field. Quests you already turned in count as done.",
+  SG_FORM_QUEST_INPUT_TIP = "One or more quest IDs or links, separated by spaces. Click into the field, then Shift-click a quest in the quest log, on the world map or a quest link in chat to insert it. Quests you already turned in count as done.",
   SG_FORM_SKILL_RANK_TIP = "The skill rank you want to reach, e.g. 150.",
   SG_FORM_SKILL_TIP = "Name of the profession as in the game; part of it is enough (e.g. \"Herb\").",
   SG_FORM_WITH_BANK_TIP = "Also counts items in the bank. The game only knows the bank after you opened it once this session.",
