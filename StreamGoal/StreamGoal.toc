@@ -11,8 +11,14 @@
 ## Notes-esES: Fija metas para tu stream (nivel, objeto, bajas, campos de batalla) con tarjetas en vivo e historial
 ## SavedVariables: StreamGoalDB
 
-# Grundlagen: Texte (in die Sprachen von Level Time eingehängt), Kern, Ziel-Modell
-Locales.lua
+# Texte je Sprache (in die Sprachtabellen von Level Time eingehängt)
+Locales\Core.lua
+Locales\deDE.lua
+Locales\enUS.lua
+Locales\frFR.lua
+Locales\esES.lua
+
+# Grundlagen: Kern, Ziel-Modell
 Core.lua
 Goals.lua
 Kinds.lua
