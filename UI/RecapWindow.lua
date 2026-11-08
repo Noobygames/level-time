@@ -64,13 +64,19 @@ local function xpWithRate()
   return rate and string.format("%s (%s %s)", xp, Format.Number(rate), L.ROW_XP_RATE) or xp
 end
 
+-- "25" ohne Level-Up, sonst "10 bis 12" (RECAP_LEVEL_RANGE)
+local function levelText(startLevel)
+  if startLevel == ns.level then return tostring(ns.level) end
+  return string.format(L.RECAP_LEVEL_RANGE, startLevel, ns.level)
+end
+
 -- Zeilen { label, value } der laufenden Session
 function RecapWindow.BuildRows()
   local session = ns.character.currentSession
   local rows = {
     { L.RECAP_CHARACTER, History.DisplayName(ns.characterKey) },
     { L.RECAP_TIME, Format.Duration(Stats.GetSeconds(Stats.SESSION)) },
-    { L.RECAP_LEVELS, string.format("%d > %d", session.startLevel or ns.level, ns.level) },
+    { L.RECAP_LEVELS, levelText(session.startLevel or ns.level) },
     { L.RECAP_XP, xpWithRate() },
     { L.RECAP_KILLS, tostring(Stats.GetTotalKills(Stats.SESSION)) },
     { L.ROW_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.DEATHS)) },

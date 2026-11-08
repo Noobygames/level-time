@@ -170,7 +170,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   hint = "RUNS_HINT",
   buttons = {
     { label = "RUNS_BACKUP", onClick = function() ns.Export.Show(L.RUNS_BACKUP, Runs.ExportAll()) end },
-    { label = "IMPORT", onClick = function() ns.ShowRunImport() end },
+    { label = "IMPORT", tip = "RUNS_IMPORT_TIP", onClick = function() ns.ShowRunImport() end },
     { label = "LIVESPLIT_EXPORT", onClick = function() ns.LiveSplitExport.Show() end },
   },
 }))

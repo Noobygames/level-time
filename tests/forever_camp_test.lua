@@ -68,11 +68,11 @@ local oldExpiration = GetTime() + 3000
 wow.state.buffs = { nearby(), benefits(oldExpiration), inviting(GetTime() + 60) }
 Camp.Check()
 expect("Countdown sichtbar", camp:IsShown(), true)
-expectTrue("60 s", shownText(string.format(L.SECONDS_SHORT, 60)))
+expectTrue("60 s", shownText(addon.Format.Duration(60)))
 wow.advance(20)
 Camp.Check()
 tick()
-expectTrue("nach 20 s noch 40 s", shownText(string.format(L.SECONDS_SHORT, 40)))
+expectTrue("nach 20 s noch 40 s", shownText(addon.Format.Duration(40)))
 
 -- Ohne Aura-Änderung arbeitet die Prüfung nicht (Roadmap 391): kein neuer Zustand, keine Anzeige-Aufrufe
 local shows = { count = 0 }
@@ -87,7 +87,7 @@ for _ = 1, 10 do
 end
 expect("Countdown ohne Änderung: Anzeige nicht angefasst", shows.count, 0)
 tick()
-expectTrue("Countdown läuft in der Anzeige weiter", shownText(string.format(L.SECONDS_SHORT, 35)))
+expectTrue("Countdown läuft in der Anzeige weiter", shownText(addon.Format.Duration(35)))
 Display.Show = show
 
 -- Countdown vorbei, Lagervorteile erneuert: kurz "aktiv", mit Ton wenn gewünscht

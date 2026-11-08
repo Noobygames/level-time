@@ -40,7 +40,7 @@ land(90)
 -- Gegenrichtung: geschätzt
 openMap(2)
 takeoff(1)
-expect("geschätzt mit ~", LevelTimerFlight.time:GetText(), "~1:30")
+expect("geschätzt mit ~", LevelTimerFlight.time:GetText(), "~" .. addon.Format.Duration(90))
 expectTrue("leise Farbe", sameColor(LevelTimerFlight.title._textColor, "muted"))
 land(95)
 expect("Gegenrichtung jetzt gemessen", LevelTimerStatsDB.flights.retail["1411"].routes["77>25"].seconds, 96)
@@ -48,7 +48,7 @@ expect("Gegenrichtung jetzt gemessen", LevelTimerStatsDB.flights.retail["1411"].
 -- Gemessen: normale Farbe, ohne ~
 openMap(2)
 takeoff(1)
-expect("gemessen ohne ~", LevelTimerFlight.time:GetText(), "1:35")
+expect("gemessen ohne ~", LevelTimerFlight.time:GetText(), addon.Format.Duration(95))
 expectTrue("normale Farbe", sameColor(LevelTimerFlight.title._textColor, "info"))
 land(94)
 expect("keine Fehler", #wow.errors, 0)

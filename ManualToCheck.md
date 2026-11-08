@@ -2907,6 +2907,85 @@ Recap Beinahe-Tode passend (ja/nein):
 Fehler:
 ```
 
+### 194. UX-Review Paket 2: Tooltips an den Werten im Hauptfenster
+
+- [ ] geprüft
+
+1. Hauptfenster im Layout Tabelle, Leiste, Nur Text und Kacheln: Maus über eine Zeile (bzw. Kachel) zeigt einen Tooltip
+   mit der Bezeichnung als Titel und der Erklärung der Stat; steht „...“ oder „-“ da, erklärt eine zweite Zeile den
+   Platzhalter. Die Zeit-Kachel hat keinen Tooltip.
+2. Über einer Zeile: Ziehen verschiebt das Fenster (wenn nicht fixiert), Rechtsklick öffnet die Einstellungen.
+3. Sichtbarkeit „Bei Mauskontakt“: Maus von einer Zeile aus dem Fenster heraus ziehen blendet das Fenster wieder ab.
+4. Tode mit Totzeit stehen als „2 (6m 38s tot)“ da (enUS „dead“).
+5. Flug-, Essen-, Lagerfeuer- und Schlafsack-Karte zeigen die Restzeit als „4m 10s“ bzw. „37s“ (nicht mehr „4:10“ oder
+   „37 s“); die Titel von Essen und Lagerfeuer unterscheiden sich („Essen: …“, „Lagerfeuer: …“).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltips an Zeilen/Kacheln (ja/nein, welches Layout nicht):
+Ziehen und Rechtsklick über Zeilen (ja/nein):
+Bei Mauskontakt blendet wieder ab (ja/nein):
+Totzeit-Format und Karten-Zeiten (ja/nein):
+Fehler:
+```
+
+### 195. UX-Review Paket 2: Historie erklärt Spalten und Graphen
+
+- [ ] geprüft
+
+1. `/lt history`: Maus über einen Spaltenkopf (z.B. Übersicht „Kills“, „PvP-Siege“, Zeitaufteilung „Sonstiges“,
+   „Leerlauf“, Vergleich „Erholt“, Geld „Einnahmen“) zeigt eine Erklärung statt nur „Klick sortiert“.
+2. Speedrun > Läufe: Spalten „Gemessen“, „Bis dein Level“, „Erfasst %“, „Kategorie“ (Tooltip mit SSF-Erklärung),
+   „Zeiten“ mit „original“/„bearbeitet“. Die Knöpfe „Export“, „Alle sichern“, „Importieren“ und „LiveSplit“ haben einen
+   Tooltip.
+3. Graphen: Unterreiter heißen „Zeit je Level“, „Todesursachen“, „Spielzeiten (Tag × Stunde)“ (das „×“ wird
+   dargestellt), „Levelkurve“ usw.; unter jedem Diagramm steht eine graue Hinweiszeile, die nicht über das Diagramm
+   ragt. Die Unterreiter brechen sauber um (auch frFR/esES).
+4. Level-Tabellen ohne Teil-Level zeigen unten „Klick auf einen Spaltenkopf sortiert.“ statt des Hinweises zu „*“.
+5. `/lt recap` ohne Level-Up: „Level 25“; mit Level-Up: „10 bis 12“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Spaltenköpfe erklärt (ja/nein, welche nicht):
+Läufe-Spalten und Knopf-Tooltips (ja/nein):
+Graphen-Namen und Hinweiszeile (ja/nein, Sprache):
+Recap-Level (ja/nein):
+Fehler:
+```
+
+### 196. UX-Review Paket 2: einheitliche Begriffe und ausgegraute Schalter
+
+- [ ] geprüft
+
+1. `/lt`: Reiter „Chat & Erinnerungen“ und „Einblendungen“, Allgemein > „Hauptfenster“, Komfort > „Rahmen, Tooltip &
+   Karte“, Unterseite Speedrun > „Weltrekorde“; der Knopf unter der Seitenleiste heißt „Seite zurücksetzen“. Alles
+   passt in allen vier Sprachen (Seitenleiste, Reiter, Knopf).
+2. Abhängige Schalter sind grau, solange ihr Hauptschalter aus ist, und werden sofort bedienbar, wenn er an geht:
+   Flugzeit-Tooltip/-Ton (Flugzeiten), Gildenreparatur (Automatisch reparieren), Rare-Aufblinken (Rare gesichtet),
+   Level-Up-Fenster-Optionen, Namen beim Würfeln (Zähler), Totenkopf und „nur in der Zone“ (Quest-Knöpfe), Fortschritt
+   und Größe der Kill-Quest-Markierung, Split-Liste-Optionen, Regler zu Pause, Atem, Mana, Munition, Wetter.
+3. Einblendungen > Ereignisse und Komfort > Automatik zeigen den Hinweis, dass Quest-Einblendungen bzw. die
+   Quest-Automatik unter Komfort > Quests stehen.
+4. XP-Balken-Tooltip: „Erholt übrig: …“, „Erholt reicht für … des Wegs zum Level-Up“, „XP abgabebereiter Quests: …“;
+   Stat „XP durch Erholt“ im Fenster.
+5. Historie: Hauptreiter „Quest-Auswertung“ mit „Abgabebereit“, Speedrun > „Bestzeiten je Level“ und „Weltrekorde“,
+   Level > „Verlauf“; Zählzeile der Journale „12 Einträge“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Neue Namen passen in allen Sprachen (ja/nein, wo nicht):
+Ausgegraut und wieder bedienbar (ja/nein, welcher nicht):
+Verweis-Hinweise (ja/nein):
+Begriffe im XP-Tooltip und in der Historie (ja/nein):
+Fehler:
+```
+
 ### 200. Level Time Goals: Glücksrad über dem Fenster, Ergebnis bleibt, Neu drehen per Knopf
 
 - [ ] geprüft

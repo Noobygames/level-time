@@ -54,6 +54,7 @@ function layout.Build(el, model, db)
   for index = 1, count do
     local tile = el:Tile(index)
     Theme.ApplyCard(tile.frame)  -- Fläche im Stil des Themes, auch nach einem Wechsel
+    tile.data = model.rows[index - 1]  -- Tooltip der Zeile; Kachel 1 (Zeit) hat keinen
     tile.frame:Show()
   end
   el:HideTilesFrom(count + 1)

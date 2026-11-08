@@ -149,6 +149,8 @@ local visibility = ns.DisplayVisibility.Attach({
     if ns.db and window:IsShown() then refresh() end
   end,
 })
+-- Mausflächen der Zeilen und Kacheln entstehen erst mit dem ersten Layout
+elements.watchHover = function(frame) visibility:WatchHover(frame) end
 
 ns.Frames.Register({
   id = "main", frame = window, label = "EDIT_FRAME_MAIN", default = DEFAULT_POSITION,

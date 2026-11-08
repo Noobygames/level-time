@@ -37,7 +37,7 @@ expectNear("Zeit gespeichert", addon.character.zoneStats["Westfall"].seconds, 30
 
 SlashCmdList.LEVELTIMER("history")
 expectTrue("Reiter Zonen", wow.click("Zonen"))
-expectTrue("Diagramm XP/h/Zone", wow.click("XP/h/Zone"))
+expectTrue("Diagramm XP/h/Zone", wow.click("XP/h je Zone"))
 
 -- Die laufende Zone steht nach dem Login in der Liste, auch ohne XP, Kill oder Tod
 wow.logout()

@@ -1,6 +1,6 @@
--- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle
--- außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie, Layout bearbeiten,
--- Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
+-- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Chat & Erinnerungen, Einblendungen, Komfort, Speedrun,
+-- Profile; alle außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie,
+-- Layout bearbeiten, Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
 -- Nur der Inhalt; Aufbau, Tooltips, Breite und Aktualisierung übernimmt Lib/OptionsBuilder.lua.
 local _, ns = ...
 local L = ns.L
@@ -35,6 +35,19 @@ local toggle, localized = Builder.Toggle, Builder.Localized
 -- Baustein nur im Modus "Erweitert" (Roadmap 402): selten gebraucht, für Feineinstellungen
 local function advanced(definition)
   definition.advanced = true
+  return definition
+end
+
+-- Baustein, der nur wirkt, wenn eine der Einstellungen an ist: sonst ausgegraut (enabled), damit kein Haken gesetzt
+-- und doch wirkungslos aussieht (z.B. Flugzeit-Tooltip ohne Flugzeiten)
+local function requires(definition, ...)
+  local settings = { ... }
+  definition.enabled = function(db)
+    for _, setting in ipairs(settings) do
+      if db[setting] then return true end
+    end
+    return false
+  end
   return definition
 end
 
@@ -439,11 +452,13 @@ local function addRowOrderSection()
   }, { advanced = true })
 end
 
--- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
-local function addFrameScaleSlider(label, id)
+-- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern;
+-- enabled(db) optional (ausgegraut, solange die Anzeige aus ist)
+local function addFrameScaleSlider(label, id, enabled)
   local Frames = ns.Frames
   addSlider({
     label = label,
+    enabled = enabled,
     min = toPercent(Frames.MIN_SCALE),
     max = toPercent(Frames.MAX_SCALE),
     step = 5,
@@ -462,6 +477,12 @@ end
 -- Jeder größere Reiter hat eine Seitenleiste mit Kategorien wie Komfort (Leatrix-Stil); die Fensterhöhe richtet
 -- sich nach der längsten Unterseite. Kategorie-Namen: OPTIONS_PAGE_* (Komfort: COMFORT_PAGE_*).
 local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
+
+-- Quest-XP auf dem XP-Balken: nur mit Balken (Schalter oder Layout "xpbar", das ihn immer zeigt)
+local function requiresBar(definition)
+  definition.enabled = function(db) return db.showXpBar or ns.WindowLayouts.Get(db.windowLayout).alwaysXpBar == true end
+  return definition
+end
 
 -- Minimap-Button an/aus (Zurücksetzen je Unterseite): nur hide, nicht die Position am Rand
 local minimapReset = {
@@ -489,7 +510,7 @@ addToggles({
   toggle("LOCK_FRAME", "locked"),
   toggle("SHOW_XP_BAR", "showXpBar"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
-  advanced(toggle("QUEST_XP_ON_BAR", "questXpOnBar")),
+  advanced(requiresBar(toggle("QUEST_XP_ON_BAR", "questXpOnBar"))),
   advanced(toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end)),
 })
 addVisibilitySection()
@@ -579,12 +600,15 @@ addSlider({
 finishSubPages()
 finishPage()
 
--- Hinweise: Level-Up im Chat, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter Komfort > Quests)
+-- Chat & Erinnerungen: Level-Up im Chat, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
+-- Komfort > Quests)
 addPage("OPTIONS_TAB_NOTIFICATIONS")
 addSubPage("OPTIONS_PAGE_LEVEL_UP")
-addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains"),
-  toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"), toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
+addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains") })
 addAnnounceChooser()
+addSection("SECTION_AT_LOGIN")  -- Meldungen beim Login haben mit dem Level-Up nichts zu tun
+addToggles({ toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"),
+  toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addSection("SECTION_PERSONAL_RECORDS")
 addToggles({ toggle("ANNOUNCE_RECORDS_TOGGLE", "announceRecords") })
 
@@ -597,7 +621,19 @@ addToggles({
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
 })
--- Klassen-Hinweise: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
+-- Wiederholung gilt für alle Buff-Erinnerungen (auch die Klassen-Buffs darunter)
+addSlider({
+  label = "REMINDER_INTERVAL",
+  advanced = true,
+  setting = "reminderInterval",
+  min = ns.BuffReminder.MIN_INTERVAL,
+  max = ns.BuffReminder.MAX_INTERVAL,
+  step = 1,
+  get = function(db) return db.reminderInterval end,
+  set = function(value) ns.SetDeferred("reminderInterval", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+})
+-- Klassen-Buffs: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
 local classReminders = ns.ClassBuffs.ForPlayerClass()
 if #classReminders > 0 then
   addSection("SECTION_CLASS_REMINDERS")
@@ -610,20 +646,10 @@ if #classReminders > 0 then
   end
   addToggles(classToggles)
 end
-addSlider({
-  label = "REMINDER_INTERVAL",
-  advanced = true,
-  setting = "reminderInterval",
-  min = ns.BuffReminder.MIN_INTERVAL,
-  max = ns.BuffReminder.MAX_INTERVAL,
-  step = 1,
-  get = function(db) return db.reminderInterval end,
-  set = function(value) ns.SetDeferred("reminderInterval", value) end,
-  format = function(value) return string.format(L.MINUTES, value) end,
-})
 -- Pausen-Erinnerung (BreakReminder.lua)
+addSection("SECTION_BREAKS")
 addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
-addSlider({
+addSlider(requires({
   label = "BREAK_MINUTES",
   advanced = true,
   setting = "breakMinutes",
@@ -633,7 +659,7 @@ addSlider({
   get = function(db) return db.breakMinutes end,
   set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
-})
+}, "remindBreak"))
 
 addSubPage("OPTIONS_PAGE_WARNINGS")
 addHint("WARN_LOOK_HINT")
@@ -646,7 +672,7 @@ addToggles({
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
   toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
 })
-addSlider({
+addSlider(requires({
   label = "WARN_BREATH_BELOW",
   advanced = true,
   setting = "breathWarnSeconds",
@@ -656,10 +682,10 @@ addSlider({
   get = function(db) return db.breathWarnSeconds end,
   set = function(value) ns.SetDeferred("breathWarnSeconds", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
+}, "warnBreath"))
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then
-  addSlider({
+  addSlider(requires({
     label = "WARN_AMMO_BELOW",
     setting = "ammoLow",
     min = ns.GearWarnings.MIN_AMMO,
@@ -668,8 +694,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoLow end,
     set = function(value) ns.SetDeferred("ammoLow", value) end,
     format = function(value) return string.format(L.AMMO_COUNT, value) end,
-  })
-  addSlider({
+  }, "warnAmmo"))
+  addSlider(requires({
     label = "WARN_AMMO_CRITICAL_BELOW",
     advanced = true,
     setting = "ammoCritical",
@@ -679,8 +705,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoCritical end,
     set = function(value) ns.SetDeferred("ammoCritical", value) end,
     format = function(value) return value == 0 and L.AMMO_OFF or string.format(L.AMMO_COUNT, value) end,
-  })
-  addSlider({
+  }, "warnAmmo"))
+  addSlider(requires({
     label = "WARN_AMMO_REPEAT",
     advanced = true,
     setting = "ammoRepeat",
@@ -690,7 +716,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoRepeat end,
     set = function(value) ns.SetDeferred("ammoRepeat", value) end,
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
-  })
+  }, "warnAmmo"))
 end
 
 -- Gruppe und Heiler: Ansagen im Gruppenchat
@@ -702,7 +728,7 @@ addToggles({
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
-addSlider({
+addSlider(requires({
   label = "LOW_MANA_BELOW",
   advanced = true,
   setting = "lowManaPercent",
@@ -712,7 +738,7 @@ addSlider({
   get = function(db) return db.lowManaPercent end,
   set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
-})
+}, "announceLowMana"))
 finishSubPages()
 finishPage()
 
@@ -728,8 +754,9 @@ addToggles({
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
   toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
-  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
+  requires(toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"), "alertRareSpotted"),
 })
+addHint("QUEST_ALERTS_HINT")  -- Quest-Einblendungen stehen bei den Quests (Komfort > Quests)
 addSubPage("OPTIONS_PAGE_ALERT_LOOK")
 addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
   { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
@@ -752,17 +779,18 @@ addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
 addSubPage("OPTIONS_PAGE_LEVEL_UP_WINDOW")
 addToggles({
   toggle("LEVEL_UP_WINDOW_TOGGLE", "levelUpWindow"),
-  toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"),
-  toggle("LEVEL_UP_COMPACT", "levelUpCompact"),
-  toggle("LEVEL_UP_SOUND", "levelUpSound"),
+  requires(toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_COMPACT", "levelUpCompact"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_SOUND", "levelUpSound"), "levelUpWindow"),
 })
-addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
+local function levelUpWindowOn(db) return db.levelUpWindow end
+addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = levelUpWindowOn, choices = {
   { value = "modern", name = localized("THEME_MODERN") },
   { value = "alliance", name = localized("THEME_ALLIANCE") },
   { value = "horde", name = localized("THEME_HORDE") },
 } })
-addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
-addSlider({
+addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp", levelUpWindowOn)
+addSlider(requires({
   label = "LEVEL_UP_DURATION",
   advanced = true,
   setting = "levelUpDuration",
@@ -772,7 +800,7 @@ addSlider({
   get = function(db) return db.levelUpDuration end,
   set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
+}, "levelUpWindow"))
 addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 
@@ -791,9 +819,9 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() or ns.SleepTimer.IsAv
     addToggles({
       toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
       toggle("CAMP_HINT_TOGGLE", "campHint"),
-      toggle("CAMP_SOUND", "campSound"),
+      requires(toggle("CAMP_SOUND", "campSound"), "campCountdown"),
     })
-    addSlider({
+    addSlider(requires({
       label = "CAMP_HINT_PAUSE",
       advanced = true,
       setting = "campHintPause",
@@ -803,14 +831,14 @@ if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() or ns.SleepTimer.IsAv
       get = function(db) return db.campHintPause end,
       set = function(value) ns.SetDeferred("campHintPause", value) end,
       format = function(value) return string.format(L.MINUTES, value) end,
-    })
+    }, "campHint"))
     addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
   end
   if ns.FoodTimer.IsAvailable() then
     addSection("SECTION_FOOD")
     addToggles({
       toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
-      toggle("FOOD_SOUND", "foodSound"),
+      requires(toggle("FOOD_SOUND", "foodSound"), "foodTimer"),
     })
     addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
   end
@@ -829,8 +857,8 @@ end
 addSubPage("OPTIONS_PAGE_FLIGHTS")
 addToggles({
   toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
-  toggle("FLIGHT_SOUND", "flightSound"),
-  toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"),
+  requires(toggle("FLIGHT_SOUND", "flightSound"), "flightTimer"),
+  requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
 })
 addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
 finishSubPages()
@@ -840,10 +868,11 @@ finishPage()
 addPage("OPTIONS_TAB_COMFORT")
 addHint("COMFORT_HINT")
 addSubPage("COMFORT_PAGE_AUTOMATION")
+addHint("AUTOMATION_QUESTS_HINT")  -- Quest-Automatik steht bei den Quests
 addSection("SECTION_MERCHANT")
 addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
-  toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank),
+  requires(toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank), "autoRepair"),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
   toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
 })
@@ -981,7 +1010,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
   })
   if LootSparkles.CanSoftTarget() then
-    addSlider({
+    addSlider(requires({
       label = "LOOT_SPARKLE_SCALE",
       setting = "lootSparkleScale",
       min = toPercent(ns.LootSparkle.MIN_SCALE),
@@ -990,7 +1019,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       get = function(db) return toPercent(db.lootSparkleScale) end,
       set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
       format = percent,
-    })
+    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
   end
 end
 -- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
@@ -1043,7 +1072,7 @@ addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
   toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
   toggle("AUTO_TURN_IN", "autoTurnIn"),
-  toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
+  requires(toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"), "autoTurnIn"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
 builder.AddTextInput({
@@ -1071,8 +1100,8 @@ addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
-  toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
-  toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"),
+  requires(toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"), "questTargetButton"),
+  requires(toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"), "questItemButton", "questTargetButton"),
   toggle("REWARD_HINT_TOGGLE", "rewardHint"),
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
@@ -1092,8 +1121,9 @@ if ns.QuestTextSize.IsAvailable() then
 end
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
-  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
-  addSlider({
+  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"),
+    requires(toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress"), "questMarks") })
+  addSlider(requires({
     label = "QUEST_MARK_SCALE",
     setting = "questMarkScale",
     min = toPercent(ns.QuestMarks.MIN_SCALE),
@@ -1102,7 +1132,7 @@ if ns.QuestMarks.IsAvailable() then
     get = function(db) return toPercent(db.questMarkScale) end,
     set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
     format = percent,
-  })
+  }, "questMarks"))
 end
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
@@ -1168,7 +1198,7 @@ addToggles({
 addSection("SECTION_LOOT_ROLLS")
 addToggles({
   toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
-  toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"),
+  requires(toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"), "lootRollCounts"),
   toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
   advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
 })
@@ -1198,7 +1228,7 @@ addToggles({
   toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
   advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
 })
-addSlider({
+addSlider(requires({
   label = "WEATHER_DENSITY",
   advanced = true,
   setting = "weatherDensity",
@@ -1208,7 +1238,7 @@ addSlider({
   get = function(db) return db.weatherDensity end,
   set = function(value) ns.SetDeferred("weatherDensity", value) end,
   format = function(value) return tostring(value) end,
-})
+}, "setWeatherDensity"))
 -- Stummschalten nur, wo MuteSoundFile existiert
 local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
 for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
@@ -1225,15 +1255,15 @@ addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
-  toggle("SHOW_SPLIT_HEADER", "splitListHeader"),
-  toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
-  toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
-  toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
-  toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
+  requires(toggle("SHOW_SPLIT_HEADER", "splitListHeader"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"), "showSplitList"),
+  requires(toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"), "showSplitList"),
 })
-addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
+addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList", function(db) return db.showSplitList end)
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
-addSlider({
+addSlider(requires({
   label = "SPLIT_LIST_ROWS",
   setting = "splitListRows",
   min = ns.SplitList.MIN_ROWS,
@@ -1242,7 +1272,7 @@ addSlider({
   get = function(db) return db.splitListRows end,
   set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
-})
+}, "showSplitList"))
 -- Vergleich: wogegen die Splits laufen, Toleranz, Hinweise bei Bestzeiten, Rennen gegen Freunde
 addSubPage("OPTIONS_PAGE_COMPARE")
 addSplitComparisonChooser()

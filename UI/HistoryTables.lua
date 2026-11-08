@@ -411,11 +411,18 @@ local function questLink(record)
 end
 
 
-addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
+-- Hinweis zu Teil-Level ("*") nur, wenn der Charakter welche hat; sonst der Sortier-Hinweis
+local function partialHint(characterKey)
+  for _, record in ipairs(History.GetLevelRecords(characterKey)) do
+    if record.partial then return L.LEVELS_PARTIAL_HINT end
+  end
+  return L.TABLE_SORT_HINT
+end
+
+addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
-addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
-addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells,
-  "LEVELS_PARTIAL_HINT")
+addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
+addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
 -- Rekorde gelten für alle Charaktere, die Charakter-Auswahl spielt keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({
   tab = "HISTORY_TAB_PERSONAL_RECORDS",

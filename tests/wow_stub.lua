@@ -207,6 +207,7 @@ local frameMethods = {
   GetChecked = function(self) return self._checked end,
   SetChecked = function(self, checked) self._checked = checked end,
   SetScript = function(self, name, handler) self._scripts[name] = handler end,
+  GetScript = function(self, name) return self._scripts[name] end,
   -- Attribute sicherer Knöpfe; im Kampf wie im Client verboten (Fehler), Tests prüfen so die Kampfsperre
   SetAttribute = function(self, name, value)
     if wow.state.combatLockdown then error("ADDON_ACTION_BLOCKED: SetAttribute in combat") end
