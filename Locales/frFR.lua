@@ -680,6 +680,7 @@ ns.locales.frFR = {
   LOOT_ROLL_WITH_ROLL = " avec %d (%s)",
   LOOT_ROLL_WITH_KIND = " (%s)",
   LOOT_ROLL_SUMMARY_ALL_PASSED = "%s : tout le monde a passé.",
+  LOOT_ROLL_SUMMARY_UNKNOWN = "%s : gagnant inconnu.",
   LOOT_ROLL_TOOLTIP_TITLE = "%s : %d",
   LOOT_ROLL_NOBODY = "Personne",
   LOOT_ROLL_NAME_WITH_ROLL = "%s (%d)",

@@ -67,7 +67,7 @@ function GetLootRollTimeLeft() return 60000 end
 -- Würfel-Historie wie im Client: Classic Era (era_*) das alte C_LootHistory (state.lootHistory = { { rollID, link,
 -- isDone, winnerIdx, players = { { name, class, rollType, roll, isWinner } } } }), sonst das neue je Beute
 -- (state.lootDrops["encounterID:lootListID"] = EncounterLootDropInfo, state.encounterDrops[encounterID] = Liste)
-if state.interface < 20000 then
+if state.interface < 16000 then  -- unter 16000 (Classic Era) altes C_LootHistory, sonst (Forever 16xxx, Retail) neues
   C_LootHistory = {
     GetNumItems = function() return #(state.lootHistory or {}) end,
     GetItem = function(index)
