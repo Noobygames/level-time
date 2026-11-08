@@ -14,6 +14,19 @@ wow.state.clock = os.time({ year = 2026, month = 10, day = 2, hour = 12 })
 wow.login({ level = 20, xp = 0, xpMax = 10000, money = 0 })
 wow.state.inGroup = true
 
+-- /lt report ohne Lauf: Hinweis
+SlashCmdList.LEVELTIMER("report")
+expect("ohne Lauf: Hinweis", wow.printed[#wow.printed]:find(L.INSTANCE_REPORT_NONE, 1, true) ~= nil, true)
+
+-- /lt report im Dungeon: sofort an die Gruppe, auch mit ausgeschalteter Einstellung und unter einer Minute
+enter("Die Todesminen")
+wow.advance(10)
+SlashCmdList.LEVELTIMER("report")
+expect("von Hand: gesendet", #sent(), 1)
+expectTrue("von Hand: Instanzname", sent()[1].message:find("Die Todesminen", 1, true) ~= nil)
+enter(nil)
+wow.sentChat = {}
+
 -- Aus: kein Bericht
 enter("Die Todesminen")
 wow.advance(120)
