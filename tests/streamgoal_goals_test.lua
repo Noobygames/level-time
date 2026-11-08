@@ -159,7 +159,7 @@ wow.state.instance = nil
 ---------------------------------------------------------------------------
 SlashCmdList.STREAMGOAL("cancel " .. arenaGoal.id)
 expect("abgebrochen", arenaGoal.status, Goals.CANCELLED)
-expect("Chat meldet Abbruch", lastPrint():find(string.format(L.SG_CHAT_CANCELLED, string.format(L.SG_GOAL_BGWIN_ANY, 1)), 1, true) ~= nil, true)
+expect("Chat meldet Abbruch", lastPrint():find(string.format(L.SG_CHAT_CANCELLED, string.format(L.SG_GOAL_BGWIN_ANY_ONE, 1)), 1, true) ~= nil, true)
 SlashCmdList.STREAMGOAL("cancel 999")
 expect("unbekannte Nummer", lastPrint():find(string.format(L.SG_ERR_NO_GOAL, "999"), 1, true) ~= nil, true)
 

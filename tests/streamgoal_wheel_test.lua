@@ -103,3 +103,85 @@ expect("Rad im Edit-Modus", StreamGoalWheel:IsShown(), true)
 expectTrue("verschiebbar", addon.EditMode.Overlay(WheelDisplay.FRAME_ID) ~= nil)
 addon.EditMode.Leave()
 expect("danach weg", StreamGoalWheel:IsShown(), false)
+
+---------------------------------------------------------------------------
+-- UX (G1, G20): Rad über den Fenstern, Ergebnis bleibt stehen, Neu drehen per Knopf und Karte
+---------------------------------------------------------------------------
+local Manager = streamGoal.Manager
+local WheelView = streamGoal.WheelView
+for _, goal in ipairs(Goals.Active()) do Goals.Cancel(goal.id) end
+for _, item in ipairs(Pool.Items()) do Wheel.SetEnabled(item.key, false) end
+for _, item in ipairs(Pool.OwnItems()) do Wheel.SetEnabled(item.key, true) end
+streamGoal.SetSetting("wheelAnimation", true)
+streamGoal.SetSetting("wheelOnLevelUp", false)
+-- Ebene merken (der Stub kennt keine Strata)
+for _, frame in ipairs({ StreamGoalWheel, StreamGoalWheelCard }) do
+  frame.SetFrameStrata = function(self, strata) self._strata = strata end
+end
+
+-- Drehen aus dem offenen Fenster: das Rad liegt über dem Fenster (DIALOG)
+wow.runTimers()
+Manager.Toggle("wheel")
+expect("Reiter Glücksrad offen", Manager.ShownPage(), "wheel")
+expect("ohne Ergebnis kein Neu-drehen-Knopf", WheelView.rerollButton:IsShown(), false)
+WheelView.spinButton._scripts.OnClick(WheelView.spinButton, "LeftButton")
+expect("dreht", Wheel.IsSpinning(), true)
+expect("Rad über den Fenstern", StreamGoalWheel._strata, WheelDisplay.SPIN_STRATA)
+expect("Fenster bleibt offen", StreamGoalWindow:IsShown(), true)
+expect("während des Drehens kein Neu drehen", WheelView.rerollButton:IsShown(), false)
+finishSpin()
+local result = Goals.Active()[1]
+-- Ausblend-Timer dieses Ergebnisses (zuletzt geplant), für die Prüfung nach dem Neu drehen
+local hideFirst = wow.timers[#wow.timers]
+expect("Ergebnis-Karte sichtbar", StreamGoalWheelCard:IsShown(), true)
+expect("Knopf Neu drehen da", WheelView.rerollButton:IsShown(), true)
+expect("Knopf zeigt Neuwürfe", WheelView.rerollButton.label._text, string.format(L.SG_WHEEL_REROLL_LEFT, 2))
+expectTrue("Knopf mit Tooltip", WheelView.rerollButton._scripts.OnEnter ~= nil)
+
+-- Neu drehen über den Knopf: altes Ergebnis abgebrochen, Zähler sinkt
+WheelView.rerollButton._scripts.OnClick(WheelView.rerollButton, "LeftButton")
+finishSpin()
+expect("altes Ergebnis abgebrochen", result.status, Goals.CANCELLED)
+expect("Knopf zählt herunter", WheelView.rerollButton.label._text, string.format(L.SG_WHEEL_REROLL_LEFT, 1))
+-- Der Ausblend-Timer des ersten Ergebnisses lässt das neue stehen
+hideFirst()
+expect("alter Timer blendet neues Ergebnis nicht aus", StreamGoalWheelCard:IsShown(), true)
+local printed = #wow.printed
+-- Rechtsklick auf die Karte = Neu drehen (letzter Neuwurf)
+StreamGoalWheelCard._scripts.OnMouseUp(StreamGoalWheelCard, "RightButton")
+finishSpin()
+expectTrue("Rechtsklick dreht neu", #wow.printed > printed)
+local last = Goals.Active()[1]
+expect("Chat ohne Neuwurf-Hinweis bei 0", wow.printed[#wow.printed]:find(string.format(L.SG_CHAT_WHEEL_LAST,
+  Goals.Title(last)), 1, true) ~= nil, true)
+expect("kein /sg wheel reroll bei 0", wow.printed[#wow.printed]:find("reroll", 1, true), nil)
+expect("ohne Neuwürfe kein Knopf", WheelView.rerollButton:IsShown(), false)
+expect("Wheel.RerollsLeft 0", Wheel.RerollsLeft(), 0)
+wow.runTimers()
+expect("Ergebnis nach der Anzeigedauer weg", StreamGoalWheelCard:IsShown(), false)
+expect("Rad nach der Anzeigedauer weg", StreamGoalWheel:IsShown(), false)
+
+-- Anzeigedauer 0: Ergebnis bleibt, bis man die Karte anklickt
+expect("Standard-Anzeigedauer", StreamGoalDB.settings.wheelResultSeconds, 15)
+streamGoal.SetSetting("wheelResultSeconds", 0)
+Goals.Cancel(last.id)
+Wheel.Spin()
+finishSpin()
+wow.runTimers()
+expect("bleibt stehen", StreamGoalWheelCard:IsShown(), true)
+expect("Rad bleibt stehen", StreamGoalWheel:IsShown(), true)
+StreamGoalWheelCard._scripts.OnMouseUp(StreamGoalWheelCard, "LeftButton")
+expect("Linksklick blendet aus", StreamGoalWheelCard:IsShown(), false)
+expect("Rad auch weg", StreamGoalWheel:IsShown(), false)
+expect("Ziel bleibt", Goals.Active()[1].status, Goals.ACTIVE)
+
+-- Ungültige gespeicherte Dauer fällt beim Login auf den Standard zurück
+StreamGoalDB.settings.wheelResultSeconds = 999
+wow.logout()
+wow.login()
+expect("Dauer bereinigt", StreamGoalDB.settings.wheelResultSeconds, 15)
+
+-- Einstellungen: Knopf Neu drehen und Regler für die Anzeigedauer
+streamGoal.Options.Show(streamGoal.SETTINGS_PAGES.WHEEL)
+expect("Neu drehen in den Einstellungen", wow.click(L.SG_WHEEL_REROLL), true)
+expectTrue("Regler Anzeigedauer im Suchindex", #streamGoal.Options.builder.Search(L.SG_OPTIONS_WHEEL_RESULT) > 0)

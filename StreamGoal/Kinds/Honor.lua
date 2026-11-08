@@ -25,7 +25,7 @@ Goals.RegisterKind("honor", {
   form = { amount = "SG_FORM_AMOUNT" },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target) return Kinds.ValidAmount(target) end,
-  title = function(goal) return string.format(L.SG_GOAL_HONOR, goal.target) end,
+  title = function(goal) return Kinds.Counted("SG_GOAL_HONOR", goal.target) end,
 })
 
 -- Ehre aus einer Meldung (letzte Zahl unter den Argumenten), nil wenn keine Ehre darin steht

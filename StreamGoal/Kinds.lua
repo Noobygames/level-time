@@ -66,6 +66,14 @@ function Kinds.ValidAmount(target)
 end
 local validAmount = Kinds.ValidAmount
 
+-- Titel mit Anzahl in Einzahl oder Mehrzahl: bei count == 1 der Text <key>_ONE ("%d Gebiet entdecken"), sonst <key>
+-- ("%d Gebiete entdecken"); weitere Werte nach count. Ziele sind nie 0, daher reicht "1 = Einzahl" in allen vier
+-- Sprachen.
+function Kinds.Counted(key, count, ...)
+  local text = count == 1 and L[key .. "_ONE"] or L[key]
+  return string.format(text, count, ...)
+end
+
 -- Wörter einer Eingabe
 function Kinds.Words(text)
   local list = {}
@@ -194,7 +202,7 @@ Goals.RegisterKind("kills", {
     if not KILL_TITLES[params.source] then return string.format(L.SG_ERR_UNKNOWN_KIND, params.source) end
     return validAmount(target)
   end,
-  title = function(goal) return string.format(L[KILL_TITLES[goal.params.source]], goal.target) end,
+  title = function(goal) return Kinds.Counted(KILL_TITLES[goal.params.source], goal.target) end,
   body = function(goal) return goal.params.battleground and L.SG_ONLY_BG or nil end,
 })
 
@@ -248,7 +256,7 @@ Goals.RegisterKind("bgwin", {
   title = function(goal)
     local name = goal.params.battleground
     if name then return string.format(L.SG_GOAL_BGWIN_NAMED, name, goal.target) end
-    return string.format(L.SG_GOAL_BGWIN_ANY, goal.target)
+    return Kinds.Counted("SG_GOAL_BGWIN_ANY", goal.target)
   end,
 })
 

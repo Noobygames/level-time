@@ -1,7 +1,8 @@
 -- Reiter "Glücksrad" im Fenster /sg (Roadmap 431): was das Rad ziehen darf, als Tabelle (TableView von Level Time:
 -- Filter, Sortieren) mit allen mitgelieferten und eigenen Zielen; Klick schaltet einen Eintrag für das Rad an/aus.
 -- Unten links die wichtigsten Einstellungen des Rads (dieselben wie unter Einstellungen > Glücksrad), rechts oben
--- "Alle an"/"Alle aus" (für die gefilterten Zeilen), darunter die Hauptaktion "Glücksrad drehen". Eigene Ziele
+-- "Alle an"/"Alle aus" (für die gefilterten Zeilen), darunter die Hauptaktion "Glücksrad drehen" und links daneben
+-- "Neu drehen (noch N)", solange das letzte Ergebnis Neuwürfe übrig hat. Eigene Ziele
 -- entstehen und werden gelöscht in der Sammlung (CollectionPage.lua).
 local _, ns = ...
 local LT = ns.LT
@@ -92,8 +93,11 @@ end
 WheelView.checks = checks
 
 local spinButton = Manager.CreateButton(page, "SG_WHEEL_SPIN", function() ns.Commands.Wheel("") end)
-spinButton:SetPoint("BOTTOMRIGHT", 0, 0)
 WheelView.spinButton = spinButton
+-- "Neu drehen (noch N)" links neben der Hauptaktion, nur solange das gezeigte Ergebnis Neuwürfe übrig hat
+local rerollButton = Manager.CreateButton(page, "SG_WHEEL_REROLL", function() ns.Commands.Wheel("reroll") end)
+WheelView.rerollButton = rerollButton
+local spinButtons = { spinButton, rerollButton }
 local allOnButton = Manager.CreateButton(page, "SG_WHEEL_ALL_ON", function() WheelView.SetAllShown(true) end)
 local allOffButton = Manager.CreateButton(page, "SG_WHEEL_ALL_OFF", function() WheelView.SetAllShown(false) end)
 local switchButtons = { allOffButton, allOnButton }
@@ -107,6 +111,20 @@ function WheelView.Render()
     check:SetChecked(ns.db.settings[check.entry.setting] and true or false)
   end
   Manager.SetLabels({ spinButton, allOnButton, allOffButton })
+  WheelView.RenderReroll()
   Manager.AlignRight(switchButtons, page, "BOTTOMRIGHT", CHECK_ROW)
   poolTable:Render(nil, false, true)
 end
+
+-- Knopf "Neu drehen" mit verbleibender Zahl; ohne Neuwurf ausgeblendet
+function WheelView.RenderReroll()
+  local left = Wheel.RerollsLeft()
+  Widgets.SetButtonText(rerollButton, string.format(L.SG_WHEEL_REROLL_LEFT, left), rerollButton.minWidth)
+  rerollButton:SetShown(left > 0)
+  Manager.AlignRight(spinButtons, page, "BOTTOMRIGHT", 0)
+end
+
+-- Drehen beginnt/endet, Ergebnis weg: Knopf aktuell halten, solange der Reiter offen ist
+Wheel.OnChange(function()
+  if Manager.ShownPage() == "wheel" then WheelView.RenderReroll() end
+end)

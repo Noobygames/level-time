@@ -2874,3 +2874,60 @@ Position nach /reload (ja/nein):
 Ausblenden per Befehl und Einstellung (ja/nein):
 Fehler:
 ```
+
+### 200. Level Time Goals: Glücksrad über dem Fenster, Ergebnis bleibt, Neu drehen per Knopf
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Datei `StreamGoal/ClickStep.lua`).
+
+1. `/sg`, Reiter „Glücksrad“, „Glücksrad drehen“: das Rad dreht sich sichtbar **vor** dem Fenster (nicht dahinter),
+   die Ergebnis-Karte darunter ebenso. Gleiches über Einstellungen > Glücksrad > „Glücksrad drehen“.
+2. Nach dem Halt erscheint links neben „Glücksrad drehen“ der Knopf „Neu drehen (noch 2)“; Klick verwirft das
+   Ergebnis (Ziel abgebrochen) und dreht neu, die Zahl sinkt; bei 0 verschwindet der Knopf. Die Chatzeile nennt
+   `/sg wheel reroll` nur, solange Neuwürfe übrig sind.
+3. Rechtsklick auf die Ergebnis-Karte dreht ebenfalls neu, Linksklick blendet Rad und Karte aus; der Tooltip der
+   Karte nennt beides.
+4. Rad und Karte bleiben 15 s stehen (Einstellungen > Glücksrad > „Ergebnis zeigen“); auf 0 („bis Klick“) bleiben
+   sie bis zum Linksklick auf die Karte oder bis zur nächsten Drehung.
+5. `/lt edit`: das Rad lässt sich weiterhin greifen und verschieben (die Rahmen des Edit-Modus liegen darüber).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rad vor dem Fenster /sg und vor den Einstellungen (ja/nein):
+Knopf Neu drehen und Zähler (ja/nein):
+Karte: Linksklick/Rechtsklick (ja/nein):
+Anzeigedauer 15 s / bis Klick (ja/nein):
+Edit-Modus greift das Rad (ja/nein):
+Fehler:
+```
+
+### 201. Level Time Goals: Abhaken mit zweitem Klick, Formular je Modus, Zusätze zurückgesetzt
+
+- [ ] geprüft
+
+1. Freitext-Ziel ohne Zähler (`/sg add custom Test`): ein Linksklick auf die Karte hakt **nicht** ab, die Karte zeigt
+   „Nochmal klicken zum Abhaken“; ein zweiter Klick innerhalb von 3 s hakt ab (Einblendung erst jetzt). Nach 3 s
+   ohne zweiten Klick zeigt die Karte wieder ihren normalen Text.
+2. Zähler-Ziel (`/sg add custom 2 Test`): erster Klick zählt 1, beim letzten Schritt gilt dasselbe wie in 1.
+   Shift+Linksklick zählt zurück. Im Bingo-Schein: Feld zeigt unter dem Text „Nochmal klicken zum Abhaken“.
+3. `/sg`, Fortschritt > Quests: zuerst „Art“, darunter nur „Anzahl“ (Art: Anzahl abgeben) bzw. nur „Quest-IDs oder
+   Links“ (Art: Bestimmte Quests); beim Umschalten springt die Knopfzeile mit, nichts überlappt. Gleiches bei
+   Erkundung (Anzahl / Zone) und Ruf (Rufpunkte / Stufe, Fraktion immer).
+4. „+ Weitere Optionen“, „Wiederholen: Täglich“, Ziel hinzufügen: das Ziel ist täglich, danach steht „Wiederholen“
+   wieder auf „Nie“ und die Zusätze lassen sich zuklappen; solange etwas gesetzt ist, bleiben sie offen.
+5. Karten und Bingo-Felder mit Anzahl 1 lesen sich richtig: „1 Gebiet entdecken“, „1 Quest abgeben“, in Englisch
+   „Discover 1 area“, Französisch „Découvrir 1 zone“, Spanisch „Descubrir 1 zona“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zweiter Klick nötig, Hinweis auf Karte und Feld (ja/nein):
+Formular zeigt nur Felder des Modus (ja/nein):
+Zusätze nach Hinzufügen zurückgesetzt (ja/nein):
+Einzahl in allen Sprachen (ja/nein):
+Fehler:
+```

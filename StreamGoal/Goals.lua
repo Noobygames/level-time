@@ -347,6 +347,12 @@ function Goals.Step(id, delta)
   return goal
 end
 
+-- Würde ein Schritt um delta das Ziel abschließen? (Klick-Bestätigung, ClickStep.lua). Ohne den Schritt der Art
+-- aufzurufen (der der Checkliste hakt schon ab); auch dort zählt ein Schritt genau eins.
+function Goals.WouldComplete(goal, delta)
+  return goal.status == Goals.ACTIVE and delta > 0 and goal.progress + delta >= goal.target
+end
+
 -- Ziel (Stand und/oder Ziel) neu bewerten, z.B. eine Checkliste nach einem neuen Teilziel; schließt bei Erreichen ab
 function Goals.Update(goal, progress)
   if goal.status ~= Goals.ACTIVE then return end

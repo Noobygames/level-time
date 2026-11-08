@@ -71,6 +71,12 @@ local function addFromForm()
   Manager.AddFromForm()
 end
 
+-- Neue Auswahl (Modus einer Art, Zusätze): andere Felder, andere Höhe; die Seite ordnet sich neu an
+local function onFormChange()
+  Manager.LayoutGoalsPage()
+  Manager.RenderActive()
+end
+
 for _, group in ipairs(Goals.KIND_GROUPS) do
   local tab = Widgets.CreateTab(page, Theme.Font("title"), function() Manager.SelectGroup(group.key) end)
   Widgets.AttachTooltip(tab, function() return L[group.label] end, function()
@@ -87,11 +93,11 @@ for _, kind in ipairs(Goals.KindOrder()) do
     return def.usage and string.format(L.SG_KIND_TAB_TIP, L[def.usage]) or nil
   end)
   kindTabs[kind] = tab
-  forms[kind] = GoalForm.Build(page, def.form or {}, addFromForm)
+  forms[kind] = GoalForm.Build(page, def.form or {}, addFromForm, onFormChange)
 end
 
 -- Zusätze (Frist, Wiederholung, Belohnung, Punkte) unter dem Formular jeder Art, zugeklappt bis "Weitere Optionen"
-local extrasForm = GoalForm.Build(page, { fields = Goals.ExtraFields() }, addFromForm)
+local extrasForm = GoalForm.Build(page, { fields = Goals.ExtraFields() }, addFromForm, onFormChange)
 local extrasShown = false
 
 -- Reiter { tab, text } ab y = top nebeneinander, in die nächste Zeile, wenn einer nicht mehr passt; Rückgabe: Höhe
@@ -139,6 +145,7 @@ errorText:SetTextColor(Theme.RGB("bad"))
 errorText:SetJustifyH("LEFT")
 errorText:SetWidth(Manager.PAGE_WIDTH)
 errorText:SetWordWrap(false)
+Manager.errorText = errorText  -- Tests: gezeigter Fehler
 
 local function showError(err)
   errorText:SetText(err or "")
@@ -156,7 +163,7 @@ function Manager.AddFromForm()
   showError(nil)
   ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal)))
   form:Clear()
-  extrasForm:Clear()
+  extrasForm:Reset()  -- Zusätze gelten nur für dieses Ziel, auch die Auswahl (Wiederholen, Frist zählt)
   return goal
 end
 
@@ -180,7 +187,7 @@ local saveOwnButton = Manager.CreateButton(page, "SG_FORM_SAVE_OWN", function() 
   ADD_MIN_WIDTH)
 Manager.addButton, Manager.saveOwnButton = addButton, saveOwnButton
 
--- Zusätze auf- und zuklappen (Eingaben bleiben erhalten und gelten auch zugeklappt)
+-- Zusätze auf- und zuklappen (Eingaben bleiben bis "Ziel hinzufügen" erhalten und gelten auch zugeklappt)
 function Manager.ToggleExtras(shown)
   if shown == nil then shown = not extrasShown end
   extrasShown = shown and true or false

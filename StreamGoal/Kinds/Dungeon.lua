@@ -52,7 +52,7 @@ Goals.RegisterKind("dungeon", {
   title = function(goal)
     local boss = goal.params.boss
     if boss then return string.format(L.SG_GOAL_BOSS_NAMED, boss, goal.target) end
-    return string.format(L.SG_GOAL_BOSS_ANY, goal.target)
+    return Kinds.Counted("SG_GOAL_BOSS_ANY", goal.target)
   end,
   body = function(goal)
     return goal.params.instance and string.format(L.SG_DUNGEON_IN, goal.params.instance) or nil
