@@ -587,6 +587,7 @@ Schwerpunkt: Werte, die Zuschauer im Spielbild sehen und verstehen. Addons haben
 
 ## Erledigt
 
+- v2.27.0: 439. Bingo: Zielarten „Weglaufen“ und „Momente“ (neun Bingo-Felder automatisch); Quest-Item-Knopf mit Taschen-Items, Zielknopf für Loot-Gegner, Rahmen „Ziele & Items“ ziehbar; Würfel-Karte bleibt bis zum Gewinner (mit Item-Symbol und Tooltip), Gewinnerzeile auf Forever, „Gewinner unbekannt“; Quest-Links in Gruppen-Ansagen und Shift-Klick aus dem Questlog in Goals; Heiler-Ansage ignoriert Wurzeln auf Forever
 - v2.25.1: Fix Level Time Goals: Zielkarten so breit wie Stand und Restzeit (lief rechts über), Restzeit kompakt („noch 5m 50s“), Balken von Level-Zielen füllt sich mit den XP im laufenden Level
 - v2.14.0: 241. Munitionswarnung einstellbar, mit zweiter Schwelle „fast leer“ und Wiederholung; 242. Essen-Timer (Restzeit beim Essen, „Satt aktiv“), neuer Baustein `Lib/TimerDisplay.lua`; Fix: Lagerfeuer meldete erste Lagervorteile nicht
 - v2.15.0: 243. Reiter „Timer“, Munitions-Optionen nur für Jäger; 244. Einblendungen als Karten mit Symbol; 245. Lagerfeuer-Hinweis nur kurz mit einstellbarer Pause; Fix: Verschiebemodus endet beim Schließen der Einstellungen
