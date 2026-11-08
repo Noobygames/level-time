@@ -32,7 +32,8 @@ wow.state.lootRolls = {
   [4] = { link = CLOAK, name = "Umhang des Fuchses" },
 }
 
--- Alles aus: keine Events, keine Würfe
+-- Alles aus (auch die Wurf-Historie, Standard an): keine Events, keine Würfe
+addon.Set("lootRollHistory", false)
 wow.fire("START_LOOT_ROLL", 1, 60000)
 expect("aus: kein Wurf", LootRolls.Get(1), nil)
 

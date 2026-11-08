@@ -16,6 +16,9 @@ local SAMPLES = {
     quantity = 1, source = "Wolf" },
   nearDeathLog = { time = 1005, level = 12, zone = "Wald", lowestPercent = 4, killer = "Wolf", spell = nil,
     environment = "FALLING" },
+  rollLog = { time = 1006, level = 20, zone = "Todesminen", link = LINK, itemId = 2315, quality = 3, winner = "Grimbar",
+    winnerClass = "MAGE", winnerRoll = 87, winnerChoice = "need", need = 2, greed = 1, disenchant = 0, transmog = 0,
+    pass = 1, ownChoice = "greed", ownRoll = 40, instance = "Die Todesminen", difficulty = "Normal", runStart = 900 },
 }
 
 local function copy(value)

@@ -1216,6 +1216,7 @@ addToggles({
   requires(toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"), "lootRollCounts"),
   toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
   advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
+  toggle("LOOT_ROLL_HISTORY_TOGGLE", "lootRollHistory"),
 })
 addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls", nil, true)
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
