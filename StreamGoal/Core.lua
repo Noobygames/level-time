@@ -42,6 +42,8 @@ ns.SETTING_DEFAULTS = {
   wheelRerolls = 2,        -- Neuwürfe je Drehung
   wheelAnimation = true,   -- Rad drehen sehen (aus = Ergebnis sofort, weniger Bewegung)
   wheelTickSound = true,   -- Klicken je Stück, das am Zeiger vorbeidreht
+  minimapButton = true,    -- eigener Minimap-Button (MinimapButton.lua)
+  minimapAngle = 200,      -- Winkel am Minimap-Rand in Grad, neben dem von Level Time (225)
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
 -- Unterseiten des Einstellungsfensters (Options.lua); Anzeigen und Reiter des Fensters /sg öffnen "ihre" Seite
