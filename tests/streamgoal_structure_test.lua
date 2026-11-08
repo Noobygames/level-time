@@ -44,7 +44,7 @@ for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
       placed[kind] = { x = x, y = y, w = tile:GetWidth() }
     end
   end
-  expectTrue(language .. ": Name samt Symbol passt", picker:NeededWidth() <= picker.tileWidth)
+  expectTrue(language .. ": Name samt Symbol passt", picker:Fits())
   expectTrue(language .. ": mehrere Spalten", picker.columns >= 3)
   expectTrue(language .. ": Kachel hoch genug", Manager.KindTile("level"):GetHeight() >= TILE_HEIGHT)
   -- Ungünstigster Fall: längstes Formular, Zusätze offen, alle Plätze belegt -> letzte Zeile noch in der Seite
@@ -289,3 +289,13 @@ expect("Zurück zum Bingo", Manager.ShownPage(), "bingo")
 expect("Feld 3 leer", BingoEditor.Draft().picks[3], nil)
 Manager.Toggle("goals")
 expect("danach wieder normales Formular", Manager.addButton:IsShown(), true)
+
+---------------------------------------------------------------------------
+-- Roadmap 439: Kacheln in Zeilen nach Namensbreite, so wenige Zeilen wie möglich, gleichmäßig verteilt
+---------------------------------------------------------------------------
+local Rows = streamGoal.KindPicker.Rows
+local function joined(list) return "" .. table.concat(list, ",") end
+expect("passt in eine Zeile", joined(Rows({ 30, 30, 30 }, 100)), "1")
+expect("zwei Zeilen ausgeglichen statt 3+1", joined(Rows({ 30, 30, 30, 30 }, 100)), "1,3")
+expect("lange Kachel bekommt ihre Zeile", joined(Rows({ 90, 20, 20, 20 }, 100)), "1,2")
+expect("leer", #Rows({}, 100), 0)

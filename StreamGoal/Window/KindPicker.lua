@@ -1,12 +1,14 @@
--- Auswahl der Zielart im Reiter "Ziele" (UX G15): ein Raster aus Kacheln, je Art Symbol und Name in der Farbe der Art,
+-- Auswahl der Zielart im Reiter "Ziele" (UX G15): Zeilen aus Kacheln, je Art Symbol und Name in der Farbe der Art,
 -- statt zweier Reiterzeilen (Gruppe, dann Art). Alle Arten sind auf einen Blick sichtbar; die Reihenfolge folgt den
 -- Gruppen (Goals.KIND_GROUPS), verwandte Arten stehen so nebeneinander. Tooltip einer Kachel = Erklärung der Art
 -- (<label>_TIP) und gedämpft der Chatbefehl (tipLines).
--- Spaltenzahl aus dem breitesten Namen in der gewählten Sprache: so viele Spalten, wie Kacheln dieser Breite in die
--- Seite passen (höchstens MAX_COLUMNS), dann gleichmäßig auf die Zeilen verteilt; die Kacheln teilen sich die Breite.
--- Keine feste Textbreite, fr/es passen dadurch genauso wie de/en.
+-- Zeilen wie Schlagwörter (Roadmap 439, mehr Arten bei gleicher Seitenhöhe): jede Kachel ist so breit wie ihr Name in
+-- der gewählten Sprache samt Symbol; die Kacheln kommen der Reihe nach auf so wenige Zeilen wie möglich, möglichst
+-- gleich voll verteilt (KindPicker.Rows), dann wird jede Zeile auf die volle Seitenbreite gestreckt (beide Ränder
+-- bündig). Keine feste Textbreite, fr/es passen dadurch genauso wie de/en; kurze Namen sparen Platz für lange.
 --   picker = KindPicker.Create(parent, { kinds() -> Liste, label(kind), onSelect(kind), tipLines(kind) })
---   picker:Layout(top, selected) -> Höhe; picker:Tile(kind) (Tests); picker:SetShown(shown); picker.columns
+--   picker:Layout(top, selected) -> Höhe; picker:Tile(kind) (Tests); picker:SetShown(shown); picker:Fits() (Tests);
+--   picker.columns (meiste Kacheln einer Zeile), picker.rows
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -24,7 +26,6 @@ local ICON_INSET = 4            -- Abstand des Symbols vom linken Rand (hinter d
 local LABEL_GAP = 4             -- Symbol zum Namen
 local LABEL_RIGHT = 4           -- Luft rechts vom Namen
 local STRIPE_WIDTH = 3          -- Farbstreifen links in der Farbe der Art
-local MAX_COLUMNS = 6
 local ALPHA = { normal = 0.16, hover = 0.3, selected = 0.55 }
 
 -- Symbol der Art als Textur: Zahl = Spell-ID (wie Alerts.ICONS und die Karten), sonst Pfad
@@ -42,13 +43,54 @@ local function chrome()
   return STRIPE_WIDTH + ICON_INSET + ICON_SIZE + LABEL_GAP + LABEL_RIGHT
 end
 
--- Spalten für count Kacheln, deren breitester Name widest ist: so viele, wie in width passen, dann gleichmäßig verteilt
--- (14 Arten in 6 Spalten = 3 Zeilen; 5 Spalten füllen die 3 Zeilen auch, mit weniger leeren Plätzen)
-function KindPicker.Columns(count, widest, width)
-  local fit = math.floor((width + TILE_GAP) / (widest + chrome() + TILE_GAP))
-  local columns = math.max(1, math.min(MAX_COLUMNS, fit, count))
-  local rows = math.ceil(count / columns)
-  return math.max(1, math.ceil(count / rows))
+-- Breite der Kacheln first..last nebeneinander (natürliche Breiten samt Abständen)
+local function rowWidth(widths, first, last)
+  local sum = (last - first) * TILE_GAP
+  for index = first, last do sum = sum + widths[index] end
+  return sum
+end
+
+-- Wenigste Zeilen: der Reihe nach auffüllen, bis die nächste Kachel nicht mehr in width passt
+local function fewestRows(widths, width)
+  local rows, used = 1, 0
+  for _, tileWidth in ipairs(widths) do
+    if used > 0 and used + TILE_GAP + tileWidth > width then
+      rows, used = rows + 1, tileWidth
+    else
+      used = used > 0 and used + TILE_GAP + tileWidth or tileWidth
+    end
+  end
+  return rows
+end
+
+-- Kacheln (natürliche Breiten in Anzeige-Reihenfolge) auf die wenigsten Zeilen der Breite width verteilen, so
+-- gleichmäßig wie möglich: die breiteste Zeile so schmal wie möglich (Aufteilung einer Folge, wenige Kacheln, daher
+-- einfach durchprobiert). Rückgabe: Liste der ersten Kachel je Zeile, z.B. { 1, 7, 13 }
+function KindPicker.Rows(widths, width)
+  local count = #widths
+  if count == 0 then return {} end
+  local rows = fewestRows(widths, width)
+  local memo = {}
+  -- widest(first, left) = schmalste mögliche breiteste Zeile für first..count auf left Zeilen, plus Beginn der zweiten
+  local function widest(first, left)
+    if left == 1 then return rowWidth(widths, first, count) end
+    local key = first * 100 + left
+    if memo[key] then return memo[key][1], memo[key][2] end
+    local best, bestNext
+    for last = first, count - left + 1 do
+      local value = math.max(rowWidth(widths, first, last), (widest(last + 1, left - 1)))
+      if not best or value < best then best, bestNext = value, last + 1 end
+    end
+    memo[key] = { best, bestNext }
+    return best, bestNext
+  end
+  local starts, first = { 1 }, 1
+  for left = rows, 2, -1 do
+    local _, nextFirst = widest(first, left)
+    first = nextFirst
+    table.insert(starts, first)
+  end
+  return starts
 end
 
 function KindPicker.Create(parent, spec)
@@ -92,34 +134,48 @@ function KindPicker.Create(parent, spec)
   end
 
   -- Kacheln ab y = top im Raster; selected = gewählte Art. Rückgabe: Höhe des Rasters
+  -- Eine Zeile (Kacheln first..last) ab y auf die volle Breite strecken: der Rest verteilt sich gleichmäßig, die letzte
+  -- Kachel endet genau am rechten Rand
+  local function placeRow(kinds, widths, first, last, y, width, selected)
+    local extra = width - rowWidth(widths, first, last)
+    local share = math.floor(extra / (last - first + 1))
+    local x = 0
+    for index = first, last do
+      local tile = picker.tiles[kinds[index]]
+      local tileWidth = index == last and width - x or widths[index] + share
+      tile:SetWidth(tileWidth)
+      tile:ClearAllPoints()
+      tile:SetPoint("TOPLEFT", x, y)
+      tile.selected = kinds[index] == selected
+      paint(tile)
+      tile:SetShown(picker.shown ~= false)
+      x = x + tileWidth + TILE_GAP
+    end
+  end
+
+  -- Kacheln ab y = top in Zeilen; selected = gewählte Art. Rückgabe: Höhe der Zeilen
   function picker:Layout(top, selected)
     local kinds = spec.kinds()
-    local shown, widest = {}, 0
-    for _, kind in ipairs(kinds) do
+    local shown, widths = {}, {}
+    for index, kind in ipairs(kinds) do
       local tile = tileOf(kind)
       tile.label:SetText(spec.label(kind))
-      widest = math.max(widest, math.ceil(tile.label:GetStringWidth() or 0))
+      widths[index] = math.ceil(tile.label:GetStringWidth() or 0) + chrome()
       shown[kind] = true
     end
     for kind, tile in pairs(self.tiles) do
       if not shown[kind] then tile:Hide() end
     end
     local width = Manager.PAGE_WIDTH
-    local columns = KindPicker.Columns(#kinds, widest, width)
-    local tileWidth = math.floor((width - (columns - 1) * TILE_GAP) / columns)
-    self.columns, self.tileWidth, self.widest = columns, tileWidth, widest
-    for index, kind in ipairs(kinds) do
-      local tile = self.tiles[kind]
-      local row, column = math.floor((index - 1) / columns), (index - 1) % columns
-      tile:SetWidth(tileWidth)
-      tile:ClearAllPoints()
-      tile:SetPoint("TOPLEFT", column * (tileWidth + TILE_GAP), top - row * (TILE_HEIGHT + TILE_GAP))
-      tile.selected = kind == selected
-      paint(tile)
-      tile:SetShown(self.shown ~= false)
+    local starts = KindPicker.Rows(widths, width)
+    self.needed, self.columns, self.rows = {}, 0, #starts
+    for index, kind in ipairs(kinds) do self.needed[kind] = widths[index] end
+    for row, first in ipairs(starts) do
+      local last = (starts[row + 1] or #kinds + 1) - 1
+      placeRow(kinds, widths, first, last, top - (row - 1) * (TILE_HEIGHT + TILE_GAP), width, selected)
+      self.columns = math.max(self.columns, last - first + 1)
     end
-    local rows = math.ceil(#kinds / columns)
-    return rows * TILE_HEIGHT + math.max(0, rows - 1) * TILE_GAP
+    return #starts * TILE_HEIGHT + math.max(0, #starts - 1) * TILE_GAP
   end
 
   -- Ganzes Raster ein- oder ausblenden (Bearbeiten eines laufenden Ziels: die Art steht fest)
@@ -132,9 +188,12 @@ function KindPicker.Create(parent, spec)
     return self.tiles[kind]
   end
 
-  -- Platz, den der breiteste Name samt Symbol braucht (Tests: passt in die Kachel)
-  function picker:NeededWidth()
-    return (self.widest or 0) + chrome()
+  -- Passt jeder Name samt Symbol in seine Kachel? (Tests)
+  function picker:Fits()
+    for kind, needed in pairs(self.needed or {}) do
+      if self.tiles[kind]:GetWidth() < needed then return false end
+    end
+    return true
   end
 
   return picker

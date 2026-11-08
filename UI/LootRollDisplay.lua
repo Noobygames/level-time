@@ -10,7 +10,12 @@
 -- Ersatz: Würfe, für die kein Blizzard-Fenster sichtbar ist (anderes Addon ersetzt sie, mehr als vier Würfe in
 -- Retail), stehen auf einer eigenen Karte (LevelTimerLootRolls; Position und Größe über Lib/Frames.lua, Id
 -- "lootRolls", im Edit-Modus mit Beispielwürfen).
--- Aktualisiert nur bei Änderungen an einem Wurf (LootRolls.OnChange) und beim Ein-/Ausblenden der Fenster.
+-- Stehen bleiben (Nutzer-Wunsch): Hat man selbst gewählt, schließt Blizzard das Würfelfenster, der Wurf läuft aber
+-- weiter. Solche Würfe bleiben mit Zählern auf der Karte, bis der Gewinner feststeht (oder höchstens
+-- PENDING_GRACE Sekunden nach Ablauf der Würfelzeit, falls nie eine Gewinnerzeile kommt); danach zeigt die Karte
+-- WINNER_SECONDS lang das Ergebnis (LootRollReport.SummaryText).
+-- Aktualisiert bei Änderungen an einem Wurf (LootRolls.OnChange/OnComplete), beim Ein-/Ausblenden der Fenster und
+-- einmal je Sekunde, solange die Karte offene oder abgeschlossene Würfe zeigt (Ablauf).
 local _, ns = ...
 local L = ns.L
 local LootRolls = ns.LootRolls
@@ -29,11 +34,15 @@ local DEFAULT_POS = { "BOTTOM", "BOTTOM", 0, 260 }
 local DISPLAY_KINDS = { LootRolls.NEED, LootRolls.GREED, LootRolls.DISENCHANT, LootRolls.TRANSMOG, LootRolls.PASS,
   LootRolls.WAITING }
 local ALWAYS_SHOWN = { need = true, greed = true, pass = true }
+local WINNER_SECONDS = 10   -- so lange steht das Ergebnis auf der Karte
+local PENDING_GRACE = 30    -- offener Wurf ohne Gewinnerzeile: so lange nach Ablauf der Würfelzeit noch zeigen
 
 local rows = {}       -- [Blizzard-Fenster] = Zählerzeile
 local hooked = {}     -- Fenster mit OnShow/OnHide-Hook
 local card
 local previewing = false  -- Edit-Modus: Karte mit Beispielwürfen
+local results = {}       -- abgeschlossene Würfe der letzten WINNER_SECONDS: { roll, at } (LootRolls vergisst sie)
+local cardTimed = false   -- Karte zeigt Würfe mit Ablauf: Sekundentakt aktiv
 
 local function setIcon(texture, kind)
   local atlas = LootRolls.ATLASES[kind]
@@ -159,9 +168,19 @@ end
 local function cardLines(list)
   local lines = {}
   for _, roll in ipairs(list) do
-    lines[#lines + 1] = (roll.link or roll.name or "?") .. "\n" .. LootRollDisplay.CountsLine(roll)
+    if roll.completed then
+      lines[#lines + 1] = ns.LootRollReport.SummaryText(roll)
+    else
+      lines[#lines + 1] = (roll.link or roll.name or "?") .. "\n" .. LootRollDisplay.CountsLine(roll)
+    end
   end
   return table.concat(lines, "\n")
+end
+
+-- Offener Wurf (ohne sichtbares Blizzard-Fenster) auf der Karte: bis zum Ergebnis, höchstens PENDING_GRACE nach
+-- Ablauf der Würfelzeit
+function LootRollDisplay.OnCard(roll, now)
+  return not roll.completed and now <= roll.startedAt + roll.seconds + PENDING_GRACE
 end
 
 -- Beispielwürfe für den Edit-Modus (eigene Tabellen, nicht in LootRolls)
@@ -185,8 +204,9 @@ end
 local function showCard(list)
   if previewing then list = LootRollDisplay.SampleRolls() end
   if #list > 0 then
-    card.Set({ color = { Theme.RGB("accent") }, icon = LootRolls.ICONS.need, title = L.LOOT_ROLL_CARD_TITLE,
-      body = cardLines(list) })
+    -- Symbol des ersten Gegenstands (das Würfelbild fehlt in manchen Clients), sonst die Würfel
+    card.Set({ color = { Theme.RGB("accent") }, icon = LootRolls.ICONS.need, texture = list[1].texture,
+      title = L.LOOT_ROLL_CARD_TITLE, body = cardLines(list) })
     card.frame:Show()
   else
     card.frame:Hide()
@@ -214,11 +234,21 @@ function LootRollDisplay.Refresh()
   end
   local list = {}
   if enabled then
+    local now = GetTime()
     for _, roll in ipairs(LootRolls.All()) do
-      if not (roll.closed or roll.completed or covered[roll]) then list[#list + 1] = roll end
+      if not covered[roll] and LootRollDisplay.OnCard(roll, now) then list[#list + 1] = roll end
     end
+    for index = #results, 1, -1 do
+      if now - results[index].at >= WINNER_SECONDS then table.remove(results, index) end
+    end
+    for _, result in ipairs(results) do list[#list + 1] = result.roll end
   end
   showCard(list)
+  local timed = #list > 0 and not previewing
+  if timed ~= cardTimed then
+    cardTimed = timed
+    ns.RefreshTasks()
+  end
 end
 
 -- Blizzards Fenster beobachten, sobald die Zähler an sind (einmal je Fenster)
@@ -239,6 +269,21 @@ end
 
 card = ns.Card.Create(ns.GlobalName("LootRolls"))
 card.frame:SetFrameStrata("DIALOG")
+-- Item-Links im Text: Tooltip beim Drüberfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled, SimpleFrameAPI
+-- in allen Zweigen)
+if card.frame.SetHyperlinksEnabled then
+  card.frame:SetHyperlinksEnabled(true)
+  card.frame:SetScript("OnHyperlinkEnter", function(self, link)
+    GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+    GameTooltip:SetHyperlink(link)
+    GameTooltip:Show()
+  end)
+  card.frame:SetScript("OnHyperlinkLeave", function() GameTooltip:Hide() end)
+  card.frame:SetScript("OnHyperlinkClick", function(_, link, text, button)
+    if HandleModifiedItemClick and HandleModifiedItemClick(text) then return end
+    if SetItemRef then SetItemRef(link, text, button) end
+  end)
+end
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
   settingsPage = "COMFORT_PAGE_LOOT", clickable = true, actionsTip = true,
@@ -254,6 +299,15 @@ ns.Frames.Register({
 LootRolls.OnChange(function()
   if ns.db.lootRollCounts then LootRollDisplay.Refresh() end
 end)
+
+LootRolls.OnComplete(function(roll)
+  if not ns.db.lootRollCounts then return end
+  table.insert(results, { roll = roll, at = GetTime() })
+  LootRollDisplay.Refresh()
+end)
+
+-- Ablauf (Ergebnis ausblenden, vergessene Würfe) nur, solange die Karte solche Würfe zeigt
+ns.Every(1, LootRollDisplay.Refresh, function() return cardTimed end)
 
 ns.RegisterApply(function(db)
   if db.lootRollCounts then hookFrames() end

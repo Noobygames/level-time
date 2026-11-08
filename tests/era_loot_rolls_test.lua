@@ -108,12 +108,19 @@ expect("fertig: vergessen", LootRolls.Get(1), nil)
 expect("Gewinner", first.winner, "Grimbar")
 expectTrue("Chatzeile", printedWith("gewinnt mit 87 (Bedarf). Bedarf 2, Entzauberung 1, Passen 2") ~= nil)
 expect("Zeile am ersten Fenster weg", Display.RowOf(GroupLootFrame2):IsShown(), false)
+expect("Ergebnis auf der Karte", LevelTimerLootRolls:IsShown(), true)
+expectTrue("Gewinner auf der Karte", LevelTimerLootRolls.body:GetText():find("gewinnt mit 87", 1, true) ~= nil)
 
--- Abbruch (eigene Wahl getroffen): kein Fenster, keine Karte, der Wurf läuft weiter
+-- Abbruch (eigene Wahl getroffen): Blizzards Fenster ist zu, der Wurf läuft weiter und bleibt auf der Karte, bis
+-- der Gewinner feststeht oder die Würfelzeit lange abgelaufen ist
 wow.fire("START_LOOT_ROLL", 3, 60000)
 expect("Karte für den Ring", LevelTimerLootRolls:IsShown(), true)
+expectTrue("Links im Text mit Tooltip", LevelTimerLootRolls:GetScript("OnHyperlinkEnter") ~= nil)
 wow.fire("CANCEL_LOOT_ROLL", 3)
-expect("nach Abbruch keine Karte", LevelTimerLootRolls:IsShown(), false)
+expect("nach eigener Wahl bleibt die Karte", LevelTimerLootRolls:IsShown(), true)
+wow.advance(60 + 31)
+wow.update(1)
+expect("ohne Ergebnis nach Ablauf weg", LevelTimerLootRolls:IsShown(), false)
 expectTrue("Wurf wartet aufs Ergebnis", LootRolls.Get(3) ~= nil and LootRolls.Get(3).closed)
 chat(line(13, "Alle haben gepasst auf: " .. RING))
 expect("alle gepasst", LootRolls.Get(3), nil)
@@ -144,6 +151,11 @@ expect("Wahl nachgetragen", entry.rollChoice, "need")
 -- Historie > Beute zeigt den Wurf
 SlashCmdList.LEVELTIMER("history")
 expectTrue("Reiter Beute", wow.click("Beute"))
+
+-- Ergebnis des letzten Wurfs steht 10 s auf der Karte, danach ist sie leer
+wow.advance(11)
+wow.update(1)
+expect("Ergebnis ausgeblendet", LevelTimerLootRolls:IsShown(), false)
 
 -- Edit-Modus: Karte mit Beispielwürfen, danach wieder weg; Position und Größe über Lib/Frames.lua
 expect("Karte angemeldet", addon.Frames.Get("lootRolls") ~= nil, true)

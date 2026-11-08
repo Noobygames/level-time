@@ -33,6 +33,23 @@ expect("fertig", LootRolls.Get(9), nil)
 expect("Gewinner-Wurf", roll.winnerRoll, 12)
 expect("zweite Axt noch offen", LootRolls.Get(10) ~= nil, true)
 
+-- Forever liest die Beute-Historie, bevor sie den Gewinner kennt; die Gewinnerzeile im Chat zählt trotzdem
+-- (vorher: "alle haben gepasst", obwohl alle gewählt hatten)
+local second = LootRolls.Get(10)
+wow.state.lootDrops = { ["100:4"] = { itemHyperlink = AXE, allPassed = false,
+  rollInfos = { { playerName = "Grimbar", playerClass = "MAGE", state = 3, roll = 55 },
+    { playerName = "Testchar", playerClass = "WARRIOR", state = 5 } } } }
+wow.fire("LOOT_HISTORY_UPDATE_DROP", 100, 4)
+expect("Wahlen aus der Historie", second.choices.Grimbar, "greed")
+wow.fire("CHAT_MSG_LOOT", "|HlootHistory:32|h[Beute]|h: Grimbar hat gewonnen (Gier - 55): " .. AXE)
+expect("Gewinner aus der Chatzeile", second.winner, "Grimbar")
+expect("nicht alle gepasst", second.allPassed, false)
+local summary = addon.LootRollReport.SummaryText(second)
+expectTrue("Ergebnis nennt den Gewinner", summary:find("gewinnt mit 55", 1, true) ~= nil)
+expect("ohne Gewinner: unbekannt statt gepasst", addon.LootRollReport.SummaryText({ link = AXE, choices = {},
+  order = {}, rolls = {}, classes = {}, groupSize = 2, completed = true }),
+  string.format(addon.L.LOOT_ROLL_SUMMARY_UNKNOWN, AXE))
+
 -- Debug-Log: Proben zu Start und Historie, Zeile zur geheimen Chatzeile
 local function hasLine(text)
   for _, logged in ipairs(LevelTimerDebugLog.lines) do

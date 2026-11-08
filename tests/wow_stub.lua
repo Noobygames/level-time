@@ -201,6 +201,10 @@ local frameMethods = {
   SetText = function(self, text) self._text = tostring(text) end,
   SetFontObject = function(self, font) self._fontObject = font end,
   GetText = function(self) return self._text end,
+  SetID = function(self, id) self._id = id end,
+  GetID = function(self) return rawget(self, "_id") or 0 end,
+  -- EditBox:Insert fügt an der Schreibmarke ein; der Stub hängt hinten an
+  Insert = function(self, text) self._text = (rawget(self, "_text") or "") .. tostring(text) end,
   SetFocus = function(self) wow.focus = self end,
   ClearFocus = function(self) if wow.focus == self then wow.focus = nil end end,
   HasFocus = function(self) return wow.focus == self end,

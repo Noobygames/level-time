@@ -3,7 +3,9 @@
 -- (Hinweis mit den Namen) und als Zusatz im Hinweis "Taschen fast voll" (GearWarnings.lua). Nur Vorschlag: Level Time
 -- verkauft oder löscht nichts.
 -- Zu einer Quest gehören: gelernte Gegenstände (QuestMobs.ItemsOf) und ihr Quest-Item (GetQuestLogSpecialItemInfo über
--- QuestItem.Candidates, gemerkt in character.questSpecialItems, damit es auch nach /reload bekannt ist).
+-- QuestItem.Candidates, gemerkt in character.questSpecialItems, damit es auch nach /reload bekannt ist). Von den
+-- Taschen-Kandidaten zählen nur sichere Zuordnungen (OWNED_SOURCES: beim Annehmen erhalten, Questinfo des Clients);
+-- ein Namenstreffer im Zieltext macht einen Gegenstand nicht zum Questrest.
 -- Ereignisse: QUEST_TURNED_IN, QUEST_REMOVED (Abbruch; Retail/Forever auch bei Abgabe), MERCHANT_SHOW;
 -- Taschen über Lib/Bags.lua. Reste stehen je Charakter in character.questLeftovers[itemID] = { questID, name }
 -- und verschwinden, sobald sie nicht mehr in den Taschen sind.
@@ -17,6 +19,8 @@ local MAX_NAMES = 5      -- so viele Namen nennt der Hinweis
 local SCAN_SECONDS = 2
 
 local dirty = true
+-- Quellen von QuestItem.Candidates, deren Gegenstand sicher zur Quest gehört
+local OWNED_SOURCES = { special = true, handed = true, questInfo = true }
 
 local function readable(value)
   if ns.IsSecret(value) then return nil end
@@ -38,7 +42,9 @@ local function rememberSpecialItems()
   if not dirty then return end
   dirty = false
   local items = specialItems()
-  for _, candidate in ipairs(ns.QuestItem.Candidates()) do items[candidate.questID] = candidate.itemId end
+  for _, candidate in ipairs(ns.QuestItem.Candidates()) do
+    if OWNED_SOURCES[candidate.source] then items[candidate.questID] = candidate.itemId end
+  end
 end
 
 -- Gegenstände einer Quest: { [itemID] = Name oder true }

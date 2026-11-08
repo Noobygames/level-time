@@ -477,16 +477,20 @@ local function applyChat(line)
   elseif line.kind == WON then
     local roll = rollForLine(line)
     if not roll then return end
-    if not roll.fromHistory and player then
+    -- Die Gewinnerzeile gilt auch, wenn die Wahlen aus der Beute-Historie stammen: Forever liest die Historie oft,
+    -- bevor sie einen Gewinner kennt (Debug-Log 2026-11-08: "winner nil" trotz LOOT_ROLL_WON), sonst stand dann
+    -- "alle haben gepasst" da
+    if player and not roll.winner then
       roll.winner = player
       if line.choice and not roll.choices[player] then setChoice(roll, player, line.choice) end
       roll.winnerRoll = line.roll or roll.rolls[player]
+      roll.allPassed = false
     end
     complete(roll)
   elseif line.kind == ALL_PASSED then
     local roll = rollForLine(line)
     if not roll then return end
-    if not roll.fromHistory then roll.allPassed = true end
+    if not roll.winner then roll.allPassed = true end
     complete(roll)
   end
 end
@@ -594,9 +598,13 @@ local function readDrop(encounterID, lootListID)
     end
   end
   local winner = readable(drop.winner)
-  roll.winner = type(winner) == "table" and LootRolls.ShortName(readable(winner.playerName)) or nil
-  roll.winnerRoll = type(winner) == "table" and readable(winner.roll) or nil
-  roll.allPassed = readable(drop.allPassed) == true
+  local winnerName = type(winner) == "table" and LootRolls.ShortName(readable(winner.playerName)) or nil
+  if winnerName then
+    roll.winner, roll.winnerRoll = winnerName, readable(winner.roll)
+  elseif roll.winner then
+    roll.winnerRoll = roll.winnerRoll or roll.rolls[roll.winner]
+  end
+  roll.allPassed = roll.winner == nil and readable(drop.allPassed) == true
   if roll.winner or roll.allPassed then complete(roll) else changed(roll) end
 end
 

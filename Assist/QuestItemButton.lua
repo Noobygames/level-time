@@ -6,10 +6,16 @@
 --               über SecureActionButtonTemplate type "item" mit "item:<ID>" (SECURE_ACTIONS.item ->
 --               SecureCmdItemParse, Blizzard_FrameXML/SecureTemplates.lua in allen Zweigen); UseQuestLogSpecialItem
 --               selbst ist geschützt.
+--               Quests ohne solches Item: benutzbare Gegenstände aus den Taschen (QuestBagItems.lua: beim Annehmen
+--               erhalten, GetContainerItemQuestInfo, Name im offenen Zieltext, gelernt). Das Quest-Item des
+--               Questlogs gewinnt immer; candidate.source sagt, woher der Kandidat stammt ("special" oder die Quelle
+--               aus QuestBagItems.SOURCES).
 --   "Nächste"   Retail/Forever C_QuestLog.GetDistanceSqToQuest (kleinster lesbarer Abstand); Classic kennt keinen
 --               Abstand: die zuletzt angenommene Quest mit Item, sonst die erste im Log.
 --   Ziel        Namensplaketten, die C_QuestLog.UnitIsRelatedToActiveQuest als Questgegner meldet (wie QuestMarks.lua,
---               nur wo es das gibt), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
+--               nur wo es das gibt) oder deren Tooltip ein offenes Questziel nennt (Lib/QuestTooltip.lua; Forever
+--               meldet Gegner, von denen man nur etwas looten muss, nicht als quest-related, Debug-Log 2026-11-08:
+--               Elementarsklave mit "Armschienen der Erdbindung: 0/4" im Tooltip, questRelated false), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
 --               fallen heraus). Knopf type "macro": "/cleartarget", je Name "/targetexact <Name>" (sichtbare Plaketten
 --               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller
@@ -39,7 +45,8 @@ ns.QuestItem = QuestItem
 
 local BUTTON_SIZE = 36
 local GAP = 4
-local LABEL_HEIGHT = 14  -- Beschriftung über den Knöpfen (nur im Edit-Modus sichtbar)
+local TITLE_PADDING = 8   -- Luft links und rechts neben dem Titel
+local LABEL_HEIGHT = 14  -- Titel "Ziele & Items" über den Knöpfen
 local REFRESH_SECONDS = 1
 local DISTANCE_SECONDS = 3     -- Abstand zur Quest neu vergleichen (nur mit mehreren Kandidaten)
 local MAX_MACRO = 255          -- Länge eines Makros
@@ -75,19 +82,23 @@ function QuestItem.CanTarget()
 end
 
 -- Quests mit benutzbarem Item, unabhängig von der Zone (QuestLeftovers braucht alle):
--- { questID, index, header, link, itemId, texture }
+-- { questID, index, header, link, itemId, texture, source }; erst die Quest-Items des Questlogs, dann die aus den
+-- Taschen für die übrigen Quests
 function QuestItem.Candidates()
-  local list = {}
-  if not GetQuestLogSpecialItemInfo then return list end
-  for _, entry in ipairs(ns.QuestLog.Entries()) do
-    local link, texture = GetQuestLogSpecialItemInfo(entry.index)
+  local list, taken = {}, {}
+  local entries = ns.QuestLog.Entries()
+  for _, entry in ipairs(entries) do
+    local link, texture
+    if GetQuestLogSpecialItemInfo then link, texture = GetQuestLogSpecialItemInfo(entry.index) end
     link, texture = readable(link), readable(texture)
-    local itemId = type(link) == "string" and tonumber(link:match("item:(%d+)"))
+    local itemId = type(link) == "string" and tonumber((link:match("item:(%d+)")))
     if itemId then
+      taken[entry.questID] = true
       table.insert(list, { questID = entry.questID, index = entry.index, header = entry.header, link = link,
-        itemId = itemId, texture = texture })
+        itemId = itemId, texture = texture, source = "special" })
     end
   end
+  for _, candidate in ipairs(ns.QuestBagItems.Find(entries, taken)) do table.insert(list, candidate) end
   return list
 end
 
@@ -205,15 +216,28 @@ local function clearSet(set)
   for key in pairs(set) do set[key] = nil end
 end
 
+-- Nennt der Tooltip der Einheit ein offenes Questziel? (je Name zwischengespeichert, siehe QuestTooltip)
+local function hasOpenTooltipObjective(unit)
+  for _, entry in ipairs(ns.QuestTooltip.Objectives(unit)) do
+    if not entry.done then return true end
+  end
+  return false
+end
+
+local function isQuestUnit(unit)
+  local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
+  if not ns.IsSecret(related) and related == true then return true end
+  return hasOpenTooltipObjective(unit)
+end
+
 -- Namen lebender Questgegner auf den Namensplaketten (nur wo der Client sie kennt), alphabetisch in plateList
 local function plateNames()
   clearList(plateList)
   if not QuestItem.CanTarget() then return plateList end
   for unit in pairs(ns.NamePlates.Active()) do
     if isLivingMob(unit) then
-      local related = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
       local name = readable(UnitName(unit))
-      if not ns.IsSecret(related) and related == true and type(name) == "string" and name ~= "" then
+      if type(name) == "string" and name ~= "" and isQuestUnit(unit) then
         plateList[#plateList + 1] = name
       end
     end
@@ -309,10 +333,8 @@ local function create()
   holder.background = holder:CreateTexture(nil, "BACKGROUND")
   holder.background:SetAllPoints()
   holder.background:SetColorTexture(unpack(MOVE_BACKGROUND))
-  holder.background:Hide()
   holder.label = holder:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
   holder.label:SetPoint("TOP", 0, -1)
-  holder.label:Hide()
 
   itemButton = createSecureButton(ns.GlobalName("QuestItemButton"), "item")
   itemButton:SetPoint("BOTTOMLEFT", holder, "BOTTOMLEFT", 0, 0)
@@ -329,11 +351,12 @@ local function create()
   ns.Frames.Register({
     id = "questItem", frame = holder, label = "EDIT_FRAME_QUEST_ITEM", default = DEFAULT_POS, protected = true,
     settingsPage = "COMFORT_PAGE_QUEST_DISPLAY",
+    -- Rahmen mit Titel immer sichtbar; am Titel/Rand ziehbar, solange "Anzeigen fixieren" aus ist (nie im Kampf:
+    -- protected, die sicheren Knöpfe hängen am Halter)
+    clickable = true, dragWhenUnlocked = true, actionsTip = true,
     preview = function(on)
       if inCombat() then return end
       editing = on
-      holder.background:SetShown(on)
-      holder.label:SetShown(on)
       QuestItem.Refresh()
     end,
     hide = function()
@@ -434,6 +457,8 @@ local function apply()
     return
   end
   holder.label:SetText(L.QUEST_ITEM_MOVE_LABEL)
+  -- Titel in jeder Sprache ganz im Rahmen (fr/es länger als die zwei Knöpfe)
+  holder:SetWidth(math.max(BUTTON_SIZE * 2 + GAP, math.ceil(holder.label:GetStringWidth() or 0) + TITLE_PADDING))
   QuestItem.Refresh()
 end
 

@@ -41,7 +41,8 @@ end
 
 function LootRollReport.SummaryText(roll)
   local item = roll.link or roll.name or "?"
-  if roll.allPassed or not roll.winner then return string.format(L.LOOT_ROLL_SUMMARY_ALL_PASSED, item) end
+  if roll.allPassed then return string.format(L.LOOT_ROLL_SUMMARY_ALL_PASSED, item) end
+  if not roll.winner then return string.format(L.LOOT_ROLL_SUMMARY_UNKNOWN, item) end
   local kind = LootRolls.WinnerKind(roll)
   local detail = ""
   if kind and roll.winnerRoll then

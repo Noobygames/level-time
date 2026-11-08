@@ -150,6 +150,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
 - **190. Glücksrad, Datenteil (Roadmap 432)**: check `432.goals.wheel` (`SetRotation`/`GetRotation` an den Stücken, Tick-Ton `SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON`, `PlaySound`)
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
+- **213. Weglaufen, Datenteil (Roadmap 439)**: check `439.goals.escape` (Namen der Zauber, die den Kampf ohne Weglaufen beenden: Verschwinden 1856/1857/26889, Totstellen 5384, Schattenhaftigkeit 20580/58984, Unsichtbarkeit 66; `false` = Client kennt die ID nicht; Zustand von Ziel/Fokus/Maus als attacking/other/idle/unsure/dead, `UnitIsFeignDeath`/`UnitPlayerControlled` vorhanden), debug `goal:escape` (combat end: Name, Angriffsdauer, dead, seen alive, killed, nameless kill; escaped (combat end/aggro taken); combat end not counted: instance/death/combat drop; combat drop spell …) bei einem Kampf, aus dem man wegläuft, einem getöteten Gegner und einer abgenommenen Aggro
+- **214. Momente, Datenteil (Roadmap 439)**: check `439.goals.moments` (verfügbare Modi, `IsSwimming`/`IsFalling` lesbar, `C_PlayerInfo.GetGlidingInfo`, `C_ChatInfo.PerformEmote`/`DoEmote`, `C_Spell.IsSpellHelpful`, `C_MerchantFrame.GetBuybackItemID`/`GetBuybackItemLink`/`BuybackItem`, Zahl gemerkter Quest-Belohnungen), debug `goal:moment` (rare seen …, fell … s, emote … at … (unit …), helpful spell … on … : heal/res, quest reward …, sold … (quest reward true/false), bought back slot …, <Modus> +1)
 
 ---
 
@@ -3290,5 +3292,99 @@ Level-Up-Seite vollständig (ja/nein):
 Timer & Flüge / Beute / Ausblenden vollständig (ja/nein, was fehlt):
 Minimap-Knopf und Stream-Seite (ja/nein):
 Goals-Einstellungen ohne Reiterzeile (ja/nein):
+Fehler:
+```
+
+### 213. Level Time Goals: Weglaufen (Roadmap 439)
+
+- [ ] geprüft
+
+Vorher `/lt debug log` an, damit `goal:escape` mitschreibt.
+
+1. `/sg add escape 5`: Karte „5-mal vor Gegnern weglaufen“, zweite Zeile „Nur außerhalb von Dungeons und Schlachtzügen“.
+2. Draußen einen Gegner angreifen lassen (mindestens 2 Sekunden), dann weglaufen, bis der Kampf endet: zählt +1?
+3. Gegner töten: zählt nicht. Nur kurz angreifen lassen und sofort weg (unter 2 s): zählt nicht.
+4. In einer Gruppe draußen: ein anderer Spieler zieht die Aggro von dir ab, du bist noch im Kampf: zählt nach etwa
+   2 Sekunden +1, am Kampfende nicht noch einmal.
+5. Jäger: Totstellen; Schurke: Verschwinden; Nachtelf: Schattenhaftigkeit: zählt nicht. Sterben im Kampf: zählt nicht.
+6. In einem Dungeon weglaufen bzw. die Aggro an den Tank abgeben: zählt nie.
+7. Begleiter (Jäger/Hexenmeister) übernimmt den Gegner und tötet ihn: zählt nicht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Weglaufen zählt (ja/nein):
+Kill / kurzer Angriff zählen nicht (ja/nein):
+Aggro abgenommen zählt einmal (ja/nein):
+Totstellen / Verschwinden / Tod zählen nicht (ja/nein):
+Dungeon zählt nie (ja/nein):
+Fehler (falsch gezählt: Zeilen goal:escape aus dem Debug-Log):
+```
+
+### 214. Level Time Goals: Momente (Roadmap 439)
+
+- [ ] geprüft
+
+Vorher `/lt debug log` an, damit `goal:moment` mitschreibt.
+
+1. `/sg`, Reiter „Ziele“: neue Kacheln „Weglaufen“ und „Momente“; alle Kacheln in drei Zeilen, Namen ganz, die Zeilen
+   reichen an beiden Rändern bis zum Rand; die letzte Zeile der laufenden Ziele bleibt im Fenster (sechs Ziele,
+   Zusätze offen). In allen vier Sprachen.
+2. Art „Momente“, Auswahl „Was“ durchklicken: Rare sehen, Tief fallen, Spieler grüßen, Vor NPC tanzen, Schwimmen,
+   Spieler heilen, Belohnung verkaufen, Item zurückkaufen. Karte zeigt je Modus ein eigenes Symbol.
+3. Rare: einen Rare anvisieren oder seine Namensplakette sehen: +1, derselbe Rare nicht noch einmal.
+4. Tief fallen: von einer Klippe springen (etwa 20 m): +1 bei der Landung; normaler Sprung: nichts. Retail: Gleiten
+   mit Himmelsreiten zählt nicht.
+5. Spieler grüßen: Spieler anvisieren, `/winken` oder über das Emote-Menü: +1; derselbe Spieler nicht noch einmal;
+   NPC anvisieren und winken: nichts. `/winken Name` eines Gruppenmitglieds ohne Ziel: +1.
+6. Tanzen: NPC anvisieren, `/tanzen`: +1; vor einem Spieler: nichts.
+7. Schwimmen: mindestens 3 Sekunden schwimmen: +1, einmal je Bad.
+8. Heilen: einen verletzten anderen Spieler heilen: +1; einen vollen Spieler buffen: nichts; einen toten Spieler
+   wiederbeleben: +1. Retail/Forever in Dungeons oder im Kampf: wird es gezählt (Ziel und Leben dort evtl. geheim)?
+9. Quest-Belohnung: eine Quest mit Item-Belohnung abgeben, Item beim Händler verkaufen: +1; anderes Item verkaufen:
+   nichts. Gibt die Belohnung die Meldung „Ihr erhaltet einen Gegenstand“ (debug `quest reward …`)?
+10. Zurückkaufen: ein Item verkaufen und im Reiter „Rückkauf“ zurückkaufen: +1.
+11. `/sg bingo 5`: Felder „Einen Rare-Gegner sehen“, „Vor einem Gegner weglaufen“ usw. zählen jetzt von selbst; „Einen
+   Chat-Witz erzählen“ bleibt zum Abhaken.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kacheln drei Zeilen, Namen ganz (ja/nein, Sprache):
+Rare / Fallen / Grüßen / Tanzen / Schwimmen (ja/nein je Modus):
+Heilen / Wiederbeleben (ja/nein; Dungeon/Kampf in Retail/Forever):
+Belohnung verkaufen / Zurückkaufen (ja/nein):
+Bingo-Felder zählen selbst (ja/nein):
+Fehler:
+```
+
+### 220. Quest-Item-Knopf: benutzbare Gegenstände ohne Quest-Item im Questlog
+
+- [ ] geprüft
+
+Komfort > Quests: „Quest-Item-Knopf“ an. Eine Quest, bei der ein Gegenstand aus den Taschen benutzt werden muss, der im
+Questlog/Tracker keinen eigenen Knopf hat (z.B. Teldrassil: „Geätzte Phiole“ am Mondbrunnen, Ziel „Gefüllte geätzte
+Phiole“). Datenteil per Debug-Log: debug `questitem` (bag item … for quest … via handed/questInfo/objective/learned,
+item … handed over with quest …), check `268.questItem.bagItems` (benutzbare Gegenstände mit den Rohfeldern von
+`GetContainerItemQuestInfo`: isQuestItem, questID, isActive; Taschen-Kandidaten mit Quelle).
+
+1. Am Ort der Quest (z.B. im Mondbrunnen): der Knopf zeigt die Phiole; Klick benutzt sie, danach liegt die gefüllte
+   Phiole in den Taschen und der Knopf verschwindet (die gefüllte Phiole ist ein Ziel, kein Knopf).
+2. Eine Quest annehmen, bei der der Questgeber einen benutzbaren Gegenstand mitgibt: der Knopf zeigt ihn, auch nach
+   `/reload`.
+3. Ein Heiltrank, Essen oder ein anderer benutzbarer Gegenstand ohne Quest erscheint nie auf dem Knopf.
+4. Quests mit eigenem Quest-Item (Tracker-Knopf) zeigen weiter dieses Item.
+5. Mit „Questreste“ an: nach Abgabe der Phiolen-Quest wird die Phiole nicht als Rest gemeldet, ein mitgegebener
+   Gegenstand schon.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Phiole am Mondbrunnen gezeigt (ja/nein):
+Mitgegebener Gegenstand gezeigt (ja/nein, welche Quest):
+Fremde Gegenstände auf dem Knopf (welche):
 Fehler:
 ```

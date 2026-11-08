@@ -26,9 +26,11 @@ Templates are saved goals that bingo cards and the wheel draw from; a pack adds 
 - **Reputation**: gain N reputation or reach a standing with a faction
 - **Achievement** (clients with achievements) and **honor**
 - **Win battlegrounds**: N wins, optionally for one battleground
+- **Escape**: run away from an enemy N times, detected by itself: the enemy attacked you for at least 2 seconds and the fight ends without anyone dying, or someone else takes its aggro off you (only outside dungeons and raids; Feign Death and Vanish don't count)
+- **Moments** the game detects by itself: spot a rare enemy, fall off a cliff, greet a player, dance in front of an NPC, go for a swim, heal or resurrect another player, sell a quest reward, buy an accidentally sold item back
 - **Rules that can fail**: no death, no trade/mail/auction house, no flight paths, naked, no healing potions, until a level or a deadline
 - **Checklists** with your own items and other goals as sub-goals (attach or detach them in the window under **Edit**)
-- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves, BINGO alert and optional group announcement. Fill the fields yourself (built-in or your own templates, a text, or **New goal for field** for any goal kind) or let empty fields fill at random
+- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves (also built-in fields like "Run away from an enemy" or "Go for a swim"), BINGO alert and optional group announcement. Fill the fields yourself (built-in or your own templates, a text, or **New goal for field** for any goal kind) or let empty fields fill at random
 - **Free text**: anything you like, with or without a counter you click up yourself
 
 ## Extras for every goal
@@ -63,6 +65,7 @@ Templates are saved goals that bingo cards and the wheel draw from; a pack adds 
 | `/sg add gold 100 [own]`                         | Goal: earn (or own) 100 gold                    |
 | `/sg add quest 10` / `/sg add quest <links>`     | Goal: 10 quests, or these quests in order       |
 | `/sg add rule nodeath 30`                        | Rule: no death until level 30                   |
+| `/sg add escape 3` / `/sg add moment swim`       | Run away 3 times / go for a swim                |
 | `/sg bingo 3` / `/sg bingo edit`                 | Random bingo card / fill a card yourself        |
 | `/sg wheel` / `/sg wheel edit`                   | Spin the wheel / choose its entries             |
 | `/sg template add <text>` / `/sg template share` | Add a text template / share your templates      |

@@ -21,7 +21,15 @@ function IsTradeskillTrainer() return state.trainer.tradeskill or false end
 wow.trained = {}
 function GetTrainerServiceCost(index) return state.trainer.services[index].cost or 0 end
 function BuyTrainerService(index) table.insert(wow.trained, index) end
-function UnitHealthMax() return state.healthMax end
+-- Andere Einheiten: units[unit].healthMax (sonst wie der Spieler)
+function UnitHealthMax(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  return other and other.healthMax or state.healthMax
+end
+-- Fallen und Schwimmen: state.falling, state.swimming (IsFalling, IsSwimming)
+function IsFalling() return state.falling == true end
+function IsSwimming() return state.swimming == true end
+function UnitIsFeignDeath() return state.feignDeath == true end
 function UnitPowerMax() return state.powerMax end
 -- Mana: state.power (aktuell), state.powerMax
 function UnitPower() return state.power or 0 end
