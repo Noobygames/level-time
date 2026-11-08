@@ -231,35 +231,41 @@ local function xpGained(scope)
   return Format.Number(Stats.GetXp(scope))
 end
 
+-- Zeile, deren Wert nicht vom Bereich abhängt (Rate der letzten Minuten, Instanzlimit, Prognosen, ...): sie zeigt ihren
+-- Wert auch dann, wenn der gewählte Bereich nicht offen ist (Reiter "Instanz" ohne Lauf), statt "-"
+local function globalRow(label, value)
+  return { label = label, value = value, global = true }
+end
+
 ns.STAT_LINES = {
   { setting = "showXpRate", group = "STAT_GROUP_XP", label = "STAT_XP_RATE", rows = { { label = "ROW_XP_RATE", value = xpRate } } },
   { setting = "showRecentXpRate", group = "STAT_GROUP_XP", label = "STAT_RECENT_XP_RATE",
-    rows = { { label = "ROW_RECENT_XP_RATE", value = recentXpRate } } },
+    rows = { globalRow("ROW_RECENT_XP_RATE", recentXpRate) } },
   { setting = "showXpGained", group = "STAT_GROUP_XP", label = "STAT_XP_GAINED", rows = { { label = "ROW_XP_GAINED", value = xpGained } } },
   { setting = "showLevelEta", group = "STAT_GROUP_XP", label = "STAT_LEVEL_ETA", rows = { { label = "ROW_LEVEL_ETA", value = timeToLevel } } },
   { setting = "showKillsToLevel", group = "STAT_GROUP_XP", label = "STAT_KILLS_TO_LEVEL",
-    rows = { { label = "ROW_KILLS_TO_LEVEL", value = countToLevel(Stats.XP_KILLS, Stats.PVE_KILLS) } } },
+    rows = { globalRow("ROW_KILLS_TO_LEVEL", countToLevel(Stats.XP_KILLS, Stats.PVE_KILLS)) } },
   { setting = "showQuestsToLevel", group = "STAT_GROUP_XP", label = "STAT_QUESTS_TO_LEVEL",
-    rows = { { label = "ROW_QUESTS_TO_LEVEL", value = countToLevel(Stats.XP_QUESTS, Stats.QUESTS) } } },
+    rows = { globalRow("ROW_QUESTS_TO_LEVEL", countToLevel(Stats.XP_QUESTS, Stats.QUESTS)) } },
   { setting = "showQuestLogXp", group = "STAT_GROUP_XP", label = "STAT_QUEST_LOG_XP", rows = {
-    { label = "ROW_QUEST_XP_READY", value = questLogXp(1) },
-    { label = "ROW_QUEST_XP_OPEN", value = questLogXp(2) },
-    { label = "ROW_QUEST_XP_LEVEL_UP", value = questTurnInLevelUp },
+    globalRow("ROW_QUEST_XP_READY", questLogXp(1)),
+    globalRow("ROW_QUEST_XP_OPEN", questLogXp(2)),
+    globalRow("ROW_QUEST_XP_LEVEL_UP", questTurnInLevelUp),
   } },
   { setting = "showMaxLevelEta", group = "STAT_GROUP_XP", label = "STAT_MAX_LEVEL_ETA",
-    rows = { { label = "ROW_MAX_LEVEL_ETA", value = timeToMaxLevel } } },
+    rows = { globalRow("ROW_MAX_LEVEL_ETA", timeToMaxLevel) } },
   { setting = "showSplits", group = "STAT_GROUP_PROGRESS", label = "STAT_SPLITS", rows = {
-    { label = "ROW_SPLIT_LEVEL", value = function() return ns.Splits.CurrentDeltaText() end },
-    { label = "ROW_SPLIT_TOTAL", value = function() return ns.Splits.TotalDeltaText() end },
+    globalRow("ROW_SPLIT_LEVEL", function() return ns.Splits.CurrentDeltaText() end),
+    globalRow("ROW_SPLIT_TOTAL", function() return ns.Splits.TotalDeltaText() end),
   } },
-  { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { { label = "ROW_GOAL", value = goalText } } },
+  { setting = "showGoal", group = "STAT_GROUP_PROGRESS", label = "STAT_GOAL", rows = { globalRow("ROW_GOAL", goalText) } },
   { setting = "showPveKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVE_KILLS",
     rows = { { label = "ROW_PVE_KILLS", value = counter(Stats.PVE_KILLS) } } },
   { setting = "showKillRate", group = "STAT_GROUP_COMBAT", label = "STAT_KILL_RATE",
     rows = { { label = "ROW_KILL_RATE", value = perHour(Stats.PVE_KILLS) } } },
   { setting = "showRecentKills", group = "STAT_GROUP_COMBAT", label = "STAT_RECENT_KILLS", rows = {
-    { label = "ROW_RECENT_KILLS", value = recentCount(Stats.PVE_KILLS) },
-    { label = "ROW_RECENT_KILL_RATE", value = recentRate(Stats.PVE_KILLS) },
+    globalRow("ROW_RECENT_KILLS", recentCount(Stats.PVE_KILLS)),
+    globalRow("ROW_RECENT_KILL_RATE", recentRate(Stats.PVE_KILLS)),
   } },
   { setting = "showPvpKills", group = "STAT_GROUP_COMBAT", label = "STAT_PVP_KILLS",
     rows = { { label = "ROW_PVP_KILLS", value = counter(Stats.PVP_KILLS) } } },
@@ -272,8 +278,8 @@ ns.STAT_LINES = {
     { label = "ROW_ITEM_RATE", value = perHour(Stats.ITEMS_LOOTED) },
   } },
   { setting = "showRecentItems", group = "STAT_GROUP_LOOT", label = "STAT_RECENT_ITEMS", rows = {
-    { label = "ROW_RECENT_ITEMS", value = recentCount(Stats.ITEMS_LOOTED) },
-    { label = "ROW_RECENT_ITEM_RATE", value = recentRate(Stats.ITEMS_LOOTED) },
+    globalRow("ROW_RECENT_ITEMS", recentCount(Stats.ITEMS_LOOTED)),
+    globalRow("ROW_RECENT_ITEM_RATE", recentRate(Stats.ITEMS_LOOTED)),
   } },
   { setting = "showDeaths", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHS", rows = { { label = "ROW_DEATHS", value = deaths } } },
   { setting = "showKillsPerDeath", group = "STAT_GROUP_COMBAT", label = "STAT_KILLS_PER_DEATH",
@@ -281,7 +287,7 @@ ns.STAT_LINES = {
   { setting = "showNearDeaths", group = "STAT_GROUP_COMBAT", label = "STAT_NEAR_DEATHS", available = ns.NearDeath.IsAvailable,
     rows = { { label = "ROW_NEAR_DEATHS", value = counter(Stats.NEAR_DEATHS) } } },
   { setting = "showDeathless", group = "STAT_GROUP_COMBAT", label = "STAT_DEATHLESS",
-    rows = { { label = "ROW_DEATHLESS", value = timeWithoutDeath } } },
+    rows = { globalRow("ROW_DEATHLESS", timeWithoutDeath) } },
   { setting = "showXpSources", group = "STAT_GROUP_XP", label = "STAT_XP_SOURCES", rows = {
     { label = "ROW_XP_KILLS", value = xpShare("kills") },
     { label = "ROW_XP_QUESTS", value = xpShare("quests") },
@@ -296,7 +302,7 @@ ns.STAT_LINES = {
     { label = "ROW_XP_BATTLEGROUND", value = xpContextShare(Stats.XP_BATTLEGROUND) },
   } },
   { setting = "showRested", group = "STAT_GROUP_XP", label = "STAT_RESTED", rows = { { label = "ROW_RESTED", value = restedXp } } },
-  { setting = "showRestedLeft", group = "STAT_GROUP_XP", label = "STAT_RESTED_LEFT", rows = { { label = "ROW_RESTED_LEFT", value = restedLeft } } },
+  { setting = "showRestedLeft", group = "STAT_GROUP_XP", label = "STAT_RESTED_LEFT", rows = { globalRow("ROW_RESTED_LEFT", restedLeft) } },
   { setting = "showTimeBreakdown", group = "STAT_GROUP_TIME_MONEY", label = "STAT_TIME_BREAKDOWN", rows = {
     { label = "ROW_TIME_COMBAT", value = timePart(Stats.COMBAT_SECONDS) },
     { label = "ROW_TIME_TAXI", value = timePart(Stats.TAXI_SECONDS) },
@@ -305,11 +311,11 @@ ns.STAT_LINES = {
     { label = "ROW_TIME_REST", value = timeShare(function(scope) return ns.TimeBreakdown.GetRestSeconds(scope) end) },
   } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
-    rows = { { label = "ROW_INSTANCE_RUN", value = instanceRun } } },
+    rows = { globalRow("ROW_INSTANCE_RUN", instanceRun) } },
   { setting = "showInstanceLimit", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_LIMIT",
-    rows = { { label = "ROW_INSTANCE_LIMIT", value = instanceLimit } } },
+    rows = { globalRow("ROW_INSTANCE_LIMIT", instanceLimit) } },
   { setting = "showInstancesToday", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCES_TODAY",
-    rows = { { label = "ROW_INSTANCES_TODAY", value = instancesToday } } },
+    rows = { globalRow("ROW_INSTANCES_TODAY", instancesToday) } },
   { setting = "showQuests", group = "STAT_GROUP_TIME_MONEY", label = "STAT_QUESTS", rows = { { label = "ROW_QUESTS", value = counter(Stats.QUESTS) } } },
   { setting = "showMoney", group = "STAT_GROUP_TIME_MONEY", label = "STAT_MONEY", rows = { { label = "ROW_MONEY", value = income } } },
   { setting = "showSpending", group = "STAT_GROUP_TIME_MONEY", label = "STAT_SPENDING", rows = {

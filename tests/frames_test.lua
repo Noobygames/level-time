@@ -91,6 +91,7 @@ expect("Ziehen speichert", db.frames.splitList.point, "CENTER")
 Frames.SetScale("alert", 1.5)
 Frames.SetScale("camp", 0.6)
 SlashCmdList.LEVELTIMER("reset")
+StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)  -- Rückfrage bestätigen
 for _, reg in ipairs(Frames.All()) do
   expect("zurückgesetzt: " .. reg.id, db.frames[reg.id], nil)
 end

@@ -57,7 +57,7 @@ local function showTooltip(tooltip)
   for _, stat in ipairs(ns.STAT_LINES) do
     if ns.IsStatShown(stat, ns.db) then
       for _, row in ipairs(stat.rows) do
-        tooltip:AddDoubleLine(L[row.label], open and row.value(scope) or "-", 1, 0.82, 0, 1, 1, 1)
+        tooltip:AddDoubleLine(L[row.label], (open or row.global) and row.value(scope) or "-", 1, 0.82, 0, 1, 1, 1)
       end
     end
   end

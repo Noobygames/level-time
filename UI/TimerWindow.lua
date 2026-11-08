@@ -28,25 +28,28 @@ TimerWindow.CHROMA_COLORS = Theme.CHROMA
 local window = Widgets.CreatePanel(ns.GlobalName("Frame"), 0.8)
 window:Hide()  -- erst nach Login anzeigen, wenn Daten und Einstellungen bereitstehen
 
--- Reiter wählen den Bereich (Einstellung windowScope): Linksklick wählt ihn, Rechtsklick ruft onRightClick
-local function createScopeTab(scope, onRightClick)
+-- Rechtsklick öffnet auf jedem Reiter wie auf dem Fenster die Einstellungen
+local function openSettings() ns.ToggleOptionsPage(SETTINGS_PAGE) end
+
+-- Reiter wählen den Bereich (Einstellung windowScope): Linksklick wählt ihn, Rechtsklick öffnet die Einstellungen,
+-- Shift+Rechtsklick ruft onShiftRightClick (optional; sonst ebenfalls die Einstellungen)
+local function createScopeTab(scope, onShiftRightClick)
   local tab = Widgets.CreateTab(window, Theme.Font("label"), function(_, mouseButton)
-    if mouseButton == "RightButton" then
-      onRightClick()
-    else
+    if mouseButton ~= "RightButton" then
       ns.Set("windowScope", scope)
+    elseif onShiftRightClick and IsShiftKeyDown() then
+      onShiftRightClick()
+    else
+      openSettings()
     end
   end)
   tab:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   return tab
 end
 
--- Rechtsklick öffnet wie auf dem Fenster die Einstellungen
-local function openSettings() ns.ToggleOptionsPage(SETTINGS_PAGE) end
-
-local levelTab = createScopeTab(Stats.LEVEL, openSettings)
-local sessionTab = createScopeTab(Stats.SESSION, openSettings)
--- Rechtsklick auf den Instanz-Reiter (oder Button/Befehl): Daten des Laufs zurücksetzen, nach Rückfrage
+local levelTab = createScopeTab(Stats.LEVEL)
+local sessionTab = createScopeTab(Stats.SESSION)
+-- Shift+Rechtsklick auf den Instanz-Reiter (oder Button/Befehl): Daten des Laufs zurücksetzen, nach Rückfrage
 local instanceTab = createScopeTab(Stats.INSTANCE, function() ns.Instances.ConfirmReset() end)
 Widgets.AttachTooltip(instanceTab, function() return L.TAB_INSTANCE end, function() return L.TAB_INSTANCE_TIP end)
 

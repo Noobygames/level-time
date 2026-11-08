@@ -43,6 +43,7 @@ expect("Leveln: Instanz-Zeile aus", LevelTimerDB.showInstanceRun, false)
 addon.ApplyStatPreset(addon.STAT_PRESETS[2])
 expectTrue("Voreinstellung gemeldet", wow.printed[#wow.printed]:find(addon.L.PRESET_LEVELING, 1, true) ~= nil)
 SlashCmdList.LEVELTIMER("reset")
+StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)  -- Rückfrage bestätigen
 expectTrue("Reset gemeldet", wow.printed[#wow.printed]:find(addon.L.RESET_DONE, 1, true) ~= nil)
 
 -- Roadmap 199: Rückgängig stellt den Stand vor der letzten Voreinstellung wieder her, auch nach /reload

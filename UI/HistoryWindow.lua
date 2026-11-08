@@ -17,7 +17,8 @@ local MARGIN = 16
 local HEADER_TOP = -14
 local CHARACTER_ROW_TOP = -40
 local TABS_TOP = -66
-local SUBTABS_TOP = -88
+local TAB_ROW_HEIGHT = 20     -- Hauptreiter, die nicht in eine Zeile passen, brechen in weitere Zeilen um
+local SUBTABS_TOP = -88       -- erste Unterreiter-Zeile bei einer Hauptreiter-Zeile
 local SUBTAB_ROW_HEIGHT = 18  -- zu viele Unterreiter für eine Zeile brechen in weitere Zeilen um
 local SUBTABS_TO_CONTENT = 22 -- Abstand von der ersten Unterreiter-Zeile zum Inhalt
 local ARROW_SIZE = 22
@@ -50,7 +51,10 @@ content:SetSize(HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
 local entries = {}
 local entriesByGroup = {}
 local selectedEntry
-local entryTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
+local entryTabs = ns.TabStrip.New(panel, {
+  font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP,
+  maxWidth = HistoryWindow.CONTENT_WIDTH, rowHeight = TAB_ROW_HEIGHT,
+})
 local selectedCharacter  -- Schlüssel "Name-Realm"; nil = eingeloggter Charakter
 local rendered = {}      -- zuletzt angezeigte Ansicht und Charakter (Wechsel setzt den Bildlauf zurück)
 local refresh            -- unten definiert
@@ -180,16 +184,20 @@ end
 -- Aufbau
 ---------------------------------------------------------------------------
 
+-- Obere Kante der ersten Unterreiter-Zeile: unter allen Hauptreiter-Zeilen
+local subtabsTop = SUBTABS_TOP
+
 -- Unterreiter einer Gruppe in Zeilen (TabStrip mit Umbruch). Erwartet gesetzte Beschriftungen (Breite); gibt die Zahl
 -- der Zeilen zurück.
 local function layoutSubtabs(entry)
+  entry.subtabs:SetTop(subtabsTop)
   return entry.subtabs:Layout()
 end
 
 -- Inhalt unter die Unterreiter. Platz für die meisten Zeilen aller Gruppen, damit das Fenster
 -- beim Reiterwechsel nicht springt.
 local function placeContent(subtabRows)
-  local contentTop = SUBTABS_TOP - (subtabRows - 1) * SUBTAB_ROW_HEIGHT - SUBTABS_TO_CONTENT
+  local contentTop = subtabsTop - (subtabRows - 1) * SUBTAB_ROW_HEIGHT - SUBTABS_TO_CONTENT
   content:ClearAllPoints()
   content:SetPoint("TOPLEFT", MARGIN, contentTop)
   panel:SetHeight(-contentTop + HistoryWindow.CONTENT_HEIGHT + MARGIN)
@@ -208,11 +216,16 @@ function refresh()
   local selectionChanged = rendered.view ~= selectedView or rendered.character ~= selectedCharacter
   rendered.view, rendered.character = selectedView, selectedCharacter
 
+  -- Hauptreiter umbrechen wie die Unterreiter (lange Sprachen); die Unterreiter rücken unter die letzte Zeile
+  for _, entry in ipairs(entries) do
+    entry.tabButton:SetLabel(L[entry.tab])
+    entry.tabButton:SetActive(entry == selectedEntry)
+  end
+  subtabsTop = SUBTABS_TOP - (entryTabs:Layout() - 1) * TAB_ROW_HEIGHT
+
   local subtabRows = 1
   for _, entry in ipairs(entries) do
     local isSelectedEntry = entry == selectedEntry
-    entry.tabButton:SetLabel(L[entry.tab])
-    entry.tabButton:SetActive(isSelectedEntry)
 
     -- Unterreiter nur bei Gruppen mit mehreren Ansichten
     local showSubtabs = isSelectedEntry and #entry.members > 1
@@ -230,6 +243,15 @@ function refresh()
     subtabRows = math.max(subtabRows, layoutSubtabs(entry))
   end
   placeContent(subtabRows)
+end
+
+-- Für Tests: Hauptreiter (Buttons) und die obere Kante der ersten Unterreiter-Zeile
+function HistoryWindow.MainTabs()
+  return entryTabs.tabs
+end
+
+function HistoryWindow.SubtabsTop()
+  return subtabsTop
 end
 
 -- Jede Sekunde nur die gewählte Ansicht (laufende Werte) und den Namen samt Level; Reiter, Texte und Anordnung
