@@ -19,23 +19,25 @@ Set goals for your stream and show them as cards on screen. Viewers see at a gla
 - **Win battlegrounds**: N wins, optionally for one battleground
 - **Rules that can fail**: no death, no trade/mail/auction house, no flight paths, naked, no healing potions, until a level or a deadline
 - **Checklists** with your own items and other goals as sub-goals
-- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves, BINGO alert and optional group announcement
-- **Custom**: free text, with or without a counter you click up yourself
+- **Bingo**: 3×3 or 5×5 cards whose fields tick themselves, BINGO alert and optional group announcement. Fill the fields yourself (built-in or own goals, or type a text) or let empty fields fill at random
+- **Free text**: anything you like, with or without a counter you click up yourself
 
 ## Extras for every goal
 
 - **Deadline** in real time or played time, countdown on the card, "failed" when it runs out
 - **Daily or weekly** goals that renew themselves, with a streak
 - **Reward text and points**, shown on the card and in the alert, total points in the history
-- **Packs**: built-in sets (Hardcore start, Self-found, Dungeon tour, Explorer), save your running goals as a pack, share and import packs as text
-- **Wheel of fortune**: random goal with a spin animation, limited rerolls, optionally on every level-up
+- **Own goals**: save any goal from the form as your own, reuse it on bingo cards and the wheel
+- **Packs**: built-in sets (Hardcore start, Self-found, Dungeon tour, Explorer), save your running goals as a pack
+- **Collection**: packs and own goals in one place, share them as text and import with one button
+- **Wheel of fortune**: a real spinning wheel picks your next goal; choose which built-in and own goals are on it, limited rerolls, optionally on every level-up, animation can be turned off
 
 ## Features
 
 - **Live cards** in the look of your Level Time theme, stacked in one tracker; move and scale them in Level Time's edit mode, right-click for settings
-- **Settings window** (`/sg options`) with search: number of cards, card colors, size, sound, alert, chat line, bingo and wheel options, clean-up of goals from deleted characters
+- **Settings window** (`/sg options`) with search: number of cards, card colors, size, sound, alert, chat line, own pages for bingo and the wheel, clean-up of goals from deleted characters
 - **History**: every finished, cancelled or failed goal in a table you can filter, sort and export as CSV
-- **Window** (`/sg`): form for every goal type, active goals (cancel asks first), history, packs
+- **Window** (`/sg`): tabs Goals (form for every goal type, extras behind "More options", active goals), Bingo, Wheel, Collection and History
 - Languages follow Level Time: English, German, French, Spanish
 - Works with the same game versions as Level Time
 
@@ -51,7 +53,10 @@ Set goals for your stream and show them as cards on screen. Viewers see at a gla
 | `/sg add gold 100 [own]`                         | Goal: earn (or own) 100 gold                    |
 | `/sg add quest 10` / `/sg add quest <links>`     | Goal: 10 quests, or these quests in order       |
 | `/sg add rule nodeath 30`                        | Rule: no death until level 30                   |
-| `/sg bingo 3` / `/sg wheel`                      | New bingo card / spin the wheel                 |
+| `/sg bingo 3` / `/sg bingo edit`                 | Random bingo card / fill a card yourself        |
+| `/sg wheel` / `/sg wheel edit`                   | Spin the wheel / choose its entries             |
+| `/sg own add <text>` / `/sg own share`           | Add an own goal / share your own goals          |
+| `/sg import` / `/sg collection`                  | Import a pack or own goals / open the collection|
 | `/sg deadline <Nr> 2h [played]`                  | Add a deadline to a goal                        |
 | `/sg repeat <Nr> daily`                          | Renew a goal every day                          |
 | `/sg pack hardcore`                              | Add a built-in pack                             |
