@@ -78,3 +78,18 @@ scan()
 expect("Retail: angenommen", sent(string.format(L.QUEST_PROGRESS_ACCEPTED, "Ratten")), 1)
 expect("Retail: Ziel", sent("Ratte getötet: 1/1"), 1)
 C_QuestLog.GetNumQuestLogEntries, C_QuestLog.GetInfo = nil, nil
+
+-- Quest als Link, wenn der Client einen liefert (GetQuestLink(questID)); ohne Link bleibt der Titel
+local LINK = "|cffffff00|Hquest:36:12|h[Kobolde vertreiben]|h|r"
+GetQuestLink = function(questID) return questID == 36 and LINK or nil end
+local kobolds = { text = "Kobold getötet: 0/6", finished = false }
+table.insert(wow.state.questLog, { questID = 36, title = "Kobolde vertreiben", objectives = { kobolds } })
+wow.fire("QUEST_ACCEPTED", 5, 36)  -- Era: questIndex, questID
+scan()
+expect("angenommen mit Link", sent(string.format(L.QUEST_PROGRESS_ACCEPTED, LINK)), 1)
+kobolds.text, kobolds.finished = "Kobold getötet: 6/6", true
+scan()
+expect("Ziel mit Link", sent(string.format(L.QUEST_PROGRESS_OBJECTIVE, LINK, "Kobold getötet: 6/6")), 1)
+expect("fertig mit Link", sent(string.format(L.QUEST_PROGRESS_COMPLETE, LINK)), 1)
+GetQuestLink = nil
+
