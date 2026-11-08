@@ -3,7 +3,7 @@
 -- Tabellen und Texte kommen von dort, hier liegt nur, was zu den Zielen gehört.
 --
 -- Gespeichert wird in StreamGoalDB (Account): { schemaVersion, nextId, goals = { Ziel, ... }, packs, settings,
--- library (eigene Ziele, Library.lua), wheel (Glücksrad, Wheel.lua), bingoDraft (Bingo-Editor, BingoEditor.lua) }.
+-- library (Vorlagen, Library.lua), wheel (Glücksrad, Wheel.lua), bingoDraft (Bingo-Editor, BingoEditor.lua) }.
 -- Es existiert erst ab PLAYER_LOGIN (ns.OnLogin), vorher nie anfassen.
 local _, ns = ...
 

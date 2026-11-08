@@ -1,8 +1,8 @@
 -- Ziel-Pool für Bingo und Glücksrad (Roadmap 305/306/431): mitgelieferte Einträge (Pool.PREMADE, Ziele relativ zum
--- Level und lustige Texte zum Abhaken) und die eigenen Ziele (Library.lua) als eine Liste gleich gebauter Einträge:
---   { key, premade, kind, params, target }   key = "p:<Name>" (mitgeliefert) oder "o:<ID>" (eigenes Ziel)
+-- Level und lustige Texte zum Abhaken) und die Vorlagen (Library.lua) als eine Liste gleich gebauter Einträge:
+--   { key, premade, kind, params, target }   key = "p:<Name>" (mitgeliefert) oder "o:<ID>" (eigene Vorlage)
 -- Die Schlüssel bleiben stabil, damit Glücksrad (abgeschaltete Einträge) und Bingo-Entwurf (gewählte Felder) sie
--- speichern können; ein gelöschtes eigenes Ziel liefert dann nichts mehr (Feld wird zufällig, Rad überspringt).
+-- speichern können; ein gelöschte Vorlage liefert dann nichts mehr (Feld wird zufällig, Rad überspringt).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -56,7 +56,7 @@ local function resolvePremade(entry)
   return { key = PREMADE_PREFIX .. entry.key, premade = true, kind = entry.kind, params = params, target = target }
 end
 
--- Schlüssel eines eigenen Ziels
+-- Schlüssel einer Vorlage
 function Pool.OwnKey(id)
   return OWN_PREFIX .. id
 end
@@ -76,7 +76,7 @@ function Pool.Items()
   return items
 end
 
--- Nur die eigenen Ziele, im Client verfügbare (neue Liste; Reiter "Sammlung")
+-- Nur die Vorlagen, im Client verfügbare (neue Liste; Reiter "Sammlung")
 function Pool.OwnItems()
   local items = {}
   for _, entry in ipairs(Library.Entries()) do
@@ -85,12 +85,12 @@ function Pool.OwnItems()
   return items
 end
 
--- Herkunft für Tabellen: mitgeliefert oder eigenes Ziel
+-- Herkunft für Tabellen: mitgeliefert oder eigene Vorlage
 function Pool.SourceText(item)
   return item.premade and L.SG_POOL_PREMADE or L.SG_POOL_OWN
 end
 
--- Eintrag zu einem Schlüssel, nil = unbekannt (z.B. gelöschtes eigenes Ziel)
+-- Eintrag zu einem Schlüssel, nil = unbekannt (z.B. gelöschte Vorlage)
 function Pool.Get(key)
   if type(key) ~= "string" then return nil end
   local id = tonumber((key:match("^" .. OWN_PREFIX .. "(%d+)$")))

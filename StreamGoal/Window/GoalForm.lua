@@ -1,8 +1,12 @@
 -- Formular einer Zielart (oder der Zusätze) im Reiter "Ziele" aus einer Beschreibung (def.form, Kinds.lua):
---   spec = { amount = Locale-Key der Zahl (nil = keine Zahl, sonst erste Zeile), fields = { Feld, ... } }
+--   spec = { amount = Locale-Key der Zahl (nil = keine Zahl, sonst erste Zeile), amountTip optional,
+--            fields = { Feld, ... } }
 --   Feld: { type = "text", param, label, numeric optional, short optional, links optional } | { type = "choice", param,
 --         label, values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label } |
 --         { type = "amount", label } (die Zahl an dieser Stelle statt spec.amount, z.B. hinter der Modus-Auswahl)
+--   Jede Zeile hat einen Tooltip: Erklärung aus L[tip] (Feld tip bzw. spec.amountTip, sonst <label>_TIP), bei einer
+--   Auswahl darunter gedämpft der Klick-Hinweis (SG_FORM_CHOICE_TIP). Gleiche Beschriftung mit anderer Bedeutung je Art
+--   (z.B. "Anzahl" beim Besitz) bekommt ein eigenes tip.
 --   Jedes Feld darf showIf = { [param einer Auswahl] = Wert } haben: es steht nur da, solange die Auswahl diesen Wert
 --   hat (Arten mit Modus zeigen so nur die Felder des gewählten Modus); versteckte Felder liest Read nicht.
 -- form:Read() liefert params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
@@ -25,9 +29,28 @@ local NUMBER_BOX_WIDTH = 80     -- Zahlen und kurze Texte (Frist)
 local TEXT_BOX_START = 120      -- Breite eines Textfelds vor dem ersten Layout (danach bis zum rechten Rand)
 local CHECK_INSET = -4          -- UICheckButtonTemplate hat links Luft im Bild
 local CHOICE_WIDTH = 160
+local CHECK_LABEL_HIT = 160     -- so weit rechts neben dem Haken reicht die Klickfläche (seine Beschriftung)
 local AMOUNT = "amount"         -- Name der Zahl in form:Widget
 
 local allForms = {}
+
+-- Locale-Key der Erklärung einer Zeile (Zahl ohne field: row.tip, sonst field.tip oder <label>_TIP)
+function GoalForm.TipKey(row)
+  if row.field then return row.field.tip or (row.field.label .. "_TIP") end
+  return row.tip or (row.labelKey .. "_TIP")
+end
+
+-- Tooltip-Zeilen einer Zeile für Manager.AttachTooltip: Erklärung, bei einer Auswahl gedämpft der Klick-Hinweis
+function GoalForm.TipLines(row)
+  local lines = { { text = L[GoalForm.TipKey(row)] } }
+  if row.field and row.field.type == "choice" then table.insert(lines, { text = L.SG_FORM_CHOICE_TIP, muted = true }) end
+  return lines
+end
+
+-- Überschrift des Tooltips: die Beschriftung der Zeile
+local function tipTitle(row)
+  return L[row.field and row.field.label or row.labelKey]
+end
 
 -- Auswahl: Linksklick nächster, Rechtsklick voriger Wert; der Text folgt sofort
 local function createChoice(form, row)
@@ -45,7 +68,6 @@ local function createChoice(form, row)
     form:SetTexts()
     if form.onChange then form.onChange(form) end
   end)
-  Widgets.AttachTooltip(button, function() return L[field.label] end, function() return L.SG_FORM_CHOICE_TIP end)
   return button
 end
 
@@ -56,20 +78,22 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
   form.frame:Hide()
   local function addRow(row)
     if row.labelKey then row.label = Manager.CreateLabel(form.frame) end
+    Manager.AttachTooltip(row.widget, function() return tipTitle(row) end, function() return GoalForm.TipLines(row) end)
     table.insert(form.rows, row)
   end
   -- Zahl (Ziel) ohne field: Read liefert sie als target
-  local function addAmount(labelKey, showIf)
+  local function addAmount(labelKey, showIf, tip)
     local box = Manager.CreateTextBox(form.frame, onEnter, true)
     box:SetWidth(NUMBER_BOX_WIDTH)
-    addRow({ widget = box, labelKey = labelKey, box = true, showIf = showIf })
+    addRow({ widget = box, labelKey = labelKey, box = true, showIf = showIf, tip = tip })
   end
-  if spec.amount then addAmount(spec.amount) end
+  if spec.amount then addAmount(spec.amount, nil, spec.amountTip) end
   -- Zeile eines Felds mit param (Haken, Auswahl, Text)
   local function addField(field)
     local row = { field = field, showIf = field.showIf }
     if field.type == "check" then
       row.widget = Widgets.CreateCheckbox(form.frame, function() end)
+      row.widget:SetHitRectInsets(0, -CHECK_LABEL_HIT, 0, 0)  -- Beschriftung gehört zur Klick- und Tooltip-Fläche
     elseif field.type == "choice" then
       row.labelKey = field.label
       form.choices[field.param] = field.values[1]
@@ -85,7 +109,7 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     addRow(row)
   end
   for _, field in ipairs(spec.fields or {}) do
-    if field.type == "amount" then addAmount(field.label, field.showIf) else addField(field) end
+    if field.type == "amount" then addAmount(field.label, field.showIf, field.tip) else addField(field) end
   end
 
   -- Steht die Zeile gerade da? (showIf passt zur Auswahl)

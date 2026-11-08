@@ -1,9 +1,10 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
 --   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> |
---   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | own ... | import | collection |
+--   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | template ... (= own ...) | import | collection |
 --   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | minimap | options | move | scale | help
--- Ältere Befehle bleiben: "bingo text|texts|clear" (heute eigene Ziele, wie "own add|list"), "pack import".
+-- Ältere Befehle bleiben: "own ..." (Vorlagen hießen früher eigene Ziele), "bingo text|texts|clear" (heute Vorlagen,
+-- wie "template add|list"), "pack import".
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -198,8 +199,9 @@ local function pack(argument)
   end
 end
 
--- Eigene Ziele: "own" (Liste mit Nummern), "own add <Text>", "own remove <Nr>", "own share"
-local function own(argument)
+-- Vorlagen: "template" (Liste mit Nummern), "template add <Text>", "template remove <Nr>", "template share";
+-- "own ..." ist derselbe Befehl (frühere Bezeichnung)
+local function template(argument)
   local action, rest = argument:match("^(%S*)%s*(.-)$")
   local Library = ns.Library
   action = action:lower()
@@ -221,7 +223,7 @@ local function own(argument)
 end
 
 -- Bingo: "bingo [3|5]" (neuer Schein, Felder zufällig), "bingo edit" (Reiter Bingo: Felder selbst wählen);
--- früher eigene Bingo-Texte, heute freie eigene Ziele: "bingo text <Text>", "bingo texts", "bingo clear"
+-- früher eigene Bingo-Texte, heute Text-Vorlagen: "bingo text <Text>", "bingo texts", "bingo clear"
 local function bingo(argument)
   local action, rest = argument:match("^(%S*)%s*(.-)$")
   local Bingo = ns.Bingo
@@ -258,10 +260,22 @@ local function toggleTracker()
   ns.Print(shown and L.SG_TRACKER_ON or L.SG_TRACKER_OFF)
 end
 
+local PERCENT = 100
+
+local function percentText(value)
+  return Format.Number(value * PERCENT) .. " %"
+end
+
+-- "scale 1.2" setzt die Größe der Ziel-Karten; ohne (gültige) Zahl nennt es die aktuelle Größe und den Bereich
 local function scale(argument)
   local value = tonumber(argument)
-  if not value then return end
-  ns.Print(string.format(L.SG_SCALE_SET, Format.Number(Tracker.SetScale(value) * 100) .. " %"))
+  if not value then
+    local Frames = LT.Frames
+    ns.Print(string.format(L.SG_SCALE_USAGE, percentText(Frames.GetScale(Tracker.FRAME_ID)),
+      tostring(Frames.MIN_SCALE), tostring(Frames.MAX_SCALE)))
+    return
+  end
+  ns.Print(string.format(L.SG_SCALE_SET, percentText(Tracker.SetScale(value))))
 end
 
 local commands = {
@@ -275,7 +289,8 @@ local commands = {
   points = points,
   ["repeat"] = repeatGoal,
   pack = pack,
-  own = own,
+  template = template,
+  own = template,
   import = function() ns.Sharing.ShowImport() end,
   collection = function() Manager.Toggle("collection") end,
   bingo = bingo,

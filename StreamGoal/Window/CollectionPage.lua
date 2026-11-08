@@ -1,10 +1,10 @@
 -- Reiter "Sammlung" im Fenster /sg: alles, was man aufheben, teilen und wieder einlesen kann, an einer Stelle.
 --   Pakete: mehrere Ziele auf einmal anlegen (fertige und eigene, Packs.lua). Je Zeile Übernehmen (Hauptaktion,
 --     rechts), Teilen und bei eigenen Löschen (Rückfrage); unten "Laufende Ziele als Paket speichern".
---   Eigene Ziele: einzelne Ziele für Bingo und Glücksrad (Library.lua), als Tabelle; Linksklick legt eines sofort an,
+--   Vorlagen: einzelne Ziele für Bingo und Glücksrad (Library.lua), als Tabelle; Linksklick legt eines sofort an,
 --     Rechtsklick löscht (Rückfrage); unten freier Text hinzufügen.
--- Oben rechts ein einziges "Importieren" für beide (Sharing.lua erkennt, ob der Text ein Paket oder eigene Ziele ist),
--- bei den eigenen Zielen daneben "Eigene Ziele teilen" (Pakete teilt jede Zeile für sich).
+-- Oben rechts ein einziges "Importieren" für beide (Sharing.lua erkennt, ob der Text ein Paket oder Vorlagen ist),
+-- bei den Vorlagen daneben "Vorlagen teilen" (Pakete teilt jede Zeile für sich).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -61,7 +61,7 @@ function CollectionView.Section()
   return shownSection
 end
 
--- Ein Import für Pakete und eigene Ziele
+-- Ein Import für Pakete und Vorlagen
 local importButton = Manager.CreateButton(page, "SG_IMPORT", function()
   Sharing.ShowImport(function() CollectionView.Render() end)
 end)
@@ -197,7 +197,7 @@ local function renderPacks()
 end
 
 ---------------------------------------------------------------------------
--- Eigene Ziele
+-- Vorlagen
 ---------------------------------------------------------------------------
 local ownFrame = sections.own.frame
 
@@ -206,7 +206,7 @@ local confirmRemoveOwn = Widgets.ConfirmPopup("STREAMGOAL_REMOVE_OWN", "SG_CONFI
   CollectionView.Render()
 end)
 
--- Eigenes Ziel jetzt als laufendes Ziel anlegen
+-- Vorlage jetzt als laufendes Ziel anlegen
 function CollectionView.Start(item)
   local goal, err = Pool.Create(item)
   ns.Print(goal and string.format(L.SG_CHAT_ADDED, Goals.Title(goal)) or err)

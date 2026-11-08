@@ -38,7 +38,7 @@ local Theme = LT.Theme
 local Kinds = {}
 ns.Kinds = Kinds
 
-Kinds.MAX_TEXT_LENGTH = 80  -- Zeichen eines eigenen Ziels (die Karte bricht längere Texte um)
+Kinds.MAX_TEXT_LENGTH = 80  -- Zeichen eines Freitexts bzw. einer Text-Vorlage (die Karte bricht längere Texte um)
 Kinds.KILL_SOURCES = { "any", "pve", "pvp" }
 Kinds.DEFAULT_AMOUNT = 1
 
@@ -52,7 +52,7 @@ local COLORS = {
 }
 local BGWIN_ICON = "Interface\\Icons\\INV_BannerPVP_02"
 local CUSTOM_ICON = "Interface\\Icons\\INV_Misc_Note_01"
-local UNCOUNTED_TARGET = 1  -- eigenes Ziel ohne Zähler: ein Schritt = erledigt
+local UNCOUNTED_TARGET = 1  -- Freitext ohne Zähler: ein Schritt = erledigt
 local KILL_TITLES = { any = "SG_GOAL_KILLS_ANY", pve = "SG_GOAL_KILLS_PVE", pvp = "SG_GOAL_KILLS_PVP" }
 local SOURCE_LABELS = { any = "SG_FORM_SOURCE_ANY", pve = "SG_FORM_SOURCE_PVE", pvp = "SG_FORM_SOURCE_PVP" }
 

@@ -157,7 +157,7 @@ function Goals.UsedSlots()
   return index().slots
 end
 
--- Eingabe prüfen, ohne ein Ziel anzulegen (eigene Ziele für Bingo und Glücksrad): Art bekannt, prepare und validate
+-- Eingabe prüfen, ohne ein Ziel anzulegen (Vorlagen für Bingo und Glücksrad): Art bekannt, prepare und validate
 -- auf Kopien. Bestand (def.current) und freie Plätze prüft erst Goals.Create. Rückgabe: Fehlertext oder nil
 function Goals.Check(kind, params, target)
   local def = kinds[kind]
@@ -268,7 +268,7 @@ function Goals.CountText(goal)
   return string.format("%d / %d", goal.progress, goal.target)
 end
 
--- Zeigt das Ziel einen Zählerstand "4 / 5"? Nein bei Arten, die nur erledigt oder offen sind (eigenes Ziel ohne Zähler)
+-- Zeigt das Ziel einen Zählerstand "4 / 5"? Nein bei Arten, die nur erledigt oder offen sind (Freitext ohne Zähler)
 function Goals.HasCount(goal)
   local def = kinds[goal.kind]
   return not def.hasCount or def.hasCount(goal)

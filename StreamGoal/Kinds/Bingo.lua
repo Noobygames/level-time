@@ -1,6 +1,6 @@
 -- Zielart Bingo (Roadmap 305, 431): ein Schein mit 3x3 oder 5x5 Feldern (5x5 mit freier Mitte). Jedes Feld ist ein
 -- Ziel einer anderen Art (goal.cell, goal.parentId = Schein; belegt keinen der MAX_ACTIVE-Plätze). Felder kann der
--- Spieler selbst wählen (Bingo-Editor im Fenster: Einträge aus Pool.lua, also mitgelieferte und eigene Ziele); die
+-- Spieler selbst wählen (Bingo-Editor im Fenster: Einträge aus Pool.lua, also mitgelieferte und Vorlagen); die
 -- übrigen zieht der Schein zufällig aus allen Einträgen des Pools. Eine volle Reihe, Spalte oder Diagonale = BINGO:
 -- der Schein ist erreicht, die übrigen Felder werden abgebrochen, große Einblendung, optional eine Ansage in den
 -- Gruppenchat (settings.bingoAnnounce).
@@ -40,7 +40,7 @@ function Bingo.IsFreeCell(size, index)
   return isFree({ params = { size = size } }, index)
 end
 
--- Selbst gewähltes Feld anlegen; nil, wenn der Eintrag fehlt (gelöschtes eigenes Ziel) oder abgelehnt wird
+-- Selbst gewähltes Feld anlegen; nil, wenn der Eintrag fehlt (gelöschte Vorlage) oder abgelehnt wird
 local function createPick(board, key)
   local item = Pool.Get(key)
   if not item then return nil end
@@ -183,7 +183,7 @@ Goals.OnChange(function(event, goal)
 end)
 
 ---------------------------------------------------------------------------
--- Eigene Texte (Befehle /sg bingo text|texts|clear): freie Texte unter den eigenen Zielen (Library.lua)
+-- Eigene Texte (Befehle /sg bingo text|texts|clear): freie Texte unter den Vorlagen (Library.lua)
 ---------------------------------------------------------------------------
 function Bingo.AddText(text)
   local _, err = Library.AddText(text)

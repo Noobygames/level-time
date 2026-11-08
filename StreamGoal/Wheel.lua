@@ -1,6 +1,6 @@
 -- Glücksrad (Roadmap 306, 431, 432): ein Zufallsziel aus dem eigenen Pool des Rads per Befehl/Knopf oder bei jedem
--- Level-Up (settings.wheelOnLevelUp). Pool = alle Einträge aus Pool.lua (mitgelieferte und eigene Ziele) außer den
--- abgeschalteten (StreamGoalDB.wheel.pool.off[key] = true; neue eigene Ziele sind an). Der Eintrag steht schon beim
+-- Level-Up (settings.wheelOnLevelUp). Pool = alle Einträge aus Pool.lua (mitgelieferte und Vorlagen) außer den
+-- abgeschalteten (StreamGoalDB.wheel.pool.off[key] = true; neue Vorlagen sind an). Der Eintrag steht schon beim
 -- Start fest, das Rad (WheelDisplay.lua) landet auf ihm; danach wird das Ziel angelegt und auf einer Karte unter dem
 -- Rad gezeigt. Neu drehen ersetzt das letzte Ergebnis, höchstens settings.wheelRerolls-mal je Drehung (Knopf im
 -- Reiter Glücksrad, Rechtsklick auf die Ergebnis-Karte, /sg wheel reroll).

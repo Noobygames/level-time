@@ -90,11 +90,19 @@ expect("Paket-Text bleibt ein Paket", Sharing.Import(packText),
 expectTrue("als Paket gespeichert", StreamGoalDB.packs[L.SG_PACK_HARDCORE] ~= nil)
 expect("Paket-Text als eigene Ziele (Bibliothek direkt)", Library.Import(packText), 3)
 expect("fünf eigene Ziele", #Library.Entries(), 5)
--- Älterer Text eigener Ziele ohne Kennung: am Namen erkannt
-local legacy = streamGoal.Packs.Encode(streamGoal.locales.enUS.SG_OWN_GOALS,
-  { { kind = "custom", params = { text = "Alter Text" } } })
+-- Älterer Text von Vorlagen ohne Kennung: am früheren Namen erkannt (Vorlagen hießen bis v2.26 "Own goals")
+local legacy = streamGoal.Packs.Encode("Own goals", { { kind = "custom", params = { text = "Alter Text" } } })
 expect("alter Text eigener Ziele", Sharing.Import(legacy), string.format(L.SG_CHAT_OWN_IMPORTED, 1))
-expect("sechs eigene Ziele", #Library.Entries(), 6)
+expect("sechs Vorlagen", #Library.Entries(), 6)
+-- Ein Paket, das wie die Vorlagen heißt, bleibt ein Paket (neue Vorlagen-Texte tragen immer die Kennung)
+local namedPack = streamGoal.Packs.Encode(L.SG_OWN_GOALS, { { kind = "custom", params = { text = "Paket-Text" } } })
+expect("Paket namens Vorlagen", Sharing.Import(namedPack), string.format(L.SG_CHAT_PACK_IMPORTED, L.SG_OWN_GOALS))
+expect("weiter sechs Vorlagen", #Library.Entries(), 6)
+StreamGoalDB.packs[L.SG_OWN_GOALS] = nil
+-- Befehlswort "template" wie "own"
+SlashCmdList.STREAMGOAL("template add Per Vorlagen-Befehl")
+expect("template add", Library.Entries()[#Library.Entries()].params.text, "Per Vorlagen-Befehl")
+Library.Remove(Library.Entries()[#Library.Entries()].id)
 
 -- Linksklick legt ein eigenes Ziel sofort an
 CollectionView.OnOwnRowClick(Pool.Get(Pool.OwnKey(hug.id)), "LeftButton")

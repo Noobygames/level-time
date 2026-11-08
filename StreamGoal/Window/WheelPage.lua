@@ -1,8 +1,8 @@
 -- Reiter "Glücksrad" im Fenster /sg (Roadmap 431): was das Rad ziehen darf, als Tabelle (TableView von Level Time:
--- Filter, Sortieren) mit allen mitgelieferten und eigenen Zielen; Klick schaltet einen Eintrag für das Rad an/aus.
+-- Filter, Sortieren) mit allen mitgelieferten und Vorlagen; Klick schaltet einen Eintrag für das Rad an/aus.
 -- Unten links die wichtigsten Einstellungen des Rads (dieselben wie unter Einstellungen > Glücksrad), rechts oben
 -- "Alle an"/"Alle aus" (für die gefilterten Zeilen), darunter die Hauptaktion "Glücksrad drehen" und links daneben
--- "Neu drehen (noch N)", solange das letzte Ergebnis Neuwürfe übrig hat. Eigene Ziele
+-- "Neu drehen (noch N)", solange das letzte Ergebnis Neuwürfe übrig hat. Vorlagen
 -- entstehen und werden gelöscht in der Sammlung (CollectionPage.lua).
 local _, ns = ...
 local LT = ns.LT

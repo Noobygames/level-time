@@ -1,8 +1,10 @@
 -- Reiter "Ziele" im Fenster /sg: oben ein neues Ziel (Gruppen- und Artenreiter, Formular der Art, aufklappbare Zusätze
 -- Frist/Wiederholung/Belohnung/Punkte), darunter die laufenden Ziele mit Zählen und Abbrechen.
 -- Knopfzeile unter dem Formular: links "Weitere Optionen" (Zusätze auf- und zuklappen), rechts die Hauptaktion
--- "Ziel hinzufügen" und daneben "Als eigenes Ziel speichern" (gleiche Eingabe ohne Zusätze in die Sammlung, Library.lua,
--- für Bingo-Felder und das Glücksrad). Fehler stehen in einer eigenen Zeile darunter über die ganze Breite.
+-- "Ziel hinzufügen" und daneben "Als Vorlage speichern" (gleiche Eingabe ohne Zusätze als Vorlage in die Sammlung,
+-- Library.lua, für Bingo-Felder und das Glücksrad; legt kein Ziel an). Fehler stehen in einer eigenen Zeile darunter.
+-- Tooltips: Artenreiter erklären, was die Art zählt (<label>_TIP), darunter gedämpft der Chatbefehl; jede Zeile der
+-- laufenden Ziele zeigt beim Überfahren Titel, Stand und die Zeilen der Karte (abgeschnittene Titel).
 -- Arten mit inForm = false (Bingo: eigener Reiter) haben hier keinen Reiter; Gruppen ohne Art im Client fehlen.
 local _, ns = ...
 local LT = ns.LT
@@ -19,8 +21,8 @@ local KIND_TABS_TOP = -24
 local KIND_ROW_GAP = 2          -- zwischen Gruppen- und Artenzeile
 local FORM_GAP = 6              -- Reiter zum Formular
 local BUTTONS_GAP = 4           -- Formular zur Knopfzeile
-local ACTIVE_GAP = 4            -- Fehlerzeile zur Überschrift "Aktive Ziele"
-local EMPTY_BUTTON_GAP = 6      -- "Pakete ansehen" unter dem Hinweis ohne aktive Ziele
+local ACTIVE_GAP = 4            -- Fehlerzeile zur Überschrift "Laufende Ziele"
+local EMPTY_BUTTON_GAP = 6      -- "Pakete ansehen" unter dem Hinweis ohne laufende Ziele
 local ADD_MIN_WIDTH = 120
 local ACTIVE_ROW = 22
 local CANCEL_WIDTH = 80
@@ -86,12 +88,18 @@ for _, group in ipairs(Goals.KIND_GROUPS) do
   end)
   groupTabs[group.key] = tab
 end
+-- Tooltip eines Artenreiters: was die Art zählt, darunter gedämpft der Chatbefehl (Tests)
+function Manager.KindTipLines(kind)
+  local def = Goals.GetKind(kind)
+  local lines = { { text = L[def.label .. "_TIP"] } }
+  if def.usage then table.insert(lines, { text = string.format(L.SG_KIND_TAB_TIP, L[def.usage]), muted = true }) end
+  return lines
+end
+
 for _, kind in ipairs(Goals.KindOrder()) do
   local def = Goals.GetKind(kind)
   local tab = Widgets.CreateTab(page, Theme.Font("body"), function() Manager.SelectKind(kind) end)
-  Widgets.AttachTooltip(tab, function() return L[def.label] end, function()
-    return def.usage and string.format(L.SG_KIND_TAB_TIP, L[def.usage]) or nil
-  end)
+  Manager.AttachTooltip(tab, function() return L[def.label] end, function() return Manager.KindTipLines(kind) end)
   kindTabs[kind] = tab
   forms[kind] = GoalForm.Build(page, def.form or {}, addFromForm, onFormChange)
 end
@@ -167,7 +175,7 @@ function Manager.AddFromForm()
   return goal
 end
 
--- Eingabe der gewählten Art als eigenes Ziel speichern (Zusätze wie Frist gehören zum laufenden Ziel, nicht dazu)
+-- Eingabe der gewählten Art als Vorlage speichern (Zusätze wie Frist gehören zum laufenden Ziel, nicht dazu)
 function Manager.SaveFormAsOwn()
   local form = forms[selectedKind]
   local params, target = form:Read()
@@ -222,7 +230,7 @@ end
 local activeHeader = Widgets.CreateSectionHeader(page)
 Manager.activeHeader = activeHeader
 
--- Ohne aktive Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche
+-- Ohne laufende Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche
 local emptyText = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 emptyText:SetTextColor(Theme.RGB("muted"))
 emptyText:SetJustifyH("LEFT")
@@ -234,7 +242,7 @@ end, ADD_MIN_WIDTH)
 Manager.packsButton = packsButton
 
 local activeRows = {}
-local activeTop = 0  -- y der Überschrift "Aktive Ziele" (hängt von Reiterzeilen, Formular und Zusätzen ab)
+local activeTop = 0  -- y der Überschrift "Laufende Ziele" (hängt von Reiterzeilen, Formular und Zusätzen ab)
 
 local function stepGoal(id, delta)
   local _, err = Goals.Step(id, delta)
@@ -251,6 +259,19 @@ local function smallButton(labelKey, width, onClick)
   return button
 end
 
+-- Tooltip einer Zeile der laufenden Ziele: Stand und die Zeilen der Karte (Art, Frist, Wiederholung, Belohnung)
+function Manager.ActiveTipLines(goal)
+  local lines = {}
+  if Goals.HasCount(goal) then table.insert(lines, { text = Goals.CountText(goal) }) end
+  local body = Goals.Body(goal)
+  if body then table.insert(lines, { text = body }) end
+  if Goals.IsManual(goal) then
+    table.insert(lines, { text = Goals.HasCount(goal) and L.SG_ACTIVE_TIP_COUNT or L.SG_ACTIVE_TIP_DONE, muted = true })
+  end
+  if #lines == 0 then table.insert(lines, { text = L.SG_ACTIVE_TIP_AUTO, muted = true }) end
+  return lines
+end
+
 local function activeRow(index)
   if activeRows[index] then return activeRows[index] end
   local row = {}
@@ -258,6 +279,13 @@ local function activeRow(index)
   row.text:SetJustifyH("LEFT")
   row.text:SetWordWrap(false)
   row.text:SetWidth(Manager.PAGE_WIDTH - CANCEL_WIDTH - 2 * (STEP_WIDTH + Manager.BUTTON_GAP) - 8)
+  -- Fläche über dem Text für den Tooltip (FontStrings bekommen keine Maus); voller Titel, falls abgeschnitten
+  row.hover = CreateFrame("Frame", nil, page)
+  row.hover:SetAllPoints(row.text)
+  row.hover:EnableMouse(true)
+  Manager.AttachTooltip(row.hover, function() return row.goal and Goals.Title(row.goal) or "" end, function()
+    return row.goal and Manager.ActiveTipLines(row.goal) or nil
+  end)
   row.cancel = smallButton("SG_CANCEL", CANCEL_WIDTH, function()
     if row.goal then confirmCancel(Goals.Title(row.goal), row.goal.id) end
   end)
@@ -286,6 +314,7 @@ end
 local function hideRow(row)
   row.goal = nil
   row.text:Hide()
+  row.hover:Hide()
   row.cancel:Hide()
   row.plus:Hide()
   row.minus:Hide()
@@ -317,6 +346,7 @@ function Manager.RenderActive()
       row.text:SetPoint("TOPLEFT", 0, y)
       row.text:SetText(activeLabel(goal))
       row.text:Show()
+      row.hover:Show()
       row.cancel:ClearAllPoints()
       row.cancel:SetPoint("TOPRIGHT", 0, y + 2)
       Manager.SetLabels({ row.cancel, row.plus, row.minus })
@@ -368,6 +398,15 @@ end
 
 function Manager.GroupTab(group)
   return groupTabs[group]
+end
+
+-- Formular einer Art bzw. der Zusätze (Tests: Tooltips jeder Zeile)
+function Manager.Form(kind)
+  return forms[kind]
+end
+
+function Manager.ExtrasForm()
+  return extrasForm
 end
 
 -- Feld des Formulars der gewählten Art oder der Zusätze (Tests): param oder "amount" für die Zahl

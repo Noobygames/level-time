@@ -2963,3 +2963,40 @@ Zusätze nach Hinzufügen zurückgesetzt (ja/nein):
 Einzahl in allen Sprachen (ja/nein):
 Fehler:
 ```
+
+### 202. Level Time Goals: Vorlagen, Ziel-Karten und erklärende Tooltips
+
+- [ ] geprüft
+
+1. `/sg`, Reiter Ziele: Maus über jeden Artenreiter. Der Tooltip erklärt in einem Satz, was die Art zählt (z.B.
+   „Item looten“ vs. „Item besitzen“), darunter grau der Chatbefehl. Texte passen in die Tooltip-Breite (umbrechen).
+2. Maus über jedes Feld (Zahl, Text, Auswahl, Haken) mehrerer Arten und der „Weiteren Optionen“: jedes hat einen
+   Tooltip; Auswahlknöpfe zusätzlich grau „Linksklick: nächster Wert …“. Beim Haken („Bank mitzählen“, „Nur auf
+   Schlachtfeldern“) reicht die Maus über der Beschriftung, ein Klick auf die Beschriftung setzt den Haken.
+3. Item-Feld fokussieren, Shift-Klick auf ein Item in den Taschen: Link steht im Feld. Dasselbe bei Quests
+   (Bestimmte Quests) mit Shift-Klick auf eine Quest im **Questlog** und bei Erfolgen mit Shift-Klick im
+   **Erfolgsfenster**: Kommt der Link im Feld an? (Die Tooltips versprechen nur „Shift-Klick auf einen Link“; falls
+   das Questlog/Erfolgsfenster ohne offenen Chat nichts einfügt, bitte notieren.)
+4. Knopf „Als Vorlage speichern“: legt **kein** Ziel an, Chat „Vorlage gespeichert: …“; Sammlung > Vorlagen zeigt den
+   Eintrag mit Herkunft „Eigene Vorlage“ (Bingo und Glücksrad: „Mitgeliefert“/„Eigene Vorlage“). `/sg template` und
+   `/sg own` listen dieselben Vorlagen. Ein älterer geteilter Text „Eigene Ziele“/„Own goals“ importiert weiter als
+   Vorlagen.
+5. Überall „Ziel-Karten“: Fußzeile des Fensters „Ziel-Karten anzeigen“, Einstellungen > Ziel-Karten, Edit-Modus
+   „Ziel-Karten“, `/sg tracker` → „Ziel-Karten an./aus.“; „Laufende Ziele (n/6)“ im Fenster und im Minimap-Tooltip.
+6. Maus über eine Zeile der laufenden Ziele (langer Freitext mit Frist und Belohnung): Tooltip zeigt den vollen Titel,
+   Stand, Frist/Belohnung und bei selbst gezählten Zielen den Bedienhinweis.
+7. `/sg add rule nodeath` (ohne Level): Karte „Läuft bis zum Abbruch; ein Verstoß lässt das Ziel scheitern“.
+   `/sg scale` ohne Zahl: Chat nennt die aktuelle Größe und den Bereich 0.5 bis 2.
+8. Sprache Französisch und Spanisch (Level Time Einstellungen): Formular-Beschriftungen und Tooltips abgeschnitten?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltips Arten/Felder vollständig (ja/nein):
+Shift-Klick Item / Questlog / Erfolgsfenster fügt Link ein (ja/nein je):
+Vorlage speichern legt kein Ziel an (ja/nein):
+Begriffe einheitlich (ja/nein, Stellen):
+Tooltip laufende Ziele (ja/nein):
+Fehler:
+```

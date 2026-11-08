@@ -1,6 +1,6 @@
 -- Reiter "Bingo" im Fenster /sg (Roadmap 431): Schein selbst füllen. Links Größe und Raster des Entwurfs (Feld anklicken
 -- = auswählen, Rechtsklick = leeren), rechts alle Ziele zur Wahl (mitgelieferte und eigene, TableView mit Filter); ein
--- Klick auf ein Ziel setzt es ins gewählte Feld und springt zum nächsten leeren. Darunter: freier Text als eigenes Ziel
+-- Klick auf ein Ziel setzt es ins gewählte Feld und springt zum nächsten leeren. Darunter: freier Text als Vorlage
 -- direkt ins Feld, dann die Knopfzeile mit der Hauptaktion "Schein anlegen" rechts (leere Felder werden zufällig).
 -- Entwurf in StreamGoalDB.bingoDraft = { size = 3|5, picks = { [Feld] = Pool-Schlüssel } } (bleibt über /reload).
 local _, ns = ...
@@ -200,7 +200,7 @@ textLabel:SetPoint("TOPLEFT", 0, controlsTop - 4)
 local textBox = Manager.CreateTextBox(page, function() BingoEditor.AddText() end)
 BingoEditor.textBox = textBox
 
--- Freier Text als eigenes Ziel ins gewählte Feld
+-- Freier Text als Vorlage ins gewählte Feld
 function BingoEditor.AddText()
   local entry, err = Library.AddText(textBox:GetText())
   if not entry then

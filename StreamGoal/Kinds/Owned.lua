@@ -28,7 +28,7 @@ Goals.RegisterKind("owned", {
   icon = ICON,
   texture = function(goal) return Kinds.ItemTexture(goal.params.itemId) end,
   tooltip = function(goal, tooltip) tooltip:SetHyperlink(Kinds.ItemHyperlink(goal.params)) end,
-  form = { amount = "SG_FORM_AMOUNT", fields = {
+  form = { amount = "SG_FORM_AMOUNT", amountTip = "SG_FORM_OWNED_AMOUNT_TIP", fields = {
     { type = "text", param = "item", label = "SG_FORM_ITEM", links = true },
     { type = "check", param = "bank", label = "SG_FORM_WITH_BANK" },
   } },

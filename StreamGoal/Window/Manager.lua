@@ -2,8 +2,8 @@
 -- Jede Seite steht in einer eigenen Datei (Window/*Page.lua) und meldet sich mit Manager.AddPage an; die Reiter stehen
 -- in der Reihenfolge der .toc:
 --   Ziele (neues Ziel, laufende Ziele) | Bingo (Schein selbst füllen) | Glücksrad (was das Rad ziehen darf, Drehen) |
---   Sammlung (Pakete und eigene Ziele, Teilen und Importieren) | Historie
--- Fußzeile: links "Ziele am Bildschirm zeigen", rechts "Layout bearbeiten" und "Einstellungen" (öffnet die Unterseite
+--   Sammlung (Pakete und Vorlagen, Teilen und Importieren) | Historie
+-- Fußzeile: links "Ziel-Karten anzeigen", rechts "Layout bearbeiten" und "Einstellungen" (öffnet die Unterseite
 -- der Einstellungen, die zur gezeigten Seite gehört).
 -- Seite = { key, label (Locale-Key, Tooltip aus <label>_TIP), settingsPage, refresh(), render() }: refresh setzt Texte
 -- und Anordnung (Sprache!), render die Daten; beide laufen beim Zeigen, render auch nach Änderungen der Ziele.
@@ -51,6 +51,27 @@ function Manager.CreateButton(parent, labelKey, onClick, minWidth)
   button.labelKey, button.minWidth = labelKey, minWidth or Manager.BUTTON_MIN_WIDTH
   Widgets.AttachTooltip(button, function() return L[button.labelKey] end, function() return L[button.labelKey .. "_TIP"] end)
   return button
+end
+
+-- Tooltip mit mehreren Zeilen: title() = Überschrift, lines() = { { text, muted = true|nil }, ... } (gedämpfte Zeilen
+-- für Bedienhinweise und Chatbefehle, normale für die Erklärung); ohne Zeilen kein Tooltip
+function Manager.AttachTooltip(frame, title, lines)
+  frame:HookScript("OnEnter", function(self)
+    local list = lines()
+    if not list or #list == 0 then return end
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(title(), Theme.RGB("accent"))
+    for _, line in ipairs(list) do
+      if line.muted then
+        local r, g, b = Theme.RGB("muted")
+        GameTooltip:AddLine(line.text, r, g, b, true)
+      else
+        GameTooltip:AddLine(line.text, 1, 1, 1, true)
+      end
+    end
+    GameTooltip:Show()
+  end)
+  frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
 -- Texte der Knöpfe aus CreateButton in der gewählten Sprache (Breite wächst mit dem Text)

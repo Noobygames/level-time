@@ -22,7 +22,7 @@ Goals.RegisterKind("honor", {
   usage = "SG_USAGE_HONOR",
   color = LT.Theme.COLORS.bad,
   icon = ICON,
-  form = { amount = "SG_FORM_AMOUNT" },
+  form = { amount = "SG_FORM_HONOR" },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target) return Kinds.ValidAmount(target) end,
   title = function(goal) return Kinds.Counted("SG_GOAL_HONOR", goal.target) end,
