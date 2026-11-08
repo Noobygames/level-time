@@ -29,6 +29,11 @@ local levelGoal = Goals.Active()[1]
 expect("Level-Ziel", levelGoal.kind, "level")
 expect("Startstand = aktuelles Level", levelGoal.progress, 10)
 expectNear("noch kein Anteil", Goals.Fraction(levelGoal), 0)
+-- XP im laufenden Level füllt den Balken zwischen zwei Levels (2 Level Weg, halbes Level = ein Viertel)
+wow.state.xp = 500
+wow.fire("PLAYER_XP_UPDATE", "player")
+expectNear("Anteil mit XP", Goals.Fraction(levelGoal), 0.25)
+wow.state.xp = 0
 wow.levelUp(11)
 expect("Level 11 gebucht", levelGoal.progress, 11)
 expectNear("halber Weg", Goals.Fraction(levelGoal), 0.5)

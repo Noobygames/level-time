@@ -160,6 +160,13 @@ Goals.RegisterKind("level", {
     end
   end,
   initial = function() return LT.level end,
+  -- XP im laufenden Level, nur für den eigenen Charakter (andere haben keinen Live-Wert)
+  partial = function(goal)
+    if goal.character ~= LT.characterKey then return 0 end
+    local xp, xpMax = UnitXP("player"), UnitXPMax("player")
+    if LT.IsSecret(xp) or LT.IsSecret(xpMax) or not xp or not xpMax or xpMax <= 0 then return 0 end
+    return math.max(0, math.min(1, xp / xpMax))
+  end,
   title = function(goal) return string.format(L.SG_GOAL_LEVEL, goal.target) end,
 })
 
