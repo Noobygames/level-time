@@ -16,7 +16,8 @@ See how your leveling is really going. Level Time tracks play time, XP per hour,
 - Alerts and reminders: rare/elite kills, epic loot, near deaths, missing food/class buffs, full bags, low durability, breath, breaks, instance limit
 - Healer callouts to your group: low mana, crowd control, aggro
 - Comfort features in the spirit of Leatrix Plus (own code, all off by default): automation, social, chat, interface, frames, system, loot roll counters, flight times
-- Settings with a sidebar per tab, a search box, simple/advanced mode, reset per page, a welcome card on first start and an entry under Options > AddOns; right-click any display to open its settings
+- Easy to start: simple mode for new players ("Show all options" shows everything), tooltips on every option, value and column, greyed-out options that depend on another, short `/lt help` (`/lt help all` for everything)
+- Settings with a sidebar per tab, a search box, reset per page, a welcome card on first start and an entry under Options > AddOns; right-click any display to open its settings
 - Quest helpers: quest levels, progress on quest markers, learned quest mobs and NPCs with map pins, quest item and target buttons, quest XP on the XP bar, reward hints, loot sparkles
 - Stream-friendly: stream mode, chroma-key background for OBS, hidden names, session recap card
 
@@ -48,7 +49,7 @@ A session runs from login to logout. A `/reload` or a short break (up to 5 minut
 
 ## History and charts
 
-Open with `/lt history`, Shift-click on the minimap button or the button in the settings. Browse all your characters from any character.
+Open with `/lt history`, Shift-click on the minimap button or the button in the settings. Browse all your characters from any character. Seven tabs: Levels, Sessions, Journal, Analysis, Charts, Speedrun & Records, Compare.
 
 - **Levels**: overview (time, XP/h, kills, deaths, quests, gold per level), timeline (when each level was reached, with `/played`), time split (combat, flying, AFK, dead), XP sources, personal records
 - **Sessions**: start, duration, level range, XP/h, kills, deaths, quests and gold of every session
@@ -69,7 +70,7 @@ The journal has no fixed limit: older entries move into a small load-on-demand a
 
 ## Speedrun and splits
 
-Settings tab "Speedrun" and History > Speedrun.
+Settings tab "Speedrun" and History > Speedrun & Records.
 
 - **Split list** (`/lt splits`): a separate panel like LiveSplit with the running level and the last levels (3-15), total row and `/played` row
 - **Comparison**: best time per level of your other characters, your personal best run (optionally same class only) or a chosen run (`/lt compare <name>`)
@@ -95,7 +96,7 @@ Alerts and warnings appear as cards with icon, sharing one queue, size, duration
 - **Leveling reminders** (off by default, repeat every 1-30 minutes, not in combat or rest areas): not Well Fed, no camp benefits (WoW Forever), rest in your Cozy Sleeping Bag for the XP bonus (WoW Forever), Skyborne charge missing (WoW Forever), class buffs of your own class (armor, intellect/fortitude buffs, shields, weapon enchants, poisons, pets, aspects, ...)
 - **Break reminder** after a set play time (off by default)
 - **Warnings** (off by default): bags almost full, low durability, visit trainer on even levels (not Retail), low ammo for hunters (adjustable thresholds and repeat), instance limit, aggro in a group, breath and fatigue running out, emergency highlight at low health (Classic Era/TBC: glows potion, healthstone and emergency spell buttons, red screen edge)
-- **Group messages** (off by default, never while Blizzard locks the chat): quest progress, instance report when you leave (duration, XP, kills, money)
+- **Group messages** (off by default, never while Blizzard locks the chat): quest progress with clickable quest links, instance report when you leave (duration, XP, kills, money)
 - **Healer callouts** (off by default, healer role in dungeons and raids): low mana, crowd control (with kind and duration where the client tells it), all clear after CC, aggro on you. WoW Forever hides mana and CC details from addons, so there only "out of mana" and "can't heal" are possible
 
 ## Comfort
@@ -124,9 +125,9 @@ Every change to game settings (CVars, chat colors, Blizzard frames) is reversibl
 - **Target button** with learned names and an optional skull marker (secure macro, changed only out of combat)
 - **Alerts** when a quest or an objective is complete, **rare mob** alert with optional screen flash
 - **Quest log helpers**: remove gray quests with one click (always asks first), notice when the log is almost full, leftover quest items in your bags
-- **History > Quests**: turn-in overview with XP, quest efficiency (XP per minute from quest splits); reward recommendation by sell value and item level
+- **History > Analysis**: turn-in overview with XP, quest efficiency (XP per minute from quest splits); reward recommendation by sell value and item level
 - **Corpse arrow** with distance while you are a ghost
-- **Quest progress to group**, **quest splits** (see Speedrun), quest automation (see Comfort)
+- **Quest progress to group** with quest links, **quest splits** (see Speedrun), quest automation (see Comfort)
 - **Loot sparkles**: quest items keep the game's sparkle even after a graphics preset (WoW Forever); ore veins, herbs, quest objects and corpses with loot glint as you approach (dim out of reach, bright in reach, grey when your skill is too low). Uses the game's soft targeting; corpses only after combat. Stays off while ForeverLootSparkles or Lueur is loaded
 
 ## Streaming
