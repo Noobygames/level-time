@@ -35,7 +35,7 @@ local function checkOptions(language)
   for _, pair in ipairs({
     { "SHOW_XP_BAR", "AUTO_INSTANCE_TAB" },
     { "STAT_XP_RATE", "STAT_RECENT_XP_RATE" },
-    { "ALERT_TOGGLE_LEVEL_UP", "ALERT_TOGGLE_RARE" },
+    { "ALERT_TOGGLE_RARE", "ALERT_TOGGLE_ELITE" },
     { "WARN_BAGS_FULL_TOGGLE", "WARN_DURABILITY_TOGGLE" },
     { "AUTO_ACCEPT_QUESTS", "AUTO_ACCEPT_SHARED" },
   }) do

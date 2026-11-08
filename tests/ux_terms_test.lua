@@ -120,11 +120,11 @@ local function controlOf(labelKey)
   end
 end
 for _, case in ipairs({
-  { page = "OPTIONS_PAGE_FLIGHTS", label = "FLIGHT_TOOLTIP_TOGGLE", setting = "flightTimer" },
+  { page = "COMFORT_PAGE_TIMERS", label = "FLIGHT_TOOLTIP_TOGGLE", setting = "flightTimer" },
   { page = "COMFORT_PAGE_AUTOMATION", label = "AUTO_REPAIR_GUILD", setting = "autoRepair" },
   { page = "OPTIONS_PAGE_ALERT_KINDS", label = "ALERT_TOGGLE_RARE_FLASH", setting = "alertRareSpotted" },
-  { page = "OPTIONS_PAGE_LEVEL_UP_WINDOW", label = "LEVEL_UP_COMPACT", setting = "levelUpWindow" },
-  { page = "COMFORT_PAGE_SYSTEM", label = "LOOT_ROLL_NAMES_TOGGLE", setting = "lootRollCounts" },
+  { page = "OPTIONS_PAGE_LEVEL_UP", label = "LEVEL_UP_COMPACT", setting = "levelUpWindow" },
+  { page = "COMFORT_PAGE_LOOT", label = "LOOT_ROLL_NAMES_TOGGLE", setting = "lootRollCounts" },
 }) do
   options.ShowPage(case.page)
   local control = controlOf(case.label)

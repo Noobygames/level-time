@@ -115,7 +115,8 @@ for _, line in ipairs(addon.STAT_LINES) do
 end
 
 ---------------------------------------------------------------------------
--- Neue Orte: Quest-Dinge gesammelt unter Komfort > Quests, Stream unter Allgemein, Timer unter Einblendungen
+-- Neue Orte: Quest-Dinge gesammelt unter Komfort > Quests, Stream unter Allgemein, Timer und Flüge unter Komfort,
+-- alles zum Level-Up unter Einblendungen > Level-Up, Ausblenden an einem Ort (UX S11/S15/S16/S20)
 ---------------------------------------------------------------------------
 local function placeOf(labelKey)
   local entry = findEntry(labelKey)
@@ -130,8 +131,19 @@ for _, case in ipairs({
   { "STREAM_MODE", "SECTION_GENERAL", "OPTIONS_TAB_STREAM" },
   { "WINDOW_VISIBILITY", "SECTION_GENERAL", "OPTIONS_PAGE_WINDOW" },
   { "WINDOW_LAYOUT", "SECTION_GENERAL", "OPTIONS_PAGE_LAYOUT" },
-  { "FOOD_TIMER_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_TAB_TIMERS" },
-  { "FLIGHT_TIMER_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_FLIGHTS" },
+  { "FOOD_TIMER_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_TIMERS" },
+  { "FLIGHT_TIMER_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_TIMERS" },
+  { "LEVEL_UP_SUMMARY_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "LEVEL_UP_ANNOUNCE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "ALERT_TOGGLE_LEVEL_UP", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "LEVEL_UP_WINDOW_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "SESSION_COMPARE_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_LOGIN" },
+  { "BLIZZ_FRAME_CHAT_BUTTONS", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_HIDE" },  -- Blizzard-Leisten: blizzard_hide
+  { "MOVE_FRAMES", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_FRAMES" },
+  { "FASTER_LOOT", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_LOOT" },
+  { "LOOT_ROLL_COUNTS_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_LOOT" },
+  { "SHOW_MINIMAP", "SECTION_GENERAL", "OPTIONS_PAGE_WINDOW" },
+  { "STREAM_LAYOUT", "SECTION_GENERAL", "OPTIONS_TAB_STREAM" },
   { "LOW_MANA_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_GROUP" },
   { "REMIND_TRAINER_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_REMINDERS" },
   { "FRIEND_RACE", "OPTIONS_TAB_SPEEDRUN", "OPTIONS_PAGE_COMPARE" },
@@ -153,7 +165,7 @@ local _, sub = options.CurrentPage()
 expect("Warnungen gezeigt", sub, "OPTIONS_PAGE_WARNINGS")
 local bags = findEntry("WARN_BAGS_FULL_TOGGLE")
 expect("Taschen-Warnung sichtbar", bags.left:IsVisible(), true)
-expect("Level-Up verdeckt", findEntry("LEVEL_UP_SUMMARY_TOGGLE").left:IsVisible(), false)
+expect("Login-Seite verdeckt", findEntry("SESSION_COMPARE_TOGGLE").left:IsVisible(), false)
 local scroll = bags.tab.scroll
 scroll:SetVerticalScroll(300)
 wow.click(L.OPTIONS_PAGE_GROUP)

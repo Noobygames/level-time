@@ -102,11 +102,14 @@ end
 
 ---------------------------------------------------------------------------
 -- Zeilen-Layouts: Zeit oben, darunter Zeilen (Bezeichnung links, Wert rechts oder direkt dahinter)
---   options = { label, source, tabs, xpBar, inline, outlined, short, minWidth, background, labels(db) }
+--   options = { label, source, tabs, xpBar, inline, outlined, short, minWidth, background, labels(db),
+--               scopeLine (ohne Reiter: kleine Zeile mit dem Bereich über der Zeit, "Level 25"/"Session"; UX W7) }
 ---------------------------------------------------------------------------
 function Layouts.Stack(options)
   local layout = { label = options.label, source = options.source, background = options.background }
   local function labelsShown(db) return not options.labels or options.labels(db) end
+  -- Bereichszeile nur, wo Bezeichnungen gezeigt werden (Layout "text" ohne Bezeichnungen bleibt reine Zahl)
+  local function scopeShown(db) return options.scopeLine and labelsShown(db) end
 
   function layout.Build(el, model, db)
     local outlined = options.outlined
@@ -117,6 +120,20 @@ function Layouts.Stack(options)
 
     local y = Layouts.PADDING_Y
     if options.tabs then y = y + Layouts.PlaceTabsCentered(el, y) end
+    if scopeShown(db) then
+      el.sub:SetFontObject(Theme.Font("small", outlined))
+      el.sub:SetJustifyH(options.inline and "LEFT" or "CENTER")
+      el.sub:ClearAllPoints()
+      if options.inline then
+        el.sub:SetPoint("TOPLEFT", el.window, "TOPLEFT", Layouts.PADDING_X, -y)
+      else
+        el.sub:SetPoint("TOP", el.window, "TOP", 0, -y)
+      end
+      el.sub:Show()
+      y = y + fontSize(el.sub) + Layouts.LINE_GAP
+    else
+      el.sub:Hide()
+    end
     el.time:ClearAllPoints()
     if options.inline then
       el.time:SetPoint("TOPLEFT", el.window, "TOPLEFT", Layouts.PADDING_X, -y)
@@ -157,8 +174,9 @@ function Layouts.Stack(options)
     return y + Layouts.PADDING_Y
   end
 
-  function layout.Render(el, model)
+  function layout.Render(el, model, db)
     local changed = options.tabs and el:RenderTabs(model) or false
+    if scopeShown(db) then changed = setText(el.sub, model.scopeText or "") or changed end
     changed = setText(el.time, model.time.text) or changed
     for index, data in ipairs(model.rows) do
       local row = el.rows[index]
@@ -172,6 +190,7 @@ function Layouts.Stack(options)
     local padding = 2 * Layouts.PADDING_X
     local width = math.max(options.minWidth or 0, el.time:GetWidth() + padding)
     if options.tabs then width = math.max(width, Layouts.CenteredTabsWidth(el)) end
+    if scopeShown(db) then width = math.max(width, el.sub:GetStringWidth() + padding) end
     local labels = labelsShown(db)
     local gap = options.inline and Layouts.INLINE_GAP or Layouts.COLUMN_GAP
     for index in ipairs(model.rows) do
@@ -192,14 +211,14 @@ Layouts.Register("table", Layouts.Stack({
   label = "LAYOUT_TABLE", source = WindowModel.VISIBLE, tabs = true, xpBar = true, minWidth = MIN_WIDTH,
 }))
 
--- Kompakt: Zeit, XP-Balken und bis zu drei gewählte Werte (compactRows), ohne Reiter
+-- Kompakt: Bereich, Zeit, XP-Balken und bis zu drei gewählte Werte (compactRows), ohne Reiter
 Layouts.Register("compact", Layouts.Stack({
-  label = "LAYOUT_COMPACT", source = WindowModel.CHOSEN, xpBar = true, minWidth = MIN_WIDTH,
+  label = "LAYOUT_COMPACT", source = WindowModel.CHOSEN, xpBar = true, minWidth = MIN_WIDTH, scopeLine = true,
 }))
 
 -- Nur Text (OBS): ohne Grund und Rand, Schrift mit Kontur, Bezeichnungen (Kurzform) abschaltbar (textLabels)
 Layouts.Register("text", Layouts.Stack({
   label = "LAYOUT_TEXT", source = WindowModel.VISIBLE, inline = true, outlined = true, short = true,
-  background = false, labels = function(db) return db.textLabels end,
+  background = false, labels = function(db) return db.textLabels end, scopeLine = true,
 }))
 

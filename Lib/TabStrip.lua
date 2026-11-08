@@ -47,6 +47,11 @@ function TabStrip.New(parent, options)
     options.top = top
   end
 
+  -- Nur mit maxWidth: neue Reihenfolge der Reiter (dieselben Buttons, z.B. sortiert); wirkt beim nächsten Layout()
+  function strip:SetOrder(tabs)
+    self.tabs = tabs
+  end
+
   -- Breite aller Reiter in einer Zeile samt Abständen
   function strip:Width()
     local width = 0

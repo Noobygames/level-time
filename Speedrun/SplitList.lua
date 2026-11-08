@@ -197,10 +197,17 @@ end
 
 local laidOut = { count = -1, height = 0 }  -- Stand des letzten layout(): Zeilenzahl und Zeilenhöhe
 
+-- Titel mit dem Vergleich ("Splits vs. Bestzeit", UX W25), im Rennen dazu der Freund
+function SplitList.TitleText()
+  local text = string.format(L.SPLIT_LIST_TITLE_VS, L.SPLIT_LIST_TITLE, ns.Splits.ComparisonShortName())
+  local friend = ns.FriendRace.Current()
+  if friend then return string.format(L.SPLIT_LIST_TITLE_FRIEND, text, friend) end
+  return text
+end
+
 local function renderLines()
   local friend = ns.FriendRace.Current()
-  local changed = setText(title,
-    friend and string.format(L.SPLIT_LIST_TITLE_FRIEND, L.SPLIT_LIST_TITLE, friend) or L.SPLIT_LIST_TITLE)
+  local changed = setText(title, SplitList.TitleText())
   local lines = SplitList.BuildLines()
   -- Kopfzeile (UX 215, Einstellung splitListHeader): Spalten benannt, leise gefärbt
   local offset = 0

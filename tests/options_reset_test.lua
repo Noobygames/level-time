@@ -54,9 +54,9 @@ expect("Ton wieder", db().alertSound, true)
 expectNear("Größe wieder", addon.Frames.GetScale("alert"), 1.4)
 expect("Rückgängig weg", undo:IsShown(), false)
 
--- Unterseite mit Tabellen-Einstellung und Minimap: Sprache & Minimap, Rekorde
+-- Unterseite mit Tabellen-Einstellung und Minimap: Hauptfenster (Minimap-Knopf), Rekorde
 addon.SetMinimapHidden(true)
-expectTrue("Sprache & Minimap", options.ResetPage("SECTION_LANGUAGE"))
+expectTrue("Hauptfenster", options.ResetPage("OPTIONS_PAGE_WINDOW"))
 expect("Minimap wieder an", db().minimap.hide, false)
 db().recordBrackets["1-10"] = false
 expectTrue("Rekorde", options.ResetPage("OPTIONS_PAGE_RECORDS"))

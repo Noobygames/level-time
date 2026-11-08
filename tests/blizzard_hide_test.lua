@@ -120,12 +120,24 @@ expect("kein true fällt weg", clean.hiddenBlizzardFrames.target, nil)
 expect("kein Text-Schlüssel fällt weg", clean.hiddenBlizzardFrames[1], nil)
 expect("kein Table: weg", addon.Database.SanitizeSettings({ hiddenBlizzardFrames = "player" }).hiddenBlizzardFrames, nil)
 
--- Optionen: ein Schalter je eigenem Eintrag, Text aus der Liste
+-- Optionen: ein Schalter je Eintrag, Text aus der Liste; Einträge mit eigener Einstellung schalten diese (UX S15:
+-- alles Ausblenden an einem Ort)
 local toggles = BlizzardHide.Toggles()
 local labels = {}
 for _, toggle in ipairs(toggles) do labels[toggle.text()] = toggle end
 expectTrue("Schalter Spielerrahmen", labels[L.BLIZZ_FRAME_PLAYER] ~= nil)
-expect("Haltungsleiste nicht doppelt", labels[L.BLIZZ_FRAME_STANCE], nil)
+local stance = labels[L.BLIZZ_FRAME_STANCE]
+expectTrue("Haltungsleiste in der Liste", stance ~= nil)
+expect("Haltungsleiste: Einstellung", stance.setting, "hideStanceBar")
+expect("Haltungsleiste: eigene Erklärung", stance.tip, "HIDE_STANCE_BAR_TIP")
+stance.set(true)
+expect("Schalter setzt die Einstellung", LevelTimerDB.hideStanceBar, true)
+expect("nicht in der eigenen Liste", (LevelTimerDB.hiddenBlizzardFrames or {}).stance, nil)
+stance.set(false)
+expect("Einstellung wieder aus", LevelTimerDB.hideStanceBar, false)
+for _, key in ipairs({ "BLIZZ_FRAME_XP_BAR", "BLIZZ_FRAME_REP_BAR", "BLIZZ_FRAME_CALENDAR", "BLIZZ_FRAME_CHAT_BUTTONS" }) do
+  expectTrue("Schalter " .. key, labels[L[key]] ~= nil and labels[L[key]].setting ~= nil)
+end
 labels[L.BLIZZ_FRAME_TARGET].set(true)
 expect("Schalter blendet aus", TargetFrame:GetAlpha(), 0)
 expect("Schalter liest", labels[L.BLIZZ_FRAME_TARGET].get(LevelTimerDB), true)

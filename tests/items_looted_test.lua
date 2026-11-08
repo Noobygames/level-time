@@ -75,7 +75,7 @@ local summary = addon.History.Summarize({ record })
 expectNear("Items/h eines Eintrags", Experience.CountRate(summary.counters[Stats.ITEMS_LOOTED],
   Experience.RecordRateSeconds(summary)), 180, 0.001)
 SlashCmdList.LEVELTIMER("history")
-expectTrue("Reiter Sessions", wow.click(L.HISTORY_TAB_SESSIONS))
+expectTrue("Sessions > Kills & Items", addon.HistoryWindow.ShowView("HISTORY_TAB_SESSION_KILLS"))
 local header = wow.shownTable():BuildCsv():match("^[^\n]*")
 expectTrue("Session-Tabelle hat Items/h", header:find(L.HISTORY_ITEM_RATE, 1, true) ~= nil)
 SlashCmdList.LEVELTIMER("history")

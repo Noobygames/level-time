@@ -31,7 +31,7 @@ expect("Item-Link: keine Zeile", #GameTooltip._lines, 0)
 
 -- Historie: Unterreiter Effizienz
 SlashCmdList.LEVELTIMER("history")
-expectTrue("Reiter Quests", wow.click(L.HISTORY_GROUP_QUESTS))
+expectTrue("Reiter Quests", wow.click(L.HISTORY_GROUP_ANALYSIS))
 expectTrue("Unterreiter Effizienz", wow.click(L.HISTORY_TAB_QUEST_EFFICIENCY))
 expect("zwei Quests", #wow.shownTable():GetVisibleRecords(), 2)
 expect("Fehler?", #wow.errors, 0)

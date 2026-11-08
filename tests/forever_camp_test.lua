@@ -197,7 +197,7 @@ expect("Position zurückgesetzt", LevelTimerDB.frames.camp, nil)
 -- Einstellungen
 ---------------------------------------------------------------------------
 SlashCmdList.LEVELTIMER("config")
-expectTrue("Reiter Timer", wow.click(L.OPTIONS_TAB_TIMERS))
+expectTrue("Unterseite Timer & Flüge", addon.OptionsWindow.ShowPage("COMFORT_PAGE_TIMERS"))
 expectTrue("Button Vorschau", wow.clickOption("CAMP_PREVIEW"))
 expect("Vorschau zeigt Anzeige", camp:IsShown(), true)
 -- Layout bearbeiten (unten auf jedem Reiter): alle Anzeigen auf einmal, auch das Lagerfeuer

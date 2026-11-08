@@ -3216,3 +3216,79 @@ Teilziele anhängen / lösen (ja/nein):
 Bingo-Feld über das Formular (ja/nein):
 Fehler:
 ```
+
+### 210. UX-Review Paket 4: Historie in sieben Reitern
+
+- [ ] geprüft
+
+1. `/lt history` in Deutsch und Französisch: Hauptreiter Level, Sessions, Journal, Auswertung, Graphen, Speedrun &
+   Rekorde, Vergleich, alle in einer oder zwei Zeilen innerhalb des Fensters, nichts überlappt.
+2. Level > Übersicht hat nur noch Level, Zeit, XP/h, Kills, Tode, Quests und Gold; Level > „Kills & Items“ und Sessions >
+   „Kills & Items“ zeigen Kills/h, Items, Items/h und PvP-Siege. Die Spalten passen ohne Abschneiden.
+3. Auswertung enthält Zonen, Ruf, Geld, Abgabebereit und Quest-Effizienz; Speedrun & Rekorde enthält Läufe, Bestzeiten
+   je Level, Persönliche Rekorde, Quest-Splits und Weltrekorde.
+4. Vergleich, Läufe, Bestzeiten, Persönliche Rekorde, Weltrekorde, Quest-Effizienz: statt des Namens steht „Alle
+   Charaktere“, die Pfeile und „Daten löschen“ sind grau und reagieren nicht; zurück auf Level ist der zuletzt gewählte
+   Charakter wieder da.
+5. Fenster mit einem vorher gemerkten Reiter (z.B. vor dem Update Zonen offen gelassen) öffnet direkt Auswertung > Zonen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hauptreiter passen (ja/nein, Sprache):
+Übersicht / Kills & Items Spalten passen (ja/nein):
+Alle Charaktere: Pfeile und Löschen grau (ja/nein):
+Gemerkter Reiter (ja/nein):
+Fehler:
+```
+
+### 211. UX-Review Paket 4: Bereich in Kompakt, Text und Uhr; Titel der Split-Liste
+
+- [ ] geprüft
+
+1. Layout „Kompakt“: über der Zeit steht klein „Level 25“, nach Wechsel auf Session (Einstellung oder Rechtsklick)
+   „Session“; die Zeit springt nicht.
+2. Layout „Text“ mit Bezeichnungen: „Level 25“ links über der Zeit, mit Kontur; Bezeichnungen aus: nur die Zahlen.
+3. Layout „Uhr“ mit gewählten Werten: Zeile „Level 25 - XP/h 8k …“ unter der großen Zeit.
+4. Split-Liste: Titel „Splits vs. Bestzeit“, mit Vergleich PB „Splits vs. PB“, mit gewähltem Lauf dessen Name; die Liste
+   wird für lange Namen breiter statt abzuschneiden.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kompakt / Text / Uhr zeigen den Bereich (ja/nein):
+Split-Titel je Vergleich (ja/nein):
+Fehler:
+```
+
+### 212. UX-Review Paket 4: neue Orte in den Einstellungen, Goals ohne Reiterzeile
+
+- [ ] geprüft
+
+1. Einblendungen > Level-Up: Level-Up-Fenster, Einblendung (grau, solange das Fenster an ist) und Chat und Ansage auf
+   einer Seite; Chat & Erinnerungen beginnt mit „Login & Rekorde“ und verweist auf die Level-Up-Seite.
+2. Komfort > Timer & Flüge (Forever: Lagerfeuer, Essen, Schlafsack; alle: Flugzeiten). Rechtsklick auf die Flugkarte
+   und das Level-Up-Fenster öffnet die neue Seite.
+3. Komfort > Ausblenden: Erfahrungs-, Ruf- und Haltungsleiste, Kalender und Chat-Knöpfe stehen in der Liste und
+   schalten dieselbe Einstellung wie vorher (Haken an der Chat-Seite folgt); „Blizzard-Meldungen und -Effekte“ ist ein
+   einklappbarer Abschnitt dort. Komfort > Oberfläche hat keine Leisten- und Glitzer-Schalter mehr.
+4. Komfort > Beute: Plündern, Würfeln um Beute, Beute-Glitzer; Rechtsklick auf die Würfel-Karte öffnet sie.
+   Komfort > Rahmen, Tooltip & Karte: „Blizzard-Fenster“ (Fenster verschieben) unten.
+5. Allgemein > Hauptfenster: „Minimap-Knopf anzeigen“; die Seite „Sprache“ hat nur die Sprachwahl. Allgemein > Stream:
+   Hinweis zum Stream-Modus, Abschnitt „Für OBS“ mit Layout, Hintergrund und Kontur; Layout „Text“ dort gewählt wirkt
+   sofort.
+6. `/sg options`: keine Reiterzeile mit „Ziele“, die Seitenleiste beginnt direkt unter Suche und Titel, nichts überlappt
+   das Suchfeld; „Seite zurücksetzen“ wirkt weiter.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Level-Up-Seite vollständig (ja/nein):
+Timer & Flüge / Beute / Ausblenden vollständig (ja/nein, was fehlt):
+Minimap-Knopf und Stream-Seite (ja/nein):
+Goals-Einstellungen ohne Reiterzeile (ja/nein):
+Fehler:
+```

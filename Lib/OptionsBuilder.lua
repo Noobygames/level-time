@@ -137,7 +137,8 @@ function OptionsBuilder.Localized(key)
   return function() return L[key] end
 end
 
--- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text, host (optional, siehe DEFAULT_HOST) }
+-- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text, host (optional, siehe DEFAULT_HOST),
+--   hideSingleTab (optional: bei nur einer Seite keine Reiterzeile) }
 function OptionsBuilder.New(options)
   local builder = {}
   local host = options.host or DEFAULT_HOST
@@ -194,6 +195,8 @@ function OptionsBuilder.New(options)
   -------------------------------------------------------------------------
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
   local pageTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
+  -- options.hideSingleTab: bei genau einer Seite keine Reiterzeile, der Inhalt rückt um ihre Höhe nach oben (Finish)
+  local tabsHidden = false
   local nextRowY = CONTENT_TOP
   local sidebars = {}       -- { startY, entries = { { button, frame, bottom } } } je Seite mit Unterseiten
   local sidebar             -- Seitenleiste, deren Unterseiten gerade angelegt werden
@@ -854,17 +857,27 @@ function OptionsBuilder.New(options)
 
   -- Nach dem letzten Baustein: Höhe für die längste Seite, damit das Fenster beim Reiterwechsel
   -- nicht springt; erste Seite zeigen
+  -- Für Tests: Reiterzeile verborgen (hideSingleTab mit genau einer Seite)
+  function builder.TabsHidden()
+    return tabsHidden
+  end
+
   function builder.Finish()
     local lowestBottom = CONTENT_TOP
     for _, entry in ipairs(pages) do
       lowestBottom = math.min(lowestBottom, entry.bottom)
     end
+    -- Eine einzige Seite (hideSingleTab): Reiter verbergen; der Scrollbereich beginnt um die Reiterzeile höher, die
+    -- Inhaltskoordinaten bleiben dieselben (Suche, Hervorheben und Bildlauf rechnen weiter ab CONTENT_TOP)
+    tabsHidden = options.hideSingleTab == true and #pages == 1
+    local tabRowHeight = tabsHidden and TABS_TOP - CONTENT_TOP or 0
+    if tabsHidden then pages[1].tabButton:Hide() end
     local footerHeight = footerRows() * ROW_BUTTON + MARGIN
-    local wanted = -lowestBottom + FOOTER_GAP + footerHeight
+    local wanted = -lowestBottom + FOOTER_GAP + footerHeight - tabRowHeight
     wantedHeight = wanted
     panel:SetHeight(math.min(wanted, maxPanelHeight()))
     for _, entry in ipairs(pages) do
-      entry.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, SCROLL_TOP)
+      entry.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, SCROLL_TOP + tabRowHeight)
       entry.scroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, footerHeight)
       entry.frame:SetHeight(-lowestBottom + FOOTER_GAP)
       entry.scroll:SetVerticalScroll(-SCROLL_TOP)
@@ -956,8 +969,8 @@ function OptionsBuilder.New(options)
     end
     -- Titel steht mittig: links und rechts je Platz für das Suchfeld
     local titleRow = title:GetStringWidth() + 2 * (SEARCH_WIDTH + TEXT_INPUT_BORDER + MARGIN)
-    local content = math.max(offset + 2 * column, widestChooserRow(), pageTabs:Width(), footerWidth(), buttonRowsWidth(),
-      titleRow)
+    local content = math.max(offset + 2 * column, widestChooserRow(), tabsHidden and 0 or pageTabs:Width(), footerWidth(),
+      buttonRowsWidth(), titleRow)
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
     for _, entry in ipairs(pages) do entry.frame:SetWidth(panel:GetWidth()) end
   end

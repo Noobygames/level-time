@@ -1,7 +1,7 @@
 -- Historie und Auswertung: Fenster mit Charakter-Auswahl, Reitern und Unterreitern.
 -- Ansichten registrieren sich über HistoryWindow.AddView (HistoryTables.lua, HistoryCharts.lua, ...).
--- Ansichten mit gleicher group teilen sich einen Reiter und erscheinen dort als Unterreiter;
--- die Ladereihenfolge bestimmt die Reihenfolge.
+-- Ansichten mit gleicher group teilen sich einen Reiter und erscheinen dort als Unterreiter; die Hauptreiter stehen in
+-- der Reihenfolge von HistoryWindow.TAB_ORDER (unbekannte dahinter), die Unterreiter in der Ladereihenfolge.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -10,6 +10,9 @@ local History = ns.History
 local HistoryWindow = {
   CONTENT_WIDTH = 540,   -- Platz, den jede Ansicht bekommt
   CONTENT_HEIGHT = 290,
+  -- Hauptreiter (UX W13): wenige Gruppen statt einer Reihe gleichrangiger Einzeltabellen
+  TAB_ORDER = { "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_SESSIONS", "HISTORY_GROUP_JOURNAL", "HISTORY_GROUP_ANALYSIS",
+    "HISTORY_TAB_CHARTS", "HISTORY_GROUP_SPEEDRUN", "HISTORY_TAB_COMPARE" },
 }
 ns.HistoryWindow = HistoryWindow
 
@@ -66,17 +69,48 @@ local function selectView(entry, view)
   refresh()
 end
 
--- Zuletzt gewählte Ansicht (Einstellung historyTab) wieder auswählen
-local function restoreView()
+-- Reiter und Ansicht zum Locale-Key einer Ansicht
+local function findView(tabKey)
   for _, entry in ipairs(entries) do
     for _, view in ipairs(entry.members) do
-      if view.tab == ns.db.historyTab then
-        selectedEntry = entry
-        entry.selected = view
-        return
-      end
+      if view.tab == tabKey then return entry, view end
     end
   end
+end
+
+-- Zuletzt gewählte Ansicht (Einstellung historyTab, gespeichert ist der Key der Ansicht; die Keys blieben beim
+-- Umgruppieren gleich) wieder auswählen; unbekannte Werte: erster Reiter
+local function restoreView()
+  local entry, view = findView(ns.db.historyTab)
+  if entry then
+    selectedEntry = entry
+    entry.selected = view
+  else
+    selectedEntry = entries[1]
+  end
+end
+
+-- Platz eines Hauptreiters in TAB_ORDER (unbekannte dahinter in Ladereihenfolge)
+local function orderOf(tabKey)
+  for index, key in ipairs(HistoryWindow.TAB_ORDER) do
+    if key == tabKey then return index end
+  end
+  return #HistoryWindow.TAB_ORDER + 1
+end
+
+-- Neuen Eintrag nach TAB_ORDER einsortieren; die Reiterzeile folgt derselben Reihenfolge
+local function insertEntry(entry)
+  local position = #entries + 1
+  for index, other in ipairs(entries) do
+    if orderOf(entry.tab) < orderOf(other.tab) then
+      position = index
+      break
+    end
+  end
+  table.insert(entries, position, entry)
+  local buttons = {}
+  for index, item in ipairs(entries) do buttons[index] = item.tabButton end
+  entryTabs:SetOrder(buttons)
 end
 
 local function createEntry(tabKey)
@@ -90,8 +124,8 @@ local function createEntry(tabKey)
     selectView(entry, entry.selected)
   end)
   Widgets.AttachTooltip(entry.tabButton, function() return L[entry.tab] end, function() return HistoryWindow.EntryTip(entry) end)
-  table.insert(entries, entry)
-  selectedEntry = selectedEntry or entry
+  insertEntry(entry)
+  selectedEntry = entries[1]
   return entry
 end
 
@@ -127,6 +161,7 @@ function HistoryWindow.EntryTip(entry)
 end
 
 -- view = { tab = Locale-Key, group = Locale-Key (optional), hint = Locale-Key oder function(characterKey) (optional),
+--          allCharacters = true (optional: gilt für alle Charaktere, die Charakter-Auswahl ist dann aus; UX W18),
 --          Create = function(parent, width, height) -> frame mit Render(characterKey, selectionChanged) }
 function HistoryWindow.AddView(view)
   view.frame = view.Create(content, HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
@@ -203,7 +238,17 @@ local deleteButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUT
 end)
 deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
 
-local function showCharacterName(characterKey)
+-- Ansicht über alle Charaktere: Name durch "Alle Charaktere" ersetzt, Pfeile, Liste und Löschen aus (die Auswahl
+-- bleibt für die anderen Ansichten erhalten)
+local function showCharacterName(characterKey, allCharacters)
+  for _, button in ipairs({ previousButton, nextButton, deleteButton }) do button:SetEnabled(not allCharacters) end
+  nameButton:EnableMouse(not allCharacters)
+  if allCharacters then
+    menu.Hide()
+    characterName:SetText(L.HISTORY_ALL_CHARACTERS)
+    characterName:SetTextColor(unpack(NAME_COLOR))
+    return
+  end
   local character = History.GetCharacter(characterKey)
   characterName:SetText(string.format(L.HISTORY_CHARACTER, History.DisplayName(characterKey), character.currentLevel.level))
   characterName:SetTextColor(unpack(ns.Theme.ClassColor(character.class, NAME_COLOR)))
@@ -239,9 +284,9 @@ function refresh()
 
   header:SetText(L.HISTORY)
   Widgets.SetButtonText(deleteButton, L.DELETE_CHARACTER, DELETE_BUTTON_WIDTH)
-  showCharacterName(selectedCharacter)
-
   local selectedView = selectedEntry.selected
+  showCharacterName(selectedCharacter, selectedView.allCharacters)
+
   local selectionChanged = rendered.view ~= selectedView or rendered.character ~= selectedCharacter
   rendered.view, rendered.character = selectedView, selectedCharacter
 
@@ -288,6 +333,20 @@ function HistoryWindow.SubtabsTop()
   return subtabsTop
 end
 
+-- Ansicht zum Locale-Key zeigen (öffnet das Fenster); false, wenn es sie nicht gibt
+function HistoryWindow.ShowView(tabKey)
+  local entry, view = findView(tabKey)
+  if not entry or not ns.db then return false end
+  if not panel:IsShown() then panel:Show() end
+  selectView(entry, view)
+  return true
+end
+
+-- Gilt die gezeigte Ansicht für alle Charaktere (Charakter-Auswahl aus)
+function HistoryWindow.IsAllCharacters()
+  return selectedEntry ~= nil and selectedEntry.selected.allCharacters == true
+end
+
 -- Jede Sekunde nur die gewählte Ansicht (laufende Werte) und den Namen samt Level; Reiter, Texte und Anordnung
 -- ändern sich nur bei Klick, Sprach- oder Charakterwechsel und laufen dann über refresh (Roadmap 213)
 local function tick()
@@ -295,7 +354,7 @@ local function tick()
     refresh()
     return
   end
-  showCharacterName(selectedCharacter)
+  showCharacterName(selectedCharacter, selectedEntry.selected.allCharacters)
   selectedEntry.selected.frame:Render(selectedCharacter, false)
 end
 

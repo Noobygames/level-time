@@ -53,11 +53,11 @@ end
 expectTrue("Gruppe Level", wow.click("Level"))
 expect("Unterreiter Timeline sichtbar", tabWithLabel("Verlauf"):IsShown(), true)
 expect("Journal-Unterreiter versteckt", tabWithLabel("Kills"):IsShown(), false)
-expectTrue("Sessions ohne Unterreiter", wow.click("Sessions"))
+expectTrue("Gruppe Sessions", wow.click(addon.L.HISTORY_GROUP_SESSIONS))
 expect("Timeline versteckt", tabWithLabel("Verlauf"):IsShown(), false)
 
 -- Zuletzt gewählter Reiter wird gemerkt (Einstellung historyTab)
 SlashCmdList.LEVELTIMER("history")
 SlashCmdList.LEVELTIMER("history")
-expectTrue("Reiter Sessions", wow.click(addon.L.HISTORY_TAB_SESSIONS))
+expectTrue("Reiter Sessions", wow.click(addon.L.HISTORY_GROUP_SESSIONS))
 expect("Reiter gemerkt", LevelTimerDB.historyTab, "HISTORY_TAB_SESSIONS")

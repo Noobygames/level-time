@@ -241,7 +241,7 @@ card = ns.Card.Create(ns.GlobalName("LootRolls"))
 card.frame:SetFrameStrata("DIALOG")
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
-  settingsPage = "COMFORT_PAGE_SYSTEM", clickable = true, actionsTip = true,
+  settingsPage = "COMFORT_PAGE_LOOT", clickable = true, actionsTip = true,
   preview = function(on)
     previewing = on and true or false
     LootRollDisplay.Refresh()

@@ -11,9 +11,9 @@ end
 local cases = {
   { id = "main", tab = "SECTION_GENERAL", sub = "OPTIONS_PAGE_WINDOW" },
   { id = "splitList", tab = "OPTIONS_TAB_SPEEDRUN", sub = "OPTIONS_PAGE_SPLIT_LIST" },
-  { id = "levelUp", tab = "OPTIONS_TAB_ALERTS", sub = "OPTIONS_PAGE_LEVEL_UP_WINDOW" },
-  { id = "flight", tab = "OPTIONS_TAB_ALERTS", sub = "OPTIONS_PAGE_FLIGHTS" },
-  { id = "lootRolls", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_SYSTEM" },
+  { id = "levelUp", tab = "OPTIONS_TAB_ALERTS", sub = "OPTIONS_PAGE_LEVEL_UP" },
+  { id = "flight", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_TIMERS" },
+  { id = "lootRolls", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_LOOT" },
 }
 for _, case in ipairs(cases) do
   local frame = Frames.Get(case.id).frame

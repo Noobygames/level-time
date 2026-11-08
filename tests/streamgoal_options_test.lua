@@ -132,3 +132,26 @@ expectTrue("Historie leeren", wow.click(L.SG_OPTIONS_CLEAR_HISTORY))
 acceptPopup()
 expect("Historie leer", #Goals.History(), 0)
 expect("laufende Ziele bleiben", #Goals.Active(), 2)
+
+---------------------------------------------------------------------------
+-- UX G19: nur eine Seite ("Ziele" mit Seitenleiste): keine Reiterzeile, Inhalt rückt nach oben; Level Time behält
+-- seine Reiter; "Seite zurücksetzen" funktioniert weiter
+---------------------------------------------------------------------------
+expect("Goals: Reiterzeile verborgen", builder.TabsHidden(), true)
+expect("Level Time: Reiter bleiben", addon.OptionsWindow.TabsHidden(), false)
+Options.Show("SG_OPTIONS_PAGE_TRACKER")
+local hiddenTab = wow.findFrame(function(frame)
+  local label = rawget(frame, "label")
+  return label and label._text == L.SG_OPTIONS_PAGE_GOALS and rawget(frame, "_parent") == StreamGoalOptions
+end)
+expect("Reiter Ziele versteckt", hiddenTab and hiddenTab:IsShown(), false)
+local goalsScroll = wow.findFrame(function(frame)
+  return rawget(frame, "_parent") == StreamGoalOptions and frame._points[1] and frame._points[1][1] == "TOPLEFT"
+    and frame._points[1][2] == StreamGoalOptions and frame._points[1][5] == -34
+end)
+expectTrue("Scrollbereich um die Reiterzeile höher", goalsScroll ~= nil)
+streamGoal.SetSetting("maxCards", 2)
+builder.ResetPage("SG_OPTIONS_PAGE_TRACKER")
+expect("Seite zurücksetzen wirkt", streamGoal.db.settings.maxCards, streamGoal.SETTING_DEFAULTS.maxCards)
+StreamGoalOptions:Hide()
+expect("keine Fehler", #wow.errors, 0)

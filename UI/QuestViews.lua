@@ -14,7 +14,7 @@ local HistoryTables = ns.HistoryTables
 local QuestViews = {}
 ns.QuestViews = QuestViews
 
-local GROUP = "HISTORY_GROUP_QUESTS"
+local GROUP = ns.HistoryTables.ANALYSIS  -- Hauptreiter Auswertung
 local LEFT = "LEFT"
 
 local revision = 0  -- Stand des Questlogs: Tabelle filtert und sortiert nur nach Änderungen neu
@@ -105,6 +105,7 @@ local EFFICIENCY_COLUMNS = {
 ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_QUEST_EFFICIENCY",
   group = GROUP,
+  allCharacters = true,
   columns = EFFICIENCY_COLUMNS,
   records = function() return ns.QuestEfficiency.GetRecords() end,
   footer = HistoryTables.CountCells,

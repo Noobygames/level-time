@@ -27,6 +27,7 @@ local builder = LT.OptionsBuilder.New({
   name = "StreamGoalOptions",
   alpha = PANEL_ALPHA,
   title = function() return L.SG_OPTIONS_TITLE end,
+  hideSingleTab = true,  -- nur die Seite "Ziele" mit Seitenleiste: keine Reiterzeile mit einem Reiter (UX G19)
 })
 Options.builder = builder
 

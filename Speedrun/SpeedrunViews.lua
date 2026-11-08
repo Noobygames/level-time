@@ -161,6 +161,7 @@ end
 ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_RUNS",
   group = GROUP,
+  allCharacters = true,
   columns = RUN_COLUMNS,
   records = runRecords,
   footer = HistoryTables.CountCells,
@@ -232,11 +233,23 @@ local RECORD_COLUMNS = {
 ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_RECORDS",
   group = GROUP,
+  allCharacters = true,
   columns = RECORD_COLUMNS,
   records = recordRows,
   footer = HistoryTables.CountCells,
   rowColor = function(r) return r.isCurrent and Widgets.COLORS.highlight or HistoryTables.ClassColor(r.run) end,
   rowTooltip = function(r) return runTooltip(r.run) end,
+}))
+
+-- Persönliche Rekorde (PersonalRecords.lua) neben den Bestzeiten: alle Rekorde an einem Ort (UX W16/W13)
+ns.HistoryWindow.AddView(ns.TableView.Create({
+  tab = "HISTORY_TAB_PERSONAL_RECORDS",
+  group = GROUP,
+  allCharacters = true,
+  columns = HistoryTables.PERSONAL_RECORD_COLUMNS,
+  records = function() return ns.PersonalRecords.GetRows() end,
+  footer = HistoryTables.CountCells,
+  hint = "PERSONAL_RECORDS_HINT",
 }))
 
 ---------------------------------------------------------------------------
@@ -319,6 +332,7 @@ end
 ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_WORLD_RECORDS",
   group = GROUP,
+  allCharacters = true,
   columns = WORLD_RECORD_COLUMNS,
   records = worldRecordRows,
   footer = HistoryTables.CountCells,

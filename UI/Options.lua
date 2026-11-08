@@ -109,6 +109,25 @@ local function addBackgroundChooser()
   } })
 end
 
+-- Kontur der Schrift (Aussehen; auf der Stream-Seite als Abkürzung, weil OBS-Szenen sie brauchen)
+local function addOutlineChooser(isAdvanced)
+  local outlines = {}
+  for i, key in ipairs(ns.Theme.OUTLINE_ORDER) do
+    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = isAdvanced })
+end
+
+-- Abkürzung zu den Layouts, die sich für OBS eignen (alle Layouts: Allgemein > Layout)
+local STREAM_LAYOUTS = { "text", "clock", "table" }
+local function addStreamLayoutChooser()
+  local choices = {}
+  for i, id in ipairs(STREAM_LAYOUTS) do
+    choices[i] = { value = id, name = localized(ns.WindowLayouts.Get(id).label) }
+  end
+  addChooser({ label = "STREAM_LAYOUT", setting = "windowLayout", choices = choices })
+end
+
 -- Profile: Liste (Klick wechselt, Rechtsklick löscht), Name + Speichern, Export und Import
 local confirmProfileDelete = Widgets.ConfirmPopup(DELETE_PROFILE_POPUP, "PROFILE_DELETE_CONFIRM", function(name)
   if ns.Profiles.Delete(name) then ns.Print(string.format(L.PROFILE_DELETED, ns.Profiles.DisplayName(name))) end
@@ -316,11 +335,7 @@ local function addThemeSection()
     set = function(value) ns.SetDeferred("themeFontSize", value) end,
     format = function(value) return value > 0 and "+" .. value or tostring(value) end,
   })
-  local outlines = {}
-  for i, key in ipairs(Theme.OUTLINE_ORDER) do
-    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
-  end
-  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines })
+  addOutlineChooser()
   -- Lesbarkeit: Untergrenze der effektiven Schriftgröße (auch gegen kleine Anzeigen), Balkentextur, Farbe nach Wert
   builder.AddCycleButton({
     label = "THEME_MIN_FONT_SIZE",
@@ -543,7 +558,7 @@ local minimapReset = {
   default = function() return ns.Database.SettingDefault("minimap").hide end,
 }
 
--- Allgemein: Hauptfenster, Layout, Aussehen, Sprache und Minimap, Stream
+-- Allgemein: Hauptfenster (mit Minimap-Knopf), Layout, Aussehen, Sprache, Stream
 addPage("SECTION_GENERAL")
 addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
@@ -564,6 +579,9 @@ addToggles({
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
   advanced(requiresBar(toggle("QUEST_XP_ON_BAR", "questXpOnBar"))),
   advanced(toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end)),
+  -- Knopf an der Minimap gehört zu den Level-Time-Fenstern, nicht zur Sprache (UX S20)
+  { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 addVisibilitySection()
 addHint("OPTIONS_HINT")
@@ -573,22 +591,24 @@ addSubPage("OPTIONS_PAGE_LOOK")
 addThemeSection()
 addSubPage("SECTION_LANGUAGE")
 addLanguageChooser()
-addToggles({
-  { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
-})
--- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
+-- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter), dazu Abkürzungen zu Layout und
+-- Kontur, die für OBS zählen (UX S18)
 addSubPage("OPTIONS_TAB_STREAM")
+addHint("STREAM_MODE_HINT")
 addToggles({
   { label = "STREAM_MODE", get = function() return ns.StreamMode.IsEnabled() end,
     set = function(checked) ns.StreamMode.SetEnabled(checked) end },
   toggle("STREAMER_PRIVACY", "streamerPrivacy"),
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
-  -- Abkürzung zu "Minimap-Button anzeigen" (Sprache & Minimap), umgekehrt formuliert
+  -- Abkürzung zu "Minimap-Knopf anzeigen" (Allgemein > Hauptfenster), umgekehrt formuliert
   { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
     set = function(checked) ns.SetMinimapHidden(checked) end, reset = minimapReset },
 })
+addSection("SECTION_STREAM_OBS")
+addHint("STREAM_OBS_HINT")
+addStreamLayoutChooser()
 addBackgroundChooser()
+addOutlineChooser()
 finishSubPages()
 finishPage()
 
@@ -652,13 +672,12 @@ addSlider({
 finishSubPages()
 finishPage()
 
--- Chat & Erinnerungen: Level-Up im Chat, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
--- Komfort > Quests)
+-- Chat & Erinnerungen: Login und Rekorde, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
+-- Komfort > Quests, alles zum Level-Up unter Einblendungen > Level-Up)
 addPage("OPTIONS_TAB_NOTIFICATIONS")
-addSubPage("OPTIONS_PAGE_LEVEL_UP")
-addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains") })
-addAnnounceChooser()
-addSection("SECTION_AT_LOGIN")  -- Meldungen beim Login haben mit dem Level-Up nichts zu tun
+addSubPage("OPTIONS_PAGE_LOGIN")
+addHint("LEVEL_UP_MOVED_HINT")  -- alles zum Level-Up steht gesammelt unter Einblendungen > Level-Up
+addSection("SECTION_AT_LOGIN")
 addToggles({ toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"),
   toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addSection("SECTION_PERSONAL_RECORDS")
@@ -794,13 +813,13 @@ addSlider(requires({
 finishSubPages()
 finishPage()
 
--- Einblendungen: welche Ereignisse, Aussehen und Position (Hinweise aus dem Reiter Hinweise nutzen dieselbe),
--- Level-Up-Fenster und die Zeit-Anzeigen (Lagerfeuer, Essen, Flüge)
+-- Einblendungen: welche Ereignisse, Aussehen und Position (Hinweise aus Chat & Erinnerungen nutzen dieselbe) und
+-- alles zum Level-Up an einem Ort: Fenster, Einblendung, Chatzeile und Ansage (UX S11). Timer und Flüge stehen unter
+-- Komfort > Timer & Flüge.
 addPage("OPTIONS_TAB_ALERTS")
 addSubPage("OPTIONS_PAGE_ALERT_KINDS")
 addSection("SECTION_ALERTS")
 addToggles({
-  toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp"),
   toggle("ALERT_TOGGLE_RARE", "alertRareKill"),
   toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
@@ -808,7 +827,7 @@ addToggles({
   toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
   requires(toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"), "alertRareSpotted"),
 })
-addHint("QUEST_ALERTS_HINT")  -- Quest-Einblendungen stehen bei den Quests (Komfort > Quests)
+addHint("QUEST_ALERTS_HINT")  -- Quest-Einblendungen stehen bei den Quests, die zum Level-Up auf der Seite Level-Up
 addSubPage("OPTIONS_PAGE_ALERT_LOOK")
 addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
   { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
@@ -828,7 +847,8 @@ addSlider({
 })
 addToggles({ toggle("ALERT_SOUND", "alertSound") })
 addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
-addSubPage("OPTIONS_PAGE_LEVEL_UP_WINDOW")
+addSubPage("OPTIONS_PAGE_LEVEL_UP")
+addSection("SECTION_LEVEL_UP_WINDOW")
 addToggles({
   toggle("LEVEL_UP_WINDOW_TOGGLE", "levelUpWindow"),
   requires(toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"), "levelUpWindow"),
@@ -856,63 +876,15 @@ addSlider(requires({
 addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 
--- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
--- Zurücksetzen übernimmt der Edit-Modus (Button unten)
-local function addTimerDisplayControls(prefix, display, frameId)
-  addFrameScaleSlider(prefix .. "_SCALE", frameId, nil, true)
-  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
-end
-
--- Timer: Lagerfeuer und Schlafsack (nur WoW Forever) und Essen (wo der Client die Buffs "Essen" und "Satt" kennt)
-if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() or ns.SleepTimer.IsAvailable() then
-  addSubPage("OPTIONS_TAB_TIMERS")
-  if ns.CampFire.IsAvailable() then
-    addSection("SECTION_CAMP")
-    addToggles({
-      toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
-      toggle("CAMP_HINT_TOGGLE", "campHint"),
-      requires(toggle("CAMP_SOUND", "campSound"), "campCountdown"),
-    })
-    addSlider(requires({
-      label = "CAMP_HINT_PAUSE",
-      advanced = true,
-      setting = "campHintPause",
-      min = ns.CampFire.MIN_HINT_PAUSE,
-      max = ns.CampFire.MAX_HINT_PAUSE,
-      step = 1,
-      get = function(db) return db.campHintPause end,
-      set = function(value) ns.SetDeferred("campHintPause", value) end,
-      format = function(value) return string.format(L.MINUTES, value) end,
-    }, "campHint"))
-    addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
-  end
-  if ns.FoodTimer.IsAvailable() then
-    addSection("SECTION_FOOD")
-    addToggles({
-      toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
-      requires(toggle("FOOD_SOUND", "foodSound"), "foodTimer"),
-    })
-    addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
-  end
-  if ns.SleepTimer.IsAvailable() then
-    addSection("SECTION_SLEEP")
-    addToggles({
-      toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
-      toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
-      toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
-    })
-    addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
-  end
-end
-
--- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
-addSubPage("OPTIONS_PAGE_FLIGHTS")
-addToggles({
-  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
-  requires(toggle("FLIGHT_SOUND", "flightSound"), "flightTimer"),
-  requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
-})
-addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+addSection("SECTION_LEVEL_UP_BANNER")
+-- Die Einblendung kommt nur ohne Level-Up-Fenster (das zeigt dieselben Zuwächse, AlertTriggers.lua)
+local levelUpBanner = toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp")
+levelUpBanner.enabled = function(db) return not db.levelUpWindow end
+addToggles({ levelUpBanner })
+addHint("LEVEL_UP_BANNER_HINT")
+addSection("SECTION_LEVEL_UP_CHAT")
+addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains") })
+addAnnounceChooser()
 finishSubPages()
 finishPage()
 
@@ -1039,58 +1011,33 @@ addToggles({
   toggle("HIDE_MACRO_TEXT", "hideMacroText"),
   toggle("RANGE_COLOR", "rangeColor"),
 })
--- Nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner und Ereignis-Einblendungen nicht in Classic)
-local HideFrames = ns.HideFrames
-addSection("SECTION_HIDE_FRAMES")
-addToggles({
-  toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
-  toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
-  toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
-  advanced(toggle("HIDE_STANCE_BAR", "hideStanceBar", HideFrames.HasStanceBar)),
-  advanced(toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation)),
-  advanced(toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers)),
-  toggle("HIDE_BLIZZARD_XP_BAR", "hideBlizzardXpBar", HideFrames.HasXpBar),
-  advanced(toggle("HIDE_BLIZZARD_REP_BAR", "hideBlizzardRepBar", HideFrames.HasRepBar)),
-})
-addSection("SECTION_WINDOWS")
-addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
-addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
--- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
-local LootSparkles = ns.LootSparkles
-if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
-  addSection("SECTION_LOOT_SPARKLES")
-  addToggles({
-    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
-    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
-  })
-  if LootSparkles.CanSoftTarget() then
-    addSlider(requires({
-      label = "LOOT_SPARKLE_SCALE",
-      advanced = true,
-      setting = "lootSparkleScale",
-      min = toPercent(ns.LootSparkle.MIN_SCALE),
-      max = toPercent(ns.LootSparkle.MAX_SCALE),
-      step = 5,
-      get = function(db) return toPercent(db.lootSparkleScale) end,
-      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
-      format = percent,
-    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
-  end
-end
--- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
--- Oberfläche, Chat und Fenster); auch im Edit-Modus direkt am Element schaltbar
--- In Gruppen mit einklappbaren Überschriften (Roadmap 406); unbekannte Einträge landen unter "Weitere"
+-- Ausblenden (UX S15: alles an einem Ort): ein Schalter je Element der Liste in BlizzardHide.lua, auch die mit eigener
+-- Einstellung (Erfahrungs-, Ruf- und Haltungsleiste, Kalender, Chat-Knöpfe; Kalender und Chat-Knöpfe stehen zusätzlich
+-- bei Minimap und Chat); auch im Edit-Modus direkt am Element schaltbar. In Gruppen mit einklappbaren Überschriften
+-- (Roadmap 406); unbekannte Einträge landen unter "Weitere"
 local BLIZZARD_GROUPS = {
   { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
     "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
   { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
-    "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
+    "BLIZZ_FRAME_CALENDAR", "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
   { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
-    "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS" } },
+    "BLIZZ_FRAME_STANCE", "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS", "BLIZZ_FRAME_XP_BAR",
+    "BLIZZ_FRAME_REP_BAR" } },
 }
+
+-- Blizzard-Meldungen und -Effekte (HideFrames.lua): nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner
+-- und Ereignis-Einblendungen nicht in Classic)
+local function addBlizzardMessages()
+  local HideFrames = ns.HideFrames
+  addSection("SECTION_HIDE_FRAMES", { collapsible = true })
+  addToggles({
+    toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
+    toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
+    toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
+    advanced(toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation)),
+    advanced(toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers)),
+  })
+end
 local function addBlizzardHideGroups()
   local groupOf = {}
   for index, group in ipairs(BLIZZARD_GROUPS) do
@@ -1098,7 +1045,7 @@ local function addBlizzardHideGroups()
   end
   local lists, rest = {}, {}
   for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
-    entry.resetKeys = { "hiddenBlizzardFrames" }
+    if not entry.setting then entry.resetKeys = { "hiddenBlizzardFrames" } end
     local index = groupOf[entry.label]
     if index then
       lists[index] = lists[index] or {}
@@ -1123,6 +1070,7 @@ addSubPage("COMFORT_PAGE_HIDE")
 addSection("SECTION_BLIZZARD_FRAMES")
 addHint("BLIZZARD_FRAMES_HINT")
 addBlizzardHideGroups()
+addBlizzardMessages()
 -- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
 addSubPage("COMFORT_PAGE_QUESTS")
 addSection("COMFORT_PAGE_AUTOMATION", { collapsible = true })
@@ -1251,7 +1199,12 @@ addToggles({
 addSection("SECTION_WORLD_MAP")
 addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
   toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
-addSubPage("COMFORT_PAGE_SYSTEM")
+-- Blizzard-Fenster verschieben und skalieren (UX S16: bei den übrigen Fenstern statt unter Oberfläche)
+addSection("SECTION_WINDOWS")
+addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
+addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
+-- Beute (UX S16): Plündern, Würfeln und Beute-Glitzer zusammen statt verteilt auf System und Oberfläche
+addSubPage("COMFORT_PAGE_LOOT")
 addSection("SECTION_LOOT")
 addToggles({
   toggle("FASTER_LOOT", "fasterLoot"),
@@ -1265,6 +1218,88 @@ addToggles({
   advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
 })
 addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls", nil, true)
+-- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
+local LootSparkles = ns.LootSparkles
+if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
+  addSection("SECTION_LOOT_SPARKLES")
+  addToggles({
+    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
+    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
+  })
+  if LootSparkles.CanSoftTarget() then
+    addSlider(requires({
+      label = "LOOT_SPARKLE_SCALE",
+      advanced = true,
+      setting = "lootSparkleScale",
+      min = toPercent(ns.LootSparkle.MIN_SCALE),
+      max = toPercent(ns.LootSparkle.MAX_SCALE),
+      step = 5,
+      get = function(db) return toPercent(db.lootSparkleScale) end,
+      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
+      format = percent,
+    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
+  end
+end
+-- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
+-- Zurücksetzen übernimmt der Edit-Modus (Button unten)
+local function addTimerDisplayControls(prefix, display, frameId)
+  addFrameScaleSlider(prefix .. "_SCALE", frameId, nil, true)
+  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
+end
+
+-- Timer & Flüge (UX S11: dort, wo man Komfort-Helfer sucht): Lagerfeuer und Schlafsack (nur WoW Forever), Essen (wo
+-- der Client die Buffs "Essen" und "Satt" kennt) und Flugzeiten (immer)
+addSubPage("COMFORT_PAGE_TIMERS")
+if ns.CampFire.IsAvailable() then
+  addSection("SECTION_CAMP")
+  addToggles({
+    toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
+    toggle("CAMP_HINT_TOGGLE", "campHint"),
+    requires(toggle("CAMP_SOUND", "campSound"), "campCountdown"),
+  })
+  addSlider(requires({
+    label = "CAMP_HINT_PAUSE",
+    advanced = true,
+    setting = "campHintPause",
+    min = ns.CampFire.MIN_HINT_PAUSE,
+    max = ns.CampFire.MAX_HINT_PAUSE,
+    step = 1,
+    get = function(db) return db.campHintPause end,
+    set = function(value) ns.SetDeferred("campHintPause", value) end,
+    format = function(value) return string.format(L.MINUTES, value) end,
+  }, "campHint"))
+  addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
+end
+if ns.FoodTimer.IsAvailable() then
+  addSection("SECTION_FOOD")
+  addToggles({
+    toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
+    requires(toggle("FOOD_SOUND", "foodSound"), "foodTimer"),
+  })
+  addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
+end
+if ns.SleepTimer.IsAvailable() then
+  addSection("SECTION_SLEEP")
+  addToggles({
+    toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
+    toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
+    toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
+  })
+  addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
+end
+
+-- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
+addSection("SECTION_FLIGHTS")
+addToggles({
+  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
+  requires(toggle("FLIGHT_SOUND", "flightSound"), "flightTimer"),
+  requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
+})
+addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_DIALOGS")
 addToggles({
   toggle("EASY_DELETE", "easyDelete"),
