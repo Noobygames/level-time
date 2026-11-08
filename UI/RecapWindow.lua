@@ -64,22 +64,32 @@ local function xpWithRate()
   return rate and string.format("%s (%s %s)", xp, Format.Number(rate), L.ROW_XP_RATE) or xp
 end
 
+-- "25" ohne Level-Up, sonst "10 bis 12" (RECAP_LEVEL_RANGE)
+local function levelText(startLevel)
+  if startLevel == ns.level then return tostring(ns.level) end
+  return string.format(L.RECAP_LEVEL_RANGE, startLevel, ns.level)
+end
+
 -- Zeilen { label, value } der laufenden Session
 function RecapWindow.BuildRows()
   local session = ns.character.currentSession
-  return {
+  local rows = {
     { L.RECAP_CHARACTER, History.DisplayName(ns.characterKey) },
     { L.RECAP_TIME, Format.Duration(Stats.GetSeconds(Stats.SESSION)) },
-    { L.RECAP_LEVELS, string.format("%d > %d", session.startLevel or ns.level, ns.level) },
+    { L.RECAP_LEVELS, levelText(session.startLevel or ns.level) },
     { L.RECAP_XP, xpWithRate() },
     { L.RECAP_KILLS, tostring(Stats.GetTotalKills(Stats.SESSION)) },
     { L.ROW_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.DEATHS)) },
-    { L.ROW_NEAR_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.NEAR_DEATHS)) },
-    { L.ROW_QUESTS, tostring(Stats.Get(Stats.SESSION, Stats.QUESTS)) },
-    { L.ROW_MONEY, Format.Money(Stats.Get(Stats.SESSION, Stats.MONEY_EARNED)) },
-    { L.RECAP_BEST_LOOT, bestLoot() },
-    { L.RECAP_DANGER, mostDangerous() },
   }
+  -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (sonst stünde hier immer eine falsche 0)
+  if ns.NearDeath.IsAvailable() then
+    table.insert(rows, { L.ROW_NEAR_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.NEAR_DEATHS)) })
+  end
+  table.insert(rows, { L.ROW_QUESTS, tostring(Stats.Get(Stats.SESSION, Stats.QUESTS)) })
+  table.insert(rows, { L.ROW_MONEY, Format.Money(Stats.Get(Stats.SESSION, Stats.MONEY_EARNED)) })
+  table.insert(rows, { L.RECAP_BEST_LOOT, bestLoot() })
+  table.insert(rows, { L.RECAP_DANGER, mostDangerous() })
+  return rows
 end
 
 ---------------------------------------------------------------------------

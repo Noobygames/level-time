@@ -50,6 +50,7 @@ Goals.RegisterKind("skill", {
   usage = "SG_USAGE_SKILL",
   color = LT.Theme.COLORS.goodLosing,
   icon = ICON,
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { amount = "SG_FORM_SKILL_RANK", fields = { { type = "text", param = "skill", label = "SG_FORM_SKILL" } } },
   -- "add skill 150 Kräuterkunde"
   parse = function(args, rest)

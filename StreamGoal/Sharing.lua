@@ -1,8 +1,8 @@
--- Teilen und Importieren an einer Stelle: Pakete (Packs.lua) und eigene Ziele (Library.lua) teilen dasselbe Text-Format
--- "LT1:goals:..."; eigene Ziele tragen dabei own = true. Ein Import erkennt daran, wohin der Text gehört: eigene Ziele
--- in die Sammlung, sonst ein Paket. Ältere Texte eigener Ziele ohne Kennung erkennt er am Namen (SG_OWN_GOALS in einer
--- der Sprachen, so hieß der Text beim Teilen).
--- Genutzt vom Reiter "Sammlung" (CollectionPage.lua) und von /sg import, /sg pack import, /sg own share.
+-- Teilen und Importieren an einer Stelle: Pakete (Packs.lua) und Vorlagen (Library.lua) teilen dasselbe Text-Format
+-- "LT1:goals:..."; Vorlagen tragen dabei own = true. Ein Import erkennt daran, wohin der Text gehört: Vorlagen in die
+-- Sammlung, sonst ein Paket. Ältere Texte von Vorlagen ohne Kennung erkennt er am Namen (LEGACY_OWN_NAMES: so hieß
+-- der Text beim Teilen, als Vorlagen noch "eigene Ziele" hießen).
+-- Genutzt vom Reiter "Sammlung" (CollectionPage.lua) und von /sg import, /sg pack import, /sg template share.
 local _, ns = ...
 local LT = ns.LT
 local Packs = ns.Packs
@@ -12,12 +12,14 @@ local L = ns.L
 local Sharing = {}
 ns.Sharing = Sharing
 
--- Name eines geteilten Texts eigener Ziele in irgendeiner Sprache (ältere Texte ohne own-Kennung)
+-- Frühere Namen geteilter Vorlagen (SG_OWN_GOALS bis v2.26, alle Sprachen); nicht übersetzen, das sind Daten
+local LEGACY_OWN_NAMES = { ["Eigene Ziele"] = true, ["Own goals"] = true, ["Objectifs perso"] = true,
+  ["Metas propias"] = true }
+
+-- Name eines älteren geteilten Texts von Vorlagen (ohne own-Kennung). Nur die früheren Namen: neue Texte tragen
+-- immer die Kennung, und ein Paket, das jemand "Vorlagen" nennt, bleibt so ein Paket
 local function isOwnName(name)
-  for _, texts in pairs(ns.locales) do
-    if texts.SG_OWN_GOALS == name then return true end
-  end
-  return false
+  return LEGACY_OWN_NAMES[name] == true
 end
 
 -- Text einlesen; Rückgabe: Meldung, true bei Erfolg (Form wie Export.ShowImport sie erwartet)
@@ -51,7 +53,7 @@ function Sharing.SharePack(key)
   return true
 end
 
--- Text aller eigenen Ziele zum Kopieren zeigen; ohne eigene Ziele eine Chatzeile
+-- Text aller Vorlagen zum Kopieren zeigen; ohne Vorlagen eine Chatzeile
 function Sharing.ShareOwn()
   local text = Library.Export()
   if not text then

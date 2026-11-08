@@ -1,6 +1,6 @@
 -- Zielart Bingo (Roadmap 305, 431): ein Schein mit 3x3 oder 5x5 Feldern (5x5 mit freier Mitte). Jedes Feld ist ein
 -- Ziel einer anderen Art (goal.cell, goal.parentId = Schein; belegt keinen der MAX_ACTIVE-Plätze). Felder kann der
--- Spieler selbst wählen (Bingo-Editor im Fenster: Einträge aus Pool.lua, also mitgelieferte und eigene Ziele); die
+-- Spieler selbst wählen (Bingo-Editor im Fenster: Einträge aus Pool.lua, also mitgelieferte und Vorlagen); die
 -- übrigen zieht der Schein zufällig aus allen Einträgen des Pools. Eine volle Reihe, Spalte oder Diagonale = BINGO:
 -- der Schein ist erreicht, die übrigen Felder werden abgebrochen, große Einblendung, optional eine Ansage in den
 -- Gruppenchat (settings.bingoAnnounce).
@@ -40,7 +40,7 @@ function Bingo.IsFreeCell(size, index)
   return isFree({ params = { size = size } }, index)
 end
 
--- Selbst gewähltes Feld anlegen; nil, wenn der Eintrag fehlt (gelöschtes eigenes Ziel) oder abgelehnt wird
+-- Selbst gewähltes Feld anlegen; nil, wenn der Eintrag fehlt (gelöschte Vorlage) oder abgelehnt wird
 local function createPick(board, key)
   local item = Pool.Get(key)
   if not item then return nil end
@@ -49,24 +49,57 @@ local function createPick(board, key)
   return cell
 end
 
--- Felder anlegen: erst die selbst gewählten (pendingPicks), dann zufällig aus dem Pool; reicht der Pool nicht (oder
--- lehnt eine Art ab, z.B. schon erreicht), wird weiter gezogen und notfalls wiederholt
+-- Was auf einem Schein "dasselbe" wäre: Felder derselben Art und desselben Modus zählen gleichzeitig hoch ("10 Kreaturen"
+-- und "25 Kreaturen", auch PvE und beliebige Kills) und wirken wie Dubletten. Freitexte sind je Text verschieden.
+function Bingo.TopicOf(item)
+  if item.kind == "custom" then return "custom:" .. tostring(item.params and item.params.text) end
+  local params = item.params or {}
+  return item.kind .. ":" .. tostring(params.mode or "")
+end
+
+-- Nächster Eintrag aus dem gemischten Pool: zuerst einer, dessen Thema noch nicht auf dem Schein steht, dann einer, der
+-- noch gar nicht darauf steht, erst zuletzt eine Wiederholung (Pool kleiner als der Schein), dann der seltenste.
+-- used[key] = so oft liegt er schon, topics[Thema] = Thema liegt schon; failed = Einträge, die ihre Art abgelehnt hat
+-- (z.B. Level schon erreicht), nie wieder versucht. Gleichstand: Reihenfolge des gemischten Pools.
+local REPEAT_WEIGHT = 2  -- eine Wiederholung wiegt schwerer als ein zweites Feld desselben Themas
+local function nextFromPool(pool, used, topics, failed)
+  local best, bestScore
+  for _, item in ipairs(pool) do
+    if not failed[item.key] then
+      local score = (used[item.key] or 0) * REPEAT_WEIGHT + (topics[Bingo.TopicOf(item)] and 1 or 0)
+      if not bestScore or score < bestScore then best, bestScore = item, score end
+    end
+  end
+  return best
+end
+
+-- Felder anlegen: erst die selbst gewählten (pendingPicks), dann zufällig aus dem Pool, möglichst ohne Wiederholung
+-- und ohne zwei Felder desselben Themas (nextFromPool); lehnt eine Art ab, wird der nächste Eintrag gezogen
 local function fill(board)
   local size = board.params.size
   local picks = pendingPicks or {}
   pendingPicks = nil
   local pool = Bingo.ShuffledPool()
-  local cells, chosen, cursor, attempts = {}, {}, 1, 0
+  local used, topics, failed = {}, {}, {}
+  local function remember(item)
+    used[item.key], topics[Bingo.TopicOf(item)] = (used[item.key] or 0) + 1, true
+  end
+  for _, key in pairs(picks) do
+    local item = Pool.Get(key)
+    if item then remember(item) end
+  end
+  local cells, chosen = {}, {}
   for index = 1, cellCount(size) do
     if isFree(board, index) then
       cells[index] = Bingo.FREE
     else
       local cell = picks[index] and createPick(board, picks[index])
       if cell then chosen[index] = picks[index] end
-      while not cell and #pool > 0 and attempts < cellCount(size) * 4 do
-        local item = pool[(cursor - 1) % #pool + 1]
-        cursor, attempts = cursor + 1, attempts + 1
+      while not cell do
+        local item = nextFromPool(pool, used, topics, failed)
+        if not item then break end
         cell = Pool.Create(item, board)
+        if cell then remember(item) else failed[item.key] = true end
       end
       cells[index] = cell and cell.id or Bingo.FREE
     end
@@ -183,7 +216,7 @@ Goals.OnChange(function(event, goal)
 end)
 
 ---------------------------------------------------------------------------
--- Eigene Texte (Befehle /sg bingo text|texts|clear): freie Texte unter den eigenen Zielen (Library.lua)
+-- Eigene Texte (Befehle /sg bingo text|texts|clear): freie Texte unter den Vorlagen (Library.lua)
 ---------------------------------------------------------------------------
 function Bingo.AddText(text)
   local _, err = Library.AddText(text)

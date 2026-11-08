@@ -14,7 +14,7 @@ local HistoryTables = ns.HistoryTables
 local QuestViews = {}
 ns.QuestViews = QuestViews
 
-local GROUP = "HISTORY_GROUP_QUESTS"
+local GROUP = ns.HistoryTables.ANALYSIS  -- Hauptreiter Auswertung
 local LEFT = "LEFT"
 
 local revision = 0  -- Stand des Questlogs: Tabelle filtert und sortiert nur nach Änderungen neu
@@ -82,6 +82,10 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   revision = function() return revision end,
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "TURN_IN_HINT",
+  -- Andere Charaktere: leer, weil nur der eigene Questlog lesbar ist (nicht "noch nichts aufgezeichnet")
+  empty = function(characterKey)
+    return characterKey == ns.characterKey and L.TURN_IN_EMPTY or L.TURN_IN_OTHER_CHARACTER
+  end,
 }))
 
 local EFFICIENCY_COLUMNS = {
@@ -90,7 +94,7 @@ local EFFICIENCY_COLUMNS = {
   { header = "HISTORY_AVERAGE_TIME", width = 64, value = function(r)
       return r.averageSeconds and Format.Duration(r.averageSeconds) or "-"
     end, sort = function(r) return r.averageSeconds end },
-  { header = "HISTORY_XP", width = 64, value = function(r)
+  { header = "HISTORY_AVERAGE_XP", width = 64, value = function(r)
       return r.averageXp and Format.Number(math.floor(r.averageXp + 0.5)) or "-"
     end, sort = function(r) return r.averageXp end },
   { header = "HISTORY_XP_PER_MINUTE", width = 64, value = function(r)
@@ -101,6 +105,7 @@ local EFFICIENCY_COLUMNS = {
 ns.HistoryWindow.AddView(ns.TableView.Create({
   tab = "HISTORY_TAB_QUEST_EFFICIENCY",
   group = GROUP,
+  allCharacters = true,
   columns = EFFICIENCY_COLUMNS,
   records = function() return ns.QuestEfficiency.GetRecords() end,
   footer = HistoryTables.CountCells,

@@ -1,9 +1,13 @@
 -- Chatbefehle: /sg oder /streamgoal. Ohne Argument öffnet sich das Fenster.
 --   add <Art> ... (Syntax je Art aus def.parse, Hilfezeile def.usage) | count <Nr> [+/-Betrag]
 --   deadline <Nr> <Dauer|off> [played] | repeat <Nr> daily|weekly|none | reward <Nr> <Text|off> |
---   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | own ... | import | collection |
---   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | minimap | options | move | scale | help
--- Ältere Befehle bleiben: "bingo text|texts|clear" (heute eigene Ziele, wie "own add|list"), "pack import".
+--   points [<Nr> <Zahl|off>] | sub <Checkliste> <Ziel> | pack ... | template ... (= own ...) | import | collection |
+--   bingo [3|5|edit] | wheel [reroll|edit] | list | cancel <Nr> | history | tracker | minimap | options | move | scale |
+--   help [all]
+-- "help" zeigt nur die Befehle für jeden Tag (wenige Zeilen), "help all" alles samt Syntax jeder Zielart; ein
+-- unbekannter Befehl antwortet mit einer Zeile statt der ganzen Hilfe (ein Tippfehler soll den Chat nicht fluten).
+-- Ältere Befehle bleiben: "own ..." (Vorlagen hießen früher eigene Ziele), "bingo text|texts|clear" (heute Vorlagen,
+-- wie "template add|list"), "pack import".
 local _, ns = ...
 local Goals = ns.Goals
 local Kinds = ns.Kinds
@@ -19,14 +23,27 @@ local DEFAULT_STEP = 1
 ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
   "SG_USAGE_PACK", "SG_USAGE_OWN", "SG_USAGE_IMPORT", "SG_USAGE_WHEEL" }
 
--- Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
-local function help()
+-- Kurze Hilfe: die Befehle für jeden Tag, darunter der Weg zur vollen Hilfe
+ns.SHORT_HELP = { "SG_HELP_ADD", "SG_HELP_GOALS", "SG_HELP_FUN", "SG_HELP_COLLECTION", "SG_HELP_DISPLAY" }
+
+local function shortHelp()
+  ns.Print(L.SG_HELP_SHORT)
+  for _, key in ipairs(ns.SHORT_HELP) do ns.Print("  " .. L[key]) end
+  ns.Print(L.SG_HELP_MORE)
+end
+
+-- Volle Hilfe: allgemeine Zeile, dann je Zielart ihre add-Syntax, dann die Befehle für Zusätze
+local function fullHelp()
   ns.Print(L.SG_HELP)
   for _, kind in ipairs(Goals.KindOrder()) do
     local usage = Goals.GetKind(kind).usage
     if usage and Goals.IsAvailable(kind) then ns.Print("  " .. L[usage]) end
   end
   for _, usage in ipairs(ns.EXTRA_USAGES) do ns.Print("  " .. L[usage]) end
+end
+
+local function help(argument)
+  if argument:lower() == "all" then fullHelp() else shortHelp() end
 end
 
 -- Kurze Namen für /sg add
@@ -198,8 +215,9 @@ local function pack(argument)
   end
 end
 
--- Eigene Ziele: "own" (Liste mit Nummern), "own add <Text>", "own remove <Nr>", "own share"
-local function own(argument)
+-- Vorlagen: "template" (Liste mit Nummern), "template add <Text>", "template remove <Nr>", "template share";
+-- "own ..." ist derselbe Befehl (frühere Bezeichnung)
+local function template(argument)
   local action, rest = argument:match("^(%S*)%s*(.-)$")
   local Library = ns.Library
   action = action:lower()
@@ -221,7 +239,7 @@ local function own(argument)
 end
 
 -- Bingo: "bingo [3|5]" (neuer Schein, Felder zufällig), "bingo edit" (Reiter Bingo: Felder selbst wählen);
--- früher eigene Bingo-Texte, heute freie eigene Ziele: "bingo text <Text>", "bingo texts", "bingo clear"
+-- früher eigene Bingo-Texte, heute Text-Vorlagen: "bingo text <Text>", "bingo texts", "bingo clear"
 local function bingo(argument)
   local action, rest = argument:match("^(%S*)%s*(.-)$")
   local Bingo = ns.Bingo
@@ -258,10 +276,22 @@ local function toggleTracker()
   ns.Print(shown and L.SG_TRACKER_ON or L.SG_TRACKER_OFF)
 end
 
+local PERCENT = 100
+
+local function percentText(value)
+  return Format.Number(value * PERCENT) .. " %"
+end
+
+-- "scale 1.2" setzt die Größe der Ziel-Karten; ohne (gültige) Zahl nennt es die aktuelle Größe und den Bereich
 local function scale(argument)
   local value = tonumber(argument)
-  if not value then return end
-  ns.Print(string.format(L.SG_SCALE_SET, Format.Number(Tracker.SetScale(value) * 100) .. " %"))
+  if not value then
+    local Frames = LT.Frames
+    ns.Print(string.format(L.SG_SCALE_USAGE, percentText(Frames.GetScale(Tracker.FRAME_ID)),
+      tostring(Frames.MIN_SCALE), tostring(Frames.MAX_SCALE)))
+    return
+  end
+  ns.Print(string.format(L.SG_SCALE_SET, percentText(Tracker.SetScale(value))))
 end
 
 local commands = {
@@ -275,7 +305,8 @@ local commands = {
   points = points,
   ["repeat"] = repeatGoal,
   pack = pack,
-  own = own,
+  template = template,
+  own = template,
   import = function() ns.Sharing.ShowImport() end,
   collection = function() Manager.Toggle("collection") end,
   bingo = bingo,
@@ -303,6 +334,6 @@ SlashCmdList.STREAMGOAL = function(input)
   elseif commands[command] then
     commands[command](argument)
   else
-    help()
+    ns.Print(string.format(L.SG_ERR_UNKNOWN_COMMAND, command))
   end
 end

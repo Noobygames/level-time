@@ -1,10 +1,13 @@
 -- Reiter "Sammlung" im Fenster /sg: alles, was man aufheben, teilen und wieder einlesen kann, an einer Stelle.
 --   Pakete: mehrere Ziele auf einmal anlegen (fertige und eigene, Packs.lua). Je Zeile Übernehmen (Hauptaktion,
---     rechts), Teilen und bei eigenen Löschen (Rückfrage); unten "Laufende Ziele als Paket speichern".
---   Eigene Ziele: einzelne Ziele für Bingo und Glücksrad (Library.lua), als Tabelle; Linksklick legt eines sofort an,
---     Rechtsklick löscht (Rückfrage); unten freier Text hinzufügen.
--- Oben rechts ein einziges "Importieren" für beide (Sharing.lua erkennt, ob der Text ein Paket oder eigene Ziele ist),
--- bei den eigenen Zielen daneben "Eigene Ziele teilen" (Pakete teilt jede Zeile für sich).
+--     rechts), bei eigenen Teilen und Löschen (Rückfrage; die fertigen hat jeder schon); Maus über dem Namen zeigt
+--     die Ziele des Pakets. Unten "Laufende Ziele als Paket speichern".
+--   Vorlagen: einzelne Ziele für Bingo und Glücksrad (Library.lua), als Tabelle; ein Klick wählt nur aus (wie in den
+--     Tabellen von Bingo und Glücksrad tut ein Klick nichts Endgültiges), die Knöpfe darunter legen die gewählte als
+--     Ziel an oder löschen sie (Rückfrage); unten freier Text hinzufügen.
+-- Fehler (kein Platz, Name fehlt, ...) stehen in der Fehlerzeile über dem Hinweis.
+-- Oben rechts ein einziges "Importieren" für beide (Sharing.lua erkennt, ob der Text ein Paket oder Vorlagen ist),
+-- bei den Vorlagen daneben "Vorlagen teilen" (Pakete teilt jede Zeile für sich).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -22,7 +25,8 @@ ns.CollectionView = CollectionView
 
 local SECTION_TOP = -28          -- unter der Zeile mit den Unterreitern
 local SECTION_TAB_GAP = 14
-local BOTTOM_HEIGHT = 70          -- Eingabezeile und Hinweis (bis drei Zeilen) unter Liste bzw. Tabelle
+local BOTTOM_HEIGHT = 86          -- Eingabezeile, Fehlerzeile und Hinweis (bis drei Zeilen) unter Liste bzw. Tabelle
+local ERROR_HEIGHT = 16
 local LABEL_INSET = 4             -- Text einer Zeile mittig zu den Knöpfen
 local ROW_BUTTON_MIN_WIDTH = 80
 local LABEL_BUTTON_GAP = 12
@@ -61,13 +65,27 @@ function CollectionView.Section()
   return shownSection
 end
 
--- Ein Import für Pakete und eigene Ziele
+-- Ein Import für Pakete und Vorlagen
 local importButton = Manager.CreateButton(page, "SG_IMPORT", function()
   Sharing.ShowImport(function() CollectionView.Render() end)
 end)
 CollectionView.importButton = importButton
 local shareOwnButton = Manager.CreateButton(page, "SG_OWN_SHARE", function() Sharing.ShareOwn() end)
 CollectionView.shareOwnButton = shareOwnButton
+
+-- Eine Fehlerzeile für beide Abschnitte (gleicher unterer Aufbau), zwischen Eingabezeile und Hinweis
+local errorLine = Manager.CreateErrorLine(page)
+errorLine:SetPoint("TOPLEFT", page, "BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW - 2)
+CollectionView.errorLine = errorLine  -- Tests: gezeigter Fehler
+
+-- Fehler einer Aktion: im Fenster, wenn die Sammlung offen ist, sonst (Chatbefehl /sg pack) im Chat
+local function report(err)
+  if Manager.ShownPage() == "collection" then
+    Manager.ShowError(errorLine, err)
+  elseif err then
+    ns.Print(err)
+  end
+end
 
 ---------------------------------------------------------------------------
 -- Pakete
@@ -86,7 +104,15 @@ end)
 function CollectionView.ApplyPack(key)
   local created, err = Packs.Apply(key)
   if created > 0 then ns.Print(string.format(L.SG_CHAT_PACK_APPLIED, created, Packs.Label(key))) end
-  if err then ns.Print(err) end
+  report(err)
+end
+
+-- Tooltip über dem Namen eines Pakets: die Ziele, die "Übernehmen" anlegt (für das aktuelle Level aufgelöst)
+function CollectionView.PackTipLines(key)
+  local lines = {}
+  for _, title in ipairs(Packs.Titles(key)) do table.insert(lines, { text = title }) end
+  table.insert(lines, { text = L.SG_PACK_ROW_TIP, muted = true })
+  return lines
 end
 
 local function packRow(index)
@@ -97,11 +123,18 @@ local function packRow(index)
   row.label:SetPoint("TOPLEFT", 0, y - LABEL_INSET)
   row.label:SetJustifyH("LEFT")
   row.label:SetWordWrap(false)
+  -- Fläche über dem Namen für den Tooltip (FontStrings bekommen keine Maus)
+  row.hover = CreateFrame("Frame", nil, packsFrame)
+  row.hover:SetAllPoints(row.label)
+  row.hover:EnableMouse(true)
+  Manager.AttachTooltip(row.hover, function() return row.key and Packs.Label(row.key) or "" end, function()
+    return row.key and CollectionView.PackTipLines(row.key) or nil
+  end)
   row.apply = Manager.CreateButton(packsFrame, "SG_PACK_APPLY", function()
     if row.key then CollectionView.ApplyPack(row.key) end
   end, ROW_BUTTON_MIN_WIDTH)
   row.share = Manager.CreateButton(packsFrame, "SG_PACK_SHARE", function()
-    if row.key then Sharing.SharePack(row.key) end
+    if row.key and not row.builtin then Sharing.SharePack(row.key) end
   end, ROW_BUTTON_MIN_WIDTH)
   row.delete = Manager.CreateButton(packsFrame, "SG_PACK_DELETE", function()
     if row.key and not row.builtin then confirmDeletePack(row.key, row.key) end
@@ -114,6 +147,7 @@ end
 local function hidePackRow(row)
   row.key = nil
   row.label:Hide()
+  row.hover:Hide()
   row.apply:Hide()
   row.share:Hide()
   row.delete:Hide()
@@ -147,9 +181,10 @@ function CollectionView.SavePack()
   local name = strtrim(nameBox:GetText() or "")
   local err = Packs.Save(name)
   if err then
-    ns.Print(err)
+    report(err)
     return false
   end
+  report(nil)
   nameBox:SetText("")
   nameBox:ClearFocus()
   ns.Print(string.format(L.SG_CHAT_PACK_SAVED, name))
@@ -160,7 +195,7 @@ end
 local saveButton = Manager.CreateButton(packsFrame, "SG_PACK_SAVE", function() CollectionView.SavePack() end)
 CollectionView.nameLabel, CollectionView.saveButton = nameLabel, saveButton
 local packsHint = Manager.CreateHint(packsFrame)
-packsHint:SetPoint("TOPLEFT", packsFrame, "BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW - HINT_GAP)
+packsHint:SetPoint("TOPLEFT", packsFrame, "BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW - HINT_GAP - ERROR_HEIGHT)
 
 local function renderPacks()
   local list = Packs.List()
@@ -173,11 +208,13 @@ local function renderPacks()
       local label = string.format(L.SG_PACK_ROW, Packs.Label(entry.key), goalCount(entry))
       row.label:SetText(entry.builtin and label or (Theme.Hex("accent") .. label .. "|r"))
       Manager.SetLabels({ row.apply, row.share, row.delete })
-      local buttons = Manager.AlignRight({ row.apply, row.share, row.delete }, packsFrame, "TOPRIGHT", row.y)
+      local buttons = Manager.AlignRight(entry.builtin and { row.apply } or { row.apply, row.share, row.delete },
+        packsFrame, "TOPRIGHT", row.y)
       row.label:SetWidth(Manager.PAGE_WIDTH - buttons - LABEL_BUTTON_GAP)
       row.label:Show()
+      row.hover:Show()
       row.apply:Show()
-      row.share:Show()
+      row.share:SetShown(not entry.builtin)
       row.delete:SetShown(not entry.builtin)
     elseif packRows[index] then
       hidePackRow(packRows[index])
@@ -197,7 +234,7 @@ local function renderPacks()
 end
 
 ---------------------------------------------------------------------------
--- Eigene Ziele
+-- Vorlagen
 ---------------------------------------------------------------------------
 local ownFrame = sections.own.frame
 
@@ -206,20 +243,47 @@ local confirmRemoveOwn = Widgets.ConfirmPopup("STREAMGOAL_REMOVE_OWN", "SG_CONFI
   CollectionView.Render()
 end)
 
--- Eigenes Ziel jetzt als laufendes Ziel anlegen
+local selectedOwn  -- ownId der gewählten Vorlage, nil = keine
+
+-- Gewählte Vorlage, solange es sie gibt
+function CollectionView.SelectedOwn()
+  return selectedOwn and Pool.Get(Pool.OwnKey(selectedOwn)) or nil
+end
+
+-- Vorlage jetzt als laufendes Ziel anlegen
 function CollectionView.Start(item)
   local goal, err = Pool.Create(item)
-  ns.Print(goal and string.format(L.SG_CHAT_ADDED, Goals.Title(goal)) or err)
+  report(err)
+  if goal then ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal))) end
   return goal
 end
 
--- Linksklick: anlegen, Rechtsklick: löschen (Rückfrage; es fehlt dann auch im Bingo-Entwurf und im Rad)
-function CollectionView.OnOwnRowClick(item, mouseButton)
-  if mouseButton == "RightButton" then
-    confirmRemoveOwn(Pool.Title(item), item.ownId)
-  else
-    CollectionView.Start(item)
+-- Klick (beide Tasten) wählt nur aus; anlegen und löschen über die Knöpfe unter der Tabelle
+function CollectionView.OnOwnRowClick(item)
+  selectedOwn = item.ownId
+  report(nil)
+  CollectionView.Render()
+end
+
+-- Knöpfe für die gewählte Vorlage; ohne Wahl sagt die Fehlerzeile, was fehlt
+function CollectionView.StartSelected()
+  local item = CollectionView.SelectedOwn()
+  if not item then
+    report(L.SG_OWN_NONE_SELECTED)
+    return nil
   end
+  return CollectionView.Start(item)
+end
+
+-- Löschen mit Rückfrage; die Vorlage fehlt danach auch im Bingo-Entwurf und im Rad
+function CollectionView.RemoveSelected()
+  local item = CollectionView.SelectedOwn()
+  if not item then
+    report(L.SG_OWN_NONE_SELECTED)
+    return
+  end
+  report(nil)
+  confirmRemoveOwn(Pool.Title(item), item.ownId)
 end
 
 local ownView = LT.TableView.Create({
@@ -234,17 +298,29 @@ local ownView = LT.TableView.Create({
   },
   records = function() return Pool.OwnItems() end,
   footer = function(_, records) return { string.format(L.SG_OWN_FOOTER, #records, Library.MAX_ENTRIES) } end,
-  rowColor = function() return Theme.COLORS.accent end,
-  onRowClick = function(item, mouseButton) CollectionView.OnOwnRowClick(item, mouseButton) end,
+  rowColor = function(item) return item.ownId == selectedOwn and Theme.COLORS.best or Theme.COLORS.accent end,
+  onRowClick = function(item) CollectionView.OnOwnRowClick(item) end,
+  rowTooltip = function(item) return Manager.PoolRowTip(item, { L.SG_OWN_ROW_TIP }) end,
   hint = "SG_OWN_TABLE_HINT",
 })
 
-local ownTableHeight = sectionHeight - BOTTOM_HEIGHT
+local ownTableHeight = sectionHeight - BOTTOM_HEIGHT - Manager.ROW  -- darunter die Knöpfe der gewählten Vorlage
 local ownHolder = CreateFrame("Frame", nil, ownFrame)
 ownHolder:SetPoint("TOPLEFT")
 ownHolder:SetSize(Manager.PAGE_WIDTH, ownTableHeight)
 local ownTable = ownView.Create(ownHolder, Manager.PAGE_WIDTH, ownTableHeight)
 CollectionView.ownTable = ownTable
+
+-- Zeile unter der Tabelle: links die gewählte Vorlage, rechts "Als Ziel anlegen" (Hauptaktion) und "Löschen"
+local selectedText = ownFrame:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+selectedText:SetPoint("BOTTOMLEFT", 0, BOTTOM_HEIGHT + LABEL_INSET)
+selectedText:SetJustifyH("LEFT")
+selectedText:SetWordWrap(false)
+CollectionView.selectedText = selectedText
+local startButton = Manager.CreateButton(ownFrame, "SG_OWN_START", function() CollectionView.StartSelected() end)
+local removeButton = Manager.CreateButton(ownFrame, "SG_OWN_REMOVE", function() CollectionView.RemoveSelected() end)
+local ownButtons = { startButton, removeButton }
+CollectionView.ownButtons = ownButtons
 
 local textLabel = Manager.CreateLabel(ownFrame)
 textLabel:SetPoint("BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW + LABEL_INSET)
@@ -254,9 +330,10 @@ CollectionView.textBox = textBox
 function CollectionView.AddText()
   local entry, err = Library.AddText(textBox:GetText())
   if not entry then
-    ns.Print(err)
+    report(err)
     return nil
   end
+  report(nil)
   textBox:SetText("")
   textBox:ClearFocus()
   ns.Print(string.format(L.SG_CHAT_OWN_SAVED, entry.params.text))
@@ -266,9 +343,16 @@ end
 
 local addTextButton = Manager.CreateButton(ownFrame, "SG_OWN_ADD_TEXT", function() CollectionView.AddText() end)
 local ownHint = Manager.CreateHint(ownFrame)
-ownHint:SetPoint("TOPLEFT", ownFrame, "BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW - HINT_GAP)
+ownHint:SetPoint("TOPLEFT", ownFrame, "BOTTOMLEFT", 0, BOTTOM_HEIGHT - Manager.ROW - HINT_GAP - ERROR_HEIGHT)
 
 local function renderOwn()
+  local chosen = CollectionView.SelectedOwn()
+  if not chosen then selectedOwn = nil end  -- gelöscht
+  Manager.SetLabels(ownButtons)
+  local used = Manager.AlignRight(ownButtons, ownFrame, "BOTTOMRIGHT", BOTTOM_HEIGHT)
+  selectedText:SetWidth(Manager.PAGE_WIDTH - used - LABEL_BUTTON_GAP)
+  selectedText:SetText(chosen and string.format(L.SG_OWN_SELECTED, Pool.Title(chosen)) or L.SG_OWN_SELECT_HINT)
+  selectedText:SetTextColor(Theme.RGB(chosen and "text" or "muted"))
   textLabel:SetText(L.SG_OWN_TEXT)
   Manager.SetLabels({ addTextButton })
   local buttons = Manager.AlignRight({ addTextButton }, ownFrame, "BOTTOMRIGHT", BOTTOM_HEIGHT - Manager.ROW)

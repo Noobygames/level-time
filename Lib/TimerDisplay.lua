@@ -9,7 +9,8 @@
 --   titleFor(kind), previewKinds, demoSpell(kind), movingSpell() (Zauber im Edit-Modus), pulseKind,
 --   toggleKey (Einstellung, die "Ausblenden" im Edit-Modus abschaltet), available() optional,
 --   settingsPage optional (Unterseite der Einstellungen, Standard Einblendungen > Timer),
---   formatTime(remaining, state) optional (Standard "42 s") }. Ein Zustand darf eigenen Titel (title) mitbringen,
+--   formatTime(remaining, state) optional (Standard Format.Duration: "42s", "2m 30s" wie die übrigen Anzeigen) }.
+--   Ein Zustand darf eigenen Titel (title) mitbringen,
 --   estimated (geschätzte Restzeit: Farbe config.colors.estimated, formatTime sieht den Zustand).
 -- spellId darf auch ein Texturpfad sein (Card nimmt beides).
 -- Einstellungen: db[soundKey] (bei "done"); Position und Größe in db.frames[id].
@@ -52,8 +53,7 @@ function TimerDisplay.Create(config)
       local seconds = math.ceil(remaining)
       if seconds ~= shownSeconds then
         shownSeconds = seconds
-        card.SetTime(config.formatTime and config.formatTime(seconds, current)
-          or string.format(ns.L.SECONDS_SHORT, seconds))
+        card.SetTime(config.formatTime and config.formatTime(seconds, current) or ns.Format.Duration(seconds))
       end
       card.SetFraction(current.duration > 0 and remaining / current.duration or 0)
     end
@@ -194,8 +194,9 @@ function TimerDisplay.Create(config)
 
   ns.Frames.Register({
     id = config.id, frame = frame, label = config.label, default = config.default,
-    settingsPage = config.settingsPage or "OPTIONS_TAB_TIMERS", available = config.available, preview = setEditing,
+    settingsPage = config.settingsPage or "COMFORT_PAGE_TIMERS", available = config.available, preview = setEditing,
     clickable = true,  -- Rechtsklick öffnet die Einstellungen (klein, steht, wo der Spieler sie hingezogen hat)
+    actionsTip = true,  -- Tooltip sagt das (UX W22)
     hide = config.toggleKey and function() ns.Set(config.toggleKey, false) end or nil,
   })
 

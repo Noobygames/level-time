@@ -204,9 +204,15 @@ local frameMethods = {
   SetFocus = function(self) wow.focus = self end,
   ClearFocus = function(self) if wow.focus == self then wow.focus = nil end end,
   HasFocus = function(self) return wow.focus == self end,
+  -- Bedienbar (Button:SetEnabled/Enable/Disable); Standard an
+  SetEnabled = function(self, enabled) self._disabled = not enabled end,
+  Enable = function(self) self._disabled = false end,
+  Disable = function(self) self._disabled = true end,
+  IsEnabled = function(self) return rawget(self, "_disabled") ~= true end,
   GetChecked = function(self) return self._checked end,
   SetChecked = function(self, checked) self._checked = checked end,
   SetScript = function(self, name, handler) self._scripts[name] = handler end,
+  GetScript = function(self, name) return self._scripts[name] end,
   -- Attribute sicherer Knöpfe; im Kampf wie im Client verboten (Fehler), Tests prüfen so die Kampfsperre
   SetAttribute = function(self, name, value)
     if wow.state.combatLockdown then error("ADDON_ACTION_BLOCKED: SetAttribute in combat") end

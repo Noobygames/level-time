@@ -21,6 +21,10 @@ WheelDisplay.FRAME_ID = "streamGoalWheel"
 WheelDisplay.SLICES = 12          -- muss zu wheelSlices in tools/artwork/draw_wheel.go passen
 WheelDisplay.SPIN_SECONDS = 4
 WheelDisplay.MIN_TURNS = 3        -- volle Umdrehungen mindestens (dazu ein zufälliger Rest)
+-- Ebene beim Drehen und für das Ergebnis: über den Fenstern (/sg und die Einstellungen sind DIALOG), sonst drehte der
+-- Knopf dort das Rad unsichtbar dahinter. Im Edit-Modus die normale Ebene, damit seine Rahmen darüber liegen.
+WheelDisplay.SPIN_STRATA = "FULLSCREEN_DIALOG"
+WheelDisplay.REST_STRATA = "HIGH"
 local TWO_PI = 2 * math.pi
 local STEP = TWO_PI / WheelDisplay.SLICES
 local LANDING_SPREAD = 0.35       -- Anteil eines Stücks, um den die Landung zufällig von der Mitte abweicht
@@ -69,7 +73,7 @@ end
 ---------------------------------------------------------------------------
 local frame = CreateFrame("Frame", "StreamGoalWheel", UIParent)
 frame:SetSize(WHEEL_SIZE + 2 * PADDING, WHEEL_SIZE + 2 * PADDING + TITLE_HEIGHT + LABEL_HEIGHT)
-frame:SetFrameStrata("HIGH")
+frame:SetFrameStrata(WheelDisplay.REST_STRATA)
 frame:Hide()
 Theme.RegisterCard(frame)
 WheelDisplay.frame = frame
@@ -172,6 +176,7 @@ end
 -- Drehen und auf Stück target landen; onStop() danach. Ohne Animation (settings.wheelAnimation aus) sofort.
 function WheelDisplay.Spin(titles, target, onStop)
   setSlices(titles)
+  frame:SetFrameStrata(state.editing and WheelDisplay.REST_STRATA or WheelDisplay.SPIN_STRATA)
   frame:Show()
   local from = state.rotation
   local turns = WheelDisplay.MIN_TURNS + math.random()
@@ -213,6 +218,7 @@ end
 ---------------------------------------------------------------------------
 local function preview(on)
   state.editing = on
+  frame:SetFrameStrata(WheelDisplay.REST_STRATA)
   if on then
     if not state.spin then
       local titles = {}

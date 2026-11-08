@@ -4,6 +4,8 @@
 --   GroupChat.Locked()        Blizzard sperrt Chat-Nachrichten von Addons (z.B. Bosskämpfe in Retail/WoW Forever,
 --                             im Debug-Log in Forever-Dungeons gesehen); dann nichts senden statt "Aktion blockiert"
 --   GroupChat.Send(text, chatType)  mit Präfix "Level Time: ", Farbcodes und Links entfernt
+--   GroupChat.SendWithLinks(text, chatType)  ebenso, aber Links vom Client (z.B. GetQuestLink) bleiben; der Aufrufer
+--                             gibt alle anderen Teile schon als reinen Text (Format.PlainText) hinein
 -- C_ChatInfo.SendChatMessage ersetzt seit 11.2 die globale Funktion; ältere Clients haben nur diese.
 local _, ns = ...
 
@@ -32,4 +34,10 @@ function GroupChat.Send(text, chatType)
   local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
   ns.Debug("groupchat", "%s: %s", chatType, text)
   send(PREFIX .. ns.Format.PlainText(text), chatType)
+end
+
+function GroupChat.SendWithLinks(text, chatType)
+  local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+  ns.Debug("groupchat", "%s: %s", chatType, text)
+  send(PREFIX .. text, chatType)
 end

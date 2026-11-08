@@ -2,9 +2,18 @@
 local _, ns = ...
 local L = ns.L
 
--- Hilfe: eine Zeile je Gruppe von Befehlen
-local function printHelp()
-  for line in L.HELP:gmatch("[^\n]+") do ns.Print(line) end
+-- Hilfe (UX S25): /lt help nur die Alltagsbefehle (L.HELP), /lt help all alle, eine Zeile je Gruppe (L.HELP_ALL)
+local function printLines(text)
+  for line in text:gmatch("[^\n]+") do ns.Print(line) end
+end
+
+local function printHelp(argument)
+  printLines((argument or ""):lower() == "all" and L.HELP_ALL or L.HELP)
+end
+
+-- Unbekannter Befehl oder unpassendes Argument: eine Zeile mit dem Verweis auf die Hilfe statt der ganzen Liste
+local function printUnknown(name)
+  ns.Print(string.format(L.COMMAND_UNKNOWN, name))
 end
 
 -- Schalter umlegen und den neuen Zustand melden
@@ -21,7 +30,7 @@ local function toggleLayout(layout, onText, offText)
 end
 
 local commands = {
-  help = function() printHelp() end,
+  help = function(argument) printHelp(argument) end,
   [""] = function() ns.ToggleOptions() end,
   config = function() ns.ToggleOptions() end,
   history = function() ns.ToggleHistory() end,
@@ -33,10 +42,7 @@ local commands = {
     ns.Set("locked", false)
     ns.Print(L.UNLOCKED)
   end,
-  reset = function()
-    ns.Frames.ResetAll()  -- Position und Größe aller Anzeigen
-    ns.Print(L.RESET_DONE)
-  end,
+  reset = function() ns.EditMode.ConfirmResetAll() end,  -- Position und Größe aller Anzeigen, nach Rückfrage
   edit = function() ns.EditMode.Toggle() end,
   welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
@@ -84,7 +90,7 @@ local commands = {
     elseif argument == "lss" then
       ns.LiveSplitExport.Show()
     else
-      printHelp()
+      printUnknown(strtrim("runs " .. argument))
     end
   end,
   -- /lt compare best | pb | Name: Vergleich für die Splits
@@ -149,8 +155,7 @@ local commands = {
 ns.SlashCommands.Register({
   id = ns.ADDON_ID:upper(), names = { "/leveltimer", "/lt" }, commands = commands,
   onUnknown = function(name)
-    if name ~= "" then ns.Print(L.COMMAND_UNKNOWN) end
-    printHelp()
+    if name == "" then printHelp() else printUnknown(name) end
   end,
 })
 

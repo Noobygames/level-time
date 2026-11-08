@@ -53,4 +53,4 @@ expectNear("Klassenfarbe", series[2].color[1], 0.25)
 -- Historie: Diagramm anklickbar
 SlashCmdList.LEVELTIMER("history")
 expectTrue("Reiter Graphen", wow.click("Graphen"))
-expectTrue("Diagramm Kurve", wow.click("Kurve"))
+expectTrue("Diagramm Kurve", wow.click("Levelkurve"))

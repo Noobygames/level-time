@@ -27,12 +27,12 @@ expect("zunächst versteckt", food:IsShown(), false)
 wow.state.buffs = { eating(18) }
 FoodTimer.Check()
 expect("Countdown sichtbar", food:IsShown(), true)
-expectTrue("18 s", shownText(string.format(L.SECONDS_SHORT, 18)))
+expectTrue("18 s", shownText(addon.Format.Duration(18)))
 wow.advance(8)
 wow.state.buffs = { eating(10) }
 FoodTimer.Check()
 tick()
-expectTrue("nach 8 s noch 10 s", shownText(string.format(L.SECONDS_SHORT, 10)))
+expectTrue("nach 8 s noch 10 s", shownText(addon.Format.Duration(10)))
 
 -- "Satt" kommt schon vor dem Ende des Essens: Countdown endet mit "Satt aktiv", Ton wenn gewünscht
 addon.Set("foodSound", true)
@@ -76,7 +76,7 @@ tick()
 local old = GetTime() + 1000
 wow.state.buffs = { eating(18), wellFed(old) }
 FoodTimer.Check()
-expectTrue("Countdown trotz altem Satt", shownText(string.format(L.SECONDS_SHORT, 18)))
+expectTrue("Countdown trotz altem Satt", shownText(addon.Format.Duration(18)))
 wow.state.buffs = { eating(17), wellFed(old) }
 FoodTimer.Check()
 expect("unverändertes Satt: Countdown läuft weiter", food:IsShown(), true)
@@ -130,6 +130,6 @@ expect("Position zurückgesetzt", LevelTimerDB.frames.food, nil)
 
 -- Einstellungen
 SlashCmdList.LEVELTIMER("config")
-expectTrue("Reiter Timer", wow.click(L.OPTIONS_TAB_TIMERS))
+expectTrue("Unterseite Timer & Flüge", addon.OptionsWindow.ShowPage("COMFORT_PAGE_TIMERS"))
 expectTrue("Button Vorschau", wow.clickOption("FOOD_PREVIEW"))
 expect("Vorschau zeigt Anzeige", food:IsShown(), true)

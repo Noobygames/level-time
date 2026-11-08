@@ -78,9 +78,12 @@ Goals.RegisterKind("quest", {
   usage = "SG_USAGE_QUEST",
   color = LT.Theme.COLORS.neutral,
   icon = ICON,
-  form = { amount = "SG_FORM_AMOUNT", fields = {
+  -- Modus zuerst; darunter nur das Feld des gewählten Modus (Anzahl bzw. Quests)
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
+  form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_QUEST_MODE", values = MODES, labels = MODE_LABELS },
-    { type = "text", param = "input", label = "SG_FORM_QUEST_INPUT", links = true },
+    { type = "amount", label = "SG_FORM_AMOUNT", showIf = { mode = "count" } },
+    { type = "text", param = "input", label = "SG_FORM_QUEST_INPUT", links = true, showIf = { mode = "ids" } },
   } },
   -- "add quest 10" = 10 Quests abgeben; "add quest <ID/Link> [<ID/Link> ...]" = diese Quests (Kette)
   parse = function(args, rest)
@@ -112,7 +115,7 @@ Goals.RegisterKind("quest", {
   end,
   title = function(goal)
     local params = goal.params
-    if params.mode == "count" then return string.format(L.SG_GOAL_QUESTS, goal.target) end
+    if params.mode == "count" then return Kinds.Counted("SG_GOAL_QUESTS", goal.target) end
     local first = questName(goal, params.quests[1])
     if #params.quests == 1 then return string.format(L.SG_GOAL_QUEST, first) end
     return string.format(L.SG_GOAL_QUEST_CHAIN, first, #params.quests)

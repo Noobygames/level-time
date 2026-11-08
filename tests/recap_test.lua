@@ -32,11 +32,13 @@ wow.levelUp(11)
 wow.advance(3600)
 
 expect("Charakter", row(L.RECAP_CHARACTER), "Testchar - Testrealm")
-expect("Level-Spanne", row(L.RECAP_LEVELS), "10 > 11")
+expect("Level-Spanne", row(L.RECAP_LEVELS), string.format(L.RECAP_LEVEL_RANGE, 10, 11))
 expect("Kills", row(L.RECAP_KILLS), "1")
 expect("beste Beute = höchste Qualität", row(L.RECAP_BEST_LOOT), "[Lila Schwert]")
 expect("gefährlichster Gegner", row(L.RECAP_DANGER), "Hogger (2)")
 expect("Spielzeit", row(L.RECAP_TIME), addon.Format.Duration(3601))
+-- Retail kann das Leben nicht verlässlich lesen: keine Zeile "Beinahe-Tode" mit falscher 0 (W10)
+expect("Retail: keine Beinahe-Tode-Zeile", row(L.ROW_NEAR_DEATHS), nil)
 
 -- Fenster per Befehl und Button, Datenschutz gilt auch hier
 SlashCmdList.LEVELTIMER("recap")

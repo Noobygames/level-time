@@ -1,7 +1,9 @@
 -- Bingo-Schein am Bildschirm (Roadmap 305): Raster aus Feldern (Text des Feld-Ziels, Stand), erledigte Felder in der
 -- Erfolgsfarbe des Themes, freie Mitte bei 5x5. Verschiebbar über den Edit-Modus von Level Time (Beispielschein in
--- der Vorschau). Linksklick auf ein selbst gezähltes Feld hakt es ab, Shift+Linksklick zurück, Rechtsklick öffnet die
--- Einstellungen. Neu aufgebaut nur bei Änderungen der Ziele (Goals.OnChange) und Einstellungen.
+-- der Vorschau). Linksklick auf ein selbst gezähltes Feld hakt es ab (mit Bestätigung, ClickStep.lua),
+-- Shift+Linksklick zurück, Rechtsklick öffnet die Einstellungen; der Tooltip eines Felds zeigt den vollen Text (Felder
+-- schneiden lange Texte ab), den Stand und diese Klicks wie bei den Ziel-Karten. Neu aufgebaut nur bei Änderungen der Ziele
+-- (Goals.OnChange) und Einstellungen.
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -22,7 +24,7 @@ local DONE_ALPHA, OPEN_ALPHA = 0.55, 0.85
 local SAMPLE_SIZE = 3
 local SAMPLE_DONE = { [1] = true, [5] = true }
 local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -280, -220 }
-local STEP_UP, STEP_DOWN = 1, -1
+local TOOLTIP_ANCHOR = "ANCHOR_LEFT"  -- der Schein steht meist am rechten Rand
 
 local frame = CreateFrame("Frame", "StreamGoalBingo", UIParent)
 frame:SetSize(1, 1)
@@ -42,10 +44,42 @@ local function onCellClick(cell, mouseButton)
     ns.Tracker.ToggleSettings()
     return
   end
-  local goal = cell.goal
-  if goal and Goals.IsManual(goal) and goal.status == Goals.ACTIVE then
-    Goals.Step(goal.id, IsShiftKeyDown() and STEP_DOWN or STEP_UP)
+  ns.ClickStep.Click(cell.goal, IsShiftKeyDown())
+end
+
+-- Tooltip eines Felds: { title, lines = { { text, muted } } } (Tests); goal = nil ist die freie Mitte
+function BingoView.CellTip(goal)
+  local lines = {}
+  if not goal then
+    table.insert(lines, { text = L.SG_CARD_TIP_SETTINGS, muted = true })
+    return { title = L.SG_BINGO_FREE, lines = lines }
   end
+  if Goals.HasCount(goal) then table.insert(lines, { text = Goals.CountText(goal) }) end
+  if goal.status == Goals.ACTIVE then
+    if Goals.IsManual(goal) then
+      table.insert(lines, { text = Goals.HasCount(goal) and L.SG_CARD_TIP_COUNT or L.SG_CARD_TIP_DONE, muted = true })
+    else
+      table.insert(lines, { text = L.SG_ACTIVE_TIP_AUTO, muted = true })
+    end
+  end
+  table.insert(lines, { text = L.SG_CARD_TIP_SETTINGS, muted = true })
+  return { title = Goals.Title(goal), lines = lines }
+end
+
+local function showCellTooltip(cell)
+  if editing then return end
+  local tip = BingoView.CellTip(cell.goal)
+  GameTooltip:SetOwner(cell, TOOLTIP_ANCHOR)
+  GameTooltip:SetText(tip.title, Theme.RGB("accent"))
+  for _, line in ipairs(tip.lines) do
+    if line.muted then
+      local r, g, b = Theme.RGB("muted")
+      GameTooltip:AddLine(line.text, r, g, b, true)
+    else
+      GameTooltip:AddLine(line.text, 1, 1, 1, true)
+    end
+  end
+  GameTooltip:Show()
 end
 
 local function cellAt(index)
@@ -60,6 +94,8 @@ local function cellAt(index)
   cell.text:SetJustifyH("CENTER")
   cell.text:SetJustifyV("MIDDLE")
   cell:SetScript("OnMouseUp", function(self, mouseButton) onCellClick(self, mouseButton) end)
+  cell:SetScript("OnEnter", showCellTooltip)
+  cell:SetScript("OnLeave", function() GameTooltip:Hide() end)
   cells[index] = cell
   return cell
 end
@@ -74,6 +110,7 @@ end
 
 local function cellText(goal)
   local text = Goals.Title(goal)
+  if ns.ClickStep.IsArmed(goal) then return text .. "\n" .. L.SG_CARD_CONFIRM end
   if Goals.HasCount(goal) and goal.status == Goals.ACTIVE then text = text .. "\n" .. Goals.CountText(goal) end
   return text
 end

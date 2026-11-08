@@ -21,9 +21,9 @@ local function titleFor(kind)
   return L.FLIGHT_TITLE
 end
 
--- Restzeit als "4:10" (Flüge dauern Minuten), geschätzt als "~4:10"
+-- Restzeit wie die übrigen Anzeigen ("4m 10s", nicht "4:10", das man als Uhrzeit liest), geschätzt als "~4m 10s"
 local function formatTime(seconds, state)
-  local text = string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
+  local text = ns.Format.Duration(seconds)
   if state and state.estimated then return "~" .. text end
   return text
 end
@@ -32,7 +32,7 @@ local FlightDisplay = ns.TimerDisplay.Create({
   name = ns.GlobalName("Flight"),
   default = { "TOP", "TOP", 0, -160 },
   id = "flight", label = "EDIT_FRAME_FLIGHT", soundKey = "flightSound",
-  toggleKey = "flightTimer", settingsPage = "OPTIONS_PAGE_FLIGHTS",
+  toggleKey = "flightTimer", settingsPage = "COMFORT_PAGE_TIMERS",
   colors = COLORS,
   titleFor = titleFor,
   formatTime = formatTime,

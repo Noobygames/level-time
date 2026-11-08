@@ -52,7 +52,7 @@ expectTrue("Ansage mit Dauer", printed(string.format(L.FLIGHT_STARTED, "Donnerfe
   addon.Format.Duration(250))))
 wow.advance(10)
 wow.update(1)
-expect("Restzeit", LevelTimerFlight.time:GetText(), "4:00")
+expect("Restzeit", LevelTimerFlight.time:GetText(), addon.Format.Duration(240))
 wow.advance(230)
 wow.state.onTaxi = false
 wow.fire("PLAYER_CONTROL_GAINED")

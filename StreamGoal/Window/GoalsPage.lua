@@ -1,32 +1,40 @@
--- Reiter "Ziele" im Fenster /sg: oben ein neues Ziel (Gruppen- und Artenreiter, Formular der Art, aufklappbare Zusätze
--- Frist/Wiederholung/Belohnung/Punkte), darunter die laufenden Ziele mit Zählen und Abbrechen.
+-- Reiter "Ziele" im Fenster /sg: oben ein neues Ziel (Kacheln der Zielarten, Formular der Art, aufklappbare Zusätze
+-- Frist/Wiederholung/Belohnung/Punkte), darunter die laufenden Ziele mit Zählen, Bearbeiten und Abbrechen.
 -- Knopfzeile unter dem Formular: links "Weitere Optionen" (Zusätze auf- und zuklappen), rechts die Hauptaktion
--- "Ziel hinzufügen" und daneben "Als eigenes Ziel speichern" (gleiche Eingabe ohne Zusätze in die Sammlung, Library.lua,
--- für Bingo-Felder und das Glücksrad). Fehler stehen in einer eigenen Zeile darunter über die ganze Breite.
--- Arten mit inForm = false (Bingo: eigener Reiter) haben hier keinen Reiter; Gruppen ohne Art im Client fehlen.
+-- "Ziel hinzufügen" und daneben "Als Vorlage speichern" (gleiche Eingabe ohne Zusätze als Vorlage in die Sammlung,
+-- Library.lua, für Bingo-Felder und das Glücksrad; legt kein Ziel an). Fehler stehen in einer eigenen Zeile darunter.
+-- Zwei weitere Modi derselben Fläche (UX G4, G17):
+--   Bearbeiten (Manager.EditGoal): "Bearbeiten" an einer laufenden Zeile lädt das Ziel ins Formular. Die Kacheln
+--   weichen einem Hinweis, das Formular zeigt nur, was sich ändern lässt (def.editable, Goals.Edit), die Zusätze sind
+--   offen und vorbelegt; bei Checklisten darunter die Teilziele (SubGoalRows.lua). Knöpfe "Speichern" und "Fertig".
+--   Vorlage für ein Bingo-Feld (Manager.StartTemplate, vom Reiter Bingo): Art und Eingabe wie sonst, ohne Zusätze;
+--   die Hauptaktion speichert die Vorlage, übergibt sie (onSaved) und kehrt zum aufrufenden Reiter zurück.
+-- Tooltips: Kacheln erklären, was die Art zählt (<label>_TIP), darunter gedämpft der Chatbefehl; jede Zeile der
+-- laufenden Ziele zeigt beim Überfahren Titel, Stand und die Zeilen der Karte (abgeschnittene Titel).
+-- Arten mit inForm = false (Bingo: eigener Reiter) haben hier keine Kachel.
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
 local GoalForm = ns.GoalForm
+local KindPicker = ns.KindPicker
 local Manager = ns.Manager
 local L = ns.L
 local Widgets = LT.Widgets
 local Theme = LT.Theme
 
-local KIND_TAB_ROW = 22
-local KIND_TAB_GAP = 14
-local KIND_TABS_TOP = -24
-local KIND_ROW_GAP = 2          -- zwischen Gruppen- und Artenzeile
-local FORM_GAP = 6              -- Reiter zum Formular
+local PICKER_TOP = -Manager.HEADER_HEIGHT
+local FORM_GAP = 6              -- Kacheln zum Formular
 local BUTTONS_GAP = 4           -- Formular zur Knopfzeile
-local ACTIVE_GAP = 4            -- Fehlerzeile zur Überschrift "Aktive Ziele"
-local EMPTY_BUTTON_GAP = 6      -- "Pakete ansehen" unter dem Hinweis ohne aktive Ziele
+local ACTIVE_GAP = 4            -- Fehlerzeile zur Überschrift "Laufende Ziele"
+local EMPTY_BUTTON_GAP = 6      -- "Pakete ansehen" unter dem Hinweis ohne laufende Ziele
+local HINT_PADDING = 6          -- unter dem Hinweis beim Bearbeiten
 local ADD_MIN_WIDTH = 120
 local ACTIVE_ROW = 22
-local CANCEL_WIDTH = 80
+local ROW_BUTTON_MIN_WIDTH = 70  -- "Bearbeiten" und "Abbrechen" einer Zeile (wachsen mit dem Text)
 local STEP_WIDTH = 24           -- Knöpfe "-" und "+" bei selbst gezählten Zielen
 local STEP_UP, STEP_DOWN = 1, -1
 local NESTED_PREFIX = "    "    -- Teilziel einer Checkliste, eingerückt
+local ROW_TEXT_GAP = 8
 
 local page = Manager.AddPage({
   key = "goals", label = "SG_TAB_GOALS", settingsPage = ns.SETTINGS_PAGES.TRACKER,
@@ -35,114 +43,92 @@ local page = Manager.AddPage({
 })
 
 ---------------------------------------------------------------------------
--- Arten und Gruppen
+-- Arten
 ---------------------------------------------------------------------------
 -- Art im Formular wählbar: im Client verfügbar und nicht mit eigenem Reiter (Bingo)
 local function inForm(kind)
   return Goals.IsAvailable(kind) and Goals.GetKind(kind).inForm ~= false
 end
 
-local function formKinds(group)
+-- Wählbare Arten nach Gruppen geordnet (verwandte Arten nebeneinander im Raster)
+local function formKinds()
   local list = {}
-  for _, kind in ipairs(Goals.KindsOfGroup(group)) do
-    if inForm(kind) then table.insert(list, kind) end
+  for _, group in ipairs(Goals.KIND_GROUPS) do
+    for _, kind in ipairs(Goals.KindsOfGroup(group.key)) do
+      if inForm(kind) then table.insert(list, kind) end
+    end
   end
   return list
 end
 
-local function firstFormKind()
-  for _, kind in ipairs(Goals.KindOrder()) do
-    if inForm(kind) then return kind end
-  end
-end
-
-local selectedKind = firstFormKind()
-local selectedGroup = Goals.GroupOf(selectedKind)
-local lastKindOfGroup = {}  -- [Gruppe] = zuletzt gewählte Art, beim Zurückwechseln wieder gewählt
-local kindTabs = {}
-local groupTabs = {}        -- [Gruppe] = Reiter
+local selectedKind = formKinds()[1]
 local forms = {}            -- [Art] = Formular (GoalForm)
+-- Modus der Seite: nil = neues Ziel, { goal } = laufendes Ziel bearbeiten, { template = spec } = Vorlage anlegen
+local mode
 
 local formHeader = Widgets.CreateSectionHeader(page)
 formHeader:SetPoint("TOPLEFT")
 formHeader:SetPoint("TOPRIGHT")
+Manager.formHeader = formHeader  -- Tests: Überschrift je Modus
 
-local function addFromForm()
-  Manager.AddFromForm()
+local function primaryAction()
+  Manager.PrimaryAction()
 end
 
-for _, group in ipairs(Goals.KIND_GROUPS) do
-  local tab = Widgets.CreateTab(page, Theme.Font("title"), function() Manager.SelectGroup(group.key) end)
-  Widgets.AttachTooltip(tab, function() return L[group.label] end, function()
-    local names = {}
-    for _, kind in ipairs(formKinds(group.key)) do table.insert(names, L[Goals.GetKind(kind).label]) end
-    return string.format(L.SG_GROUP_TAB_TIP, table.concat(names, ", "))
-  end)
-  groupTabs[group.key] = tab
+-- Neue Auswahl (Modus einer Art, Zusätze): andere Felder, andere Höhe; die Seite ordnet sich neu an
+local function onFormChange()
+  Manager.LayoutGoalsPage()
+  Manager.RenderActive()
 end
-for _, kind in ipairs(Goals.KindOrder()) do
+
+-- Tooltip einer Kachel: was die Art zählt, darunter gedämpft der Chatbefehl (Tests)
+function Manager.KindTipLines(kind)
   local def = Goals.GetKind(kind)
-  local tab = Widgets.CreateTab(page, Theme.Font("body"), function() Manager.SelectKind(kind) end)
-  Widgets.AttachTooltip(tab, function() return L[def.label] end, function()
-    return def.usage and string.format(L.SG_KIND_TAB_TIP, L[def.usage]) or nil
-  end)
-  kindTabs[kind] = tab
-  forms[kind] = GoalForm.Build(page, def.form or {}, addFromForm)
+  local lines = { { text = L[def.label .. "_TIP"] } }
+  if def.usage then table.insert(lines, { text = string.format(L.SG_KIND_TAB_TIP, L[def.usage]), muted = true }) end
+  return lines
+end
+
+local picker = KindPicker.Create(page, {
+  kinds = formKinds,
+  label = function(kind) return L[Goals.GetKind(kind).label] end,
+  onSelect = function(kind) Manager.SelectKind(kind) end,
+  tipLines = Manager.KindTipLines,
+})
+Manager.picker = picker
+
+for _, kind in ipairs(Goals.KindOrder()) do
+  forms[kind] = GoalForm.Build(page, Goals.GetKind(kind).form or {}, primaryAction, onFormChange)
 end
 
 -- Zusätze (Frist, Wiederholung, Belohnung, Punkte) unter dem Formular jeder Art, zugeklappt bis "Weitere Optionen"
-local extrasForm = GoalForm.Build(page, { fields = Goals.ExtraFields() }, addFromForm)
+local extrasForm = GoalForm.Build(page, { fields = Goals.ExtraFields() }, primaryAction, onFormChange)
 local extrasShown = false
 
--- Reiter { tab, text } ab y = top nebeneinander, in die nächste Zeile, wenn einer nicht mehr passt; Rückgabe: Höhe
-local function layoutTabRows(entries, top)
-  local left, row = 0, 0
-  for _, entry in ipairs(entries) do
-    entry.tab:SetLabel(entry.text)
-    local width = entry.tab:GetWidth()
-    if left > 0 and left + width > Manager.PAGE_WIDTH then
-      left, row = 0, row + 1
-    end
-    entry.tab:ClearAllPoints()
-    entry.tab:SetPoint("TOPLEFT", left, top - row * KIND_TAB_ROW)
-    left = left + width + KIND_TAB_GAP
-  end
-  return (row + 1) * KIND_TAB_ROW
-end
+-- Hinweis an Stelle der Kacheln beim Bearbeiten (die Art steht fest)
+local editHint = Manager.CreateHint(page)
+editHint:Hide()
+Manager.editHint = editHint
 
--- Zeile der Gruppen, darunter die Arten der gewählten Gruppe; Rückgabe: Höhe beider Zeilen
-local function layoutKindTabs()
-  local groupEntries = {}
-  for _, group in ipairs(Goals.KIND_GROUPS) do
-    local tab = groupTabs[group.key]
-    local available = #formKinds(group.key) > 0
-    tab:SetShown(available)
-    tab:SetActive(group.key == selectedGroup)
-    if available then table.insert(groupEntries, { tab = tab, text = L[group.label] }) end
-  end
-  local groupsHeight = layoutTabRows(groupEntries, KIND_TABS_TOP) + KIND_ROW_GAP
-  local kindEntries = {}
-  for _, kind in ipairs(Goals.KindOrder()) do
-    local shown = Goals.GroupOf(kind) == selectedGroup and inForm(kind)
-    kindTabs[kind]:SetShown(shown)
-    kindTabs[kind]:SetActive(kind == selectedKind)
-    if shown then table.insert(kindEntries, { tab = kindTabs[kind], text = L[Goals.GetKind(kind).label] }) end
-  end
-  return groupsHeight + layoutTabRows(kindEntries, KIND_TABS_TOP - groupsHeight)
-end
+-- Teilziele einer Checkliste beim Bearbeiten
+local subGoals
 
 ---------------------------------------------------------------------------
 -- Knopfzeile und Fehler
 ---------------------------------------------------------------------------
-local errorText = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
-errorText:SetTextColor(Theme.RGB("bad"))
-errorText:SetJustifyH("LEFT")
-errorText:SetWidth(Manager.PAGE_WIDTH)
-errorText:SetWordWrap(false)
+local errorText = Manager.CreateErrorLine(page)
+Manager.errorText = errorText  -- Tests: gezeigter Fehler
 
 local function showError(err)
-  errorText:SetText(err or "")
+  Manager.ShowError(errorText, err)
 end
+
+subGoals = ns.SubGoalRows.Create(page, function(err)
+  showError(err)
+  Manager.LayoutGoalsPage()
+  Manager.RenderActive()
+end)
+Manager.subGoals = subGoals
 
 function Manager.AddFromForm()
   local form = forms[selectedKind]
@@ -156,11 +142,11 @@ function Manager.AddFromForm()
   showError(nil)
   ns.Print(string.format(L.SG_CHAT_ADDED, Goals.Title(goal)))
   form:Clear()
-  extrasForm:Clear()
+  extrasForm:Reset()  -- Zusätze gelten nur für dieses Ziel, auch die Auswahl (Wiederholen, Frist zählt)
   return goal
 end
 
--- Eingabe der gewählten Art als eigenes Ziel speichern (Zusätze wie Frist gehören zum laufenden Ziel, nicht dazu)
+-- Eingabe der gewählten Art als Vorlage speichern (Zusätze wie Frist gehören zum laufenden Ziel, nicht dazu)
 function Manager.SaveFormAsOwn()
   local form = forms[selectedKind]
   local params, target = form:Read()
@@ -175,12 +161,37 @@ function Manager.SaveFormAsOwn()
   return entry
 end
 
-local addButton = Manager.CreateButton(page, "SG_FORM_ADD", addFromForm, ADD_MIN_WIDTH)
+-- Knöpfe je Modus; die erste ist die Hauptaktion (ganz rechts, auch bei Enter in einem Feld)
+local addButton = Manager.CreateButton(page, "SG_FORM_ADD", function() Manager.AddFromForm() end, ADD_MIN_WIDTH)
 local saveOwnButton = Manager.CreateButton(page, "SG_FORM_SAVE_OWN", function() Manager.SaveFormAsOwn() end,
   ADD_MIN_WIDTH)
+local saveEditButton = Manager.CreateButton(page, "SG_EDIT_SAVE", function() Manager.SaveEdit() end, ADD_MIN_WIDTH)
+local stopEditButton = Manager.CreateButton(page, "SG_EDIT_STOP", function() Manager.StopEditing() end)
+local toTemplateButton = Manager.CreateButton(page, "SG_BINGO_TEMPLATE_SAVE", function() Manager.SaveTemplate() end,
+  ADD_MIN_WIDTH)
+local backButton = Manager.CreateButton(page, "SG_TEMPLATE_BACK", function() Manager.LeaveTemplate() end)
 Manager.addButton, Manager.saveOwnButton = addButton, saveOwnButton
+Manager.saveEditButton, Manager.stopEditButton = saveEditButton, stopEditButton
+Manager.templateButton, Manager.backButton = toTemplateButton, backButton
+local MODE_BUTTONS = {
+  new = { addButton, saveOwnButton },
+  edit = { saveEditButton, stopEditButton },
+  template = { toTemplateButton, backButton },
+}
 
--- Zusätze auf- und zuklappen (Eingaben bleiben erhalten und gelten auch zugeklappt)
+local function modeName()
+  if not mode then return "new" end
+  return mode.goal and "edit" or "template"
+end
+
+function Manager.PrimaryAction()
+  local name = modeName()
+  if name == "edit" then return Manager.SaveEdit() end
+  if name == "template" then return Manager.SaveTemplate() end
+  return Manager.AddFromForm()
+end
+
+-- Zusätze auf- und zuklappen (Eingaben bleiben bis "Ziel hinzufügen" erhalten und gelten auch zugeklappt)
 function Manager.ToggleExtras(shown)
   if shown == nil then shown = not extrasShown end
   extrasShown = shown and true or false
@@ -210,16 +221,132 @@ elseif ChatEdit_InsertLink then
 end
 
 ---------------------------------------------------------------------------
+-- Bearbeiten eines laufenden Ziels (UX G17)
+---------------------------------------------------------------------------
+local kindBeforeMode  -- gewählte Art vor dem Bearbeiten, danach wieder gewählt
+
+-- Formulare auf "neues Ziel" zurück (Filter weg, Eingaben leer)
+local function resetForms(kind)
+  forms[kind]:SetRowFilter(nil)
+  forms[kind]:Reset()
+  extrasForm:SetRowFilter(nil)
+  extrasForm:Reset()
+end
+
+local function leaveMode()
+  if mode and mode.goal then
+    resetForms(mode.goal.kind)
+    if kindBeforeMode then selectedKind = kindBeforeMode end
+  end
+  mode = nil
+  kindBeforeMode = nil
+  subGoals:Hide()
+end
+
+-- Ziel id ins Formular laden: Eingabe aus goal.source, Zusätze aus dem laufenden Ziel. Rückgabe: true
+function Manager.EditGoal(id)
+  local goal = Goals.Get(id)
+  if not goal or goal.status ~= Goals.ACTIVE or goal.character ~= LT.characterKey or not inForm(goal.kind) then
+    return false
+  end
+  if mode then leaveMode() end
+  kindBeforeMode = selectedKind
+  mode = { goal = goal }
+  selectedKind = goal.kind
+  local form = forms[goal.kind]
+  local source = goal.source or {}
+  form:SetRowFilter(function(param) return Goals.IsEditable(goal.kind, param) end)
+  form:Fill(source.params, source.target)
+  extrasForm:Fill(Goals.ExtraValues(goal))
+  showError(nil)
+  Manager.LayoutGoalsPage()
+  Manager.RenderActive()
+  return true
+end
+
+function Manager.EditingGoal()
+  return mode and mode.goal or nil
+end
+
+function Manager.StopEditing()
+  leaveMode()
+  showError(nil)
+  Manager.LayoutGoalsPage()
+  Manager.RenderActive()
+end
+
+-- Änderungen übernehmen; Rückgabe: true bei Erfolg (Fehler in der Fehlerzeile)
+function Manager.SaveEdit()
+  local goal = mode and mode.goal
+  if not goal then return false end
+  local params, target = forms[goal.kind]:Read()
+  local err = Goals.Edit(goal, params, target, extrasForm:Read(), extrasForm:Changes())
+  if err then
+    showError(err)
+    return false
+  end
+  ns.Print(string.format(L.SG_CHAT_EDITED, Goals.Title(goal)))
+  Manager.StopEditing()
+  return true
+end
+
+---------------------------------------------------------------------------
+-- Vorlage für einen anderen Reiter anlegen (Bingo-Feld, UX G4)
+---------------------------------------------------------------------------
+-- spec = { title = Locale-Key der Überschrift, button = Locale-Key der Hauptaktion (Tooltip <button>_TIP),
+--         onSaved(entry), returnPage = Seite danach }
+function Manager.StartTemplate(spec)
+  if mode then leaveMode() end
+  mode = { template = spec }
+  showError(nil)
+  Manager.ShowPage("goals")
+end
+
+function Manager.TemplateMode()
+  return mode and mode.template or nil
+end
+
+-- Zurück zum aufrufenden Reiter, ohne etwas zu speichern
+function Manager.LeaveTemplate()
+  local spec = mode and mode.template
+  leaveMode()
+  if spec and spec.returnPage then
+    Manager.ShowPage(spec.returnPage)
+  else
+    Manager.LayoutGoalsPage()
+  end
+end
+
+function Manager.SaveTemplate()
+  local spec = mode and mode.template
+  if not spec then return nil end
+  local entry = Manager.SaveFormAsOwn()
+  if not entry then return nil end
+  if spec.onSaved then spec.onSaved(entry) end
+  Manager.LeaveTemplate()
+  return entry
+end
+
+-- Seite verlassen (anderer Reiter, Fenster zu): ein angefangenes Bearbeiten bzw. die Vorlage verfällt
+local function leaveOnHide()
+  if mode then leaveMode() end
+end
+page:HookScript("OnHide", leaveOnHide)
+Manager.panel:HookScript("OnHide", leaveOnHide)
+
+---------------------------------------------------------------------------
 -- Laufende Ziele
 ---------------------------------------------------------------------------
 local activeHeader = Widgets.CreateSectionHeader(page)
 Manager.activeHeader = activeHeader
 
--- Ohne aktive Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche
+-- Ohne laufende Ziele: Hinweis und ein Weg zu den Paketen statt einer leeren Fläche; wer noch nie ein Ziel hatte,
+-- liest dort die drei Schritte zum ersten Ziel
 local emptyText = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 emptyText:SetTextColor(Theme.RGB("muted"))
 emptyText:SetJustifyH("LEFT")
 emptyText:SetWidth(Manager.PAGE_WIDTH)
+Manager.emptyText = emptyText  -- Tests: gezeigter Hinweis
 local packsButton = Manager.CreateButton(page, "SG_OPEN_PACKS", function()
   if ns.CollectionView then ns.CollectionView.SelectSection("packs") end
   Manager.ShowPage("collection")
@@ -227,7 +354,7 @@ end, ADD_MIN_WIDTH)
 Manager.packsButton = packsButton
 
 local activeRows = {}
-local activeTop = 0  -- y der Überschrift "Aktive Ziele" (hängt von Reiterzeilen, Formular und Zusätzen ab)
+local activeTop = 0  -- y der Überschrift "Laufende Ziele" (hängt von Kacheln, Formular und Zusätzen ab)
 
 local function stepGoal(id, delta)
   local _, err = Goals.Step(id, delta)
@@ -244,24 +371,44 @@ local function smallButton(labelKey, width, onClick)
   return button
 end
 
+-- Tooltip einer Zeile der laufenden Ziele: Stand und die Zeilen der Karte (Art, Frist, Wiederholung, Belohnung)
+function Manager.ActiveTipLines(goal)
+  local lines = {}
+  if Goals.HasCount(goal) then table.insert(lines, { text = Goals.CountText(goal) }) end
+  local body = Goals.Body(goal)
+  if body then table.insert(lines, { text = body }) end
+  if Goals.IsManual(goal) then
+    table.insert(lines, { text = Goals.HasCount(goal) and L.SG_ACTIVE_TIP_COUNT or L.SG_ACTIVE_TIP_DONE, muted = true })
+  end
+  if #lines == 0 then table.insert(lines, { text = L.SG_ACTIVE_TIP_AUTO, muted = true }) end
+  return lines
+end
+
 local function activeRow(index)
   if activeRows[index] then return activeRows[index] end
   local row = {}
   row.text = page:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   row.text:SetJustifyH("LEFT")
   row.text:SetWordWrap(false)
-  row.text:SetWidth(Manager.PAGE_WIDTH - CANCEL_WIDTH - 2 * (STEP_WIDTH + Manager.BUTTON_GAP) - 8)
-  row.cancel = smallButton("SG_CANCEL", CANCEL_WIDTH, function()
+  -- Fläche über dem Text für den Tooltip (FontStrings bekommen keine Maus); voller Titel, falls abgeschnitten
+  row.hover = CreateFrame("Frame", nil, page)
+  row.hover:SetAllPoints(row.text)
+  row.hover:EnableMouse(true)
+  Manager.AttachTooltip(row.hover, function() return row.goal and Goals.Title(row.goal) or "" end, function()
+    return row.goal and Manager.ActiveTipLines(row.goal) or nil
+  end)
+  row.cancel = smallButton("SG_CANCEL", ROW_BUTTON_MIN_WIDTH, function()
     if row.goal then confirmCancel(Goals.Title(row.goal), row.goal.id) end
+  end)
+  row.edit = smallButton("SG_EDIT", ROW_BUTTON_MIN_WIDTH, function()
+    if row.goal then Manager.EditGoal(row.goal.id) end
   end)
   row.plus = smallButton("SG_STEP_UP", STEP_WIDTH, function()
     if row.goal then stepGoal(row.goal.id, STEP_UP) end
   end)
-  row.plus:SetPoint("RIGHT", row.cancel, "LEFT", -Manager.BUTTON_GAP, 0)
   row.minus = smallButton("SG_STEP_DOWN", STEP_WIDTH, function()
     if row.goal then stepGoal(row.goal.id, STEP_DOWN) end
   end)
-  row.minus:SetPoint("RIGHT", row.plus, "LEFT", -Manager.BUTTON_GAP, 0)
   activeRows[index] = row
   return row
 end
@@ -279,9 +426,30 @@ end
 local function hideRow(row)
   row.goal = nil
   row.text:Hide()
+  row.hover:Hide()
   row.cancel:Hide()
+  row.edit:Hide()
   row.plus:Hide()
   row.minus:Hide()
+end
+
+-- Knöpfe einer Zeile von rechts: Abbrechen, Bearbeiten, +, -; der Text füllt den Rest
+local function placeRowButtons(row, goal, y)
+  Manager.SetLabels({ row.cancel, row.edit, row.plus, row.minus })
+  local manual = Goals.IsManual(goal)
+  row.edit:SetShown(inForm(goal.kind))
+  row.plus:SetShown(manual)
+  row.minus:SetShown(manual and Goals.HasCount(goal))  -- ohne Zähler gibt es nur "erledigt"
+  row.cancel:Show()
+  local right = 0
+  for _, button in ipairs({ row.cancel, row.edit, row.plus, row.minus }) do
+    if button:IsShown() then
+      button:ClearAllPoints()
+      button:SetPoint("TOPRIGHT", page, "TOPRIGHT", -right, y + 2)
+      right = right + button:GetWidth() + Manager.BUTTON_GAP
+    end
+  end
+  row.text:SetWidth(Manager.PAGE_WIDTH - right - ROW_TEXT_GAP)
 end
 
 -- Laufende Ziele für die Liste: ohne Felder eines Bingo-Scheins (die zeigt der Schein)
@@ -295,9 +463,14 @@ local function listedGoals()
 end
 
 function Manager.RenderActive()
+  -- Das bearbeitete Ziel ist inzwischen erreicht, gescheitert oder abgebrochen: Bearbeiten endet
+  if mode and mode.goal and mode.goal.status ~= Goals.ACTIVE then
+    leaveMode()
+    Manager.LayoutGoalsPage()
+  end
   local active = listedGoals()
   activeHeader:SetText(string.format(L.SG_ACTIVE_TITLE, Goals.UsedSlots(), Goals.MAX_ACTIVE))
-  emptyText:SetText(L.SG_ACTIVE_EMPTY)
+  emptyText:SetText(#ns.db.goals == 0 and L.SG_ACTIVE_EMPTY_FIRST or L.SG_ACTIVE_EMPTY)
   emptyText:SetShown(#active == 0)
   packsButton:SetShown(#active == 0)
   for i = 1, math.max(#active, #activeRows) do
@@ -310,16 +483,18 @@ function Manager.RenderActive()
       row.text:SetPoint("TOPLEFT", 0, y)
       row.text:SetText(activeLabel(goal))
       row.text:Show()
-      row.cancel:ClearAllPoints()
-      row.cancel:SetPoint("TOPRIGHT", 0, y + 2)
-      Manager.SetLabels({ row.cancel, row.plus, row.minus })
-      row.cancel:Show()
-      local manual = Goals.IsManual(goal)
-      row.plus:SetShown(manual)
-      row.minus:SetShown(manual and Goals.HasCount(goal))  -- ohne Zähler gibt es nur "erledigt"
+      row.hover:Show()
+      placeRowButtons(row, goal, y)
     elseif activeRows[i] then
       hideRow(activeRows[i])
     end
+  end
+end
+
+-- Zeile der laufenden Ziele zu einem Ziel (Tests)
+function Manager.ActiveRow(id)
+  for _, row in ipairs(activeRows) do
+    if row.goal and row.goal.id == id then return row end
   end
 end
 
@@ -332,35 +507,28 @@ end
 -- Auswahl und Anordnung
 ---------------------------------------------------------------------------
 function Manager.SelectKind(kind)
-  if not inForm(kind) then return end
+  if not inForm(kind) or (mode and mode.goal) then return end
   selectedKind = kind
-  selectedGroup = Goals.GroupOf(kind)
-  lastKindOfGroup[selectedGroup] = kind
   showError(nil)
   Manager.Refresh()
-end
-
--- Gruppe wählen: ihre zuletzt gewählte Art, sonst die erste verfügbare
-function Manager.SelectGroup(group)
-  local kind = lastKindOfGroup[group] or formKinds(group)[1]
-  if kind then Manager.SelectKind(kind) end
 end
 
 function Manager.SelectedKind()
   return selectedKind
 end
 
-function Manager.SelectedGroup()
-  return selectedGroup
+-- Kachel einer Art (Tests)
+function Manager.KindTile(kind)
+  return picker:Tile(kind)
 end
 
--- Reiter einer Art bzw. Gruppe (Tests)
-function Manager.KindTab(kind)
-  return kindTabs[kind]
+-- Formular einer Art bzw. der Zusätze (Tests: Tooltips jeder Zeile)
+function Manager.Form(kind)
+  return forms[kind]
 end
 
-function Manager.GroupTab(group)
-  return groupTabs[group]
+function Manager.ExtrasForm()
+  return extrasForm
 end
 
 -- Feld des Formulars der gewählten Art oder der Zusätze (Tests): param oder "amount" für die Zahl
@@ -368,11 +536,32 @@ function Manager.FormWidget(param)
   return forms[selectedKind]:Widget(param) or extrasForm:Widget(param)
 end
 
--- Reiter, Formular der gewählten Art, Zusätze (aufgeklappt oder mit Eingabe), Knopfzeile, Fehler, laufende Ziele
+-- Überschrift je Modus
+local function headerText()
+  if mode and mode.goal then return string.format(L.SG_EDIT_TITLE, mode.goal.id, Goals.Title(mode.goal)) end
+  if mode and mode.template then return L[mode.template.title] end
+  return L.SG_FORM_TITLE
+end
+
+-- Kacheln bzw. beim Bearbeiten der Hinweis; Rückgabe: belegte Höhe
+local function layoutTop()
+  local editing = mode and mode.goal
+  picker:SetShown(not editing)
+  editHint:SetShown(editing and true or false)
+  if not editing then return picker:Layout(PICKER_TOP, selectedKind) end
+  editHint:SetText(#(Goals.GetKind(editing.kind).editable or {}) > 0 and L.SG_EDIT_HINT or L.SG_EDIT_HINT_EXTRAS)
+  editHint:ClearAllPoints()
+  editHint:SetPoint("TOPLEFT", 0, PICKER_TOP)
+  return math.max(Manager.ROW, math.ceil(editHint:GetStringHeight() or 0) + HINT_PADDING)
+end
+
+-- Kacheln, Formular der gewählten Art, Teilziele (Checkliste beim Bearbeiten), Zusätze (aufgeklappt, mit Eingabe oder
+-- beim Bearbeiten), Knopfzeile, Fehler, laufende Ziele
 function Manager.LayoutGoalsPage()
-  formHeader:SetText(L.SG_FORM_TITLE)
+  formHeader:SetText(headerText())
   activeHeader:SetText(string.format(L.SG_ACTIVE_TITLE, Goals.UsedSlots(), Goals.MAX_ACTIVE))
-  local formTop = KIND_TABS_TOP - layoutKindTabs() - FORM_GAP
+  local name = modeName()
+  local formTop = PICKER_TOP - layoutTop() - FORM_GAP
   local labelWidth = GoalForm.LabelWidth()
   for kind, form in pairs(forms) do
     form.frame:SetShown(kind == selectedKind)
@@ -382,10 +571,16 @@ function Manager.LayoutGoalsPage()
   form.frame:ClearAllPoints()
   form.frame:SetPoint("TOPLEFT", 0, formTop)
   local y = formTop - form.height
-  extrasShown = extrasShown or extrasForm:HasInput()
+  if name == "edit" and mode.goal.kind == "checklist" then
+    y = y - subGoals:Layout(mode.goal, y, labelWidth)
+  else
+    subGoals:Hide()
+  end
+  local showExtras = name == "edit" or (name == "new" and (extrasShown or extrasForm:HasInput()))
+  if name == "new" then extrasShown = showExtras end
   extrasForm:SetTexts()
-  extrasForm.frame:SetShown(extrasShown)
-  if extrasShown then
+  extrasForm.frame:SetShown(showExtras)
+  if showExtras then
     extrasForm:Layout(labelWidth)
     extrasForm.frame:ClearAllPoints()
     extrasForm.frame:SetPoint("TOPLEFT", 0, y)
@@ -393,8 +588,14 @@ function Manager.LayoutGoalsPage()
   end
   local buttonsY = y - BUTTONS_GAP
   extrasButton.labelKey = extrasShown and "SG_FORM_LESS" or "SG_FORM_MORE"
-  Manager.SetLabels({ addButton, saveOwnButton, extrasButton, packsButton })
-  Manager.AlignRight({ addButton, saveOwnButton }, page, "TOPRIGHT", buttonsY)
+  extrasButton:SetShown(name == "new")
+  if name == "template" then toTemplateButton.labelKey = mode.template.button end
+  for key, buttons in pairs(MODE_BUTTONS) do
+    for _, button in ipairs(buttons) do button:SetShown(key == name) end
+  end
+  Manager.SetLabels({ addButton, saveOwnButton, saveEditButton, stopEditButton, toTemplateButton, backButton,
+    extrasButton, packsButton })
+  Manager.AlignRight(MODE_BUTTONS[name], page, "TOPRIGHT", buttonsY)
   extrasButton:ClearAllPoints()
   extrasButton:SetPoint("TOPLEFT", 0, buttonsY)
   errorText:ClearAllPoints()
@@ -407,4 +608,9 @@ function Manager.LayoutGoalsPage()
   emptyText:SetPoint("TOPLEFT", 0, activeTop - ACTIVE_ROW)
   packsButton:ClearAllPoints()
   packsButton:SetPoint("TOPLEFT", emptyText, "BOTTOMLEFT", 0, -EMPTY_BUTTON_GAP)
+end
+
+-- Unterkante der letzten möglichen Zeile der laufenden Ziele (Tests: passt in die Seite)
+function Manager.ActiveBottom()
+  return activeTop - (Goals.MAX_ACTIVE + 1) * ACTIVE_ROW
 end

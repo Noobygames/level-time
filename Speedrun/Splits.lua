@@ -210,6 +210,14 @@ function Splits.GetReferenceName()
   return reference.name
 end
 
+-- Kurzer Name des Vergleichs für Titel ("Bestzeit", "PB", Name des gewählten Laufs)
+local SHORT_NAMES = { [Splits.BEST] = "SPLIT_VS_BEST", [Splits.PERSONAL_BEST] = "SPLIT_VS_PB" }
+function Splits.ComparisonShortName()
+  local comparison = ns.db.splitComparison
+  if comparison == Splits.RUN then return Splits.GetReferenceName() or ns.L.COMPARE_CHOICE_RUN end
+  return ns.L[SHORT_NAMES[comparison] or SHORT_NAMES[Splits.BEST]]
+end
+
 ---------------------------------------------------------------------------
 -- Anzeige
 ---------------------------------------------------------------------------

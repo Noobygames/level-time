@@ -77,7 +77,11 @@ Goals.RegisterKind("rule", {
     if goal.params.level then return string.format(L.SG_GOAL_RULE_LEVEL, rule, goal.target) end
     return rule
   end,
-  body = function() return L.SG_RULE_BODY end,
+  -- Ohne Level und ohne Frist endet die Regel nur durch Abbrechen oder einen Verstoß: das steht dann auf der Karte
+  body = function(goal)
+    if not goal.params.level and not goal.deadline then return L.SG_RULE_BODY_OPEN end
+    return L.SG_RULE_BODY
+  end,
 })
 
 ---------------------------------------------------------------------------

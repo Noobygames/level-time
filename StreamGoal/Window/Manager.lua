@@ -2,8 +2,8 @@
 -- Jede Seite steht in einer eigenen Datei (Window/*Page.lua) und meldet sich mit Manager.AddPage an; die Reiter stehen
 -- in der Reihenfolge der .toc:
 --   Ziele (neues Ziel, laufende Ziele) | Bingo (Schein selbst füllen) | Glücksrad (was das Rad ziehen darf, Drehen) |
---   Sammlung (Pakete und eigene Ziele, Teilen und Importieren) | Historie
--- Fußzeile: links "Ziele am Bildschirm zeigen", rechts "Layout bearbeiten" und "Einstellungen" (öffnet die Unterseite
+--   Sammlung (Pakete und Vorlagen, Teilen und Importieren) | Historie
+-- Fußzeile: links "Ziel-Karten anzeigen", rechts "Layout bearbeiten" und "Einstellungen" (öffnet die Unterseite
 -- der Einstellungen, die zur gezeigten Seite gehört).
 -- Seite = { key, label (Locale-Key, Tooltip aus <label>_TIP), settingsPage, refresh(), render() }: refresh setzt Texte
 -- und Anordnung (Sprache!), render die Daten; beide laufen beim Zeigen, render auch nach Änderungen der Ziele.
@@ -51,6 +51,37 @@ function Manager.CreateButton(parent, labelKey, onClick, minWidth)
   button.labelKey, button.minWidth = labelKey, minWidth or Manager.BUTTON_MIN_WIDTH
   Widgets.AttachTooltip(button, function() return L[button.labelKey] end, function() return L[button.labelKey .. "_TIP"] end)
   return button
+end
+
+-- Tooltip mit mehreren Zeilen: title() = Überschrift, lines() = { { text, muted = true|nil }, ... } (gedämpfte Zeilen
+-- für Bedienhinweise und Chatbefehle, normale für die Erklärung); ohne Zeilen kein Tooltip
+function Manager.AttachTooltip(frame, title, lines)
+  frame:HookScript("OnEnter", function(self)
+    local list = lines()
+    if not list or #list == 0 then return end
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(title(), Theme.RGB("accent"))
+    for _, line in ipairs(list) do
+      if line.muted then
+        local r, g, b = Theme.RGB("muted")
+        GameTooltip:AddLine(line.text, r, g, b, true)
+      else
+        GameTooltip:AddLine(line.text, 1, 1, 1, true)
+      end
+    end
+    GameTooltip:Show()
+  end)
+  frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
+end
+
+-- Tooltip einer Tabellenzeile mit einem Eintrag des Pools (Bingo, Glücksrad, Sammlung; TableView rowTooltip): voller
+-- Titel (die Spalte schneidet ab), Art und Herkunft, dann je Zeile von clicks, was ein Klick hier tut. So sagt jede
+-- Tabelle selbst, was ihr Klick bewirkt, auch wenn dieselben Einträge auf jeder Seite etwas anderes tun.
+function Manager.PoolRowTip(item, clicks)
+  local lines = { ns.Pool.Title(item),
+    string.format(L.SG_ROW_TIP_KIND, L[Goals.GetKind(item.kind).label], ns.Pool.SourceText(item)) }
+  for _, line in ipairs(clicks) do table.insert(lines, line) end
+  return lines
 end
 
 -- Texte der Knöpfe aus CreateButton in der gewählten Sprache (Breite wächst mit dem Text)
@@ -101,6 +132,30 @@ function Manager.CreateHint(parent)
   return hint
 end
 
+-- Fehlerzeile einer Seite: Fehler der Knöpfe stehen im Fenster, wo man gerade hinschaut (eine Chatzeile übersieht man
+-- vor dem Stream leicht). Rot, eine Zeile über die ganze Breite; beim Wechsel der Seite geleert.
+local errorLines = {}
+
+function Manager.CreateErrorLine(parent)
+  local line = parent:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+  line:SetTextColor(Theme.RGB("bad"))
+  line:SetJustifyH("LEFT")
+  line:SetWidth(CONTENT_WIDTH)
+  line:SetWordWrap(false)
+  table.insert(errorLines, line)
+  return line
+end
+
+local function clearErrors()
+  for _, line in ipairs(errorLines) do line:SetText("") end
+end
+
+-- Fehler in die Zeile (nil = leeren); Rückgabe: true, wenn ein Fehler steht (Aufrufer kann dann abbrechen)
+function Manager.ShowError(line, err)
+  line:SetText(err or "")
+  return err ~= nil
+end
+
 -- Zeile "Beschriftung [Feld ......] [Knöpfe]": das Feld füllt den Platz zwischen Beschriftung und Knöpfen
 -- (Knöpfe vorher mit AlignRight gesetzt); Rückgabe: Breite des Felds
 function Manager.FitBox(label, box, buttonsWidth, width)
@@ -125,6 +180,7 @@ panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, "StreamGoalWindow")  -- mit ESC schließen
+panel:HookScript("OnHide", clearErrors)  -- ein alter Fehler soll beim nächsten Öffnen nicht mehr dastehen
 Manager.closeButton = Widgets.CreateCloseButton(panel)  -- innen oben rechts wie bei den Fenstern von Level Time
 Manager.panel = panel
 
@@ -136,6 +192,7 @@ local pageOrder = {}
 local shownPage = DEFAULT_PAGE
 
 local function showPage(name)
+  if name ~= shownPage then clearErrors() end
   shownPage = name
   for key, page in pairs(pages) do
     page.frame:SetShown(key == name)
@@ -242,7 +299,10 @@ function Manager.Toggle(page)
     panel:Hide()
     return
   end
-  if page and pages[page] then shownPage = page end
+  if page and pages[page] then
+    if page ~= shownPage then clearErrors() end
+    shownPage = page
+  end
   panel:Show()
   Manager.Refresh()
 end

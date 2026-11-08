@@ -90,17 +90,25 @@ local function levelRange(r)
   return r.startLevel
 end
 
+-- Übersicht je Level (UX W21): nur die Kernwerte; Raten und PvP stehen im Unterreiter "Kills & Items"
 local LEVEL_COLUMNS = {
-  levelColumn(44),
-  durationColumn(62),
-  xpRateColumn(52),
-  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 40),
-  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 48),
-  counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 40),
-  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 48),
-  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
-  counterColumn("HISTORY_QUESTS", Stats.QUESTS, 48),
-  goldColumn(56),
+  levelColumn(48),
+  durationColumn(76),
+  xpRateColumn(64),
+  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 56),
+  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 56),
+  counterColumn("HISTORY_QUESTS", Stats.QUESTS, 56),
+  goldColumn(72),
+}
+
+local LEVEL_KILL_COLUMNS = {
+  levelColumn(48),
+  durationColumn(76),
+  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 56),
+  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 64),
+  counterColumn("HISTORY_ITEMS_LOOTED", Stats.ITEMS_LOOTED, 64),
+  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 64),
+  counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 64),
 }
 
 -- Zeitaufteilung je Level (TimeBreakdown.lua); Rest = Spielzeit minus aller Anteile
@@ -149,21 +157,38 @@ local XP_SOURCE_COLUMNS = {
   xpPartColumn("HISTORY_XP_BATTLEGROUND", Stats.XP_BATTLEGROUND, 52),
 }
 
+local function sessionStartColumn()
+  return { header = "HISTORY_START", width = 80, value = function(r) return dateTime(L.DATE_FORMAT, r.startedAt) end,
+    sort = function(r) return r.startedAt end }
+end
+
+-- Angezeigt "5-6", sortiert nach Start- und dann End-Level als Zahl
+local function levelRangeColumn(width)
+  return { header = "HISTORY_LEVEL", width = width, value = levelRange,
+    sort = function(r) return r.startLevel and (r.startLevel + (r.endLevel or r.startLevel) / 1000) end }
+end
+
+-- Wie bei den Level: Übersicht mit den Kernwerten, Raten und PvP im Unterreiter "Kills & Items" (UX W21)
 local SESSION_COLUMNS = {
-  { header = "HISTORY_START", width = 80, value = function(r) return dateTime(L.DATE_FORMAT, r.startedAt) end,
-    sort = function(r) return r.startedAt end },
-  durationColumn(56),
-  -- Angezeigt "5-6", sortiert nach Start- und dann End-Level als Zahl
-  { header = "HISTORY_LEVEL", width = 44, value = levelRange,
-    sort = function(r) return r.startLevel and (r.startLevel + (r.endLevel or r.startLevel) / 1000) end },
-  xpRateColumn(48),
-  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 36),
-  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 48),
-  counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 36),
-  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 48),
-  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 40),
-  counterColumn("HISTORY_QUESTS", Stats.QUESTS, 44),
-  goldColumn(52),
+  sessionStartColumn(),
+  durationColumn(64),
+  levelRangeColumn(48),
+  xpRateColumn(60),
+  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 52),
+  counterColumn("HISTORY_DEATHS", Stats.DEATHS, 52),
+  counterColumn("HISTORY_QUESTS", Stats.QUESTS, 52),
+  goldColumn(64),
+}
+
+local SESSION_KILL_COLUMNS = {
+  sessionStartColumn(),
+  durationColumn(64),
+  levelRangeColumn(48),
+  counterColumn("HISTORY_PVE", Stats.PVE_KILLS, 52),
+  perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 60),
+  counterColumn("HISTORY_ITEMS_LOOTED", Stats.ITEMS_LOOTED, 60),
+  perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 60),
+  counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 60),
 }
 
 local MILESTONE_COLUMNS = {
@@ -377,8 +402,15 @@ end
 
 HistoryTables.ClassColor = classColor
 HistoryTables.CountCells = countCells
+HistoryTables.PERSONAL_RECORD_COLUMNS = PERSONAL_RECORD_COLUMNS  -- Ansicht in SpeedrunViews.lua (Speedrun & Rekorde)
 
-local LEVELS, JOURNAL = "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_JOURNAL"
+-- Hauptreiter (Reihenfolge: HistoryWindow.TAB_ORDER); Auswertung = Einzeltabellen und Quest-Auswertungen
+HistoryTables.LEVELS = "HISTORY_GROUP_LEVELS"
+HistoryTables.SESSIONS = "HISTORY_GROUP_SESSIONS"
+HistoryTables.JOURNAL = "HISTORY_GROUP_JOURNAL"
+HistoryTables.ANALYSIS = "HISTORY_GROUP_ANALYSIS"
+local LEVELS, SESSIONS, JOURNAL, ANALYSIS = HistoryTables.LEVELS, HistoryTables.SESSIONS, HistoryTables.JOURNAL,
+  HistoryTables.ANALYSIS
 
 local function addTable(tab, group, columns, records, footer, hint, rowLink)
   ns.HistoryWindow.AddView(TableView.Create({
@@ -411,21 +443,21 @@ local function questLink(record)
 end
 
 
-addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
+-- Hinweis zu Teil-Level ("*") nur, wenn der Charakter welche hat; sonst der Sortier-Hinweis
+local function partialHint(characterKey)
+  for _, record in ipairs(History.GetLevelRecords(characterKey)) do
+    if record.partial then return L.LEVELS_PARTIAL_HINT end
+  end
+  return L.TABLE_SORT_HINT
+end
+
+addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
+addTable("HISTORY_TAB_LEVEL_KILLS", LEVELS, LEVEL_KILL_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
 addTable("HISTORY_TAB_TIMELINE", LEVELS, MILESTONE_COLUMNS, History.GetMilestones, countCells)
-addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, "LEVELS_PARTIAL_HINT")
-addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells,
-  "LEVELS_PARTIAL_HINT")
--- Rekorde gelten für alle Charaktere, die Charakter-Auswahl spielt keine Rolle
-ns.HistoryWindow.AddView(TableView.Create({
-  tab = "HISTORY_TAB_PERSONAL_RECORDS",
-  group = LEVELS,
-  columns = PERSONAL_RECORD_COLUMNS,
-  records = function() return ns.PersonalRecords.GetRows() end,
-  footer = countCells,
-  hint = "PERSONAL_RECORDS_HINT",
-}))
-addTable("HISTORY_TAB_SESSIONS", nil, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
+addTable("HISTORY_TAB_TIME_SPLIT", LEVELS, TIME_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
+addTable("HISTORY_TAB_XP_SOURCES", LEVELS, XP_SOURCE_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
+addTable("HISTORY_TAB_SESSIONS", SESSIONS, SESSION_COLUMNS, History.GetSessionRecords, summaryCells)
+addTable("HISTORY_TAB_SESSION_KILLS", SESSIONS, SESSION_KILL_COLUMNS, History.GetSessionRecords, summaryCells)
 addJournalTable("HISTORY_TAB_KILLS", KILL_COLUMNS, "killLog")
 addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
 addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
@@ -435,13 +467,14 @@ addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstance
 if ns.NearDeath.IsAvailable() then
   addJournalTable("HISTORY_TAB_NEAR_DEATHS", NEAR_DEATH_COLUMNS, "nearDeathLog")
 end
-addTable("HISTORY_TAB_ZONES", nil, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
-addTable("HISTORY_TAB_REPUTATION", nil, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
-addTable("HISTORY_TAB_MONEY", nil, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, "MONEY_HINT")
+addTable("HISTORY_TAB_ZONES", ANALYSIS, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
+addTable("HISTORY_TAB_REPUTATION", ANALYSIS, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
+addTable("HISTORY_TAB_MONEY", ANALYSIS, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, "MONEY_HINT")
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({
   tab = "HISTORY_TAB_COMPARE",
+  allCharacters = true,
   columns = COMPARE_COLUMNS,
   records = function() return History.GetCharacterComparison() end,
   footer = countCells,

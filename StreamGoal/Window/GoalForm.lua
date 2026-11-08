@@ -1,8 +1,19 @@
 -- Formular einer Zielart (oder der Zusätze) im Reiter "Ziele" aus einer Beschreibung (def.form, Kinds.lua):
---   spec = { amount = Locale-Key der Zahl (nil = keine Zahl), fields = { Feld, ... } }
+--   spec = { amount = Locale-Key der Zahl (nil = keine Zahl, sonst erste Zeile), amountTip optional,
+--            amountDefault = function() -> Zahl optional (Vorschlag, z.B. nächstes Level), fields = { Feld, ... } }
 --   Feld: { type = "text", param, label, numeric optional, short optional, links optional } | { type = "choice", param,
---         label, values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label }
+--         label, values = { Wert, ... }, labels = { [Wert] = Locale-Key } } | { type = "check", param, label } |
+--         { type = "amount", label } (die Zahl an dieser Stelle statt spec.amount, z.B. hinter der Modus-Auswahl)
+--   Jede Zeile hat einen Tooltip: Erklärung aus L[tip] (Feld tip bzw. spec.amountTip, sonst <label>_TIP), bei einer
+--   Auswahl darunter gedämpft der Klick-Hinweis (SG_FORM_CHOICE_TIP). Gleiche Beschriftung mit anderer Bedeutung je Art
+--   (z.B. "Anzahl" beim Besitz) bekommt ein eigenes tip.
+--   Jedes Feld darf showIf = { [param einer Auswahl] = Wert } haben: es steht nur da, solange die Auswahl diesen Wert
+--   hat (Arten mit Modus zeigen so nur die Felder des gewählten Modus); versteckte Felder liest Read nicht.
 -- form:Read() liefert params (Text leer = nil, Haken aus = nil) und target (Zahl leer = nil) für Goals.Create.
+-- Bearbeiten eines laufenden Ziels: form:Fill(values, target) trägt Werte ein und merkt sie, form:Changes() nennt die
+-- seither geänderten params ("amount" = die Zahl), form:SetRowFilter(fn(param) -> gezeigt) blendet Zeilen aus, die sich
+-- nicht ändern lassen (nil = alle).
+-- Ändert sich eine Auswahl, läuft onChange(form) (die Seite ordnet neu an, weil die Höhe sich ändern kann).
 -- Breiten je Feldart: Zahlen und kurze Texte (numeric, short) NUMBER_BOX_WIDTH, Texte bis zum rechten Rand, Auswahl
 -- CHOICE_WIDTH (wächst mit dem Text); alle Felder beginnen hinter der breitesten Beschriftung aller Formulare
 -- (GoalForm.LabelWidth), damit das Formular beim Wechsel der Art nicht springt.
@@ -21,9 +32,28 @@ local NUMBER_BOX_WIDTH = 80     -- Zahlen und kurze Texte (Frist)
 local TEXT_BOX_START = 120      -- Breite eines Textfelds vor dem ersten Layout (danach bis zum rechten Rand)
 local CHECK_INSET = -4          -- UICheckButtonTemplate hat links Luft im Bild
 local CHOICE_WIDTH = 160
+local CHECK_LABEL_HIT = 160     -- so weit rechts neben dem Haken reicht die Klickfläche (seine Beschriftung)
 local AMOUNT = "amount"         -- Name der Zahl in form:Widget
 
 local allForms = {}
+
+-- Locale-Key der Erklärung einer Zeile (Zahl ohne field: row.tip, sonst field.tip oder <label>_TIP)
+function GoalForm.TipKey(row)
+  if row.field then return row.field.tip or (row.field.label .. "_TIP") end
+  return row.tip or (row.labelKey .. "_TIP")
+end
+
+-- Tooltip-Zeilen einer Zeile für Manager.AttachTooltip: Erklärung, bei einer Auswahl gedämpft der Klick-Hinweis
+function GoalForm.TipLines(row)
+  local lines = { { text = L[GoalForm.TipKey(row)] } }
+  if row.field and row.field.type == "choice" then table.insert(lines, { text = L.SG_FORM_CHOICE_TIP, muted = true }) end
+  return lines
+end
+
+-- Überschrift des Tooltips: die Beschriftung der Zeile
+local function tipTitle(row)
+  return L[row.field and row.field.label or row.labelKey]
+end
 
 -- Auswahl: Linksklick nächster, Rechtsklick voriger Wert; der Text folgt sofort
 local function createChoice(form, row)
@@ -39,35 +69,34 @@ local function createChoice(form, row)
     local step = mouseButton == "RightButton" and -1 or 1
     form.choices[field.param] = values[(index - 1 + step) % #values + 1]
     form:SetTexts()
+    if form.onChange then form.onChange(form) end
   end)
-  Widgets.AttachTooltip(button, function() return L[field.label] end, function() return L.SG_FORM_CHOICE_TIP end)
   return button
 end
 
--- Formular auf parent bauen; onEnter läuft bei Enter in einem Textfeld
-function GoalForm.Build(parent, spec, onEnter)
-  local form = { frame = CreateFrame("Frame", nil, parent), rows = {}, choices = {}, spec = spec }
+-- Formular auf parent bauen; onEnter läuft bei Enter in einem Textfeld, onChange(form) nach einer neuen Auswahl
+function GoalForm.Build(parent, spec, onEnter, onChange)
+  local form = { frame = CreateFrame("Frame", nil, parent), rows = {}, choices = {}, spec = spec, onChange = onChange }
   form.frame:SetSize(Manager.PAGE_WIDTH, 1)
   form.frame:Hide()
-  local y = 0
   local function addRow(row)
-    row.y = y
-    if row.labelKey then
-      row.label = Manager.CreateLabel(form.frame)
-      row.label:SetPoint("TOPLEFT", 0, y)
-    end
+    if row.labelKey then row.label = Manager.CreateLabel(form.frame) end
+    Manager.AttachTooltip(row.widget, function() return tipTitle(row) end, function() return GoalForm.TipLines(row) end)
     table.insert(form.rows, row)
-    y = y - Manager.ROW
   end
-  if spec.amount then
+  -- Zahl (Ziel) ohne field: Read liefert sie als target
+  local function addAmount(labelKey, showIf, tip, default)
     local box = Manager.CreateTextBox(form.frame, onEnter, true)
     box:SetWidth(NUMBER_BOX_WIDTH)
-    addRow({ widget = box, labelKey = spec.amount, box = true })
+    addRow({ widget = box, labelKey = labelKey, box = true, showIf = showIf, tip = tip, default = default })
   end
-  for _, field in ipairs(spec.fields or {}) do
-    local row = { field = field }
+  if spec.amount then addAmount(spec.amount, nil, spec.amountTip, spec.amountDefault) end
+  -- Zeile eines Felds mit param (Haken, Auswahl, Text)
+  local function addField(field)
+    local row = { field = field, showIf = field.showIf }
     if field.type == "check" then
       row.widget = Widgets.CreateCheckbox(form.frame, function() end)
+      row.widget:SetHitRectInsets(0, -CHECK_LABEL_HIT, 0, 0)  -- Beschriftung gehört zur Klick- und Tooltip-Fläche
     elseif field.type == "choice" then
       row.labelKey = field.label
       form.choices[field.param] = field.values[1]
@@ -82,7 +111,43 @@ function GoalForm.Build(parent, spec, onEnter)
     end
     addRow(row)
   end
-  form.height = -y
+  for _, field in ipairs(spec.fields or {}) do
+    if field.type == "amount" then addAmount(field.label, field.showIf, field.tip) else addField(field) end
+  end
+
+  -- Name einer Zeile: param des Felds bzw. "amount" für die Zahl
+  local function paramOf(row)
+    return row.field and row.field.param or AMOUNT
+  end
+
+  -- Steht die Zeile gerade da? (Filter beim Bearbeiten, showIf passt zur Auswahl)
+  function form:IsRowShown(row)
+    if self.rowFilter and not self.rowFilter(paramOf(row)) then return false end
+    for param, value in pairs(row.showIf or {}) do
+      if self.choices[param] ~= value then return false end
+    end
+    return true
+  end
+
+  -- Gezeigte Zeilen untereinander (row.y), versteckte ausgeblendet; setzt form.height
+  function form:Stack()
+    local y = 0
+    for _, row in ipairs(self.rows) do
+      local shown = self:IsRowShown(row)
+      row.widget:SetShown(shown)
+      if row.label then row.label:SetShown(shown) end
+      if shown then
+        row.y = y
+        if row.label then
+          row.label:ClearAllPoints()
+          row.label:SetPoint("TOPLEFT", 0, y)
+        end
+        y = y - Manager.ROW
+      end
+    end
+    self.height = -y
+  end
+  form:Stack()
 
   -- Beschriftungen und Auswahltexte in der gewählten Sprache
   function form:SetTexts()
@@ -96,14 +161,32 @@ function GoalForm.Build(parent, spec, onEnter)
     end
   end
 
+  -- Vorschläge (row.default) in leere Felder; ein unveränderter Vorschlag folgt dem neuen Wert (nach einem Level-Up
+  -- steht dann wieder das nächste Level da, nicht das alte)
+  function form:FillDefaults()
+    for _, row in ipairs(self.rows) do
+      if row.default then
+        local text = strtrim(row.widget:GetText() or "")
+        if text == "" or text == row.prefilled then
+          row.prefilled = tostring(row.default())
+          row.widget:SetText(row.prefilled)
+        end
+      end
+    end
+  end
+
   -- Felder hinter die Beschriftungsspalte; Haken stehen in der Feldspalte (ihr Text rechts daneben), Textfelder
   -- reichen bis zum rechten Rand
   function form:Layout(labelWidth)
     self:SetTexts()
+    self:Stack()
+    self:FillDefaults()
     for _, row in ipairs(self.rows) do
       local field = row.field
       row.widget:ClearAllPoints()
-      if field and field.type == "check" then
+      if not self:IsRowShown(row) then
+        -- versteckt: keine Position (row.y gilt nur für gezeigte Zeilen)
+      elseif field and field.type == "check" then
         row.widget:SetPoint("TOPLEFT", labelWidth + CHECK_INSET, row.y + 2)
       else
         row.widget:SetPoint("TOPLEFT", labelWidth + (row.box and Manager.BOX_BORDER or 0), row.y + (row.box and 0 or 2))
@@ -112,12 +195,14 @@ function GoalForm.Build(parent, spec, onEnter)
     end
   end
 
-  -- params und target der Eingabe
+  -- params und target der Eingabe (nur gezeigte Felder: ein Text im anderen Modus zählt nicht)
   function form:Read()
     local params, target = {}, nil
     for _, row in ipairs(self.rows) do
       local field = row.field
-      if not field then
+      if not self:IsRowShown(row) then
+        -- versteckt: weder params noch target
+      elseif not field then
         target = tonumber(strtrim(row.widget:GetText() or ""))
       elseif field.type == "check" then
         params[field.param] = row.widget:GetChecked() and true or nil
@@ -135,24 +220,93 @@ function GoalForm.Build(parent, spec, onEnter)
     return params, target
   end
 
+  -- Textfelder leeren (Auswahl und Haken bleiben: das nächste Ziel derselben Art nutzt sie meist wieder), Vorschläge
+  -- wieder eintragen
   function form:Clear()
     for _, row in ipairs(self.rows) do
       if row.box then row.widget:SetText("") end
     end
+    self:FillDefaults()
   end
 
-  -- Hat ein Textfeld Inhalt? (Zusätze: aufgeklappt lassen, solange etwas eingetragen ist)
+  -- Alles auf den Anfang: Textfelder leer, Auswahl auf den ersten Wert, Haken aus (Zusätze nach "Ziel hinzufügen",
+  -- sonst gälte z.B. "Wiederholen: Täglich" unsichtbar für jedes weitere Ziel)
+  function form:Reset()
+    self:Clear()
+    for _, row in ipairs(self.rows) do
+      local field = row.field
+      if field and field.type == "choice" then self.choices[field.param] = field.values[1] end
+      if field and field.type == "check" then row.widget:SetChecked(false) end
+    end
+    self:SetTexts()
+  end
+
+  -- Weicht ein gezeigtes Feld vom Anfang ab (Text, Auswahl nicht auf dem ersten Wert, Haken an)? Zusätze bleiben
+  -- dann aufgeklappt, damit nichts unsichtbar für das neue Ziel gilt
   function form:HasInput()
     for _, row in ipairs(self.rows) do
-      if row.box and strtrim(row.widget:GetText() or "") ~= "" then return true end
+      local field = row.field
+      if self:IsRowShown(row) then
+        if row.box and strtrim(row.widget:GetText() or "") ~= "" then return true end
+        if field and field.type == "choice" and self.choices[field.param] ~= field.values[1] then return true end
+        if field and field.type == "check" and row.widget:GetChecked() then return true end
+      end
     end
     return false
+  end
+
+  -- Eingabe einer Zeile als Text (Vergleich beim Bearbeiten): Textfeld, Auswahlwert oder "1"/"" für den Haken
+  local function valueText(row)
+    local field = row.field
+    if field and field.type == "choice" then return tostring(form.choices[field.param]) end
+    if field and field.type == "check" then return row.widget:GetChecked() and "1" or "" end
+    return strtrim(row.widget:GetText() or "")
+  end
+
+  -- Werte eintragen (Bearbeiten): values[param] für Felder, target für die Zahl; die eingetragenen Werte gelten als
+  -- Ausgangsstand für Changes()
+  function form:Fill(values, target)
+    values = values or {}
+    for _, row in ipairs(self.rows) do
+      local field = row.field
+      if not field then
+        row.widget:SetText(target ~= nil and tostring(target) or "")
+        row.prefilled = nil
+      elseif field.type == "choice" then
+        local value = values[field.param]
+        self.choices[field.param] = value ~= nil and value or field.values[1]
+      elseif field.type == "check" then
+        row.widget:SetChecked(values[field.param] and true or false)
+      else
+        local value = values[field.param]
+        row.widget:SetText(value ~= nil and tostring(value) or "")
+      end
+    end
+    self:SetTexts()
+    for _, row in ipairs(self.rows) do row.filled = valueText(row) end
+  end
+
+  -- Seit Fill geänderte Zeilen: { [param] = true }
+  function form:Changes()
+    local changed = {}
+    for _, row in ipairs(self.rows) do
+      if row.filled ~= nil and valueText(row) ~= row.filled then changed[paramOf(row)] = true end
+    end
+    return changed
+  end
+
+  -- Nur Zeilen zeigen, für die filter(param) stimmt (nil = alle); löscht den Ausgangsstand von Fill
+  function form:SetRowFilter(filter)
+    self.rowFilter = filter
+    if not filter then
+      for _, row in ipairs(self.rows) do row.filled = nil end
+    end
   end
 
   -- Feld zu param, "amount" = die Zahl
   function form:Widget(param)
     for _, row in ipairs(self.rows) do
-      if (row.field and row.field.param or AMOUNT) == param then return row.widget end
+      if paramOf(row) == param then return row.widget end
     end
   end
 

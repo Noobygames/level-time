@@ -92,7 +92,7 @@ end
 
 local function csvRows(tab)
   SlashCmdList.LEVELTIMER("history")
-  expectTrue("Reiter " .. tab, wow.click(addon.L[tab]))
+  expectTrue("Reiter " .. tab, addon.HistoryWindow.ShowView(tab))
   local shown = wow.shownTable()
   expectTrue("Tabelle " .. tab, shown ~= nil)
   local rows = {}
@@ -108,7 +108,7 @@ local function columnOf(header)
   end
 end
 
-local levelRows = csvRows("HISTORY_TAB_LEVELS")
+local levelRows = csvRows("HISTORY_TAB_LEVEL_KILLS")
 local levelColumn = columnOf(levelRows[1])
 expectTrue("Level-Tabelle hat Kills/h", levelColumn ~= nil)
 local found = false
@@ -120,7 +120,7 @@ for _, cells in ipairs(levelRows) do
 end
 expectTrue("Level 10 in der Tabelle", found)
 
-local sessionRows = csvRows("HISTORY_TAB_SESSIONS")
+local sessionRows = csvRows("HISTORY_TAB_SESSION_KILLS")
 local sessionColumn = columnOf(sessionRows[1])
 expectTrue("Session-Tabelle hat Kills/h", sessionColumn ~= nil)
 local session = addon.History.GetSessionRecords(addon.characterKey)[1]

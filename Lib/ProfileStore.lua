@@ -101,6 +101,25 @@ function ProfileStore.New(host)
     return names
   end
 
+  -- Charakter-Schlüssel, die das Profil nutzen (alphabetisch): eigene Wahl oder, ohne gültige Wahl, das
+  -- Standardprofil (wie LoadForCharacter). Bekannte Charaktere liefert host.characterKeys() (optional)
+  function store.CharactersOf(name)
+    local all = profiles()
+    local assignments = host.db().characterProfiles
+    local keys, seen = {}, {}
+    local function consider(key)
+      if seen[key] then return end
+      seen[key] = true
+      local assigned = assignments[key]
+      if not (assigned and all[assigned]) then assigned = store.DEFAULT end
+      if assigned == name then table.insert(keys, key) end
+    end
+    for _, key in ipairs(host.characterKeys and host.characterKeys() or {}) do consider(key) end
+    for key in pairs(assignments) do consider(key) end
+    table.sort(keys)
+    return keys
+  end
+
   local function assignToCharacter(name)
     profiles()
     host.db().characterProfiles[host.characterKey()] = name

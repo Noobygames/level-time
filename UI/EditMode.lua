@@ -26,6 +26,7 @@ local OVERLAY_SELECTED_ALPHA = 0.4
 local GRID_ALPHA = 0.12
 local GRID_CENTER_ALPHA = 0.35
 local TOOLBAR_PADDING = 12
+local TOOLBAR_TEXT_LINE = 14  -- Höhe je Textzeile der Leiste (Titel, zwei Hinweiszeilen)
 local TOOLBAR_BUTTON_WIDTH = 90
 local BUTTON_HEIGHT = 22
 local BUTTON_GAP = 6
@@ -310,8 +311,11 @@ toolbar:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("EditMode"))  -- Esc schließt auch ohne Tastatur-Fokus (Rückfall)
 toolbar.title = toolbar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 toolbar.title:SetPoint("TOP", 0, -TOOLBAR_PADDING)
+-- Gesten in zwei kurzen Zeilen statt einer langen (UX W34): Maus, dann Tastatur und Menü
 toolbar.hint = toolbar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 toolbar.hint:SetPoint("TOP", toolbar.title, "BOTTOM", 0, -4)
+toolbar.hint2 = toolbar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+toolbar.hint2:SetPoint("TOP", toolbar.hint, "BOTTOM", 0, -2)
 
 local toolbarButtons = {}
 local function toolbarButton(labelKey, onClick)
@@ -327,10 +331,21 @@ local gridButton = toolbarButton("EDIT_MODE_GRID", function()
   updateGrid()
 end)
 Widgets.AttachTooltip(gridButton, function() return L.EDIT_MODE_GRID end, function() return L.EDIT_MODE_GRID_TIP end)
-toolbarButton("EDIT_MODE_RESET_ALL", function()
+-- Position und Größe aller Anzeigen zurücksetzen, nur nach Rückfrage (Knopf und /lt reset): lässt sich nicht
+-- rückgängig machen
+local confirmResetAll = Widgets.ConfirmPopup(ns.PopupKey("RESET_ALL_FRAMES"), "RESET_ALL_CONFIRM", function()
   Frames.ResetAll()
   for _, overlay in pairs(overlays) do paintOverlay(overlay) end
+  ns.Print(L.RESET_DONE)
 end)
+
+function EditMode.ConfirmResetAll()
+  confirmResetAll()
+end
+
+local resetAllButton = toolbarButton("EDIT_MODE_RESET_ALL", EditMode.ConfirmResetAll)
+Widgets.AttachTooltip(resetAllButton, function() return L.EDIT_MODE_RESET_ALL end,
+  function() return L.EDIT_MODE_RESET_ALL_TIP end)
 toolbarButton("EDIT_MODE_DONE", function() EditMode.Leave() end)
 
 -- Schalter über der Knopfzeile, untereinander und mittig: definition = { label, tip (Locale-Schlüssel), get(db),
@@ -380,7 +395,8 @@ end
 
 local function layoutToolbar()
   toolbar.title:SetText(L.EDIT_MODE_TITLE)
-  toolbar.hint:SetText(L.EDIT_MODE_HINT)
+  toolbar.hint:SetText(L.EDIT_MODE_HINT_1)
+  toolbar.hint2:SetText(L.EDIT_MODE_HINT_2)
   local width = 0
   for _, button in ipairs(toolbarButtons) do
     Widgets.SetButtonText(button, L[button.labelKey], TOOLBAR_BUTTON_WIDTH)
@@ -398,9 +414,10 @@ local function layoutToolbar()
     previous = button
   end
   local checkWidth, checkHeight = layoutToolbarChecks()
-  local textWidth = math.max(toolbar.title:GetStringWidth() or 0, toolbar.hint:GetStringWidth() or 0, checkWidth)
+  local textWidth = math.max(toolbar.title:GetStringWidth() or 0, toolbar.hint:GetStringWidth() or 0,
+    toolbar.hint2:GetStringWidth() or 0, checkWidth)
   toolbar:SetSize(math.max(width, textWidth) + 2 * TOOLBAR_PADDING,
-    3 * TOOLBAR_PADDING + 2 * 14 + BUTTON_HEIGHT + checkHeight)
+    3 * TOOLBAR_PADDING + 3 * TOOLBAR_TEXT_LINE + BUTTON_HEIGHT + checkHeight)
 end
 
 -- Tastatur: Pfeile und Esc nimmt die Leiste selbst, alles andere geht weiter ans Spiel (Laufen bleibt möglich).

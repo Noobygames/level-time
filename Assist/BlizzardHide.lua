@@ -168,14 +168,15 @@ BlizzardHide.ENTRIES = {
   { id = "minimap", label = "BLIZZ_FRAME_MINIMAP", frames = first("MinimapCluster") },
   { id = "zoneText", label = "BLIZZ_FRAME_ZONE_TEXT", frames = zoneText },
   { id = "clock", label = "BLIZZ_FRAME_CLOCK", frames = first("TimeManagerClockButton") },
-  { id = "calendar", label = "BLIZZ_FRAME_CALENDAR", frames = first("GameTimeFrame"), setting = "minimapHideCalendar" },
+  { id = "calendar", label = "BLIZZ_FRAME_CALENDAR", frames = first("GameTimeFrame"), setting = "minimapHideCalendar",
+    tip = "MINIMAP_HIDE_CALENDAR_TIP", available = function() return ns.MinimapTweaks.HasCalendarButton() end },
   { id = "buffs", label = "BLIZZ_FRAME_BUFFS", frames = first("BuffFrame") },
   { id = "debuffs", label = "BLIZZ_FRAME_DEBUFFS", frames = first("DebuffFrame") },
   -- Quest-Items im Tracker sind geschützte Knöpfe
   { id = "tracker", label = "BLIZZ_FRAME_TRACKER", protected = true,
     frames = first("ObjectiveTrackerFrame", "QuestWatchFrame", "WatchFrame") },
   { id = "chat", label = "BLIZZ_FRAME_CHAT", frames = chatWindows },
-  { id = "chatButtons", label = "BLIZZ_FRAME_CHAT_BUTTONS", setting = "hideChatButtons",
+  { id = "chatButtons", label = "BLIZZ_FRAME_CHAT_BUTTONS", setting = "hideChatButtons", tip = "HIDE_CHAT_BUTTONS_TIP",
     frames = function() return named(ns.ChatWindows.BUTTONS)() end },
   { id = "mainBar", label = "BLIZZ_FRAME_MAIN_BAR", frames = first("MainActionBar"),
     buttons = numbered("ActionButton%d", ACTION_BUTTONS), protected = true },
@@ -194,14 +195,17 @@ BlizzardHide.ENTRIES = {
   { id = "bar8", label = "BLIZZ_FRAME_BAR", number = 8, frames = first("MultiBar7"),
     buttons = numbered("MultiBar7Button%d", ACTION_BUTTONS), protected = true },
   { id = "barArt", label = "BLIZZ_FRAME_BAR_ART", frames = barArt },
-  { id = "stance", label = "BLIZZ_FRAME_STANCE", frames = first("StanceBar"), setting = "hideStanceBar" },
+  { id = "stance", label = "BLIZZ_FRAME_STANCE", frames = first("StanceBar"), setting = "hideStanceBar",
+    tip = "HIDE_STANCE_BAR_TIP", available = function() return ns.HideFrames.HasStanceBar() end, advanced = true },
   { id = "petBar", label = "BLIZZ_FRAME_PET_BAR", frames = first("PetActionBar", "PetActionBarFrame"),
     buttons = numbered("PetActionButton%d", PET_BUTTONS), protected = true },
   { id = "microMenu", label = "BLIZZ_FRAME_MICRO_MENU", frames = first("MicroMenuContainer", "MicroMenu"),
     buttons = named(MICRO_BUTTONS), protected = true },
   { id = "bags", label = "BLIZZ_FRAME_BAGS", frames = first("BagsBar"), buttons = named(BAG_BUTTONS), protected = true },
-  { id = "xpBar", label = "BLIZZ_FRAME_XP_BAR", frames = statusBars("experience"), setting = "hideBlizzardXpBar" },
-  { id = "repBar", label = "BLIZZ_FRAME_REP_BAR", frames = statusBars("reputation"), setting = "hideBlizzardRepBar" },
+  { id = "xpBar", label = "BLIZZ_FRAME_XP_BAR", frames = statusBars("experience"), setting = "hideBlizzardXpBar",
+    tip = "HIDE_BLIZZARD_XP_BAR_TIP", available = function() return ns.HideFrames.HasXpBar() end },
+  { id = "repBar", label = "BLIZZ_FRAME_REP_BAR", frames = statusBars("reputation"), setting = "hideBlizzardRepBar",
+    tip = "HIDE_BLIZZARD_REP_BAR_TIP", available = function() return ns.HideFrames.HasRepBar() end, advanced = true },
   { id = "durability", label = "BLIZZ_FRAME_DURABILITY", frames = first("DurabilityFrame") },
   { id = "vehicleSeat", label = "BLIZZ_FRAME_VEHICLE_SEAT", frames = first("VehicleSeatIndicator"), client = modern },
   -- Sprechender Kopf: Blizzard blendet ihn mit Animationen ein; Ereignis abmelden statt Alpha (wie das Boss-Banner)
@@ -285,20 +289,22 @@ function BlizzardHide.Toggle(id)
   BlizzardHide.SetHidden(id, not BlizzardHide.IsHidden(id))
 end
 
--- Schalter für die Optionen (OptionsBuilder.AddToggles): eigene Einträge, die es im Client geben kann
+-- Schalter für die Optionen (OptionsBuilder.AddToggles): jeder Eintrag, den es im Client geben kann, auch die mit
+-- eigener Einstellung (der Schalter setzt dann diese, setting = Zurücksetzen je Unterseite; tip = Erklärung dieser
+-- Einstellung, available = Bedingung des anderen Moduls, advanced = nur mit allen Optionen)
 function BlizzardHide.Toggles()
   local toggles = {}
   for _, entry in ipairs(BlizzardHide.ENTRIES) do
-    if not entry.setting then
-      table.insert(toggles, {
-        label = entry.label,
-        text = function() return BlizzardHide.Label(entry) end,
-        tip = "BLIZZARD_FRAME_TIP",
-        get = function(db) return BlizzardHide.IsHidden(entry.id, db) end,
-        set = function(checked) BlizzardHide.SetHidden(entry.id, checked) end,
-        available = function() return BlizzardHide.IsSupported(entry) end,
-      })
-    end
+    table.insert(toggles, {
+      label = entry.label,
+      text = function() return BlizzardHide.Label(entry) end,
+      tip = entry.tip or "BLIZZARD_FRAME_TIP",
+      setting = entry.setting,
+      advanced = entry.advanced,
+      get = function(db) return BlizzardHide.IsHidden(entry.id, db) end,
+      set = function(checked) BlizzardHide.SetHidden(entry.id, checked) end,
+      available = function() return BlizzardHide.IsSupported(entry) and (entry.available == nil or entry.available()) end,
+    })
   end
   return toggles
 end

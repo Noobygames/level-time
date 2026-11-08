@@ -11,6 +11,7 @@ local GAP = Manager.BUTTON_GAP
 local CHECKBOX_WIDTH = 26 + addon.Widgets.CHECKBOX_LABEL_GAP
 local MIN_BOX_WIDTH = 100     -- Textfelder bleiben benutzbar breit
 local MIN_PACK_LABEL = 150    -- Name eines Pakets neben seinen Knöpfen
+local MIN_ROW_TEXT = 300      -- Titel eines laufenden Ziels neben Bearbeiten, Abbrechen, + und -
 
 local function rowWidth(widgets)
   local width = 0
@@ -25,6 +26,8 @@ local function textWidth(fontString)
 end
 
 wow.login({ level = 10 })
+SlashCmdList.STREAMGOAL("add custom Ragnaros legen")
+local running = streamGoal.Goals.Active()[1]
 SlashCmdList.STREAMGOAL("")
 
 for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
@@ -42,6 +45,14 @@ for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
   local used = rowWidth({ Manager.extrasButton, Manager.saveOwnButton, Manager.addButton }) + GAP
   expectTrue(language .. ": Knopfzeile aufgeklappt " .. used, used <= WIDTH)
   Manager.ToggleExtras(false)
+
+  -- Laufendes Ziel: Text neben Bearbeiten/Abbrechen/+ noch lesbar; Bearbeiten: Speichern und Beenden in der Breite
+  local activeRow = Manager.ActiveRow(running.id)
+  expectTrue(language .. ": Text der laufenden Zeile breit genug", activeRow.text:GetWidth() >= MIN_ROW_TEXT)
+  Manager.EditGoal(running.id)
+  used = rowWidth({ Manager.saveEditButton, Manager.stopEditButton })
+  expectTrue(language .. ": Knopfzeile Bearbeiten " .. used, used <= WIDTH)
+  Manager.StopEditing()
 
   -- Bingo: Textfeld neben "Ins Feld", Knopfzeile in der Breite
   Manager.Toggle("bingo")

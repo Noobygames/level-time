@@ -19,7 +19,7 @@ expectNear("Anteil am Level", records[2].share, 0.5)
 expect("anderer Charakter: leer", #QuestViews.TurnInRecords("Jemand-Testrealm"), 0)
 
 SlashCmdList.LEVELTIMER("history")
-expectTrue("Reiter Quests", wow.click(L.HISTORY_GROUP_QUESTS))
+expectTrue("Reiter Quests", wow.click(L.HISTORY_GROUP_ANALYSIS))
 expectTrue("Unterreiter Abgabe", wow.click(L.HISTORY_TAB_TURN_IN))
 local shown = wow.shownTable()
 expect("Tabelle zeigt beide", #shown:GetVisibleRecords(), 2)

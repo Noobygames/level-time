@@ -2,9 +2,13 @@
 -- große Zeit mit Unterzeile, XP-Balken mit Tooltip, Textfelder des schmalen Balkens, Zeilen (Bezeichnung + Wert) und
 -- Kacheln. Zeilen und Kacheln entstehen nach Bedarf (Pool). Texte setzen die Layouts über Widgets.SetTextIfChanged,
 -- daher gibt es sie nur hier und nie mit SetText von außen.
+-- Zeilen und Kacheln haben eine Mausfläche mit Tooltip (Erklärung der Stat aus STAT_*_TIP, dazu die Bedeutung von
+-- Platzhaltern wie "..."); Ziehen und Rechtsklick gehen an das Fenster weiter.
 local _, ns = ...
+local L = ns.L
 local Widgets = ns.Widgets
 local Theme = ns.Theme
+local Format = ns.Format
 
 local WindowElements = {
   XP_BAR_HEIGHT = 6,
@@ -21,7 +25,48 @@ local Elements = {}
 Elements.__index = Elements
 
 ---------------------------------------------------------------------------
--- XP-Balken: Grund, Erholungs-Bonus, fertige Quests, Fortschritt; darüber eine Mausfläche für den Tooltip
+-- Mausflächen: Ziehen, Loslassen (Rechtsklick = Einstellungen) gehen an das Fenster weiter
+---------------------------------------------------------------------------
+local FORWARDED_SCRIPTS = { "OnDragStart", "OnDragStop", "OnMouseUp" }
+
+local function forwardMouse(frame, window)
+  frame:EnableMouse(true)
+  frame:RegisterForDrag("LeftButton")
+  for _, script in ipairs(FORWARDED_SCRIPTS) do
+    frame:SetScript(script, function(_, ...)
+      local handler = window:GetScript(script)
+      if handler then handler(window, ...) end
+    end)
+  end
+end
+
+-- Tooltip-Text einer Zeile des Modells (WindowModel: { label, stat, value }): Erklärung der Stat, dazu die Bedeutung
+-- eines Platzhalters, wenn gerade einer dasteht; nil = kein Tooltip
+function WindowElements.RowTip(data)
+  if not data then return nil end
+  local parts = {}
+  if data.stat then table.insert(parts, L[data.stat.label .. "_TIP"]) end
+  if data.value == Format.PENDING then
+    table.insert(parts, L.ROW_PENDING_TIP)
+  elseif data.value == Format.NO_VALUE then
+    table.insert(parts, L.ROW_NO_VALUE_TIP)
+  end
+  if #parts == 0 then return nil end
+  return table.concat(parts, "\n\n")
+end
+
+-- Mausfläche mit Tooltip zu den Daten in hover.data (setzt Elements:SetHoverData); watch meldet sie der Sichtbarkeit
+local function newRowHover(el, parent)
+  local hover = CreateFrame("Frame", nil, parent)
+  forwardMouse(hover, el.window)
+  Widgets.AttachTooltip(hover, function() return hover.data and hover.data.label or "" end,
+    function() return WindowElements.RowTip(hover.data) end)
+  if el.watchHover then el.watchHover(hover) end
+  return hover
+end
+
+---------------------------------------------------------------------------
+-- XP-Balken: Grund, Erholt-Bonus, fertige Quests, Fortschritt; darüber eine Mausfläche für den Tooltip
 ---------------------------------------------------------------------------
 local XpBar = {}
 XpBar.__index = XpBar
@@ -41,14 +86,7 @@ local function newXpBar(window)
   -- Mausfläche: Tooltip mit genauen Zahlen; Ziehen und Rechtsklick gehen an das Fenster weiter
   bar.hover = CreateFrame("Frame", nil, window)
   bar.hover:SetAllPoints(bar.background)
-  bar.hover:EnableMouse(true)
-  bar.hover:RegisterForDrag("LeftButton")
-  for _, script in ipairs({ "OnDragStart", "OnDragStop", "OnMouseUp" }) do
-    bar.hover:SetScript(script, function(_, ...)
-      local handler = window:GetScript(script)
-      if handler then handler(window, ...) end
-    end)
-  end
+  forwardMouse(bar.hover, window)
   ns.XpTooltip.Attach(bar.hover)
   bar:SetShown(false)
   return bar
@@ -99,7 +137,8 @@ end
 ---------------------------------------------------------------------------
 -- Elemente eines Fensters
 ---------------------------------------------------------------------------
--- tabs = { Reiter Level, Session, Instanz } (Buttons mit SetLabel/SetActive, von TimerWindow)
+-- tabs = { Reiter Level, Session, Instanz } (Buttons mit SetLabel/SetActive, von TimerWindow); el.watchHover(frame)
+-- optional: neue Mausflächen (Zeilen, Kacheln) anmelden, z.B. bei der Sichtbarkeitsregel "bei Mauskontakt"
 function WindowElements.New(window, tabs)
   local el = setmetatable({
     window = window, tabs = tabs, rows = {}, tiles = {}, tabTexts = {},
@@ -129,7 +168,8 @@ function Elements:SetRowFonts(labelFont, valueFont)
   end
 end
 
--- Zeile index ({ label, value }), bei Bedarf angelegt
+-- Zeile index ({ label, value, hover }), bei Bedarf angelegt; die Mausfläche reicht von der Bezeichnung bis zum Wert,
+-- folgt also jedem Layout, das beide anordnet
 function Elements:Row(index)
   local row = self.rows[index]
   if row then return row end
@@ -137,8 +177,18 @@ function Elements:Row(index)
     label = self.window:CreateFontString(nil, "OVERLAY", self.labelFont),
     value = self.window:CreateFontString(nil, "OVERLAY", self.valueFont),
   }
+  row.hover = newRowHover(self, self.window)
+  row.hover:SetPoint("TOPLEFT", row.label, "TOPLEFT")
+  row.hover:SetPoint("BOTTOMRIGHT", row.value, "BOTTOMRIGHT")
+  row.hover:Hide()
   self.rows[index] = row
   return row
+end
+
+-- Tooltip-Daten einer Zeile oder Kachel (Zeile aus model.rows, nil = kein Tooltip) und Mausfläche zeigen
+function Elements:SetHoverData(hover, data)
+  hover.data = data
+  hover:SetShown(data ~= nil)
 end
 
 -- Kachel index ({ frame, value, label }): Fläche im Stil der Karten, Wert groß, Beschriftung klein darunter
@@ -151,6 +201,10 @@ function Elements:Tile(index)
     value = frame:CreateFontString(nil, "OVERLAY", Theme.Font("number")),
     label = frame:CreateFontString(nil, "OVERLAY", Theme.Font("label")),
   }
+  forwardMouse(frame, self.window)
+  Widgets.AttachTooltip(frame, function() return tile.data and tile.data.label or "" end,
+    function() return WindowElements.RowTip(tile.data) end)
+  if self.watchHover then self.watchHover(frame) end
   tile.value:SetPoint("TOP", frame, "TOP", 0, -WindowElements.TILE_PADDING)
   tile.label:SetPoint("BOTTOM", frame, "BOTTOM", 0, WindowElements.TILE_PADDING)
   self.tiles[index] = tile
@@ -162,6 +216,7 @@ function Elements:HideRowsFrom(index)
   for i = index, #self.rows do
     self.rows[i].label:Hide()
     self.rows[i].value:Hide()
+    self.rows[i].hover:Hide()
   end
 end
 

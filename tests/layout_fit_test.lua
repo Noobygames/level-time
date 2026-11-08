@@ -35,7 +35,7 @@ local function checkOptions(language)
   for _, pair in ipairs({
     { "SHOW_XP_BAR", "AUTO_INSTANCE_TAB" },
     { "STAT_XP_RATE", "STAT_RECENT_XP_RATE" },
-    { "ALERT_TOGGLE_LEVEL_UP", "ALERT_TOGGLE_RARE" },
+    { "ALERT_TOGGLE_RARE", "ALERT_TOGGLE_ELITE" },
     { "WARN_BAGS_FULL_TOGGLE", "WARN_DURABILITY_TOGGLE" },
     { "AUTO_ACCEPT_QUESTS", "AUTO_ACCEPT_SHARED" },
   }) do
@@ -84,16 +84,20 @@ SlashCmdList.LEVELTIMER("history")
 local history = LevelTimerHistory
 expectTrue("Reiter Graphen", wow.click(L.HISTORY_TAB_CHARTS))
 
-local SUBTABS_TOP = -88  -- wie in HistoryWindow.lua
-local SINGLE_ROW_HEIGHT = 110 + addon.HistoryWindow.CONTENT_HEIGHT + 16  -- Fenster mit einer Unterreiter-Zeile
+local SUBTABS_TOP = addon.HistoryWindow.SubtabsTop()
+local SINGLE_ROW_HEIGHT = -SUBTABS_TOP + 22 + addon.HistoryWindow.CONTENT_HEIGHT + 16  -- eine Unterreiter-Zeile
 local contentRight = 16 + addon.HistoryWindow.CONTENT_WIDTH
 
--- Unterreiter: sichtbare Buttons mit Anker "TOPLEFT", x, y ab der Unterreiter-Zeile
+local mainTabs = {}
+for _, tab in ipairs(addon.HistoryWindow.MainTabs()) do mainTabs[tab] = true end
+
+-- Unterreiter: sichtbare Buttons mit Anker "TOPLEFT", x, y ab der Unterreiter-Zeile (ohne Hauptreiter)
 local subtabs = {}
 wow.findFrame(function(frame)
   local label = rawget(frame, "label")
   local point = frame._points[1]
-  if label and frame:IsShown() and point and point[1] == "TOPLEFT" and #point == 3 and type(point[3]) == "number" and point[3] <= SUBTABS_TOP then
+  if label and not mainTabs[frame] and frame:IsShown() and point and point[1] == "TOPLEFT" and #point == 3
+    and type(point[3]) == "number" and point[3] <= SUBTABS_TOP then
     table.insert(subtabs, frame)
   end
   return false
@@ -108,6 +112,27 @@ for _, subtab in ipairs(subtabs) do
 end
 expectTrue("Unterreiter brechen in eine zweite Zeile um", wrapped)
 expectTrue("Fenster wächst mit den Zeilen", history:GetHeight() > SINGLE_ROW_HEIGHT)
+
+-- Hauptreiter: in jeder Sprache innerhalb der Inhaltsbreite (umbrechen statt über den Rand), die Unterreiter
+-- beginnen unter der letzten Hauptreiter-Zeile
+for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
+  addon.Set("language", language)
+  local lowestMain = 0
+  for _, tab in ipairs(addon.HistoryWindow.MainTabs()) do
+    local x, y = tab._points[1][2], tab._points[1][3]
+    expectTrue(language .. ": Hauptreiter " .. tab.label._text .. " in der Breite", x + tab:GetWidth() <= contentRight)
+    lowestMain = math.min(lowestMain, y)
+  end
+  expectTrue(language .. ": Unterreiter unter den Hauptreitern", addon.HistoryWindow.SubtabsTop() < lowestMain)
+end
+-- Lange Beschriftungen erzwingen den Umbruch: mehrere Zeilen, Unterreiter rücken nach unten
+local chartsLabel = addon.locales.enUS.HISTORY_TAB_CHARTS
+addon.locales.enUS.HISTORY_TAB_CHARTS = string.rep("Long chart tab name ", 4)
+addon.Set("language", "enUS")
+addon.ApplySettings()
+expectTrue("Hauptreiter brechen um", addon.HistoryWindow.SubtabsTop() < SUBTABS_TOP)
+addon.locales.enUS.HISTORY_TAB_CHARTS = chartsLabel
+addon.Set("language", "deDE")
 
 -- Buttons mit übersetztem Text werden so breit wie ihr Text (Historie: Daten löschen, Profil speichern)
 for _, language in ipairs({ "frFR", "esES", "deDE", "enUS" }) do

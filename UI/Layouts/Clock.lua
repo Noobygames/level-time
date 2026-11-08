@@ -1,5 +1,6 @@
 -- Layout "clock" (große Uhr, für Streams): nur die Spielzeit groß, darunter eine Zeile mit den gewählten Werten
--- (compactRows, Kurzlabels) oder ohne Auswahl dem Bereich ("Level 23"); XP-Balken darunter, wenn eingeschaltet.
+-- (compactRows, Kurzlabels), immer mit dem Bereich vorn ("Level 23 - XP/h 8k", UX W7); XP-Balken darunter, wenn
+-- eingeschaltet.
 local _, ns = ...
 local Layouts = ns.WindowLayouts
 local WindowModel = ns.WindowModel
@@ -10,12 +11,14 @@ local MIN_WIDTH = 120
 local SUB_GAP = 2
 local setText = ns.WindowElements.SetText
 local fontSize = Layouts.FontSize
+local SCOPE_SEPARATOR = " - "  -- zwischen Bereich und Werten
 
 local layout = { label = "LAYOUT_CLOCK", source = WindowModel.CHOSEN }
 
 local function subText(model)
-  if #model.rows == 0 then return model.scopeText or "" end
-  return Layouts.JoinRows(model)
+  local scope = model.scopeText or ""
+  if #model.rows == 0 then return scope end
+  return scope .. SCOPE_SEPARATOR .. Layouts.JoinRows(model)
 end
 
 function layout.Build(el, model)

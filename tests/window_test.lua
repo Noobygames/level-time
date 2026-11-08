@@ -45,6 +45,7 @@ window.StartMoving = nil
 
 -- Zurücksetzen
 SlashCmdList.LEVELTIMER("reset")
+StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)  -- Rückfrage bestätigen
 expect("Eintrag zurückgesetzt", LevelTimerDB.frames.main, nil)
 expect("Fenster zurückgesetzt", window:GetScale(), 1)
 

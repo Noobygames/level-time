@@ -91,6 +91,15 @@ local function goalsOf(key)
   return own and own.goals or nil
 end
 
+-- Titel der Ziele eines Pakets, ohne sie anzulegen (Tooltip in der Sammlung); fertige für das aktuelle Level
+function Packs.Titles(key)
+  local titles = {}
+  for _, entry in ipairs(goalsOf(key) or {}) do
+    if Goals.GetKind(entry.kind) then table.insert(titles, ns.Pool.Title(entry)) end
+  end
+  return titles
+end
+
 -- Eingaben anlegen, so viele wie Platz ist; Rückgabe: Anzahl angelegt, erster Fehlertext
 local function createAll(entries)
   if Goals.UsedSlots() + #entries > Goals.MAX_ACTIVE then
@@ -150,7 +159,7 @@ end
 ---------------------------------------------------------------------------
 -- Teilen als Text
 ---------------------------------------------------------------------------
--- Eingaben { { kind, params, target, extras } } als Text "LT1:goals:..."; own = true kennzeichnet eigene Ziele
+-- Eingaben { { kind, params, target, extras } } als Text "LT1:goals:..."; own = true kennzeichnet Vorlagen
 -- (Library.lua), damit ein Import sie von Paketen unterscheidet (Sharing.lua)
 function Packs.Encode(name, entries, own)
   return LT.Serializer.Encode(Packs.SERIAL_KIND, { name = name, goals = entries, own = own or nil })
@@ -180,7 +189,7 @@ local function sanitize(data, limit)
 end
 
 -- Text lesen und prüfen; limit = höchstens so viele Einträge (Standard: ein Paket). Rückgabe: Eingaben, Name und ob es
--- eigene Ziele sind (own), oder nil
+-- Vorlagen sind (own), oder nil
 function Packs.Decode(text, limit)
   return sanitize(LT.Serializer.Decode(Packs.SERIAL_KIND, strtrim(text or "")), limit or MAX_PACK_GOALS)
 end

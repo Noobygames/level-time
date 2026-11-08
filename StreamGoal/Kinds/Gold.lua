@@ -24,6 +24,7 @@ Goals.RegisterKind("gold", {
   usage = "SG_USAGE_GOLD",
   color = LT.Theme.COLORS.gold,
   icon = ICON,
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { amount = "SG_FORM_GOLD", fields = {
     { type = "choice", param = "mode", label = "SG_FORM_GOLD_MODE", values = MODES, labels = MODE_LABELS },
   } },
@@ -53,7 +54,7 @@ Goals.RegisterKind("gold", {
   countText = function(goal)
     return string.format("%s / %s", Kinds.GoldText(goal.progress), Kinds.GoldText(goal.target))
   end,
-  title = function(goal) return string.format(L[TITLES[goal.params.mode]], gold(goal.target)) end,
+  title = function(goal) return Kinds.Counted(TITLES[goal.params.mode], gold(goal.target)) end,
 })
 
 -- "1.234g" mit der Gold-Einheit von Level Time (L.UNIT_GOLD_SHORT), ohne Silber und Kupfer

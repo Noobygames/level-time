@@ -1,6 +1,6 @@
--- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Hinweise, Einblendungen, Komfort, Speedrun, Profile; alle
--- außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie, Layout bearbeiten,
--- Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
+-- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Chat & Erinnerungen, Einblendungen, Komfort, Speedrun,
+-- Profile; alle außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie,
+-- Layout bearbeiten, Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
 -- Nur der Inhalt; Aufbau, Tooltips, Breite und Aktualisierung übernimmt Lib/OptionsBuilder.lua.
 local _, ns = ...
 local L = ns.L
@@ -13,6 +13,8 @@ local MAX_PROFILE_ROWS = 6     -- so viele Profile listet der Reiter "Profile"
 local ROW_PROFILE = 20
 local PROFILE_NAME_WIDTH = 160
 local PROFILE_SAVE_WIDTH = 120
+local PROFILE_LABEL_OFFSET = 4  -- Beschriftung "Neues Profil:" mittig zur Höhe des Felds
+local PROFILE_BOX_BORDER = 6    -- InputBoxTemplate zeichnet seinen Rand links außerhalb
 local DELETE_PROFILE_POPUP = ns.PopupKey("DELETE_PROFILE")
 local QUEST_EXCLUDE_WIDTH = 200  -- Eingabefeld für die eigene Sperrliste der Quest-Automatik
 
@@ -35,6 +37,19 @@ local toggle, localized = Builder.Toggle, Builder.Localized
 -- Baustein nur im Modus "Erweitert" (Roadmap 402): selten gebraucht, für Feineinstellungen
 local function advanced(definition)
   definition.advanced = true
+  return definition
+end
+
+-- Baustein, der nur wirkt, wenn eine der Einstellungen an ist: sonst ausgegraut (enabled), damit kein Haken gesetzt
+-- und doch wirkungslos aussieht (z.B. Flugzeit-Tooltip ohne Flugzeiten)
+local function requires(definition, ...)
+  local settings = { ... }
+  definition.enabled = function(db)
+    for _, setting in ipairs(settings) do
+      if db[setting] then return true end
+    end
+    return false
+  end
   return definition
 end
 
@@ -92,6 +107,25 @@ local function addBackgroundChooser()
     { value = "green", name = localized("BACKGROUND_GREEN") },
     { value = "magenta", name = localized("BACKGROUND_MAGENTA") },
   } })
+end
+
+-- Kontur der Schrift (Aussehen; auf der Stream-Seite als Abkürzung, weil OBS-Szenen sie brauchen)
+local function addOutlineChooser(isAdvanced)
+  local outlines = {}
+  for i, key in ipairs(ns.Theme.OUTLINE_ORDER) do
+    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = isAdvanced })
+end
+
+-- Abkürzung zu den Layouts, die sich für OBS eignen (alle Layouts: Allgemein > Layout)
+local STREAM_LAYOUTS = { "text", "clock", "table" }
+local function addStreamLayoutChooser()
+  local choices = {}
+  for i, id in ipairs(STREAM_LAYOUTS) do
+    choices[i] = { value = id, name = localized(ns.WindowLayouts.Get(id).label) }
+  end
+  addChooser({ label = "STREAM_LAYOUT", setting = "windowLayout", choices = choices })
 end
 
 -- Profile: Liste (Klick wechselt, Rechtsklick löscht), Name + Speichern, Export und Import
@@ -197,21 +231,68 @@ function ns.ShowProfileImport()
   end)
 end
 
+-- Wer das aktive Profil nutzt (UX S28): "Aktiv: Name (genutzt von N Charakteren)", die Namen im Tooltip
+local MAX_PROFILE_USER_NAMES = 15  -- mehr Namen im Tooltip nur als Anzahl
+
+local function profileUsageText()
+  local Profiles = ns.Profiles
+  local active = Profiles.GetActive()
+  local count = #Profiles.CharactersOf(active)
+  return string.format(count == 1 and L.PROFILE_ACTIVE_USED_ONE or L.PROFILE_ACTIVE_USED, Profiles.DisplayName(active), count)
+end
+
+local function profileUsersTip()
+  local keys = ns.Profiles.CharactersOf(ns.Profiles.GetActive())
+  local names = {}
+  for i = 1, math.min(#keys, MAX_PROFILE_USER_NAMES) do names[i] = ns.History.DisplayName(keys[i]) end
+  if #keys > MAX_PROFILE_USER_NAMES then
+    table.insert(names, string.format(L.PROFILE_USERS_MORE, #keys - MAX_PROFILE_USER_NAMES))
+  end
+  return L.PROFILE_ACTIVE_TIP .. (#names > 0 and "\n\n" .. table.concat(names, "\n") or "")
+end
+
+local function addProfileUsage()
+  local page = builder.Page()
+  local line = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  line:SetJustifyH("LEFT")
+  builder.AddRow(line, ROW_PROFILE, true)
+  -- Tooltip braucht eine Mausfläche über der Zeile
+  local hover = CreateFrame("Frame", nil, page)
+  hover:SetAllPoints(line)
+  hover:EnableMouse(true)
+  Widgets.AttachTooltip(hover, profileUsageText, profileUsersTip)
+  builder.OnRefresh(function() line:SetText(profileUsageText()) end)
+  builder.profileUsage = line  -- Tests
+end
+
+-- Name + Speichern: Beschriftung vor dem Feld, Knopf erst mit Namen bedienbar (UX S28)
 local function addProfileSaver()
   local page = builder.Page()
+  local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  label:SetPoint("TOPLEFT", Builder.MARGIN, builder.RowY() - PROFILE_LABEL_OFFSET)
   local nameBox = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
   nameBox:SetSize(PROFILE_NAME_WIDTH, Builder.BUTTON_HEIGHT)
   nameBox:SetAutoFocus(false)
-  nameBox:SetPoint("TOPLEFT", Builder.MARGIN + 6, builder.RowY())  -- Vorlage zeichnet ihren Rand links außerhalb
+  nameBox:SetPoint("LEFT", label, "RIGHT", Builder.CHOOSER_TAB_GAP + PROFILE_BOX_BORDER, 0)  -- Rand links außerhalb
   local saveButton = Widgets.CreateButton(page, PROFILE_SAVE_WIDTH, Builder.BUTTON_HEIGHT, function()
     ns.ConfirmProfileSave(nameBox:GetText(), function() nameBox:SetText("") end)
   end)
   saveButton:SetPoint("LEFT", nameBox, "RIGHT", Builder.CHOOSER_TAB_GAP, 0)
   builder.AddTooltip(saveButton, "PROFILE_SAVE_TIP", localized("PROFILE_SAVE"))
+  builder.AddTooltip(nameBox, "PROFILE_NEW_NAME_TIP", localized("PROFILE_NEW_NAME"))
+  local function updateSaveButton()
+    saveButton:SetEnabled(strtrim(nameBox:GetText() or "") ~= "")
+  end
+  nameBox:SetScript("OnTextChanged", updateSaveButton)
   nameBox:SetScript("OnEnterPressed", function() saveButton:Click() end)
   nameBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
   builder.Advance(Builder.ROW_BUTTON)
-  builder.OnRefresh(function() Widgets.SetButtonText(saveButton, L.PROFILE_SAVE, PROFILE_SAVE_WIDTH) end)
+  builder.OnRefresh(function()
+    label:SetText(L.PROFILE_NEW_NAME)
+    Widgets.SetButtonText(saveButton, L.PROFILE_SAVE, PROFILE_SAVE_WIDTH)
+    updateSaveButton()
+  end)
+  builder.profileNameBox, builder.profileSaveButton = nameBox, saveButton  -- Tests
 end
 
 local function percent(value)
@@ -254,14 +335,11 @@ local function addThemeSection()
     set = function(value) ns.SetDeferred("themeFontSize", value) end,
     format = function(value) return value > 0 and "+" .. value or tostring(value) end,
   })
-  local outlines = {}
-  for i, key in ipairs(Theme.OUTLINE_ORDER) do
-    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
-  end
-  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = true })
+  addOutlineChooser()
   -- Lesbarkeit: Untergrenze der effektiven Schriftgröße (auch gegen kleine Anzeigen), Balkentextur, Farbe nach Wert
   builder.AddCycleButton({
     label = "THEME_MIN_FONT_SIZE",
+    advanced = true,
     setting = "themeMinFontSize",
     choices = function()
       local choices = {}
@@ -274,6 +352,7 @@ local function addThemeSection()
   })
   builder.AddCycleButton({
     label = "THEME_BAR_TEXTURE",
+    advanced = true,
     setting = "themeBarTexture",
     choices = Theme.BarTextureChoices,
     get = function(db) return db.themeBarTexture end,
@@ -286,7 +365,7 @@ local function addThemeSection()
       return key
     end,
   })
-  addToggles({ toggle("VALUE_COLORS", "valueColors") })
+  addToggles({ advanced(toggle("VALUE_COLORS", "valueColors")) })
 end
 
 -- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige
@@ -439,11 +518,14 @@ local function addRowOrderSection()
   }, { advanced = true })
 end
 
--- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern
-local function addFrameScaleSlider(label, id)
+-- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern;
+-- enabled(db) optional (ausgegraut, solange die Anzeige aus ist), isAdvanced optional (nur mit allen Optionen)
+local function addFrameScaleSlider(label, id, enabled, isAdvanced)
   local Frames = ns.Frames
   addSlider({
     label = label,
+    advanced = isAdvanced,
+    enabled = enabled,
     min = toPercent(Frames.MIN_SCALE),
     max = toPercent(Frames.MAX_SCALE),
     step = 5,
@@ -463,6 +545,12 @@ end
 -- sich nach der längsten Unterseite. Kategorie-Namen: OPTIONS_PAGE_* (Komfort: COMFORT_PAGE_*).
 local addSubPage, finishSubPages = builder.AddSubPage, builder.FinishSubPages
 
+-- Quest-XP auf dem XP-Balken: nur mit Balken (Schalter oder Layout "xpbar", das ihn immer zeigt)
+local function requiresBar(definition)
+  definition.enabled = function(db) return db.showXpBar or ns.WindowLayouts.Get(db.windowLayout).alwaysXpBar == true end
+  return definition
+end
+
 -- Minimap-Button an/aus (Zurücksetzen je Unterseite): nur hide, nicht die Position am Rand
 local minimapReset = {
   get = function() return ns.db.minimap.hide end,
@@ -470,7 +558,7 @@ local minimapReset = {
   default = function() return ns.Database.SettingDefault("minimap").hide end,
 }
 
--- Allgemein: Hauptfenster, Layout, Aussehen, Sprache und Minimap, Stream
+-- Allgemein: Hauptfenster (mit Minimap-Knopf), Layout, Aussehen, Sprache, Stream
 addPage("SECTION_GENERAL")
 addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
@@ -489,8 +577,11 @@ addToggles({
   toggle("LOCK_FRAME", "locked"),
   toggle("SHOW_XP_BAR", "showXpBar"),
   toggle("AUTO_INSTANCE_TAB", "autoInstanceTab"),
-  advanced(toggle("QUEST_XP_ON_BAR", "questXpOnBar")),
+  advanced(requiresBar(toggle("QUEST_XP_ON_BAR", "questXpOnBar"))),
   advanced(toggle("EDIT_MODE_WITH_BLIZZARD", "editModeWithBlizzard", function() return EditModeManagerFrame ~= nil end)),
+  -- Knopf an der Minimap gehört zu den Level-Time-Fenstern, nicht zur Sprache (UX S20)
+  { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 addVisibilitySection()
 addHint("OPTIONS_HINT")
@@ -500,22 +591,24 @@ addSubPage("OPTIONS_PAGE_LOOK")
 addThemeSection()
 addSubPage("SECTION_LANGUAGE")
 addLanguageChooser()
-addToggles({
-  { label = "SHOW_MINIMAP", get = function(db) return not db.minimap.hide end,
-    set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
-})
--- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter)
+-- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter), dazu Abkürzungen zu Layout und
+-- Kontur, die für OBS zählen (UX S18)
 addSubPage("OPTIONS_TAB_STREAM")
+addHint("STREAM_MODE_HINT")
 addToggles({
   { label = "STREAM_MODE", get = function() return ns.StreamMode.IsEnabled() end,
     set = function(checked) ns.StreamMode.SetEnabled(checked) end },
   toggle("STREAMER_PRIVACY", "streamerPrivacy"),
   toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
-  -- Abkürzung zu "Minimap-Button anzeigen" (Sprache & Minimap), umgekehrt formuliert
+  -- Abkürzung zu "Minimap-Knopf anzeigen" (Allgemein > Hauptfenster), umgekehrt formuliert
   { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
     set = function(checked) ns.SetMinimapHidden(checked) end, reset = minimapReset },
 })
+addSection("SECTION_STREAM_OBS")
+addHint("STREAM_OBS_HINT")
+addStreamLayoutChooser()
 addBackgroundChooser()
+addOutlineChooser()
 finishSubPages()
 finishPage()
 
@@ -579,12 +672,14 @@ addSlider({
 finishSubPages()
 finishPage()
 
--- Hinweise: Level-Up im Chat, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter Komfort > Quests)
+-- Chat & Erinnerungen: Login und Rekorde, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
+-- Komfort > Quests, alles zum Level-Up unter Einblendungen > Level-Up)
 addPage("OPTIONS_TAB_NOTIFICATIONS")
-addSubPage("OPTIONS_PAGE_LEVEL_UP")
-addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains"),
-  toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"), toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
-addAnnounceChooser()
+addSubPage("OPTIONS_PAGE_LOGIN")
+addHint("LEVEL_UP_MOVED_HINT")  -- alles zum Level-Up steht gesammelt unter Einblendungen > Level-Up
+addSection("SECTION_AT_LOGIN")
+addToggles({ toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"),
+  toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addSection("SECTION_PERSONAL_RECORDS")
 addToggles({ toggle("ANNOUNCE_RECORDS_TOGGLE", "announceRecords") })
 
@@ -597,7 +692,19 @@ addToggles({
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
 })
--- Klassen-Hinweise: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
+-- Wiederholung gilt für alle Buff-Erinnerungen (auch die Klassen-Buffs darunter)
+addSlider({
+  label = "REMINDER_INTERVAL",
+  advanced = true,
+  setting = "reminderInterval",
+  min = ns.BuffReminder.MIN_INTERVAL,
+  max = ns.BuffReminder.MAX_INTERVAL,
+  step = 1,
+  get = function(db) return db.reminderInterval end,
+  set = function(value) ns.SetDeferred("reminderInterval", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+})
+-- Klassen-Buffs: nur die der eigenen Klasse; Beschriftung mit den Zaubernamen in der Sprache des Clients
 local classReminders = ns.ClassBuffs.ForPlayerClass()
 if #classReminders > 0 then
   addSection("SECTION_CLASS_REMINDERS")
@@ -610,20 +717,10 @@ if #classReminders > 0 then
   end
   addToggles(classToggles)
 end
-addSlider({
-  label = "REMINDER_INTERVAL",
-  advanced = true,
-  setting = "reminderInterval",
-  min = ns.BuffReminder.MIN_INTERVAL,
-  max = ns.BuffReminder.MAX_INTERVAL,
-  step = 1,
-  get = function(db) return db.reminderInterval end,
-  set = function(value) ns.SetDeferred("reminderInterval", value) end,
-  format = function(value) return string.format(L.MINUTES, value) end,
-})
 -- Pausen-Erinnerung (BreakReminder.lua)
+addSection("SECTION_BREAKS")
 addToggles({ toggle("REMIND_BREAK_TOGGLE", "remindBreak") })
-addSlider({
+addSlider(requires({
   label = "BREAK_MINUTES",
   advanced = true,
   setting = "breakMinutes",
@@ -633,7 +730,7 @@ addSlider({
   get = function(db) return db.breakMinutes end,
   set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
-})
+}, "remindBreak"))
 
 addSubPage("OPTIONS_PAGE_WARNINGS")
 addHint("WARN_LOOK_HINT")
@@ -646,7 +743,7 @@ addToggles({
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
   toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
 })
-addSlider({
+addSlider(requires({
   label = "WARN_BREATH_BELOW",
   advanced = true,
   setting = "breathWarnSeconds",
@@ -656,10 +753,10 @@ addSlider({
   get = function(db) return db.breathWarnSeconds end,
   set = function(value) ns.SetDeferred("breathWarnSeconds", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
+}, "warnBreath"))
 -- Munition: nur für Jäger
 if ns.GearWarnings.ShowsAmmoOptions() then
-  addSlider({
+  addSlider(requires({
     label = "WARN_AMMO_BELOW",
     setting = "ammoLow",
     min = ns.GearWarnings.MIN_AMMO,
@@ -668,8 +765,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoLow end,
     set = function(value) ns.SetDeferred("ammoLow", value) end,
     format = function(value) return string.format(L.AMMO_COUNT, value) end,
-  })
-  addSlider({
+  }, "warnAmmo"))
+  addSlider(requires({
     label = "WARN_AMMO_CRITICAL_BELOW",
     advanced = true,
     setting = "ammoCritical",
@@ -679,8 +776,8 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoCritical end,
     set = function(value) ns.SetDeferred("ammoCritical", value) end,
     format = function(value) return value == 0 and L.AMMO_OFF or string.format(L.AMMO_COUNT, value) end,
-  })
-  addSlider({
+  }, "warnAmmo"))
+  addSlider(requires({
     label = "WARN_AMMO_REPEAT",
     advanced = true,
     setting = "ammoRepeat",
@@ -690,7 +787,7 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     get = function(db) return db.ammoRepeat end,
     set = function(value) ns.SetDeferred("ammoRepeat", value) end,
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
-  })
+  }, "warnAmmo"))
 end
 
 -- Gruppe und Heiler: Ansagen im Gruppenchat
@@ -702,7 +799,7 @@ addToggles({
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
 })
-addSlider({
+addSlider(requires({
   label = "LOW_MANA_BELOW",
   advanced = true,
   setting = "lowManaPercent",
@@ -712,24 +809,25 @@ addSlider({
   get = function(db) return db.lowManaPercent end,
   set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
-})
+}, "announceLowMana"))
 finishSubPages()
 finishPage()
 
--- Einblendungen: welche Ereignisse, Aussehen und Position (Hinweise aus dem Reiter Hinweise nutzen dieselbe),
--- Level-Up-Fenster und die Zeit-Anzeigen (Lagerfeuer, Essen, Flüge)
+-- Einblendungen: welche Ereignisse, Aussehen und Position (Hinweise aus Chat & Erinnerungen nutzen dieselbe) und
+-- alles zum Level-Up an einem Ort: Fenster, Einblendung, Chatzeile und Ansage (UX S11). Timer und Flüge stehen unter
+-- Komfort > Timer & Flüge.
 addPage("OPTIONS_TAB_ALERTS")
 addSubPage("OPTIONS_PAGE_ALERT_KINDS")
 addSection("SECTION_ALERTS")
 addToggles({
-  toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp"),
   toggle("ALERT_TOGGLE_RARE", "alertRareKill"),
   toggle("ALERT_TOGGLE_ELITE", "alertEliteKill"),
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
   toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
-  toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"),
+  requires(toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"), "alertRareSpotted"),
 })
+addHint("QUEST_ALERTS_HINT")  -- Quest-Einblendungen stehen bei den Quests, die zum Level-Up auf der Seite Level-Up
 addSubPage("OPTIONS_PAGE_ALERT_LOOK")
 addChooser({ label = "ALERT_STYLE", setting = "alertStyle", choices = {
   { value = Alerts.STYLE_BANNER, name = localized("ALERT_STYLE_BANNER") },
@@ -749,20 +847,22 @@ addSlider({
 })
 addToggles({ toggle("ALERT_SOUND", "alertSound") })
 addButton("ALERT_PREVIEW", function() Alerts.Preview() end)
-addSubPage("OPTIONS_PAGE_LEVEL_UP_WINDOW")
+addSubPage("OPTIONS_PAGE_LEVEL_UP")
+addSection("SECTION_LEVEL_UP_WINDOW")
 addToggles({
   toggle("LEVEL_UP_WINDOW_TOGGLE", "levelUpWindow"),
-  toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"),
-  toggle("LEVEL_UP_COMPACT", "levelUpCompact"),
-  toggle("LEVEL_UP_SOUND", "levelUpSound"),
+  requires(toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_COMPACT", "levelUpCompact"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_SOUND", "levelUpSound"), "levelUpWindow"),
 })
-addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", choices = {
+local function levelUpWindowOn(db) return db.levelUpWindow end
+addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = levelUpWindowOn, choices = {
   { value = "modern", name = localized("THEME_MODERN") },
   { value = "alliance", name = localized("THEME_ALLIANCE") },
   { value = "horde", name = localized("THEME_HORDE") },
 } })
-addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp")
-addSlider({
+addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp", levelUpWindowOn)
+addSlider(requires({
   label = "LEVEL_UP_DURATION",
   advanced = true,
   setting = "levelUpDuration",
@@ -772,67 +872,19 @@ addSlider({
   get = function(db) return db.levelUpDuration end,
   set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-})
+}, "levelUpWindow"))
 addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 
--- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
--- Zurücksetzen übernimmt der Edit-Modus (Button unten)
-local function addTimerDisplayControls(prefix, display, frameId)
-  addFrameScaleSlider(prefix .. "_SCALE", frameId)
-  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
-end
-
--- Timer: Lagerfeuer und Schlafsack (nur WoW Forever) und Essen (wo der Client die Buffs "Essen" und "Satt" kennt)
-if ns.CampFire.IsAvailable() or ns.FoodTimer.IsAvailable() or ns.SleepTimer.IsAvailable() then
-  addSubPage("OPTIONS_TAB_TIMERS")
-  if ns.CampFire.IsAvailable() then
-    addSection("SECTION_CAMP")
-    addToggles({
-      toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
-      toggle("CAMP_HINT_TOGGLE", "campHint"),
-      toggle("CAMP_SOUND", "campSound"),
-    })
-    addSlider({
-      label = "CAMP_HINT_PAUSE",
-      advanced = true,
-      setting = "campHintPause",
-      min = ns.CampFire.MIN_HINT_PAUSE,
-      max = ns.CampFire.MAX_HINT_PAUSE,
-      step = 1,
-      get = function(db) return db.campHintPause end,
-      set = function(value) ns.SetDeferred("campHintPause", value) end,
-      format = function(value) return string.format(L.MINUTES, value) end,
-    })
-    addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
-  end
-  if ns.FoodTimer.IsAvailable() then
-    addSection("SECTION_FOOD")
-    addToggles({
-      toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
-      toggle("FOOD_SOUND", "foodSound"),
-    })
-    addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
-  end
-  if ns.SleepTimer.IsAvailable() then
-    addSection("SECTION_SLEEP")
-    addToggles({
-      toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
-      toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
-      toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
-    })
-    addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
-  end
-end
-
--- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
-addSubPage("OPTIONS_PAGE_FLIGHTS")
-addToggles({
-  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
-  toggle("FLIGHT_SOUND", "flightSound"),
-  toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"),
-})
-addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+addSection("SECTION_LEVEL_UP_BANNER")
+-- Die Einblendung kommt nur ohne Level-Up-Fenster (das zeigt dieselben Zuwächse, AlertTriggers.lua)
+local levelUpBanner = toggle("ALERT_TOGGLE_LEVEL_UP", "alertLevelUp")
+levelUpBanner.enabled = function(db) return not db.levelUpWindow end
+addToggles({ levelUpBanner })
+addHint("LEVEL_UP_BANNER_HINT")
+addSection("SECTION_LEVEL_UP_CHAT")
+addToggles({ toggle("LEVEL_UP_SUMMARY_TOGGLE", "levelUpSummary"), toggle("LEVEL_UP_GAINS_TOGGLE", "levelUpGains") })
+addAnnounceChooser()
 finishSubPages()
 finishPage()
 
@@ -840,10 +892,11 @@ finishPage()
 addPage("OPTIONS_TAB_COMFORT")
 addHint("COMFORT_HINT")
 addSubPage("COMFORT_PAGE_AUTOMATION")
+addHint("AUTOMATION_QUESTS_HINT")  -- Quest-Automatik steht bei den Quests
 addSection("SECTION_MERCHANT")
 addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
-  toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank),
+  requires(toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank), "autoRepair"),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
   toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
 })
@@ -851,7 +904,7 @@ addSection("SECTION_CHARACTER")
 addToggles({
   toggle("AUTO_ACCEPT_SUMMON", "autoAcceptSummon"),
   toggle("AUTO_ACCEPT_RESURRECT", "autoAcceptResurrect"),
-  toggle("AUTO_RELEASE_PVP", "autoReleasePvP"),
+  advanced(toggle("AUTO_RELEASE_PVP", "autoReleasePvP")),
 })
 addSubPage("COMFORT_PAGE_SOCIAL")
 addSection("SECTION_DECLINE")
@@ -861,7 +914,7 @@ addToggles({
   toggle("DECLINE_GUILD_INVITES", "declineGuildInvites"),
   toggle("DECLINE_DUELS", "declineDuels"),
   toggle("DECLINE_SHARED_QUESTS", "declineSharedQuests"),
-  toggle("BLOCK_FRIEND_REQUESTS", "blockFriendRequests", ns.Social.CanBlockFriendRequests),
+  advanced(toggle("BLOCK_FRIEND_REQUESTS", "blockFriendRequests", ns.Social.CanBlockFriendRequests)),
 })
 -- Einladungen: Vertraute = Freunde, Gilde und wahlweise Communities (Friends.lua); declineGroupInvites lehnt sie dann nicht ab
 addSection("SECTION_INVITES")
@@ -869,10 +922,11 @@ addToggles({
   toggle("ACCEPT_FRIEND_INVITES", "acceptFriendInvites"),
   toggle("INVITE_INFO_TOGGLE", "inviteInfo"),
   toggle("INVITE_FROM_WHISPER", "inviteFromWhisper"),
-  toggle("FRIENDLY_COMMUNITIES", "friendlyCommunities", ns.Friends.CanUseCommunities),
+  advanced(toggle("FRIENDLY_COMMUNITIES", "friendlyCommunities", ns.Friends.CanUseCommunities)),
 })
 builder.AddTextInput({
   label = "INVITE_KEYWORD",
+  advanced = true,
   setting = "inviteKeyword",
   get = function(db) return db.inviteKeyword end,
   set = function(text) ns.Set("inviteKeyword", strtrim(text)) end,
@@ -884,21 +938,22 @@ addToggles({
   toggle("RESTORE_CHAT", "restoreChat"),
   toggle("FILTER_DRUNK_SPAM", "filterDrunkSpam"),
   toggle("FILTER_SPELL_LINKS", "filterSpellLinks"),
-  toggle("UNIVERSAL_GROUP_COLOR", "universalGroupColor", ns.ChatColors.IsAvailable),
+  advanced(toggle("UNIVERSAL_GROUP_COLOR", "universalGroupColor", ns.ChatColors.IsAvailable)),
 })
 addSection("SECTION_CHAT_WINDOWS")
 addToggles({
   toggle("HIDE_COMBAT_LOG_TAB", "hideCombatLogTab"),
   toggle("HIDE_CHAT_BUTTONS", "hideChatButtons"),
-  toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop"),
+  advanced(toggle("CHAT_EDIT_BOX_TOP", "chatEditBoxTop")),
   advanced(toggle("CHAT_ARROW_KEYS", "chatArrowKeys")),
   toggle("NO_CHAT_FADE", "noChatFade"),
-  toggle("UNCLAMP_CHAT", "unclampChat"),
-  toggle("CHAT_FONT_OVERRIDE", "chatFontOverride", ns.ChatFontSize.IsAvailable),
+  advanced(toggle("UNCLAMP_CHAT", "unclampChat")),
+  advanced(toggle("CHAT_FONT_OVERRIDE", "chatFontOverride", ns.ChatFontSize.IsAvailable)),
 })
 if ns.ChatFontSize.IsAvailable() then
   addSlider({
     label = "CHAT_FONT_SIZE",
+    advanced = true,
     min = ns.ChatFontSize.MIN,
     max = ns.ChatFontSize.MAX,
     step = 1,
@@ -919,6 +974,7 @@ addSection("SECTION_SCREEN_BORDERS")
 addToggles({ toggle("SCREEN_BORDERS", "screenBorders") })
 addSlider({
   label = "SCREEN_BORDER_TOP",
+  advanced = true,
   min = 0,
   max = ns.ScreenBorders.MAX_SIZE,
   step = ns.ScreenBorders.STEP,
@@ -929,6 +985,7 @@ addSlider({
 })
 addSlider({
   label = "SCREEN_BORDER_BOTTOM",
+  advanced = true,
   min = 0,
   max = ns.ScreenBorders.MAX_SIZE,
   step = ns.ScreenBorders.STEP,
@@ -939,6 +996,7 @@ addSlider({
 })
 addSlider({
   label = "SCREEN_BORDER_SIDES",
+  advanced = true,
   min = 0,
   max = ns.ScreenBorders.MAX_SIZE,
   step = ns.ScreenBorders.STEP,
@@ -953,57 +1011,33 @@ addToggles({
   toggle("HIDE_MACRO_TEXT", "hideMacroText"),
   toggle("RANGE_COLOR", "rangeColor"),
 })
--- Nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner und Ereignis-Einblendungen nicht in Classic)
-local HideFrames = ns.HideFrames
-addSection("SECTION_HIDE_FRAMES")
-addToggles({
-  toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
-  toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
-  toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
-  toggle("HIDE_STANCE_BAR", "hideStanceBar", HideFrames.HasStanceBar),
-  toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation),
-  toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers),
-  toggle("HIDE_BLIZZARD_XP_BAR", "hideBlizzardXpBar", HideFrames.HasXpBar),
-  toggle("HIDE_BLIZZARD_REP_BAR", "hideBlizzardRepBar", HideFrames.HasRepBar),
-})
-addSection("SECTION_WINDOWS")
-addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
-addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
--- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
-local LootSparkles = ns.LootSparkles
-if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
-  addSection("SECTION_LOOT_SPARKLES")
-  addToggles({
-    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
-    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
-    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
-  })
-  if LootSparkles.CanSoftTarget() then
-    addSlider({
-      label = "LOOT_SPARKLE_SCALE",
-      setting = "lootSparkleScale",
-      min = toPercent(ns.LootSparkle.MIN_SCALE),
-      max = toPercent(ns.LootSparkle.MAX_SCALE),
-      step = 5,
-      get = function(db) return toPercent(db.lootSparkleScale) end,
-      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
-      format = percent,
-    })
-  end
-end
--- Ausblenden: ein Schalter je Element der Liste in BlizzardHide.lua (Elemente mit eigener Einstellung stehen unter
--- Oberfläche, Chat und Fenster); auch im Edit-Modus direkt am Element schaltbar
--- In Gruppen mit einklappbaren Überschriften (Roadmap 406); unbekannte Einträge landen unter "Weitere"
+-- Ausblenden (UX S15: alles an einem Ort): ein Schalter je Element der Liste in BlizzardHide.lua, auch die mit eigener
+-- Einstellung (Erfahrungs-, Ruf- und Haltungsleiste, Kalender, Chat-Knöpfe; Kalender und Chat-Knöpfe stehen zusätzlich
+-- bei Minimap und Chat); auch im Edit-Modus direkt am Element schaltbar. In Gruppen mit einklappbaren Überschriften
+-- (Roadmap 406); unbekannte Einträge landen unter "Weitere"
 local BLIZZARD_GROUPS = {
   { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
     "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
   { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
-    "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
+    "BLIZZ_FRAME_CALENDAR", "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
   { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
-    "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS" } },
+    "BLIZZ_FRAME_STANCE", "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS", "BLIZZ_FRAME_XP_BAR",
+    "BLIZZ_FRAME_REP_BAR" } },
 }
+
+-- Blizzard-Meldungen und -Effekte (HideFrames.lua): nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner
+-- und Ereignis-Einblendungen nicht in Classic)
+local function addBlizzardMessages()
+  local HideFrames = ns.HideFrames
+  addSection("SECTION_HIDE_FRAMES", { collapsible = true })
+  addToggles({
+    toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
+    toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
+    toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
+    advanced(toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation)),
+    advanced(toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers)),
+  })
+end
 local function addBlizzardHideGroups()
   local groupOf = {}
   for index, group in ipairs(BLIZZARD_GROUPS) do
@@ -1011,7 +1045,7 @@ local function addBlizzardHideGroups()
   end
   local lists, rest = {}, {}
   for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
-    entry.resetKeys = { "hiddenBlizzardFrames" }
+    if not entry.setting then entry.resetKeys = { "hiddenBlizzardFrames" } end
     local index = groupOf[entry.label]
     if index then
       lists[index] = lists[index] or {}
@@ -1036,6 +1070,7 @@ addSubPage("COMFORT_PAGE_HIDE")
 addSection("SECTION_BLIZZARD_FRAMES")
 addHint("BLIZZARD_FRAMES_HINT")
 addBlizzardHideGroups()
+addBlizzardMessages()
 -- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
 addSubPage("COMFORT_PAGE_QUESTS")
 addSection("COMFORT_PAGE_AUTOMATION", { collapsible = true })
@@ -1043,11 +1078,12 @@ addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
   toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
   toggle("AUTO_TURN_IN", "autoTurnIn"),
-  toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"),
+  requires(toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"), "autoTurnIn"),
   toggle("SKIP_GOSSIP", "skipGossip"),
 })
 builder.AddTextInput({
   label = "QUEST_EXCLUDE",
+  advanced = true,
   setting = "questExclude",
   width = QUEST_EXCLUDE_WIDTH,
   get = function(db) return db.questExclude end,
@@ -1071,16 +1107,17 @@ addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
-  toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"),
-  toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"),
+  advanced(requires(toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"), "questTargetButton")),
+  advanced(requires(toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"), "questItemButton", "questTargetButton")),
   toggle("REWARD_HINT_TOGGLE", "rewardHint"),
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
 })
 if ns.QuestTextSize.IsAvailable() then
-  addToggles({ toggle("QUEST_TEXT_RESIZE", "questTextResize") })
+  addToggles({ advanced(toggle("QUEST_TEXT_RESIZE", "questTextResize")) })
   addSlider({
     label = "QUEST_TEXT_SIZE",
+    advanced = true,
     min = ns.QuestTextSize.MIN,
     max = ns.QuestTextSize.MAX,
     step = 1,
@@ -1092,9 +1129,11 @@ if ns.QuestTextSize.IsAvailable() then
 end
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
-  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"), toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress") })
-  addSlider({
+  addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"),
+    requires(toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress"), "questMarks") })
+  addSlider(requires({
     label = "QUEST_MARK_SCALE",
+    advanced = true,
     setting = "questMarkScale",
     min = toPercent(ns.QuestMarks.MIN_SCALE),
     max = toPercent(ns.QuestMarks.MAX_SCALE),
@@ -1102,7 +1141,7 @@ if ns.QuestMarks.IsAvailable() then
     get = function(db) return toPercent(db.questMarkScale) end,
     set = function(value) ns.SetDeferred("questMarkScale", value / 100) end,
     format = percent,
-  })
+  }, "questMarks"))
 end
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
@@ -1122,7 +1161,7 @@ if ns.PlayerChain.IsAvailable() then
   for _, value in ipairs(ns.PlayerChain.ORDER) do
     table.insert(chains, { value = value, name = localized("PLAYER_CHAIN_" .. value:upper()) })
   end
-  addChooser({ label = "PLAYER_CHAIN", setting = "playerChain", choices = chains })
+  addChooser({ label = "PLAYER_CHAIN", setting = "playerChain", choices = chains, advanced = true })
 end
 addSection("SECTION_TOOLTIP")
 addToggles({
@@ -1130,16 +1169,17 @@ addToggles({
   toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
   toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
-  toggle("TOOLTIP_GUILD_RANK_TOGGLE", "tooltipGuildRank"),
+  advanced(toggle("TOOLTIP_GUILD_RANK_TOGGLE", "tooltipGuildRank")),
   toggle("INFO_CARDS", "infoCards"),
 })
 local tooltipAnchors = {}
 for _, value in ipairs(ns.Tooltip.ANCHOR_ORDER) do
   table.insert(tooltipAnchors, { value = value, name = localized("TOOLTIP_ANCHOR_" .. value:upper()) })
 end
-addChooser({ label = "TOOLTIP_ANCHOR", setting = "tooltipAnchor", choices = tooltipAnchors })
+addChooser({ label = "TOOLTIP_ANCHOR", setting = "tooltipAnchor", choices = tooltipAnchors, advanced = true })
 addSlider({
   label = "TOOLTIP_SCALE",
+  advanced = true,
   min = toPercent(ns.Tooltip.MIN_SCALE),
   max = toPercent(ns.Tooltip.MAX_SCALE),
   step = 5,
@@ -1154,12 +1194,17 @@ addToggles({
   toggle("MINIMAP_WHEEL_ZOOM", "minimapWheelZoom", MinimapTweaks.CanWheelZoom),
   toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
-  toggle("MINIMAP_SQUARE", "minimapSquare", MinimapTweaks.CanSquare),
+  advanced(toggle("MINIMAP_SQUARE", "minimapSquare", MinimapTweaks.CanSquare)),
 })
 addSection("SECTION_WORLD_MAP")
 addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
   toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
-addSubPage("COMFORT_PAGE_SYSTEM")
+-- Blizzard-Fenster verschieben und skalieren (UX S16: bei den übrigen Fenstern statt unter Oberfläche)
+addSection("SECTION_WINDOWS")
+addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
+addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
+-- Beute (UX S16): Plündern, Würfeln und Beute-Glitzer zusammen statt verteilt auf System und Oberfläche
+addSubPage("COMFORT_PAGE_LOOT")
 addSection("SECTION_LOOT")
 addToggles({
   toggle("FASTER_LOOT", "fasterLoot"),
@@ -1168,11 +1213,93 @@ addToggles({
 addSection("SECTION_LOOT_ROLLS")
 addToggles({
   toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
-  toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"),
+  requires(toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"), "lootRollCounts"),
   toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
   advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
 })
-addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls")
+addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls", nil, true)
+-- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
+local LootSparkles = ns.LootSparkles
+if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
+  addSection("SECTION_LOOT_SPARKLES")
+  addToggles({
+    toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
+    toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
+  })
+  if LootSparkles.CanSoftTarget() then
+    addSlider(requires({
+      label = "LOOT_SPARKLE_SCALE",
+      advanced = true,
+      setting = "lootSparkleScale",
+      min = toPercent(ns.LootSparkle.MIN_SCALE),
+      max = toPercent(ns.LootSparkle.MAX_SCALE),
+      step = 5,
+      get = function(db) return toPercent(db.lootSparkleScale) end,
+      set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
+      format = percent,
+    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
+  end
+end
+-- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
+-- Zurücksetzen übernimmt der Edit-Modus (Button unten)
+local function addTimerDisplayControls(prefix, display, frameId)
+  addFrameScaleSlider(prefix .. "_SCALE", frameId, nil, true)
+  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
+end
+
+-- Timer & Flüge (UX S11: dort, wo man Komfort-Helfer sucht): Lagerfeuer und Schlafsack (nur WoW Forever), Essen (wo
+-- der Client die Buffs "Essen" und "Satt" kennt) und Flugzeiten (immer)
+addSubPage("COMFORT_PAGE_TIMERS")
+if ns.CampFire.IsAvailable() then
+  addSection("SECTION_CAMP")
+  addToggles({
+    toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
+    toggle("CAMP_HINT_TOGGLE", "campHint"),
+    requires(toggle("CAMP_SOUND", "campSound"), "campCountdown"),
+  })
+  addSlider(requires({
+    label = "CAMP_HINT_PAUSE",
+    advanced = true,
+    setting = "campHintPause",
+    min = ns.CampFire.MIN_HINT_PAUSE,
+    max = ns.CampFire.MAX_HINT_PAUSE,
+    step = 1,
+    get = function(db) return db.campHintPause end,
+    set = function(value) ns.SetDeferred("campHintPause", value) end,
+    format = function(value) return string.format(L.MINUTES, value) end,
+  }, "campHint"))
+  addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
+end
+if ns.FoodTimer.IsAvailable() then
+  addSection("SECTION_FOOD")
+  addToggles({
+    toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
+    requires(toggle("FOOD_SOUND", "foodSound"), "foodTimer"),
+  })
+  addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
+end
+if ns.SleepTimer.IsAvailable() then
+  addSection("SECTION_SLEEP")
+  addToggles({
+    toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
+    toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
+    toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
+  })
+  addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
+end
+
+-- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
+addSection("SECTION_FLIGHTS")
+addToggles({
+  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
+  requires(toggle("FLIGHT_SOUND", "flightSound"), "flightTimer"),
+  requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
+})
+addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_DIALOGS")
 addToggles({
   toggle("EASY_DELETE", "easyDelete"),
@@ -1181,12 +1308,12 @@ addToggles({
 addSection("SECTION_COMBAT_GROUP")
 addToggles({
   toggle("COMBAT_PLATES", "combatPlates"),
-  toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable),
+  advanced(toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable)),
   toggle("READY_TIMER", "readyTimer"),
 })
 if ns.AddonListSort.IsAvailable() then
   addSection("SECTION_ADDON_LIST")
-  addToggles({ toggle("SORT_ADDON_LIST", "sortAddonList") })
+  addToggles({ advanced(toggle("SORT_ADDON_LIST", "sortAddonList")) })
 end
 -- Grafik und Ton: Kamera, Bildschirmeffekte, Wetter, Stummschalten
 addSubPage("COMFORT_PAGE_GRAPHICS")
@@ -1198,7 +1325,7 @@ addToggles({
   toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
   advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
 })
-addSlider({
+addSlider(requires({
   label = "WEATHER_DENSITY",
   advanced = true,
   setting = "weatherDensity",
@@ -1208,11 +1335,11 @@ addSlider({
   get = function(db) return db.weatherDensity end,
   set = function(value) ns.SetDeferred("weatherDensity", value) end,
   format = function(value) return tostring(value) end,
-})
+}, "setWeatherDensity"))
 -- Stummschalten nur, wo MuteSoundFile existiert
 local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
 for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
-  table.insert(muteToggles, toggle(group.label, group.setting, ns.Sounds.CanMute))
+  table.insert(muteToggles, advanced(toggle(group.label, group.setting, ns.Sounds.CanMute)))
 end
 addSection("SECTION_SOUND")
 addToggles(muteToggles)
@@ -1225,15 +1352,15 @@ addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({
   toggle("SHOW_SPLIT_LIST", "showSplitList"),
-  toggle("SHOW_SPLIT_HEADER", "splitListHeader"),
-  toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"),
-  toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"),
-  toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"),
-  toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"),
+  requires(toggle("SHOW_SPLIT_HEADER", "splitListHeader"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_TOTAL", "splitListShowTotal"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_PLAYED", "splitListShowPlayed"), "showSplitList"),
+  requires(toggle("SHOW_SPLIT_FORECAST", "splitListShowForecast"), "showSplitList"),
+  requires(toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"), "showSplitList"),
 })
-addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList")
+addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList", function(db) return db.showSplitList end)
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
-addSlider({
+addSlider(requires({
   label = "SPLIT_LIST_ROWS",
   setting = "splitListRows",
   min = ns.SplitList.MIN_ROWS,
@@ -1242,7 +1369,7 @@ addSlider({
   get = function(db) return db.splitListRows end,
   set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
-})
+}, "showSplitList"))
 -- Vergleich: wogegen die Splits laufen, Toleranz, Hinweise bei Bestzeiten, Rennen gegen Freunde
 addSubPage("OPTIONS_PAGE_COMPARE")
 addSplitComparisonChooser()
@@ -1274,6 +1401,7 @@ for _, label in ipairs(ns.WorldRecords.GetBracketLabels()) do
   table.insert(recordToggles, {
     text = function() return string.format(L.WORLD_RECORD_ROW, label) end,
     tip = "RECORD_BRACKET_TIP",
+    advanced = true,
     setting = "recordBrackets",
     get = function(db) return db.recordBrackets[label] ~= false end,
     set = function(checked)
@@ -1301,6 +1429,7 @@ finishPage()
 -- Profile: Einstellungen benannt speichern, je Charakter wählen, als Text teilen
 addPage("OPTIONS_TAB_PROFILES")
 addSection("SECTION_PROFILES")
+addProfileUsage()
 addProfileList()
 addProfileSaver()
 addButton("PROFILE_EXPORT", function()

@@ -6,7 +6,8 @@
 -- (Standard: erste Spalte links, Zahlen rechts), sort(record) = Sortierschlüssel, wenn der Zellentext
 -- formatiert ist (Dauer, Gold, Datum); sonst wird nach value sortiert. volatile = true: Wert kann sich ohne neuen
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
--- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes (ohne tip zeigt er den Sortier-Hinweis).
+-- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes; ohne tip gilt <header>_TIP, wenn es den Text
+-- gibt (eine Erklärung je Spaltenkopf, in allen Tabellen gleich), sonst zeigt er den Sortier-Hinweis.
 -- Werkzeugzeile: Export und weitere Buttons links (so breit wie ihr Text), Suchfeld rechts; reicht der Platz nicht
 -- (lange Sprachen, viele Buttons), wird das Suchfeld schmaler und rutscht notfalls in eine zweite Zeile.
 local _, ns = ...
@@ -24,7 +25,8 @@ local WHEEL_STEP = 3  -- Zeilen pro Mausrad-Raste
 local WHITE = { 1, 1, 1 }
 local LEFT, RIGHT = "LEFT", "RIGHT"
 local TOOLBAR_HEIGHT = 22     -- Zeile mit dem Suchfeld über der Tabelle
-local HINT_HEIGHT = 12       -- eigene Zeile unter der Summenzeile für den Hinweis (sonst überdeckt er die Summen)
+local HINT_LINE_HEIGHT = 12  -- je Zeile des Hinweises unter der Summenzeile (sonst überdeckt er die Summen)
+local MAX_HINT_LINES = 3     -- längere Hinweise bricht der Hinweis um, darüber hinaus wird er abgeschnitten
 local FILTER_WIDTH = 150
 local FILTER_MIN_WIDTH = 90    -- schmaler wird das Suchfeld nicht, dann bekommt es eine eigene Zeile
 local FILTER_HEIGHT = 18
@@ -160,8 +162,11 @@ local TableOrder = ns.TableOrder
 --   onRowClick(record, mouseButton) optional,
 --   rowLink(record) optional: Spiel-Link der Zeile ("item:...", "quest:..."); Maus darüber zeigt den Spiel-Tooltip,
 --   rowTooltip(record) optional: { Titel, Zeile, ... } als eigener Tooltip der Zeile (wenn rowLink nichts liefert),
---   hint = Locale-Key oder function() -> Text optional,
---   buttons = { { label = Locale-Key, onClick() }, ... } optional (neben dem Export-Button),
+--   hint = Locale-Key oder function(characterKey) -> Text optional (bricht in der Tabellenbreite um, die Zeilen rücken
+--   nach oben),
+--   empty = Locale-Key oder function(characterKey) -> Text optional: Hinweis ohne Einträge (Standard TABLE_EMPTY),
+--   buttons = { { label = Locale-Key, onClick(), tip = Locale-Key optional (Standard <label>_TIP) }, ... } optional
+--   (neben dem Export-Button),
 --   revision() optional: Stand der Daten (z.B. Journal.Revision); dann wird nur bei geändertem Stand neu gefiltert
 --   und sortiert, höchstens alle REFRESH_SECONDS (große Journale), statt zusätzlich alle REFRESH_SECONDS,
 --   appendOnly optional: records() liefert älteste zuerst dieselbe Liste, die nur hinten wächst (oder eine neue);
@@ -172,6 +177,30 @@ local TableOrder = ns.TableOrder
 -- Ergebnis: Ansicht { tab, group, Create(parent, width, height) -> frame } für HistoryWindow.AddView
 local function addonLanguage()
   return ns.db and ns.db.language or ""
+end
+
+-- Text zu key, nil, wenn es ihn nicht gibt (L liefert für unbekannte Keys den Key selbst)
+local function optionalText(L, key)
+  local text = L[key]
+  if text ~= key then return text end
+  return nil
+end
+
+-- Tooltip-Text eines Spaltenkopfs (siehe oben); L optional (Standard ns.L), auch für Tests
+local function headerTip(L, column)
+  if column.tip then return L[column.tip] end
+  return optionalText(L, column.header .. "_TIP") or L.TABLE_SORT_HINT
+end
+
+function TableView.HeaderTip(column, L)
+  return headerTip(L or ns.L, column)
+end
+
+-- Tooltip eines Buttons der Werkzeugzeile: Beschriftung als Titel, Erklärung aus tip oder <label>_TIP
+-- (ohne Text keiner)
+local function attachButtonTip(L, widget, label, tip)
+  Widgets.AttachTooltip(widget, function() return L[label] end,
+    function() return optionalText(L, tip or label .. "_TIP") end)
 end
 
 function TableView.Create(definition)
@@ -188,10 +217,11 @@ function TableView.Create(definition)
 
     -- Sichtbare Zeilen ohne Kopf- und Summenzeile bei toolbarRows Werkzeugzeilen. Zeilen-Widgets gibt es für eine
     -- Werkzeugzeile (der Normalfall); bei zwei bleiben die letzten verborgen
-    local function rowsFor(toolbarCount)
-      return math.floor((height - toolbarCount * TOOLBAR_HEIGHT - HINT_HEIGHT) / ROW_HEIGHT) - 2
+    local function rowsFor(toolbarCount, hintLines)
+      return math.floor((height - toolbarCount * TOOLBAR_HEIGHT - hintLines * HINT_LINE_HEIGHT) / ROW_HEIGHT) - 2
     end
-    local rowCapacity = rowsFor(1)
+    local rowCapacity = rowsFor(1, 1)
+    local hintLines = 1
     local visibleRows = rowCapacity
     local allRecords, records = {}, {}  -- alle Einträge bzw. gefiltert und sortiert (ohne appendOnly)
     local view = definition.appendOnly and TableOrder.NewAppendOnly(columns)  -- angezeigte Einträge mit appendOnly
@@ -203,7 +233,7 @@ function TableView.Create(definition)
       if view then return view:At(position) end
       return records[position]
     end
-    local filterText = ""
+    local filterText, filterInput = "", ""  -- Suchbegriff klein und ohne Farbcodes bzw. wie eingegeben
     local sort  -- { column, index, descending } oder nil (ursprüngliche Reihenfolge)
 
     -- Suchfeld oben rechts (Breite und Zeile setzt layoutToolbar)
@@ -217,7 +247,6 @@ function TableView.Create(definition)
     local headerRow = createRow(frame, columns, "GameFontNormalSmall")
     headerRow:SetPoint("TOPLEFT", 0, -TOOLBAR_HEIGHT)
     local footerRow = createRow(frame, columns, "GameFontNormalSmall")
-    footerRow:SetPoint("BOTTOMLEFT", 0, HINT_HEIGHT)
 
     local rows = {}
     local apply  -- unten definiert
@@ -273,16 +302,22 @@ function TableView.Create(definition)
     emptyText:SetPoint("CENTER", frame, "CENTER", 0, 0)
     emptyText:Hide()
 
-    -- Hinweis unter der Summenzeile, z.B. was ein Klick bewirkt
+    -- Hinweis unter der Summenzeile, z.B. was ein Klick bewirkt; bricht in der Breite der Ansicht um
     local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
+    hint:SetPoint("BOTTOMLEFT", 0, 0)
     hint:SetPoint("BOTTOMRIGHT", -SCROLLBAR_GAP, 0)
+    hint:SetJustifyH(LEFT)
+    hint:SetWordWrap(true)
+    hint:SetMaxLines(MAX_HINT_LINES)
+    local hintWidth = width - SCROLLBAR_GAP
 
     -- Weitere Buttons der Ansicht rechts neben dem Export-Button (Position setzt layoutToolbar)
     local extraButtons = {}
     for i, button in ipairs(definition.buttons or {}) do
       local widget = Widgets.CreateButton(frame, EXTRA_BUTTON_WIDTH, FILTER_HEIGHT + 2, button.onClick)
       extraButtons[i] = { widget = widget, label = button.label }
+      attachButtonTip(L, widget, button.label, button.tip)
     end
 
     local function draw()
@@ -307,11 +342,13 @@ function TableView.Create(definition)
     scrollBar = Widgets.CreateScrollBar(frame, scrollTo)
 
     -- Kopf, Zeilen und Bildlaufleiste unter toolbarRows Werkzeugzeilen (1 oder 2, layoutToolbar); die Leiste rechts
-    -- der an die Kopftexte angepassten Spalten (fitColumns)
+    -- der an die Kopftexte angepassten Spalten (fitColumns); die Summenzeile über den hintLines Zeilen des Hinweises
     local toolbarRows, tableRight = 1, tableWidth(columns)
     local function placeTable()
       local top = toolbarRows * TOOLBAR_HEIGHT
-      visibleRows = math.min(rowCapacity, rowsFor(toolbarRows))
+      visibleRows = math.min(rowCapacity, rowsFor(toolbarRows, hintLines))
+      footerRow:ClearAllPoints()
+      footerRow:SetPoint("BOTTOMLEFT", 0, hintLines * HINT_LINE_HEIGHT)
       headerRow:ClearAllPoints()
       headerRow:SetPoint("TOPLEFT", 0, -top)
       for i, row in ipairs(rows) do
@@ -375,6 +412,20 @@ function TableView.Create(definition)
       return language() .. ":" .. edits
     end
 
+    -- Ohne Einträge der Hinweis der Ansicht (empty), mit Einträgen, aber ohne Treffer für den Filter TABLE_NO_MATCH
+    local function showEmpty()
+      local text
+      if #allRecords == 0 then
+        local empty = definition.empty
+        if type(empty) == "function" then text = empty(frame.characterKey) elseif empty then text = L[empty] end
+        text = text or L.TABLE_EMPTY
+      elseif visibleCount() == 0 and filterText ~= "" then
+        text = string.format(L.TABLE_NO_MATCH, filterInput)
+      end
+      if text then emptyText:SetText(text) end
+      emptyText:SetShown(text ~= nil)
+    end
+
     -- Filter und Sortierung auf alle Einträge anwenden und neu zeichnen
     function apply()
       if view then
@@ -386,8 +437,7 @@ function TableView.Create(definition)
       scrollBar:SetRange(math.max(0, visibleCount() - visibleRows))
       scrollTo(frame.offset)
       showFooter()
-      emptyText:SetText(L.TABLE_EMPTY)
-      emptyText:SetShown(#allRecords == 0)
+      showEmpty()
     end
 
     -- Nach einer Spalte sortieren: erst absteigend, beim nächsten Aufruf für dieselbe Spalte aufsteigend
@@ -411,7 +461,7 @@ function TableView.Create(definition)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
       -- Voller Kopftext (falls er trotz allem abgeschnitten ist), darunter was die Spalte zeigt oder wie man sortiert
       Widgets.AttachTooltip(headerButton, function() return L[column.header] end, function()
-        return column.tip and L[column.tip] or L.TABLE_SORT_HINT
+        return headerTip(L, column)
       end)
       headerButtons[i] = headerButton
       x = x + column.width
@@ -419,7 +469,8 @@ function TableView.Create(definition)
 
     -- Zeilen auf Einträge beschränken, deren Text den Suchbegriff enthält (ohne Groß-/Kleinschreibung)
     function frame:SetFilter(text)
-      filterText = plainText(text):lower()
+      filterInput = plainText(text)
+      filterText = filterInput:lower()
       frame.offset = 0
       apply()
     end
@@ -453,6 +504,7 @@ function TableView.Create(definition)
       export.Show(L[definition.tab], frame:BuildCsv())
     end)
     exportButton:SetPoint("TOPLEFT", 0, -1)
+    attachButtonTip(L, exportButton, "EXPORT")
 
     -- Werkzeugzeile in der gewählten Sprache: Buttons so breit wie ihr Text nebeneinander, rechts "Filter" und das
     -- Suchfeld. Passt das Feld nicht mehr in voller Breite daneben, wird es schmaler (bis FILTER_MIN_WIDTH), sonst
@@ -504,13 +556,40 @@ function TableView.Create(definition)
       lastLive = live
     end
 
+    -- Hinweis setzen und seine Zeilen zählen (Breite ohne Umbruch geteilt durch die Breite der Ansicht); ändert sich
+    -- die Zahl, rücken Summenzeile und Zeilen. Rückgabe: true, wenn sich die Anordnung geändert hat
+    local shownHint
+    local function showHint()
+      local text = definition.hint
+      if type(text) == "function" then text = text(frame.characterKey) elseif text then text = L[text] end
+      text = text or L.TABLE_SORT_HINT
+      if text == shownHint then return false end
+      shownHint = text
+      hint:SetText(text)
+      -- GetUnboundedStringWidth: volle Breite auch bei Umbruch (alle Clients, auch Blizzards Classic-Era-UI nutzt sie);
+      -- ohne sie (Test-Stub) GetStringWidth
+      local full = hint.GetUnboundedStringWidth and hint:GetUnboundedStringWidth() or hint:GetStringWidth() or 0
+      local lines = math.max(1, math.min(MAX_HINT_LINES, math.ceil(full / hintWidth)))
+      if lines == hintLines then return false end
+      hintLines = lines
+      placeTable()
+      return true
+    end
+
+    -- Für Tests: Zeilen des Hinweises und der angezeigte Leer-/Kein-Treffer-Text (nil, wenn verborgen)
+    function frame:HintLines()
+      return hintLines, hint
+    end
+
+    function frame:EmptyText()
+      return emptyText:IsShown() and emptyText:GetText() or nil
+    end
+
     -- force erzwingt das Neuzeichnen (nach Klick auf eine Zeile, die z.B. Favoriten ändert)
     function frame:Render(characterKey, selectionChanged, force)
       frame.characterKey = characterKey
       layoutToolbar()
-      local hintText = definition.hint
-      if type(hintText) == "function" then hintText = hintText() elseif hintText then hintText = L[hintText] end
-      hint:SetText(hintText or L.TABLE_SORT_HINT)
+      local hintChanged = showHint()
       allRecords = definition.records(characterKey)
       if selectionChanged then frame.offset = 0 end
       -- Das Fenster ruft Render jede Sekunde; Filtern und Sortieren aller Einträge nur, wenn sich etwas geändert hat:
@@ -521,7 +600,7 @@ function TableView.Create(definition)
       local signature = table.concat({ characterKey or "", language(), #allRecords,
         newest and (newest.time or newest.startedAt or 0) or 0, freshness }, ":")
       local live = table.concat({ newest and newest.seconds or 0, newest and newest.xp or 0 }, ":")
-      local urgent = selectionChanged or force or characterKey ~= lastCharacterKey
+      local urgent = selectionChanged or force or hintChanged or characterKey ~= lastCharacterKey
       -- Große Journale: neue Einträge höchstens alle REFRESH_SECONDS einsortieren (Charakterwechsel sofort)
       local throttled = definition.revision and GetTime() - lastApplyAt < REFRESH_SECONDS
       if not urgent and (signature == lastSignature or throttled) then
@@ -535,5 +614,6 @@ function TableView.Create(definition)
     return frame
   end
 
-  return { tab = definition.tab, group = definition.group, Create = create }
+  return { tab = definition.tab, group = definition.group, hint = definition.hint,
+    allCharacters = definition.allCharacters, Create = create }
 end

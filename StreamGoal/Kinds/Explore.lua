@@ -34,9 +34,12 @@ Goals.RegisterKind("explore", {
   usage = "SG_USAGE_EXPLORE",
   color = LT.Theme.COLORS.info,
   icon = ICON,
-  form = { amount = "SG_FORM_AMOUNT", fields = {
+  -- Modus zuerst; darunter nur das Feld des gewählten Modus (Anzahl bzw. Zone)
+  editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
+  form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_EXPLORE_MODE", values = MODES, labels = MODE_LABELS },
-    { type = "text", param = "zone", label = "SG_FORM_ZONE" },
+    { type = "amount", label = "SG_FORM_AMOUNT", showIf = { mode = "count" } },
+    { type = "text", param = "zone", label = "SG_FORM_ZONE", showIf = { mode = "zone" } },
   } },
   -- "add explore 10" = 10 Gebiete; "add explore Tanaris" = Zone erreichen
   parse = function(args, rest)
@@ -66,7 +69,7 @@ Goals.RegisterKind("explore", {
   end,
   title = function(goal)
     if goal.params.mode == "zone" then return string.format(L.SG_GOAL_ZONE, goal.params.zone) end
-    return string.format(L.SG_GOAL_EXPLORE, goal.target)
+    return Kinds.Counted("SG_GOAL_EXPLORE", goal.target)
   end,
   hasCount = function(goal) return goal.params.mode == "count" end,
 })

@@ -41,6 +41,7 @@ function layout.Build(el, model)
     row.value:SetJustifyH("LEFT")
     chain(row.label, ITEM_GAP)
     chain(row.value, LABEL_GAP)
+    el:SetHoverData(row.hover, model.rows[index])
   end
   el:HideRowsFrom(#model.rows + 1)
 

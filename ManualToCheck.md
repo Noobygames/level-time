@@ -2874,3 +2874,421 @@ Position nach /reload (ja/nein):
 Ausblenden per Befehl und Einstellung (ja/nein):
 Fehler:
 ```
+
+### 193. UX-Review: Hinweise, Reiter, Rückfragen und Instanz-Reiter
+
+- [ ] geprüft
+
+1. `/lt history` auf Französisch und Spanisch: die Hauptreiter laufen nicht über den rechten Rand, passen sie nicht in
+   eine Zeile, brechen sie in eine zweite um; Unterreiter und Inhalt rücken darunter, nichts überlappt.
+2. Historie > Quests > Abgabe, Speedrun > Quest-Splits, Quests > Effizienz, Geld: der graue Hinweis unten bricht in der
+   Fensterbreite um (zwei Zeilen), läuft nicht links aus dem Fenster und überdeckt die Summenzeile nicht.
+3. Quests > Abgabe für einen anderen Charakter: „Nur für den eingeloggten Charakter …“; eigener Charakter ohne fertige
+   Quest: „Keine Quest ist abgabebereit.“. In einer Tabelle etwas in den Filter tippen, das nicht vorkommt: „Keine
+   Treffer für …“.
+4. `/lt edit` > „Alle zurücksetzen“: Tooltip, dann Rückfrage; „Nein“ ändert nichts, „Ja“ setzt alle Anzeigen zurück.
+   `/lt reset` fragt ebenso.
+5. Hauptfenster auf Reiter „Instanz“ ohne Lauf: Instanzlimit, Instanzen heute, Ohne Tod, XP/h (15 min) zeigen Werte,
+   Zähler wie Kills „-“.
+6. Rechtsklick auf den Reiter „Instanz“ öffnet die Einstellungen (wie Level/Session), Shift+Rechtsklick fragt nach dem
+   Zurücksetzen des Durchgangs.
+7. Retail/Forever: `/lt recap` hat keine Zeile „Beinahe-Tode“; Classic Era/TBC: die Zeile ist da.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hauptreiter passen (ja/nein, Sprache):
+Hinweise umbrochen, nichts überdeckt (ja/nein, welcher nicht):
+Leer- und Kein-Treffer-Text (ja/nein):
+Rückfrage Alle zurücksetzen und /lt reset (ja/nein):
+Instanz-Reiter ohne Lauf und Rechtsklick ok (ja/nein):
+Recap Beinahe-Tode passend (ja/nein):
+Fehler:
+```
+
+### 194. UX-Review Paket 2: Tooltips an den Werten im Hauptfenster
+
+- [ ] geprüft
+
+1. Hauptfenster im Layout Tabelle, Leiste, Nur Text und Kacheln: Maus über eine Zeile (bzw. Kachel) zeigt einen Tooltip
+   mit der Bezeichnung als Titel und der Erklärung der Stat; steht „...“ oder „-“ da, erklärt eine zweite Zeile den
+   Platzhalter. Die Zeit-Kachel hat keinen Tooltip.
+2. Über einer Zeile: Ziehen verschiebt das Fenster (wenn nicht fixiert), Rechtsklick öffnet die Einstellungen.
+3. Sichtbarkeit „Bei Mauskontakt“: Maus von einer Zeile aus dem Fenster heraus ziehen blendet das Fenster wieder ab.
+4. Tode mit Totzeit stehen als „2 (6m 38s tot)“ da (enUS „dead“).
+5. Flug-, Essen-, Lagerfeuer- und Schlafsack-Karte zeigen die Restzeit als „4m 10s“ bzw. „37s“ (nicht mehr „4:10“ oder
+   „37 s“); die Titel von Essen und Lagerfeuer unterscheiden sich („Essen: …“, „Lagerfeuer: …“).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltips an Zeilen/Kacheln (ja/nein, welches Layout nicht):
+Ziehen und Rechtsklick über Zeilen (ja/nein):
+Bei Mauskontakt blendet wieder ab (ja/nein):
+Totzeit-Format und Karten-Zeiten (ja/nein):
+Fehler:
+```
+
+### 195. UX-Review Paket 2: Historie erklärt Spalten und Graphen
+
+- [ ] geprüft
+
+1. `/lt history`: Maus über einen Spaltenkopf (z.B. Übersicht „Kills“, „PvP-Siege“, Zeitaufteilung „Sonstiges“,
+   „Leerlauf“, Vergleich „Erholt“, Geld „Einnahmen“) zeigt eine Erklärung statt nur „Klick sortiert“.
+2. Speedrun > Läufe: Spalten „Gemessen“, „Bis dein Level“, „Erfasst %“, „Kategorie“ (Tooltip mit SSF-Erklärung),
+   „Zeiten“ mit „original“/„bearbeitet“. Die Knöpfe „Export“, „Alle sichern“, „Importieren“ und „LiveSplit“ haben einen
+   Tooltip.
+3. Graphen: Unterreiter heißen „Zeit je Level“, „Todesursachen“, „Spielzeiten (Tag × Stunde)“ (das „×“ wird
+   dargestellt), „Levelkurve“ usw.; unter jedem Diagramm steht eine graue Hinweiszeile, die nicht über das Diagramm
+   ragt. Die Unterreiter brechen sauber um (auch frFR/esES).
+4. Level-Tabellen ohne Teil-Level zeigen unten „Klick auf einen Spaltenkopf sortiert.“ statt des Hinweises zu „*“.
+5. `/lt recap` ohne Level-Up: „Level 25“; mit Level-Up: „10 bis 12“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Spaltenköpfe erklärt (ja/nein, welche nicht):
+Läufe-Spalten und Knopf-Tooltips (ja/nein):
+Graphen-Namen und Hinweiszeile (ja/nein, Sprache):
+Recap-Level (ja/nein):
+Fehler:
+```
+
+### 196. UX-Review Paket 2: einheitliche Begriffe und ausgegraute Schalter
+
+- [ ] geprüft
+
+1. `/lt`: Reiter „Chat & Erinnerungen“ und „Einblendungen“, Allgemein > „Hauptfenster“, Komfort > „Rahmen, Tooltip &
+   Karte“, Unterseite Speedrun > „Weltrekorde“; der Knopf unter der Seitenleiste heißt „Seite zurücksetzen“. Alles
+   passt in allen vier Sprachen (Seitenleiste, Reiter, Knopf).
+2. Abhängige Schalter sind grau, solange ihr Hauptschalter aus ist, und werden sofort bedienbar, wenn er an geht:
+   Flugzeit-Tooltip/-Ton (Flugzeiten), Gildenreparatur (Automatisch reparieren), Rare-Aufblinken (Rare gesichtet),
+   Level-Up-Fenster-Optionen, Namen beim Würfeln (Zähler), Totenkopf und „nur in der Zone“ (Quest-Knöpfe), Fortschritt
+   und Größe der Kill-Quest-Markierung, Split-Liste-Optionen, Regler zu Pause, Atem, Mana, Munition, Wetter.
+3. Einblendungen > Ereignisse und Komfort > Automatik zeigen den Hinweis, dass Quest-Einblendungen bzw. die
+   Quest-Automatik unter Komfort > Quests stehen.
+4. XP-Balken-Tooltip: „Erholt übrig: …“, „Erholt reicht für … des Wegs zum Level-Up“, „XP abgabebereiter Quests: …“;
+   Stat „XP durch Erholt“ im Fenster.
+5. Historie: Hauptreiter „Quest-Auswertung“ mit „Abgabebereit“, Speedrun > „Bestzeiten je Level“ und „Weltrekorde“,
+   Level > „Verlauf“; Zählzeile der Journale „12 Einträge“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Neue Namen passen in allen Sprachen (ja/nein, wo nicht):
+Ausgegraut und wieder bedienbar (ja/nein, welcher nicht):
+Verweis-Hinweise (ja/nein):
+Begriffe im XP-Tooltip und in der Historie (ja/nein):
+Fehler:
+```
+
+### 197. UX-Review Paket 3: Modus „Einfach“ und Profile
+
+- [ ] geprüft
+
+1. Neue Installation (Level Time-SavedVariables `LevelTimerDB` vorher umbenennen, nach dem Test zurück): `/lt` öffnet
+   im Modus „Einfach“; der Schalter oben rechts heißt „Alle Optionen zeigen“ (enUS „Show all options“) und passt neben
+   die Suche, auch in frFR/esES.
+2. Bestehende Installation (eigenes `LevelTimerDB`): der Schalter steht wie vorher (an, wenn du nie umgeschaltet hast).
+3. Im Modus „Einfach“: Komfort > Oberfläche zeigt nur die Hauptschalter (Ränder ohne die drei Regler, Beute-Glitzer
+   ohne Größe), Komfort > Chat ohne Schriftgröße, Allgemein > Aussehen mit „Kontur“, aber ohne Mindestschriftgröße,
+   Balkentextur und „Farbe nach Wert“. Keine Seite der Seitenleiste ist leer, die Bausteine rücken ohne Lücken nach.
+4. Reiter Profile: oben „Aktiv: Standard (genutzt von N Charakteren)“, Tooltip listet die Charaktere; vor dem Feld
+   steht „Neues Profil:“, „Als Profil speichern“ ist grau, bis ein Name im Feld steht.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Neu: einfach, Beschriftung passt (ja/nein, Sprache):
+Bestehend: Schalter unverändert (ja/nein):
+Einfach-Modus ohne leere Seiten und Lücken (ja/nein, wo):
+Profile: Aktiv-Zeile, Beschriftung, grauer Knopf (ja/nein):
+Fehler:
+```
+
+### 198. UX-Review Paket 3: Willkommenskarte, Hilfe und erster Start
+
+- [ ] geprüft
+
+1. Erster Start (oder `/lt welcome`): Voreinstellungen und Layouts sind Reiter; Maus darüber erklärt sie, die aktive
+   Voreinstellung und das aktive Layout sind unterstrichen. Zeile „3. Streamst du?“ mit Schalter Stream-Modus, Fußtext
+   zu Historie, `/lt welcome` und `/lt help` über den Knöpfen; nichts überlappt (auch frFR/esES).
+2. Beim ersten Start steht im Chat nur „Level Time ist bereit. /lt öffnet die Einstellungen, /lt help zeigt die
+   Befehle.“
+3. `/lt help` zeigt drei kurze Zeilen, `/lt help all` alle Befehle; `/lt quatsch` und `/lt runs x` melden eine Zeile
+   mit dem Verweis auf die Hilfe.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Karte: Tooltips, Hervorhebung, Stream, Fuß, kein Überlappen (ja/nein, Sprache):
+Chatzeile beim ersten Start (ja/nein):
+Hilfe kurz/lang, unbekannter Befehl (ja/nein):
+Fehler:
+```
+
+### 199. UX-Review Paket 3: Bedienhinweise an Anzeigen und Historie
+
+- [ ] geprüft
+
+1. Maus über den Hintergrund oder die Zeit des Hauptfensters: Tooltip „Hauptfenster“ mit Rechtsklick, Ziehen (fehlt bei
+   „Fixieren“), Griff und `/lt edit`; über einer Zeile weiter nur die Erklärung der Zeile. Flug-, Essen-, Lagerfeuer-
+   und Schlafsack-Karte sowie die Split-Liste zeigen den Hinweis ebenso, im Edit-Modus nicht.
+2. Edit-Modus: der Hinweis steht in zwei Zeilen, die Leiste ist schmaler als vorher und nichts überlappt.
+3. `/lt history`: Maus über einen Hauptreiter oder Unterreiter (z.B. „Verlauf“, „Zeitaufteilung“, „Effizienz“,
+   „Abgabebereit“) zeigt, was die Ansicht enthält.
+4. Layout „XP-Balken“ mit Breite 200 und drei gewählten Werten: der Balken wird breiter, links, Mitte und rechts
+   überlappen nicht; mit Texten „Nie“ bleibt er bei 200.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Bedienhinweis an Fenster, Karten, Split-Liste (ja/nein, welche nicht):
+Edit-Modus-Hinweis zweizeilig (ja/nein):
+Historien-Reiter erklärt (ja/nein, welche nicht):
+XP-Balken ohne Überlappen (ja/nein):
+Fehler:
+```
+
+### 200. Level Time Goals: Glücksrad über dem Fenster, Ergebnis bleibt, Neu drehen per Knopf
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Datei `StreamGoal/ClickStep.lua`).
+
+1. `/sg`, Reiter „Glücksrad“, „Glücksrad drehen“: das Rad dreht sich sichtbar **vor** dem Fenster (nicht dahinter),
+   die Ergebnis-Karte darunter ebenso. Gleiches über Einstellungen > Glücksrad > „Glücksrad drehen“.
+2. Nach dem Halt erscheint links neben „Glücksrad drehen“ der Knopf „Neu drehen (noch 2)“; Klick verwirft das
+   Ergebnis (Ziel abgebrochen) und dreht neu, die Zahl sinkt; bei 0 verschwindet der Knopf. Die Chatzeile nennt
+   `/sg wheel reroll` nur, solange Neuwürfe übrig sind.
+3. Rechtsklick auf die Ergebnis-Karte dreht ebenfalls neu, Linksklick blendet Rad und Karte aus; der Tooltip der
+   Karte nennt beides.
+4. Rad und Karte bleiben 15 s stehen (Einstellungen > Glücksrad > „Ergebnis zeigen“); auf 0 („bis Klick“) bleiben
+   sie bis zum Linksklick auf die Karte oder bis zur nächsten Drehung.
+5. `/lt edit`: das Rad lässt sich weiterhin greifen und verschieben (die Rahmen des Edit-Modus liegen darüber).
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Rad vor dem Fenster /sg und vor den Einstellungen (ja/nein):
+Knopf Neu drehen und Zähler (ja/nein):
+Karte: Linksklick/Rechtsklick (ja/nein):
+Anzeigedauer 15 s / bis Klick (ja/nein):
+Edit-Modus greift das Rad (ja/nein):
+Fehler:
+```
+
+### 201. Level Time Goals: Abhaken mit zweitem Klick, Formular je Modus, Zusätze zurückgesetzt
+
+- [ ] geprüft
+
+1. Freitext-Ziel ohne Zähler (`/sg add custom Test`): ein Linksklick auf die Karte hakt **nicht** ab, die Karte zeigt
+   „Nochmal klicken zum Abhaken“; ein zweiter Klick innerhalb von 3 s hakt ab (Einblendung erst jetzt). Nach 3 s
+   ohne zweiten Klick zeigt die Karte wieder ihren normalen Text.
+2. Zähler-Ziel (`/sg add custom 2 Test`): erster Klick zählt 1, beim letzten Schritt gilt dasselbe wie in 1.
+   Shift+Linksklick zählt zurück. Im Bingo-Schein: Feld zeigt unter dem Text „Nochmal klicken zum Abhaken“.
+3. `/sg`, Fortschritt > Quests: zuerst „Art“, darunter nur „Anzahl“ (Art: Anzahl abgeben) bzw. nur „Quest-IDs oder
+   Links“ (Art: Bestimmte Quests); beim Umschalten springt die Knopfzeile mit, nichts überlappt. Gleiches bei
+   Erkundung (Anzahl / Zone) und Ruf (Rufpunkte / Stufe, Fraktion immer).
+4. „+ Weitere Optionen“, „Wiederholen: Täglich“, Ziel hinzufügen: das Ziel ist täglich, danach steht „Wiederholen“
+   wieder auf „Nie“ und die Zusätze lassen sich zuklappen; solange etwas gesetzt ist, bleiben sie offen.
+5. Karten und Bingo-Felder mit Anzahl 1 lesen sich richtig: „1 Gebiet entdecken“, „1 Quest abgeben“, in Englisch
+   „Discover 1 area“, Französisch „Découvrir 1 zone“, Spanisch „Descubrir 1 zona“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Zweiter Klick nötig, Hinweis auf Karte und Feld (ja/nein):
+Formular zeigt nur Felder des Modus (ja/nein):
+Zusätze nach Hinzufügen zurückgesetzt (ja/nein):
+Einzahl in allen Sprachen (ja/nein):
+Fehler:
+```
+
+### 202. Level Time Goals: Vorlagen, Ziel-Karten und erklärende Tooltips
+
+- [ ] geprüft
+
+1. `/sg`, Reiter Ziele: Maus über jeden Artenreiter. Der Tooltip erklärt in einem Satz, was die Art zählt (z.B.
+   „Item looten“ vs. „Item besitzen“), darunter grau der Chatbefehl. Texte passen in die Tooltip-Breite (umbrechen).
+2. Maus über jedes Feld (Zahl, Text, Auswahl, Haken) mehrerer Arten und der „Weiteren Optionen“: jedes hat einen
+   Tooltip; Auswahlknöpfe zusätzlich grau „Linksklick: nächster Wert …“. Beim Haken („Bank mitzählen“, „Nur auf
+   Schlachtfeldern“) reicht die Maus über der Beschriftung, ein Klick auf die Beschriftung setzt den Haken.
+3. Item-Feld fokussieren, Shift-Klick auf ein Item in den Taschen: Link steht im Feld. Dasselbe bei Quests
+   (Bestimmte Quests) mit Shift-Klick auf eine Quest im **Questlog** und bei Erfolgen mit Shift-Klick im
+   **Erfolgsfenster**: Kommt der Link im Feld an? (Die Tooltips versprechen nur „Shift-Klick auf einen Link“; falls
+   das Questlog/Erfolgsfenster ohne offenen Chat nichts einfügt, bitte notieren.)
+4. Knopf „Als Vorlage speichern“: legt **kein** Ziel an, Chat „Vorlage gespeichert: …“; Sammlung > Vorlagen zeigt den
+   Eintrag mit Herkunft „Eigene Vorlage“ (Bingo und Glücksrad: „Mitgeliefert“/„Eigene Vorlage“). `/sg template` und
+   `/sg own` listen dieselben Vorlagen. Ein älterer geteilter Text „Eigene Ziele“/„Own goals“ importiert weiter als
+   Vorlagen.
+5. Überall „Ziel-Karten“: Fußzeile des Fensters „Ziel-Karten anzeigen“, Einstellungen > Ziel-Karten, Edit-Modus
+   „Ziel-Karten“, `/sg tracker` → „Ziel-Karten an./aus.“; „Laufende Ziele (n/6)“ im Fenster und im Minimap-Tooltip.
+6. Maus über eine Zeile der laufenden Ziele (langer Freitext mit Frist und Belohnung): Tooltip zeigt den vollen Titel,
+   Stand, Frist/Belohnung und bei selbst gezählten Zielen den Bedienhinweis.
+7. `/sg add rule nodeath` (ohne Level): Karte „Läuft bis zum Abbruch; ein Verstoß lässt das Ziel scheitern“.
+   `/sg scale` ohne Zahl: Chat nennt die aktuelle Größe und den Bereich 0.5 bis 2.
+8. Sprache Französisch und Spanisch (Level Time Einstellungen): Formular-Beschriftungen und Tooltips abgeschnitten?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Tooltips Arten/Felder vollständig (ja/nein):
+Shift-Klick Item / Questlog / Erfolgsfenster fügt Link ein (ja/nein je):
+Vorlage speichern legt kein Ziel an (ja/nein):
+Begriffe einheitlich (ja/nein, Stellen):
+Tooltip laufende Ziele (ja/nein):
+Fehler:
+```
+
+### 203. Level Time Goals: Einstieg, Fehler im Fenster, Klicks erklärt, Bingo ohne Wiederholung
+
+- [ ] geprüft
+
+1. Frischer Account (oder `StreamGoalDB` gelöscht): beim ersten Login steht im Chat einmal „Willkommen! /sg öffnet das
+   Fenster …“. Steht die Zeile nach den Login-Zeilen von Level Time noch sichtbar da? Nach `/reload` und beim nächsten
+   Charakter kommt sie nicht wieder.
+2. `/sg` ohne je ein Ziel: unter „Laufende Ziele“ stehen die drei Schritte und darunter „Pakete ansehen“. Level ist
+   gewählt und das Feld zeigt das nächste Level; „Ziel hinzufügen“ legt es mit einem Klick an. Freitext steht in der
+   ersten Reiterzeile neben Level, das Textfeld steht über dem Zähler.
+3. Fehler im Fenster: Bingo „Ins Feld“ mit leerem Text, Glücksrad mit allen Einträgen aus „Glücksrad drehen“,
+   Sammlung „Paket speichern“ ohne laufende Ziele: der Fehler steht rot auf der Seite (nicht abgeschnitten, nichts
+   überdeckt), nach einem Reiterwechsel oder Schließen ist er weg.
+4. Sammlung > Vorlagen: Klick auf eine Zeile wählt sie nur aus (gold, Zeile „Gewählt: …“), „Als Ziel anlegen“ und
+   „Löschen“ darunter wirken auf sie. Sammlung > Pakete: Maus über einem Paketnamen listet seine Ziele; fertige Pakete
+   haben nur „Übernehmen“, eigene zusätzlich „Teilen“ und „Löschen“.
+5. Maus über Zeilen der Tabellen in Bingo (Klick: in Feld N setzen), Glücksrad (im Rad / nicht im Rad) und Vorlagen:
+   Tooltip mit vollem Titel, Art · Herkunft und dem Klick. Maus über ein Feld des Bingo-Scheins am Bildschirm: voller
+   Text, Stand, „Linksklick, dann nochmal …“ bzw. „Zählt automatisch“ und „Rechtsklick: Einstellungen“.
+6. `/sg bingo 5` mehrmals ohne eigene Vorlagen: kein Feld doppelt; bei 3 × 3 nie zwei Felder derselben Art (z.B.
+   10 und 25 Kreaturen). Passen die neuen Texte (Vor einem NPC tanzen, …) in die 72-px-Felder?
+7. `/sg help`: sieben Zeilen; `/sg help all`: alle Zielarten; `/sg lsit`: eine Zeile „Unbekannter Befehl …“.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Einstiegszeile sichtbar / nur einmal (ja/nein):
+Fehlerzeilen lesbar, ohne Überdeckung (ja/nein, Seite):
+Tooltips Tabellen / Bingo-Schein (ja/nein):
+Bingo ohne Dubletten (ja/nein):
+Fehler:
+```
+
+### 204. Level Time Goals: Kacheln der Zielarten, Ziele bearbeiten, Ziel fürs Bingo-Feld
+
+- [ ] geprüft
+
+1. `/sg`, Reiter „Ziele“: statt zweier Reiterzeilen steht oben ein Raster aus Kacheln, je Art Symbol, Name und ein
+   Farbstreifen in der Farbe der Art. Sind alle Symbole sichtbar (keine grünen/leeren Kästchen), ist kein Name
+   abgeschnitten, und passt das Raster in allen vier Sprachen in höchstens vier Zeilen? Gewählte Kachel heller, Maus
+   darüber zeigt Erklärung und gedämpft den Chatbefehl.
+2. Sechs Ziele anlegen, „+ Weitere Optionen“ aufklappen, Art Ruf wählen: steht die letzte Zeile der laufenden Ziele
+   noch ganz im Fenster (nichts überdeckt die Fußzeile)?
+3. Laufender Freitext > „Bearbeiten“: Kacheln weichen einem Hinweis, Text und Zähler sind vorbelegt, Zusätze offen.
+   Tippfehler korrigieren, Frist „30m“, „Speichern“: Karte zeigt den neuen Text und die Restzeit. Nochmal „Bearbeiten“:
+   die Frist steht als Restzeit (z.B. „29m“) da; nur Punkte ändern lässt die Frist unverändert.
+4. Checkliste und ein weiteres laufendes Ziel: „Bearbeiten“ an der Checkliste, unter „Teilziel anhängen“ das Ziel
+   wählen (Links-/Rechtsklick), „Anhängen“: es verschwindet als eigene Karte und steht als Zeile in der Checkliste;
+   „Lösen“ holt es zurück. Lange Titel im Auswahlknopf werden abgeschnitten statt über den Rand zu laufen.
+5. Reiter „Bingo“, ein Feld wählen, „Neues Ziel fürs Feld“: Reiter „Ziele“ mit Überschrift „Neues Ziel für das gewählte
+   Bingo-Feld“, ohne Zusätze. Art Item wählen, Item per Shift-Klick einfügen, „Ins Bingo-Feld setzen“: zurück im Bingo,
+   das Feld zeigt das Item, das nächste leere Feld ist gewählt. „Zurück“ statt Speichern ändert nichts.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kacheln: Symbole sichtbar / Namen ganz / Zeilen (je Sprache):
+Letzte Zeile im Fenster (ja/nein):
+Bearbeiten: Text / Frist / Punkte (ja/nein):
+Teilziele anhängen / lösen (ja/nein):
+Bingo-Feld über das Formular (ja/nein):
+Fehler:
+```
+
+### 210. UX-Review Paket 4: Historie in sieben Reitern
+
+- [ ] geprüft
+
+1. `/lt history` in Deutsch und Französisch: Hauptreiter Level, Sessions, Journal, Auswertung, Graphen, Speedrun &
+   Rekorde, Vergleich, alle in einer oder zwei Zeilen innerhalb des Fensters, nichts überlappt.
+2. Level > Übersicht hat nur noch Level, Zeit, XP/h, Kills, Tode, Quests und Gold; Level > „Kills & Items“ und Sessions >
+   „Kills & Items“ zeigen Kills/h, Items, Items/h und PvP-Siege. Die Spalten passen ohne Abschneiden.
+3. Auswertung enthält Zonen, Ruf, Geld, Abgabebereit und Quest-Effizienz; Speedrun & Rekorde enthält Läufe, Bestzeiten
+   je Level, Persönliche Rekorde, Quest-Splits und Weltrekorde.
+4. Vergleich, Läufe, Bestzeiten, Persönliche Rekorde, Weltrekorde, Quest-Effizienz: statt des Namens steht „Alle
+   Charaktere“, die Pfeile und „Daten löschen“ sind grau und reagieren nicht; zurück auf Level ist der zuletzt gewählte
+   Charakter wieder da.
+5. Fenster mit einem vorher gemerkten Reiter (z.B. vor dem Update Zonen offen gelassen) öffnet direkt Auswertung > Zonen.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Hauptreiter passen (ja/nein, Sprache):
+Übersicht / Kills & Items Spalten passen (ja/nein):
+Alle Charaktere: Pfeile und Löschen grau (ja/nein):
+Gemerkter Reiter (ja/nein):
+Fehler:
+```
+
+### 211. UX-Review Paket 4: Bereich in Kompakt, Text und Uhr; Titel der Split-Liste
+
+- [ ] geprüft
+
+1. Layout „Kompakt“: über der Zeit steht klein „Level 25“, nach Wechsel auf Session (Einstellung oder Rechtsklick)
+   „Session“; die Zeit springt nicht.
+2. Layout „Text“ mit Bezeichnungen: „Level 25“ links über der Zeit, mit Kontur; Bezeichnungen aus: nur die Zahlen.
+3. Layout „Uhr“ mit gewählten Werten: Zeile „Level 25 - XP/h 8k …“ unter der großen Zeit.
+4. Split-Liste: Titel „Splits vs. Bestzeit“, mit Vergleich PB „Splits vs. PB“, mit gewähltem Lauf dessen Name; die Liste
+   wird für lange Namen breiter statt abzuschneiden.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Kompakt / Text / Uhr zeigen den Bereich (ja/nein):
+Split-Titel je Vergleich (ja/nein):
+Fehler:
+```
+
+### 212. UX-Review Paket 4: neue Orte in den Einstellungen, Goals ohne Reiterzeile
+
+- [ ] geprüft
+
+1. Einblendungen > Level-Up: Level-Up-Fenster, Einblendung (grau, solange das Fenster an ist) und Chat und Ansage auf
+   einer Seite; Chat & Erinnerungen beginnt mit „Login & Rekorde“ und verweist auf die Level-Up-Seite.
+2. Komfort > Timer & Flüge (Forever: Lagerfeuer, Essen, Schlafsack; alle: Flugzeiten). Rechtsklick auf die Flugkarte
+   und das Level-Up-Fenster öffnet die neue Seite.
+3. Komfort > Ausblenden: Erfahrungs-, Ruf- und Haltungsleiste, Kalender und Chat-Knöpfe stehen in der Liste und
+   schalten dieselbe Einstellung wie vorher (Haken an der Chat-Seite folgt); „Blizzard-Meldungen und -Effekte“ ist ein
+   einklappbarer Abschnitt dort. Komfort > Oberfläche hat keine Leisten- und Glitzer-Schalter mehr.
+4. Komfort > Beute: Plündern, Würfeln um Beute, Beute-Glitzer; Rechtsklick auf die Würfel-Karte öffnet sie.
+   Komfort > Rahmen, Tooltip & Karte: „Blizzard-Fenster“ (Fenster verschieben) unten.
+5. Allgemein > Hauptfenster: „Minimap-Knopf anzeigen“; die Seite „Sprache“ hat nur die Sprachwahl. Allgemein > Stream:
+   Hinweis zum Stream-Modus, Abschnitt „Für OBS“ mit Layout, Hintergrund und Kontur; Layout „Text“ dort gewählt wirkt
+   sofort.
+6. `/sg options`: keine Reiterzeile mit „Ziele“, die Seitenleiste beginnt direkt unter Suche und Titel, nichts überlappt
+   das Suchfeld; „Seite zurücksetzen“ wirkt weiter.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Level-Up-Seite vollständig (ja/nein):
+Timer & Flüge / Beute / Ausblenden vollständig (ja/nein, was fehlt):
+Minimap-Knopf und Stream-Seite (ja/nein):
+Goals-Einstellungen ohne Reiterzeile (ja/nein):
+Fehler:
+```

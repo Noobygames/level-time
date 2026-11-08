@@ -180,7 +180,7 @@ end
 --   tabs = { { scope, text, active } x3 }, scopeText (Beschriftung des gewählten Bereichs)
 --   time = { seconds, text }
 --   xpBar = { shown, xp, max, rested, quests (nil ohne questXpOnBar) }
---   rows = { { key, label, shortLabel, group, value } }
+--   rows = { { key, label, shortLabel, group, stat, definition, value } }
 local Model = {}
 Model.__index = Model
 
@@ -201,7 +201,7 @@ local function rebuildRows(model, db, source)
   local rows = {}
   for index, row in ipairs(source == WindowModel.CHOSEN and WindowModel.ChosenRows(db) or visibleRows(db)) do
     rows[index] = { key = row.key, label = L[row.key], shortLabel = WindowModel.ShortLabel(row.key),
-      group = row.group, definition = row.definition, value = "" }
+      group = row.group, stat = row.stat, definition = row.definition, value = "" }
   end
   model.rows = rows
   model.source = source
@@ -255,7 +255,8 @@ function Model:Build(db, source, alwaysXpBar)
   self.time.text = scopeTimeText(open, seconds)
 
   for _, row in ipairs(self.rows) do
-    row.value = open and row.definition.value(scope) or NO_VALUE
+    -- Ohne offenen Bereich (Instanz ohne Lauf) "-", außer bei Zeilen, die vom Bereich nicht abhängen (StatLines globalRow)
+    row.value = (open or row.definition.global) and row.definition.value(scope) or NO_VALUE
   end
   readXpBar(self.xpBar, db, leveling, alwaysXpBar)
   return self

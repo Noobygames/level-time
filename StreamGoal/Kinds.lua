@@ -1,12 +1,14 @@
 -- Zielarten (Grundarten; weitere in Kinds/*.lua, je Datei Art, Formular, Befehl und Erfassung). Jede Art ist ein
 -- Eintrag mit:
---   label              Locale-Key des Reiters im Fenster
---   group              Gruppe der Reiterzeile darüber (Goals.KIND_GROUPS: progress, combat, loot, quests, fun)
+--   label              Locale-Key der Kachel im Fenster (Tooltip <label>_TIP)
+--   group              Gruppe für die Reihenfolge der Kacheln (Goals.KIND_GROUPS: progress, combat, loot, quests, fun)
 --   color, icon        Farbe (Theme-Token von Level Time) und Symbol der Karte (Alerts.ICONS: Zahl = Spell-ID, sonst Pfad)
 --   texture(goal)      (optional) eigenes Symbol des Ziels (Pfad oder Datei-ID, z.B. das Item), nil = icon
 --   tooltip(goal, tt)  (optional) füllt den Tooltip beim Überfahren der Karte (tt = GameTooltip, schon verankert)
 --   form               Felder im Fenster (Window/GoalForm.lua: amount, fields)
---   inForm             false = kein Reiter im Formular des Reiters "Ziele" (Bingo hat einen eigenen Reiter)
+--   inForm             false = keine Kachel im Reiter "Ziele" (Bingo hat einen eigenen Reiter)
+--   editable           (optional) was sich am laufenden Ziel ändern lässt: { "amount" (Zielzahl), param, ... }
+--   editDerived        (optional) params, die prepare aus den editierbaren ableitet (Goals.Edit übernimmt sie mit)
 --   parse(args, rest)  /sg add <Art> ...: Wörter und Rest der Eingabe -> params, target
 --   usage              Locale-Key der Befehlszeile für /sg help
 --   validate(params, target) -> Fehlertext oder nil
@@ -38,7 +40,7 @@ local Theme = LT.Theme
 local Kinds = {}
 ns.Kinds = Kinds
 
-Kinds.MAX_TEXT_LENGTH = 80  -- Zeichen eines eigenen Ziels (die Karte bricht längere Texte um)
+Kinds.MAX_TEXT_LENGTH = 80  -- Zeichen eines Freitexts bzw. einer Text-Vorlage (die Karte bricht längere Texte um)
 Kinds.KILL_SOURCES = { "any", "pve", "pvp" }
 Kinds.DEFAULT_AMOUNT = 1
 
@@ -52,7 +54,7 @@ local COLORS = {
 }
 local BGWIN_ICON = "Interface\\Icons\\INV_BannerPVP_02"
 local CUSTOM_ICON = "Interface\\Icons\\INV_Misc_Note_01"
-local UNCOUNTED_TARGET = 1  -- eigenes Ziel ohne Zähler: ein Schritt = erledigt
+local UNCOUNTED_TARGET = 1  -- Freitext ohne Zähler: ein Schritt = erledigt
 local KILL_TITLES = { any = "SG_GOAL_KILLS_ANY", pve = "SG_GOAL_KILLS_PVE", pvp = "SG_GOAL_KILLS_PVP" }
 local SOURCE_LABELS = { any = "SG_FORM_SOURCE_ANY", pve = "SG_FORM_SOURCE_PVE", pvp = "SG_FORM_SOURCE_PVP" }
 
@@ -65,6 +67,14 @@ function Kinds.ValidAmount(target)
   end
 end
 local validAmount = Kinds.ValidAmount
+
+-- Titel mit Anzahl in Einzahl oder Mehrzahl: bei count == 1 der Text <key>_ONE ("%d Gebiet entdecken"), sonst <key>
+-- ("%d Gebiete entdecken"); weitere Werte nach count. Ziele sind nie 0, daher reicht "1 = Einzahl" in allen vier
+-- Sprachen.
+function Kinds.Counted(key, count, ...)
+  local text = count == 1 and L[key .. "_ONE"] or L[key]
+  return string.format(text, count, ...)
+end
 
 -- Wörter einer Eingabe
 function Kinds.Words(text)
@@ -152,7 +162,9 @@ Goals.RegisterKind("level", {
   usage = "SG_USAGE_LEVEL",
   color = COLORS.level,
   icon = Alerts.ICONS.levelUp,
-  form = { amount = "SG_FORM_TARGET_LEVEL" },
+  -- vorbelegt mit dem nächsten Level: das häufigste Ziel braucht so nur einen Klick
+  form = { amount = "SG_FORM_TARGET_LEVEL", amountDefault = function() return LT.level + 1 end },
+  editable = { "amount" },
   parse = function(args) return {}, tonumber(args[1]) end,
   validate = function(_, target)
     if type(target) ~= "number" or target <= LT.level then
@@ -180,6 +192,7 @@ Goals.RegisterKind("kills", {
     { type = "choice", param = "source", label = "SG_FORM_SOURCE", values = Kinds.KILL_SOURCES, labels = SOURCE_LABELS },
     { type = "check", param = "battleground", label = "SG_FORM_ONLY_BG" },
   } },
+  editable = { "amount" },
   parse = function(args)
     local params = {}
     for _, word in ipairs(args) do
@@ -194,7 +207,7 @@ Goals.RegisterKind("kills", {
     if not KILL_TITLES[params.source] then return string.format(L.SG_ERR_UNKNOWN_KIND, params.source) end
     return validAmount(target)
   end,
-  title = function(goal) return string.format(L[KILL_TITLES[goal.params.source]], goal.target) end,
+  title = function(goal) return Kinds.Counted(KILL_TITLES[goal.params.source], goal.target) end,
   body = function(goal) return goal.params.battleground and L.SG_ONLY_BG or nil end,
 })
 
@@ -210,6 +223,7 @@ Goals.RegisterKind("item", {
     { type = "text", param = "item", label = "SG_FORM_ITEM", links = true },
     { type = "text", param = "boss", label = "SG_FORM_BOSS" },
   } },
+  editable = { "amount", "boss" },  -- die Notiz prüft nichts, nur die Karte zeigt sie
   parse = function(_, rest)
     local item, words = Kinds.SplitItemInput(rest)
     return { item = item }, tonumber(words[1]) or Kinds.DEFAULT_AMOUNT
@@ -239,6 +253,7 @@ Goals.RegisterKind("bgwin", {
   color = COLORS.bgwin,
   icon = BGWIN_ICON,
   form = { amount = "SG_FORM_AMOUNT", fields = { { type = "text", param = "battleground", label = "SG_FORM_BG" } } },
+  editable = { "amount" },
   parse = function(args)
     local name = table.concat(args, " ", 2)
     return { battleground = name ~= "" and name or nil }, tonumber(args[1]) or Kinds.DEFAULT_AMOUNT
@@ -248,18 +263,25 @@ Goals.RegisterKind("bgwin", {
   title = function(goal)
     local name = goal.params.battleground
     if name then return string.format(L.SG_GOAL_BGWIN_NAMED, name, goal.target) end
-    return string.format(L.SG_GOAL_BGWIN_ANY, goal.target)
+    return Kinds.Counted("SG_GOAL_BGWIN_ANY", goal.target)
   end,
 })
 
+-- Freitext ist die naheliegendste Art fürs Streamen ("Ragnaros legen"): in der ersten Gruppe, die Kachel steht direkt
+-- neben Level; im Formular steht der Text (Pflicht) vor dem optionalen Zähler
 Goals.RegisterKind("custom", {
   label = "SG_KIND_CUSTOM",
-  group = "fun",
+  group = "progress",
   usage = "SG_USAGE_CUSTOM",
   color = COLORS.custom,
   icon = CUSTOM_ICON,
   manual = true,
-  form = { amount = "SG_FORM_COUNTER", fields = { { type = "text", param = "text", label = "SG_FORM_TEXT" } } },
+  form = { fields = {
+    { type = "text", param = "text", label = "SG_FORM_TEXT" },
+    { type = "amount", label = "SG_FORM_COUNTER" },
+  } },
+  editable = { "text", "amount" },  -- Tippfehler im Text, Zähler nachträglich
+  editDerived = { "counted" },
   -- Eine führende Zahl ist der Zähler ("add custom 5 Alle Quests für RFC"), ohne Zahl ein Ziel zum Abhaken
   parse = function(args, rest)
     local counter = tonumber(args[1])

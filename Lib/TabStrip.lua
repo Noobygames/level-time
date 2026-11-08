@@ -41,6 +41,17 @@ function TabStrip.New(parent, options)
     return row + 1
   end
 
+  -- Nur mit maxWidth: obere Kante der ersten Zeile verschieben (z.B. wenn eine Reiterzeile darüber umbricht);
+  -- wirkt beim nächsten Layout()
+  function strip:SetTop(top)
+    options.top = top
+  end
+
+  -- Nur mit maxWidth: neue Reihenfolge der Reiter (dieselben Buttons, z.B. sortiert); wirkt beim nächsten Layout()
+  function strip:SetOrder(tabs)
+    self.tabs = tabs
+  end
+
   -- Breite aller Reiter in einer Zeile samt Abständen
   function strip:Width()
     local width = 0

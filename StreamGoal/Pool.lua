@@ -1,8 +1,8 @@
 -- Ziel-Pool für Bingo und Glücksrad (Roadmap 305/306/431): mitgelieferte Einträge (Pool.PREMADE, Ziele relativ zum
--- Level und lustige Texte zum Abhaken) und die eigenen Ziele (Library.lua) als eine Liste gleich gebauter Einträge:
---   { key, premade, kind, params, target }   key = "p:<Name>" (mitgeliefert) oder "o:<ID>" (eigenes Ziel)
+-- Level und lustige Texte zum Abhaken) und die Vorlagen (Library.lua) als eine Liste gleich gebauter Einträge:
+--   { key, premade, kind, params, target }   key = "p:<Name>" (mitgeliefert) oder "o:<ID>" (eigene Vorlage)
 -- Die Schlüssel bleiben stabil, damit Glücksrad (abgeschaltete Einträge) und Bingo-Entwurf (gewählte Felder) sie
--- speichern können; ein gelöschtes eigenes Ziel liefert dann nichts mehr (Feld wird zufällig, Rad überspringt).
+-- speichern können; ein gelöschte Vorlage liefert dann nichts mehr (Feld wird zufällig, Rad überspringt).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -14,7 +14,8 @@ ns.Pool = Pool
 
 local PREMADE_PREFIX, OWN_PREFIX = "p:", "o:"
 
--- Mitgelieferte Einträge; target(level) = Ziel abhängig vom aktuellen Level, text = Locale-Key eines Textes
+-- Mitgelieferte Einträge; target(level) = Ziel abhängig vom aktuellen Level, text = Locale-Key eines Textes. Mindestens
+-- 24 Einträge, damit ein 5x5-Bingo ohne eigene Vorlagen keine Felder wiederholt (Kinds/Bingo.lua)
 Pool.PREMADE = {
   { key = "kills10", kind = "kills", params = { source = "pve" }, target = function() return 10 end },
   { key = "kills25", kind = "kills", params = { source = "pve" }, target = function() return 25 end },
@@ -36,6 +37,14 @@ Pool.PREMADE = {
   { key = "text4", kind = "custom", text = "SG_BINGO_TEXT_4" },
   { key = "text5", kind = "custom", text = "SG_BINGO_TEXT_5" },
   { key = "text6", kind = "custom", text = "SG_BINGO_TEXT_6" },
+  { key = "text7", kind = "custom", text = "SG_BINGO_TEXT_7" },
+  { key = "text8", kind = "custom", text = "SG_BINGO_TEXT_8" },
+  { key = "text9", kind = "custom", text = "SG_BINGO_TEXT_9" },
+  { key = "text10", kind = "custom", text = "SG_BINGO_TEXT_10" },
+  { key = "text11", kind = "custom", text = "SG_BINGO_TEXT_11" },
+  { key = "text12", kind = "custom", text = "SG_BINGO_TEXT_12" },
+  { key = "text13", kind = "custom", text = "SG_BINGO_TEXT_13" },
+  { key = "text14", kind = "custom", text = "SG_BINGO_TEXT_14" },
 }
 
 -- Schlüssel der mitgelieferten Texte (Migration der früheren eigenen Bingo-Texte, Library.lua)
@@ -56,7 +65,7 @@ local function resolvePremade(entry)
   return { key = PREMADE_PREFIX .. entry.key, premade = true, kind = entry.kind, params = params, target = target }
 end
 
--- Schlüssel eines eigenen Ziels
+-- Schlüssel einer Vorlage
 function Pool.OwnKey(id)
   return OWN_PREFIX .. id
 end
@@ -76,7 +85,7 @@ function Pool.Items()
   return items
 end
 
--- Nur die eigenen Ziele, im Client verfügbare (neue Liste; Reiter "Sammlung")
+-- Nur die Vorlagen, im Client verfügbare (neue Liste; Reiter "Sammlung")
 function Pool.OwnItems()
   local items = {}
   for _, entry in ipairs(Library.Entries()) do
@@ -85,12 +94,12 @@ function Pool.OwnItems()
   return items
 end
 
--- Herkunft für Tabellen: mitgeliefert oder eigenes Ziel
+-- Herkunft für Tabellen: mitgeliefert oder eigene Vorlage
 function Pool.SourceText(item)
   return item.premade and L.SG_POOL_PREMADE or L.SG_POOL_OWN
 end
 
--- Eintrag zu einem Schlüssel, nil = unbekannt (z.B. gelöschtes eigenes Ziel)
+-- Eintrag zu einem Schlüssel, nil = unbekannt (z.B. gelöschte Vorlage)
 function Pool.Get(key)
   if type(key) ~= "string" then return nil end
   local id = tonumber((key:match("^" .. OWN_PREFIX .. "(%d+)$")))

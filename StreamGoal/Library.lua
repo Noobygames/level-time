@@ -1,8 +1,8 @@
--- Eigene Ziele (Roadmap 431): selbst festgelegte Einträge für Bingo-Felder und das Glücksrad, Account-weit in
+-- Vorlagen (Roadmap 431): selbst festgelegte Einträge für Bingo-Felder und das Glücksrad, Account-weit in
 -- StreamGoalDB.library = { nextId, entries = { { id, kind, params, target, createdAt }, ... } }.
 -- Ein Eintrag ist eine Eingabe wie in einem Paket (Packs.lua): kind, params (flach, vor prepare) und target; angelegt
--- wird daraus erst beim Ziehen (Goals.Create prüft dann Bestand und Plätze). Entstehen über "Als eigenes Ziel
--- speichern" im Formular (jede Zielart), als freier Text (Sammlung, Bingo-Editor, /sg own add) oder per Import.
+-- wird daraus erst beim Ziehen (Goals.Create prüft dann Bestand und Plätze). Entstehen über "Als Vorlage
+-- speichern" im Formular (jede Zielart), als freier Text (Sammlung, Bingo-Editor, /sg template add) oder per Import.
 -- Teilen im Text-Format der Pakete ("LT1:goals:..." mit own = true, Sharing.lua); ein Paket-Text lässt sich hier
 -- ebenfalls einlesen.
 local _, ns = ...
@@ -28,7 +28,7 @@ local function store()
   return library
 end
 
--- Alle eigenen Ziele, älteste zuerst (nicht verändern)
+-- Alle Vorlagen, älteste zuerst (nicht verändern)
 function Library.Entries()
   return store().entries
 end
@@ -50,7 +50,7 @@ local function sameInput(entry, kind, params, target)
   return true
 end
 
--- Eigenes Ziel speichern; ein gleiches gibt es nur einmal. Rückgabe: Eintrag, oder nil und Fehlertext
+-- Vorlage speichern; eine gleiche gibt es nur einmal. Rückgabe: Eintrag, oder nil und Fehlertext
 function Library.Add(kind, params, target)
   if EXCLUDED_KINDS[kind] then return nil, L.SG_ERR_OWN_KIND end
   params = Goals.CopyFlat(params)
@@ -134,7 +134,7 @@ function Library.Import(text)
 end
 
 ---------------------------------------------------------------------------
--- Schema 2: eigene Bingo-Texte (settings.bingoTexts) werden eigene Ziele. Früher ersetzten sie die mitgelieferten
+-- Schema 2: eigene Bingo-Texte (settings.bingoTexts) werden Vorlagen. Früher ersetzten sie die mitgelieferten
 -- Texte, daher schaltet die Migration diese im Glücksrad ab, wenn es eigene gab (Wheel.lua liest wheel.pool.off).
 ---------------------------------------------------------------------------
 ns.MIGRATIONS[LEGACY_SCHEMA] = function(db)
