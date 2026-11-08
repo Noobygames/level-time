@@ -2779,14 +2779,15 @@ Fehler:
 
 Nach dem Update den Client neu starten (neue Dateien und Texturen in `StreamGoal/`).
 
-1. `/sg`, Reiter „Glücksrad“: Tabelle mit allen Vorgaben und eigenen Zielen; Linksklick schaltet „an/aus“ um,
-   Rechtsklick auf ein eigenes Ziel fragt nach und löscht es. Unten „Eigener Text“ + „Hinzufügen“.
+1. `/sg`, Reiter „Glücksrad“: Tabelle mit allen mitgelieferten und eigenen Zielen; Klick schaltet „an/aus“ um.
+   Eigene Texte hinzufügen und eigene Ziele löschen geht seit Roadmap 433 im Reiter „Sammlung“ (siehe 191).
 2. „Glücksrad drehen“: in der Bildschirmmitte erscheint ein rundes Rad mit 12 farbigen Stücken, Zeiger oben, Nabe in
    der Mitte. Es läuft schnell an, wird über etwa 4 s langsamer, dreht sich dabei mehrmals; die Zeile darunter zeigt
    das Stück unter dem Zeiger. Am Ende steht der Zeiger auf dem Stück, dessen Ziel angelegt wird (Karte unter dem
    Rad, Chatzeile). Klicken je Stück hörbar und nicht zu laut. Auf jedem Client: Stücke drehen sich sauber um die
    Mitte (keine abgeschnittenen Ecken, keine Lücken zwischen den Stücken).
-3. Einstellungen > Tracker > Glücksrad: „Rad drehen lassen“ aus = Ergebnis sofort; „Klicken beim Drehen“ aus = still.
+3. Einstellungen > Glücksrad (seit Roadmap 433 eigene Unterseite): „Rad drehen lassen“ aus = Ergebnis sofort;
+   „Klicken beim Drehen“ aus = still.
 4. `/lt edit`: das Rad lässt sich verschieben und skalieren.
 5. Reiter „Ziele“: Art wählen, Werte eingeben, „Als eigenes Ziel speichern“: nichts wird angelegt, das Ziel steht im
    Glücksrad- und Bingo-Reiter.
@@ -2805,5 +2806,43 @@ Rad sichtbar, dreht und landet richtig (ja/nein):
 Stücke sauber, Farben ok (ja/nein):
 Tick-Ton ok (ja/nein):
 Eigene Ziele und Bingo-Editor ok (ja/nein):
+Fehler:
+```
+
+### 191. Level Time Goals aufgeräumt (Roadmap 433)
+
+- [ ] geprüft
+
+Nach dem Update den Client neu starten (neue Dateien unter `StreamGoal/Window/` und `StreamGoal/Locales/`).
+
+1. `/sg`: Reiter in der Reihenfolge Ziele | Bingo | Glücksrad | Sammlung | Historie, jeder mit Tooltip. Gespeicherte
+   Ziele, Pakete, eigene Ziele, Bingo-Entwurf und Rad-Einstellungen von vorher sind alle noch da.
+2. Reiter „Ziele“: Frist, Wiederholung, Belohnung und Punkte sind zugeklappt; „+ Weitere Optionen“ klappt sie auf,
+   „- Weniger Optionen“ wieder zu. „Ziel hinzufügen“ steht ganz rechts, daneben „Als eigenes Ziel speichern“. Ein
+   Fehler (z.B. Level unter dem aktuellen) steht in einer eigenen roten Zeile und überdeckt nichts. Überschrift
+   „Aktive Ziele (n/6)“. Kein Bingo-Reiter mehr unter „Regeln & Spaß“; die Art „Eigenes“ heißt jetzt „Freitext“.
+   Tooltips auf Gruppen- und Artenreitern (Arten bzw. Chatbefehl), auf +, - und Abbrechen.
+3. Ohne aktive Ziele: „Pakete ansehen“ öffnet Sammlung > Pakete.
+4. Reiter „Glücksrad“: Klick schaltet einen Eintrag an/aus, „Alle an“/„Alle aus“ (mit Filter nur die gefundenen),
+   Haken „Bei jedem Level-Up drehen“ und „Rad drehen lassen“ stimmen mit Einstellungen > Glücksrad überein.
+5. Reiter „Sammlung“: Unterreiter „Pakete“ (Übernehmen ganz rechts, Teilen, bei eigenen Löschen; unten „Laufende
+   Ziele als Paket speichern“) und „Eigene Ziele“ (Linksklick legt an, Rechtsklick löscht mit Rückfrage, freier Text
+   hinzufügen). Oben rechts „Importieren“: ein Paket-Text landet unter Pakete, ein Text von „Eigene Ziele teilen“
+   unter Eigene Ziele (auch ein Text aus der Version vor diesem Update).
+6. „Einstellungen“ unten rechts öffnet je Reiter die passende Unterseite (Ziele: Tracker, Bingo: Bingo, Glücksrad:
+   Glücksrad, Historie: Daten). Rechtsklick auf Bingo-Schein bzw. Rad am Bildschirm ebenso.
+7. In Englisch, Französisch und Spanisch (`/lt` > Sprache): nichts überlappt oder ragt über den Rand, vor allem die
+   Knopfzeilen im Reiter Ziele, Glücksrad und Sammlung.
+8. `/sg own`, `/sg own add Test`, `/sg import`, `/sg collection`, `/sg bingo edit`, `/sg wheel edit` funktionieren;
+   alte Befehle (`/sg pack import`, `/sg bingo text …`) ebenso.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Daten von vorher da (ja/nein):
+Reiter, Zusätze, Knopfzeilen ok (ja/nein):
+Sammlung und Import ok (ja/nein):
+Andere Sprachen ohne Überlappung (ja/nein):
 Fehler:
 ```
