@@ -506,8 +506,8 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ## Erledigt
 
-- v2.29.2: 442. Grafikdetails für WoW Forever (Komfort > Beyond Ultra: Gras-Dichte und -Sichtweite, Objekt- und Gelände-Detail, Spiegelungen, Nachschärfen über CVars; empfohlene Werte; aus = Originale zurück)
-- v2.29.2: Beute im Instanz-Bericht kurz je Gewinner, möglichst in derselben Nachricht; Fix „Vor einem NPC tanzen“ (nil statt false)
+- v2.30.0: 442. Grafikdetails für WoW Forever (Komfort > Beyond Ultra: Gras-Dichte und -Sichtweite, Objekt- und Gelände-Detail, Spiegelungen, Nachschärfen über CVars; empfohlene Werte; aus = Originale zurück)
+- v2.30.0: Beute im Instanz-Bericht kurz je Gewinner, möglichst in derselben Nachricht; Fix „Vor einem NPC tanzen“ (nil statt false)
 - v2.29.1: Fix Questfortschritt an die Gruppe: macht ein Ziel die Quest fertig, nur noch "Quest fertig" statt zwei Zeilen
 - v2.29.1: Fix 440. Schiffs- und Zeppelin-Zeiten: Zielanleger erst mit Zonenkarte (nicht Kontinent nach dem Ladebild), keine Abfahrt beim Anlegen, Kontinent-Anleger werden entfernt
 - v2.29.0: 441. Beute im Instanz-Bericht (`instanceReportLoot`: eine Zeile je gewonnenem Wurf mit Boss, Link, Gewinner, Wahl und Wurf; Mindestqualität, Höchstzahl, eine Zeile je Sekunde)
