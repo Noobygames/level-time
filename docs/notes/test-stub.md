@@ -30,3 +30,12 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 ### Stub: Leatrix rest (roadmap 329 done)
 
 - Stub: `state.clubs` (C_Club fake), chat frames `GetID`/clamp insets `_clamp`/`GetChatWindowInfo`/`FCF_SetChatWindowFontSize` via `wow.chatWindowSizes`, `QuestFont*` objects, scenarios `era_classic_frame*` get a Classic PlayerFrame. Gotcha: in Bash heredocs feeding Python, `\` arrives as `\`; check Lua backslash strings afterwards.
+
+## Aus der alten CLAUDE.md (Token-Refactor, wortgetreu)
+
+### Tests (stub gotchas)
+
+- Scenarios named `era_*` load as Classic Era (11509), `forever_*` as Forever (16001), others Retail; `streamgoal_*` also loads the Goals addon (global `streamGoal`). Other prefixes (`native_xpcall*`, `no_unit_events*`, `legacy_options*`) and per-module stub additions: `docs/notes/test-stub.md`.
+- gopher-lua: `select(n, ...)` in a closure forwarding event varargs crashed (register the handler directly); `tonumber(s:match(...))` without match errors (write `tonumber((s:match(...)))`); nested `gmatch` inside a `for ... in gmatch` crashes (split with `find`); after a pcall error, number locals of the main chunk captured by closures stop updating (keep counters in tables); Bash heredocs starting with `cat >` without input hang (write scripts to files).
+- `wow.click(text, last)` matches the first button with that text and ignores visibility ("Standard", "Rückgängig", "Fertig", "Grün" collide): use `wow.clickOption(labelKey)` (clicks uniquely via `<KEY>_TIP`) or `last = true`; open the options (and `OptionsWindow.ShowPage(...)`) before clicking controls on hidden sub pages. Tests needing every control: `addon.Set("optionsAdvanced", true)`. New textures/fontstrings are shown by default in the stub.
+- `C_Timer.After` callbacks only run on `wow.runTimers()`; `wow.update(seconds)` drives OnUpdate and `ns.Every`; assigning `wow.state.buffs` fires UNIT_AURA; tests using `ns.NamePlates.Active()` must fire `NAME_PLATE_UNIT_ADDED`; `wow.login({ level = 10 })` keeps the previous name (pass `name =`).

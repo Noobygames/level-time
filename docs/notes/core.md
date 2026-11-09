@@ -32,3 +32,65 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 - `Stats.RegisterScope(scope, { counters, seconds, isOpen, isCounting })` (Stats no longer calls Session/PlayedTime/Instances). `Database.CopyCounters`, `RegisterDefaults({ settings, ranges, counters })` (modules register their own defaults; started with LootSparkles/LootRolls; rest pending, item 86), `IsFirstStart`/`TakeFirstStart`.
 - New Lib modules: `Migrate` (`Run`, `ApplyDefaults`), `ProfileStore.New({...})`, `MinimapButton.New({...})`, `SlashCommands.Register({...})`, `TabStrip` (`New`, `:Add`, `:Layout`, `:Width`); `Widgets.CreateScrollArea(parent, { step, top, keepInRange })`, `Widgets.ClampOffset`; `Format.NO_VALUE`/`PENDING`. `OptionsBuilder.New({ host })` + `OptionsBuilder.DEFAULT_HOST`; `TableView.Create` optional `locale`/`language()`/`export`; `Export.New({ name, L, print })`; `ConfirmPopup` show(textArg, data, textArg2).
 - Load order starts: `Locales\Core.lua`, four language files, `Lib\Migrate.lua`, `Core\Database.lua`, `Lib\Lifecycle.lua`, `Core\LevelTimer.lua`.
+
+## Aus der alten CLAUDE.md (Token-Refactor, wortgetreu)
+
+### Architecture
+
+- `LevelTimer.toc` declares metadata, load order (file list at bottom, grouped by `#` comments) and saved variables. New `.lua` files must be added here or they won't load. Paths use `\` like Blizzard's own `.toc` files (`Core\Stats.lua`); installer and test stub convert them.
+- Folders: `Locales/` (Core.lua + deDE/enUS/frFR/esES), `Core/`, `Lib/` (domain-free helpers), `Tracking/`, `History/`, `Speedrun/`, `Assist/`, `UI/`, `StreamGoal/` (sister addon). New `.lua` files go into the `.toc` (restart needed); moving files changes the `.toc`.
+- `## Interface:` lists several comma-separated client versions so one `.toc` serves multiple flavors. When using an API, make sure it exists on all listed flavors, or guard it (`if GetPVPSessionStats then`, `ns.IsSecret(value)`). Events unknown to a client are safe: `ns.RegisterEvent` returns false instead of erroring.
+
+### Saved variables (Database.lua)
+
+- `LevelTimerDB` (account): settings as `ns.db` (always the active settings); `Profiles.lua` keeps named copies (`profiles`, `activeProfile`, `characterProfiles`); new settings need nothing extra (every key is copied except the profile meta keys, missing ones get defaults). Own `schemaVersion` and `settingsMigrations`.
+- `LevelTimerStatsDB` (account): `characters["Name-Realm"]` = `{ schemaVersion, name, realm, class, currentLevel, currentSession, levelHistory, sessionHistory }`; the logged-in character is `ns.character`, key `ns.characterKey`. `LevelTimerCharDB` is legacy (moved into StatsDB on login). More in `docs/notes/core.md`.
+- All of them exist only from `PLAYER_LOGIN`. Never touch them at file load time.
+- Changing the character data shape: bump `Database.CHARACTER_SCHEMA_VERSION` and add `characterMigrations[newVersion]`. Migrations run before defaults are merged, also on fresh (empty) data and on legacy `LevelTimerCharDB` tables, so they must tolerate missing fields. New settings or counters only need a default (`COUNTER_DEFAULTS` is shared by level and session).
+
+### Module wiring
+
+Files share state via the addon namespace (`local _, ns = ...`); `.toc` order is the dependency order:
+Layers (load order = `.toc` order, details in `docs/notes/core.md`): foundation (`Client`, `Locales`, `Database`, `Lifecycle`, `Format`, `Widgets`, `Bags`, `Items`, `Alerts.Notify`), data modules without UI (`Stats`, `PlayedTime`, `Session`, `Experience`, producers, `History`, `Runs`, `Splits`, ...), UI (`StatLines`, `TimerWindow`, `HistoryWindow`, `Options`, ...). Core contracts (now implemented in `Lib/Lifecycle.lua`):
+- Slash commands get the rest of the input as argument (`commands.goal(argument)`).
+- Events: `ns.RegisterEvent(event, handler)`; multiple handlers per event, called in registration order. Every event, login, logout, level-up and apply callback (and every `ns.Every` task) runs through `ns.SafeCall` (xpcall with `geterrorhandler()`), so one failing module never stops the others; the test harness fails a scenario for each error caught this way (`wow.errors`, clear it after deliberate errors).
+- Repeating work: `ns.Every(seconds, fn(elapsed))` (one shared OnUpdate frame, runs only after login); don't create own throttled OnUpdate frames for background checks. Tests drive it with `wow.update(seconds)` (OnUpdate of all shown frames).
+- `ns.OnLogin(fn)`: runs after saved variables, `ns.character` and `ns.level` are ready, before the first `ns.ApplySettings()`. Callbacks must be safe to run again: `ns.DeleteCharacter(key)` deletes the stats and, for the logged-in character, reruns the whole login sequence to start fresh. `ns.OnLogout(fn)`: `PLAYER_LOGOUT`, also fired on `/reload`; persist in-memory values here.
+- Level-up runs in two phases, independent of load order: `ns.OnLevelCompleted(fn(oldLevel))` while old values are intact (history snapshot), then `ns.level` is updated, then `ns.OnLevelStarted(fn(newLevel))` (resets). Don't listen to `PLAYER_LEVEL_UP` directly.
+- Settings: change via `ns.Set(key, value)` (or mutate `ns.db` + `ns.ApplySettings()`). Each UI module registers `ns.RegisterApply(fn)` that rebuilds its state from `db`, including localized texts, so language switching is live. Options widgets are updated with `SetValueSilently` / `SetChecked`, which do not fire change handlers.
+- Text must fit in every language (fr/es are longer): never fixed widths for localized text; size by measured label widths (`fitWidth`, `setMeasuredText`, wrapping sub-tabs); the test stub records anchors in `frame._points` (`tests/layout_fit_test.lua`). Details in `docs/notes/options.md`.
+- Every `Add*` option control gets a tooltip `L["<LABEL>_TIP"]` in all four languages; options framework is `Lib/OptionsBuilder.lua`, `UI/Options.lua` is only content.
+- Data modules expose getters; windows poll them in a throttled `OnUpdate` (only while shown) instead of being pushed updates.
+
+### Scopes: level and session (Stats.lua, Session.lua)
+
+- Every counter exists twice: `Stats.LEVEL` (`ns.character.currentLevel.counters`) and `Stats.SESSION` (`ns.character.currentSession.counters`). `Stats.Increment(counter, amount)` always counts in both; read with `Stats.Get(scope, counter)`. Getters in `Experience`/`DeathCounter` and `STAT_LINES[i].rows[j].value(scope)` take the scope too.
+- `Stats.GetSeconds(scope)`: level = server played time (`PlayedTime`), session = `Session.GetSeconds()`. `Stats.GetXp(scope)`: level = `UnitXP` (exact even if the addon was installed mid-level), session = counter `xpGained` (PLAYER_XP_UPDATE deltas, level-up wrap handled in `Experience.lua`).
+- Level scope restarts in `OnLevelStarted` and on login if the level changed meanwhile.
+- Session = login to logout; a gap up to `RESUME_GAP_SECONDS` resumes it, otherwise it is archived at the next login (details in `docs/notes/core.md`).
+- Third scope `Stats.INSTANCE` = the open instance run (`character.currentRun.stats`, full counter set; `Instances.lua` counts it via `Stats.OnIncrement` while the run clock runs). Without a run it is empty (`Stats.IsOpen(scope)` false, time 0). Old runs with `xp`/`counters` are converted at login (`upgrade`); read XP/kills/deaths of a run via `Instances.Summarize(run)`. Stat `showXpGained` shows the XP gained in the scope (not per hour).
+- The window's `windowScope` setting picks which scope the timer window shows (tabs "Level N | Session | Instance").
+
+### Data sources (basics)
+
+- Played time: the server is the source of truth, always request via `ns.PlayedTime.Sync()`; XP/h = XP / scope seconds (`Experience.CalculateRate`). Data-source details (kills, deaths, PvP, journal, money, coverage): `docs/notes/tracking.md`.
+- Adding a stat: counter default in `Database.lua`, constant in `Stats.lua`, producer module calling `Stats.Increment`, entry in `ns.STAT_LINES` + setting default + `STAT_*` (toggle) and `ROW_*` (row label) strings (window rows and options toggle are generated). Keep one value per row so every value can be toggled; splitting a stat later needs a settings migration (see v3). For history, add a column to `LEVEL_COLUMNS`/`SESSION_COLUMNS`. Add a scenario in `tests/`.
+
+### Conventions
+
+- Prefer the documented `C_*` function over a global of the same name: many globals (`CombatLogGetCurrentEventInfo`, `GetCoinTextureString`, ...) exist only as deprecation aliases with the CVar `loadDeprecationFallbacks` (missing in WoW Forever). Same for `NUM_CHAT_WINDOWS` (use `ns.ChatFrames()`) and `ChatEdit_InsertLink` (Blizzard calls `ChatFrameUtil.InsertLink`). Check secret values before any boolean test or comparison (`ns.IsSecret` first). Blizzard UI source per flavor: `Gethe/wow-ui-source` branches `live`, `classic_era`, `classic_anniversary`, `forever`.
+- Verify every WoW API assumption against documentation before relying on it: signature, optional arguments, return fields, ordering, availability per flavor. Sources: warcraft.wiki.gg (`API_<Name>`), Blizzard's generated docs (`Gethe/wow-ui-source`, `Interface/AddOns/Blizzard_APIDocumentationGenerated/*Documentation.lua`) and Blizzard's own UI code using the API (same repo). If the docs leave a gap (e.g. undocumented struct fields), say so and ask for an in-game check (`/dump ...`) instead of guessing.
+- Secret values (Retail/Forever): check `ns.IsSecret(value)` before any boolean test or comparison; guard APIs not on all listed flavors.
+- Clean, easy-to-follow code: one responsibility per file, named constants instead of magic numbers, shared helpers (`Widgets.lua`, `Format.lua`) instead of duplication. Refactor existing code when a change touches it.
+- Code comments are in German. UI strings come from `Locales.lua` (deDE, enUS, frFR, esES), never hardcoded; a new key goes into every table (`tests/locales_test.lua` checks keys and %s/%d placeholders).
+- Chat output via `ns.Print` (prefix `Level Time:`). Player-facing name is `ns.DISPLAY_NAME` ("Level Time", also `## Title`, CurseForge project name); technical names (folder, `.toc`, SavedVariables, frame names, LDB object id, `/lt`, zip `LevelTimer-v<version>.zip`) stay `LevelTimer` so installs and saved data keep working.
+- Commits and PRs carry no AI attribution: no `Co-Authored-By` trailer, no "Generated with Claude Code" line.
+- `ROADMAP.md` lists open planned features (numbered, with effort), `ROADMAP-done.md` the finished ones. When an item is done, tick it off and move it to `ROADMAP-done.md` (and note the release under "Erledigt" there). `ManualToCheck.md` holds open in-game checks, `ManualToCheck-done.md` the verified ones.
+- Never Read `ROADMAP.md`, `ROADMAP-done.md`, `ManualToCheck*.md` or `docs/notes/*` whole: grep for headings/numbers, read only the needed range, append at the end. Next free number: grep the highest number in both main and done file (parallel agents collide on numbers; renumber on merge).
+- Agent/token rules: during work run only the relevant scenario; full `make test` once before commit; research only when the data is required (no source found = learn/guard instead of searching further); subagent reports max ~15 lines; one commit + push per finished roadmap item.
+- Line endings: repo files are LF; never convert to CRLF. CLAUDE.md itself is globally git-ignored on this machine.
+- Extra tallies (per zone, per day, ...) hook into `Stats.OnIncrement(listener(counter, amount))` instead of re-parsing events. `Zones.lua` keeps `character.zoneStats[zone] = { seconds, xp, kills, deaths }`; time is booked on zone change and logout.
+
+### Roadmap and docs hygiene
+
+- Numbers are shared across ROADMAP, ROADMAP-done, ManualToCheck, and `docs/notes` mentions ("roadmap NNN"). New doc files must be listed in `.pkgmeta` `ignore`.

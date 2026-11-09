@@ -3,13 +3,14 @@ ADDONTEST := tools/addontest
 ARTWORK   := tools/artwork
 RECORDS   := tools/records
 FLIGHTS   := tools/flights
+LOCALE    := tools/locale
 VERSION   := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run debuglog package artwork records flights test test-addon test-installer test-artwork test-records test-flights vet
+.PHONY: install update dry-run debuglog package artwork records flights locale test test-addon test-installer test-artwork test-records test-flights test-locale vet
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -45,7 +46,11 @@ records:
 flights:
 	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" $(ARGS)
 
-test: test-addon test-installer test-artwork test-records test-flights
+# Texte in alle vier Sprachdateien schreiben/entfernen, ohne sie zu lesen: make locale ARGS="-file texts.json" oder ARGS="-remove KEY"
+locale:
+	go -C $(LOCALE) run . -dir "$(CURDIR)/Locales" $(ARGS)
+
+test: test-addon test-installer test-artwork test-records test-flights test-locale
 
 # Lua-Szenarien aus tests/ gegen eine nachgebaute WoW-API.
 # -count=1: Go kennt die Lua-Dateien nicht und würde sonst veraltete Ergebnisse aus dem Cache zeigen.
@@ -64,9 +69,13 @@ test-records:
 test-flights:
 	go -C $(FLIGHTS) test ./...
 
+test-locale:
+	go -C $(LOCALE) test ./...
+
 vet:
 	go -C $(INSTALLER) vet ./...
 	go -C $(ADDONTEST) vet ./...
 	go -C $(ARTWORK) vet ./...
 	go -C $(RECORDS) vet ./...
 	go -C $(FLIGHTS) vet ./...
+	go -C $(LOCALE) vet ./...
