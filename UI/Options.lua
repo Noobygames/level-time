@@ -1300,6 +1300,20 @@ addToggles({
   requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
 })
 addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
+
+-- Schiffe und Zeppeline (Roadmap 440): gelernte Abfahrtszeiten, nicht in Retail
+if ns.Transports.IsAvailable() then
+  addSection("SECTION_TRANSPORT")
+  addToggles({
+    toggle("TRANSPORT_TIMERS_TOGGLE", "transportTimers"),
+    requires(toggle("TRANSPORT_MINIMAP_TOGGLE", "transportMinimap"), "transportTimers"),
+    requires(toggle("TRANSPORT_NAMEPLATE_TOGGLE", "transportNameplate"), "transportTimers"),
+    requires(toggle("TRANSPORT_TOOLTIP_TOGGLE", "transportTooltip"), "transportTimers"),
+    requires(toggle("TRANSPORT_SHARE_TOGGLE", "transportShare"), "transportTimers"),
+  })
+  addHint("TRANSPORT_NAMEPLATE_HINT")
+  addFrameScaleSlider("TRANSPORT_SCALE", "transport", nil, true)
+end
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_DIALOGS")
 addToggles({

@@ -148,6 +148,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **178. Regel-Ziele, Datenteil (Roadmap 300)**: check `300.goals.potionSpells` (Name je Heiltrank-Spell-ID; `false` = Client kennt sie nicht), debug `goal:rule`
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
+- **222. Schiffs- und Zeppelin-Zeiten, Datenteil (Roadmap 440)**: check `440.transport.state` (Strecken mit Phase, Periode, Fahrzeit, Anleger mit Position und Meister-IDs, Spielerposition, nächster Anleger, laufende Fahrt, API-Typen), Debug-Bereich `transport`, Probe `PLAYER_LEAVING_WORLD` mit Position in `state.map`; die Erkennung der Abfahrt am Anleger bleibt offen unter 222.
 - **190. Glücksrad, Datenteil (Roadmap 432)**: check `432.goals.wheel` (`SetRotation`/`GetRotation` an den Stücken, Tick-Ton `SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON`, `PlaySound`)
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 - **213. Weglaufen, Datenteil (Roadmap 439)**: check `439.goals.escape` (Namen der Zauber, die den Kampf ohne Weglaufen beenden: Verschwinden 1856/1857/26889, Totstellen 5384, Schattenhaftigkeit 20580/58984, Unsichtbarkeit 66; `false` = Client kennt die ID nicht; Zustand von Ziel/Fokus/Maus als attacking/other/idle/unsure/dead, `UnitIsFeignDeath`/`UnitPlayerControlled` vorhanden), debug `goal:escape` (combat end: Name, Angriffsdauer, dead, seen alive, killed, nameless kill; escaped (combat end/aggro taken); combat end not counted: instance/death/combat drop; combat drop spell …) bei einem Kampf, aus dem man wegläuft, einem getöteten Gegner und einer abgenommenen Aggro
@@ -3411,5 +3412,40 @@ Client (Retail/Era/TBC/Forever):
 Zeilen je Wurf richtig (ja/nein, Abweichung):
 Schwierigkeit angezeigt (Text):
 Gewinner unbekannt/alle gepasst gesehen:
+Fehler:
+```
+
+### 222. Schiffs- und Zeppelin-Zeiten (Roadmap 440, WoW Forever, Era/TBC)
+
+- [ ] geprüft
+
+Komfort > Timer > „Schiffe und Zeppeline“: „Abfahrtszeiten von Schiffen und Zeppelinen“ an. Datenteil per Debug-Log:
+debug `transport` (`departure from ...`, `loading screen during ride`, `learned ...`, `shared phase ...`), Prüfung
+`440.transport.state` (Strecken, Phasen, Anleger, Position, Fahrt-Erkennung, API-Typen), Probe `PLAYER_LEAVING_WORLD`
+mit `state.map`. Nichts davon ist bisher im Spiel bestätigt: Takt, Wartezeit und Position auf dem Schiff sind Annahmen.
+
+1. Eine Strecke fahren, z.B. Orgrimmar > Tirisfal (Zeppelin): am Turm stehen bleiben (nicht laufen), bis er abfährt, bis
+   zum Ziel mitfahren. Im Log muss `departure from ...` beim Ablegen stehen, nicht schon beim Betreten; bei
+   Kontinentwechsel `loading screen during ride`, danach `learned ...`.
+2. Dieselbe Strecke 2-3 Mal fahren (Abfahrt abwarten): ab der zweiten Fahrt steht eine Periode im Log. Plausibel? Passt
+   die Vorhersage „Abfahrt in m:ss“ an der Minimap zur echten Abfahrt (Abweichung in Sekunden notieren)?
+3. Der Text an der Minimap erscheint nur am Anleger (Reichweite: zu klein / zu groß?), ist im Layout-Modus (`/lt edit`)
+   verschiebbar und skalierbar.
+4. Transportmeister anvisieren, am Anleger `/lt transport master`: danach Text über der Plakette (nur mit
+   eingeschalteten Namensplaketten für befreundete NPCs) und Zeile im Tooltip.
+5. Gleicher Kontinent (z.B. Menethil > Theramore oder Auberdine > Rut'theran, falls ohne Ladebild): wird die Abfahrt und
+   Ankunft erkannt (`learned ...`) oder gar nicht / falsch (z.B. beim Herumlaufen an Deck)?
+6. Teilen: zweiter Spieler mit „Zeiten teilen“; die Phase kommt an (`shared phase ...`).
+
+**Antwort:**
+
+```text
+Client (Era/TBC/Forever):
+Abfahrt beim Ablegen erkannt (ja/nein):
+Periode laut Log (Sekunden) und echte Abfahrtsabstände:
+Abweichung der Vorhersage (Sekunden):
+Reichweite des Anlegers (passt/zu klein/zu groß):
+Plakette/Tooltip nach /lt transport master (ja/nein):
+Gleicher Kontinent erkannt (ja/nein/falsch):
 Fehler:
 ```

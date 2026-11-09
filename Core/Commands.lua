@@ -122,6 +122,16 @@ local commands = {
       ns.Print(L.GOAL_INVALID)
     end
   end,
+  -- /lt transport master: das Ziel als Transportmeister des nächsten gelernten Anlegers merken (Roadmap 440)
+  transport = function(argument)
+    if argument:lower() ~= "master" then ns.Print(L.TRANSPORT_MASTER_NO_NPC) return end
+    local ok, result = ns.Transports.MarkMaster("target")
+    if ok then
+      ns.Print(string.format(L.TRANSPORT_MASTER_SET, result))
+    else
+      ns.Print(result == "no-dock" and L.TRANSPORT_MASTER_NO_DOCK or L.TRANSPORT_MASTER_NO_NPC)
+    end
+  end,
   -- /lt debug schaltet das erweiterte Logging, /lt debug <befehl> löst Testfunktionen aus (DebugTools.lua)
   debug = function(argument)
     if argument ~= "" then

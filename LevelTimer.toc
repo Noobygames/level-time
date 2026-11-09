@@ -144,6 +144,8 @@ Assist\FlightMap.lua
 Assist\FlightTimes.lua
 Assist\FlightTimer.lua
 Assist\FlightTooltip.lua
+Assist\TransportTimes.lua
+UI\TransportDisplay.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua
