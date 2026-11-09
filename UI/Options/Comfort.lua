@@ -125,6 +125,7 @@ addToggles({
   toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
   toggle("HIDE_MACRO_TEXT", "hideMacroText"),
   toggle("RANGE_COLOR", "rangeColor"),
+  toggle("COMFORT_COOLDOWN_NUMBERS", "cooldownNumbers"),
 })
 -- Ausblenden (UX S15: alles an einem Ort): ein Schalter je Element der Liste in BlizzardHide.lua, auch die mit eigener
 -- Einstellung (Erfahrungs-, Ruf- und Haltungsleiste, Kalender, Chat-Knöpfe; Kalender und Chat-Knöpfe stehen zusätzlich

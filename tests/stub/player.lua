@@ -29,6 +29,7 @@ end
 -- Fallen und Schwimmen: state.falling, state.swimming (IsFalling, IsSwimming)
 function IsFalling() return state.falling == true end
 function IsSwimming() return state.swimming == true end
+ResetInstances = function() stub.state.instancesResetCount = (stub.state.instancesResetCount or 0) + 1 end
 function UnitIsFeignDeath() return state.feignDeath == true end
 function UnitPowerMax() return state.powerMax end
 -- Mana: state.power (aktuell), state.powerMax

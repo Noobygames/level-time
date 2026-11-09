@@ -16,6 +16,7 @@ addToggles({
   toggle("CLASS_COLOR_FRAMES", "classColorFrames", ns.ClassColors.IsAvailable),
   toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
   toggle("DRUID_MANA_BAR", "druidManaBar", ns.DruidManaBar.IsAvailable),
+  toggle("COMFORT_TARGET_RANGE", "showTargetRange"),
 })
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
@@ -184,6 +185,7 @@ addToggles({
 addSection("SECTION_COMBAT_GROUP")
 addToggles({
   toggle("COMBAT_PLATES", "combatPlates"),
+  toggle("COMFORT_THREAT_NUMERIC", "threatShowNumeric"),
   advanced(toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable)),
   toggle("READY_TIMER", "readyTimer"),
 })

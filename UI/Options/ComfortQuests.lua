@@ -14,6 +14,7 @@ addToggles({
   toggle("AUTO_TURN_IN", "autoTurnIn"),
   requires(toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"), "autoTurnIn"),
   toggle("SKIP_GOSSIP", "skipGossip"),
+  toggle("COMFORT_DIALOG_KEYS", "dialogKeys"),
 })
 builder.AddTextInput({
   label = "QUEST_EXCLUDE",

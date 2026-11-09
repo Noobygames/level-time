@@ -218,6 +218,12 @@ Assist\AddonList.lua
 Assist\ChatColors.lua
 Assist\StreamLink.lua
 Assist\GroupJoinStats.lua
+Assist\ThreatDisplay.lua
+Assist\CooldownNumbers.lua
+Assist\DialogKey.lua
+Assist\TargetRange.lua
+Assist\InstanceResetAnnounce.lua
+Assist\HardcoreSafeguard.lua
 UI\WindowModel.lua
 UI\XpTooltip.lua
 UI\WindowElements.lua

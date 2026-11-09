@@ -63,6 +63,7 @@ C_GossipInfo = {
   SelectAvailableQuest = function(questID) questAction("selectAvailable", questID) end,
   SelectActiveQuest = function(questID) questAction("selectActive", questID) end,
   SelectOptionByIndex = function(index) questAction("selectOption", index) end,
+  SelectOption = function(optionID) questAction("selectOption", optionID) end,
 }
 function GetNumAvailableQuests() return #state.greeting.available end
 function GetAvailableQuestInfo(index)

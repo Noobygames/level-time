@@ -73,6 +73,8 @@ addToggles({
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
+  toggle("WARN_WILDERNESS_LOGOUT", "warnWildernessLogout"),
+  toggle("WARN_FALLING", "warnFalling"),
   toggle("EMERGENCY_TOGGLE", "emergencyHighlight", ns.Emergency.IsAvailable),
 })
 addSlider(requires({
@@ -132,6 +134,7 @@ addToggles({
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
   toggle("INSTANCE_REPORT_LOOT_TOGGLE", "instanceReportLoot"),
+  toggle("ANNOUNCE_INSTANCE_RESET", "announceInstanceReset"),
 })
 addChooser(requires({
   label = "INSTANCE_REPORT_LOOT_QUALITY",

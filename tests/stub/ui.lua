@@ -28,6 +28,13 @@ CreateFrame = function(_, name, parent)
   if name then _G[name] = frame end
   return frame
 end
+function CooldownFrame_Set(self, start, duration, enable, forceShowDrawEdge, modRate)
+  if self then
+    self._cdStart = start
+    self._cdDuration = duration
+    self._cdEnable = enable
+  end
+end
 UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), newFrame(), newFrame()
 -- Font-Objekte: CreateFont legt ein benanntes an; SetFont/GetFont merken Schrift, Größe und Flags, CopyFontObject
 -- übernimmt sie (Blizzards Objekte haben im Stub FRIZQT__ in 12)
@@ -128,3 +135,18 @@ FACTION_STANDING_INCREASED = "Euer Ruf bei der Fraktion '%s' hat sich um %d verb
 FACTION_STANDING_INCREASED_ACCOUNT_WIDE = "Der Ruf Eurer Kriegsmeute bei der Fraktion '%s' hat sich um %d verbessert."
 FACTION_STANDING_INCREASED_ACH_BONUS = "Euer Ruf bei der Fraktion '%s' hat sich um %d verbessert. (+%.1f Bonus)"
 FACTION_STANDING_INCREASED_GENERIC = "Euer Ruf bei der Fraktion '%s' hat sich verbessert."
+
+function GetCurrentKeyBoardFocus() return wow.focus end
+
+wow.overrideBindings = {}
+function SetOverrideBindingClick(owner, isPriority, key, buttonName, mouseClick)
+  wow.overrideBindings[owner] = wow.overrideBindings[owner] or {}
+  wow.overrideBindings[owner][key] = { buttonName = buttonName, mouseClick = mouseClick or "LeftButton" }
+end
+function ClearOverrideBindings(owner)
+  if owner then
+    wow.overrideBindings[owner] = nil
+  else
+    wow.overrideBindings = {}
+  end
+end

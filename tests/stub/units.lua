@@ -86,6 +86,22 @@ function UnitHealth(unit)
   local other = otherUnit(unit)
   return other and other.health or state.health
 end
+-- Reichweite / Interaktionsdistanz (1 = ~28 yd / Untersuchen, 2 = ~11 yd / Handeln, 3 = ~10 yd / Duell, 4 = Folgen)
+function CheckInteractDistance(unit, distIndex)
+  if unit and unit ~= "player" and not UnitExists(unit) then return false end
+  if state.targetInteractDistance == wow.SECRET then return wow.SECRET end
+  if type(state.targetInteractDistance) == "table" then
+    return state.targetInteractDistance[distIndex]
+  end
+  if state.interactDistance == wow.SECRET then return wow.SECRET end
+  if type(state.interactDistance) == "table" then
+    return state.interactDistance[distIndex]
+  end
+  if type(state.targetInteractDistance) == "number" then
+    return distIndex <= state.targetInteractDistance
+  end
+  return false
+end
 function IsInGuild() return state.inGuild end
 function GetBuildInfo() return "12.1.5", "1", "2026-01-01", state.interface end
 -- Spieler: state.inCombat; andere Einheiten: state.units[unit].combat
