@@ -209,6 +209,7 @@ Assist\DeathMap.lua
 Assist\QuestMap.lua
 Assist\CorpseArrow.lua
 Assist\ScreenEffects.lua
+Assist\ForeverGraphics.lua
 Assist\CombatPlates.lua
 Assist\Sounds.lua
 Assist\RaidRestrictions.lua

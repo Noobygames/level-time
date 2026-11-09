@@ -149,6 +149,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **182. Boss-Ziele, Datenteil (Roadmap 302)**: debug `goal:tracking` (encounter end … success …) und event `ENCOUNTER_END`
 - **183. Ruf-Ziele, Datenteil (Roadmap 303)**: check `303.goals.reputation` (welche Rufliste, erste Fraktion mit Stufe und Wert)
 - **222. Schiffs- und Zeppelin-Zeiten, Datenteil (Roadmap 440)**: check `440.transport.state` (Strecken mit Phase, Periode, Fahrzeit, Anleger mit Position und Meister-IDs, Spielerposition, nächster Anleger, laufende Fahrt, API-Typen), Debug-Bereich `transport`, Probe `PLAYER_LEAVING_WORLD` mit Position in `state.map`; die Erkennung der Abfahrt am Anleger bleibt offen unter 222.
+- **224. Grafikdetails, Datenteil (Roadmap 442, WoW Forever)**: check `442.graphics.cvars` (je CVar Wert, Client-Standard, gemerktes Original); sehen muss man nur die Wirkung, siehe 224.
 - **190. Glücksrad, Datenteil (Roadmap 432)**: check `432.goals.wheel` (`SetRotation`/`GetRotation` an den Stücken, Tick-Ton `SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON`, `PlaySound`)
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 - **213. Weglaufen, Datenteil (Roadmap 439)**: check `439.goals.escape` (Namen der Zauber, die den Kampf ohne Weglaufen beenden: Verschwinden 1856/1857/26889, Totstellen 5384, Schattenhaftigkeit 20580/58984, Unsichtbarkeit 66; `false` = Client kennt die ID nicht; Zustand von Ziel/Fokus/Maus als attacking/other/idle/unsure/dead, `UnitIsFeignDeath`/`UnitPlayerControlled` vorhanden), debug `goal:escape` (combat end: Name, Angriffsdauer, dead, seen alive, killed, nameless kill; escaped (combat end/aggro taken); combat end not counted: instance/death/combat drop; combat drop spell …) bei einem Kampf, aus dem man wegläuft, einem getöteten Gegner und einer abgenommenen Aggro
@@ -3159,5 +3160,18 @@ Einstellung „Beute im Bericht“ (Gruppe) an, Dungeon mit Gruppe, Beute per Be
 Client (Retail/Era/TBC/Forever):
 Boss-Name richtig (ja/nein):
 Zeilen/Links im Chat richtig:
+Fehler:
+```
+
+### 224. Grafikdetails (Roadmap 442, WoW Forever)
+
+Komfort > Beyond Ultra: „Beyond Ultra einschalten“ an, „Empfohlene Werte“ klicken. Danach `/lt debug check` (Check
+`442.graphics.cvars`: übernimmt der Client alle Werte, oder kappt er welche?).
+
+```
+Gras/Objekte/Gelände sichtbar weiter weg (ja/nein):
+Spiegelungen und Nachschärfen sichtbar (ja/nein):
+Bildrate spürbar schlechter (ja/nein):
+Ausschalten stellt die alten Werte wieder her (ja/nein):
 Fehler:
 ```

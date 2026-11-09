@@ -113,6 +113,15 @@ C_ChatInfo.PerformEmote("WAVE", "")
 expect("NPC grüßen zählt nicht", greet.progress, 1)
 C_ChatInfo.PerformEmote("DANCE", "")
 expect("vor dem NPC getanzt", dance.status, Goals.DONE)
+-- Client liefert für NPCs nil statt false (Classic-Stil): zählt trotzdem
+local dance2 = add("dance")
+local isPlayer, controlled = UnitIsPlayer, UnitPlayerControlled
+UnitIsPlayer = function(unit) if isPlayer(unit) then return true end return nil end
+UnitPlayerControlled = function() return nil end
+units.target = { name = "Schmied", guid = "Creature-0-1-601" }
+C_ChatInfo.PerformEmote("DANCE", "")
+expect("nil statt false: NPC erkannt", dance2.status, Goals.DONE)
+UnitIsPlayer, UnitPlayerControlled = isPlayer, controlled
 units.target = nil
 units.party1 = { name = "Alice", isPlayer = true, guid = "Player-1-0003" }
 C_ChatInfo.PerformEmote("GREET", "alice")

@@ -6,6 +6,7 @@
 --   GroupChat.Send(text, chatType)  mit Präfix "Level Time: ", Farbcodes und Links entfernt
 --   GroupChat.SendWithLinks(text, chatType)  ebenso, aber Links vom Client (z.B. GetQuestLink) bleiben; der Aufrufer
 --                             gibt alle anderen Teile schon als reinen Text (Format.PlainText) hinein
+--   GroupChat.MAX_TEXT        so viele Bytes darf text haben (Chat-Grenze 255 Bytes samt Präfix, Links zählen voll)
 -- C_ChatInfo.SendChatMessage ersetzt seit 11.2 die globale Funktion; ältere Clients haben nur diese.
 local _, ns = ...
 
@@ -13,6 +14,8 @@ local GroupChat = {}
 ns.GroupChat = GroupChat
 
 local PREFIX = ns.DISPLAY_NAME .. ": "
+local MAX_MESSAGE_BYTES = 255
+GroupChat.MAX_TEXT = MAX_MESSAGE_BYTES - #PREFIX
 
 function GroupChat.PartyChannel()
   if not IsInGroup then return nil end
