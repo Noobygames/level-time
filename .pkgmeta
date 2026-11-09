@@ -16,4 +16,7 @@ ignore:
   - README.md
   - ROADMAP.md
   - ManualToCheck.md
+  - ManualToCheck-done.md
+  - ROADMAP-done.md
+  - docs
   - image.png
