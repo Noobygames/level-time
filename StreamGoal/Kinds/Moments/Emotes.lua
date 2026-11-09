@@ -54,13 +54,20 @@ local function keyOf(unit)
   return guid or readable(UnitName(unit))
 end
 
+-- Wahrheitswert einer Einheiten-Abfrage: true, false oder nil (geheim). Manche Clients liefern statt false nil
+-- (Classic-Stil 1/nil), darum zählt alles außer true als nein.
+local function flag(value)
+  if LT.IsSecret(value) then return nil end
+  return value == true or value == 1
+end
+
 local function isOtherPlayer(unit)
-  return readable(UnitIsPlayer(unit)) == true and readable(UnitIsUnit(unit, "player")) == false
+  return flag(UnitIsPlayer(unit)) == true and flag(UnitIsUnit(unit, "player")) == false
 end
 
 local function isNpc(unit)
-  if readable(UnitIsPlayer(unit)) ~= false then return false end
-  return not UnitPlayerControlled or readable(UnitPlayerControlled(unit)) == false
+  if flag(UnitIsPlayer(unit)) ~= false then return false end
+  return not UnitPlayerControlled or flag(UnitPlayerControlled(unit)) == false
 end
 
 local function countOnce(mode, seen, unit)
@@ -80,7 +87,11 @@ function Emotes.OnEmote(token, targetName)
   ns.Debug("moment", "emote %s at %s (unit %s)", token, targetName, unit)
   if not unit then return end
   if greet and isOtherPlayer(unit) then countOnce("greet", greeted, unit) end
-  if dance and isNpc(unit) then countOnce("dance", dancedFor, unit) end
+  if dance then
+    ns.Debug("moment", "dance target npc %s (player %s, controlled %s)", isNpc(unit), UnitIsPlayer(unit),
+      UnitPlayerControlled and UnitPlayerControlled(unit))
+    if isNpc(unit) then countOnce("dance", dancedFor, unit) end
+  end
 end
 
 local function emotesAvailable()
