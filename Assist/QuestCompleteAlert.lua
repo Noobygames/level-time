@@ -19,14 +19,6 @@ function QuestCompleteAlert.Body(questID)
   return string.format(L.QUEST_COMPLETE_XP, ns.Format.Number(xp))
 end
 
-local function allFinished(questID)
-  local objectives = QuestLog.Objectives(questID)
-  for _, objective in ipairs(objectives) do
-    if objective.finished ~= true then return false end
-  end
-  return #objectives > 0
-end
-
 ns.QuestWatch.Subscribe({
   enabled = function(db) return db.alertQuestComplete or db.alertQuestObjective end,
   onReady = function(quest)
@@ -35,7 +27,7 @@ ns.QuestWatch.Subscribe({
   end,
   onObjective = function(quest, objective, old)
     if not (objective.finished and old.finished == false and objective.text) then return end
-    if ns.db.alertQuestComplete and allFinished(quest.questID) then return end
+    if ns.db.alertQuestComplete and QuestLog.AllFinished(quest.questID) then return end
     Alerts.Raise("questObjective", objective.text, quest.title)
   end,
 })
