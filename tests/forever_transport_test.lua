@@ -3,11 +3,13 @@
 local L = addon.L
 
 -- Karten-API: Position und Name der Karte steuert der Test
-local mapNames = { [1454] = "Orgrimmar", [1420] = "Tirisfal Glades", [1434] = "Stranglethorn Vale" }
+local mapNames = { [1454] = "Orgrimmar", [1420] = "Tirisfal Glades", [1434] = "Stranglethorn Vale",
+  [1415] = "Eastern Kingdoms" }
+local mapTypes = { [1415] = 2 }  -- Enum.UIMapType.Continent; ohne Eintrag kein Kartentyp
 local here = { map = 1454, x = 0.45, y = 0.60 }
 C_Map = {
   GetBestMapForUnit = function() return here.map end,
-  GetMapInfo = function(mapID) return { name = mapNames[mapID] } end,
+  GetMapInfo = function(mapID) return { name = mapNames[mapID], mapType = mapTypes[mapID] } end,
   GetPlayerMapPosition = function(mapID)
     if mapID ~= here.map then return nil end
     return { GetXY = function() return here.x, here.y end }
@@ -218,3 +220,43 @@ placeAt(1454, 0.45, 0.60)
 tick()
 expect("Schalter aus: Minimap leer", Display.Shown(), false)
 expect("keine Fehler", #wow.errors, 0)
+
+-- Nach dem Ladebild liefert der Client erst die Kontinentkarte: warten, bis die Zone lesbar ist (Log 2026-11-09:
+-- "Durotar>Östliche Königreiche")
+local STV = { 1434, 0.30, 0.40 }
+addon.Set("transportTimers", true)
+wow.state.moving = false
+placeAt(STV[1], STV[2], STV[3])
+tick()
+wow.advance(Transports.STAND_MIN_SECONDS)
+placeAt(STV[1], STV[2] + 0.01, STV[3])
+tick()
+expectTrue("Fahrt ab Schlingendorntal", Transports.Ride() ~= nil)
+wow.advance(50)
+wow.fire("PLAYER_LEAVING_WORLD")
+placeAt(1415, 0.50, 0.50)
+tick()
+expectTrue("Kontinentkarte: Fahrt läuft weiter", Transports.Ride() ~= nil)
+placeAt(1420, 0.61, 0.51)
+tick()
+expect("Zone lesbar: Fahrt beendet", Transports.Ride(), nil)
+expectTrue("Ziel ist die Zone", Transports.Data().routes["Stranglethorn Vale>Tirisfal Glades"] ~= nil)
+expect("kein Kontinent-Anleger", Transports.Data().docks["Eastern Kingdoms"], nil)
+
+-- Transport legt noch an (Spieler steht, Position wandert): keine Abfahrt vor der Ruhezeit
+placeAt(1420, 0.62, 0.51)
+tick()
+placeAt(1420, 0.63, 0.51)
+tick()
+placeAt(1420, 0.64, 0.51)
+tick()
+expect("Anlegen ist keine Abfahrt", Transports.Ride(), nil)
+
+-- Alte Daten mit Kontinent-Anleger werden beim Login entfernt
+Transports.Data().docks["Eastern Kingdoms"] = { mapID = 1415, x = 0.5, y = 0.5, npcIds = {} }
+Transports.Data().routes["Orgrimmar>Eastern Kingdoms"] = { from = "Orgrimmar", to = "Eastern Kingdoms", samples = {} }
+wow.fire("PLAYER_LOGIN")
+expect("Kontinent-Anleger entfernt", Transports.Data().docks["Eastern Kingdoms"], nil)
+expect("Strecke entfernt", Transports.Data().routes["Orgrimmar>Eastern Kingdoms"], nil)
+expectTrue("andere Strecken bleiben", Transports.Data().routes["Orgrimmar>Tirisfal Glades"] ~= nil)
+expect("keine Fehler am Ende", #wow.errors, 0)

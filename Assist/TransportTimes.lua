@@ -29,6 +29,7 @@ local Transports = {
   DOCK_RADIUS = 0.03,           -- Karten-Einheiten (0..1): ab hier gilt man als am Anleger
   DEPART_DISTANCE = 0.006,      -- so weit muss sich ein stehender Spieler bewegen, damit es eine Abfahrt ist
   DEPART_MAX_STEP = 0.05,       -- ein größerer Sprung in einer Sekunde ist keine Abfahrt (Teleport, Karte gewechselt)
+  STAND_MIN_SECONDS = 3,        -- so lange muss die Stehposition ruhig sein, bevor eine Bewegung als Abfahrt zählt
   SAME_MAP_MIN_RIDE = 40,       -- Sekunden: früheste Ankunft auf derselben Karte
   SAME_MAP_MIN_DISTANCE = 0.03,
   MAX_RIDE_SECONDS = 900,
@@ -65,6 +66,15 @@ Transports.ROUTES = {
 }
 
 local KIND_UNKNOWN = "unknown"
+-- Kartentyp Zone (Enum.UIMapType, Retail und Classic); Kontinent- und Weltkarten taugen nicht als Anleger
+local MAP_TYPE_ZONE = Enum and Enum.UIMapType and Enum.UIMapType.Zone or 3
+
+-- Ist die Karte zu grob für einen Anleger (Kontinent, Welt)? Ohne lesbaren Kartentyp: nein
+local function isCoarseMap(info)
+  local mapType = type(info) == "table" and info.mapType or nil
+  if ns.IsSecret(mapType) or type(mapType) ~= "number" then return false end
+  return mapType < MAP_TYPE_ZONE
+end
 local queue = {}
 
 ---------------------------------------------------------------------------
@@ -86,6 +96,25 @@ function Transports.Data()
   end
   return realm
 end
+
+-- Anleger auf Kontinentkarten (vor dem Fix gespeichert) samt ihren Strecken entfernen
+local function pruneCoarseDocks()
+  if not (C_Map and C_Map.GetMapInfo) then return end
+  local data = Transports.Data()
+  for name, dock in pairs(data.docks) do
+    if isCoarseMap(C_Map.GetMapInfo(dock.mapID)) then
+      ns.Debug("transport", "dropped dock %s (continent map %s)", name, dock.mapID)
+      data.docks[name] = nil
+      for key, route in pairs(data.routes) do
+        if route.from == name or route.to == name then data.routes[key] = nil end
+      end
+    end
+  end
+end
+
+ns.OnLogin(function()
+  if Transports.IsAvailable() then pruneCoarseDocks() end
+end)
 
 function Transports.IsAvailable()
   return not ns.Client.IsRetail()
@@ -115,7 +144,8 @@ end
 ---------------------------------------------------------------------------
 -- Position
 ---------------------------------------------------------------------------
--- { mapID, x, y, name } oder nil (unlesbar, in Instanzen, ohne Karte)
+-- { mapID, x, y, name } oder nil (unlesbar, in Instanzen, ohne Karte, Kontinentkarte: kurz nach einem Ladebild
+-- liefert GetBestMapForUnit noch den Kontinent, z.B. "Östliche Königreiche" statt "Tirisfal")
 function Transports.PlayerPosition()
   if not (C_Map and C_Map.GetBestMapForUnit and C_Map.GetPlayerMapPosition) then return nil end
   local mapID = C_Map.GetBestMapForUnit("player")
@@ -125,6 +155,7 @@ function Transports.PlayerPosition()
   local x, y = position:GetXY()
   if ns.IsSecret(x) or ns.IsSecret(y) or type(x) ~= "number" or type(y) ~= "number" then return nil end
   local info = C_Map.GetMapInfo and C_Map.GetMapInfo(mapID)
+  if isCoarseMap(info) then return nil end
   local name = type(info) == "table" and not ns.IsSecret(info.name) and info.name or nil
   if not name and GetZoneText then name = GetZoneText() end
   if ns.IsSecret(name) or type(name) ~= "string" or name == "" then return nil end
@@ -359,7 +390,9 @@ local function observe()
     return
   end
   local step = distance(position, standing)
-  if step > Transports.DEPART_MAX_STEP then
+  local settled = GetTime() - standing.since >= Transports.STAND_MIN_SECONDS
+  -- Großer Sprung oder Bewegung vor der Ruhezeit (Transport legt noch an): neue Stehposition statt Abfahrt
+  if step > Transports.DEPART_MAX_STEP or (step > Transports.DEPART_DISTANCE and not settled) then
     standing = { mapID = position.mapID, x = position.x, y = position.y, name = position.name, since = GetTime() }
   elseif step > Transports.DEPART_DISTANCE then
     ride = { from = standing, departedAt = Transports.Now() - 1, startedAt = GetTime() }
