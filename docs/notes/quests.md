@@ -4,7 +4,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 
 ### Quest-Sperrliste (aus Data sources)
 
-- `Assist/QuestBlocklist.lua`: NPC/quest blocklist for QuestAutomation (`IsBlockedNpc`, `IsBlockedQuest`, `Blocks`, `NpcId(guid)`), user list in setting `questExclude`; repeatable dialogs stay manual via `C_QuestLog.IsRepeatableQuest` (Retail/Forever). Further Assist modules: `BreathWarning` (MIRROR_TIMER_*, `warnBreath`/`breathWarnSeconds`), `BreakReminder` (`remindBreak`/`breakMinutes`, baseline in `currentSession.breakBaseline`), `QuestProgress` (`announceQuestProgress` via GroupChat, dropped during lockdown), `InviteInfo` (`inviteInfo`, chat line only).
+- `Assist/QuestBlocklist.lua`: NPC/quest blocklist for QuestAutomation (`IsBlockedNpc`, `IsBlockedQuest`, `Blocks`, `NpcId(guid)`), user list in setting `questExclude`; repeatable dialogs stay manual via `C_QuestLog.IsRepeatableQuest` (Retail/Forever). Further Assist modules: `BreathWarning` (MIRROR_TIMER_*, `warnBreath`/`breathWarnSeconds`), `BreakReminder` (`remindBreak`/`breakMinutes`, baseline in `currentSession.breakBaseline`), `QuestProgress` (`announceQuestProgress` via GroupChat, dropped during lockdown; last objective of a quest only as "Quest fertig", like QuestCompleteAlert, both via `QuestLog.AllFinished`), `InviteInfo` (`inviteInfo`, chat line only).
 
 ### Quest support (roadmap 340-352)
 

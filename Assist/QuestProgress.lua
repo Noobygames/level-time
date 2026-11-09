@@ -1,6 +1,6 @@
 -- Questfortschritt an die Gruppe (Roadmap 264, Einstellung announceQuestProgress, Standard aus), wie Questie Announce:
 -- angenommene Quests, je Ziel einmal, wenn es erfüllt ist ("Wölfe getötet: 8/8"), und die Quest, sobald alle Ziele
--- erfüllt sind. Ein Ziel oder eine Quest wird nur gemeldet, wenn vorher ein unvollständiger Stand gesehen wurde:
+-- erfüllt sind. Macht ein Ziel die Quest fertig, kommt nur "Quest fertig" (keine zweite Zeile für das letzte Ziel). Ein Ziel oder eine Quest wird nur gemeldet, wenn vorher ein unvollständiger Stand gesehen wurde:
 -- nach Login, /reload oder dem Einschalten zählt der erste Durchlauf nur den Stand.
 -- Versand wie die Level-Up-Ansage über GroupChat (Gruppe/Instanz, nur in einer Gruppe); bei gesperrtem Chat
 -- (GroupChat.Locked, z.B. Bosskampf) fällt die Meldung weg.
@@ -36,9 +36,9 @@ local Plain = ns.Format.PlainText
 ns.QuestWatch.Subscribe({
   enabled = function(db) return db.announceQuestProgress end,
   onObjective = function(quest, objective, old)
-    if objective.finished and old.finished == false and objective.text then
-      announce(string.format(L.QUEST_PROGRESS_OBJECTIVE, title(quest), Plain(objective.text)))
-    end
+    if not (objective.finished and old.finished == false and objective.text) then return end
+    if ns.QuestLog.AllFinished(quest.questID) then return end  -- onComplete meldet "Quest fertig"
+    announce(string.format(L.QUEST_PROGRESS_OBJECTIVE, title(quest), Plain(objective.text)))
   end,
   onAccepted = function(quest) announce(string.format(L.QUEST_PROGRESS_ACCEPTED, title(quest))) end,
   onComplete = function(quest) announce(string.format(L.QUEST_PROGRESS_COMPLETE, title(quest))) end,

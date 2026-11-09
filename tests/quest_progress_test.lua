@@ -33,12 +33,12 @@ scan()
 expect("erster Durchlauf merkt nur", #wow.sentChat, 0)
 pelts.text, pelts.finished = "Wolfspelz: 4/4", true
 scan()
-expect("Ziel gemeldet", sent(string.format(L.QUEST_PROGRESS_OBJECTIVE, "Wölfe jagen", "Wolfspelz: 4/4")), 1)
+expect("letztes Ziel: nur Quest fertig", sent("Wolfspelz: 4/4"), 0)
 expect("Quest fertig", sent(string.format(L.QUEST_PROGRESS_COMPLETE, "Wölfe jagen")), 1)
 expect("an die Gruppe", wow.sentChat[1].chatType, "PARTY")
 expect("bereits erfülltes Ziel nicht", sent("Wolf getötet: 8/8"), 0)
 scan()
-expect("nur einmal", #wow.sentChat, 2)
+expect("nur einmal", #wow.sentChat, 1)
 
 -- Neue Quest: angenommen, Ziele erst nach unvollständigem Stand
 local boars = { text = "Eber getötet: 0/5", finished = false }
@@ -70,26 +70,34 @@ C_QuestLog.GetInfo = function(index)
   return { questID = quest.questID or 0, title = quest.title, isHeader = quest.isHeader or false }
 end
 local rats = { text = "Ratte getötet: 0/1", finished = false }
-table.insert(wow.state.questLog, { questID = 35, title = "Ratten", objectives = { rats } })
+local tails = { text = "Rattenschwanz: 0/2", finished = false }
+table.insert(wow.state.questLog, { questID = 35, title = "Ratten", objectives = { rats, tails } })
 wow.fire("QUEST_ACCEPTED", 35)
 scan()
 rats.text, rats.finished = "Ratte getötet: 1/1", true
 scan()
 expect("Retail: angenommen", sent(string.format(L.QUEST_PROGRESS_ACCEPTED, "Ratten")), 1)
-expect("Retail: Ziel", sent("Ratte getötet: 1/1"), 1)
+expect("Retail: Ziel (Quest noch offen)", sent("Ratte getötet: 1/1"), 1)
+tails.text, tails.finished = "Rattenschwanz: 2/2", true
+scan()
+expect("Retail: letztes Ziel nicht extra", sent("Rattenschwanz: 2/2"), 0)
+expect("Retail: Quest fertig", sent(string.format(L.QUEST_PROGRESS_COMPLETE, "Ratten")), 1)
 C_QuestLog.GetNumQuestLogEntries, C_QuestLog.GetInfo = nil, nil
 
 -- Quest als Link, wenn der Client einen liefert (GetQuestLink(questID)); ohne Link bleibt der Titel
 local LINK = "|cffffff00|Hquest:36:12|h[Kobolde vertreiben]|h|r"
 GetQuestLink = function(questID) return questID == 36 and LINK or nil end
 local kobolds = { text = "Kobold getötet: 0/6", finished = false }
-table.insert(wow.state.questLog, { questID = 36, title = "Kobolde vertreiben", objectives = { kobolds } })
+local candles = { text = "Kerze: 0/3", finished = false }
+table.insert(wow.state.questLog, { questID = 36, title = "Kobolde vertreiben", objectives = { kobolds, candles } })
 wow.fire("QUEST_ACCEPTED", 5, 36)  -- Era: questIndex, questID
 scan()
 expect("angenommen mit Link", sent(string.format(L.QUEST_PROGRESS_ACCEPTED, LINK)), 1)
 kobolds.text, kobolds.finished = "Kobold getötet: 6/6", true
 scan()
 expect("Ziel mit Link", sent(string.format(L.QUEST_PROGRESS_OBJECTIVE, LINK, "Kobold getötet: 6/6")), 1)
+candles.text, candles.finished = "Kerze: 3/3", true
+scan()
 expect("fertig mit Link", sent(string.format(L.QUEST_PROGRESS_COMPLETE, LINK)), 1)
 GetQuestLink = nil
 

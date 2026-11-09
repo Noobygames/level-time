@@ -162,6 +162,15 @@ function QuestLog.Objectives(questID)
   return list
 end
 
+-- Sind alle Ziele einer Quest erfüllt? false ohne (lesbare) Ziele
+function QuestLog.AllFinished(questID)
+  local objectives = QuestLog.Objectives(questID)
+  for _, objective in ipairs(objectives) do
+    if objective.finished ~= true then return false end
+  end
+  return #objectives > 0
+end
+
 -- Eintrag zu einer Quest-ID oder nil
 function QuestLog.Find(questID)
   questID = readable(questID)

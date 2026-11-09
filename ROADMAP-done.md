@@ -506,6 +506,8 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ## Erledigt
 
+- v2.29.1: Fix Questfortschritt an die Gruppe: macht ein Ziel die Quest fertig, nur noch "Quest fertig" statt zwei Zeilen
+- v2.29.1: Fix 440. Schiffs- und Zeppelin-Zeiten: Zielanleger erst mit Zonenkarte (nicht Kontinent nach dem Ladebild), keine Abfahrt beim Anlegen, Kontinent-Anleger werden entfernt
 - v2.29.0: 441. Beute im Instanz-Bericht (`instanceReportLoot`: eine Zeile je gewonnenem Wurf mit Boss, Link, Gewinner, Wahl und Wurf; Mindestqualität, Höchstzahl, eine Zeile je Sekunde)
 - v2.29.0: 440. Schiffs- und Zeppelin-Zeiten (gelernte Abfahrten an der Minimap, über dem Transportmeister, im Tooltip; Teilen mit Gruppe und Gilde)
 - v2.28.0: Würfel-Historie (Historie > Journal > Würfe: wer was gewonnen hat, mit Wurf, Wahl und Dungeon), `/lt report` (Instanz-Bericht jederzeit)
