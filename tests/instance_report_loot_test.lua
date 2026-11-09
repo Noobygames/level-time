@@ -1,5 +1,6 @@
--- Beute im Instanz-Bericht (Roadmap 441): Zeilen je gewonnenem Wurf des Laufs, Qualitätsfilter, Höchstzahl mit "+N",
--- nur ein Lauf, alle gepasst fehlt, aus = nur die Zusammenfassung, eine Zeile je Sekunde, Boss-Präfix.
+-- Beute im Instanz-Bericht (Roadmap 441): kurz je Gewinner in derselben Nachricht wie der Bericht, Qualitätsfilter,
+-- Höchstzahl mit "+N", nur ein Lauf, alle gepasst fehlt, aus = nur die Zusammenfassung, Überlauf in Folgenachrichten
+-- (höchstens 255 Bytes samt Präfix, eine je Sekunde).
 local L = addon.L
 local Journal, LootRolls, InstanceReport = addon.Journal, addon.LootRolls, addon.InstanceReport
 
@@ -37,39 +38,52 @@ expect("Standard aus", addon.db.instanceReportLoot, false)
 expect("Standard Qualität", addon.db.instanceReportLootQuality, 3)
 expect("Standard Höchstzahl", addon.db.instanceReportLootMax, 5)
 
--- An: Zeilen mit Link, Gewinner, Wahl und Wurf; Boss-Präfix; Filter; fremder Lauf; alle gepasst
+-- An: eine Nachricht, Gewinner ohne Realm mit ihren Gegenständen; Filter; fremder Lauf; alle gepasst; "+N"
 addon.Set("instanceReportLoot", true)
-addon.Set("instanceReportLootMax", 2)
+addon.Set("instanceReportLootMax", 3)
 enter("Burg Schattenfang")
 wow.advance(120)
-roll(10, 4, "Grimbar", { encounter = "Arugal" })
+roll(10, 4, "Grimbar-Aegwynn", { encounter = "Arugal" })
 roll(11, 2, "Lyra")                                  -- zu niedrige Qualität
 roll(12, 3, "Lyra", { winnerChoice = "greed", winnerRoll = 12 })
 roll(13, 3, nil, { allPassed = 1 })                  -- alle gepasst
 roll(14, 4, "Testchar", { runStart = 1 })            -- anderer Lauf
-roll(15, 4, "Grimbar")                               -- über der Höchstzahl
-roll(16, 3, "Grimbar")
+roll(15, 4, "Grimbar-Aegwynn")
+roll(16, 3, "Grimbar")                               -- über der Höchstzahl
 enter(nil)
-expect("Zusammenfassung sofort", #sent(), 1)
-wow.update(1)
-expect("nach 1 s: erste Beute", #sent(), 2)
-expect("Boss, Link, Gewinner, Wahl, Wurf", sent()[2].message,
-  "Level Time: " .. string.format(L.INSTANCE_REPORT_LOOT_BOSS, "Arugal",
-    link(10, 4, "Item10") .. " - Grimbar (" .. L.LOOT_ROLL_KIND_NEED .. " 80)"))
-expect("Gruppenchat", sent()[2].chatType, "PARTY")
-wow.update(0.5)
-expect("noch keine zweite", #sent(), 2)
-wow.update(0.5)
-expect("nach 2 s: zweite", #sent(), 3)
-expect("ohne Boss", sent()[3].message,
-  "Level Time: " .. link(12, 3, "Item12") .. " - Lyra (" .. L.LOOT_ROLL_KIND_GREED .. " 12)")
-wow.update(1)
-expect("nach 3 s: Rest", #sent(), 4)
-expect("+N weitere", sent()[4].message, "Level Time: " .. string.format(L.INSTANCE_REPORT_LOOT_MORE, 2))
+expect("eine Nachricht", #sent(), 1)
+local message = sent()[1].message
+local loot = string.format(L.INSTANCE_REPORT_LOOT, "Grimbar " .. link(10, 4, "Item10") .. " " .. link(15, 4, "Item15")
+  .. ", Lyra " .. link(12, 3, "Item12") .. ", " .. string.format(L.INSTANCE_REPORT_LOOT_MORE, 1))
+expectTrue("Bericht vorne", message:find("^Level Time: Burg Schattenfang: ") ~= nil)
+expectTrue("Beute angehängt", message:sub(-#loot) == loot)
+expectTrue("unter 255 Bytes", #message <= 255)
+expect("Gruppenchat", sent()[1].chatType, "PARTY")
 wow.update(5)
-expect("danach nichts", #sent(), 4)
+expect("danach nichts", #sent(), 1)
 
--- Gesperrter Chat hält die Zeilen zurück (von Hand gesendet), Epic-Filter
+-- Zu viel für eine Nachricht: Folgenachrichten "Beute: ...", eine je Sekunde, jede höchstens 255 Bytes
+wow.sentChat = {}
+addon.Set("instanceReportLootMax", 10)
+wow.fire("CHAT_MSG_SYSTEM", string.format(INSTANCE_RESET_SUCCESS, "Burg Schattenfang"))
+enter("Burg Schattenfang")
+wow.advance(120)
+for id = 30, 39 do roll(id, 4, "Spieler" .. id) end
+enter(nil)
+expect("erste Nachricht sofort", #sent(), 1)
+wow.update(1)
+expect("nach 1 s: Folgenachricht", #sent(), 2)
+wow.update(5)
+local total = ""
+for _, entry in ipairs(sent()) do
+  expectTrue("höchstens 255 Bytes", #entry.message <= 255)
+  total = total .. entry.message
+end
+expectTrue("Folgenachricht beginnt mit Beute", sent()[2].message:find("Level Time: "
+  .. string.format(L.INSTANCE_REPORT_LOOT, ""), 1, true) == 1)
+for id = 30, 39 do expectTrue("Gegenstand " .. id .. " dabei", total:find("Item" .. id, 1, true) ~= nil) end
+
+-- Von Hand (/lt report) mit Epic-Filter: Beute in derselben Nachricht
 wow.sentChat = {}
 addon.Set("instanceReportLootQuality", 4)
 addon.Set("instanceReportLootMax", 5)
@@ -79,14 +93,19 @@ wow.advance(10)
 roll(20, 4, "Grimbar")
 roll(21, 3, "Grimbar")
 SlashCmdList.LEVELTIMER("report")
-expect("von Hand: Zusammenfassung", #sent(), 1)
+expect("von Hand: eine Nachricht", #sent(), 1)
+expectTrue("Epic dabei", sent()[1].message:find("Item20", 1, true) ~= nil)
+expect("Rare gefiltert", sent()[1].message:find("Item21", 1, true), nil)
+
+-- Gesperrter Chat hält Folgenachrichten zurück
+wow.sentChat = {}
+for id = 40, 49 do roll(id, 4, "Spieler" .. id) end
+SlashCmdList.LEVELTIMER("report")
+expect("erste sofort", #sent(), 1)
 wow.state.chatLockdown = true
 wow.update(3)
-expect("gesperrt: nichts", #sent(), 1)
+expect("gesperrt: keine Folgenachricht", #sent(), 1)
 wow.state.chatLockdown = false
 wow.update(1)
-expect("frei: Beute", #sent(), 2)
-expectTrue("nur Epic", sent()[2].message:find("Item20", 1, true) ~= nil)
-wow.update(3)
-expect("Rare gefiltert", #sent(), 2)
+expect("frei: Folgenachricht", #sent(), 2)
 expect("keine Fehler", #wow.errors, 0)
