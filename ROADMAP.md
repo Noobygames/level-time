@@ -587,6 +587,7 @@ Schwerpunkt: Werte, die Zuschauer im Spielbild sehen und verstehen. Addons haben
 
 ## Erledigt
 
+- v2.28.0: Würfel-Historie (Historie > Journal > Würfe: wer was gewonnen hat, mit Wurf, Wahl und Dungeon), `/lt report` (Instanz-Bericht jederzeit)
 - v2.27.0: 439. Bingo: Zielarten „Weglaufen“ und „Momente“ (neun Bingo-Felder automatisch); Quest-Item-Knopf mit Taschen-Items, Zielknopf für Loot-Gegner, Rahmen „Ziele & Items“ ziehbar; Würfel-Karte bleibt bis zum Gewinner (mit Item-Symbol und Tooltip), Gewinnerzeile auf Forever, „Gewinner unbekannt“; Quest-Links in Gruppen-Ansagen und Shift-Klick aus dem Questlog in Goals; Heiler-Ansage ignoriert Wurzeln auf Forever
 - v2.25.1: Fix Level Time Goals: Zielkarten so breit wie Stand und Restzeit (lief rechts über), Restzeit kompakt („noch 5m 50s“), Balken von Level-Zielen füllt sich mit den XP im laufenden Level
 - v2.14.0: 241. Munitionswarnung einstellbar, mit zweiter Schwelle „fast leer“ und Wiederholung; 242. Essen-Timer (Restzeit beim Essen, „Satt aktiv“), neuer Baustein `Lib/TimerDisplay.lua`; Fix: Lagerfeuer meldete erste Lagervorteile nicht

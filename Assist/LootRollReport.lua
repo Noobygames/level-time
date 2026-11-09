@@ -18,7 +18,11 @@ local RECENT_LOOT = 5      -- so viele jüngste Beute-Einträge werden beim Gewi
 local function byte(part) return math.floor(part * 255) end
 
 function LootRollReport.ColoredName(roll, name)
-  local class = LootRolls.ClassOf(roll, name)
+  return LootRollReport.ClassColoredName(LootRolls.ClassOf(roll, name), name)
+end
+
+-- Name in der Farbe einer Klasse (Klassen-Kürzel wie RAID_CLASS_COLORS), ohne bekannte Klasse unverändert
+function LootRollReport.ClassColoredName(class, name)
   local color = RAID_CLASS_COLORS and class and RAID_CLASS_COLORS[class]
   if not color then return name end
   return string.format("|cff%02x%02x%02x%s|r", byte(color.r), byte(color.g), byte(color.b), name)

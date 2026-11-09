@@ -271,6 +271,38 @@ local LOOT_COLUMNS = {
   levelColumn(40),
 }
 
+-- Würfe (RollLog.lua): wer was bekommen hat; Gewinner in Klassenfarbe, Wahl als Symbol wie am Würfelfenster
+local function rollChoiceText(choice, roll)
+  if not choice then return "-" end
+  return ns.LootRollDisplay.IconText(choice, 12) .. (roll and (" " .. roll) or "")
+end
+
+local function rollWinnerText(r)
+  if r.allPassed then return L.HISTORY_ROLL_ALL_PASSED end
+  if not r.winner then return L.HISTORY_ROLL_UNKNOWN end
+  return ns.LootRollReport.ClassColoredName(r.winnerClass, r.winner)
+end
+
+local function rollPlaceText(r)
+  if not r.instance then return r.zone or "" end
+  return r.difficulty and string.format(L.HISTORY_ROLL_PLACE, r.instance, r.difficulty) or r.instance
+end
+
+local ROLL_COLUMNS = {
+  whenColumn(100),
+  { header = "HISTORY_ITEM", tip = "HISTORY_ROLL_ITEM_TIP", width = 170, align = LEFT,
+    value = function(r) return r.link or r.name or "" end,
+    sort = function(r) return r.link and r.link:match("%[(.-)%]") or r.name end },
+  { header = "HISTORY_ROLL_WINNER", width = 110, align = LEFT, value = rollWinnerText,
+    sort = function(r) return r.winner or "" end },
+  { header = "HISTORY_ROLL", tip = "HISTORY_ROLL_WINNER_ROLL_TIP", width = 60,
+    value = function(r) return rollChoiceText(r.winnerChoice, r.winnerRoll) end,
+    sort = function(r) return r.winnerRoll end },
+  { header = "HISTORY_ROLL_OWN", width = 60, value = function(r) return rollChoiceText(r.ownChoice, r.ownRoll) end,
+    sort = function(r) return r.ownRoll end },
+  { header = "HISTORY_ROLL_PLACE_HEADER", width = 150, align = LEFT, value = rollPlaceText },
+}
+
 local NEAR_DEATH_COLUMNS = {
   whenColumn(100),
   { header = "HISTORY_LOWEST_HEALTH", width = 70, value = function(r) return (r.lowestPercent or 0) .. "%" end,
@@ -420,9 +452,9 @@ end
 
 -- Tabelle über ein Journal-Log (älteste zuerst, wächst nur hinten): neu sortiert nur bei geändertem Stand dieses Logs,
 -- neue Einträge werden einsortiert statt alles neu zu sortieren (TableView appendOnly)
-local function addJournalTable(tab, columns, logName, rowLink)
+local function addJournalTable(tab, columns, logName, rowLink, empty)
   ns.HistoryWindow.AddView(TableView.Create({
-    tab = tab, group = JOURNAL, columns = columns, footer = countCells, rowLink = rowLink,
+    tab = tab, group = JOURNAL, columns = columns, footer = countCells, rowLink = rowLink, empty = empty,
     records = function(characterKey) return Journal.GetEntries(characterKey, logName) end,
     appendOnly = true,
     revision = Journal.RevisionOf(logName),
@@ -462,6 +494,7 @@ addJournalTable("HISTORY_TAB_KILLS", KILL_COLUMNS, "killLog")
 addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
 addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
 addJournalTable("HISTORY_TAB_LOOT", LOOT_COLUMNS, "lootLog", itemLink)
+addJournalTable("HISTORY_TAB_ROLLS", ROLL_COLUMNS, "rollLog", itemLink, "HISTORY_ROLLS_EMPTY")
 addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
 -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
 if ns.NearDeath.IsAvailable() then

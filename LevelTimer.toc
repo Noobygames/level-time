@@ -182,6 +182,7 @@ Assist\QuestMarks.lua
 Assist\LootTarget.lua
 Assist\LootSparkles.lua
 Assist\LootRollReport.lua
+Tracking\RollLog.lua
 UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
 Assist\QuestTextSize.lua

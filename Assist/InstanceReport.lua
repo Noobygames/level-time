@@ -4,6 +4,8 @@
 -- Nur in einer Gruppe (GroupChat.PartyChannel), nicht als Geist (der Lauf geht weiter), erst ab MIN_SECONDS und nur,
 -- wenn sich der Lauf seit dem letzten Bericht verändert hat (raus und wieder rein meldet nicht doppelt). Bei
 -- gesperrtem Chat (GroupChat.Locked) fällt der Bericht weg. Instances.lua hält die Uhr beim Verlassen vorher an.
+-- Von Hand (/lt report): jederzeit in der Instanz, ohne Einstellung, Mindestdauer und Doppelt-Sperre; ohne Gruppe oder
+-- bei gesperrtem Chat nur als eigene Chatzeile.
 local _, ns = ...
 local L = ns.L
 local Stats = ns.Stats
@@ -55,3 +57,20 @@ local function report()
 end
 
 ns.InstanceCopy.OnLeave(report)
+
+-- /lt report: Bericht des laufenden (auch pausierten) Laufs sofort
+function InstanceReport.SendNow()
+  local run = ns.Instances.GetCurrentRun()
+  if not run then
+    ns.Print(L.INSTANCE_REPORT_NONE)
+    return
+  end
+  local text = InstanceReport.Text(run)
+  local chatType = GroupChat.PartyChannel()
+  if not chatType or GroupChat.Locked() then
+    ns.Print(text)
+    return
+  end
+  lastReported = stateOf(run)
+  GroupChat.Send(text, chatType)
+end
