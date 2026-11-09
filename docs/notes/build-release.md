@@ -1,0 +1,14 @@
+# Notizen: Build, Installer, Paket, Release
+
+Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem Dateinamen suchen und nur den passenden Abschnitt lesen.
+
+### Build, Installer, Release (aus Build / test / run)
+
+- `make package`: installer tool in `-package` mode writes `dist/LevelTimer-<version>.zip` (folder `LevelTimer/` with the `.toc` files, everything under `Media/` and `LICENSE`, see `assetDirs` and `packageExtras`). The Level Time zip also contains `LevelTimer_Archive/` (`-addons LevelTimer,LevelTimer_Archive`; several addons = one zip); the CurseForge packager moves that folder to the top level via `.pkgmeta` `move-folders`.
+- Assets: textures live in `Media/` (not listed in the `.toc`; installer and package pick up `assetDirs` automatically). Use TGA (32-bit, power-of-two sizes); PNG is not reliably loaded by all clients. Reference them without extension via `Widgets.ICON`-style paths built from `addonName`.
+- `make records`: `tools/records` fetches the fastest runs from the speedrun.com API (WoW Classic: Leveling, SSF, Softcore; brackets 1-10/1-20/1-60, overall and per class) and rewrites `Speedrun/SpeedrunRecords.lua` (`ns.SpeedrunRecordsData`, generated, don't edit by hand). The addon has no network access, so the data ships as a snapshot; `make test` runs the tool's tests offline (httptest).
+- `make artwork`: `tools/artwork` renders the CurseForge logo (`curseforge/logo.png`) and the addon icon (`Media/Icon.tga`, used by the minimap button and `## IconTexture`) from one drawing in `draw.go`. Regenerate both after changing it; no Blizzard assets allowed (CurseForge rule).
+- Release names: zip and CurseForge label are `LevelTimer-v<version>(.zip)` (packager `-n` in `release.yml`), matching the earlier manual uploads; keep it that way.
+- Release: pushing a tag `v*` runs `.github/workflows/release.yml` (tests, then BigWigs packager: zip, GitHub release, uploads to CurseForge / Wago / WoWInterface for each platform whose `.toc` ID (`## X-Curse-Project-ID`, `## X-Wago-ID`, `## X-WoWI-ID`) and secret (`CF_API_KEY`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) both exist). The packager ships the repo minus `.pkgmeta` `ignore`, so new non-addon files must be added there. CurseForge listing texts and logo live in `curseforge/`.
+- The installer copies the files listed in the `.toc` (plus the `.toc`) into `<WoW>/_<flavor>_/Interface/AddOns/<TocName>/`. The folder name must match the `.toc` filename (`LevelTimer`), not the repo name. It writes `.install-manifest.json` there to track owned files; files removed from the `.toc` get deleted on the next install.
+- Installer never touches `WTF/` (SavedVariables), enforced in `ensureNotConfigPath`. Install-layout migrations live in `tools/installer/migrate.go` (IDs recorded in the manifest, run once); SavedVariables migrations belong in the Lua code (`Database.lua`).
