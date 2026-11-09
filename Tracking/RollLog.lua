@@ -52,6 +52,7 @@ function RollLog.EntryOf(roll)
     difficulty = difficulty,
     runStart = instance and run and run.startedAt or nil,
     name = not roll.link and roll.name or nil,
+    encounter = LootRolls.EncounterName(roll),
   }
 end
 

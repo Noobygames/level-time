@@ -144,6 +144,8 @@ Assist\FlightMap.lua
 Assist\FlightTimes.lua
 Assist\FlightTimer.lua
 Assist\FlightTooltip.lua
+Assist\TransportTimes.lua
+UI\TransportDisplay.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua
@@ -241,7 +243,17 @@ UI\StreamMode.lua
 Lib\MinimapButton.lua
 UI\MinimapButton.lua
 UI\Broker.lua
-UI\Options.lua
+UI\Options\Core.lua
+UI\Options\General.lua
+UI\Options\Statistics.lua
+UI\Options\Notifications.lua
+UI\Options\Alerts.lua
+UI\Options\Comfort.lua
+UI\Options\ComfortQuests.lua
+UI\Options\ComfortWorld.lua
+UI\Options\Speedrun.lua
+UI\Options\Profiles.lua
+UI\Options\Window.lua
 UI\ExternalOptions.lua
 UI\BlizzardSettings.lua
 UI\EditMode.lua

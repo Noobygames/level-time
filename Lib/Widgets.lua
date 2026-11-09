@@ -33,7 +33,7 @@ local WHITE_TEXTURE = Theme.WHITE_TEXTURE
 Widgets.WHITE_TEXTURE = WHITE_TEXTURE  -- einfarbige Fläche für Hintergründe und Balken
 
 local CHECKBOX_SIZE = 26
-Widgets.CHECKBOX_LABEL_GAP = 2  -- Abstand Kästchen zu Beschriftung (Options.lua rechnet damit)
+Widgets.CHECKBOX_LABEL_GAP = 2  -- Abstand Kästchen zu Beschriftung (UI/Options rechnet damit)
 local SLIDER_HEIGHT = 17
 local SLIDER_LABEL_HEIGHT = 18
 

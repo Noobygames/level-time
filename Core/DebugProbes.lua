@@ -221,6 +221,7 @@ local EVENT_PROBES = {
   { event = "PLAYER_UNGHOST" },
   { event = "ZONE_CHANGED_NEW_AREA", state = true, extra = instanceInfo },
   { event = "PLAYER_ENTERING_WORLD", state = true, extra = instanceInfo },
+  { event = "PLAYER_LEAVING_WORLD", state = true },  -- 440: Ladebild auf dem Transport (state.map = Position)
   { event = "ENCOUNTER_START" },
   { event = "ENCOUNTER_END", state = true },
   { event = "BOSS_KILL" },

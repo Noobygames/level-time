@@ -22,6 +22,7 @@ wow.state.lootDrops = { ["100:1"] = { itemHyperlink = SWORD, winner = { playerNa
     { playerName = "Grimbar", playerClass = "MAGE", state = NEED, roll = 99, isWinner = true },
     { playerName = "Lyra-Anderswo", playerClass = "WARRIOR", state = PASS },
   } } }
+wow.state.encounterNames = { [100] = "Arugal" }
 wow.fire("LOOT_HISTORY_UPDATE_DROP", 100, 1)
 local log = addon.character.rollLog
 expect("ein Eintrag", #log, 1)
@@ -37,6 +38,7 @@ expect("eigene Wahl", entry.ownChoice, "greed")
 expect("eigener Wurf", entry.ownRoll, 55)
 expect("Instanz", entry.instance, "Die Todesminen")
 expect("Schwierigkeit", entry.difficulty, "Normal")
+expect("Begegnung (C_LootHistory.GetInfoForEncounter)", entry.encounter, "Arugal")
 expect("nicht alle gepasst", entry.allPassed, nil)
 
 -- Alle gepasst
