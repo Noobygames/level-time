@@ -798,7 +798,28 @@ addToggles({
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
+  toggle("INSTANCE_REPORT_LOOT_TOGGLE", "instanceReportLoot"),
 })
+addChooser(requires({
+  label = "INSTANCE_REPORT_LOOT_QUALITY",
+  advanced = true,
+  setting = "instanceReportLootQuality",
+  choices = {
+    { value = 3, name = localized("INSTANCE_REPORT_LOOT_RARE") },
+    { value = 4, name = localized("INSTANCE_REPORT_LOOT_EPIC") },
+  },
+}, "instanceReportLoot"))
+addSlider(requires({
+  label = "INSTANCE_REPORT_LOOT_MAX",
+  advanced = true,
+  setting = "instanceReportLootMax",
+  min = 1,
+  max = 10,
+  step = 1,
+  get = function(db) return db.instanceReportLootMax end,
+  set = function(value) ns.SetDeferred("instanceReportLootMax", value) end,
+  format = function(value) return tostring(value) end,
+}, "instanceReportLoot"))
 addSlider(requires({
   label = "LOW_MANA_BELOW",
   advanced = true,

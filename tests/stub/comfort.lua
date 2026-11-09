@@ -85,6 +85,11 @@ else
       return (state.lootDrops or {})[encounterID .. ":" .. lootListID]
     end,
     GetSortedDropsForEncounter = function(encounterID) return (state.encounterDrops or {})[encounterID] end,
+    -- state.encounterNames[encounterID] = Name (EncounterLootInfo.encounterName)
+    GetInfoForEncounter = function(encounterID)
+      local name = (state.encounterNames or {})[encounterID]
+      return name and { encounterName = name, encounterID = encounterID } or nil
+    end,
   }
 end
 -- Blizzards Würfelfenster (GroupLootFrame1..4, versteckt; Tests setzen rollID und zeigen sie)

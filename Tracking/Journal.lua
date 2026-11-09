@@ -78,7 +78,8 @@ Journal.LOGS = {
     { path = "winnerRoll" }, { path = "winnerChoice", kind = VALUE }, { path = "allPassed" }, { path = "need" },
     { path = "greed" }, { path = "disenchant" }, { path = "transmog" }, { path = "pass" },
     { path = "ownChoice", kind = VALUE }, { path = "ownRoll" }, { path = "instance", kind = VALUE },
-    { path = "difficulty", kind = VALUE }, { path = "runStart" }, { path = "name", kind = VALUE } } },
+    { path = "difficulty", kind = VALUE }, { path = "runStart" }, { path = "name", kind = VALUE },
+    { path = "encounter", kind = VALUE } } },
 }
 
 -- Module, die auf neue Einträge reagieren (z.B. Einblendungen): listener(logName, entry)

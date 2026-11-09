@@ -3143,3 +3143,21 @@ Plakette/Tooltip nach /lt transport master (ja/nein):
 Gleicher Kontinent erkannt (ja/nein/falsch):
 Fehler:
 ```
+
+### 223. Beute im Instanz-Bericht: Boss-Namen (Roadmap 441)
+
+Einstellung „Beute im Bericht“ (Gruppe) an, Dungeon mit Gruppe, Beute per Bedarf/Gier würfeln, `/lt report`.
+
+1. Pro gewonnenem Gegenstand ab der eingestellten Qualität eine Zeile mit Link, Gewinner, Wahl und Wurf, eine je Sekunde.
+2. Retail/Forever: Zeile beginnt mit dem Namen des Bosses (`C_LootHistory.GetInfoForEncounter(encounterID).encounterName`); Classic: kein Präfix.
+3. Mehr Gewinne als „Beute-Zeilen höchstens“: letzte Zeile „+N weitere“. Alle gepasst fehlt.
+4. `/dump C_LootHistory.GetInfoForEncounter(<encounterID>)` zeigt `encounterName`, falls der Name fehlt.
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Boss-Name richtig (ja/nein):
+Zeilen/Links im Chat richtig:
+Fehler:
+```
