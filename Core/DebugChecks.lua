@@ -815,6 +815,16 @@ check("440.transport.state", function()
     unitFrame = Probe.unitInfo("target") }
 end)
 
+-- 442: Grafikdetails (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes Original
+check("442.graphics.cvars", function()
+  local cvars = {}
+  for _, name in ipairs(ns.ForeverGraphics.CVarNames()) do
+    cvars[name] = { value = Probe.call("C_CVar.GetCVar", name), default = Probe.call("C_CVar.GetCVarDefault", name),
+      overridden = ns.CVars.IsOverridden(name) }
+  end
+  return { available = ns.ForeverGraphics.IsAvailable(), enabled = ns.db.foreverGraphics, cvars = cvars }
+end)
+
 -- 360: Layout des Hauptfensters: Zeilen des Modells, Maße und je sichtbarem Text die gemessene Breite gegen die
 -- Fensterbreite (abgeschnitten = IsTruncated, wo es das gibt); Schrift der Rolle mit Kontur
 local function fontStringState(fontString)

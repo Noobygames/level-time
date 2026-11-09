@@ -219,5 +219,29 @@ for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
 end
 addSection("SECTION_SOUND")
 addToggles(muteToggles)
+
+-- Grafikdetails (nur WoW Forever): Hauptschalter, Regler je CVar, Nachschärfen, empfohlene Werte
+local ForeverGraphics = ns.ForeverGraphics
+if ForeverGraphics.IsAvailable() then
+  addSubPage("COMFORT_PAGE_GRAPHICS_DETAIL")
+  addHint("FOREVER_GRAPHICS_HINT")
+  addToggles({ toggle("FOREVER_GRAPHICS", "foreverGraphics") })
+  addSection("SECTION_GRAPHICS_DISTANCE")
+  for _, slider in ipairs(ForeverGraphics.SLIDERS) do
+    addSlider(requires({
+      label = slider.label,
+      setting = slider.setting,
+      min = slider.min,
+      max = slider.max,
+      step = slider.step,
+      get = function(db) return db[slider.setting] end,
+      set = function(value) ns.SetDeferred(slider.setting, value) end,
+      format = tostring,
+    }, "foreverGraphics"))
+  end
+  addSection("SECTION_GRAPHICS_IMAGE")
+  addToggles({ requires(toggle(ForeverGraphics.SHARPEN.label, ForeverGraphics.SHARPEN.setting), "foreverGraphics") })
+  addButton("GRAPHICS_RECOMMENDED", ForeverGraphics.ApplyRecommended)
+end
 finishSubPages()
 finishPage()
