@@ -530,7 +530,6 @@ local function readLegacyItem(itemIndex)
   local roll = type(rollID) == "number" and byId[rollID]
   if not roll or type(numPlayers) ~= "number" then return end
   roll.fromHistory = true
-  roll.encounterID = encounterID
   roll.choices, roll.order, roll.rolls, roll.waitingNames = {}, {}, {}, {}
   roll.eligible = numPlayers
   roll.winner, roll.winnerRoll = nil, nil
@@ -596,6 +595,7 @@ local function readDrop(encounterID, lootListID)
   local infos = readable(drop.rollInfos)
   if not roll or type(infos) ~= "table" then return end
   roll.fromHistory = true
+  roll.encounterID = encounterID
   roll.choices, roll.order, roll.rolls, roll.waitingNames = {}, {}, {}, {}
   roll.eligible = #infos
   for _, info in ipairs(infos) do
