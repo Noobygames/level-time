@@ -8,6 +8,12 @@
 -- Era und Forever (Blizzard: ChatFrameUtil.TryInsertQuestLinkForQuestID); ohne Link (nicht geladen) der Titel.
 -- Stand und Änderungen liefert Tracking/QuestWatch.lua (ein gemeinsames Einlesen für alle Quest-Funktionen).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    announceQuestProgress = false,
+  },
+})
 local L = ns.L
 local GroupChat = ns.GroupChat
 

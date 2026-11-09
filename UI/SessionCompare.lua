@@ -2,6 +2,12 @@
 -- Chatzeile "Letzte Session: 2h 10m, 48.0k XP (+12 % XP/h zur vorherigen)". Einstellung sessionCompareLogin.
 -- XP/h nach denselben Regeln wie die Historie (Experience.RecordRate, ohne AFK/Leerlauf, wenn eingestellt).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    sessionCompareLogin = true,
+  },
+})
 local L = ns.L
 local Format = ns.Format
 

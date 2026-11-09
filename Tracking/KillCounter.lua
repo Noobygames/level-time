@@ -1,5 +1,20 @@
 -- Zählt Kills (PvE, PvP, Elite, Rare) und schreibt jeden Kill mit Namen und Einstufung ins Journal.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showPveKills = true,
+    showPvpKills = false,
+    showSpecialKills = false,
+    showKillRate = false,
+  },
+  counters = {
+    pveKills = 0,
+    pvpKills = 0,
+    eliteKills = 0,
+    rareKills = 0,
+  },
+})
 local Stats = ns.Stats
 local Journal = ns.Journal
 local ChatPatterns = ns.ChatPatterns

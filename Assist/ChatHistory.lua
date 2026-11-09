@@ -8,6 +8,12 @@
 -- geschützten Battle.net-Namen (|K...|k gilt nur in der laufenden Sitzung).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    restoreChat = false,
+  },
+})
+
 local ChatHistory = {}
 ns.ChatHistory = ChatHistory
 

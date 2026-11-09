@@ -14,6 +14,13 @@
 -- "wieder frei (nach N s)", gemessen ab Beginn (auch ohne Warnung, solange man Heiler in der Instanz ist); die
 -- Restdauer selbst ist in Forever geheim, gemessen wird deshalb selbst (LOSS_OF_CONTROL_UPDATE).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    announceControlLoss = false,
+    announceControlOver = false,
+  },
+})
 local L = ns.L
 local GroupChat = ns.GroupChat
 

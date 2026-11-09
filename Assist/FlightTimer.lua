@@ -8,6 +8,13 @@
 --   Landung          PLAYER_CONTROL_GAINED, sobald UnitOnTaxi("player") false ist
 -- Ein /reload im Flug verliert die Messung.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    flightTimer = false,
+    flightSound = false,
+  },
+})
 local L = ns.L
 
 local FlightTimer = {}

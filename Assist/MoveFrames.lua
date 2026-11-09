@@ -8,6 +8,12 @@
 -- Strg+Rechtsklick setzt es auf 1 zurück; gemerkt in movedFrameScales und beim Öffnen wie die Position gesetzt.
 -- Geschützte Fenster (IsProtected) werden im Kampf nicht skaliert.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    moveFrames = false,
+  },
+})
 local L = ns.L
 
 local MoveFrames = {}

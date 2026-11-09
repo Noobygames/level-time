@@ -18,21 +18,6 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 - [ ] 352. **Questreste in den Taschen** (S–M): Items, die laut gelernten Daten oder `GetQuestLogSpecialItemInfo` zu einer abgegebenen oder abgebrochenen Quest gehörten (`QUEST_TURNED_IN`, `QUEST_REMOVED`), als Verkaufs-/Löschvorschlag beim Händler (`Merchant.lua`) oder bei vollen Taschen (`GearWarnings`); Löschen nur per Klick (`DeleteCursorItem` braucht eine Spieleraktion). Plus eigene Müll-Markierung je Item (Modifier-Rechtsklick). **Teilweise: Erledigt: `Assist/QuestLeftovers.lua` (questLeftovers, Komfort > Quests): Gegenstände abgegebener/abgebrochener Quests (gelernt über `QuestMobs.ItemsOf` und das gemerkte Quest-Item, `character.questSpecialItems`), die keine offene Quest braucht, als Hinweis beim Händler und als Zusatz im Hinweis „Taschen fast voll“; verkaufte Reste werden vergessen. Offen: eigene Müll-Markierung je Item (Modifier-Rechtsklick) und ein Lösch-Knopf (`DeleteCursorItem` nur per Klick); Folgequests, die denselben Gegenstand brauchen, kennt der Client vorher nicht.**
 
-### Level Time Goals (nächste Versionen, ehemals Stream Goal)
-
-- [ ] 302. **Dungeon-Ziel** (M): Dungeon X N-mal abschließen oder alle bis Level Y; `ENCOUNTER_END`/`BOSS_KILL` (je Client prüfen), sonst letzter Boss per NPC-ID (6. GUID-Feld) aus `Instances`. **Teilweise erledigt: Art `dungeon` (`StreamGoal/Kinds/Dungeon.lua`): N Bosse besiegen, optional bestimmter Boss und/oder Instanz (Teilstrings), aus `ENCOUNTER_END` mit `success = 1` (in Forever lesbar), Instanzname aus `GetInstanceInfo`; fertiges Paket „Dungeon-Tour“. `/sg add boss 5 [Name]`. Szenario `streamgoal_dungeon`. Offen: „Dungeon N-mal abschließen“ (Endboss je Instanz unbekannt) und „alle Dungeons bis Level Y“.**
-- [ ] 306. **Glücksrad** (M): Zufallsziel aus einem Pool bei Level-Up oder per Knopf, begrenzte Neuwürfe, eigene Einträge, Dreh-Animation auf der Karte (HC Challenge Wheel). Zuschauer können per Chat abstimmen, der Streamer dreht. **Teilweise erledigt: `StreamGoal/Wheel.lua`: Zufallsziel per Knopf, `/sg wheel` oder bei jedem Level-Up, Neuwürfe je Drehung einstellbar (0-5, `/sg wheel reroll` bricht das letzte Ergebnis ab); eigener Pool mit eigenen Einträgen (431) und echtes drehendes Rad (432), v2.24. Szenario `streamgoal_wheel`. Offen: Abstimmung der Zuschauer (Twitch-Chat ist für Addons nicht lesbar; Ingame-Chat-Abstimmung wäre möglich).**
-- [ ] 307. **Erkundung und Zonen** (S–M): N Gebiete entdecken (`ERR_ZONE_EXPLORED` im Systemchat), Zone X erreichen, optional % einer Zone (`C_MapExplorationInfo`, Era prüfen). **Teilweise erledigt: Art `explore` (`StreamGoal/Kinds/Explore.lua`): N Gebiete entdecken (`ERR_ZONE_EXPLORED`/`_XP` aus `CHAT_MSG_SYSTEM` oder `UI_INFO_MESSAGE`, dieselbe Entdeckung aus beiden Quellen zählt einmal) und Zone erreichen (`GetRealZoneText`/`GetSubZoneText`, Teilstring, bei `ZONE_CHANGED*`). `/sg add explore 10 | <Zone>`. Szenario `streamgoal_explore`. Offen: Anteil einer Zone (`C_MapExplorationInfo`), welche Quelle je Client die Meldung schickt (ManualToCheck 175).**
-- [ ] 311. **Gruppenziele** (L): Ziel an die Gruppe schicken, gemeinsame Ziele, bei denen Kills/Beute aller zählen, Abgleich über Addon-Nachrichten mit eigener Drossel (Hardcore-Protokoll als Vorbild).
-
-### Stream-Funktionen von Level Time
-
-- [ ] 313. **OBS-Signalfeld** (S): Kleines einfarbiges Feld blinkt bei Tod, Level-Up und erreichtem Ziel; OBS-Plugins (Advanced Scene Switcher, Streamer.bot) erkennen die Farbe und schalten Szenen oder spielen Töne. Ohne Zusatzprogramm (Plugin-Funktion prüfen).
-- [ ] 314. **Nachruf- und Abschlusskarte** (S–M): Beim Tod (Hardcore) oder Max-Level: Level, `/played`, Mörder, Tode, beste Splits als Karte zum Zeigen und Kopieren (FateLocked, Recap).
-- [ ] 315. **Stream-Link** (S): Twitch/Discord-Link im Kopierfeld, optional zeitgesteuert in Gruppe/Gilde mit den Sperren der Level-Up-Ansage (UltraHardcore). Sparsam, kein Spam.
-- [ ] 316. **Zauberleiste für Zuschauer** (M): Die letzten N gewirkten Zauber als Symbole (`UNIT_SPELLCAST_SUCCEEDED` auf `player`, kein Kampflog), Chroma-Hintergrund.
-- [ ] 317. **Statistik beim Gruppenbeitritt** (S): Optional Tode, Dungeons und Level-Zeit in den Gruppenchat (UltraHardcore).
-
 ### Neue Addons und Werkzeuge (Ideen)
 
 - [ ] 318. **Level Time Companion** (L): Go-Programm wie `tools/`; liest SavedVariables nach `/reload`/Logout und liefert lokale HTML-Seiten als OBS-Browserquelle (Historie, Splits, Ziele, Recap). Rückweg: schreibt eine im `.toc` vorhandene Daten-Datei, die das Addon beim `/reload` einliest (Kanalpunkte als Ziele, WeakAuras-Companion-Muster). Später Live-Daten über einen Pixelstreifen (Cerealize; Blizzard-Richtlinie vorher prüfen).
@@ -79,10 +64,6 @@ Schwerpunkt: Leveln in Dungeons auswerten und das Instanzlimit im Blick behalten
 ## v2.7: Aufräumen
 
 Schwerpunkt: Struktur und Wartbarkeit nach dem Code- und Architektur-Review, ohne neue Funktionen. Jeder Schritt ändert kein Verhalten; die Tests sichern das ab.
-
-### Struktur
-
-- [ ] 86. **Standardwerte je Modul** (M): Module melden ihre Einstellungen und Zähler selbst an (`ns.RegisterDefaults`), statt alles zentral in `Database.lua`. **Teilweise: Erledigt: `Database.RegisterDefaults({ settings, ranges, counters })` (beim Laden, vor `Database.Load`; doppelte Schlüssel brechen das Laden ab); als Muster melden `Assist/LootSparkles.lua` (`lootSparkle*` samt Bereich von `lootSparkleScale`) und `Tracking/LootRolls.lua` (`lootRoll*`) ihre Standardwerte selbst an. Offen: die übrigen rund 300 Einstellungen und die Zähler Modul für Modul umziehen; dabei beachten, dass ein Schlüssel vor dem ersten Lesen angemeldet ist (Datei lädt vor allen Lesern oder Lesen erst nach dem Login) und Einstellungen, die mehrere Module teilen, beim zuerst geladenen stehen.**
 
 ## v2.6: Leveln ohne Umwege
 

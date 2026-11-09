@@ -10,6 +10,12 @@
 -- (GroupChat.Locked: Bosskämpfe in Retail/WoW Forever, SendAddonMessage ist dort ebenfalls gesperrt) bleibt sie
 -- liegen. Werte aus CHAT_MSG_ADDON können in Instanzen geheim sein und werden dann verworfen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    friendRace = false,
+  },
+})
 local L = ns.L
 
 local FriendRace = {

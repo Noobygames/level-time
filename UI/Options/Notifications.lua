@@ -125,6 +125,7 @@ end
 -- Gruppe und Heiler: Ansagen im Gruppenchat
 addSubPage("OPTIONS_PAGE_GROUP")
 addToggles({
+  toggle("ANNOUNCE_GROUP_JOIN_TOGGLE", "announceGroupJoin"),
   toggle("LOW_MANA_TOGGLE", "announceLowMana"),
   toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
   toggle("CC_OVER_TOGGLE", "announceControlOver"),

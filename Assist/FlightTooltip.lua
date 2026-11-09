@@ -7,6 +7,12 @@
 --     kopiert den Mixin beim Erzeugen); Slot = pin.taxiNodeData.slotIndex.
 -- Beide Blizzard-Funktionen rufen am Ende GameTooltip:Show(); die Zeile kommt danach, darum noch einmal Show().
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    flightTimeTooltip = true,
+  },
+})
 local L = ns.L
 
 local FlightTooltip = {}

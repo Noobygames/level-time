@@ -3,6 +3,13 @@
 -- vom Bereich und nur seit Login bzw. /reload: die Zeitpunkte liegen im Speicher (Ringpuffer je Zähler, Lib/RecentCounter.lua), gefüllt über
 -- Stats.OnIncrement. Abfragen kosten je Anzeige-Takt einen Vergleich, solange nichts aus dem Fenster fällt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showRecentKills = false,
+    showRecentItems = false,
+  },
+})
 local Stats = ns.Stats
 
 local RecentCounts = {}

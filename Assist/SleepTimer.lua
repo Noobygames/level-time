@@ -20,6 +20,14 @@
 -- Einstellungen: sleepTimer, sleepTimerSound (Ton bei jedem Stapel, bei der Auffrischung und am Ende),
 -- sleepStackNotice (Hinweise zu Stapeln, Auffrischung und Ausrollen).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    sleepTimer = true,
+    sleepTimerSound = false,
+    sleepStackNotice = true,
+  },
+})
 local Auras = ns.Auras
 local BuffReminder = ns.BuffReminder
 

@@ -10,6 +10,13 @@
 -- HEALER_ANNOUNCE_SECONDS Aggro "Heiler hat Aggro!" an die Gruppe, einmal je Aggro, höchstens alle
 -- HEALER_REPEAT_SECONDS; nicht bei gesperrtem Chat (GroupChat.Locked).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    warnAggro = false,
+    announceHealerAggro = false,
+  },
+})
 local L = ns.L
 
 local AggroWarning = {}

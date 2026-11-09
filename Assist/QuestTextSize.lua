@@ -6,6 +6,13 @@
 -- Alles, was diese Schriften erbt (z.B. Teile des Dungeonbrowsers), wächst mit.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    questTextResize = false,
+    questTextSize = 14,
+  },
+})
+
 local QuestTextSize = {}
 ns.QuestTextSize = QuestTextSize
 

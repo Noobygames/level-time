@@ -12,6 +12,31 @@
 -- Schattengestalt kennt nur, wer sie geskillt hat. Die Listen enthalten Classic- (Rang 1) und Retail-IDs; IDs, die es
 -- in einem Client nicht gibt, liefern keinen Namen und zählen dort einfach nicht.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    remindMageArmor = false,
+    remindArcaneIntellect = false,
+    remindFortitude = false,
+    remindInnerFire = false,
+    remindShadowform = false,
+    remindDemonArmor = false,
+    remindWarlockPet = false,
+    remindMarkOfTheWild = false,
+    remindThorns = false,
+    remindOmenOfClarity = false,
+    remindShamanShield = false,
+    remindShamanWeapon = false,
+    remindBlessing = false,
+    remindPaladinAura = false,
+    remindRighteousFury = false,
+    remindAspect = false,
+    remindHunterPet = false,
+    remindPoisons = false,
+    remindBattleShout = false,
+    remindBronzeBlessing = false,
+  },
+})
 local L = ns.L
 
 local ClassBuffs = {}

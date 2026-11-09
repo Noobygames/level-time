@@ -2,6 +2,15 @@
 -- Name: C_QuestLog.GetTitleForQuestID, wo vorhanden; sonst der Titel aus dem Quest-Fenster,
 -- der bei QUEST_COMPLETE (Abgabe-Dialog offen) gemerkt wird.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showQuests = false,
+  },
+  counters = {
+    quests = 0,
+  },
+})
 local Stats = ns.Stats
 local Journal = ns.Journal
 

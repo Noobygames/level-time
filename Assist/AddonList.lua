@@ -6,6 +6,12 @@
 -- Addon-Liste ist kein geschützter Rahmen. Ausgeschaltet baut Blizzard die Liste beim nächsten Update selbst neu.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    sortAddonList = false,
+  },
+})
+
 local AddonListSort = {}
 ns.AddonListSort = AddonListSort
 

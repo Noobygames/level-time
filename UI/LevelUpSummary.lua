@@ -5,6 +5,13 @@
 -- (Einstellungs-Migration v4 setzt alte "say"-Werte auf "off").
 -- Läuft in OnLevelCompleted, also bevor die Zähler für das neue Level zurückgesetzt werden.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    levelUpSummary = true,
+    levelUpAnnounce = "off",
+  },
+})
 local L = ns.L
 local Format = ns.Format
 local Stats = ns.Stats

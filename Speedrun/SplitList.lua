@@ -10,6 +10,20 @@
 -- Position über Lib/Frames.lua; Hintergrund und Fixieren folgen dem Hauptfenster, Sichtbarkeit splitListVisibility
 -- (UI/DisplayVisibility.lua). Je Takt werden nur geänderte Texte gesetzt; Spalten und Größe nur bei geändertem Text.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showSplitList = false,
+    splitListRows = 5,
+    splitListShowTotal = true,
+    splitListShowPlayed = true,
+    splitListShowCustom = true,
+    splitListHeader = true,
+  },
+  ranges = {
+    splitListRows = { 3, 15 },
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 local Theme = ns.Theme

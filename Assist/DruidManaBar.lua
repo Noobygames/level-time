@@ -6,6 +6,12 @@
 -- Spielerrahmen geschützt ist); Ereignisse nur, solange die Einstellung an ist.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    druidManaBar = false,
+  },
+})
+
 local DruidManaBar = {}
 ns.DruidManaBar = DruidManaBar
 

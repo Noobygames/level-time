@@ -5,6 +5,20 @@
 -- levelUpSound; Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
 -- Im Kampf wartet das Fenster bis zum Ende des Kampfes.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    levelUpWindow = true,
+    levelUpHideBlizzard = true,
+    levelUpTheme = "modern",
+    levelUpCompact = false,
+    levelUpSound = true,
+    levelUpDuration = 8,
+  },
+  ranges = {
+    levelUpDuration = { 3, 20 },
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 

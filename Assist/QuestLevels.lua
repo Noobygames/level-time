@@ -19,6 +19,12 @@
 --             nicht gebaut.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    questLevels = false,
+  },
+})
+
 local QuestLevels = {}
 ns.QuestLevels = QuestLevels
 

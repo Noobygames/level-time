@@ -6,6 +6,12 @@
 -- solange der Client den Spieler nicht kennt). Das Level steht nicht darin: nur wenn der Einladende gerade Ziel, Fokus
 -- oder unter der Maus ist (UnitLevel). Blizzards Dialog PARTY_INVITE bleibt unberührt (kein Taint), deshalb Chat.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    inviteInfo = false,
+  },
+})
 local L = ns.L
 
 local InviteInfo = {}

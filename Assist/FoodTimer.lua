@@ -5,6 +5,13 @@
 -- alle so heißen. Kommt "Satt" schon vor dem Ende des Essens, endet der Countdown sofort mit "Satt aktiv".
 -- Getrunkenes ("Trinken") hat einen anderen Buff und zählt nicht. Bei gesperrten Auren passiert nichts.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    foodTimer = true,
+    foodSound = false,
+  },
+})
 local Auras = ns.Auras
 
 local FoodTimer = {}

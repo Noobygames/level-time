@@ -216,6 +216,8 @@ Assist\RaidRestrictions.lua
 Assist\ReadyTimer.lua
 Assist\AddonList.lua
 Assist\ChatColors.lua
+Assist\StreamLink.lua
+Assist\GroupJoinStats.lua
 UI\WindowModel.lua
 UI\XpTooltip.lua
 UI\WindowElements.lua
@@ -240,6 +242,8 @@ UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
 UI\QuestViews.lua
 UI\RecapWindow.lua
+UI\ObsSignal.lua
+UI\SpellHistory.lua
 UI\StreamMode.lua
 Lib\MinimapButton.lua
 UI\MinimapButton.lua

@@ -4,6 +4,12 @@
 -- unberührt.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    maxCameraZoom = false,
+  },
+})
+
 local Camera = {}
 ns.Camera = Camera
 

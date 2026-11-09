@@ -4,6 +4,22 @@
 -- Edit-Modus in UI/AlertPosition.lua.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    alertLevelUp = false,
+    alertRareKill = false,
+    alertEliteKill = false,
+    alertEpicLoot = false,
+    alertNearDeath = false,
+    alertStyle = "banner",
+    alertDuration = 3,
+    alertSound = false,
+  },
+  ranges = {
+    alertDuration = { 1, 10 },
+  },
+})
+
 local Alerts = {}
 ns.Alerts = Alerts
 

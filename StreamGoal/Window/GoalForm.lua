@@ -124,7 +124,15 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
   function form:IsRowShown(row)
     if self.rowFilter and not self.rowFilter(paramOf(row)) then return false end
     for param, value in pairs(row.showIf or {}) do
-      if self.choices[param] ~= value then return false end
+      if type(value) == "table" then
+        local match = false
+        for _, v in ipairs(value) do
+          if self.choices[param] == v then match = true; break end
+        end
+        if not match then return false end
+      elseif self.choices[param] ~= value then
+        return false
+      end
     end
     return true
   end

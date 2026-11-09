@@ -6,6 +6,14 @@
 --   screenshotEpicLoot        bei epischer oder besserer Beute (Journal lootLog, Qualität >= 4)
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    milestoneScreenshots = false,
+    screenshotFirstDungeon = false,
+    screenshotEpicLoot = false,
+  },
+})
+
 local MilestoneScreenshots = {
   LEVEL_STEP = 5,
   DELAY_SECONDS = 1,

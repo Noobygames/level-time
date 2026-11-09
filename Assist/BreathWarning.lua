@@ -10,6 +10,16 @@
 --   GetMirrorTimerInfo(index)       nach /reload unter Wasser (PLAYER_ENTERING_WORLD), Name "UNKNOWN" = frei
 -- Je Abtauchen eine Warnung; wieder scharf, wenn die Leiste über der Schwelle neu startet. Geheime Werte = keine.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    warnBreath = false,
+    breathWarnSeconds = 15,
+  },
+  ranges = {
+    breathWarnSeconds = { 5, 30 },
+  },
+})
 local L = ns.L
 
 local BreathWarning = {}

@@ -16,6 +16,19 @@
 -- in Forever für alle (die Optionen entstehen beim Laden, wenn UnitRace noch nicht sicher bekannt ist),
 -- erinnert wird nur ein Charakter mit Rassen-ID SKYBORNE_RACE_ID.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    remindFood = false,
+    remindCamp = false,
+    remindCharged = false,
+    remindSleepingBag = false,
+    reminderInterval = 5,
+  },
+  ranges = {
+    reminderInterval = { 1, 30 },
+  },
+})
 local L = ns.L
 
 local BuffReminder = {}

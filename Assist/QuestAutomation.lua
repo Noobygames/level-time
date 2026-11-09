@@ -31,6 +31,16 @@
 -- Flags oder Belohnungen (GossipOptionUIInfo.flags/rewards; normale Optionen haben laut Debug-Log flags 0 und keine
 -- rewards) bleiben manuell.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    autoAcceptQuests = false,
+    autoAcceptShared = false,
+    autoTurnIn = false,
+    autoChooseReward = false,
+    skipGossip = false,
+  },
+})
 local Comfort = ns.Comfort
 local Blocklist = ns.QuestBlocklist
 

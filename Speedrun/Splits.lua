@@ -11,6 +11,19 @@
 -- Vergleich), lila in der Split-Liste; Einstellung goldSplitNotice meldet ihn beim Level-Up mit Ton.
 -- Toleranzband (splitTolerancePercent > 0): Abweichung innerhalb ±max(3 s, x % der Vergleichszeit) gelb.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showSplits = false,
+    splitComparison = "best",
+    splitTolerancePercent = 0,
+    pbSameClass = false,
+    goldSplitNotice = false,
+  },
+  ranges = {
+    splitTolerancePercent = { 0, 10 },
+  },
+})
 local Stats = ns.Stats
 local History = ns.History
 

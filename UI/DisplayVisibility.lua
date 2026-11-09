@@ -6,6 +6,17 @@
 -- Ausgewertet bei Ereignissen (Kampf an/aus, Zonenwechsel, Level-Up, XP an/aus) und bei Mauskontakt, nie per Takt.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    windowVisibility = "always",
+    splitListVisibility = "always",
+    fadeAlpha = 0,
+  },
+  ranges = {
+    fadeAlpha = { 0, 1 },
+  },
+})
+
 local DisplayVisibility = {
   ALWAYS = "always",
   OUT_OF_COMBAT = "outOfCombat",

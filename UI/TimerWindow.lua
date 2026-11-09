@@ -7,6 +7,19 @@
 -- ganze Fenster. Rechtsklick öffnet die Einstellungen. Sichtbarkeit: windowVisibility (UI/DisplayVisibility.lua).
 -- Stream-Ansicht: Einstellung "windowBackground" färbt den Hintergrund grün oder magenta ohne Rahmen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    bgAlpha = 0.8,
+    windowBackground = "default",
+    showTimer = true,
+    showXpBar = true,
+    autoInstanceTab = false,
+  },
+  ranges = {
+    bgAlpha = { 0, 1 },
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 local Theme = ns.Theme

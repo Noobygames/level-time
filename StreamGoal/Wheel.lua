@@ -8,7 +8,7 @@
 -- bis zur nächsten Drehung). Rad und Karte liegen beim Drehen über den Fenstern (WheelDisplay.SPIN_STRATA), sonst
 -- drehte ein Knopf im Fenster /sg oder in den Einstellungen das Rad unsichtbar dahinter.
 -- Stand in StreamGoalDB.wheel = { goalId, rerollsLeft, pool = { off = { [key] = true } } } (fehlende Felder erlaubt).
--- Offen: Abstimmung der Zuschauer (Twitch-Chat ist für Addons nicht lesbar).
+-- Ingame-Chat-Abstimmung der Zuschauer (/sg wheel vote [seconds], Wheel.StartVote/StopVote/FinishVote).
 local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
@@ -20,11 +20,16 @@ local Wheel = {}
 ns.Wheel = Wheel
 
 Wheel.MAX_REROLLS = 5
+Wheel.VOTE_OPTIONS = 4
+Wheel.DEFAULT_VOTE_SECONDS = 30
+
 local ICON = "Interface\\Icons\\INV_Misc_Bag_10"
 local TOOLTIP_ANCHOR = "ANCHOR_BOTTOM"
 local spinning = false
 local resultToken = 0   -- jede gezeigte Ergebnis-Karte bekommt eine Nummer; ein alter Ausblend-Timer lässt neue stehen
 local listeners = {}
+local activeVote = nil
+local voteToken = 0
 
 local card = LT.Card.Create("StreamGoalWheelCard")
 card.frame:SetFrameStrata(WheelDisplay.SPIN_STRATA)
@@ -177,6 +182,31 @@ function Wheel.Spin()
   return spin(ns.db.settings.wheelRerolls)
 end
 
+-- Drehen auf ein bestimmtes Ziel (z.B. Gewinner der Abstimmung)
+function Wheel.SpinTo(chosenItem, rerollsLeft)
+  if spinning then return false, L.SG_WHEEL_BUSY end
+  if Goals.UsedSlots() >= Goals.MAX_ACTIVE then return false, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
+  local items = Wheel.Pool()
+  local chosenIndex = nil
+  for index, item in ipairs(items) do
+    if item == chosenItem or item.key == chosenItem.key then
+      chosenIndex = index
+      break
+    end
+  end
+  if not chosenIndex then
+    table.insert(items, 1, chosenItem)
+    chosenIndex = 1
+  end
+  spinning = true
+  resultToken = resultToken + 1
+  card.frame:Hide()
+  local titles, target = slicesFor(items, chosenIndex)
+  changed()
+  WheelDisplay.Spin(titles, target, function() finish(items, chosenIndex, rerollsLeft or 0) end)
+  return true
+end
+
 -- Letztes Ergebnis verwerfen (abbrechen) und neu drehen, solange Neuwürfe übrig sind
 function Wheel.Reroll()
   local wheel = state()
@@ -200,6 +230,155 @@ function Wheel.RerollsLeft()
   local goal = wheel.goalId and Goals.Get(wheel.goalId)
   if not goal or goal.status ~= Goals.ACTIVE then return 0 end
   return wheel.rerollsLeft or 0
+end
+
+---------------------------------------------------------------------------
+-- Ingame-Chat-Abstimmung
+---------------------------------------------------------------------------
+function Wheel.IsVoting()
+  return activeVote ~= nil
+end
+
+function Wheel.ActiveVote()
+  return activeVote
+end
+
+local function announce(text)
+  ns.Print(text)
+  local channel = LT.GroupChat and LT.GroupChat.PartyChannel()
+  if channel and not LT.GroupChat.Locked() then
+    LT.GroupChat.Send(text, channel)
+  end
+end
+
+function Wheel.VoteResults()
+  if not activeVote then return nil end
+  local counts = {}
+  for i = 1, #activeVote.options do counts[i] = 0 end
+  local total = 0
+  for _, optIndex in pairs(activeVote.votes) do
+    if counts[optIndex] then
+      counts[optIndex] = counts[optIndex] + 1
+      total = total + 1
+    end
+  end
+  return counts, total
+end
+
+function Wheel.CastVote(sender, num)
+  if not activeVote then return false end
+  num = tonumber(num)
+  if num and num >= 1 and num <= #activeVote.options then
+    activeVote.votes[sender] = num
+    changed()
+    return true
+  end
+  return false
+end
+
+function Wheel.StartVote(seconds)
+  if spinning then return false, L.SG_WHEEL_BUSY end
+  if activeVote then return false, L.SG_WHEEL_BUSY end
+  if Goals.UsedSlots() >= Goals.MAX_ACTIVE then return false, string.format(L.SG_ERR_TOO_MANY, Goals.MAX_ACTIVE) end
+  local pool = Wheel.Pool()
+  if #pool == 0 then return false, L.SG_WHEEL_EMPTY end
+  local valid = {}
+  for _, item in ipairs(pool) do
+    if not Goals.Check(item.kind, item.params, item.target) then
+      table.insert(valid, item)
+    end
+  end
+  if #valid == 0 then return false, L.SG_WHEEL_EMPTY end
+  local options = {}
+  for i = 1, math.min(#valid, Wheel.VOTE_OPTIONS) do
+    table.insert(options, valid[i])
+  end
+  voteToken = voteToken + 1
+  local token = voteToken
+  activeVote = {
+    options = options,
+    votes = {},
+    token = token,
+  }
+  seconds = tonumber(seconds) or Wheel.DEFAULT_VOTE_SECONDS
+  announce(string.format(L.SG_WHEEL_VOTE_STARTED, seconds, #options))
+  for i, opt in ipairs(options) do
+    announce(string.format(L.SG_WHEEL_VOTE_OPTION, i, Pool.Title(opt)))
+  end
+  if seconds > 0 then
+    C_Timer.After(seconds, function()
+      if activeVote and activeVote.token == token then
+        Wheel.FinishVote()
+      end
+    end)
+  end
+  changed()
+  return true
+end
+
+function Wheel.StopVote()
+  if not activeVote then return false end
+  voteToken = voteToken + 1
+  activeVote = nil
+  changed()
+  return true
+end
+
+function Wheel.FinishVote()
+  if not activeVote then return false end
+  local vote = activeVote
+  voteToken = voteToken + 1
+  activeVote = nil
+  local counts, total = {}, 0
+  for i = 1, #vote.options do counts[i] = 0 end
+  for _, optIndex in pairs(vote.votes) do
+    if counts[optIndex] then
+      counts[optIndex] = counts[optIndex] + 1
+      total = total + 1
+    end
+  end
+  local maxVotes = -1
+  local winners = {}
+  for i, count in ipairs(counts) do
+    if count > maxVotes then
+      maxVotes = count
+      winners = { i }
+    elseif count == maxVotes then
+      table.insert(winners, i)
+    end
+  end
+  local winningIndex = winners[math.random(#winners)]
+  local winner = vote.options[winningIndex]
+  announce(string.format(L.SG_WHEEL_VOTE_WON, winningIndex, Pool.Title(winner)))
+  changed()
+  return Wheel.SpinTo(winner, 0)
+end
+
+local CHAT_VOTE_EVENTS = {
+  "CHAT_MSG_PARTY",
+  "CHAT_MSG_PARTY_LEADER",
+  "CHAT_MSG_RAID",
+  "CHAT_MSG_RAID_LEADER",
+  "CHAT_MSG_INSTANCE_CHAT",
+  "CHAT_MSG_INSTANCE_CHAT_LEADER",
+  "CHAT_MSG_GUILD",
+  "CHAT_MSG_WHISPER",
+  "CHAT_MSG_SAY",
+}
+
+local function onVoteChat(message, sender)
+  if not activeVote then return end
+  if type(message) ~= "string" or LT.IsSecret(message) then return end
+  if type(sender) ~= "string" or LT.IsSecret(sender) then return end
+  local text = strtrim(message)
+  local choice = text:match("^!?(%d+)$")
+  if choice then
+    Wheel.CastVote(sender, choice)
+  end
+end
+
+for _, event in ipairs(CHAT_VOTE_EVENTS) do
+  LT.RegisterEvent(event, onVoteChat)
 end
 
 -- Ergebnis-Karte: Linksklick blendet aus, Rechtsklick dreht neu (solange Neuwürfe übrig sind)

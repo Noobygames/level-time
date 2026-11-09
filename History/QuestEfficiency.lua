@@ -6,6 +6,12 @@
 -- (hooksecurefunc(GameTooltip, "SetHyperlink"), alle Clients; Chat-Links, Historientabellen, Retail-/Forever-Questliste,
 -- soweit sie den Link-Tooltip zeigt) "Bisher: Ø 3:40, 1.250 XP/min (3x)".
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questEfficiencyTooltip = false,
+  },
+})
 local L = ns.L
 local Format = ns.Format
 

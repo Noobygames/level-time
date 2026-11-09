@@ -7,6 +7,12 @@
 --   LevelGains.OnReady(fn(level, gains))  gains = { rows = { { label, delta, from, to } }, talents } oder nil
 --   LevelGains.Lines(gains)               fertige Textzeilen
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    levelUpGains = true,
+  },
+})
 local L = ns.L
 
 local LevelGains = { DELAY = 1 }

@@ -7,6 +7,13 @@
 --   hideZoneText  Zonen- und Unterzonentext beim Betreten eines Gebiets ausblenden (ZoneTextFrame, SubZoneTextFrame).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    hideErrors = false,
+    hideZoneText = false,
+  },
+})
+
 local ScreenText = {}
 ns.ScreenText = ScreenText
 

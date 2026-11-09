@@ -21,7 +21,7 @@ local DEFAULT_STEP = 1
 
 -- Befehle für Zusätze laufender Ziele (eine Hilfezeile je Befehl)
 ns.EXTRA_USAGES = { "SG_USAGE_DEADLINE", "SG_USAGE_REPEAT", "SG_USAGE_REWARD", "SG_USAGE_POINTS", "SG_USAGE_SUB",
-  "SG_USAGE_PACK", "SG_USAGE_OWN", "SG_USAGE_IMPORT", "SG_USAGE_WHEEL" }
+  "SG_USAGE_PACK", "SG_USAGE_OWN", "SG_USAGE_IMPORT", "SG_USAGE_WHEEL", "SG_USAGE_SHARE" }
 
 -- Kurze Hilfe: die Befehle für jeden Tag, darunter der Weg zur vollen Hilfe
 ns.SHORT_HELP = { "SG_HELP_ADD", "SG_HELP_GOALS", "SG_HELP_FUN", "SG_HELP_COLLECTION", "SG_HELP_DISPLAY" }
@@ -258,15 +258,36 @@ local function bingo(argument)
   end
 end
 
--- Glücksrad: "wheel" dreht, "wheel reroll" verwirft das letzte Ergebnis und dreht neu, "wheel edit" öffnet den Reiter
+-- Glücksrad: "wheel" dreht, "wheel reroll" verwirft das letzte Ergebnis und dreht neu, "wheel edit" öffnet den Reiter,
+-- "wheel vote [seconds]" startet die Chat-Abstimmung
 local function wheel(argument)
-  local action = argument:lower()
+  local action, rest = argument:match("^(%S*)%s*(.-)$")
+  action = action:lower()
   if action == "edit" then
     Manager.Toggle("wheel")
+    return
+  elseif action == "vote" then
+    local sub = rest:lower()
+    if sub == "stop" or sub == "cancel" then
+      ns.Wheel.StopVote()
+    elseif sub == "finish" or sub == "end" then
+      ns.Wheel.FinishVote()
+    else
+      local seconds = tonumber(rest)
+      local ok, err = ns.Wheel.StartVote(seconds)
+      if not ok and err then ns.Print(err) end
+    end
     return
   end
   local ok, err
   if action == "reroll" then ok, err = ns.Wheel.Reroll() else ok, err = ns.Wheel.Spin() end
+  if not ok and err then ns.Print(err) end
+end
+
+-- Ziel mit der Gruppe teilen: /sg share <id>
+local function share(argument)
+  local id = tonumber(argument)
+  local ok, err = ns.PartySync.ShareGoal(id)
   if not ok and err then ns.Print(err) end
 end
 
@@ -318,6 +339,7 @@ local commands = {
   config = function() ns.Options.Toggle() end,
   move = function() ns.LT.EditMode.Toggle() end,  -- Edit-Modus von Level Time
   history = function() Manager.Toggle("history") end,
+  share = share,
   help = help,
 }
 -- Für Knöpfe im Einstellungsfenster (lädt vor dieser Datei, ruft erst beim Klick)

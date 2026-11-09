@@ -5,6 +5,12 @@
 -- es lädt beim ersten Lehrerbesuch (ADDON_LOADED). Käufe wie Blizzards Lern-Knopf: BuyTrainerService(i) im Klick
 -- (Hardware-Ereignis), von hinten nach vorn, damit gelernte Zeilen die Nummern davor nicht verschieben.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    trainAllButton = false,
+  },
+})
 local L = ns.L
 
 local TrainAll = {}

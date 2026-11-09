@@ -8,6 +8,16 @@
 -- die Fehlermeldung "Nicht genug Mana" (ERR_OUT_OF_MANA, UI_ERROR_MESSAGE), geht "Kein Mana mehr!" an die Gruppe,
 -- höchstens alle OUT_OF_MANA_REPEAT Sekunden.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    announceLowMana = false,
+    lowManaPercent = 25,
+  },
+  ranges = {
+    lowManaPercent = { 5, 60 },
+  },
+})
 local L = ns.L
 local GroupChat = ns.GroupChat
 

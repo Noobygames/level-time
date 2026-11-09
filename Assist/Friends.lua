@@ -12,6 +12,12 @@
 -- ganz neue Mitglieder können daher fehlen. Geheime Namen oder GUIDs gelten als unbekannt (nicht vertraut).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    friendlyCommunities = false,
+  },
+})
+
 local Friends = {}
 ns.Friends = Friends
 

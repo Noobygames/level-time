@@ -1,4 +1,5 @@
--- Level Time Goals, Roadmap 302: Bosse besiegen (ENCOUNTER_END mit Erfolg), optional bestimmter Boss und Instanz.
+-- Level Time Goals, Roadmap 302: Bosse besiegen (ENCOUNTER_END mit Erfolg), optional bestimmter Boss und Instanz;
+-- Dungeons abschließen (mindestens ein Boss besiegt je Instanzlauf) und Dungeon-Tour (verschiedene Dungeons).
 local Goals = streamGoal.Goals
 local L = streamGoal.L
 
@@ -36,6 +37,61 @@ expect("Bazzalan erreicht", named.status, Goals.DONE)
 wow.state.instance = { name = "Die Todesminen", type = "party" }
 wow.fire("ENCOUNTER_END", 2003, "Rhahk'Zor", 1, 5, 1)
 expect("Todesmine erreicht", inMine.status, Goals.DONE)
+
+-- Dungeons abschließen und Dungeon-Tour per Befehl
+SlashCmdList.STREAMGOAL("add dungeon complete 3 Die Todesminen")
+local compGoal = Goals.Active()[#Goals.Active()]
+expect("Modus complete", compGoal.params.mode, "complete")
+expect("Instanzfilter", compGoal.params.instance, "Die Todesminen")
+expect("Titel complete", Goals.Title(compGoal), string.format(L.SG_GOAL_DUNGEON_COMPLETE_NAMED, "Die Todesminen", 3))
+
+SlashCmdList.STREAMGOAL("add dungeon tour 2")
+local tourGoal = Goals.Active()[#Goals.Active()]
+expect("Modus tour", tourGoal.params.mode, "tour")
+expect("Titel tour", Goals.Title(tourGoal), string.format(L.SG_GOAL_DUNGEON_TOUR, 2))
+
+-- Erfassung: erster Boss im Lauf zählt
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.fire("ENCOUNTER_END", 2004, "Rhahk'Zor", 1, 5, 1)
+expect("Complete zählt 1", compGoal.progress, 1)
+expect("Tour zählt 1", tourGoal.progress, 1)
+
+-- Zweiter Boss im selben Lauf zählt nicht noch einmal
+wow.fire("ENCOUNTER_END", 2005, "Sneed", 1, 5, 1)
+expect("Complete zählt nicht doppelt im selben Lauf", compGoal.progress, 1)
+expect("Tour zählt nicht doppelt für dieselbe Instanz", tourGoal.progress, 1)
+
+-- Andere Instanz: Tour zählt weiter, Complete für Todesminen nicht
+wow.state.instance = { name = "Ragefireabgrund", type = "party" }
+wow.fire("ENCOUNTER_END", 2006, "Taragaman", 1, 5, 1)
+expect("Complete bleibt 1 bei anderer Instanz", compGoal.progress, 1)
+expect("Tour erreicht mit 2 verschiedenen Dungeons", tourGoal.status, Goals.DONE)
+
+-- Neuer Lauf der Todesminen: Complete zählt 2
+streamGoal.DungeonGoals.NewRun()
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.fire("ENCOUNTER_END", 2007, "Rhahk'Zor", 1, 5, 1)
+expect("Complete zählt 2 im neuen Lauf", compGoal.progress, 2)
+
+-- Formular-Felder für complete und tour
+Manager.SelectKind("dungeon")
+local function widget(p) return Manager.FormWidget(p) end
+local function nextChoice(p)
+  local b = widget(p)
+  b._scripts.OnClick(b, "LeftButton")
+end
+
+-- Anfangs mode = "boss"
+expect("Boss-Feld da bei boss", widget("boss"):IsShown(), true)
+expect("Instanz-Feld da bei boss", widget("instance"):IsShown(), true)
+
+nextChoice("mode") -- complete
+expect("Boss-Feld versteckt bei complete", widget("boss"):IsShown(), false)
+expect("Instanz-Feld da bei complete", widget("instance"):IsShown(), true)
+
+nextChoice("mode") -- tour
+expect("Boss-Feld versteckt bei tour", widget("boss"):IsShown(), false)
+expect("Instanz-Feld versteckt bei tour", widget("instance"):IsShown(), false)
 
 -- Fertiges Paket Dungeon-Tour
 SlashCmdList.STREAMGOAL("pack dungeons")

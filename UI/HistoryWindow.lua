@@ -3,6 +3,12 @@
 -- Ansichten mit gleicher group teilen sich einen Reiter und erscheinen dort als Unterreiter; die Hauptreiter stehen in
 -- der Reihenfolge von HistoryWindow.TAB_ORDER (unbekannte dahinter), die Unterreiter in der Ladereihenfolge.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    historyTab = "",
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 local History = ns.History

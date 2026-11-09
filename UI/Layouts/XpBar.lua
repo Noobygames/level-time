@@ -3,6 +3,16 @@
 -- Einstellung xpbarText: Texte immer, nur bei Mauskontakt oder nie. Auch ohne showXpBar und auf Max-Level sichtbar
 -- (dann leer).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    xpbarText = "always",
+    xpbarWidth = 400,
+  },
+  ranges = {
+    xpbarWidth = { 200, 1200 },
+  },
+})
 local Layouts = ns.WindowLayouts
 local WindowModel = ns.WindowModel
 local Format = ns.Format

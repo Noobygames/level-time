@@ -13,6 +13,14 @@
 -- Alle Maße gelten bei Skalierung 1. Diese Datei enthält dazu die Bausteine der Layouts und die Familie der
 -- Zeilen-Layouts (Tabelle, kompakt, nur Text).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    windowLayout = "table",
+    compactRows = "ROW_XP_RATE",
+    textLabels = true,
+  },
+})
 local Theme = ns.Theme
 local WindowModel = ns.WindowModel
 local Elements = ns.WindowElements

@@ -22,6 +22,16 @@
 --                        (C_ChatInfo.InChatMessagingLockdown) geheim: dann nichts.
 -- Wie Declines.lua ohne Comfort.IsActive: die Anfrage kommt vom anderen Spieler, Umschalt wäre Zufall.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    declineSharedQuests = false,
+    blockFriendRequests = false,
+    acceptFriendInvites = false,
+    inviteFromWhisper = false,
+    inviteKeyword = "inv",
+  },
+})
 local L = ns.L
 local Friends = ns.Friends
 

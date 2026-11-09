@@ -5,6 +5,13 @@
 -- Die Events sind nur angemeldet, solange die Einstellung an ist (Event-Gruppe).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    alertRareSpotted = false,
+    alertRareFlash = false,
+  },
+})
+
 local RareAlert = {}
 ns.RareAlert = RareAlert
 

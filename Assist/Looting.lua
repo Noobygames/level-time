@@ -6,6 +6,13 @@
 --                    ConfirmLootSlot) und Bedarf/Entzaubern beim Würfeln (CONFIRM_LOOT_ROLL,
 --                    CONFIRM_DISENCHANT_ROLL -> ConfirmLootRoll), wie die Annehmen-Taste der StaticPopups.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    fasterLoot = false,
+    skipLootConfirm = false,
+  },
+})
 local Comfort = ns.Comfort
 
 local Looting = {}

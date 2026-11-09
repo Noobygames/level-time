@@ -2,6 +2,12 @@
 -- abgabebereit = Fragezeichen am gelernten Abgabe-NPC, offen = gelbe Punkte, wo ihre Ziele bisher vorankamen
 -- (Tracking/QuestNpcs.lua, accountweit gelernt). Tooltip mit Quest und NPC. Zeichnen übernimmt Lib/MapPins.lua.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questMap = false,
+  },
+})
 local L = ns.L
 local QuestLog = ns.QuestLog
 

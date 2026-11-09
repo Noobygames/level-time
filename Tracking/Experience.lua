@@ -1,6 +1,25 @@
 -- Erfahrung je Bereich (Level/Session): XP pro Stunde, Zeit bis Level-Up, XP-Quellen.
 -- Zählt außerdem gewonnene XP (für Sessions) und verbrauchte Erholungs-XP.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showKillsToLevel = false,
+    showQuestsToLevel = false,
+    toLevelSamples = 20,
+    showRested = false,
+    showRestedLeft = false,
+  },
+  ranges = {
+    toLevelSamples = { 0, 50 },
+  },
+  counters = {
+    xpGained = 0,
+    xpKills = 0,
+    xpQuests = 0,
+    xpRested = 0,
+  },
+})
 local Stats = ns.Stats
 
 local Experience = {}

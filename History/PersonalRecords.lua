@@ -9,6 +9,12 @@
 -- Chatzeile gemeldet (Alerts.Notify), aber nur, wenn es schon einen alten Wert gab, und laufende Werte (60 Minuten,
 -- Session-XP/h) höchstens einmal je Session; gespeichert wird jeder neue Bestwert.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    announceRecords = false,
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 local Format = ns.Format

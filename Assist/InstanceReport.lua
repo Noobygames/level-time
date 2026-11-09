@@ -12,6 +12,19 @@
 -- geht es in einer Nachricht; sonst folgen weitere Nachrichten "Beute: ...", höchstens eine je Sekunde, die bei
 -- gesperrtem Chat warten. Alle-Gepasst-Würfe fehlen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    announceInstanceReport = false,
+    instanceReportLoot = false,
+    instanceReportLootQuality = 3,
+    instanceReportLootMax = 5,
+  },
+  ranges = {
+    instanceReportLootQuality = { 3, 4 },
+    instanceReportLootMax = { 1, 10 },
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 local Format = ns.Format

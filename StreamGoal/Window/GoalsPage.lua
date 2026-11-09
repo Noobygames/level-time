@@ -433,6 +433,9 @@ local function activeRow(index)
   row.cancel = smallButton("SG_CANCEL", ROW_BUTTON_MIN_WIDTH, function()
     if row.goal then confirmCancel(Goals.Title(row.goal), row.goal.id) end
   end)
+  row.share = smallButton("SG_SHARE", ROW_BUTTON_MIN_WIDTH, function()
+    if row.goal then ns.PartySync.ShareGoal(row.goal.id) end
+  end)
   row.edit = smallButton("SG_EDIT", ROW_BUTTON_MIN_WIDTH, function()
     if row.goal then Manager.EditGoal(row.goal.id) end
   end)
@@ -461,21 +464,23 @@ local function hideRow(row)
   row.text:Hide()
   row.hover:Hide()
   row.cancel:Hide()
+  row.share:Hide()
   row.edit:Hide()
   row.plus:Hide()
   row.minus:Hide()
 end
 
--- Knöpfe einer Zeile von rechts: Abbrechen, Bearbeiten, +, -; der Text füllt den Rest
+-- Knöpfe einer Zeile von rechts: Abbrechen, Teilen, Bearbeiten, +, -; der Text füllt den Rest
 local function placeRowButtons(row, goal, y)
-  Manager.SetLabels({ row.cancel, row.edit, row.plus, row.minus })
+  Manager.SetLabels({ row.cancel, row.share, row.edit, row.plus, row.minus })
   local manual = Goals.IsManual(goal)
   row.edit:SetShown(inForm(goal.kind))
   row.plus:SetShown(manual)
   row.minus:SetShown(manual and Goals.HasCount(goal))  -- ohne Zähler gibt es nur "erledigt"
   row.cancel:Show()
+  row.share:Show()
   local right = 0
-  for _, button in ipairs({ row.cancel, row.edit, row.plus, row.minus }) do
+  for _, button in ipairs({ row.cancel, row.share, row.edit, row.plus, row.minus }) do
     if button:IsShown() then
       button:ClearAllPoints()
       button:SetPoint("TOPRIGHT", page, "TOPRIGHT", -right, y + 2)

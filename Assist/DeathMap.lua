@@ -2,6 +2,12 @@
 -- x, y aus DeathPlace.lua) auf der angezeigten Weltkarte, Tooltip mit Ursache, Level, Zeitpunkt und letzten Worten.
 -- Zeichnen und Anhängen an die Weltkarte übernimmt Lib/MapPins.lua.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    deathMap = false,
+  },
+})
 local L = ns.L
 
 local DeathMap = {}

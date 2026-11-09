@@ -6,6 +6,21 @@
 -- Die Meldungen gibt es in allen Clients (GlobalStrings, Ketho/BlizzardInterfaceResources); in Classic Era gibt Sammeln
 -- keine XP. Geheime Meldungen (Retail/Forever) werden übersprungen. Kills und Quests zählen KillCounter/QuestCounter.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showXpSources = false,
+    showXpContext = false,
+  },
+  counters = {
+    xpExplore = 0,
+    xpGather = 0,
+    xpWorld = 0,
+    xpDungeon = 0,
+    xpRaid = 0,
+    xpBattleground = 0,
+  },
+})
 local Stats = ns.Stats
 local ChatPatterns = ns.ChatPatterns
 

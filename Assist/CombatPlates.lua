@@ -7,6 +7,12 @@
 -- Charakter, Retail und WoW Forever je Account (Console variables, Retail- und Classic-Liste auf warcraft.wiki.gg).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    combatPlates = false,
+  },
+})
+
 local CombatPlates = {}
 ns.CombatPlates = CombatPlates
 

@@ -50,7 +50,20 @@ local commands = {
   bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
   resetinstance = function() ns.Instances.ConfirmReset() end,
-  recap = function() ns.ToggleRecap() end,
+  recap = function(argument)
+    local arg = argument and argument:lower():match("^%s*(%S+)")
+    if arg == "death" then
+      ns.RecapWindow.ShowMode(ns.RecapWindow.MODE_DEATH)
+    elseif arg == "max" then
+      ns.RecapWindow.ShowMode(ns.RecapWindow.MODE_MAX)
+    elseif arg == "session" then
+      ns.RecapWindow.ShowMode(ns.RecapWindow.MODE_SESSION)
+    else
+      ns.ToggleRecap()
+    end
+  end,
+  streamlink = function() if ns.StreamLink then ns.StreamLink.OpenCopy() end end,
+  link = function() if ns.StreamLink then ns.StreamLink.OpenCopy() end end,
   -- /lt copy: Zeilen des aktuellen Chatfensters zum Kopieren (ChatCopy.lua)
   copy = function() ns.ChatCopy.ShowCurrent() end,
   stream = function() ns.StreamMode.Toggle() end,

@@ -6,6 +6,12 @@
 -- GetMessageInfo(i) mit i = 1 für die älteste Zeile. Geheime Zeilen (Retail/Forever, z.B. während der
 -- Chat-Sperre) lassen sich nicht lesen und werden nur gezählt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    chatCopyButton = false,
+  },
+})
 local L = ns.L
 
 local ChatCopy = {}

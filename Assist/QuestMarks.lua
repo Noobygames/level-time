@@ -9,6 +9,17 @@
 -- UNIT_QUEST_LOG_CHANGED für den Spieler; gebündelt), dazu alle SAFETY_SECONDS als Sicherheitsnetz.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    questMarks = false,
+    questMarkScale = 1,
+    questMarkProgress = false,
+  },
+  ranges = {
+    questMarkScale = { 0.5, 2 },
+  },
+})
+
 local QuestMarks = {}
 ns.QuestMarks = QuestMarks
 

@@ -3,6 +3,12 @@
 -- Sessions bestehen, bis es ersetzt oder entfernt wird. Fortschritt in Level-Bruchteilen
 -- (Level + XP-Anteil), weil der XP-Bedarf künftiger Level vorab nicht bekannt ist.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showGoal = false,
+  },
+})
 local L = ns.L
 
 local Goal = {}
@@ -64,5 +70,6 @@ ns.OnLevelStarted(function(newLevel)
   if goal and not goal.reached and newLevel >= goal.level then
     goal.reached = true
     ns.Print(string.format(L.GOAL_REACHED, goal.level))
+    if ns.ObsSignal then ns.ObsSignal.Trigger("goal") end
   end
 end)

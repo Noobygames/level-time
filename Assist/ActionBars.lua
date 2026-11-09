@@ -10,6 +10,14 @@
 -- Farbe des Symbols (Textur) zu setzen ist auch im Kampf erlaubt. Geheime Reichweitenwerte lassen wir aus.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    hideKeybindText = false,
+    hideMacroText = false,
+    rangeColor = false,
+  },
+})
+
 local ActionBars = {}
 ns.ActionBars = ActionBars
 

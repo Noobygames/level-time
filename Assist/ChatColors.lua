@@ -6,6 +6,12 @@
 -- Ausschalten zurückgesetzt. Ändert der Spieler die Gruppenfarbe, ziehen die anderen nach (UPDATE_CHAT_COLOR).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    universalGroupColor = false,
+  },
+})
+
 local ChatColors = {}
 ns.ChatColors = ChatColors
 

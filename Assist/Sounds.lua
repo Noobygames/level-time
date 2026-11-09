@@ -12,6 +12,15 @@
 -- Im Client fehlende IDs sind harmlos (nichts zu stummen).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    silenceRestedEmotes = false,
+    muteFizzle = false,
+    muteBells = false,
+    muteMechastrider = false,
+  },
+})
+
 local Sounds = {}
 ns.Sounds = Sounds
 

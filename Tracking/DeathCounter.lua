@@ -3,6 +3,19 @@
 -- nicht an Addons gibt (Retail, WoW Forever), kommt sie aus dem Death Recap (DeathRecap.lua).
 -- Totstellen (Jäger) löst PLAYER_DEAD nicht aus.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showDeaths = true,
+    showKillsPerDeath = false,
+    showDeathless = false,
+    highlightDeaths = true,
+  },
+  counters = {
+    deaths = 0,
+    deadSeconds = 0,
+  },
+})
 local Stats = ns.Stats
 local Journal = ns.Journal
 local DeathRecap = ns.DeathRecap

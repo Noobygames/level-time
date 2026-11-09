@@ -6,6 +6,16 @@
 -- AFK_BREAK_SECONDS (dann beginnt die Zählung neu), eine neue Session (Logout länger als die Session-Lücke) und die
 -- Erinnerung selbst (nächste nach weiteren breakMinutes).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    remindBreak = false,
+    breakMinutes = 60,
+  },
+  ranges = {
+    breakMinutes = { 15, 240 },
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 

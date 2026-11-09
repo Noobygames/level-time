@@ -2,6 +2,15 @@
 -- wieder über RECOVERED_HEALTH steigt (Abstand verhindert Mehrfachzählung bei schwankendem Leben).
 -- Stirbt man vorher, ist es ein Tod und kein Beinahe-Tod.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showNearDeaths = false,
+  },
+  counters = {
+    nearDeaths = 0,
+  },
+})
 local Stats = ns.Stats
 local Journal = ns.Journal
 local DeathCounter = ns.DeathCounter

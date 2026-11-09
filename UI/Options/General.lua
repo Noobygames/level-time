@@ -3,7 +3,7 @@ local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local TimerWindow = ns.TimerWindow
-local builder, addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, percent, toPercent, addVisibilityCycle, addFrameScaleSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.percent, O.toPercent, O.addVisibilityCycle, O.addFrameScaleSlider
+local builder, addPage, finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, toPercent, addVisibilityCycle, addFrameScaleSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.toPercent, O.addVisibilityCycle, O.addFrameScaleSlider
 
 -- Sprachnamen stehen immer in der eigenen Sprache
 local function addLanguageChooser()
@@ -251,7 +251,74 @@ addToggles({
   -- Abkürzung zu "Minimap-Knopf anzeigen" (Allgemein > Hauptfenster), umgekehrt formuliert
   { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
     set = function(checked) ns.SetMinimapHidden(checked) end, reset = minimapReset },
+  toggle("SHOW_DEATH_CARD", "showDeathCard"),
+  toggle("SHOW_MAX_LEVEL_CARD", "showMaxLevelCard"),
+  toggle("OBS_SIGNAL", "obsSignal"),
+  toggle("SHOW_SPELL_HISTORY", "showSpellHistory"),
 })
+addSlider(requires({
+  label = "OBS_SIGNAL_SIZE",
+  advanced = true,
+  setting = "obsSignalSize",
+  min = 8,
+  max = 64,
+  step = 4,
+  get = function(db) return db.obsSignalSize end,
+  set = function(value) ns.SetDeferred("obsSignalSize", value) end,
+  format = function(value) return tostring(value) end,
+}, "obsSignal"))
+addSlider(requires({
+  label = "SPELL_HISTORY_COUNT",
+  setting = "spellHistoryCount",
+  min = 3,
+  max = 10,
+  step = 1,
+  get = function(db) return db.spellHistoryCount end,
+  set = function(value) ns.SetDeferred("spellHistoryCount", value) end,
+  format = function(value) return tostring(value) end,
+}, "showSpellHistory"))
+addSlider(requires({
+  label = "SPELL_HISTORY_FADE",
+  advanced = true,
+  setting = "spellHistoryFadeSeconds",
+  min = 0,
+  max = 30,
+  step = 5,
+  get = function(db) return db.spellHistoryFadeSeconds end,
+  set = function(value) ns.SetDeferred("spellHistoryFadeSeconds", value) end,
+  format = function(value) return value == 0 and L.SPELL_HISTORY_PERMANENT or string.format(L.SECONDS_SHORT, value) end,
+}, "showSpellHistory"))
+builder.AddTextInput({
+  label = "STREAM_LINK",
+  setting = "streamLink",
+  width = 180,
+  get = function(db) return db.streamLink end,
+  set = function(text) ns.Set("streamLink", text) end,
+})
+addChooser({
+  label = "STREAM_LINK_CHANNEL",
+  setting = "streamLinkChannel",
+  choices = {
+    { value = "off", name = localized("STREAM_LINK_CHANNEL_OFF") },
+    { value = "party", name = localized("STREAM_LINK_CHANNEL_PARTY") },
+    { value = "guild", name = localized("STREAM_LINK_CHANNEL_GUILD") },
+  },
+})
+addSlider({
+  label = "STREAM_LINK_MINUTES",
+  advanced = true,
+  setting = "streamLinkMinutes",
+  min = 15,
+  max = 120,
+  step = 15,
+  get = function(db) return db.streamLinkMinutes end,
+  set = function(value) ns.SetDeferred("streamLinkMinutes", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+  enabled = function(db) return db.streamLinkChannel ~= "off" end,
+})
+addButton("STREAM_LINK_COPY", function()
+  if ns.StreamLink then ns.StreamLink.OpenCopy() end
+end)
 addSection("SECTION_STREAM_OBS")
 addHint("STREAM_OBS_HINT")
 addStreamLayoutChooser()

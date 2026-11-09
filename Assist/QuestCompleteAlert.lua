@@ -5,6 +5,13 @@
 -- Im Kampf zurückgehalten und danach gezeigt. Stand und Änderungen liefert Tracking/QuestWatch.lua; der erste Durchlauf
 -- nach Login zählt nur den Stand.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    alertQuestComplete = false,
+    alertQuestObjective = false,
+  },
+})
 local L = ns.L
 local QuestLog = ns.QuestLog
 local Alerts = ns.Alerts

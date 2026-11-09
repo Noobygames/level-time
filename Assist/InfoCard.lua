@@ -5,6 +5,12 @@
 -- Ohne Tooltip gilt die Maus-Einheit (mouseover). Geheime Werte = nichts zu zeigen. Die Modell-Vorschau der
 -- Leatrix-Idee fehlt (eigenes Modellfenster, später).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    infoCards = false,
+  },
+})
 local L = ns.L
 
 local InfoCard = {}

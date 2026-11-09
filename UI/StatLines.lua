@@ -5,6 +5,15 @@
 -- available (optional) = Funktion; false, wenn der Client den Wert nicht liefern kann (Zeile und
 -- Schalter entfallen dann).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showXpRate = true,
+    showXpGained = true,
+    showLevelEta = true,
+    showMaxLevelEta = false,
+  },
+})
 local Format = ns.Format
 local Stats = ns.Stats
 local Experience = ns.Experience

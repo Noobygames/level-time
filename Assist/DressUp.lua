@@ -6,6 +6,12 @@
 --                            Undress/UndressSlot), wie Blizzards DressUpFrames.lua
 -- Blizzards "Zurücksetzen" zieht wieder alles an. Eigene Knöpfe, keine Blizzard-Skripte ersetzt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    dressUpButtons = false,
+  },
+})
 local L = ns.L
 
 local DressUp = {}

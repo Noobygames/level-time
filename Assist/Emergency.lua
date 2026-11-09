@@ -9,6 +9,12 @@
 -- auch im Kampf, Blizzards Knöpfe selbst werden nicht verändert.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    emergencyHighlight = false,
+  },
+})
+
 local Emergency = {}
 ns.Emergency = Emergency
 

@@ -10,6 +10,12 @@
 -- Taschen über Lib/Bags.lua. Reste stehen je Charakter in character.questLeftovers[itemID] = { questID, name }
 -- und verschwinden, sobald sie nicht mehr in den Taschen sind.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questLeftovers = false,
+  },
+})
 local L = ns.L
 
 local QuestLeftovers = {}

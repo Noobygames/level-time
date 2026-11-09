@@ -8,6 +8,15 @@
 -- Gruppeneinladungen von Freunden und Gilde lehnt declineGroupInvites nicht ab, solange acceptFriendInvites an ist
 -- (Social.lua nimmt sie an): je Art optional keep(Event-Argumente) -> true = nicht ablehnen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    declineTrades = false,
+    declineGroupInvites = false,
+    declineGuildInvites = false,
+    declineDuels = false,
+  },
+})
 local L = ns.L
 
 local Declines = {}

@@ -46,6 +46,7 @@ ns.SETTING_DEFAULTS = {
   wheelResultSeconds = 15, -- so lange bleiben Rad und Ergebnis stehen; 0 = bis Klick auf die Karte oder nächste Drehung
   minimapButton = true,    -- eigener Minimap-Button (MinimapButton.lua)
   minimapAngle = 200,      -- Winkel am Minimap-Rand in Grad, neben dem von Level Time (225)
+  partySync = true,        -- Gruppenziele und Fortschritt abgleichen (PartySync.lua)
 }
 ns.MIN_CARDS, ns.MAX_CARDS = 1, 6
 ns.MAX_WHEEL_RESULT_SECONDS = 60

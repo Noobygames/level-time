@@ -6,6 +6,12 @@
 -- Zuwachs (erkannt an currentSession.startedAt). Die Rate = Summe der Zuwächse im Fenster / Zeit seit dem ältesten Messpunkt.
 -- Nach Login oder /reload beginnt das Fenster neu.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showRecentXpRate = false,
+  },
+})
 local Stats = ns.Stats
 
 local RecentXpRate = {}

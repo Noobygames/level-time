@@ -8,6 +8,14 @@
 -- Abläufe wie Blizzards StaticPopup-Dialoge CONFIRM_SUMMON, RESURRECT* und DEATH (Annehmen-Taste ruft dieselben
 -- Funktionen). C_SummonInfo und C_DeathInfo gibt es nicht in jedem Client: dann fehlt die Funktion still.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    autoAcceptSummon = false,
+    autoAcceptResurrect = false,
+    autoReleasePvP = false,
+  },
+})
 local L = ns.L
 local Comfort = ns.Comfort
 

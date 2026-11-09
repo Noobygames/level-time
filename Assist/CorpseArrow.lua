@@ -10,6 +10,12 @@
 -- Karten sind genordet: x nach Osten, y nach Süden. Texture:SetRotation dreht gegen den Uhrzeigersinn.
 -- In Instanzen (oder bei geheimen Werten) gibt es keine Position: dann ist nichts zu sehen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    corpseArrow = false,
+  },
+})
 local L = ns.L
 
 local CorpseArrow = {}

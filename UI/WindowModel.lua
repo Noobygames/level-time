@@ -8,6 +8,12 @@
 -- Die Liste der Zeilen (Struktur) entsteht nur nach Invalidate (Apply, Level-Up, XP an/aus); je Takt werden nur
 -- Werte gelesen. model.structure zählt hoch, wenn sich die Liste geändert hat.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    rowOrder = "",
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 local Format = ns.Format

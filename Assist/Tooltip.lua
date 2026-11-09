@@ -19,6 +19,18 @@
 -- Classic Era); sonst OnTooltipSetUnit. Verstecken im Kampf über HookScript("OnShow"), weil der Post-Call vor
 -- Blizzards Show läuft. Geheime Werte (Forever/Retail im Kampf und in Instanzen) werden übergangen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    tooltipClassColors = false,
+    tooltipTarget = false,
+    tooltipHideInCombat = false,
+    tooltipKillsToLevel = false,
+    tooltipGuildRank = false,
+    tooltipScale = 1,
+    tooltipAnchor = "default",
+  },
+})
 local L = ns.L
 
 local Tooltip = {}

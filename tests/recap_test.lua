@@ -66,3 +66,41 @@ wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Eber stirbt, Ihr bekommt 50 Erfahrung.")
 wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Eber stirbt, Ihr bekommt 50 Erfahrung.")
 wow.update(1.1)
 expectTrue("Kills aktualisiert ohne neu öffnen", shownValue(tostring(kills + 2)))
+
+-- Roadmap 314: Nachrufkarte (/lt recap death) und Abschlusskarte (/lt recap max)
+SlashCmdList.LEVELTIMER("recap death")
+expect("Todes-Modus", RecapWindow.GetMode(), RecapWindow.MODE_DEATH)
+expect("Nachruf-Titel", LevelTimerRecap:IsShown(), true)
+local deathRows = RecapWindow.BuildRows(RecapWindow.MODE_DEATH)
+local function deathRow(lbl)
+  for _, r in ipairs(deathRows) do
+    if r[1] == lbl then return r[2] end
+  end
+end
+expect("Todesursache", deathRow(L.RECAP_KILLER), "Hogger")
+expect("Tode gesamt", deathRow(L.RECAP_TOTAL_DEATHS), "2")
+
+-- Kopieren-Button öffnet Export-Fenster
+expectTrue("Kopieren-Button geklickt", wow.click(L.RECAP_COPY))
+expectTrue("Export-Fenster geöffnet", LevelTimerExport:IsShown())
+LevelTimerExport:Hide()
+
+SlashCmdList.LEVELTIMER("recap max")
+expect("Max-Modus", RecapWindow.GetMode(), RecapWindow.MODE_MAX)
+local maxRows = RecapWindow.BuildRows(RecapWindow.MODE_MAX)
+local function maxRow(lbl)
+  for _, r in ipairs(maxRows) do
+    if r[1] == lbl then return r[2] end
+  end
+end
+expect("Max-Status", maxRow(L.RECAP_STATUS), string.format(L.RECAP_STATUS_MAX, 11))
+
+-- Automatische Einblendung beim Tod (showDeathCard)
+LevelTimerRecap:Hide()
+addon.Set("showDeathCard", true)
+wow.state.dead = true
+wow.fire("PLAYER_DEAD")
+wow.state.dead = false
+expect("Nachruf automatisch bei Tod geöffnet", LevelTimerRecap:IsShown(), true)
+expect("Modus ist Tod", RecapWindow.GetMode(), RecapWindow.MODE_DEATH)
+LevelTimerRecap:Hide()

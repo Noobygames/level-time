@@ -7,6 +7,12 @@
 -- keine Änderung an Blizzards Knöpfen. Retail/Forever laden Items nach (ContinueOnItemLoad): bei unbekannten Werten
 -- wird bis zu RETRIES Mal nach RETRY_SECONDS neu bewertet.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    rewardHint = false,
+  },
+})
 local QuestRewards = ns.QuestRewards
 
 local RewardHint = {}

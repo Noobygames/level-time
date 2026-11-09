@@ -184,4 +184,41 @@ expect("Dauer bereinigt", StreamGoalDB.settings.wheelResultSeconds, 15)
 -- Einstellungen: Knopf Neu drehen und Regler für die Anzeigedauer
 streamGoal.Options.Show(streamGoal.SETTINGS_PAGES.WHEEL)
 expect("Neu drehen in den Einstellungen", wow.click(L.SG_WHEEL_REROLL), true)
+finishSpin()
 expectTrue("Regler Anzeigedauer im Suchindex", #streamGoal.Options.builder.Search(L.SG_OPTIONS_WHEEL_RESULT) > 0)
+
+-- Chat-Abstimmung (Roadmap 306)
+for _, goal in ipairs(Goals.Active()) do Goals.Cancel(goal.id) end
+Wheel.Dismiss()
+SlashCmdList.STREAMGOAL("wheel vote 30")
+expectTrue("Abstimmung läuft", Wheel.IsVoting())
+local vote = Wheel.ActiveVote()
+expectTrue("Optionen vorhanden", #vote.options >= 2)
+wow.fire("CHAT_MSG_PARTY", "1", "Alice")
+wow.fire("CHAT_MSG_GUILD", "!2", "Bob")
+wow.fire("CHAT_MSG_WHISPER", "2", "Charlie")
+wow.fire("CHAT_MSG_SAY", "2", "Alice") -- Alice ändert Stimme von 1 auf 2
+local results, total = Wheel.VoteResults()
+expect("3 Stimmen für Option 2", results[2], 3)
+expect("0 Stimmen für Option 1", results[1], 0)
+expect("insgesamt 3 Stimmen", total, 3)
+Wheel.FinishVote()
+expect("Abstimmung beendet", Wheel.IsVoting(), false)
+expect("Rad dreht sich für Gewinner", Wheel.IsSpinning(), true)
+finishSpin()
+local won = Goals.Active()[1]
+expect("Gewinner entspricht Option 2", Goals.Title(won), streamGoal.Pool.Title(vote.options[2]))
+
+-- Button "Abstimmung" im Reiter Glücksrad
+local WheelView = streamGoal.WheelView
+expect("Abstimmungs-Button existiert", WheelView.voteButton ~= nil, true)
+streamGoal.Manager.Toggle("wheel")
+expect("Button beschriftet mit Abstimmung", WheelView.voteButton.label._text, L.SG_WHEEL_VOTE)
+WheelView.voteButton._scripts.OnClick(WheelView.voteButton, "LeftButton")
+expectTrue("Abstimmung per Button gestartet", Wheel.IsVoting())
+WheelView.RenderReroll()
+expect("Button beschriftet mit Beenden", WheelView.voteButton.label._text, L.SG_WHEEL_VOTE_FINISH)
+WheelView.voteButton._scripts.OnClick(WheelView.voteButton, "LeftButton")
+expect("Abstimmung per Button beendet", Wheel.IsVoting(), false)
+finishSpin()
+

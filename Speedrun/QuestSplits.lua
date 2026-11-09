@@ -7,6 +7,12 @@
 -- Einstellung questSplitNotice (aus): Chatzeile bei jeder Abgabe mit Dauer und Abweichung.
 -- Quests, die vor der Installation oder im Questlog eines anderen Clients angenommen wurden, haben keine Dauer.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questSplitNotice = false,
+  },
+})
 local L = ns.L
 
 local QuestSplits = {}

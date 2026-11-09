@@ -9,6 +9,13 @@
 -- mit .which und Eingabefeld (.editBox, .EditBox oder <Name>EditBox, je nach Client).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    easyDelete = false,
+    fasterMovieSkip = false,
+  },
+})
+
 local SkipDialogs = {}
 ns.SkipDialogs = SkipDialogs
 

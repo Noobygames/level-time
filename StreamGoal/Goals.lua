@@ -110,10 +110,13 @@ function Goals.OnChange(listener)
   table.insert(listeners, listener)
 end
 
-local function notify(event, goal)
-  ns.Debug("goals", "%s #%s %s %s/%s", event, goal.id, goal.kind, goal.progress, goal.target)
+local function notify(event, goal, ...)
+  ns.Debug("goals", "%s #%s %s %s/%s", event, goal and goal.id, goal and goal.kind, goal and goal.progress, goal and goal.target)
+  if event == Goals.DONE and LT.ObsSignal then
+    LT.ObsSignal.Trigger("goal")
+  end
   for _, listener in ipairs(listeners) do
-    LT.SafeCall(listener, event, goal)
+    LT.SafeCall(listener, event, goal, ...)
   end
 end
 
@@ -371,12 +374,12 @@ local function trimHistory()
   ns.db.goals = kept
 end
 
-local function finish(goal, status)
+local function finish(goal, status, delta)
   goal.status = status
   goal.finishedAt = time()
   changed()
   trimHistory()
-  notify(status, goal)
+  notify(status, goal, delta)
 end
 
 -- Erreicht ohne Zählerereignis (Regel bis zum Ende der Frist gehalten)
@@ -403,12 +406,13 @@ end
 -- Fortschritt buchen und bei Erreichen des Ziels abschließen
 local function advance(goal, progress)
   if progress == goal.progress then return end
+  local delta = progress - goal.progress
   goal.progress = progress
   if progress >= goal.target then
     goal.progress = goal.target
-    finish(goal, Goals.DONE)
+    finish(goal, Goals.DONE, delta)
   else
-    notify("progress", goal)
+    notify("progress", goal, delta)
   end
 end
 

@@ -38,6 +38,15 @@
 -- Klicks: RegisterForClicks("AnyUp", "AnyDown") und useOnKeyDown = false, damit genau ein Klick beim Loslassen auslöst
 -- (SecureActionButton_OnClick in allen Zweigen).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questItemButton = false,
+    questTargetButton = false,
+    questTargetMarker = false,
+    questButtonsZoneOnly = true,
+  },
+})
 local L = ns.L
 
 local QuestItem = {}

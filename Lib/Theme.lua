@@ -8,6 +8,23 @@
 -- Lädt vor allen UI-Modulen; sein Apply läuft daher vor ihren (Schriften und Farben stehen, wenn sie messen).
 local addonName, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    theme = "classic",
+    themeAccent = "",
+    themeFont = "",
+    themeFontSize = 0,
+    themeOutline = "none",
+    themeMinFontSize = 0,
+    themeBarTexture = "",
+    valueColors = false,
+  },
+  ranges = {
+    themeFontSize = { -4, 8 },
+    themeMinFontSize = { 0, 12 },
+  },
+})
+
 local Theme = {}
 ns.Theme = Theme
 

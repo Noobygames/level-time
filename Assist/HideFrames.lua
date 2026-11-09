@@ -28,6 +28,19 @@
 -- Abgemeldete Ereignisse werden nur wieder angemeldet, wenn sie vorher angemeldet waren (IsEventRegistered).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    hideBossBanner = false,
+    hideEventToasts = false,
+    hideAlerts = false,
+    hideStanceBar = false,
+    hideRestAnimation = false,
+    hidePortraitNumbers = false,
+    hideBlizzardXpBar = false,
+    hideBlizzardRepBar = false,
+  },
+})
+
 local HideFrames = {}
 ns.HideFrames = HideFrames
 

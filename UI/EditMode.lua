@@ -8,6 +8,13 @@
 -- Blizzards Bearbeitungsmodus (Nachhaken an EditModeManagerFrame:EnterEditMode/ExitEditMode, kein Eingriff).
 -- Außerhalb des Modus läuft hier nichts (keine OnUpdate-Skripte, Raster und Flächen werden erst beim Betreten gebaut).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    editGrid = true,
+    editModeWithBlizzard = true,
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 local Theme = ns.Theme

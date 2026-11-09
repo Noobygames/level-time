@@ -8,6 +8,12 @@
 -- Anschluss wie Tooltip.lua: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item) mit dem Tooltip-
 -- Datensystem, sonst GameTooltip:HookScript("OnTooltipSetItem"); Gegenstand über tooltip:GetItem().
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questItemTooltip = false,
+  },
+})
 local L = ns.L
 local QuestLog = ns.QuestLog
 

@@ -11,6 +11,12 @@
 -- Retail/Forever); in Classic Era/TBC bleiben sie nur in den Gesprächs- und Grußlisten ausgeschlossen.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    questExclude = "",
+  },
+})
+
 local QuestBlocklist = {}
 ns.QuestBlocklist = QuestBlocklist
 

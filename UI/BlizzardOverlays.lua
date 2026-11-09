@@ -5,6 +5,12 @@
 -- Verschoben wird hier nichts. Flächen entstehen erst beim ersten Betreten, beim Verlassen werden alle versteckt;
 -- außerhalb des Modus läuft nichts. Schalter "Blizzard-Elemente zeigen" in der Leiste (Einstellung editBlizzardFrames).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    editBlizzardFrames = true,
+  },
+})
 local L = ns.L
 local Widgets = ns.Widgets
 local Theme = ns.Theme

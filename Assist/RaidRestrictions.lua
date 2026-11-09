@@ -6,6 +6,12 @@
 -- solange die Einstellung aus ist, wird nichts gesetzt.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    noRaidRestrictions = false,
+  },
+})
+
 local RaidRestrictions = {}
 ns.RaidRestrictions = RaidRestrictions
 

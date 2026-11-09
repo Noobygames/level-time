@@ -161,6 +161,7 @@ builder.AddToggles({
   toggle("SG_SOUND", "sound"),
   toggle("SG_OPTIONS_DONE_ALERT", "doneAlert"),
   toggle("SG_OPTIONS_DONE_CHAT", "doneChat"),
+  toggle("SG_OPTIONS_PARTY_SYNC", "partySync"),
 })
 
 -- Daten: Ziele gelöschter Charaktere und die Historie entfernen, beides mit Rückfrage

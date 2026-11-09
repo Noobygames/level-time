@@ -7,6 +7,12 @@
 -- Dungeon-Einladungen (LFG_PROPOSAL_SHOW) haben keine Restzeit-API und sind deshalb nicht dabei. Eigener Rahmen
 -- (LevelTimerReadyTimer), OnUpdate nur solange eine Restzeit läuft; Blizzards Dialoge bleiben unberührt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    readyTimer = false,
+  },
+})
 local L = ns.L
 
 local ReadyTimer = {}

@@ -108,12 +108,23 @@ function WheelView.Spin(reroll)
   return ok
 end
 
+function WheelView.Vote()
+  if Wheel.IsVoting() then
+    Wheel.FinishVote()
+  else
+    local ok, err = Wheel.StartVote()
+    Manager.ShowError(errorLine, not ok and err or nil)
+  end
+end
+
 local spinButton = Manager.CreateButton(page, "SG_WHEEL_SPIN", function() WheelView.Spin(false) end)
 WheelView.spinButton = spinButton
 -- "Neu drehen (noch N)" links neben der Hauptaktion, nur solange das gezeigte Ergebnis Neuwürfe übrig hat
 local rerollButton = Manager.CreateButton(page, "SG_WHEEL_REROLL", function() WheelView.Spin(true) end)
 WheelView.rerollButton = rerollButton
-local spinButtons = { spinButton, rerollButton }
+local voteButton = Manager.CreateButton(page, "SG_WHEEL_VOTE", function() WheelView.Vote() end)
+WheelView.voteButton = voteButton
+local spinButtons = { spinButton, rerollButton, voteButton }
 local allOnButton = Manager.CreateButton(page, "SG_WHEEL_ALL_ON", function() WheelView.SetAllShown(true) end)
 local allOffButton = Manager.CreateButton(page, "SG_WHEEL_ALL_OFF", function() WheelView.SetAllShown(false) end)
 local switchButtons = { allOffButton, allOnButton }
@@ -126,17 +137,18 @@ function WheelView.Render()
     check.label:SetText(L[check.entry.label])
     check:SetChecked(ns.db.settings[check.entry.setting] and true or false)
   end
-  Manager.SetLabels({ spinButton, allOnButton, allOffButton })
+  Manager.SetLabels({ spinButton, allOnButton, allOffButton, voteButton })
   WheelView.RenderReroll()
   Manager.AlignRight(switchButtons, page, "BOTTOMRIGHT", CHECK_ROW)
   poolTable:Render(nil, false, true)
 end
 
--- Knopf "Neu drehen" mit verbleibender Zahl; ohne Neuwurf ausgeblendet
+-- Knopf "Neu drehen" mit verbleibender Zahl; ohne Neuwurf ausgeblendet; Abstimmungs-Knopf beschriften
 function WheelView.RenderReroll()
   local left = Wheel.RerollsLeft()
   Widgets.SetButtonText(rerollButton, string.format(L.SG_WHEEL_REROLL_LEFT, left), rerollButton.minWidth)
   rerollButton:SetShown(left > 0)
+  Widgets.SetButtonText(voteButton, Wheel.IsVoting() and L.SG_WHEEL_VOTE_FINISH or L.SG_WHEEL_VOTE, voteButton.minWidth)
   Manager.AlignRight(spinButtons, page, "BOTTOMRIGHT", 0)
 end
 

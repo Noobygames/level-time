@@ -13,6 +13,14 @@
 -- Gegner bestätigt. Widerspricht die Bestätigung der Schätzung, wird der Eintrag nachgetragen bzw.
 -- wieder entfernt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showInstanceLimit = false,
+    showInstancesToday = false,
+    warnInstanceLimit = false,
+  },
+})
 local L = ns.L
 local Format = ns.Format
 local InstanceCopy = ns.InstanceCopy

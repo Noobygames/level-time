@@ -7,6 +7,12 @@
 -- und ein Hinweis beim Öffnen von Handel, Post oder Auktionshaus (für SSF nicht erlaubt).
 -- Die Grenzen stammen aus der Roadmap (Regeln der Kategorie); im Spiel nicht prüfbar, daher nur Anzeige.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    ssfCategory = "off",
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 

@@ -16,6 +16,15 @@
 -- Die Minimap ist kein geschützter Frame; Blizzards Skripte werden nicht ersetzt (HookScript, nur wenn keins da ist).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    minimapWheelZoom = false,
+    minimapHideZoomButtons = false,
+    minimapHideCalendar = false,
+    minimapSquare = false,
+  },
+})
+
 local MinimapTweaks = {}
 ns.MinimapTweaks = MinimapTweaks
 

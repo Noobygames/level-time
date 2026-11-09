@@ -5,6 +5,15 @@
 -- (Zones.lua), je Fraktion in character.reputationGains[Fraktion] = { amount, last }. Verluste und Meldungen ohne
 -- Menge (_GENERIC) zählen nicht. Geheime Meldungen (Forever/Retail in Instanzen) werden übergangen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showReputation = false,
+  },
+  counters = {
+    reputation = 0,
+  },
+})
 local Stats = ns.Stats
 local ChatPatterns = ns.ChatPatterns
 

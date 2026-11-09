@@ -6,6 +6,12 @@
 -- weil nur eine Textur). Retail/Forever nutzen Atlas-Rahmen ohne Spieler-Gegenstück und fehlen.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    playerChain = "off",
+  },
+})
+
 local PlayerChain = {}
 ns.PlayerChain = PlayerChain
 

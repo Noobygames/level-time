@@ -7,6 +7,18 @@
 --                     0 (kein Wetter) bis 3 (Classic-Standard)
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    noDrunkenHaze = false,
+    noScreenEffects = false,
+    setWeatherDensity = false,
+    weatherDensity = 3,
+  },
+  ranges = {
+    weatherDensity = { 0, 3 },
+  },
+})
+
 local ScreenEffects = {}
 ns.ScreenEffects = ScreenEffects
 

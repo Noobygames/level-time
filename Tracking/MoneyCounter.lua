@@ -10,6 +10,30 @@
 -- MONEY_EARNED bleibt die Summe aller Einnahmen. Einnahmen werden nicht mit Ausgaben verrechnet.
 -- Außerdem: character.money = aktuelles Gold (Login, jede Änderung), für "Gold aller Charaktere" (History/Money.lua).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showMoney = false,
+    showSpending = false,
+    showIncome = false,
+  },
+  counters = {
+    moneyEarned = 0,
+    moneyJunk = 0,
+    spentRepair = 0,
+    spentMerchant = 0,
+    spentTaxi = 0,
+    spentTrainer = 0,
+    spentOther = 0,
+    incomeLoot = 0,
+    incomeQuest = 0,
+    incomeMerchant = 0,
+    incomeMail = 0,
+    incomeAuction = 0,
+    incomeTrade = 0,
+    incomeOther = 0,
+  },
+})
 local Stats = ns.Stats
 
 local CLOSE_GRACE = 2          -- Sekunden, die eine Art nach dem Schließen ihres Fensters noch gilt

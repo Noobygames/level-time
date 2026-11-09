@@ -8,6 +8,13 @@
 -- Chatfenster sind nicht geschützt, im Kampf geht es daher auch.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    chatFontOverride = false,
+    chatFontSize = 14,
+  },
+})
+
 local ChatFontSize = {}
 ns.ChatFontSize = ChatFontSize
 

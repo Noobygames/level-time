@@ -2,6 +2,15 @@
 -- Beschriftung (Kurzform). Erste Kachel = Spielzeit mit dem Bereich ("Level 23") als Beschriftung, dann die
 -- eingeschalteten Zeilen. Alle Kacheln sind gleich breit (breitester Inhalt); XP-Balken unter dem Raster.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    tileColumns = 3,
+  },
+  ranges = {
+    tileColumns = { 1, 6 },
+  },
+})
 local Layouts = ns.WindowLayouts
 local WindowModel = ns.WindowModel
 local Theme = ns.Theme

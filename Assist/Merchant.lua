@@ -11,6 +11,14 @@
 -- Schrott: Taschen über Bags.ForEachItem (quality, hasNoValue, isLocked); verkauft wird mit C_Container.UseContainerItem bei offenem Händler. Den Erlös zählt
 -- MoneyCounter wie jede Einnahme, zusätzlich der Zähler moneyJunk (erwarteter Erlös).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    autoRepair = false,
+    autoRepairGuild = false,
+    autoSellJunk = false,
+  },
+})
 local L = ns.L
 local Comfort = ns.Comfort
 local Format = ns.Format

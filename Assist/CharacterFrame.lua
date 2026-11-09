@@ -7,6 +7,13 @@
 -- (Fernkampf fehlt in Retail) gibt es in allen Clients; das Charakterfenster lädt mit dem Spiel (kein Load-on-Demand).
 -- Beides sind eigene Frames, Blizzards Fenster wird nur per HookScript("OnShow") ergänzt.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    characterDurability = false,
+    characterVolume = false,
+  },
+})
 local L = ns.L
 
 local CharacterFrameExtras = {}

@@ -10,6 +10,23 @@
 -- die noch nicht gebuchte Zeit mit ein.
 -- APIs in allen Clients: UnitIsDeadOrGhost, UnitAffectingCombat, UnitOnTaxi, UnitIsAFK.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showTimeBreakdown = false,
+    xpRateWithoutAfk = false,
+    idleMinutes = 0,
+  },
+  ranges = {
+    idleMinutes = { 0, 30 },
+  },
+  counters = {
+    combatSeconds = 0,
+    taxiSeconds = 0,
+    afkSeconds = 0,
+    idleSeconds = 0,
+  },
+})
 local Stats = ns.Stats
 
 local TimeBreakdown = {}

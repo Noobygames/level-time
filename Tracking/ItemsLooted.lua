@@ -3,6 +3,15 @@
 -- Zeilen fallen dort schon weg, fremde Beute passt auf keins der Formate). "Ihr erhaltet einen Gegenstand" (pushed)
 -- kommt auch bei Käufen beim Händler: solche Zeilen zählen nicht, solange ein Händler offen ist und kurz danach.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showItemsLooted = false,
+  },
+  counters = {
+    itemsLooted = 0,
+  },
+})
 local Stats = ns.Stats
 
 local MERCHANT_GRACE = 2  -- Sekunden nach dem Schließen, in denen eine erhaltene Ware noch als Kauf gilt

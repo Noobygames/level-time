@@ -8,6 +8,12 @@
 --   wird auch bei ADDON_LOADED eingehängt.
 -- Nur Lesen, eigener Kind-Frame mit eigener Schrift; aktualisiert im eigenen OnUpdate, solange die Karte offen ist.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    mapCoordinates = false,
+  },
+})
 local L = ns.L
 
 local MapCoordinates = {}

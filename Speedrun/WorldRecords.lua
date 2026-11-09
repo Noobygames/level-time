@@ -6,6 +6,15 @@
 -- Einstellung worldRecordScope: "overall" (schnellster Lauf) oder "class" (schnellster der eigenen Klasse).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    showWorldRecords = true,
+    showRecordsAge = true,
+    recordBrackets = {},
+    worldRecordScope = "class",
+  },
+})
+
 local WorldRecords = {
   OVERALL = "overall",
   CLASS = "class",

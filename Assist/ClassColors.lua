@@ -10,6 +10,13 @@
 -- gleich großen Spielerrahmens. Retail/Forever (Atlas-Rahmen) fehlen: Lage ohne Blizzard-Vorbild ungeprüft.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    classColorPlayerFrame = false,
+    classColorFrames = false,
+  },
+})
+
 local ClassColors = {}
 ns.ClassColors = ClassColors
 

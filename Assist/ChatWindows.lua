@@ -17,6 +17,17 @@
 -- temporäre Fenster nach FCF_OpenTemporaryWindow. Keins der Fenster ist geschützt, im Kampf geht es daher auch.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    hideCombatLogTab = false,
+    hideChatButtons = false,
+    chatEditBoxTop = false,
+    chatArrowKeys = false,
+    noChatFade = false,
+    unclampChat = false,
+  },
+})
+
 local ChatWindows = {}
 ns.ChatWindows = ChatWindows
 

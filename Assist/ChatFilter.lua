@@ -8,6 +8,13 @@
 -- (canaccessvalue); geheime Texte prüfen wir trotzdem selbst. Ein Filter je Event, er liest die Einstellung erst
 -- beim Aufruf, daher kein An- und Abmelden.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    filterDrunkSpam = false,
+    filterSpellLinks = false,
+  },
+})
 local ChatPatterns = ns.ChatPatterns
 
 local ChatFilter = {}

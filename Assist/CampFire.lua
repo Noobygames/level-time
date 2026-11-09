@@ -8,6 +8,18 @@
 --                  HINT_SECONDS und kommt frühestens nach campHintPause Minuten wieder
 -- Geprüft wird alle CHECK_INTERVAL Sekunden; bei gesperrten Auren (Kampf, Bosskampf) passiert nichts.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    campCountdown = true,
+    campHint = true,
+    campHintPause = 5,
+    campSound = false,
+  },
+  ranges = {
+    campHintPause = { 1, 30 },
+  },
+})
 local Auras = ns.Auras
 
 local CampFire = {}

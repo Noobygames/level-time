@@ -12,6 +12,12 @@
 -- Classic SelectQuestLogEntry(index), SetAbandonQuest(), AbandonQuest() (Vanilla/QuestLogFrame.xml).
 -- Höchstzahl: QuestLog.MaxQuests (C_QuestLog.GetMaxNumQuestsCanAccept, sonst MAX_QUESTS).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questCleanupButton = false,
+  },
+})
 local L = ns.L
 local QuestLog = ns.QuestLog
 local Widgets = ns.Widgets

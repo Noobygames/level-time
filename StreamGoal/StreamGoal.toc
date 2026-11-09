@@ -58,6 +58,7 @@ Kinds\Bingo.lua
 
 # Erfassung: Ereignisse -> Fortschritt
 Tracking.lua
+PartySync.lua
 
 # Anzeige am Bildschirm: Klicks auf Karten und Felder, Karten, Bingo-Schein, Glücksrad
 ClickStep.lua

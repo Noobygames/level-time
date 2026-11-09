@@ -11,6 +11,12 @@
 -- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt. Den offenen Lauf
 -- anderer Charaktere wandelt erst deren Login um: Summarize versteht deshalb beide Formen (Historie zeigt ihn).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showInstanceRun = false,
+  },
+})
 local Stats = ns.Stats
 local Journal = ns.Journal
 local InstanceCopy = ns.InstanceCopy

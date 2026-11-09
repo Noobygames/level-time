@@ -10,6 +10,23 @@
 -- APIs in allen Clients: GetInventoryItemDurability(slot) -> aktuell, max (nil bei Gegenständen ohne Haltbarkeit),
 -- GetInventoryItemCount("player", INVSLOT_AMMO) wie Blizzards Munitionsplatz im Charakterfenster.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    warnBagsFull = false,
+    warnDurability = false,
+    warnAmmo = false,
+    ammoLow = 200,
+    ammoCritical = 50,
+    ammoRepeat = 5,
+    warnQuestLogFull = false,
+  },
+  ranges = {
+    ammoLow = { 20, 1000 },
+    ammoCritical = { 0, 500 },
+    ammoRepeat = { 0, 30 },
+  },
+})
 local L = ns.L
 
 local GearWarnings = {}

@@ -7,6 +7,12 @@
 -- Session.lua und Instances.lua über Stats.RegisterScope an (keine Abhängigkeit nach oben).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    windowScope = "level",
+  },
+})
+
 local Stats = {}
 ns.Stats = Stats
 

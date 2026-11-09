@@ -15,6 +15,12 @@
 -- Genutzt von QuestMarks (Ersatz für C_QuestLog.UnitIsRelatedToActiveQuest in Classic), Zielknopf, Tooltips und
 -- Questresten.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    questLearning = false,
+  },
+})
 local QuestLog = ns.QuestLog
 
 local QuestMobs = {}

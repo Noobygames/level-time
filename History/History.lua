@@ -6,6 +6,12 @@
 -- isCurrent markiert das noch laufende Level bzw. die laufende Session.
 -- Für den eingeloggten Charakter sind das Live-Werte, für andere der Stand ihres letzten Logouts.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    streamerPrivacy = false,
+  },
+})
 local L = ns.L
 local Stats = ns.Stats
 

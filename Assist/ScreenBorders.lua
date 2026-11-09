@@ -4,6 +4,15 @@
 -- geschützter Eingriff und bliebe bei einem Fehler bis /reload falsch. Keine Blizzard-Frames berührt.
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    screenBorders = false,
+    screenBorderTop = 0,
+    screenBorderBottom = 0,
+    screenBorderSides = 0,
+  },
+})
+
 local ScreenBorders = {}
 ns.ScreenBorders = ScreenBorders
 

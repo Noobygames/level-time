@@ -3,6 +3,13 @@
 -- Questlog und Belohnungen liest Lib/QuestLog.lua. Neu gezählt wird nur nach einer Änderung (QUEST_LOG_UPDATE,
 -- Abgabe, Level-Up), und zwar erst beim nächsten Lesen.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    showQuestLogXp = false,
+    questXpOnBar = false,
+  },
+})
 local QuestLog = ns.QuestLog
 
 local QuestLogXp = {}

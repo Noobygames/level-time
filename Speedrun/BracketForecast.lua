@@ -7,6 +7,12 @@
 --   Rekord         speedrun.com-Rekord des Abschnitts (WorldRecords.RecordFor)
 -- Es zählt der erste noch nicht erreichte Abschnitt, der in der Split-Liste gezeigt wird.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    splitListShowForecast = false,
+  },
+})
 local History = ns.History
 local Runs = ns.Runs
 local WorldRecords = ns.WorldRecords

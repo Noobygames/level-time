@@ -1,9 +1,9 @@
--- Zielart Erkundung (Roadmap 307): "N Gebiete entdecken" oder "Zone X erreichen".
+-- Zielart Erkundung (Roadmap 307): "N Gebiete entdecken" (optional in Zone X) oder "Zone X erreichen".
 -- Entdecken: Meldung ERR_ZONE_EXPLORED ("Entdeckt: %s") bzw. ERR_ZONE_EXPLORED_XP (mit XP) als Systemchat
 -- (CHAT_MSG_SYSTEM) oder gelbe Bildschirmmeldung (UI_INFO_MESSAGE). Welche der beiden der
 -- jeweilige Client schickt, ist im Spiel zu prüfen; dieselbe Entdeckung aus beiden Quellen zählt einmal (DUPLICATE_SECONDS).
 -- Zone: GetRealZoneText oder GetSubZoneText enthält den Namen (Teilstring), bei ZONE_CHANGED*; schon dort = kein Ziel.
--- Anteil einer Zone (C_MapExplorationInfo) ist noch offen.
+-- Anteil einer Zone (C_MapExplorationInfo) / N Teilgebiete in Zone X entdecken.
 -- params: { mode = "count"|"zone", zone = Name }
 local _, ns = ...
 local LT = ns.LT
@@ -20,8 +20,14 @@ local ICON = "Interface\\Icons\\INV_Misc_Map_01"
 local DUPLICATE_SECONDS = 5
 local REACHED = 1
 
+local function optionalText(text)
+  text = strtrim(text or "")
+  return text ~= "" and text or nil
+end
+
 -- GetRealZoneText (Name der Zone, nicht die Instanz-Anzeige) gibt es in allen Clients; GetZoneText als Rückfall
 local function inZone(wanted)
+  if not wanted or wanted == "" then return true end
   local zoneText = GetRealZoneText or GetZoneText
   local zone = zoneText and zoneText()
   local subZone = GetSubZoneText and GetSubZoneText()
@@ -34,30 +40,39 @@ Goals.RegisterKind("explore", {
   usage = "SG_USAGE_EXPLORE",
   color = LT.Theme.COLORS.info,
   icon = ICON,
-  -- Modus zuerst; darunter nur das Feld des gewählten Modus (Anzahl bzw. Zone)
+  -- Modus zuerst; darunter die Felder des gewählten Modus (Anzahl bei count, Zone bei beiden)
   editable = { "amount" },  -- nur die Zielzahl; Modus und Filter gelten ab dem Anlegen
   form = { fields = {
     { type = "choice", param = "mode", label = "SG_FORM_EXPLORE_MODE", values = MODES, labels = MODE_LABELS },
     { type = "amount", label = "SG_FORM_AMOUNT", showIf = { mode = "count" } },
-    { type = "text", param = "zone", label = "SG_FORM_ZONE", showIf = { mode = "zone" } },
+    { type = "text", param = "zone", label = "SG_FORM_ZONE", showIf = { mode = { "count", "zone" } } },
   } },
-  -- "add explore 10" = 10 Gebiete; "add explore Tanaris" = Zone erreichen
+  -- "add explore 10" = 10 Gebiete; "add explore 5 Durotar" = 5 Gebiete in Durotar; "add explore Tanaris" = Zone erreichen
   parse = function(args, rest)
     local amount = tonumber(args[1])
-    if amount and #args == 1 then return { mode = "count" }, amount end
+    if amount then
+      local zone = rest:match("^%S+%s*(.*)$")
+      zone = optionalText(zone)
+      return { mode = "count", zone = zone }, amount
+    end
     return { mode = "zone", zone = rest }, nil
   end,
   prepare = function(params, target)
-    params.mode = params.mode or (params.zone and "zone" or "count")
-    if params.mode ~= "zone" then
-      params.zone = nil
-      return target
+    params.mode = params.mode or (params.zone and target and "count" or (params.zone and "zone" or "count"))
+    if params.mode == "zone" then
+      params.zone = strtrim(params.zone or "")
+      return REACHED
     end
-    params.zone = strtrim(params.zone or "")
-    return REACHED
+    params.zone = optionalText(params.zone)
+    return target or Kinds.DEFAULT_AMOUNT
   end,
   validate = function(params, target)
-    if params.mode == "count" then return Kinds.ValidAmount(target) end
+    if params.mode == "count" then
+      if params.zone and Kinds.TextLength(params.zone) > Kinds.MAX_TEXT_LENGTH then
+        return string.format(L.SG_ERR_TEXT_LONG, Kinds.MAX_TEXT_LENGTH)
+      end
+      return Kinds.ValidAmount(target)
+    end
     if params.mode ~= "zone" then return string.format(L.SG_ERR_UNKNOWN_KIND, tostring(params.mode)) end
     local zone, err = Kinds.CleanText(params.zone, L.SG_ERR_ZONE)
     if not zone then return err end
@@ -69,6 +84,7 @@ Goals.RegisterKind("explore", {
   end,
   title = function(goal)
     if goal.params.mode == "zone" then return string.format(L.SG_GOAL_ZONE, goal.params.zone) end
+    if goal.params.zone then return Kinds.Counted("SG_GOAL_EXPLORE_ZONE", goal.target, goal.params.zone) end
     return Kinds.Counted("SG_GOAL_EXPLORE", goal.target)
   end,
   hasCount = function(goal) return goal.params.mode == "count" end,
@@ -95,7 +111,11 @@ local function onDiscovery(message)
   if area == lastArea and now - lastAreaAt <= DUPLICATE_SECONDS then return end
   lastArea, lastAreaAt = area, now
   ns.Debug("tracking", "discovered %s", area)
-  Goals.Add("explore", function(goal) return goal.params.mode == "count" end, 1)
+  Goals.Add("explore", function(goal)
+    if goal.params.mode ~= "count" then return false end
+    if goal.params.zone and not inZone(goal.params.zone) then return false end
+    return true
+  end, 1)
 end
 
 LT.RegisterEvent("CHAT_MSG_SYSTEM", onDiscovery)
@@ -117,3 +137,14 @@ end
 LT.RegisterEvent("ZONE_CHANGED_NEW_AREA", checkZone)
 LT.RegisterEvent("ZONE_CHANGED", checkZone)
 LT.RegisterEvent("ZONE_CHANGED_INDOORS", checkZone)
+
+---------------------------------------------------------------------------
+-- Erfassung: C_MapExplorationInfo (Erkundungs-Overlays / Kartenkacheln)
+---------------------------------------------------------------------------
+function Explore.ExploredTextureCount(uiMapID)
+  if not (C_MapExplorationInfo and C_MapExplorationInfo.GetExploredMapTextures) then return 0 end
+  uiMapID = uiMapID or (C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player"))
+  if not uiMapID then return 0 end
+  local textures = C_MapExplorationInfo.GetExploredMapTextures(uiMapID)
+  return textures and #textures or 0
+end

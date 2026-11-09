@@ -6,6 +6,12 @@
 -- APIs in allen Clients: GetXPExhaustion, UnitXPMax, IsResting, UnitRace (3. Wert = Rassen-ID).
 local _, ns = ...
 
+ns.RegisterDefaults({
+  settings = {
+    restedAltNotice = true,
+  },
+})
+
 local RestedEstimate = {}
 ns.RestedEstimate = RestedEstimate
 

@@ -16,6 +16,12 @@
 -- Anzeigen (sichere Knöpfe) und rightClickSettings = false; ein zweiter Rechtsklick schließt sie wieder.
 -- Ein Profilwechsel bringt neue Tabellen mit: daran erkennt das Apply, dass eine Anzeige an ihre neue Stelle muss.
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    locked = false,
+  },
+})
 local Widgets = ns.Widgets
 
 local Frames = {

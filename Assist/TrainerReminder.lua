@@ -2,6 +2,12 @@
 -- Classic Era, TBC und WoW Forever: neue Ränge gibt es auf geraden Leveln. Retail lernt Zauber
 -- automatisch, dort gibt es weder Hinweis noch Einstellung (TrainerReminder.IsAvailable).
 local _, ns = ...
+
+ns.RegisterDefaults({
+  settings = {
+    remindTrainer = false,
+  },
+})
 local L = ns.L
 
 local TrainerReminder = {}
