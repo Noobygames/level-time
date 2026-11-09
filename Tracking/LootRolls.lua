@@ -318,6 +318,16 @@ function LootRolls.NamesOf(roll, kind)
   return names
 end
 
+-- Name der Begegnung, bei der der Gegenstand fiel (nur Retail/Forever: C_LootHistory.GetInfoForEncounter ->
+-- { encounterName, encounterID, startTime, duration }); nil auf Classic oder wenn nicht lesbar
+function LootRolls.EncounterName(roll)
+  local id = roll and roll.encounterID
+  if not id or not C_LootHistory or not C_LootHistory.GetInfoForEncounter then return nil end
+  local info = readable(C_LootHistory.GetInfoForEncounter(id))
+  local name = type(info) == "table" and readable(info.encounterName) or nil
+  return type(name) == "string" and name ~= "" and name or nil
+end
+
 -- Klasse eines Spielers (Klassen-Kürzel für RAID_CLASS_COLORS): aus der Historie, sonst aus der Gruppe
 function LootRolls.ClassOf(roll, name)
   local class = roll and roll.classes[name]
@@ -520,6 +530,7 @@ local function readLegacyItem(itemIndex)
   local roll = type(rollID) == "number" and byId[rollID]
   if not roll or type(numPlayers) ~= "number" then return end
   roll.fromHistory = true
+  roll.encounterID = encounterID
   roll.choices, roll.order, roll.rolls, roll.waitingNames = {}, {}, {}, {}
   roll.eligible = numPlayers
   roll.winner, roll.winnerRoll = nil, nil
