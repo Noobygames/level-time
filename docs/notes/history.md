@@ -15,3 +15,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 ### Export (aus Conventions)
 
 - `Export.lua`: `Export.ToCsv(headers, rows, separator)` and a copy window (`Export.Show`; `Export.ShowImport(heading, onImport(text) -> message, ok)` reuses it for pasting); tables build CSV from their visible rows (`frame:BuildCsv`, separator `L.CSV_SEPARATOR`). Addons cannot write files, so copying via Ctrl+C is the only way out.
+
+### Loot value column (roadmap 463)
+
+- `lootLog` entries carry `value` (vendor price per piece, copper) from `Items.GetSellPrice` at loot time (nil if the client does not know the item yet); the Loot table column "Wert" shows `value * quantity`, falling back to a live lookup for old entries, "-" if unknown. No item/faction master data is shipped: `ItemSparse` is 19k-176k rows per flavor (>1 MB Lua for retail even with id+price only); faction names are already stored by name in `reputationGains`.

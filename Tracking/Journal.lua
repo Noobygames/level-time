@@ -68,7 +68,7 @@ Journal.LOGS = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
     { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE },
     { path = "rollChoice", kind = VALUE }, { path = "roll" }, { path = "rollNeed" }, { path = "rollGreed" },
-    { path = "rollPass" }, { path = "rollDisenchant" }, { path = "rollTransmog" } } },
+    { path = "rollPass" }, { path = "rollDisenchant" }, { path = "rollTransmog" }, { path = "value" } } },
   nearDeathLog = { max = Journal.MAX_NEAR_DEATHS, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "lowestPercent" },
     { path = "killer", kind = VALUE }, { path = "spell", kind = VALUE }, { path = "environment", kind = VALUE } } },
@@ -183,7 +183,7 @@ function Journal.AddNearDeath(lowestPercent, cause)
   append("nearDeathLog", entry)
 end
 
--- item = { link, name, quality, quantity, source }
+-- item = { link, name, quality, quantity, source, value (Verkaufspreis je Stück in Kupfer) }
 function Journal.AddLoot(item)
   local entry = baseEntry()
   entry.link = item.link
@@ -191,6 +191,7 @@ function Journal.AddLoot(item)
   entry.quality = item.quality
   entry.quantity = item.quantity
   entry.source = item.source
+  entry.value = item.value
   append("lootLog", entry)
 end
 

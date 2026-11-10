@@ -1907,4 +1907,6 @@ ns.locales.frFR = {
   STAT_INSTANCE_FIT_TIP = "Donjons dont les niveaux incluent votre niveau actuel, le plus élevé d'abord. Uniquement dans Classic Era et Anniversary.",
   STAT_INSTANCE_INFO = "Données d'instance",
   STAT_INSTANCE_INFO_TIP = "Taille du groupe, intervalle de réinitialisation et niveaux de l'instance de la visite en cours, d'après les données du client. Seuls Classic Era et Anniversary fournissent les niveaux.",
+  HISTORY_SELL_VALUE = "Valeur",
+  HISTORY_SELL_VALUE_TIP = "Prix de vente chez le marchand (prix unitaire fois quantité). Vide tant que le client ne connaît pas l'objet.",
 }

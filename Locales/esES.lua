@@ -1907,4 +1907,6 @@ ns.locales.esES = {
   STAT_INSTANCE_FIT_TIP = "Mazmorras cuyo rango de niveles incluye tu nivel actual, primero la de nivel más alto. Solo en Classic Era y Anniversary.",
   STAT_INSTANCE_INFO = "Datos de la instancia",
   STAT_INSTANCE_INFO_TIP = "Tamaño del grupo, intervalo de reinicio y rango de niveles de la instancia de la visita actual, según los datos del cliente. Solo Classic Era y Anniversary ofrecen el rango de niveles.",
+  HISTORY_SELL_VALUE = "Valor",
+  HISTORY_SELL_VALUE_TIP = "Precio de venta al vendedor (precio unitario por cantidad). Vacío mientras el cliente no conozca el objeto.",
 }

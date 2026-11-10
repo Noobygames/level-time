@@ -1907,4 +1907,6 @@ ns.locales.deDE = {
   STAT_INSTANCE_FIT_TIP = "Dungeons, deren Level-Bereich dein aktuelles Level enthält, der höchste Einstieg zuerst. Nur in Classic Era und Anniversary.",
   STAT_INSTANCE_INFO = "Instanz-Daten",
   STAT_INSTANCE_INFO_TIP = "Gruppengröße, Reset-Intervall und Level-Bereich der Instanz im laufenden Besuch, aus den Spieldaten des Clients. Den Level-Bereich liefern nur Classic Era und Anniversary.",
+  HISTORY_SELL_VALUE = "Wert",
+  HISTORY_SELL_VALUE_TIP = "Verkaufspreis beim Händler (Stückpreis mal Anzahl). Leer, solange der Client das Item nicht kennt.",
 }

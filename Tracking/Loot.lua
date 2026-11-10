@@ -82,6 +82,7 @@ if #lootFormats > 0 then
       quality = quality,
       quantity = quantity,
       source = guessSource(),
+      value = ns.Items.GetSellPrice(link),  -- je Stück; nil, solange der Client das Item nicht kennt
     })
   end)
 end

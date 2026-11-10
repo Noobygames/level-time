@@ -1907,4 +1907,6 @@ ns.locales.enUS = {
   STAT_INSTANCE_FIT_TIP = "Dungeons whose level range contains your current level, highest entry level first. Only in Classic Era and Anniversary.",
   STAT_INSTANCE_INFO = "Instance data",
   STAT_INSTANCE_INFO_TIP = "Group size, reset interval and level range of the instance in the running visit, from the client's game data. Only Classic Era and Anniversary provide the level range.",
+  HISTORY_SELL_VALUE = "Value",
+  HISTORY_SELL_VALUE_TIP = "Vendor sell price (unit price times quantity). Empty while the client does not know the item.",
 }

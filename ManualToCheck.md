@@ -3307,3 +3307,21 @@ id-Einträge nach Login (ja/nein, Anzahl):
 Tooltip gemessen (ja/nein):
 Era/Anniversary nodeIDs (ja/nein):
 ```
+
+### 231. Beute-Journal: Wert-Spalte (Roadmap 463)
+
+- [ ] geprüft
+
+Historie > Beute (alle Clients): Spalte „Wert“ neben der Anzahl.
+
+1. Zeigt eine frisch erbeutete seltene Waffe/Rüstung sofort einen Preis (z.B. „0g 45s 0c“), nicht „-“?
+2. Zeigen alte Einträge (vor dem Update) nach einigem Spielen ebenfalls Preise, sobald das Item bekannt ist?
+3. Stimmt der Preis mit dem Händlerpreis überein (Anzahl berücksichtigt), auch im CSV-Export?
+
+**Antwort:**
+
+```text
+Client:
+frischer Eintrag zeigt Preis (ja/nein):
+alte Einträge (ja/nein):
+```

@@ -277,10 +277,20 @@ local INSTANCE_COLUMNS = {
   levelColumn(40),
 }
 
+-- Verkaufswert der Beute: beim Erbeuten gemerkt, sonst jetzt aus dem Client (Item inzwischen geladen)
+local function lootValue(r)
+  local each = r.value or (r.link and ns.Items.GetSellPrice(r.link))
+  return each and each * (r.quantity or 1) or nil
+end
+
 local LOOT_COLUMNS = {
   whenColumn(100),
   { header = "HISTORY_ITEM", width = 180, align = LEFT, value = function(r) return r.link or r.name or "" end },
   { header = "HISTORY_QUANTITY", width = 40, value = function(r) return r.quantity or 1 end },
+  { header = "HISTORY_SELL_VALUE", width = 90, value = function(r)
+      local total = lootValue(r)
+      return total and Format.PlainMoney(total) or "-"
+    end, sort = function(r) return lootValue(r) end },
   { header = "HISTORY_SOURCE", width = 130, align = LEFT, value = function(r) return r.source or "-" end },
   -- Gewonnener Wurf (lootRollJournal): Symbol der Wahl und Zahl
   { header = "HISTORY_ROLL", width = 50, value = function(r)
