@@ -77,6 +77,70 @@ local function updateToggleText()
   toggleButton._text:SetText(isExpanded and ARROW_OPEN or ARROW_CLOSED)
 end
 
+-- Gesammelte Knöpfe müssen klickbar und voll sichtbar sein. Der Knopf selbst und alle Unterframes
+-- (Trefferfläche, Overlays) liegen über der Leiste; sonst fängt sie (EnableMouse) oder ihr Hintergrund den Klick ab.
+-- Fade-Effekte (LibDBIcon showOnMouseover) hängen am Minimap-OnEnter/-OnLeave und liefen für umgehängte Knöpfe ins Leere:
+-- sie bleiben dann auf niedriger Deckkraft ("ausgegraut").
+local MAX_CHILD_DEPTH = 3
+local hookedButtons = {}
+local hookedLibs = false
+local settingAlpha = false
+
+local function holdAlpha(child)
+  if not child.SetAlpha then return end
+  settingAlpha = true
+  if type(child.fadeOut) == "table" and type(child.fadeOut.Stop) == "function" then pcall(child.fadeOut.Stop, child.fadeOut) end
+  child:SetAlpha(1)
+  settingAlpha = false
+end
+
+local function raiseChildren(frame, strata, level, depth, saved)
+  if depth > MAX_CHILD_DEPTH or type(frame.GetChildren) ~= "function" then return end
+  local ok, children = pcall(function() return { frame:GetChildren() } end)
+  if not ok then return end
+  for _, sub in ipairs(children) do
+    if type(sub) == "table" and sub ~= barFrame and sub.SetFrameLevel
+      and not (sub.IsForbidden and sub:IsForbidden()) then
+      if saved and not saved[sub] then
+        saved[sub] = { strata = sub.GetFrameStrata and sub:GetFrameStrata(), level = sub:GetFrameLevel() }
+      end
+      if sub.SetFrameStrata then sub:SetFrameStrata(strata) end
+      sub:SetFrameLevel(level)
+      raiseChildren(sub, strata, level + 1, depth + 1, saved)
+    end
+  end
+end
+
+-- Fade-Animation und spätere SetAlpha-Aufrufe des Addons wieder auf volle Deckkraft zwingen (nur solange gesammelt)
+local function hookButton(child)
+  if hookedButtons[child] then return end
+  hookedButtons[child] = true
+  if type(hooksecurefunc) == "function" and type(child.SetAlpha) == "function" then
+    hooksecurefunc(child, "SetAlpha", function(self, alpha)
+      if settingAlpha or not originalStates[self] or ns.IsSecret(alpha) then return end
+      if type(alpha) == "number" and alpha < 1 then holdAlpha(self) end
+    end)
+  end
+  local fade = child.fadeOut
+  if type(fade) == "table" and type(fade.HookScript) == "function" then
+    pcall(fade.HookScript, fade, "OnPlay", function()
+      if originalStates[child] then holdAlpha(child) end
+    end)
+  end
+end
+
+local function prepareButton(child)
+  local strata = barFrame:GetFrameStrata() or "MEDIUM"
+  local level = (barFrame:GetFrameLevel() or 1) + 2
+  if child.SetFrameStrata then child:SetFrameStrata(strata) end
+  if child.SetFrameLevel then child:SetFrameLevel(level) end
+  local saved = originalStates[child]
+  if saved then saved.children = saved.children or {} end
+  raiseChildren(child, strata, level + 1, 1, saved and saved.children)
+  holdAlpha(child)
+  hookButton(child)
+end
+
 local function layoutButtons()
   if not barFrame then return end
   local count = #collectedButtons
@@ -98,12 +162,7 @@ local function layoutButtons()
     local x = PADDING + col * (BUTTON_SIZE + GAP)
     local y = -(PADDING + row * (BUTTON_SIZE + GAP))
     child:SetPoint("TOPLEFT", barFrame, "TOPLEFT", x, y)
-    if child.SetFrameStrata then
-      child:SetFrameStrata(barFrame:GetFrameStrata() or "MEDIUM")
-    end
-    if child.SetFrameLevel then
-      child:SetFrameLevel((barFrame:GetFrameLevel() or 1) + 2)
-    end
+    prepareButton(child)
     if child.SetScale then
       child:SetScale(1)
     end
@@ -157,6 +216,10 @@ local function createFrames()
     if button == "RightButton" then
       MinimapBar.SetExpanded(false)
     end
+  end)
+  -- Beim Aufklappen Lage und Deckkraft erneuern (Addons verschieben/verblassen ihre Knöpfe zwischendurch)
+  barFrame:SetScript("OnShow", function()
+    if not inCombat() then layoutButtons() end
   end)
   barFrame:Hide()
 
@@ -223,9 +286,27 @@ function MinimapBar.Scan()
   return candidates
 end
 
+-- LibDBIcon setzt Knöpfe bei Refresh/Show/SetButtonToPosition zurück an die Minimap: Leistenlage danach erneuern
+local function hookLibDBIcon()
+  if hookedLibs or type(hooksecurefunc) ~= "function" or not LibStub then return end
+  local lib = LibStub("LibDBIcon-1.0", true)
+  if not lib then return end
+  hookedLibs = true
+  for _, name in ipairs({ "Refresh", "Show", "SetButtonToPosition" }) do
+    if type(lib[name]) == "function" then
+      hooksecurefunc(lib, name, function()
+        if ns.db and ns.db.minimapButtonBar and #collectedButtons > 0 and not inCombat() then
+          layoutButtons()
+        end
+      end)
+    end
+  end
+end
+
 local function doCollect()
   if not MinimapBar.IsAvailable() then return end
   createFrames()
+  hookLibDBIcon()
   local candidates = MinimapBar.Scan()
   for _, child in ipairs(candidates) do
     if not originalStates[child] then
@@ -250,6 +331,7 @@ local function doCollect()
         strata = child.GetFrameStrata and child:GetFrameStrata() or "MEDIUM",
         level = child.GetFrameLevel and child:GetFrameLevel() or 1,
         shown = child.IsShown and child:IsShown() or false,
+        alpha = child.GetAlpha and child:GetAlpha() or 1,
       }
       table.insert(collectedButtons, child)
     end
@@ -295,6 +377,15 @@ local function doRestoreAll()
         child:Show()
       else
         child:Hide()
+      end
+      if child.SetAlpha and saved.alpha then
+        settingAlpha = true
+        child:SetAlpha(saved.alpha)
+        settingAlpha = false
+      end
+      for sub, state in pairs(saved.children or {}) do
+        if state.strata and sub.SetFrameStrata then sub:SetFrameStrata(state.strata) end
+        if sub.SetFrameLevel then sub:SetFrameLevel(state.level) end
       end
       originalStates[child] = nil
     end

@@ -728,6 +728,36 @@ check("329.minimap", function()
     barExpanded = ns.MinimapBar and ns.MinimapBar.IsExpanded() or false }
 end)
 
+-- 451: Minimap-Knopfleiste, Zustand je gesammeltem Knopf (Klickbarkeit, Deckkraft, Ebenen der Unterframes)
+check("451.minimapBar.buttons", function()
+  local bar = ns.MinimapBar and ns.MinimapBar.BarFrame()
+  local buttons = {}
+  for _, button in ipairs(ns.MinimapBar and ns.MinimapBar.Collected() or {}) do
+    local children = {}
+    local ok, list = pcall(function() return { button:GetChildren() } end)
+    for _, sub in ipairs(ok and list or {}) do
+      children[#children + 1] = { name = frameName(sub), level = method(sub, "GetFrameLevel"),
+        strata = method(sub, "GetFrameStrata"), mouse = method(sub, "IsMouseEnabled") }
+    end
+    local state = frameState(button)
+    state.name = frameName(button)
+    state.objectType = method(button, "GetObjectType")
+    state.effectiveAlpha = method(button, "GetEffectiveAlpha")
+    state.mouse = method(button, "IsMouseEnabled")
+    state.mouseClick = method(button, "IsMouseClickEnabled")
+    state.enabled = method(button, "IsEnabled")
+    state.strata = method(button, "GetFrameStrata")
+    state.level = method(button, "GetFrameLevel")
+    state.parent = frameName(method(button, "GetParent"))
+    state.libDBIcon = type(state.name) == "string" and state.name:find("^LibDBIcon10_") ~= nil
+    state.fadeOutPlaying = type(button.fadeOut) == "table" and method(button.fadeOut, "IsPlaying") or nil
+    state.children = children
+    buttons[#buttons + 1] = state
+  end
+  return { bar = bar and { level = method(bar, "GetFrameLevel"), strata = method(bar, "GetFrameStrata"),
+    shown = method(bar, "IsShown"), mouse = method(bar, "IsMouseEnabled") }, buttons = buttons }
+end)
+
 -- 357: Theme, Font-Objekte je Rolle (Schrift, Größe, Flags nach dem Anwenden), LibSharedMedia geladen
 check("357.theme", function()
   local fonts = {}

@@ -21,6 +21,14 @@ GameTimeFrame:SetSize(40, 40)
 LevelTimerMinimapButton = CreateFrame("Button", "LevelTimerMinimapButton", Minimap)
 LevelTimerMinimapButton:SetSize(31, 31)
 
+-- LibDBIcon-Knopf mit ausgeblendeter Deckkraft (showOnMouseover) und Unterframe auf niedriger Ebene
+details:SetAlpha(0)
+details:SetFrameLevel(8)
+local hitArea = CreateFrame("Frame", nil, details)
+hitArea:SetFrameLevel(3)
+local stopped = 0
+details.fadeOut = { Stop = function() stopped = stopped + 1 end }
+
 wow.login()
 
 expect("minimapButtonBar standardmäßig aus", addon.db.minimapButtonBar, false)
@@ -43,6 +51,14 @@ local bar = MinimapBar.BarFrame()
 expect("Details in Bar", details:GetParent(), bar)
 expect("MyAddon in Bar", myAddon:GetParent(), bar)
 
+-- Knopf voll sichtbar, Unterframe über der Leiste
+expect("Details Deckkraft 1", details:GetAlpha(), 1)
+expectTrue("Fade-Animation gestoppt", stopped > 0)
+expectTrue("Unterframe über der Leiste", hitArea:GetFrameLevel() > bar:GetFrameLevel())
+expectTrue("Knopf über der Leiste", details:GetFrameLevel() > bar:GetFrameLevel())
+details:SetAlpha(0.2)
+expect("späteres SetAlpha(0.2) wird auf 1 gehalten", details:GetAlpha(), 1)
+
 -- Auf- und Zuklappen
 expect("initial eingeklappt", MinimapBar.IsExpanded(), false)
 expect("BarFrame versteckt", bar:IsShown(), false)
@@ -61,6 +77,10 @@ addon.Set("minimapButtonBar", false)
 expect("keine Buttons mehr in der Bar", #MinimapBar.Collected(), 0)
 expect("Details wieder an Minimap", details:GetParent(), Minimap)
 expect("MyAddon wieder an Minimap", myAddon:GetParent(), Minimap)
+
+expect("Unterframe Ebene wiederhergestellt", hitArea:GetFrameLevel(), 3)
+details:SetAlpha(0.2)
+expect("nach Restore wird Alpha nicht mehr erzwungen", details:GetAlpha(), 0.2)
 
 local p, _, _, x, y = details:GetPoint(1)
 expect("Details Anker wieder CENTER", p, "CENTER")
