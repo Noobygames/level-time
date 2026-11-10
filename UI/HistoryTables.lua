@@ -245,9 +245,28 @@ local QUEST_COLUMNS = {
   zoneColumn(86),
 }
 
+-- Stammdaten der Instanz eines Laufs (InstanceInfo); Läufe vor Roadmap 460 haben keine Karten-ID
+local function instanceInfo(r)
+  return ns.InstanceInfo.Get(r.mapID, r.difficultyID)
+end
+
 local INSTANCE_COLUMNS = {
   whenColumn(100),
   { header = "HISTORY_INSTANCE", width = 100, align = LEFT, value = function(r) return r.name or "" end },
+  { header = "HISTORY_INSTANCE_SIZE", width = 40, value = function(r)
+      local info = instanceInfo(r)
+      return info and info.players or "-"
+    end, sort = function(r)
+      local info = instanceInfo(r)
+      return info and info.players
+    end },
+  { header = "HISTORY_INSTANCE_RESET", width = 70, value = function(r)
+      local info = instanceInfo(r)
+      return info and ns.InstanceInfo.ResetText(info.resetDays) or "-"
+    end, sort = function(r)
+      local info = instanceInfo(r)
+      return info and info.resetDays
+    end },
   durationColumn(60),
   { header = "HISTORY_XP", width = 60, value = function(r) return Format.Number(r.xp or 0) end,
     sort = function(r) return r.xp end },

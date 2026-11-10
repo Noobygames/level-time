@@ -235,6 +235,39 @@ local function instanceRun()
   return string.format(ns.L.INSTANCE_RUN_VALUE, Format.Duration(ns.Instances.GetRunSeconds(run)), Format.Number(ns.Instances.Summarize(run)))
 end
 
+-- Stammdaten der Instanz des laufenden Laufs "5 Spieler, Reset: Täglich, Level 15-28" (InstanceInfo)
+local function instanceInfo()
+  local run = ns.Instances.GetCurrentRun()
+  return run and ns.InstanceInfo.Describe(run.mapID, run.difficultyID) or NO_VALUE
+end
+
+local FIT_NAMES_SHOWN = 3
+-- Text je Level und Sprache (Zusatz-Text als Schlüssel) gemerkt: das Fenster fragt die Zeile bei jedem Aktualisieren ab
+local fitCache = { level = nil, suffix = nil, text = nil }
+
+local function buildInstanceFit(level)
+  local list = ns.InstanceInfo.ForLevel(level)
+  if #list == 0 then return NO_VALUE end
+  local names = {}
+  for i = 1, math.min(#list, FIT_NAMES_SHOWN) do
+    local entry = list[i]
+    names[i] = string.format("%s (%d-%d)", ns.InstanceInfo.MapName(entry.mapID), entry.minLevel, entry.maxLevel)
+  end
+  local text = table.concat(names, ", ")
+  if #list > FIT_NAMES_SHOWN then text = text .. string.format(ns.L.INSTANCE_FIT_MORE, #list - FIT_NAMES_SHOWN) end
+  return text
+end
+
+-- Dungeons passend zum eigenen Level "Name (15-28), ... +2"; nur Clients mit Level-Spalten
+local function instanceFit()
+  local level = ns.level or 0
+  local suffix = ns.L.INSTANCE_FIT_MORE
+  if fitCache.level ~= level or fitCache.suffix ~= suffix then
+    fitCache.level, fitCache.suffix, fitCache.text = level, suffix, buildInstanceFit(level)
+  end
+  return fitCache.text
+end
+
 -- Gewonnene XP im Bereich (Level, Session oder Instanz-Lauf), unabhängig von der Rate
 local function xpGained(scope)
   return Format.Number(Stats.GetXp(scope))
@@ -321,6 +354,10 @@ ns.STAT_LINES = {
   } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
     rows = { globalRow("ROW_INSTANCE_RUN", instanceRun) } },
+  { setting = "showInstanceInfo", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_INFO",
+    rows = { globalRow("ROW_INSTANCE_INFO", instanceInfo) } },
+  { setting = "showInstanceFit", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_FIT",
+    available = ns.InstanceInfo.HasLevels, rows = { globalRow("ROW_INSTANCE_FIT", instanceFit) } },
   { setting = "showInstanceLimit", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_LIMIT",
     rows = { globalRow("ROW_INSTANCE_LIMIT", instanceLimit) } },
   { setting = "showInstancesToday", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCES_TODAY",

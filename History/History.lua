@@ -219,6 +219,8 @@ function History.GetInstanceLog(characterKey)
       name = run.name,
       seconds = ns.Instances.GetRunSeconds(run),
       level = run.level,
+      mapID = run.mapID,
+      difficultyID = run.difficultyID,
       xp = record.xp,
       counters = record.counters,
       isCurrent = true,

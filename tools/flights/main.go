@@ -20,19 +20,20 @@ func main() {
 	out := flag.String("out", "Assist/FlightTimesData.lua", "Ziel-Datei (Lua)")
 	pathsDir := flag.String("paths", "Assist/FlightPathsData", "Ordner für die Flugstrecken je Flavor (leer = nicht laden)")
 	transportsDir := flag.String("transports", "Assist/TransportData", "Ordner für die Schiffs- und Zeppelin-Rundkurse")
+	instancesDir := flag.String("instances", "Assist/InstanceData", "Ordner für die Instanz-Stammdaten je Flavor")
 	flag.Parse()
 
 	if *wowDir == "" {
 		fmt.Fprintln(os.Stderr, "Fehler: bitte -wow oder WOW_DIR setzen")
 		os.Exit(1)
 	}
-	if err := run(*wowDir, *out, *pathsDir, *transportsDir); err != nil {
+	if err := run(*wowDir, *out, *pathsDir, *transportsDir, *instancesDir); err != nil {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
 }
 
-func run(wowDir, out, pathsDir, transportsDir string) error {
+func run(wowDir, out, pathsDir, transportsDir, instancesDir string) error {
 	snapshot, err := Collect(wowDir, os.Stdout)
 	if err != nil {
 		return err
@@ -45,7 +46,7 @@ func run(wowDir, out, pathsDir, transportsDir string) error {
 	if pathsDir == "" {
 		return nil
 	}
-	return writePaths(snapshot, pathsDir, transportsDir, date)
+	return writePaths(snapshot, pathsDir, transportsDir, instancesDir, date)
 }
 
 func writeFile(path string, write func(*os.File) error) error {
@@ -59,7 +60,7 @@ func writeFile(path string, write func(*os.File) error) error {
 
 // writePaths lädt die Strecken je Flavor, lernt die Geschwindigkeit aus den Messungen (sonst geliehen) und
 // schreibt eine Datei je Flavor; dazu die Transport-Rundkurse der Classic-Flavors.
-func writePaths(snapshot *Snapshot, dir, transportsDir, date string) error {
+func writePaths(snapshot *Snapshot, dir, transportsDir, instancesDir, date string) error {
 	client := newWagoClient()
 	builds, err := client.LatestBuilds()
 	if err != nil {
@@ -85,6 +86,9 @@ func writePaths(snapshot *Snapshot, dir, transportsDir, date string) error {
 			if err := writeTransports(transportsDir, flavor, transports, date); err != nil {
 				return err
 			}
+		}
+		if err := writeInstances(client, instancesDir, flavor, build, date); err != nil {
+			return err
 		}
 		speeds[flavor] = MeasuredSpeed(snapshot.Maps[flavor], paths[flavor])
 	}
@@ -130,6 +134,30 @@ func writeTransports(dir, flavor string, transports *TransportPaths, date string
 	err := writeFile(path, func(file *os.File) error { return WriteTransportsLua(file, flavor, transports, date) })
 	if err == nil {
 		fmt.Printf("Transporte %s: %d Rundkurse, Build %s\n", flavor, len(transports.ByID), transports.Build)
+	}
+	return err
+}
+
+// writeInstances lädt Level, Reset und Gruppengröße der Instanzen eines Flavors und schreibt Assist/InstanceData/<flavor>.lua.
+func writeInstances(client *wagoClient, dir, flavor, build, date string) error {
+	if dir == "" {
+		return nil
+	}
+	instances, missing, err := client.Instances(build, flavor)
+	if err != nil {
+		return fmt.Errorf("%s: %w", flavor, err)
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	path := filepath.Join(dir, flavor+".lua")
+	err = writeFile(path, func(file *os.File) error { return WriteInstancesLua(file, flavor, instances, date) })
+	if err == nil {
+		fmt.Printf("Instanzen %s: %d Karten, %d mit Level-Bereich, Build %s\n", flavor, len(instances.Modes),
+			len(instances.Levels), instances.Build)
+		if len(missing) > 0 {
+			fmt.Printf("  ohne Karte (kein Level-Bereich): %v\n", missing)
+		}
 	}
 	return err
 }

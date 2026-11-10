@@ -15,7 +15,8 @@ function UnitFactionGroup() return state.faction end
 function GetBattlefieldWinner() return state.battlefieldWinner end
 function GetInstanceInfo()
   if not state.instance then return GetZoneText() end
-  return state.instance.name, state.instance.type, state.instance.difficulty or 1, state.instance.difficultyName
+  return state.instance.name, state.instance.type, state.instance.difficulty or 1, state.instance.difficultyName,
+    state.instance.maxPlayers or 0, 0, false, state.instance.mapID
 end
 C_QuestLog = {
   GetTitleForQuestID = function(questID) return state.questTitles[questID] end,

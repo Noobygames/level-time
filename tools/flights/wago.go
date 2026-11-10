@@ -120,3 +120,17 @@ func (c *wagoClient) Taxi(build string) (*Paths, *TransportPaths, error) {
 	transports, err := ParseTransports(build, bytes.NewReader(taxiPathNode))
 	return paths, transports, err
 }
+
+// Instances lädt LFGDungeons, MapDifficulty und Map eines Builds und rechnet die Instanz-Stammdaten.
+// Zweiter Rückgabewert: LFG-Namen ohne zugeordnete Karte.
+func (c *wagoClient) Instances(build, flavor string) (*Instances, []string, error) {
+	var tables [3][]byte
+	for i, name := range []string{"LFGDungeons", "MapDifficulty", "Map"} {
+		data, err := c.table(name, build)
+		if err != nil {
+			return nil, nil, err
+		}
+		tables[i] = data
+	}
+	return ParseInstances(build, flavor, bytes.NewReader(tables[0]), bytes.NewReader(tables[1]), bytes.NewReader(tables[2]))
+}

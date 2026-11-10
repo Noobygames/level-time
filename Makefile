@@ -45,7 +45,7 @@ records:
 # Flugstrecken aus den Spieldaten (wago.tools) nach Assist/FlightPathsData/<flavor>.lua,
 # z.B. make flights ARGS="-wow 'D:/Games/World of Warcraft'" (oder WOW_DIR)
 flights:
-	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" -paths "$(CURDIR)/Assist/FlightPathsData" -transports "$(CURDIR)/Assist/TransportData" $(ARGS)
+	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" -paths "$(CURDIR)/Assist/FlightPathsData" -transports "$(CURDIR)/Assist/TransportData" -instances "$(CURDIR)/Assist/InstanceData" $(ARGS)
 
 # Texte in alle vier Sprachdateien schreiben/entfernen, ohne sie zu lesen: make locale ARGS="-file texts.json" oder ARGS="-remove KEY"
 locale:

@@ -2,12 +2,12 @@
 -- vom ersten Betreten bis zum Reset oder bis man eine andere Kopie betritt. Raus und wieder rein in
 -- dieselbe Kopie (Händler, /reload) setzt den Lauf fort; die Zeit draußen zählt nicht, außer als Geist
 -- auf dem Weg zurück zur Leiche. Wiederbelebt draußen (Geistheiler) hält die Uhr an.
--- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level,
+-- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level, mapID, difficultyID,
 -- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed }.
 -- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
 -- eine andere Kopie, wird dort geteilt.
 -- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation }
--- (reputation fehlt bei älteren Läufen).
+-- (reputation fehlt bei älteren Läufen); mapID/difficultyID (für InstanceInfo) fehlen bei Läufen vor Roadmap 460.
 -- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt. Den offenen Lauf
 -- anderer Charaktere wandelt erst deren Login um: Summarize versteht deshalb beide Formen (Historie zeigt ihn).
 local _, ns = ...
@@ -111,6 +111,14 @@ local function newRun(name, instanceType, startedAt, level)
   }
 end
 
+-- Karten-ID und Schwierigkeit der Instanz, in der man steht (GetInstanceInfo: 3. und 8. Wert); nil, wenn geheim
+local function currentIds()
+  local _, _, difficultyID, _, _, _, _, mapID = GetInstanceInfo()
+  if ns.IsSecret(mapID) then mapID = nil end
+  if ns.IsSecret(difficultyID) then difficultyID = nil end
+  return mapID, difficultyID
+end
+
 local function finish()
   if not currentRun() then return end
   ns.Debug("instances", "run finished: %s, %s s", currentRun().name, Instances.GetRunSeconds(currentRun()))
@@ -154,6 +162,7 @@ InstanceCopy.OnEnter(function(name, instanceType, isNew)
       UnitIsDeadOrGhost("player"))
     finish()
     ns.character.currentRun = newRun(name, instanceType, time(), ns.level)
+    currentRun().mapID, currentRun().difficultyID = currentIds()
   end
   resume()
 end)
@@ -185,6 +194,7 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     if not before then return end
     pause()
     local fresh = newRun(name, instanceType, before.at, before.level)
+    fresh.mapID, fresh.difficultyID = run.mapID, run.difficultyID
     fresh.seconds = run.seconds - before.seconds
     for counter, value in pairs(run.stats) do
       fresh.stats[counter] = value - (before.stats[counter] or 0)

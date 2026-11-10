@@ -62,6 +62,11 @@ Tracking\Stats.lua
 Tracking\Journal.lua
 Tracking\JournalArchive.lua
 Tracking\Classification.lua
+Assist\InstanceData\anniversary.lua
+Assist\InstanceData\classic_era.lua
+Assist\InstanceData\forever.lua
+Assist\InstanceData\retail.lua
+Tracking\InstanceInfo.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua
 Tracking\Session.lua

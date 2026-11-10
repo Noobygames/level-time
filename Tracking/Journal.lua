@@ -63,7 +63,7 @@ Journal.LOGS = {
   instanceLog = { max = Journal.MAX_INSTANCE_RUNS, fields = {
     { path = "time" }, { path = "name", kind = VALUE }, { path = "instanceType", kind = VALUE }, { path = "seconds" },
     { path = "level" }, { path = "xp" }, { path = "counters.kills" }, { path = "counters.deaths" },
-    { path = "zoneUID" }, { path = "counters.reputation" } } },
+    { path = "zoneUID" }, { path = "counters.reputation" }, { path = "mapID" }, { path = "difficultyID" } } },
   lootLog = { max = Journal.MAX_LOOT, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
     { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE },
@@ -214,6 +214,8 @@ function Journal.AddInstanceRun(run)
     xp = record.xp,
     counters = record.counters,
     zoneUID = run.zoneUID,
+    mapID = run.mapID,
+    difficultyID = run.difficultyID,
   })
 end
 

@@ -3243,3 +3243,27 @@ Questabgleich (Zeile gesehen, Werte aktuell):
 Glitzer-Stile (welche gut/schlecht):
 Fehler:
 ```
+
+### 228. Instanz-Stammdaten: Reset, Gruppengröße, Level-Bereich (Roadmap 460)
+
+- [ ] geprüft
+
+1. Statistik > Instanz: „Instanz-Daten“ an. In einem Dungeon erscheint „5 Spieler, Reset: Kein Reset“ (Era und
+   Anniversary zusätzlich „Level 15-28“); in einem Schlachtzug 20/40 Spieler und Reset (z.B. Wöchentlich). Era: ein
+   5er-Dungeon zeigt 5 Spieler (Daten melden dort 10, der Generator korrigiert das). Stimmt der Reset bei Zul'Gurub,
+   Onyxia, Sunken Temple (SoD) mit dem Spiel überein? Die Zahl 5 aus ResetInterval ist als wöchentlich angenommen.
+2. Statistik > Instanz: „Dungeons für dein Level“ (nur Era/Anniversary, in Retail/Forever nicht wählbar): drei
+   Dungeons mit Level-Bereich in der Sprache des Clients, dahinter „+N“; passen sie zum Level?
+3. Historie > Instanzen: Spalten „Gr.“ und „Reset“ gefüllt für neue Läufe, „-“ für alte; Sortieren geht.
+4. Retail/Forever: Spalten und „Instanz-Daten“ zeigen Spieler und Reset der gewählten Schwierigkeit (Heroisch,
+   Mythisch), ohne Level.
+
+**Antwort:**
+
+```text
+Client:
+Instanz-Daten (Dungeon, Raid, Werte stimmen):
+Dungeons fürs Level (passend):
+Historie-Spalten:
+Fehler:
+```
