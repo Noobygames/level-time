@@ -229,3 +229,56 @@ addon.Set("campCountdown", true)
 Camp.Check()
 expect("wieder an: Countdown", camp:IsShown(), true)
 C_UnitAuras.GetAuraDataByIndex = getAura
+
+---------------------------------------------------------------------------
+-- Roadmap 250: Abbruch bei Kampf oder Tod (auch mit gesperrten Auren)
+---------------------------------------------------------------------------
+-- 1. Countdown aktiv -> Kampf mit gesperrten Auren
+expect("Camp-Countdown aktiv", Display.ShownKind(), "countdown")
+wow.state.inCombat = true
+wow.state.aurasSecret = true
+Camp.Check()
+expect("Camp-Countdown im Kampf sofort weg", Display.ShownKind(), nil)
+expect("Camp-Frame im Kampf versteckt", camp:IsShown(), false)
+wow.state.inCombat = false
+wow.state.aurasSecret = false
+
+-- 2. Countdown aktiv -> PLAYER_REGEN_DISABLED Event
+wow.state.buffs = { nearby(), inviting(GetTime() + 60) }
+Camp.Check()
+expect("Camp-Countdown läuft wieder", Display.ShownKind(), "countdown")
+wow.fire("PLAYER_REGEN_DISABLED")
+expect("PLAYER_REGEN_DISABLED blendet Camp-Countdown sofort aus", Display.ShownKind(), nil)
+expect("Camp-Frame nach PLAYER_REGEN_DISABLED versteckt", camp:IsShown(), false)
+
+-- 3. Hinweis aktiv -> Kampf mit gesperrten Auren
+addon.Set("campHint", true)
+wow.advance(10 * 60)  -- Pause ablaufen lassen
+wow.state.buffs = { nearby() }
+Camp.Check()
+expect("Camp-Hinweis aktiv", Display.ShownKind(), "hint")
+expect("Camp-Hinweis sichtbar", camp:IsShown(), true)
+wow.state.inCombat = true
+wow.state.aurasSecret = true
+Camp.Check()
+expect("Camp-Hinweis im Kampf sofort weg", Display.ShownKind(), nil)
+expect("Camp-Hinweis Frame im Kampf versteckt", camp:IsShown(), false)
+wow.state.inCombat = false
+wow.state.aurasSecret = false
+
+-- 4. Countdown aktiv -> Tod (PLAYER_DEAD)
+wow.state.buffs = { nearby(), inviting(GetTime() + 60) }
+Camp.Check()
+expect("Camp-Countdown vor Tod", Display.ShownKind(), "countdown")
+wow.fire("PLAYER_DEAD")
+expect("PLAYER_DEAD blendet Camp-Countdown sofort aus", Display.ShownKind(), nil)
+expect("Camp-Frame nach Tod versteckt", camp:IsShown(), false)
+
+-- 5. Countdown läuft ab: TimerDisplay blendet bei 0s automatisch aus
+wow.state.buffs = { nearby(), inviting(GetTime() + 1) }
+Camp.Check()
+expect("1s Countdown", Display.ShownKind(), "countdown")
+wow.advance(2)
+tick()
+expect("abgelaufener Camp-Countdown ausgeblendet", camp:IsShown(), false)
+expect("Camp ShownKind nach Ablauf nil", Display.ShownKind(), nil)

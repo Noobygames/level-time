@@ -89,6 +89,8 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
     toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
     toggle("LOOT_SPARKLE_HERBS", "lootSparkleHerbs", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_CHESTS", "lootSparkleChests", LootSparkles.CanSoftTarget),
+    toggle("LOOT_SPARKLE_BOBBER", "lootSparkleBobber", LootSparkles.CanSoftTarget),
     toggle("LOOT_SPARKLE_QUEST_OBJECTS", "lootSparkleQuestObjects", LootSparkles.CanSoftTarget),
     toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
   })
@@ -96,6 +98,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     addToggles({
       toggle("LOOT_SPARKLE_CATEGORY_COLORS", "lootSparkleCategoryColors"),
       advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
+      advanced(toggle("LOOT_SPARKLE_HIDE_UNTRAINED", "lootSparkleHideUntrained", LootSparkles.CanSoftTarget)),
     })
     addSlider(requires({
       label = "LOOT_SPARKLE_SCALE",
@@ -107,7 +110,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       get = function(db) return toPercent(db.lootSparkleScale) end,
       set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
       format = percent,
-    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
+    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleChests", "lootSparkleBobber", "lootSparkleQuestObjects", "lootSparkleCorpses"))
     addButton("LOOT_SPARKLE_PREVIEW", function() ns.LootSparkle.Preview() end)
   end
 end

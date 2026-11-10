@@ -118,6 +118,9 @@ C_Container = {
     table.insert(state.buyback, info.itemID)
     serverMoneyUpdate((state.sellPrices[info.itemID] or 0) * info.stackCount)
   end,
+  PickupContainerItem = function(bag, slot)
+    state.cursorItem = { bag = bag, slot = slot }
+  end,
 }
 -- Rückkauf-Fenster: state.buyback = { itemID, ... } (verkaufte Items, ältestes zuerst); BuybackItem nimmt eins heraus
 function GetNumBuybackItems() return #(state.buyback or {}) end
@@ -145,4 +148,43 @@ function StaticPopup_FindVisible(name) return wow.visiblePopups[name] end
 wow.declined = {}
 for _, name in ipairs({ "CancelTrade", "DeclineGroup", "DeclineGuild", "CancelDuel" }) do
   _G[name] = function() table.insert(wow.declined, name) end
+end
+
+-- Post (Mail): state.inbox = { { sender = "...", subject = "...", money = 100, CODAmount = 0, hasItem = 1, ... } }
+wow.mailLooted = {}
+wow.mailAttached = {}
+function GetInboxNumItems() return #(state.inbox or {}) end
+function GetInboxHeaderInfo(index)
+  local item = (state.inbox or {})[index]
+  if not item then return end
+  return nil, nil, item.sender, item.subject, item.money or 0, item.CODAmount or 0, item.daysLeft, item.hasItem or 0, item.wasRead, item.wasReturned, item.textCreated, item.canReply, item.isGM
+end
+function AutoLootMailItem(index)
+  local item = (state.inbox or {})[index]
+  if not item then return end
+  table.insert(wow.mailLooted, { index = index, money = item.money or 0, hasItem = item.hasItem or 0 })
+  if item.money and item.money > 0 then
+    state.money = (state.money or 0) + item.money
+    item.money = 0
+  end
+  item.hasItem = 0
+end
+function TakeInboxMoney(index)
+  local item = (state.inbox or {})[index]
+  if not item or not item.money then return end
+  table.insert(wow.mailLooted, { index = index, money = item.money })
+  state.money = (state.money or 0) + item.money
+  item.money = 0
+end
+function TakeInboxItem(index)
+  local item = (state.inbox or {})[index]
+  if not item then return end
+  table.insert(wow.mailLooted, { index = index, hasItem = item.hasItem })
+  item.hasItem = 0
+end
+function ClickSendMailItemButton()
+  if state.cursorItem then
+    table.insert(wow.mailAttached, state.cursorItem)
+    state.cursorItem = nil
+  end
 end

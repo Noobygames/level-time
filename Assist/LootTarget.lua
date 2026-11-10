@@ -14,23 +14,73 @@ ns.LootTarget = LootTarget
 
 LootTarget.UNIT = "softinteract"
 LootTarget.ORE, LootTarget.HERB, LootTarget.QUEST, LootTarget.CORPSE = "ore", "herb", "quest", "corpse"
+LootTarget.CHEST, LootTarget.BOBBER = "chest", "bobber"
 LootTarget.READY, LootTarget.FAR, LootTarget.LOCKED = "ready", "far", "locked"
 
 local OTHER = "other"
+local SKIP = "skip"
 local BLOCKED_MARK = "unable"  -- ausgegraute Zeiger heißen "Unable..." (z.B. Fertigkeit zu niedrig)
 local MIN_OBJECTIVE_LENGTH = 4  -- kürzere Namen und Ziele passen zu leicht zufällig
 
 -- Zeiger-Dateien unter Interface\Cursor; jeweils auch mit "Unable" davor
 local CURSOR_FILES = {
-  Mine = LootTarget.ORE, GatherHerbs = LootTarget.HERB,
-  Quest = LootTarget.QUEST, QuestRepeatable = LootTarget.QUEST, QuestTurnIn = LootTarget.QUEST,
+  Mine = LootTarget.ORE,
+  GatherHerbs = LootTarget.HERB,
+  Quest = LootTarget.QUEST,
+  QuestRepeatable = LootTarget.QUEST,
+  QuestTurnIn = LootTarget.QUEST,
+  QuestInteract = LootTarget.QUEST,
+  CampaignQuest = LootTarget.QUEST,
+  CampaignQuestTurnIn = LootTarget.QUEST,
+  LegendaryQuest = LootTarget.QUEST,
+  LegendaryQuestTurnIn = LootTarget.QUEST,
+  PickLock = LootTarget.CHEST,
+  LootAll = LootTarget.CHEST,
+  Fishing = LootTarget.BOBBER,
+  FishingCursor = LootTarget.BOBBER,
+  Mail = SKIP,
+  Speak = SKIP,
+  Buy = SKIP,
+  Trainer = SKIP,
+  Taxi = SKIP,
+  Innkeeper = SKIP,
+  Repair = SKIP,
+  RepairNPC = SKIP,
+  Stablemaster = SKIP,
+  Transmogrify = SKIP,
+  Inspect = SKIP,
+  Attack = SKIP,
+  Directions = SKIP,
 }
+
 -- Stichwörter im Pfad oder Atlas-Namen, in dieser Reihenfolge geprüft
 local CURSOR_WORDS = {
   { "gatherherbs", LootTarget.HERB },
   { "herb", LootTarget.HERB },
   { "mine", LootTarget.ORE },
   { "quest", LootTarget.QUEST },
+  { "campaign", LootTarget.QUEST },
+  { "legendary", LootTarget.QUEST },
+  { "important", LootTarget.QUEST },
+  { "recurring", LootTarget.QUEST },
+  { "wrapper", LootTarget.QUEST },
+  { "picklock", LootTarget.CHEST },
+  { "openhand", LootTarget.CHEST },
+  { "fishing", LootTarget.BOBBER },
+  { "mail", SKIP },
+  { "speak", SKIP },
+  { "buy", SKIP },
+  { "trainer", SKIP },
+  { "taxi", SKIP },
+  { "innkeeper", SKIP },
+  { "repair", SKIP },
+}
+
+local CHEST_KEYWORDS = {
+  "truhe", "kiste", "kassette", "schatzkiste", "vorratskiste",
+  "chest", "crate", "footlocker", "strongbox", "lockbox",
+  "coffre", "caisse",
+  "cofre", "arqueta",
 }
 
 -- Ruft fn geschützt auf; Fehler, geheime oder fehlende Werte = nil
@@ -50,7 +100,7 @@ end
 -- Zeiger-Symbol
 ---------------------------------------------------------------------------
 local probe       -- unsichtbare Textur, in die das Zeiger-Symbol gesetzt wird
-local cursorIds   -- Datei-ID -> { Art, ausgegraut }
+local cursorIds   -- Datei-ID -> { Art, ausgegraut, file }
 
 local function buildCursorIds()
   cursorIds = {}
@@ -59,7 +109,7 @@ local function buildCursorIds()
     for _, blocked in ipairs({ false, true }) do
       local path = "Interface\\Cursor\\" .. (blocked and "Unable" or "") .. file
       local id = read(GetFileIDFromPath, path)
-      if type(id) == "number" then cursorIds[id] = { kind, blocked } end
+      if type(id) == "number" then cursorIds[id] = { kind, blocked, file } end
     end
   end
 end
@@ -71,16 +121,19 @@ local function kindFromName(name)
   for _, word in ipairs(CURSOR_WORDS) do
     if name:find(word[1], 1, true) then return word[2], blocked end
   end
+  for file, kind in pairs(CURSOR_FILES) do
+    if name:find(file:lower(), 1, true) then return kind, blocked end
+  end
   return OTHER, blocked
 end
 
--- Art laut Zeiger (ore, herb, quest, other) und ob er ausgegraut ist; nil = kein Zeiger lesbar
+-- Art laut Zeiger und ob er ausgegraut ist; nil = kein Zeiger lesbar
 local function readCursor(unit)
   if not probe then
     probe = UIParent:CreateTexture(nil, "BACKGROUND")
     probe:Hide()
   end
-  if read(SetUnitCursorTexture, probe, unit) ~= true then return nil, false end
+  if read(SetUnitCursorTexture, probe, unit, nil, true) ~= true then return nil, false end
   local texture = read(probe.GetTexture, probe)
   if not cursorIds then buildCursorIds() end
   local known = type(texture) == "number" and cursorIds[texture]
@@ -88,6 +141,63 @@ local function readCursor(unit)
   if type(texture) == "string" then return kindFromName(texture) end
   return kindFromName(read(probe.GetAtlas, probe))
 end
+
+---------------------------------------------------------------------------
+-- Behälter-Lernen & Schlüsselwörter
+---------------------------------------------------------------------------
+function LootTarget.IsChestName(name)
+  if type(name) ~= "string" then return false end
+  name = name:lower()
+  for _, kw in ipairs(CHEST_KEYWORDS) do
+    if name:find(kw, 1, true) then return true end
+  end
+  return false
+end
+
+function LootTarget.ObjectIdFromGUID(guid)
+  if type(guid) ~= "string" then return nil end
+  local id = guid:match("^GameObject%-%d+%-%d+%-%d+%-%d+%-(%d+)%-")
+  return id and tonumber(id) or nil
+end
+
+local function getContainersDB()
+  if type(LevelTimerStatsDB) ~= "table" then
+    if LevelTimerStatsDB == nil then LevelTimerStatsDB = {} end
+    if type(LevelTimerStatsDB) ~= "table" then return nil end
+  end
+  LevelTimerStatsDB.containers = LevelTimerStatsDB.containers or {}
+  return LevelTimerStatsDB.containers
+end
+
+function LootTarget.LearnContainerFromGUID(guid)
+  local id = LootTarget.ObjectIdFromGUID(guid)
+  if id then
+    local db = getContainersDB()
+    if db then db[id] = true end
+    return id
+  end
+  return nil
+end
+
+local function isLearnedContainer(id)
+  if not id then return false end
+  local db = LevelTimerStatsDB and LevelTimerStatsDB.containers
+  return type(db) == "table" and db[id] == true
+end
+
+local function onLootOpenedOrReady()
+  if type(GetLootSourceInfo) ~= "function" then return end
+  local count = (type(GetNumLootItems) == "function" and GetNumLootItems()) or 0
+  for slot = 1, count do
+    local guid = GetLootSourceInfo(slot)
+    if type(guid) == "string" then
+      LootTarget.LearnContainerFromGUID(guid)
+    end
+  end
+end
+
+ns.RegisterEvent("LOOT_OPENED", onLootOpenedOrReady)
+ns.RegisterEvent("LOOT_READY", onLootOpenedOrReady)
 
 ---------------------------------------------------------------------------
 -- Quest-Objekte
@@ -99,7 +209,9 @@ local function readObjectives()
   objectiveTexts = {}
   for _, entry in ipairs(ns.QuestLog.Entries()) do
     for _, objective in ipairs(ns.QuestLog.Objectives(entry.questID)) do
-      if objective.finished == false and #objective.name >= MIN_OBJECTIVE_LENGTH then
+      local objType = objective.kind or objective.type
+      local isKill = objType and (objType == "monster" or objType == "slay")
+      if not isKill and objective.finished == false and objective.name and #objective.name >= MIN_OBJECTIVE_LENGTH then
         table.insert(objectiveTexts, objective.name)
       end
     end
@@ -128,9 +240,31 @@ local function hasObjectiveLine(unit)
   return false
 end
 
+local function matchesTooltipQuest()
+  if not (C_TooltipInfo and C_TooltipInfo.GetWorldCursor) then return false end
+  local data = read(C_TooltipInfo.GetWorldCursor)
+  if type(data) ~= "table" or type(data.lines) ~= "table" then return false end
+  local entries = ns.QuestLog.Entries()
+  if not entries or #entries == 0 then return false end
+  for _, line in ipairs(data.lines) do
+    local text = not ns.IsSecret(line.leftText) and line.leftText
+    if type(text) == "string" and #text >= MIN_OBJECTIVE_LENGTH then
+      for _, entry in ipairs(entries) do
+        local title = entry.title
+        if type(title) == "string" and #title >= MIN_OBJECTIVE_LENGTH then
+          if text:find(title, 1, true) or title:find(text, 1, true) then
+            return true
+          end
+        end
+      end
+    end
+  end
+  return false
+end
+
 local function isQuestObject(unit)
   if C_QuestLog and read(C_QuestLog.UnitIsRelatedToActiveQuest, unit) == true then return true end
-  return hasObjectiveLine(unit) or matchesObjective(read(UnitName, unit))
+  return hasObjectiveLine(unit) or matchesTooltipQuest() or matchesObjective(read(UnitName, unit))
 end
 
 function LootTarget.ForgetObjectives()
@@ -138,6 +272,60 @@ function LootTarget.ForgetObjectives()
 end
 
 ns.RegisterEvent("QUEST_LOG_UPDATE", LootTarget.ForgetObjectives)
+
+---------------------------------------------------------------------------
+-- Berufe-Filter (Erz & Kräuter)
+---------------------------------------------------------------------------
+local MINING_SPELLS = { 2575, 2576, 3564, 10248, 29354, 50310, 74517, 102161, 158754, 265837, 2656 }
+local HERB_SPELLS = { 2366, 2383 }
+
+function LootTarget.IsGatheringTrained(kind)
+  if type(LootTarget.HasGatheringSkill) == "function" then
+    local override = LootTarget.HasGatheringSkill(kind)
+    if override ~= nil then return override == true end
+  end
+  if type(IsPlayerSpell) == "function" then
+    if kind == LootTarget.ORE then
+      for _, id in ipairs(MINING_SPELLS) do
+        if IsPlayerSpell(id) == true then return true end
+      end
+    elseif kind == LootTarget.HERB then
+      for _, id in ipairs(HERB_SPELLS) do
+        if IsPlayerSpell(id) == true then return true end
+      end
+    end
+  end
+  if type(GetProfessions) == "function" and type(GetProfessionInfo) == "function" then
+    local prof1, prof2 = GetProfessions()
+    for _, prof in ipairs({ prof1, prof2 }) do
+      if prof then
+        local name, _, _, _, _, _, skillLine = GetProfessionInfo(prof)
+        if skillLine then
+          if kind == LootTarget.ORE and skillLine == 186 then return true end
+          if kind == LootTarget.HERB and skillLine == 182 then return true end
+        end
+        if type(name) == "string" then
+          local lower = name:lower()
+          if kind == LootTarget.ORE and (lower:find("bergbau", 1, true) or lower:find("mining", 1, true)) then return true end
+          if kind == LootTarget.HERB and (lower:find("kräuter", 1, true) or lower:find("herb", 1, true)) then return true end
+        end
+      end
+    end
+  end
+  if type(GetNumSkillLines) == "function" and type(GetSkillLineInfo) == "function" then
+    for i = 1, GetNumSkillLines() do
+      local skillName = GetSkillLineInfo(i)
+      if type(skillName) == "string" then
+        local lower = skillName:lower()
+        if kind == LootTarget.ORE and (lower:find("bergbau", 1, true) or lower:find("mining", 1, true)) then return true end
+        if kind == LootTarget.HERB and (lower:find("kräuter", 1, true) or lower:find("herb", 1, true)) then return true end
+      end
+    end
+  end
+  return false
+end
+
+LootTarget.HasProfessionFor = LootTarget.IsGatheringTrained
 
 ---------------------------------------------------------------------------
 -- Einordnung
@@ -153,14 +341,35 @@ local function isCorpseWithLoot(unit)
   return hasLoot == true and canLoot ~= false
 end
 
--- Art (ORE, HERB, QUEST, CORPSE) und ob das Spiel die Interaktion gerade verweigert; nil = nichts zum Glitzern
+-- Art (ORE, HERB, QUEST, CHEST, BOBBER, CORPSE) und ob das Spiel die Interaktion gerade verweigert; nil = nichts zum Glitzern
 function LootTarget.Classify(unit)
   if read(UnitIsGameObject, unit) == true then
     local kind, blocked = readCursor(unit)
-    if kind ~= LootTarget.ORE and kind ~= LootTarget.HERB then
-      kind = (kind == LootTarget.QUEST or isQuestObject(unit)) and LootTarget.QUEST or nil
+    if kind == SKIP then return nil, false end
+
+    local guid = read(UnitGUID, unit)
+    local objId = LootTarget.ObjectIdFromGUID(guid)
+    if objId == 35591 or kind == LootTarget.BOBBER then
+      return LootTarget.BOBBER, blocked
     end
-    return kind, blocked
+
+    if kind == LootTarget.ORE or kind == LootTarget.HERB then
+      return kind, blocked
+    end
+
+    if kind == LootTarget.QUEST or isQuestObject(unit) then
+      return LootTarget.QUEST, blocked
+    end
+
+    if kind == LootTarget.CHEST then
+      return LootTarget.CHEST, blocked
+    end
+
+    if (objId and isLearnedContainer(objId)) or LootTarget.IsChestName(read(UnitName, unit)) then
+      return LootTarget.CHEST, blocked
+    end
+
+    return nil, blocked
   end
   if isCorpseWithLoot(unit) then return LootTarget.CORPSE, false end
   return nil, false

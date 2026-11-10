@@ -169,6 +169,7 @@ Assist\RewardHint.lua
 Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
+Assist\Mail.lua
 Assist\ScreenText.lua
 Assist\ScreenBorders.lua
 Assist\Camera.lua

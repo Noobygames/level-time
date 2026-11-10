@@ -168,7 +168,7 @@ wow.state.questLog = { { questID = 77, title = "Vorräte sichern", objectives = 
 wow.fire("QUEST_LOG_UPDATE")
 objects[SOFT] = true
 cursors[SOFT] = "Interface\\Cursor\\PickUp"
-wow.state.units[SOFT] = { name = "Kiste mit Vorräte" }
+wow.state.units[SOFT] = { name = "Bündel mit Vorräte" }
 expect("Quest-Objekt erkannt", (LootTarget.Classify(SOFT)), LootTarget.QUEST)
 wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "Creature-3", "GameObject-4")
 expect("Quest-Objekte aus: kein Glitzern", LootSparkle.AttachedTo(), nil)

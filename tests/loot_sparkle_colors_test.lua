@@ -1,4 +1,4 @@
--- Roadmap 457: Kategoriefarben, Bodenschatten, Silhouettenmaske & Effekt-Vorschau für Beute-Glitzer
+-- Roadmap 457 & 444: Kategoriefarben, Bodenschatten, Silhouettenmaske, Effekt-Vorschau & Lueur-Erkennung
 local LootSparkles, LootSparkle, LootTarget = addon.LootSparkles, addon.LootSparkle, addon.LootTarget
 local expect, expectTrue, expectNear = expect, expectTrue, expectNear
 
@@ -134,3 +134,106 @@ expectColor("glint vertex color updated to herb", { gr, gg, gb }, { 0.40, 1.00, 
 
 addon.Set("lootSparkleOre", false)
 addon.Set("lootSparkleHerbs", false)
+
+-- 6. Roadmap 444: Truhen-, Schwimmer- und Berufe-Erkennung
+-- 6.1 Truhen-Erkennung
+objects[SOFT] = true
+
+-- Via PickLock Cursor
+cursors[SOFT] = "Interface\\Cursor\\PickLock"
+wow.state.units[SOFT] = { name = "Geheimnisvolles Ding" }
+expect("PickLock Cursor ergibt chest", (LootTarget.Classify(SOFT)), LootTarget.CHEST)
+
+-- Via Truhen-Name mit Interact-Cursor ("Verbeulte Truhe" / "Battered Chest")
+cursors[SOFT] = "Interface\\Cursor\\Interact"
+wow.state.units[SOFT] = { name = "Verbeulte Truhe" }
+expect("Verbeulte Truhe erkannt", (LootTarget.Classify(SOFT)), LootTarget.CHEST)
+
+wow.state.units[SOFT] = { name = "Battered Chest" }
+expect("Battered Chest erkannt", (LootTarget.Classify(SOFT)), LootTarget.CHEST)
+
+-- Via gelernten Behälter (LootTarget.LearnContainerFromGUID)
+local chestGuid = "GameObject-0-4240-0-117-12345-00002A5469"
+wow.state.units[SOFT] = { name = "Seltsames Gebilde", guid = chestGuid }
+expect("noch nicht gelernt: nil", (LootTarget.Classify(SOFT)), nil)
+LootTarget.LearnContainerFromGUID(chestGuid)
+expect("nach Lernen: chest", (LootTarget.Classify(SOFT)), LootTarget.CHEST)
+
+-- 6.2 Schwimmer-Erkennung
+-- Via Fishing Cursor
+cursors[SOFT] = "Interface\\Cursor\\Fishing"
+wow.state.units[SOFT] = { name = "Schwimmer" }
+expect("Fishing Cursor ergibt bobber", (LootTarget.Classify(SOFT)), LootTarget.BOBBER)
+
+-- Via Bobber Objekt-ID 35591 (auch mit generischem Cursor)
+cursors[SOFT] = "Interface\\Cursor\\Interact"
+local bobberGuid = "GameObject-0-4240-0-117-35591-00002A5469"
+wow.state.units[SOFT] = { name = "Schwimmer", guid = bobberGuid }
+expect("Objekt-ID 35591 ergibt bobber", (LootTarget.Classify(SOFT)), LootTarget.BOBBER)
+
+-- 6.3 NPC- und Service-Ausschlüsse (Speak, Mail, Trainer -> nil)
+cursors[SOFT] = "Interface\\Cursor\\Speak"
+wow.state.units[SOFT] = { name = "Wache" }
+expect("Speak Cursor ausgeschlossen", (LootTarget.Classify(SOFT)), nil)
+
+cursors[SOFT] = "Interface\\Cursor\\Mail"
+wow.state.units[SOFT] = { name = "Briefkasten" }
+expect("Mail Cursor ausgeschlossen", (LootTarget.Classify(SOFT)), nil)
+
+cursors[SOFT] = "Interface\\Cursor\\Trainer"
+wow.state.units[SOFT] = { name = "Klassenlehrer" }
+expect("Trainer Cursor ausgeschlossen", (LootTarget.Classify(SOFT)), nil)
+
+-- 6.4 lootSparkleHideUntrained Filterung
+local oldIsPlayerSpell = IsPlayerSpell
+local knownSpells = {}
+IsPlayerSpell = function(spellId) return knownSpells[spellId] == true end
+
+addon.Set("lootSparkleOre", true)
+addon.Set("lootSparkleHerbs", true)
+addon.Set("lootSparkleHideUntrained", true)
+
+-- Erz ohne Bergbau (2575 false): evaluate schaltet Plakette nicht an
+cursors[SOFT] = "Interface\\Cursor\\Mine"
+wow.state.units[SOFT] = { name = "Kupfervorkommen" }
+knownSpells[2575] = false
+LootSparkle.Release()
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-1", "GameObject-2")
+expect("Erz ohne Bergbau: kein Glitzern", LootSparkle.AttachedTo(), nil)
+
+-- Erz mit Bergbau (2575 true): Glitzern erlaubt
+knownSpells[2575] = true
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-1", "GameObject-2")
+expect("Erz mit Bergbau: glitzert", LootSparkle.AttachedTo(), plate)
+
+-- Kraut ohne Kräuterkunde (2366 false): evaluate schaltet Plakette nicht an
+cursors[SOFT] = "Interface\\Cursor\\GatherHerbs"
+wow.state.units[SOFT] = { name = "Friedensblume" }
+knownSpells[2366] = false
+LootSparkle.Release()
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-2", "GameObject-3")
+expect("Kraut ohne Kräuterkunde: kein Glitzern", LootSparkle.AttachedTo(), nil)
+
+-- Kraut mit Kräuterkunde (2366 true): Glitzern erlaubt
+knownSpells[2366] = true
+wow.fire("PLAYER_SOFT_INTERACT_CHANGED", "GameObject-2", "GameObject-3")
+expect("Kraut mit Kräuterkunde: glitzert", LootSparkle.AttachedTo(), plate)
+
+addon.Set("lootSparkleOre", false)
+addon.Set("lootSparkleHerbs", false)
+addon.Set("lootSparkleHideUntrained", false)
+IsPlayerSpell = oldIsPlayerSpell
+
+-- 6.5 IsFishing
+local oldUnitChannelInfo = UnitChannelInfo
+UnitChannelInfo = function(unit)
+  if unit == "player" then return "Angeln", "", 136245 end
+end
+expectTrue("IsFishing mit Texture 136245", LootSparkles.IsFishing())
+UnitChannelInfo = function(unit)
+  if unit == "player" then return "Angeln", "", "Interface\\Icons\\Trade_Fishing" end
+end
+expectTrue("IsFishing mit Trade_Fishing", LootSparkles.IsFishing())
+UnitChannelInfo = function() return nil end
+expect("IsFishing ohne Kanalisieren", LootSparkles.IsFishing(), false)
+UnitChannelInfo = oldUnitChannelInfo

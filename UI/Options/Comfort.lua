@@ -20,6 +20,7 @@ addToggles({
   toggle("AUTO_ACCEPT_SUMMON", "autoAcceptSummon"),
   toggle("AUTO_ACCEPT_RESURRECT", "autoAcceptResurrect"),
   advanced(toggle("AUTO_RELEASE_PVP", "autoReleasePvP")),
+  toggle("MAIL_ASSIST_TOGGLE", "mailAssist"),
 })
 addSubPage("COMFORT_PAGE_SOCIAL")
 addSection("SECTION_DECLINE")

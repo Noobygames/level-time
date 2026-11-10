@@ -140,9 +140,22 @@ local function unchanged(available, dead, combat)
     and ns.CampDisplay.ShownKind() == last.shownKind
 end
 
+local function clearDisplay()
+  countdownEndedAt = nil
+  previousKind = nil
+  hintVisible(false)
+  ns.CampDisplay.Show(nil)
+end
+
 function CampFire.Check()
   if not ns.db or not wanted(ns.db) then return end
   local available, dead, combat = CampFire.IsAvailable(), UnitIsDeadOrGhost("player"), ns.InCombat()
+  if dead or combat then
+    clearDisplay()
+    last.version, last.available, last.dead, last.combat, last.shownKind =
+      Auras.Version(), available, dead, combat, ns.CampDisplay.ShownKind()
+    return
+  end
   if available and not dead then Auras.Snapshot() end  -- aktualisiert Auras.Version()
   if unchanged(available, dead, combat) then return end
   last.version, last.available, last.dead, last.combat = Auras.Version(), available, dead, combat
@@ -181,10 +194,18 @@ function CampFire.Check()
   last.shownKind = ns.CampDisplay.ShownKind()
 end
 
+local function onCombatOrDead()
+  if not ns.db or not wanted(ns.db) then return end
+  clearDisplay()
+  last.shownKind = ns.CampDisplay.ShownKind()
+end
+
 -- Regelmäßig prüfen statt auf UNIT_AURA zu hören: der Countdown läuft in der Anzeige selbst weiter,
 -- und die Prüfung ist billig
 if CampFire.IsAvailable() then
   ns.Every(CHECK_INTERVAL, CampFire.Check, wanted)
+  ns.RegisterEvent("PLAYER_REGEN_DISABLED", onCombatOrDead)
+  ns.RegisterEvent("PLAYER_DEAD", onCombatOrDead)
 end
 
 ns.OnLogin(reset)

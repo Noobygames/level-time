@@ -220,6 +220,10 @@ end
 
 function SleepTimer.Check()
   if not running then return end
+  if running.phase == RESTING and (UnitAffectingCombat("player") or UnitIsDeadOrGhost("player") or (IsPlayerMoving and IsPlayerMoving())) then
+    finish(UnitAffectingCombat("player") and "combat" or (UnitIsDeadOrGhost("player") and "dead" or "moving"))
+    return
+  end
   local complete = trackWellRested()
   if running.phase == FINISHED then
     if GetTime() - running.finishedAt >= STACK_GRACE then setRunning(nil) end

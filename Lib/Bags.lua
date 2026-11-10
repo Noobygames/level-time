@@ -33,3 +33,5 @@ function Bags.GetFreeSlots()
   end
   return free
 end
+
+Bags.FreeSlots = Bags.GetFreeSlots

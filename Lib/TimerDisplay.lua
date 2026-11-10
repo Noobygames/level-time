@@ -104,6 +104,10 @@ function TimerDisplay.Create(config)
       hide()
       return
     end
+    if current.kind == "countdown" and not override and remainingOf(current) <= 0 then
+      hide()
+      return
+    end
     refresh()
   end)
 

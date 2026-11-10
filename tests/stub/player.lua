@@ -54,6 +54,7 @@ end
 function GetPVPSessionStats() return state.honorableKills end
 function IsShiftKeyDown() return state.shiftDown end
 function IsControlKeyDown() return state.controlDown == true end
+function IsAltKeyDown() return state.altDown == true end
 -- Aktionsplätze: state.actions[platz] = { "item"/"spell"/"macro", id } (GetActionInfo)
 function GetActionInfo(slot)
   local action = (state.actions or {})[slot]

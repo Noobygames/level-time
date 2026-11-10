@@ -12,13 +12,6 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 ### v2.32: „1 Addon, das viele ablöst“ (Konkurrenzanalyse, Threat & Lueur-Sparkles)
 
-- [ ] 444. **Objekt- und Ressourcen-Erkennung auf Lueur-Niveau (ohne Minimap-Icons)** (M): Ausbau von `Assist/LootTarget.lua` und `Assist/LootSparkles.lua` um alle Erkennungs-Mechanismen aus `Lueur`, ausdrücklich ohne Minimap-Tracking (`NodeScan`/`Nodes`):
-  - Erweiterte Zeiger-Abfrage `SetUnitCursorTexture(probe, unit, nil, true)` mit vollständiger Datei-ID-, Pfad- und Atlas-Zuordnung für Erze (`Mine`), Kräuter (`GatherHerbs`), alle Quest-Zeiger (`Quest`, `QuestInteract`, `CampaignQuest`, `LegendaryQuest`, `Important`, `Recurring`, `Wrapper` inkl. `TurnIn`), Truhen (`PickLock`, `LootAll`, `Pickup`), Angel-Schwimmer (`Fishing`, `FishingCursor`) sowie explizitem Ausschluss von NPC-Diensten (`Mail`, `Speak`, `Buy`, `Trainer`, `Taxi`, `Innkeeper`, `Repair`, `Stablemaster`).
-  - Truhen & Container ohne eigenen Zeiger (Standard-Zahnrad `Interact`) erkennen: (a) beim Plündern über `GetLootSourceInfo(slot)` die GameObject-ID aus der GUID (`GameObject-0-...-<id>-...`) accountweit in `LevelTimerStatsDB.containers` lernen, (b) über sprachspezifische Truhen-Schlüsselwörter im Objektnamen (Truhe, Kiste, Fass, Kassette / Chest, Crate, Barrel, Footlocker, Box).
-  - Dreistufige Questobjekt-Erkennung: 1. `C_QuestLog.UnitIsRelatedToActiveQuest("softinteract")` (Forever/Retail), 2. aus dem Welt-Tooltip gelernte Zuordnung Objektname → aktiver Questtitel (`C_TooltipInfo.GetWorldCursor`), 3. Zieltext- und Wortstamm-Abgleich nur für Sammel-/Objekt-Ziele (`item`/`object`, nie für Kill-Ziele wie „Murloc getötet“ bei „Murlochütte“) mit Filter für häufige Adjektive.
-  - Berufs-Filter (`lootSparkleHideUntrained`): Erze und Kräuter optional ausblenden, wenn Bergbau bzw. Kräuterkunde nicht gelernt ist.
-  - Angel-Schwimmer (`lootSparkleBobber`): Während des Angel-Kanalisierens (`UnitChannelInfo("player")`, Icon `136245` / `Trade_Fishing` bzw. Objekt-ID `35591`) `SoftTargetInteractRange` und `nameplateGameObjectMaxDistance` auf 60 m sowie `SoftTargetInteractRangeIsHard = 0` setzen, damit auch weit ausgeworfene Schwimmer eine Plakette erhalten.
-- [ ] 450. **Level Time Post (Postal Light)** (M): „Alles öffnen“-Button im Briefkasten (leert Post im 0,25-s-Takt, überspringt Nachnahme/COD, stoppt bei vollen Taschen), Alt-Klick zum sofortigen Anhängen von Taschen-Items an offene Briefe sowie ein Empfänger-Dropdown mit allen eigenen Twinks aus `LevelTimerStatsDB`, Gildenmitgliedern und Freunden (`Assist/Mail.lua`; ersetzt Postal).
 - [ ] 451. **Minimap-Button-Sammler (HidingBar / MBB Light)** (M): Sammelt Minimap-Symbole fremder Addons (`Minimap:GetChildren()`) in einer einklappbaren Leiste am Minimap-Rand (`Assist/MinimapBar.lua`; ersetzt MinimapButtonBag/HidingBar).
 - [ ] 452. **Nahkampf- & Fernkampf-Schwungbalken (WeaponSwingTimer Light)** (M): Kompakte Swing-Timer-Leiste für Haupthand, Nebenhand sowie Zauberstab/Automatischen Schuss in Classic Era und Forever (`Assist/SwingTimer.lua` über `UnitAttackSpeed` und Zauber-/Kampf-Events; ersetzt WeaponSwingTimer).
 - [ ] 453. **Gruppen-Questabgleich (Party Quest Sync)** (M): Synchronisiert angenommene Quests und Ziel-Fortschritte innerhalb der Gruppe über `C_ChatInfo.SendAddonMessage` (`PARTY`) und zeigt im Questlog/Tooltip den Fortschritt der Gruppenmitglieder an (ersetzt den Gruppen-Sync von Questie).
@@ -54,10 +47,6 @@ Runde 2 nach echten Profiler-Daten (`/lt debug perf`, WoW Forever, 33 min, Stand
 ### UI-Overhaul
 
 Grundlage: UX-Audit aus dem Code (Architektur A1–A4, Reihenfolge in 7 Schritten) und Recherche bei anderen Addons (Details!, ElvUI, WeakAuras, Bartender, Blizzards Edit Mode). Ziel: gutes Aussehen, gute Bedienung, viel Anpassung, mehr Anzeigearten.
-
-## v2.18: Qualitätssicherung
-
-- [] 250. \*_Hinweise-Bleiben-Stehen_ (S): Hinweise wie z.B. sitzenbleiben können bestehen bleiben, obwohl man nicht mehr steht, isst und ggf. sogar im Kampf ist. Sicherstellen, dass diese Hinweise sauber abgeräumt werden.
 
 ## v2.9: Funde aus dem Review
 

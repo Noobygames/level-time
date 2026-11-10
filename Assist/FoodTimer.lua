@@ -81,8 +81,20 @@ local function reset()
   wasEating, wellFedAtStart, endedAt, mealDone = nil, NO_BUFF, nil, false
 end
 
+local function clearActive()
+  if wasEating or endedAt or ns.FoodDisplay.ShownKind() == "countdown" then
+    reset()
+    ns.FoodDisplay.Show(nil)
+    ns.Debug("food", "cleared due to combat/moving/dead")
+  end
+end
+
 function FoodTimer.Check()
   if not ns.db or not ns.db.foodTimer then return end
+  if ns.InCombat() or UnitIsDeadOrGhost("player") or (IsPlayerMoving and IsPlayerMoving() == true) then
+    clearActive()
+    return
+  end
   local ok, state, wellFed = readBuffs()
   if not ok then return end
   local eating = state ~= nil
@@ -114,6 +126,15 @@ function FoodTimer.Check()
 end
 
 ns.Every(CHECK_INTERVAL, FoodTimer.Check, function(db) return db.foodTimer end)
+
+local function onInterrupt()
+  if not ns.db or not ns.db.foodTimer then return end
+  clearActive()
+end
+
+ns.RegisterEvent("PLAYER_REGEN_DISABLED", onInterrupt)
+ns.RegisterEvent("PLAYER_STARTED_MOVING", onInterrupt)
+ns.RegisterEvent("PLAYER_DEAD", onInterrupt)
 
 ns.OnLogin(reset)
 

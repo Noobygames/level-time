@@ -133,3 +133,55 @@ SlashCmdList.LEVELTIMER("config")
 expectTrue("Unterseite Timer & Flüge", addon.OptionsWindow.ShowPage("COMFORT_PAGE_TIMERS"))
 expectTrue("Button Vorschau", wow.clickOption("FOOD_PREVIEW"))
 expect("Vorschau zeigt Anzeige", food:IsShown(), true)
+wow.advance(10)
+tick()
+expect("Vorschau abgelaufen", food:IsShown(), false)
+
+---------------------------------------------------------------------------
+-- Roadmap 250: Abbruch bei Kampf, Bewegen oder Tod (auch mit gesperrten Auren)
+---------------------------------------------------------------------------
+-- 1. Essen -> Kampf mit gesperrten Auren
+wow.state.buffs = { eating(18) }
+FoodTimer.Check()
+expect("Essen läuft", Display.ShownKind(), "countdown")
+expect("Essen sichtbar", food:IsShown(), true)
+wow.state.inCombat = true
+wow.state.aurasSecret = true
+FoodTimer.Check()
+expect("im Kampf mit gesperrten Auren sofort weg", Display.ShownKind(), nil)
+expect("Frame im Kampf versteckt", food:IsShown(), false)
+wow.state.inCombat = false
+wow.state.aurasSecret = false
+
+-- 2. Essen -> PLAYER_REGEN_DISABLED Event
+wow.state.buffs = { eating(18) }
+FoodTimer.Check()
+expect("Essen läuft wieder", Display.ShownKind(), "countdown")
+wow.fire("PLAYER_REGEN_DISABLED")
+expect("PLAYER_REGEN_DISABLED blendet sofort aus", Display.ShownKind(), nil)
+expect("Frame nach PLAYER_REGEN_DISABLED versteckt", food:IsShown(), false)
+
+-- 3. Essen -> PLAYER_STARTED_MOVING Event
+wow.state.buffs = { eating(18) }
+FoodTimer.Check()
+expect("Essen vor Bewegung", Display.ShownKind(), "countdown")
+wow.fire("PLAYER_STARTED_MOVING")
+expect("PLAYER_STARTED_MOVING blendet sofort aus", Display.ShownKind(), nil)
+expect("Frame nach Bewegen versteckt", food:IsShown(), false)
+
+-- 4. Essen -> PLAYER_DEAD Event
+wow.state.buffs = { eating(18) }
+FoodTimer.Check()
+expect("Essen vor Tod", Display.ShownKind(), "countdown")
+wow.fire("PLAYER_DEAD")
+expect("PLAYER_DEAD blendet sofort aus", Display.ShownKind(), nil)
+expect("Frame nach Tod versteckt", food:IsShown(), false)
+
+-- 5. Countdown läuft ab: TimerDisplay blendet bei 0s automatisch aus
+wow.state.buffs = { eating(1) }
+FoodTimer.Check()
+expect("1s Countdown", Display.ShownKind(), "countdown")
+wow.advance(2)
+tick()
+expect("abgelaufener Countdown ausgeblendet", food:IsShown(), false)
+expect("ShownKind nach Ablauf nil", Display.ShownKind(), nil)

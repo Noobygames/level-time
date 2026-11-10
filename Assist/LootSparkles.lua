@@ -34,6 +34,7 @@ ns.Database.RegisterDefaults({
     lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
     lootSparkleCorpses = false, lootSparkleScale = 1,
     lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
+    lootSparkleChests = false, lootSparkleBobber = false, lootSparkleHideUntrained = false,
   },
   ranges = { lootSparkleScale = { 0.5, 2 } },
 })
@@ -68,6 +69,8 @@ local KIND_SETTINGS = {
   [LootTarget.HERB] = "lootSparkleHerbs",
   [LootTarget.QUEST] = "lootSparkleQuestObjects",
   [LootTarget.CORPSE] = "lootSparkleCorpses",
+  [LootTarget.CHEST] = "lootSparkleChests",
+  [LootTarget.BOBBER] = "lootSparkleBobber",
 }
 local CONFLICTING_ADDONS = { "ForeverLootSparkles", "Lueur" }
 
@@ -116,6 +119,15 @@ end
 
 function LootSparkles.Conflict()
   return conflict
+end
+
+function LootSparkles.IsFishing()
+  if type(UnitChannelInfo) ~= "function" then return false end
+  local name, _, texture = UnitChannelInfo("player")
+  if not name then return false end
+  if texture == 136245 then return true end
+  if type(texture) == "string" and texture:lower():find("trade_fishing", 1, true) then return true end
+  return false
 end
 
 local function anyKindOn(db)
@@ -234,6 +246,35 @@ local function proposeState(state, kind)
   end
 end
 
+local fishingOverridden = false
+
+local function applyFishingRange()
+  if not ns.db or ns.db.lootSparkleBobber ~= true or InCombatLockdown() then return end
+  if LootSparkles.IsFishing() then
+    if not fishingOverridden then
+      fishingOverridden = true
+      withWrites(function()
+        ns.CVars.Override("SoftTargetInteractRange", 60)
+        if ns.CVars.Exists("SoftTargetInteractRangeIsHard") then
+          ns.CVars.Override("SoftTargetInteractRangeIsHard", 0)
+        end
+      end)
+    end
+  elseif fishingOverridden then
+    fishingOverridden = false
+    withWrites(function()
+      if ns.CVars.Exists("SoftTargetInteractRangeIsHard") then
+        ns.CVars.Restore("SoftTargetInteractRangeIsHard")
+      end
+      if softTargetWanted() then
+        ns.CVars.Override("SoftTargetInteractRange", 60)
+      else
+        ns.CVars.Restore("SoftTargetInteractRange")
+      end
+    end)
+  end
+end
+
 local function evaluate()
   if not softTargetWanted() then
     release()
@@ -241,6 +282,11 @@ local function evaluate()
   end
   local kind, blocked = LootTarget.Classify(LootTarget.UNIT)
   local wanted = kind ~= nil and ns.db[KIND_SETTINGS[kind]] == true
+  if wanted and ns.db.lootSparkleHideUntrained == true and (kind == LootTarget.ORE or kind == LootTarget.HERB) then
+    if not LootTarget.IsGatheringTrained(kind) then
+      wanted = false
+    end
+  end
   if wanted or hasInteractTarget() then setPlate(wanted) else closePlateSoon() end
   if not wanted then
     release()
@@ -284,6 +330,14 @@ local function applySoftTarget()
     return
   end
   release()
+  if fishingOverridden then
+    fishingOverridden = false
+    withWrites(function()
+      if ns.CVars.Exists("SoftTargetInteractRangeIsHard") then
+        ns.CVars.Restore("SoftTargetInteractRangeIsHard")
+      end
+    end)
+  end
   withWrites(function()
     for name in pairs(ONCE_CVARS) do CVars.Restore(name) end
     for name in pairs(OWN_CVARS) do CVars.Restore(name) end
@@ -338,6 +392,15 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
     plateOpen = nil
     evaluate()
   end
+  if fishingOverridden and not LootSparkles.IsFishing() then applyFishingRange() end
+end)
+
+ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", function(unit)
+  if unit == "player" then applyFishingRange() end
+end)
+
+ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", function(unit)
+  if unit == "player" then applyFishingRange() end
 end)
 
 ns.RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED", function(oldTarget, newTarget)

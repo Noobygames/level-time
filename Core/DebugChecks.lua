@@ -1021,3 +1021,13 @@ check("445.qol", function()
     warnFalling = ns.db.warnFalling,
   }
 end)
+
+-- 450: Level Time Post / Postal Light (Mail.lua)
+check("450.mail", function()
+  return {
+    setting = ns.db.mailAssist,
+    isOpening = ns.Mail and ns.Mail.IsOpening and ns.Mail.IsOpening() or false,
+    openAllButtonShown = _G.LevelTimerMailOpenAllButton and _G.LevelTimerMailOpenAllButton:IsShown() or false,
+    altButtonShown = _G.LevelTimerMailAltButton and _G.LevelTimerMailAltButton:IsShown() or false,
+  }
+end)
