@@ -2,6 +2,10 @@
 
 Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
 
+## Geplant: Bedienung (November 2026)
+
+- [ ] 477. **Dropdowns mit Suche statt Durchklicken** (M): Neues `OptionsBuilder`-Steuerelement `AddDropdown` (eigenes Widget, kein `UIDropDownMenu`/`MenuUtil`, damit es in allen Flavors gleich läuft): Klick öffnet scrollbare Liste, ab ~8 Einträgen Suchfeld oben (tippen filtert sofort, Enter wählt den ersten Treffer, Esc schließt), Pfeiltasten, aktuelle Wahl markiert, Gruppen-Überschriften (z. B. „Klassisch“ bei den Sparkle-Stilen), optional Vorschau je Eintrag (Schriftarten in ihrer eigenen Schrift, Sparkle-Stil beim Überfahren als Live-Vorschau). Alle `AddCycleButton`-Stellen (Sparkle-Stil, Schriftarten, …, auch `StreamGoal/Options.lua`) und Chooser mit vielen Einträgen umstellen; kurze Chooser (≤ 4) bleiben Tabs.
+
 ## Geplant: Wettbewerbsanalyse (November 2026)
 
 Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Code; Lizenzen beachten), dazu CurseForge-Seiten und die Regeln auf speedrun.com. Komfort: Leatrix Plus (3.3.5-Port), Questie, RXPGuides, Guidelime, Plumber, Mapster, MoveAny, BlizzMove. Statistik: XPLedger (engster Konkurrent, Retail/Forever/Era/MoP), XToLevel, Experiencer, Rested, DataStore, Accountant Classic, Deathlog, Hardcore, NovaInstanceTracker, SavedInstances, LvlHistory. Speedrun: Sprint (vormals ForeverTimer), OnlySplits, Chromely, Earned: Self Found, SelfFound Tracker, Speed Splits, Forever Journey Log, Hardcore Deathrace. Stream/Ziele: Hardcore (Zarant), UltraHardcore, HC Challenge Wheel, FateLocked, Bingo/TiffBingo, FarmIt, Farming Bar, Cerealize. Alle API-Angaben stammen aus fremdem Code und sind vor dem Bau gegen die Blizzard-Doku je Client zu prüfen (CLAUDE.md); „im Spiel prüfen“ heißt `/dump` nötig.
