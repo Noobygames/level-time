@@ -798,6 +798,22 @@ check("258.flight.estimates", function()
   return summary
 end)
 
+-- 459: Weltposition der Spielerposition über C_Map.GetWorldPosFromMapPos (Kontinent, x, y) gegen UnitPosition
+-- (liefert y, x, Kontinent): zeigt, in welcher Achsen-Reihenfolge der Client die Weltposition liefert
+local function worldPositionProbe(position)
+  if not position then return { position = false } end
+  local probe = { mapID = position.mapID, mapX = position.x, mapY = position.y,
+    api = type(C_Map and C_Map.GetWorldPosFromMapPos), vector = type(_G.CreateVector2D) }
+  if C_Map and C_Map.GetWorldPosFromMapPos and _G.CreateVector2D then
+    local ok, continent, world = pcall(C_Map.GetWorldPosFromMapPos, position.mapID,
+      _G.CreateVector2D(position.x, position.y))
+    probe.ok, probe.continent = ok, ok and continent or tostring(continent)
+    if ok and world and world.GetXY then probe.worldX, probe.worldY = world:GetXY() end
+  end
+  if _G.UnitPosition then probe.unitPosition = { pcall(_G.UnitPosition, "player") } end
+  return probe
+end
+
 -- 440: Schiffe und Zeppeline: Strecken, Phasen, Anleger, Position und Zustand der Fahrt-Erkennung
 check("440.transport.state", function()
   local data = ns.Transports.Data()
@@ -814,7 +830,7 @@ check("440.transport.state", function()
     ride = ride and { from = ride.from.name, leftAt = ride.leftAt } or nil,
     api = { getServerTime = type(_G.GetServerTime), isPlayerMoving = type(_G.IsPlayerMoving),
       namePlate = type(C_NamePlate and C_NamePlate.GetNamePlateForUnit), mapInfo = type(C_Map and C_Map.GetMapInfo) },
-    unitFrame = Probe.unitInfo("target"), paths = ns.TransportPaths.Summary() }
+    unitFrame = Probe.unitInfo("target"), paths = ns.TransportPaths.Summary(), worldPosition = worldPositionProbe(position) }
 end)
 
 -- 442: Grafikdetails (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes Original

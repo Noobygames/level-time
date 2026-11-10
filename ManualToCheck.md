@@ -3204,7 +3204,7 @@ Fehler:
 
 Komfort > Timer: Schiffe und Zeppeline an, Weltkarte an, Debug-Log an. Eine Strecke zweimal abfahren sehen (oder
 geteilte Phase empfangen), damit es eine Periode gibt. Danach `/lt debug check`: `440.transport.state` > `paths`
-zeigt je Strecke den Rundkurs (`path`), `speed` (Yards/s), `period`, `travel` und `docks` mit Weltposition.
+zeigt je Strecke den Rundkurs (`path`), `speed` (Yards/s), `period`, `travel` und `docks` mit Weltposition. `worldPosition` vergleicht `C_Map.GetWorldPosFromMapPos` (`worldX`, `worldY`) mit `UnitPosition` (y, x): gleiche Zahlen in welcher Reihenfolge?
 
 1. Werden die Anleger einem Rundkurs zugeordnet (`path` nicht `false`)? Wenn nein: `docks`-Positionen notieren.
 2. Stimmen Periode und Abfahrt der Gegenrichtung (ohne sie gefahren zu sein) mit dem Spiel überein?
