@@ -1,3 +1,3 @@
-module github.com/Noobygames/wow-statistics/tools/records
+module github.com/Noobygames/level-time/tools/records
 
 go 1.22

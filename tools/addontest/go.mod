@@ -1,4 +1,4 @@
-module github.com/Noobygames/wow-statistics/tools/addontest
+module github.com/Noobygames/level-time/tools/addontest
 
 go 1.23
 

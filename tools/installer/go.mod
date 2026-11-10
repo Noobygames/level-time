@@ -1,3 +1,3 @@
-module github.com/Noobygames/wow-statistics/tools/installer
+module github.com/Noobygames/level-time/tools/installer
 
 go 1.22

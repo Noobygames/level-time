@@ -1,4 +1,4 @@
-# wow-statistics
+# Level Time
 
 Useful WoW addon (compatible with WoW Forever) to show statistics.
 

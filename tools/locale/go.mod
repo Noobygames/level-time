@@ -1,3 +1,3 @@
-module github.com/Noobygames/wow-statistics/tools/locale
+module github.com/Noobygames/level-time/tools/locale
 
 go 1.22

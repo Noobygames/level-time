@@ -190,4 +190,4 @@ Addons cannot write files, so copying text is the only way out of the game.
 
 ## Feedback
 
-Bugs and ideas: [GitHub issues](https://github.com/Noobygames/wow-statistics/issues). For bug reports, `/lt debug log` followed by a `/reload` writes a log to your SavedVariables that helps a lot.
+Bugs and ideas: [GitHub issues](https://github.com/Noobygames/level-time/issues). For bug reports, `/lt debug log` followed by a `/reload` writes a log to your SavedVariables that helps a lot.

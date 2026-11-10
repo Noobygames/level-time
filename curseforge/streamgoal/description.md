@@ -86,4 +86,4 @@ Templates are saved goals that bingo cards and the wheel draw from; a pack adds 
 
 ## Feedback
 
-Bugs and ideas: [GitHub issues](https://github.com/Noobygames/wow-statistics/issues)
+Bugs and ideas: [GitHub issues](https://github.com/Noobygames/level-time/issues)
