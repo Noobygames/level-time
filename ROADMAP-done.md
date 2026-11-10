@@ -555,6 +555,7 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ## Erledigt
 
+- v2.37.0: 477. Auswahllisten mit Suche statt Durchklicken; 478. Testen-Knöpfe für Chat & Erinnerungen; Fix: Minimap-Knopfleiste hält gesammelte Knöpfe sichtbar und klickbar (LibDBIcon-Fade, Unterframes über der Leiste)
 - v2.36.0: 466. Sparkle-Stil Zielsucher (neuer Standard); 467. Uhrwerk; 468. Fortschrittsring; 469. Glühwürmchen; 470. Schatzkarte; 471. Symbol; 472. Pixel-Pop; 473. Sternbild; 474. Standard-Glitzer; 475. Pfeil; 476. Lichtsäule (Glow-Stile aus 456 unter „Klassisch“)
 - v2.35.0: 460. Instanz-Stammdaten (Reset, Gruppengröße, Level-Bereich, passende Dungeons); 461. Welt-/Kartenkoordinaten umrechnen (`Lib/MapCoords.lua`); 462. Flugpunkt-Namen in allen Sprachen (alte Flugzeiten auf nodeIDs); 463. Verkaufswert im Beute-Journal (keine Item-/Fraktionsdaten mitgeliefert)
 - v2.34.0: 451. Minimap-Button-Sammler (`MinimapBar`); 453. Gruppen-Questabgleich (`PartyQuestSync`); 456. Multi-Layer-2D-Effekt-Engine (`LootSparkle`); 464. Vorschau-Knopf für jede Anzeige; 465. Lange Einstellungsseiten gruppieren
