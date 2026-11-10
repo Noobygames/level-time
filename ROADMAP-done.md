@@ -542,6 +542,7 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ## Erledigt
 
+- v2.35.0: 460. Instanz-Stammdaten (Reset, Gruppengröße, Level-Bereich, passende Dungeons); 461. Welt-/Kartenkoordinaten umrechnen (`Lib/MapCoords.lua`); 462. Flugpunkt-Namen in allen Sprachen (alte Flugzeiten auf nodeIDs); 463. Verkaufswert im Beute-Journal (keine Item-/Fraktionsdaten mitgeliefert)
 - v2.34.0: 451. Minimap-Button-Sammler (`MinimapBar`); 453. Gruppen-Questabgleich (`PartyQuestSync`); 456. Multi-Layer-2D-Effekt-Engine (`LootSparkle`); 464. Vorschau-Knopf für jede Anzeige; 465. Lange Einstellungsseiten gruppieren
 - v2.33.0/v2.33.1: 459. Schiffs- und Zeppelin-Takt aus den Spieldaten (Rundkurse, Weltkarte, Zeppelinmeister-Plakette; Debug-Probe `worldPosition`)
 - v2.32.0: 458. Flugzeiten aus den Spieldaten (Flugstrecken)
