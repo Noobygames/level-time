@@ -80,7 +80,7 @@ builder.AddSlider({
   format = function(value) return tostring(value) end,
   reset = settingReset("maxCards"),
 })
-builder.AddCycleButton({
+builder.AddDropdown({
   label = "SG_OPTIONS_CARD_COLORS",
   choices = function()
     local list = {}

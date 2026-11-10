@@ -3,7 +3,7 @@
 -- Jedes Steuerelement registriert eine refresh(db)-Funktion; Refresh(db) (nach jeder Änderung über
 -- host.set/host.apply) zeigt den aktuellen Stand und die gewählte Sprache.
 -- Schalter mit available() == false (z.B. nur in WoW Forever) werden gar nicht angelegt.
--- Abhängige Bausteine: enabled(db) optional bei Schaltern, Reglern, Auswahlzeilen und Zyklus-Buttons; false = ausgegraut
+-- Abhängige Bausteine: enabled(db) optional bei Schaltern, Reglern, Auswahlzeilen und Auswahllisten; false = ausgegraut
 -- und nicht bedienbar (z.B. Einstellungen eines anderen Layouts), geprüft bei jedem Refresh.
 -- Tooltips: Text aus L["<LABEL>_TIP"] (fehlt er, gibt es keinen Tooltip), Titel = Beschriftung.
 -- Unterseiten (AddSubPage ... FinishSubPages): eine Seite mit Seitenleiste links wie bei Leatrix Plus; je Eintrag
@@ -61,6 +61,10 @@ local ROW_SLIDER = 44
 local ROW_CHOOSER = 26
 local ROW_HINT = 30
 local SECTION_GAP = 8
+local MAX_CHOOSER_TABS = 4   -- mehr Möglichkeiten zeigt AddChooser als Auswahlliste (AddDropdown) statt als Reiter
+local DROPDOWN_ARROW = "Interface\Buttons\Arrow-Down-Up"
+local DROPDOWN_ARROW_SIZE = 14
+local DROPDOWN_ARROW_INSET = 6
 local DISABLED_ALPHA = 0.4   -- ausgegraute Bausteine (enabled(db) == false)
 
 -- Bausteine nach enabled(db) bedienbar oder ausgegraut; ohne enabled immer bedienbar
@@ -748,7 +752,23 @@ function OptionsBuilder.New(options)
 
   -- Auswahl als Zeile von Reitern: chooser = { label = Locale-Key, setting, choices = { { value, name() }, ... },
   -- advanced optional }
+  -- Mehr als MAX_CHOOSER_TABS Auswahlmöglichkeiten passen nicht mehr als Reiter in eine Zeile: dann AddDropdown
   function builder.AddChooser(chooser)
+    if #chooser.choices > MAX_CHOOSER_TABS then
+      local names = {}
+      local choices = {}
+      for i, choice in ipairs(chooser.choices) do
+        choices[i] = { key = choice.value }
+        names[choice.value] = choice.name
+      end
+      return builder.AddDropdown({
+        label = chooser.label, setting = chooser.setting, advanced = chooser.advanced, enabled = chooser.enabled,
+        choices = function() return choices end,
+        get = function(db) return db[chooser.setting] end,
+        set = function(value) host.set(chooser.setting, value) end,
+        nameOf = function(value) return names[value] and names[value]() or tostring(value) end,
+      })
+    end
     beginItem(chooser)
     local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     addRow(label, 0)
@@ -775,35 +795,48 @@ function OptionsBuilder.New(options)
     endItem()
   end
 
-  -- Auswahl aus einer langen oder veränderlichen Liste als ein Button hinter der Beschriftung: Linksklick nächster,
-  -- Rechtsklick voriger Eintrag. cycle = { label = Locale-Key, choices() -> { { key, name } }, get(db) -> key,
-  -- set(key), nameOf(key) -> Text für die Anzeige, setting/reset/advanced optional }; Tooltip aus <label>_TIP
-  function builder.AddCycleButton(cycle)
-    beginItem(cycle)
+  -- Auswahl aus einer langen oder veränderlichen Liste als Button hinter der Beschriftung (Roadmap 477): ein Klick öffnet
+  -- die Liste (Lib/Dropdown.lua) mit Suchfeld ab 8 Einträgen, Gruppen-Überschriften und Pfeiltasten.
+  -- dropdown = { label = Locale-Key, choices() -> { { key, name optional, group optional, font optional } }, get(db) -> key,
+  -- set(key), nameOf(key) -> Text für Anzeige und Liste (wenn name fehlt), setting/reset/advanced/enabled optional };
+  -- group = Überschrift (Text) über dem ersten Eintrag der Gruppe, die Einträge einer Gruppe stehen nebeneinander;
+  -- font = Schriftpfad, in dem der Eintrag in der Liste steht; Tooltip aus <label>_TIP
+  function builder.AddDropdown(dropdown)
+    beginItem(dropdown)
     local label = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     addRow(label, 0)
-    local button = track(Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function(_, mouseButton)
-      local choices = cycle.choices()
-      local current = cycle.get(host.db())
-      local index = 1
-      for i, choice in ipairs(choices) do
-        if choice.key == current then index = i end
+    local button
+    button = track(Widgets.CreateButton(page, BUTTON_ROW_MIN_WIDTH, BUTTON_HEIGHT, function()
+      if ns.Dropdown.IsOpen() then return ns.Dropdown.Close() end
+      local entries = {}
+      for i, choice in ipairs(dropdown.choices()) do
+        entries[i] = { key = choice.key, text = choice.name or dropdown.nameOf(choice.key), group = choice.group,
+          font = choice.font }
       end
-      local step = mouseButton == "RightButton" and -1 or 1
-      cycle.set(choices[(index - 1 + step) % #choices + 1].key)
+      ns.Dropdown.Open(button, {
+        entries = entries,
+        current = dropdown.get(host.db()),
+        onPick = dropdown.set,
+      })
     end))
-    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    local arrow = button:CreateTexture(nil, "OVERLAY")
+    arrow:SetTexture(DROPDOWN_ARROW)
+    arrow:SetSize(DROPDOWN_ARROW_SIZE, DROPDOWN_ARROW_SIZE)
+    arrow:SetPoint("RIGHT", -DROPDOWN_ARROW_INSET, 0)
+    button.label:ClearAllPoints()
+    button.label:SetPoint("CENTER", -DROPDOWN_ARROW_SIZE / 2, 0)
     button:SetPoint("LEFT", label, "RIGHT", CHOOSER_TAB_GAP, 0)
-    addTooltip(button, cycle.label .. "_TIP", localized(cycle.label))
+    addTooltip(button, dropdown.label .. "_TIP", localized(dropdown.label))
     table.insert(chooserRows, { label = label, tabs = { button } })
-    index(localized(cycle.label), cycle.label .. "_TIP", label, button)
+    index(localized(dropdown.label), dropdown.label .. "_TIP", label, button)
     nextRowY = nextRowY - ROW_CHOOSER
     onRefresh(function(db)
-      setMeasuredText(label, "SetText", L[cycle.label])
-      if setMeasuredText(button, "SetText", cycle.nameOf(cycle.get(db))) then
+      setMeasuredText(label, "SetText", L[dropdown.label])
+      if setMeasuredText(button, "SetText", dropdown.nameOf(dropdown.get(db))) then
         Widgets.SetButtonText(button, button:GetText(), BUTTON_ROW_MIN_WIDTH)
+        button:SetWidth(button:GetWidth() + DROPDOWN_ARROW_SIZE)
       end
-      applyEnabled(cycle.enabled, db, label, button)
+      applyEnabled(dropdown.enabled, db, label, button)
     end)
     endItem()
   end

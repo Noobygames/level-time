@@ -52,6 +52,7 @@ Lib\Overrides.lua
 Lib\CVars.lua
 Lib\MapCoords.lua
 Lib\Widgets.lua
+Lib\Dropdown.lua
 Lib\TabStrip.lua
 Lib\Frames.lua
 Lib\Auras.lua

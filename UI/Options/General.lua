@@ -3,7 +3,7 @@ local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local TimerWindow = ns.TimerWindow
-local builder, addPage, finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, toPercent, addVisibilityCycle, addFrameScaleSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.toPercent, O.addVisibilityCycle, O.addFrameScaleSlider
+local builder, addPage, finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, toPercent, addVisibilityDropdown, addFrameScaleSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.toPercent, O.addVisibilityDropdown, O.addFrameScaleSlider
 
 -- Sprachnamen stehen immer in der eigenen Sprache
 local function addLanguageChooser()
@@ -55,11 +55,15 @@ local function addThemeSection()
     accents[i] = { value = key, name = localized(key == "" and "ACCENT_DEFAULT" or "ACCENT_" .. key:upper()) }
   end
   addChooser({ label = "THEME_ACCENT", setting = "themeAccent", choices = accents })
-  builder.AddCycleButton({
+  builder.AddDropdown({
     label = "THEME_FONT",
     advanced = true,
     setting = "themeFont",
-    choices = Theme.FontChoices,
+    choices = function()
+      local choices = Theme.FontChoices()
+      for _, choice in ipairs(choices) do choice.font = Theme.FontPath(choice.key) end  -- Eintrag in seiner Schrift
+      return choices
+    end,
     get = function(db) return db.themeFont end,
     set = function(key) ns.Set("themeFont", key) end,
     nameOf = function(key) return key == "" and L.THEME_FONT_DEFAULT or key end,
@@ -76,7 +80,7 @@ local function addThemeSection()
   })
   addOutlineChooser()
   -- Lesbarkeit: Untergrenze der effektiven Schriftgröße (auch gegen kleine Anzeigen), Balkentextur, Farbe nach Wert
-  builder.AddCycleButton({
+  builder.AddDropdown({
     label = "THEME_MIN_FONT_SIZE",
     advanced = true,
     setting = "themeMinFontSize",
@@ -89,7 +93,7 @@ local function addThemeSection()
     set = function(size) ns.Set("themeMinFontSize", size) end,
     nameOf = function(size) return size == 0 and L.THEME_MIN_FONT_OFF or string.format(L.FONT_POINTS, size) end,
   })
-  builder.AddCycleButton({
+  builder.AddDropdown({
     label = "THEME_BAR_TEXTURE",
     advanced = true,
     setting = "themeBarTexture",
@@ -125,7 +129,7 @@ local function addDisplaySection()
     end
   end
 
-  -- Gewählte Werte (compactRows) für Kompakt, Uhr und XP-Balken: je Stelle ein Zyklus-Button über alle Zeilen
+  -- Gewählte Werte (compactRows) für Kompakt, Uhr und XP-Balken: je Stelle eine Auswahlliste über alle Zeilen
   local function rowChoices()
     local list = { { key = "" } }
     for _, row in ipairs(WindowModel.AllRows()) do
@@ -135,7 +139,7 @@ local function addDisplaySection()
   end
   local usesChosenRows = function(db) return Layouts.Get(db.windowLayout).source == WindowModel.CHOSEN end
   for index = 1, WindowModel.MAX_CHOSEN_ROWS do
-    builder.AddCycleButton({
+    builder.AddDropdown({
       label = "CHOSEN_ROW_" .. index,
       setting = "compactRows",
       choices = rowChoices,
@@ -180,7 +184,7 @@ end
 
 -- Sichtbarkeit des Hauptfensters (immer, im Kampf, ...) und Deckkraft beim Ausblenden
 local function addVisibilitySection()
-  addVisibilityCycle("WINDOW_VISIBILITY", "windowVisibility")
+  addVisibilityDropdown("WINDOW_VISIBILITY", "windowVisibility")
   addSlider({
     label = "FADE_ALPHA",
     advanced = true,

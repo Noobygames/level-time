@@ -16,7 +16,7 @@ local function addRowOrderSection()
     return shown[1] and shown[1].setting or ""
   end
   addSection("SECTION_ROW_ORDER", { advanced = true })
-  builder.AddCycleButton({
+  builder.AddDropdown({
     label = "ROW_ORDER_STAT",
     advanced = true,
     setting = "rowOrder",

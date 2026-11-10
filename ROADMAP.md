@@ -4,7 +4,8 @@ Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt 
 
 ## Geplant: Bedienung (November 2026)
 
-- [ ] 477. **Dropdowns mit Suche statt Durchklicken** (M): Neues `OptionsBuilder`-Steuerelement `AddDropdown` (eigenes Widget, kein `UIDropDownMenu`/`MenuUtil`, damit es in allen Flavors gleich läuft): Klick öffnet scrollbare Liste, ab ~8 Einträgen Suchfeld oben (tippen filtert sofort, Enter wählt den ersten Treffer, Esc schließt), Pfeiltasten, aktuelle Wahl markiert, Gruppen-Überschriften (z. B. „Klassisch“ bei den Sparkle-Stilen), optional Vorschau je Eintrag (Schriftarten in ihrer eigenen Schrift, Sparkle-Stil beim Überfahren als Live-Vorschau). Alle `AddCycleButton`-Stellen (Sparkle-Stil, Schriftarten, …, auch `StreamGoal/Options.lua`) und Chooser mit vielen Einträgen umstellen; kurze Chooser (≤ 4) bleiben Tabs.
+
+- [ ] 478. **Vorschau-/Test-Knöpfe für Chat & Erinnerungen** (S–M): Auf der Seite „Chat & Erinnerungen“ (Erinnerungen, Warnungen, Gruppe, beim Login) je Abschnitt ein Knopf „Testen“, der die Ausgabe so zeigt, wie sie im Spiel käme: Bildschirm-Warnung bzw. Hinweis wie echt ausgelöst (Sturz, Atem, Munition, Haltbarkeit, Taschen, Aggro, Heiler-Kontrolle, Notfall, wenig Mana, Erinnerungen an Lager/Essen/Schlafsack/Lehrer/Klasse/Pause), Gruppen-Ansagen und Instanzbericht nur lokal im eigenen Chat mit Kennzeichnung „Vorschau“, nie an Gruppe/Raid gesendet. Wiederverwendet die vorhandenen Ausgabewege (keine zweite Text-Logik).
 
 ## Geplant: Wettbewerbsanalyse (November 2026)
 

@@ -154,6 +154,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **189. Schlafsack-Timer, Datenteil (Roadmap 430, WoW Forever)**: check `430.sleep.state` (Schlafsack in der Tasche, Zauber des Items aus `C_Item.GetItemSpell`, „Gut erholt“ mit `applications`/Dauer/Ablauf, `rolledOut`, Zustand des Timers samt `duration`) vor und während des Liegens, debug `sleep` (sleeping bag rolled out, emote SLEEP/STAND (andere Emotes nur beim Liegen oder 15 s nach dem Ausrollen), started by emote … countdown 180/60 s, well rested stacks … -> …, well rested refreshed after … s, ended: done/moving/combat/stand/jump), Proben `430.sleep.cast` und `430.sleep.auras` (springt `expirationTime` bei 3 Stapeln nach etwa 60 s auf volle 2 Stunden?)
 - **213. Weglaufen, Datenteil (Roadmap 439)**: check `439.goals.escape` (Namen der Zauber, die den Kampf ohne Weglaufen beenden: Verschwinden 1856/1857/26889, Totstellen 5384, Schattenhaftigkeit 20580/58984, Unsichtbarkeit 66; `false` = Client kennt die ID nicht; Zustand von Ziel/Fokus/Maus als attacking/other/idle/unsure/dead, `UnitIsFeignDeath`/`UnitPlayerControlled` vorhanden), debug `goal:escape` (combat end: Name, Angriffsdauer, dead, seen alive, killed, nameless kill; escaped (combat end/aggro taken); combat end not counted: instance/death/combat drop; combat drop spell …) bei einem Kampf, aus dem man wegläuft, einem getöteten Gegner und einer abgenommenen Aggro
 - **214. Momente, Datenteil (Roadmap 439)**: check `439.goals.moments` (verfügbare Modi, `IsSwimming`/`IsFalling` lesbar, `C_PlayerInfo.GetGlidingInfo`, `C_ChatInfo.PerformEmote`/`DoEmote`, `C_Spell.IsSpellHelpful`, `C_MerchantFrame.GetBuybackItemID`/`GetBuybackItemLink`/`BuybackItem`, Zahl gemerkter Quest-Belohnungen), debug `goal:moment` (rare seen …, fell … s, emote … at … (unit …), helpful spell … on … : heal/res, quest reward …, sold … (quest reward true/false), bought back slot …, <Modus> +1)
+- **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 
 ---
 
@@ -3381,4 +3382,42 @@ Glühwürmchen ruhig, Sammeln ohne Sprung (ja/nein):
 Schatzkarte lesbar (ja/nein):
 Pixel-Pop scharf und lesbar (ja/nein):
 Sternbild lesbar auf Schnee (ja/nein):
+```
+
+### 235. Auswahllisten mit Suche statt Durchklicken (Roadmap 477)
+
+ [ ] geprüft
+
+Eigene Liste (kein UIDropDownMenu), muss in allen vier Flavors gleich laufen. Einstellungen > Komfort > Welt „Effekt-Stil“, Statistiken/Anzeige „Schrift“, „Balkentextur“, „Wert 1“ (Zeilen), Sichtbarkeit, Sprache bleibt Reiter
+
+- Klick auf den Knopf öffnet die Liste unter dem Knopf (am unteren Bildschirmrand darüber), Pfeil im Knopf sichtbar, Liste liegt über dem Optionsfenster
+- Effekt-Stil: Überschriften „Formen“ und „Klassisch“, aktueller Stil hervorgehoben, Suchfeld oben, Tippen filtert sofort („Pfeil“, „pfeil“, Akzente), Enter wählt den ersten Treffer, Pfeiltasten springen über Überschriften
+- Esc schließt nur die Liste (Optionsfenster bleibt), zweites Esc schließt das Fenster; Klick daneben schließt; Mausrad scrollt lange Listen (Schriften mit LibSharedMedia), Bildlaufleiste sichtbar
+- Schrift: jeder Eintrag steht in seiner eigenen Schrift; eine Schrift ohne Datei darf keinen Lua-Fehler machen
+- Kurze Listen (Sichtbarkeit): kein Suchfeld, Pfeiltasten und Enter gehen trotzdem
+- Fr/Es: Knopf und Liste breit genug, Text nicht abgeschnitten; Suche oben im Fenster findet die Steuerelemente weiter; ausgegraute Listen (z. B. Zeile bei falschem Layout) öffnen nicht
+
+```text
+Client:
+Liste öffnet unten/oben richtig (ja/nein):
+Esc schließt nur die Liste (ja/nein):
+Schriften in eigener Schrift (ja/nein):
+```
+
+### 236. Minimap-Knopfleiste: Knöpfe ausgegraut / nicht klickbar (Roadmap 451)
+
+- [ ] geprüft
+
+Datenteil per Debug-Log: check `451.minimapBar.buttons`. Bitte bei aufgeklappter Leiste `/lt debug check 451.minimapBar.buttons` ausführen
+(Log kopieren) und nennen, welche Addons betroffen sind. Fix: Knöpfe samt Unterframes liegen über der Leiste, Deckkraft wird auf 1
+gehalten (LibDBIcon-Fade), Lage wird bei Aufklappen und nach LibDBIcon-Refresh erneuert.
+
+- Leiste aufklappen: alle Symbole voll sichtbar (nicht grau) und per Klick bedienbar (links/rechts), Tooltip erscheint
+- Betroffene Addons nach Neuladen und nach Ändern ihrer Minimap-Einstellung (LibDBIcon „nur bei Mausover“) erneut prüfen
+- Leiste ausschalten: Knöpfe sitzen wieder an der Minimap
+
+```text
+Client:
+Alle Symbole klickbar (ja/nein):
+Betroffene Addons (falls noch welche):
 ```

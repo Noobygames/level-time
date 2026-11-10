@@ -2,7 +2,7 @@
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
-local addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, addVisibilityCycle, addFrameScaleSlider = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.addVisibilityCycle, O.addFrameScaleSlider
+local addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, addVisibilityDropdown, addFrameScaleSlider = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.addVisibilityDropdown, O.addFrameScaleSlider
 
 -- Vergleich der Splits; ein fester Charakter wird per /lt compare Name gewählt
 local function addSplitComparisonChooser()
@@ -46,7 +46,7 @@ addToggles({
 })
 addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList", function(db) return db.showSplitList end)
 O.addFramePreview("SPLIT_LIST_PREVIEW", "splitList")
-addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
+addVisibilityDropdown("SPLIT_LIST_VISIBILITY", "splitListVisibility")
 addSlider(requires({
   label = "SPLIT_LIST_ROWS",
   setting = "splitListRows",

@@ -51,9 +51,9 @@ local function toPercent(fraction)
   return math.floor(fraction * 100 + 0.5)
 end
 
--- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Zyklus-Button: Linksklick nächste, Rechtsklick vorige
-local function addVisibilityCycle(label, setting)
-  builder.AddCycleButton({
+-- Sichtbarkeitsregel einer Anzeige (DisplayVisibility.lua) als Auswahlliste
+local function addVisibilityDropdown(label, setting)
+  builder.AddDropdown({
     label = label,
     setting = setting,
     choices = function()
@@ -96,8 +96,8 @@ ns.OptionsCore = {
   builder = builder,
   addPage = addPage, finishPage = finishPage, addSection = addSection, addSlider = addSlider,
   addToggles = addToggles, addButton = addButton, addFooterButton = addFooterButton,
-  addChooser = addChooser, addCycle = builder.AddCycleButton, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
+  addChooser = addChooser, addDropdown = builder.AddDropdown, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
   toggle = toggle, localized = localized, advanced = advanced, requires = requires,
   percent = percent, toPercent = toPercent,
-  addVisibilityCycle = addVisibilityCycle, addFrameScaleSlider = addFrameScaleSlider,
+  addVisibilityDropdown = addVisibilityDropdown, addFrameScaleSlider = addFrameScaleSlider,
 }
