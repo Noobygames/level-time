@@ -3421,3 +3421,15 @@ Client:
 Alle Symbole klickbar (ja/nein):
 Betroffene Addons (falls noch welche):
 ```
+
+### 237. Testen-Knöpfe auf Chat & Erinnerungen (Roadmap 478)
+
+- [ ] geprüft
+
+Einstellungen > Chat & Erinnerungen, je Unterseite ein Knopf „Testen“ (unabhängig von den Schaltern).
+
+- Login: Chatzeilen Session-Vergleich, Rekordmeldung (Karte), Twink-Hinweis
+- Erinnerungen: jeder Klick der nächste Hinweis (Essen, Lager, Schlafsack, Klassen-Buffs, Lehrer, Pause) als Karte samt Chatzeile
+- Warnungen: Atem, Taschen, Haltbarkeit, Munition (Jäger), Instanzlimit, Aggro, Hardcore-Schutz (Wildnis-Logout, Sturz), Notfall-Markierung (einige Sekunden) wie echt
+- Gruppe: alle Ansagen und der Instanzbericht nur im eigenen Chat mit „[Vorschau]“; in einer Gruppe prüfen, dass nichts im Gruppenchat erscheint
+- Texte in allen vier Sprachen passen in die Knöpfe

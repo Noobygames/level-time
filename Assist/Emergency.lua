@@ -188,6 +188,12 @@ local function update()
   end
 end
 
+-- Vorschau (Testen-Knopf): Markierung und Rand ein paar Sekunden zeigen, danach gilt wieder der echte Zustand
+function Emergency.Preview()
+  setActive(true)
+  C_Timer.After(ns.Frames.PREVIEW_SECONDS, update)
+end
+
 local function onSlotsChanged()
   dirty = true
   if active then markButtons() end

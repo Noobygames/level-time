@@ -81,6 +81,11 @@ local function warn(timer, remaining)
   if FlashClientIcon then FlashClientIcon() end
 end
 
+-- Vorschau (Testen-Knopf): Atemwarnung beim eingestellten Wert
+function BreathWarning.Preview()
+  warn("BREATH", ns.db.breathWarnSeconds)
+end
+
 function BreathWarning.Check()
   if not ns.db.warnBreath then return end
   for timer, entry in pairs(running) do

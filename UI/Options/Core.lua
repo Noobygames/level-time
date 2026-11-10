@@ -74,6 +74,18 @@ local function addFramePreview(label, id)
   addButton(label, function() ns.Frames.Preview(id) end)
 end
 
+-- Knopf "Testen" mit mehreren Beispielen: jeder Klick löst den nächsten Schritt aus (Funktion aus steps(), z.B. ein
+-- Hinweis wie echt); die Einblendungen warten höchstens zu viert, daher nicht alle auf einmal
+local function addPreviewCycle(label, steps)
+  local index = 0
+  addButton(label, function()
+    local list = steps()
+    if #list == 0 then return end
+    index = index % #list + 1
+    list[index]()
+  end)
+end
+
 local function addFrameScaleSlider(label, id, enabled, isAdvanced)
   local Frames = ns.Frames
   addSlider({
@@ -96,7 +108,7 @@ ns.OptionsCore = {
   builder = builder,
   addPage = addPage, finishPage = finishPage, addSection = addSection, addSlider = addSlider,
   addToggles = addToggles, addButton = addButton, addFooterButton = addFooterButton,
-  addChooser = addChooser, addDropdown = builder.AddDropdown, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
+  addChooser = addChooser, addDropdown = builder.AddDropdown, addFramePreview = addFramePreview, addPreviewCycle = addPreviewCycle, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
   toggle = toggle, localized = localized, advanced = advanced, requires = requires,
   percent = percent, toPercent = toPercent,
   addVisibilityDropdown = addVisibilityDropdown, addFrameScaleSlider = addFrameScaleSlider,

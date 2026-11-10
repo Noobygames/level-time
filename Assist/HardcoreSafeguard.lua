@@ -31,6 +31,32 @@ local function isEligible()
   return true
 end
 
+local function notifyWildernessLogout()
+  Alerts.Notify({
+    title = L.WARN_WILDERNESS_LOGOUT_TITLE,
+    text = L.WARN_WILDERNESS_LOGOUT_TEXT,
+    icon = Alerts.ICONS.camp,
+  }, Alerts.WARNING_COLOR)
+  if Alerts.PlaySound then Alerts.PlaySound() end
+  if FlashClientIcon then FlashClientIcon() end
+end
+
+local function notifyFalling()
+  Alerts.Notify({
+    title = L.WARN_FALLING_TITLE,
+    text = L.WARN_FALLING_TEXT,
+    icon = Alerts.ICONS.nearDeath,
+  }, Alerts.WARNING_COLOR)
+  if Alerts.PlaySound then Alerts.PlaySound() end
+  if FlashClientIcon then FlashClientIcon() end
+end
+
+-- Vorschau (Testen-Knopf): beide Warnungen wie echt
+function HardcoreSafeguard.Preview()
+  notifyWildernessLogout()
+  notifyFalling()
+end
+
 function HardcoreSafeguard.WarnWildernessLogout()
   if not ns.db or not ns.db.warnWildernessLogout then return false end
   if IsResting and IsResting() then return false end
@@ -41,13 +67,7 @@ function HardcoreSafeguard.WarnWildernessLogout()
   lastWildernessAlert = now
 
   ns.Debug("warnings", "wilderness logout warning")
-  Alerts.Notify({
-    title = L.WARN_WILDERNESS_LOGOUT_TITLE,
-    text = L.WARN_WILDERNESS_LOGOUT_TEXT,
-    icon = Alerts.ICONS.camp,
-  }, Alerts.WARNING_COLOR)
-  if Alerts.PlaySound then Alerts.PlaySound() end
-  if FlashClientIcon then FlashClientIcon() end
+  notifyWildernessLogout()
   return true
 end
 
@@ -68,13 +88,7 @@ function HardcoreSafeguard.CheckFalling()
   if now - fallStart >= FALL_MIN_DURATION and (now - lastFallAlert >= FALL_REPEAT_INTERVAL) then
     lastFallAlert = now
     ns.Debug("warnings", "falling warning (duration %s)", now - fallStart)
-    Alerts.Notify({
-      title = L.WARN_FALLING_TITLE,
-      text = L.WARN_FALLING_TEXT,
-      icon = Alerts.ICONS.nearDeath,
-    }, Alerts.WARNING_COLOR)
-    if Alerts.PlaySound then Alerts.PlaySound() end
-    if FlashClientIcon then FlashClientIcon() end
+    notifyFalling()
   end
 end
 

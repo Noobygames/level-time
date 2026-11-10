@@ -1922,4 +1922,13 @@ ns.locales.esES = {
   LOOT_SPARKLE_STYLE_TREASURE = "Mapa del tesoro",
   LOOT_SPARKLE_GROUP_CLASSIC = "Clásico",
   LOOT_SPARKLE_GROUP_SHAPES = "Formas",
+  NOTIFICATION_TEST_GROUP = "Probar",
+  NOTIFICATION_TEST_GROUP_TIP = "Muestra todos los anuncios y el informe de instancia solo en tu propio chat, marcados [Vista previa]. No se envía nada al grupo, la banda ni a otros canales.",
+  NOTIFICATION_TEST_LOGIN = "Probar",
+  NOTIFICATION_TEST_LOGIN_TIP = "Muestra en el chat los mensajes de esta página como al iniciar sesión: comparación de sesión, mensaje de récord y aviso de personaje descansado (con valores de ejemplo si no hay datos).",
+  NOTIFICATION_TEST_REMINDERS = "Probar",
+  NOTIFICATION_TEST_REMINDERS_TIP = "Muestra los recordatorios como si se hubieran activado de verdad, el siguiente en cada clic: comida, campamento, saco de dormir, mejoras de clase, instructor y descanso. Independiente de las opciones.",
+  NOTIFICATION_TEST_WARNINGS = "Probar",
+  NOTIFICATION_TEST_WARNINGS_TIP = "Muestra las advertencias como si se hubieran activado de verdad, la siguiente en cada clic: aliento, bolsas, durabilidad, munición, límite de instancias, aggro, protecciones hardcore y resaltado de emergencia. Independiente de las opciones.",
+  PREVIEW_TAG = "|cff888888[Vista previa]|r",
 }

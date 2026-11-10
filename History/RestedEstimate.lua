@@ -74,6 +74,15 @@ function RestedEstimate.Text(characterKey)
   return isFull and string.format(ns.L.RESTED_FULL_SHORT, percent) or percent
 end
 
+local function printAltFull(key)
+  ns.Print(string.format(ns.L.RESTED_ALT_FULL, ns.History.DisplayName(key)))
+end
+
+-- Vorschau (Testen-Knopf): die Meldung mit dem eigenen Charakter als Beispiel
+function RestedEstimate.PreviewAltNotice()
+  printAltFull(ns.characterKey)
+end
+
 -- Beim Login: Twinks, die seit ihrem Logout voll geworden sind, einmal melden
 local function announceFullAlts()
   if not ns.db.restedAltNotice then return end
@@ -83,7 +92,7 @@ local function announceFullAlts()
       local _, isFull = RestedEstimate.Get(key)
       if isFull then
         snapshot.announced = true
-        ns.Print(string.format(ns.L.RESTED_ALT_FULL, ns.History.DisplayName(key)))
+        printAltFull(key)
         ns.Debug("rested", "%s estimated fully rested", key)
       end
     end

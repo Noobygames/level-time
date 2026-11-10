@@ -1922,4 +1922,13 @@ ns.locales.enUS = {
   LOOT_SPARKLE_STYLE_TREASURE = "Treasure map",
   LOOT_SPARKLE_GROUP_CLASSIC = "Classic",
   LOOT_SPARKLE_GROUP_SHAPES = "Shapes",
+  NOTIFICATION_TEST_GROUP = "Test",
+  NOTIFICATION_TEST_GROUP_TIP = "Shows all announcements and the instance report in your own chat only, marked [Preview]. Nothing is sent to party, raid or any other channel.",
+  NOTIFICATION_TEST_LOGIN = "Test",
+  NOTIFICATION_TEST_LOGIN_TIP = "Shows this page's messages in chat the way they would appear at login: session comparison, record message and rested alt notice (with sample values where nothing is stored).",
+  NOTIFICATION_TEST_REMINDERS = "Test",
+  NOTIFICATION_TEST_REMINDERS_TIP = "Shows the reminders as if they had triggered for real, the next one on each click: food, camp, sleeping bag, class buffs, trainer and break. Independent of the toggles.",
+  NOTIFICATION_TEST_WARNINGS = "Test",
+  NOTIFICATION_TEST_WARNINGS_TIP = "Shows the warnings as if they had triggered for real, the next one on each click: breath, bags, durability, ammo, instance limit, aggro, hardcore safeguards and emergency highlight. Independent of the toggles.",
+  PREVIEW_TAG = "|cff888888[Preview]|r",
 }

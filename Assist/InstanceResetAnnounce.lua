@@ -40,6 +40,11 @@ function InstanceResetAnnounce.Send()
   return true
 end
 
+-- Vorschau (Testen-Knopf): die Ansage nur im eigenen Chat
+function InstanceResetAnnounce.Preview()
+  GroupChat.Preview(InstanceResetAnnounce.Text())
+end
+
 local function onResetInstances()
   InstanceResetAnnounce.Send()
 end

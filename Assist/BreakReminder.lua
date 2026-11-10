@@ -55,6 +55,11 @@ local function canShow()
   return not ns.InCombat() and not IsInInstance()
 end
 
+local function notifyBreak(played)
+  local text = string.format(L.BREAK_REMINDER, ns.Format.Duration(played))
+  ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR)
+end
+
 function BreakReminder.Check()
   if not ns.db.remindBreak then return end
   if isAfk() then
@@ -72,8 +77,12 @@ function BreakReminder.Check()
   end
   waitLogged = false
   takeBreak("reminder")
-  local text = string.format(L.BREAK_REMINDER, ns.Format.Duration(played))
-  ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR)
+  notifyBreak(played)
+end
+
+-- Vorschau (Testen-Knopf): Pausen-Hinweis mit der eingestellten Spielzeit
+function BreakReminder.Preview()
+  notifyBreak(ns.db.breakMinutes * SECONDS_PER_MINUTE)
 end
 
 ns.Every(CHECK_SECONDS, BreakReminder.Check, function(db) return db.remindBreak end)

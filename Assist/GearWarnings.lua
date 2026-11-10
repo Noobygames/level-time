@@ -135,6 +135,24 @@ local WARNINGS = {
     detail = ammoDetail, repeatMinutes = function() return ns.db.ammoRepeat end },
 }
 
+local function notify(warning)
+  local detail = warning.detail and warning.detail()
+  local text = detail and string.format("%s (%s)", L[warning.message], detail) or L[warning.message]
+  ns.Alerts.Notify({ title = L[warning.title], text = text, icon = ns.Alerts.ICONS[warning.icon] },
+    ns.Alerts.WARNING_COLOR)
+end
+
+-- Vorschau (Testen-Knopf): ein Schritt je Hinweis, wie echt ausgelöst; Munition nur für Jäger
+function GearWarnings.PreviewSteps()
+  local steps = {}
+  for _, warning in ipairs(WARNINGS) do
+    if warning.setting ~= "warnAmmo" or GearWarnings.ShowsAmmoOptions() then
+      steps[#steps + 1] = function() notify(warning) end
+    end
+  end
+  return steps
+end
+
 -- Im Kampf nichts prüfen: der Zustand bleibt unbeachtet, die Hinweise kommen nach dem Kampf von selbst
 function GearWarnings.Check()
   if not ns.db or ns.InCombat() then return end
@@ -146,10 +164,7 @@ function GearWarnings.Check()
     if (due and not warning.active) or repeating then
       ns.Debug("warnings", "%s", warning.message)
       warning.lastShown = GetTime()
-      local detail = warning.detail and warning.detail()
-      local text = detail and string.format("%s (%s)", L[warning.message], detail) or L[warning.message]
-      ns.Alerts.Notify({ title = L[warning.title], text = text, icon = ns.Alerts.ICONS[warning.icon] },
-        ns.Alerts.WARNING_COLOR)
+      notify(warning)
     end
     warning.active = due
   end

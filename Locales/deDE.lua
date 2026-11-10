@@ -1922,4 +1922,13 @@ ns.locales.deDE = {
   LOOT_SPARKLE_STYLE_TREASURE = "Schatzkarte",
   LOOT_SPARKLE_GROUP_CLASSIC = "Klassisch",
   LOOT_SPARKLE_GROUP_SHAPES = "Formen",
+  NOTIFICATION_TEST_GROUP = "Testen",
+  NOTIFICATION_TEST_GROUP_TIP = "Zeigt alle Ansagen und den Instanzbericht nur in deinem eigenen Chat, gekennzeichnet mit [Vorschau]. Es wird nichts an Gruppe, Raid oder andere Kanäle gesendet.",
+  NOTIFICATION_TEST_LOGIN = "Testen",
+  NOTIFICATION_TEST_LOGIN_TIP = "Zeigt die Meldungen dieser Seite im Chat, so wie sie beim Login kämen: Session-Vergleich, Rekordmeldung und Hinweis auf ausgeruhte Twinks (mit Beispielwerten, wo nichts vorliegt).",
+  NOTIFICATION_TEST_REMINDERS = "Testen",
+  NOTIFICATION_TEST_REMINDERS_TIP = "Zeigt die Erinnerungen wie echt ausgelöst, jeder Klick die nächste: Essen, Lager, Schlafsack, Klassen-Buffs, Lehrer und Pause. Unabhängig von den Schaltern.",
+  NOTIFICATION_TEST_WARNINGS = "Testen",
+  NOTIFICATION_TEST_WARNINGS_TIP = "Zeigt die Warnungen wie echt ausgelöst, jeder Klick die nächste: Atem, Taschen, Haltbarkeit, Munition, Instanzlimit, Aggro, Hardcore-Schutz und Notfall-Markierung. Unabhängig von den Schaltern.",
+  PREVIEW_TAG = "|cff888888[Vorschau]|r",
 }

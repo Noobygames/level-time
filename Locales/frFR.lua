@@ -1922,4 +1922,13 @@ ns.locales.frFR = {
   LOOT_SPARKLE_STYLE_TREASURE = "Carte au trésor",
   LOOT_SPARKLE_GROUP_CLASSIC = "Classique",
   LOOT_SPARKLE_GROUP_SHAPES = "Formes",
+  NOTIFICATION_TEST_GROUP = "Tester",
+  NOTIFICATION_TEST_GROUP_TIP = "Affiche toutes les annonces et le rapport d'instance uniquement dans votre propre chat, marqués [Aperçu]. Rien n'est envoyé au groupe, au raid ni à un autre canal.",
+  NOTIFICATION_TEST_LOGIN = "Tester",
+  NOTIFICATION_TEST_LOGIN_TIP = "Affiche dans le chat les messages de cette page comme à la connexion : comparaison de session, message de record et avis de personnage reposé (avec des valeurs d'exemple si rien n'est enregistré).",
+  NOTIFICATION_TEST_REMINDERS = "Tester",
+  NOTIFICATION_TEST_REMINDERS_TIP = "Affiche les rappels comme s'ils s'étaient vraiment déclenchés, le suivant à chaque clic : nourriture, camp, sac de couchage, buffs de classe, entraîneur et pause. Indépendant des options.",
+  NOTIFICATION_TEST_WARNINGS = "Tester",
+  NOTIFICATION_TEST_WARNINGS_TIP = "Affiche les alertes comme si elles s'étaient vraiment déclenchées, la suivante à chaque clic : souffle, sacs, durabilité, munitions, limite d'instances, aggro, protections hardcore et surbrillance d'urgence. Indépendant des options.",
+  PREVIEW_TAG = "|cff888888[Aperçu]|r",
 }

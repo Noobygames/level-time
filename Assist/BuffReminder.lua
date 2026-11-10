@@ -128,7 +128,7 @@ local REMINDERS = {
   { setting = "remindFood", isMissing = BuffReminder.IsFoodMissing, message = "REMIND_FOOD", icon = "food",
     anyLevelInInstance = true, auraOnly = true },
   { setting = "remindCamp", isMissing = BuffReminder.IsCampMissing, message = "REMIND_CAMP", icon = "camp",
-    outdoorsOnly = true, auraOnly = true },
+    outdoorsOnly = true, auraOnly = true, available = BuffReminder.HasCampSystem },
   {
     setting = "remindCharged",
     isMissing = BuffReminder.IsChargedMissing,
@@ -136,10 +136,12 @@ local REMINDERS = {
     icon = "charged",
     outdoorsOnly = true,
     auraOnly = true,
+    available = BuffReminder.HasChargedSystem,
   },
   -- Hängt auch an den Taschen (Schlafsack dabei), daher nicht auraOnly
   { setting = "remindSleepingBag", isMissing = BuffReminder.IsSleepingBagMissing, message = "REMIND_SLEEPING_BAG",
-    icon = "sleepingBag", texture = sleepingBagTexture, outdoorsOnly = true },
+    icon = "sleepingBag", texture = sleepingBagTexture, outdoorsOnly = true,
+    available = BuffReminder.HasSleepingBagSystem },
 }
 
 -- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
@@ -216,6 +218,22 @@ local function isDue(reminder)
   return pauseOver(reminder)
 end
 
+local function noticeOf(reminder)
+  return { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder),
+    texture = reminder.texture and reminder.texture() or nil }
+end
+
+-- Vorschau (Testen-Knopf): ein Schritt je Hinweis, den es in diesem Client gibt, wie echt
+function BuffReminder.PreviewSteps()
+  local steps = {}
+  for _, reminder in ipairs(REMINDERS) do
+    if not reminder.available or reminder.available() then
+      steps[#steps + 1] = function() ns.Alerts.Notify(noticeOf(reminder), ns.Alerts.WARNING_COLOR) end
+    end
+  end
+  return steps
+end
+
 -- Fällige Hinweise als Chatzeilen und gemeinsam in einer Einblendung
 function BuffReminder.Check()
   if not ns.db then return end
@@ -226,8 +244,7 @@ function BuffReminder.Check()
       ns.Debug("reminder", "%s missing, reminding", reminder.setting)
       reminder.lastShown = GetTime()
       messages = messages or {}
-      table.insert(messages, { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder),
-        texture = reminder.texture and reminder.texture() or nil })
+      table.insert(messages, noticeOf(reminder))
     end
   end
   if messages then

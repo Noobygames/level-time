@@ -31,6 +31,13 @@ function SessionCompare.Text(last, previous)
   return text
 end
 
+-- Vorschau (Testen-Knopf): die letzte archivierte Session verglichen mit der davor, sonst ein Beispiel
+function SessionCompare.Preview()
+  local history = ns.character.sessionHistory or {}
+  local last = history[#history] or { seconds = 7800, xp = 48000 }
+  ns.Print(SessionCompare.Text(last, history[#history - 1]))
+end
+
 -- Läuft nach Session.lua (lädt früher), das beim Login archiviert
 ns.OnLogin(function()
   if not ns.db.sessionCompareLogin or not ns.Session.ArchivedAtLogin() then return end

@@ -52,6 +52,12 @@ local function send(text)
   return true
 end
 
+-- Vorschau (Testen-Knopf): beide Ansagen nur im eigenen Chat
+function ManaCallout.Preview()
+  GroupChat.Preview(string.format(L.LOW_MANA_ANNOUNCE, ns.db.lowManaPercent - 1))
+  GroupChat.Preview(L.OUT_OF_MANA_ANNOUNCE)
+end
+
 function ManaCallout.Check()
   if not ns.db.announceLowMana or not isHealerInDungeon() then
     pending = nil

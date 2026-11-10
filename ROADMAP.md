@@ -2,11 +2,6 @@
 
 Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
 
-## Geplant: Bedienung (November 2026)
-
-
-- [ ] 478. **Vorschau-/Test-Knöpfe für Chat & Erinnerungen** (S–M): Auf der Seite „Chat & Erinnerungen“ (Erinnerungen, Warnungen, Gruppe, beim Login) je Abschnitt ein Knopf „Testen“, der die Ausgabe so zeigt, wie sie im Spiel käme: Bildschirm-Warnung bzw. Hinweis wie echt ausgelöst (Sturz, Atem, Munition, Haltbarkeit, Taschen, Aggro, Heiler-Kontrolle, Notfall, wenig Mana, Erinnerungen an Lager/Essen/Schlafsack/Lehrer/Klasse/Pause), Gruppen-Ansagen und Instanzbericht nur lokal im eigenen Chat mit Kennzeichnung „Vorschau“, nie an Gruppe/Raid gesendet. Wiederverwendet die vorhandenen Ausgabewege (keine zweite Text-Logik).
-
 ## Geplant: Wettbewerbsanalyse (November 2026)
 
 Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Code; Lizenzen beachten), dazu CurseForge-Seiten und die Regeln auf speedrun.com. Komfort: Leatrix Plus (3.3.5-Port), Questie, RXPGuides, Guidelime, Plumber, Mapster, MoveAny, BlizzMove. Statistik: XPLedger (engster Konkurrent, Retail/Forever/Era/MoP), XToLevel, Experiencer, Rested, DataStore, Accountant Classic, Deathlog, Hardcore, NovaInstanceTracker, SavedInstances, LvlHistory. Speedrun: Sprint (vormals ForeverTimer), OnlySplits, Chromely, Earned: Self Found, SelfFound Tracker, Speed Splits, Forever Journey Log, Hardcore Deathrace. Stream/Ziele: Hardcore (Zarant), UltraHardcore, HC Challenge Wheel, FateLocked, Bingo/TiffBingo, FarmIt, Farming Bar, Cerealize. Alle API-Angaben stammen aus fremdem Code und sind vor dem Bau gegen die Blizzard-Doku je Client zu prüfen (CLAUDE.md); „im Spiel prüfen“ heißt `/dump` nötig.

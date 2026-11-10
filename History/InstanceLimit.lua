@@ -97,14 +97,23 @@ local function notifyCount(format, ...)
     icon = ns.Alerts.ICONS.instanceLimit }, ns.Alerts.WARNING_COLOR)
 end
 
+local function notifyDailyLimit(dailyLimit)
+  ns.Alerts.Notify({ title = L.NOTICE_INSTANCE_LIMIT, icon = ns.Alerts.ICONS.instanceLimit,
+    text = string.format(L.INSTANCE_DAILY_LIMIT_WARNING, InstanceLimit.GetDayCount(), dailyLimit) },
+    ns.Alerts.WARNING_COLOR)
+end
+
+-- Vorschau (Testen-Knopf): Stundenlimit immer, Tageslimit nur dort, wo es eines gibt
+function InstanceLimit.Preview()
+  local dailyLimit = InstanceLimit.GetDailyLimit()
+  if dailyLimit then notifyDailyLimit(dailyLimit) end
+  notifyCount(L.INSTANCE_LIMIT_WARNING)
+end
+
 local function warn()
   if not ns.db.warnInstanceLimit then return end
   local dailyLimit = InstanceLimit.GetDailyLimit()
-  if dailyLimit and InstanceLimit.GetDayCount() >= dailyLimit - 1 then
-    ns.Alerts.Notify({ title = L.NOTICE_INSTANCE_LIMIT, icon = ns.Alerts.ICONS.instanceLimit,
-      text = string.format(L.INSTANCE_DAILY_LIMIT_WARNING, InstanceLimit.GetDayCount(), dailyLimit) },
-      ns.Alerts.WARNING_COLOR)
-  end
+  if dailyLimit and InstanceLimit.GetDayCount() >= dailyLimit - 1 then notifyDailyLimit(dailyLimit) end
   if InstanceLimit.GetHourCount() < InstanceLimit.GetLimit() - 1 then return end
   notifyCount(L.INSTANCE_LIMIT_WARNING)
 end

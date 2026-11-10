@@ -120,6 +120,20 @@ local function sendReport(run, chatType)
   if #lootQueue > 0 then ns.RefreshTasks() end
 end
 
+-- Vorschau (Testen-Knopf): Bericht samt Beute nur im eigenen Chat; ohne laufenden Lauf mit einem Beispiellauf
+local function previewRun()
+  return ns.Instances.GetCurrentRun() or {
+    name = GetRealZoneText and GetRealZoneText() or "?", seconds = 1500,
+    stats = { [Stats.XP_GAINED] = 24000, [Stats.PVE_KILLS] = 60, [Stats.MONEY_EARNED] = 123456 },
+  }
+end
+
+function InstanceReport.Preview()
+  local run = previewRun()
+  local messages = InstanceReport.Pack(Format.PlainText(InstanceReport.Text(run)), InstanceReport.LootParts(run))
+  for _, message in ipairs(messages) do GroupChat.Preview(message) end
+end
+
 ns.Every(LOOT_INTERVAL, function()
   if #lootQueue == 0 then
     ns.RefreshTasks()  -- leer: Aufgabe ruht, bis wieder etwas ansteht

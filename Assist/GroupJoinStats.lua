@@ -33,6 +33,11 @@ function GroupJoinStats.Text()
   return string.format(L.GROUP_JOIN_STATS, ns.level, deaths, dungeons, levelTime)
 end
 
+-- Vorschau (Testen-Knopf): die Ansage nur im eigenen Chat
+function GroupJoinStats.Preview()
+  GroupChat.Preview(GroupJoinStats.Text())
+end
+
 function GroupJoinStats.CheckGroup()
   local inGroup = IsInGroup and IsInGroup() or false
   local joined = inGroup and not wasInGroup

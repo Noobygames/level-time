@@ -82,14 +82,23 @@ local function wanted()
   return enabled(ns.db) and IsInGroup() and not isTank() and UnitAffectingCombat("player")
 end
 
+local function notifySelf()
+  ns.Alerts.Notify({ title = L.NOTICE_AGGRO, text = L.WARN_AGGRO, icon = ns.Alerts.ICONS.aggro },
+    ns.Alerts.WARNING_COLOR)
+end
+
+-- Vorschau (Testen-Knopf): Aggro-Hinweis wie echt
+function AggroWarning.Preview()
+  notifySelf()
+end
+
 -- Eigene Einblendung nach AGGRO_CONFIRM_SECONDS
 local function warnSelf(now)
   if not ns.db.warnAggro or warned or now - aggroSince < AGGRO_CONFIRM_SECONDS then return end
   if lastShown and now - lastShown < REPEAT_SECONDS then return end
   warned, lastShown = true, now
   ns.Debug("warnings", "aggro")
-  ns.Alerts.Notify({ title = L.NOTICE_AGGRO, text = L.WARN_AGGRO, icon = ns.Alerts.ICONS.aggro },
-    ns.Alerts.WARNING_COLOR)
+  notifySelf()
 end
 
 -- Heiler: nach HEALER_ANNOUNCE_SECONDS an die Gruppe
@@ -102,6 +111,11 @@ local function announceHealer(now)
   announced, lastAnnounced = true, now
   ns.Debug("announce", "healer aggro")
   ns.GroupChat.Send(L.HEALER_AGGRO_ANNOUNCE, chatType)
+end
+
+-- Vorschau (Testen-Knopf): Heiler-Ansage nur im eigenen Chat
+function AggroWarning.PreviewHealer()
+  ns.GroupChat.Preview(L.HEALER_AGGRO_ANNOUNCE)
 end
 
 function AggroWarning.Check()

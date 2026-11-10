@@ -98,6 +98,13 @@ local function isSecretFullDisplay(data)
   return type(priority) ~= "number" or priority >= MIN_SECRET_PRIORITY
 end
 
+-- Vorschau (Testen-Knopf): Kontrollverlust (Betäubung, 3 s), generische Fassung und Entwarnung nur im eigenen Chat
+function ControlCallout.Preview()
+  GroupChat.Preview(ControlCallout.Describe({ locType = "STUN", displayText = LOSS_OF_CONTROL_DISPLAY_STUN, timeRemaining = 3 }))
+  GroupChat.Preview(L.CC_ANNOUNCE_GENERIC)
+  GroupChat.Preview(string.format(L.CC_ANNOUNCE_OVER, 4))
+end
+
 -- Nur bei neuem Kontrollverlust (ADDED); UPDATE kommt laufend, solange er anhält
 local function onLossOfControlAdded()
   if not active() then return end

@@ -60,9 +60,19 @@ function PersonalRecords.Get(id)
   return type(record) == "table" and type(record.value) == "number" and record or nil
 end
 
+local function notifyRecord(title, text)
+  ns.Alerts.Notify({ title = title, text = text, icon = ns.Alerts.ICONS.levelUp }, RECORD_COLOR)
+end
+
 local function announce(title, text)
   if not ns.db.announceRecords then return end
-  ns.Alerts.Notify({ title = title, text = text, icon = ns.Alerts.ICONS.levelUp }, RECORD_COLOR)
+  notifyRecord(title, text)
+end
+
+-- Vorschau (Testen-Knopf): Rekordmeldung mit Beispielwerten für die erste Art
+function PersonalRecords.PreviewAnnouncement()
+  local kind = PersonalRecords.KINDS[1]
+  notifyRecord(L.RECORD_TITLE, string.format(L.RECORD_BROKEN, L[kind.label], kind.format(120), kind.format(100)))
 end
 
 -- Neuen Wert prüfen; true, wenn er den Rekord bricht (dann gespeichert)

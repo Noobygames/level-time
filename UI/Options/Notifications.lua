@@ -2,6 +2,7 @@
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
+local addButton, addPreviewCycle = O.addButton, O.addPreviewCycle
 local addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, requires, percent = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.requires, O.percent
 
 -- Chat & Erinnerungen: Login und Rekorde, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
@@ -14,6 +15,12 @@ addToggles({ toggle("RESTED_ALT_NOTICE_TOGGLE", "restedAltNotice"),
   toggle("SESSION_COMPARE_TOGGLE", "sessionCompareLogin") })
 addSection("SECTION_PERSONAL_RECORDS")
 addToggles({ toggle("ANNOUNCE_RECORDS_TOGGLE", "announceRecords") })
+-- Testen: die Ausgaben dieser Seite wie beim Login, unabhängig von den Schaltern
+addButton("NOTIFICATION_TEST_LOGIN", function()
+  ns.SessionCompare.Preview()
+  ns.PersonalRecords.PreviewAnnouncement()
+  ns.RestedEstimate.PreviewAltNotice()
+end)
 
 addSubPage("OPTIONS_PAGE_REMINDERS")
 addSection("SECTION_REMINDERS")
@@ -63,6 +70,13 @@ addSlider(requires({
   set = function(value) ns.SetDeferred("breakMinutes", value) end,
   format = function(value) return string.format(L.MINUTES, value) end,
 }, "remindBreak"))
+-- Testen: ein Hinweis je Klick (Essen, Lager, Schlafsack, Klassen-Buffs, Lehrer, Pause), wie echt
+addPreviewCycle("NOTIFICATION_TEST_REMINDERS", function()
+  local steps = ns.BuffReminder.PreviewSteps()
+  if ns.TrainerReminder.IsAvailable() then table.insert(steps, ns.TrainerReminder.Preview) end
+  table.insert(steps, ns.BreakReminder.Preview)
+  return steps
+end)
 
 addSubPage("OPTIONS_PAGE_WARNINGS")
 addHint("WARN_LOOK_HINT")
@@ -124,6 +138,17 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   }, "warnAmmo"))
 end
 
+-- Testen: eine Warnung je Klick (Atem, Taschen, Haltbarkeit, Munition, Instanzlimit, Aggro, Hardcore, Notfall), wie echt
+addPreviewCycle("NOTIFICATION_TEST_WARNINGS", function()
+  local steps = { ns.BreathWarning.Preview }
+  for _, step in ipairs(ns.GearWarnings.PreviewSteps()) do table.insert(steps, step) end
+  table.insert(steps, ns.InstanceLimit.Preview)
+  table.insert(steps, ns.AggroWarning.Preview)
+  table.insert(steps, ns.HardcoreSafeguard.Preview)
+  if ns.Emergency.IsAvailable() then table.insert(steps, ns.Emergency.Preview) end
+  return steps
+end)
+
 -- Gruppe und Heiler: Ansagen im Gruppenchat
 addSubPage("OPTIONS_PAGE_GROUP")
 addToggles({
@@ -167,5 +192,14 @@ addSlider(requires({
   set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
 }, "announceLowMana"))
+-- Testen: alle Ansagen und der Instanzbericht nur im eigenen Chat mit "Vorschau", nie an Gruppe oder Chat gesendet
+addButton("NOTIFICATION_TEST_GROUP", function()
+  ns.GroupJoinStats.Preview()
+  ns.ManaCallout.Preview()
+  ns.ControlCallout.Preview()
+  ns.AggroWarning.PreviewHealer()
+  ns.InstanceReport.Preview()
+  ns.InstanceResetAnnounce.Preview()
+end)
 finishSubPages()
 finishPage()
