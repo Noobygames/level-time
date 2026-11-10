@@ -90,4 +90,4 @@ Schwerpunkt: Werte, die Zuschauer im Spielbild sehen und verstehen. Addons haben
 
 ### Projekt und Verbreitung
 
-- [ ] 20. **Uploads aktivieren** (S): CurseForge aktiv (Projekt 1721235, Secret `CF_API_KEY`). Offen: Wago- und WoWInterface-ID in die `.toc`, Secrets `WAGO_API_TOKEN` und `WOWI_API_TOKEN`.
+- [ ] 20. **Uploads aktivieren** (S): CurseForge aktiv (Projekt 1721235, Secret `CF_API_KEY`). Wago-Projekte angelegt: Level Time `rNkgkwNa` (addons.wago.io/addons/level-time), Level Time Goals `v63QzDGb` (addons.wago.io/addons/level-time-goals), `## X-Wago-ID` in beiden `.toc`. Offen: Secret `WAGO_API_TOKEN` (Wago > Account > API Keys), WoWInterface-ID in die `.toc` und Secret `WOWI_API_TOKEN`.

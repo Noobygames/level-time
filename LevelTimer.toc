@@ -3,6 +3,7 @@
 ## Version: @project-version@
 ## Author: Nerzal
 ## X-Curse-Project-ID: 1721235
+## X-Wago-ID: rNkgkwNa
 ## Notes: Statistics per level and per session (play time, XP rate, kills, deaths and more) with history for all characters
 ## Notes-deDE: Statistiken pro Level und pro Session (Spielzeit, XP-Rate, Kills, Tode und mehr) mit Historie für alle Charaktere
 ## Notes-frFR: Statistiques par niveau et par session (temps de jeu, XP/h, victimes, morts et plus) avec historique pour tous les personnages
