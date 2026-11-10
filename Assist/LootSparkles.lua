@@ -35,7 +35,7 @@ ns.Database.RegisterDefaults({
     lootSparkleCorpses = false, lootSparkleScale = 1,
     lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
     lootSparkleChests = false, lootSparkleBobber = false, lootSparkleHideUntrained = false,
-    lootSparkleStyle = "aura",
+    lootSparkleStyle = ns.LootSparkleStyles.DEFAULT,
   },
   ranges = { lootSparkleScale = { 0.5, 2 } },
 })

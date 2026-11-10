@@ -106,12 +106,25 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
       advanced(toggle("LOOT_SPARKLE_HIDE_UNTRAINED", "lootSparkleHideUntrained", LootSparkles.CanSoftTarget)),
     })
-    local sparkleStyles = {}
-    for _, value in ipairs(ns.LootSparkle.STYLES) do
-      table.insert(sparkleStyles, { value = value, name = localized("LOOT_SPARKLE_STYLE_" .. value:upper()) })
-    end
-    addChooser(requires({ label = "LOOT_SPARKLE_STYLE", setting = "lootSparkleStyle", choices = sparkleStyles },
-      "lootSparkleOre", "lootSparkleHerbs", "lootSparkleChests", "lootSparkleBobber", "lootSparkleQuestObjects", "lootSparkleCorpses"))
+    -- Zyklus-Button statt Reiter: zehn Stile passen nicht in eine Reiterzeile; die Glow-Stile als "Klassisch: ..."
+    O.addCycle(requires({
+      label = "LOOT_SPARKLE_STYLE",
+      setting = "lootSparkleStyle",
+      choices = function()
+        local choices = {}
+        for i, value in ipairs(ns.LootSparkle.STYLES) do choices[i] = { key = value } end
+        return choices
+      end,
+      get = function(db) return db.lootSparkleStyle end,
+      set = function(key) ns.Set("lootSparkleStyle", key) end,
+      nameOf = function(key)
+        local name = L["LOOT_SPARKLE_STYLE_" .. key:upper()]
+        if ns.LootSparkleStyles.Get(key).group == ns.LootSparkleStyles.GROUP_CLASSIC then
+          return L.LOOT_SPARKLE_STYLE_CLASSIC:format(name)
+        end
+        return name
+      end,
+    }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleChests", "lootSparkleBobber", "lootSparkleQuestObjects", "lootSparkleCorpses"))
     addSlider(requires({
       label = "LOOT_SPARKLE_SCALE",
       advanced = true,

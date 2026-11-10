@@ -105,6 +105,8 @@ end)
 expectTrue("Glitzer-Frame an der Plakette", sparkleFrame ~= nil)
 expect("Glitzer sichtbar", sparkleFrame:IsShown(), true)
 expect("blendet ein", sparkleFrame._animationGroups[1]:IsPlaying(), true)
+-- Funken gehören nur zu manchen Stilen (Standard Zielsucher hat keine)
+addon.Set("lootSparkleStyle", "glitter")
 local glintGroups = 0
 wow.findFrame(function(frame)
   for _, group in ipairs(rawget(frame, "_animationGroups") or {}) do

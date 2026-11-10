@@ -26,7 +26,16 @@ func main() {
 	barsDir := flag.String("bars", "Media", "Ordner für die Balkentexturen (TGA)")
 	wheelDir := flag.String("wheel", "StreamGoal/Media", "Ordner für die Teile des Glücksrads von Level Time Goals (TGA)")
 	sparklesDir := flag.String("sparkles", "Media", "Ordner für die Beute-Glitzer-Effekttexturen (TGA)")
+	sparklePreview := flag.String("sparkle-preview", "", "Nur: Kontaktbogen der Glitzer-Stile als PNG schreiben (Prüfhilfe, nicht im Repo ablegen)")
 	flag.Parse()
+
+	if *sparklePreview != "" {
+		if err := runSparklePreview(*sparklePreview); err != nil {
+			fmt.Fprintln(os.Stderr, "Fehler:", err)
+			os.Exit(1)
+		}
+		return
+	}
 
 	if err := run(*logoPath, *iconPath, *previewPath); err != nil {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
@@ -65,6 +74,12 @@ func runSparkles(dir string) error {
 		{"SparkleFlare", renderSparkleFlare(sparkleTexSize)},
 		{"SparkleBeam", renderSparkleBeam(sparkleTexSize)},
 		{"SparkleSigil", renderSparkleSigil(sparkleTexSize)},
+		{"SparkleBracket", renderSparkleBracket(sparkleTexSize)},
+		{"SparkleBracketDashed", renderSparkleBracketDashed(sparkleTexSize)},
+		{"SparkleArrow", renderSparkleArrow(sparkleTexSize)},
+		{"SparkleSymbols", renderSparkleSymbols()},
+		{"SparkleBracketGlow", renderSparkleBracketGlow(sparkleTexSize)},
+		{"SparkleArrowGlow", renderSparkleArrowGlow(sparkleTexSize)},
 	}
 	for _, s := range sparkles {
 		path := filepath.Join(dir, s.name+".tga")

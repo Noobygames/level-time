@@ -101,7 +101,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 7
+local SETTINGS_SCHEMA_VERSION = 8
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -166,6 +166,14 @@ local settingsMigrations = {
   -- Eine Anordnung statt zweier Schalter (windowLayout): horizontalLayout -> "bar", compactMode -> "compact"
   [7] = function(settings)
     forEachSettingsCopy(settings, function(values) Database.MoveLegacyLayoutKeys(values) end)
+  end,
+  -- Neuer Standard-Glitzerstil "finder" (Zielsucher): bisher wurde der alte Standard "aura" mit abgespeichert, eine
+  -- ausdrückliche Wahl ist davon nicht zu unterscheiden. "aura" wird deshalb einmalig auf den neuen Standard gesetzt;
+  -- jede andere Wahl bleibt, und "aura" bleibt danach unter "Klassisch" wählbar.
+  [8] = function(settings)
+    forEachSettingsCopy(settings, function(values)
+      if values.lootSparkleStyle == "aura" then values.lootSparkleStyle = "finder" end
+    end)
   end,
 }
 

@@ -144,6 +144,8 @@ UI\CampDisplay.lua
 UI\FoodDisplay.lua
 UI\SleepDisplay.lua
 UI\FlightDisplay.lua
+UI\LootSparkleStyles.lua
+UI\LootSparkleAnimations.lua
 UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua

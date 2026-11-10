@@ -17,3 +17,11 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 ### Sparkle styles (roadmap 456)
 
 - `UI/LootSparkle.lua`: layers `halo`, `ring1`/`ring2`, `arcs`, `beam`, `sigil`, `flash` plus a dark `BLEND` shade; `lootSparkleStyle` (`aura`, `beam`, `sigil`, `ripple`, `sparkle`, `subtle`) picks the active layers (`STYLE_LAYERS`, `ActiveLayerNames`), colors per category (`ColorFor`), `SetState` far (alpha 0.5) / ready (flash) / locked (grey, arcs/sigil/ring2 frozen). Chooser in Comfort > World. A running preview survives settings changes (`LootSparkles` release skips while `LootSparkle.IsPreviewing()`).
+
+### Sparkle styles v2 (roadmap 466, 471, 474, 475)
+
+- Daten statt Code: `UI/LootSparkleStyles.lua` (`STYLES` = Schichten/`glints`/`shade`/`group` je Stil, `ORDER`, `DEFAULT` = `finder`, `LAYERS` = Texturen mit `size/sizes/point/blend/animation/readyAnimation/states/color/whiten/alpha/freezeLocked`, `SymbolCoords`), `UI/LootSparkleAnimations.lua` (Fabriken je Name: halo, ring, arcs, bob, hop, snap, glowPulse, shadowArrow...), `UI/LootSparkle.lua` = Engine (`applyLayers`, `syncGlints`, `playReadyAnimations`). Neuer Stil = Eintrag in `STYLES`+`ORDER` (+ neue `LAYERS`/Animation/Locale `LOOT_SPARKLE_STYLE_<ID>`).
+- Stile: `finder` (Standard, Klammern weit 84 px / bereit 56 px mit Überschwingen / gesperrt gestrichelt), `arrow`, `glitter` (nur Funken), `symbol` (Atlas 4x2, Zelle je Kategorie), Gruppe "classic" = die Stile aus 456 (Anzeige "Klassisch: %s"). Funken (`glints`) und Bodenschatten (`shade`) nur, wo der Stil sie verlangt.
+- Aufbau für Tiefe: flacher Kontaktschatten (halo, BLEND, schwarz), dunkler weicher Rand (BLEND), Leuchtrand (ADD), Körper (BLEND, `whiten` zu Weiß). Boden-Ellipsen in der Höhe gestaucht (ring1/ring2/shadow); aufrechte Teile bleiben aufrecht.
+- Texturen (`tools/artwork/sparkle_shapes.go`): 4x-Supersampling, `blurAlpha` für Leuchtränder, Symbole eigene Zeichnung (keine Blizzard-Atlanten wegen Flavor-Unterschieden). `go -C tools/artwork run . -sparkle-preview Datei.png` = Kontaktbogen auf Gras/Schnee/Sand (Werte in `sparkle_preview.go` spiegeln die Lua-Daten, von Hand nachziehen).
+- Einstellungs-Migration v8: gespeichertes `lootSparkleStyle == "aura"` (alter Standard) -> `finder` (auch Profile); Auswahl = `addCycle` (Zyklus-Button) in `ComfortWorld.lua`.

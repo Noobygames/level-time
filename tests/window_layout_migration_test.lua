@@ -9,7 +9,7 @@ LevelTimerDB = {
 }
 wow.login()
 local db = LevelTimerDB
-expect("Schema", db.schemaVersion, 7)
+expect("Schema", db.schemaVersion, 8)
 expect("Leiste gewinnt", db.windowLayout, "bar")
 expect("alter Schlüssel weg", db.horizontalLayout, nil)
 expect("alter Schlüssel weg (kompakt)", db.compactMode, nil)

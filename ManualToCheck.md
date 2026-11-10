@@ -3325,3 +3325,22 @@ Client:
 frischer Eintrag zeigt Preis (ja/nein):
 alte Einträge (ja/nein):
 ```
+
+### 232. Beute-Glitzer: eigene Stile in der Welt (Roadmap 466, 471, 474, 475)
+
+Aussehen im Spiel (nur im Spiel prüfbar): Einstellungen > Komfort > Welt, „Effekt-Stil“ (Zyklus-Button), „Vorschau“ und echte Ziele (Erz, Kraut, Leiche, Quest-Objekt) über Gras, Schnee, Sand.
+
+- Zielsucher (neuer Standard): weit offene Klammern halbtransparent, beim Annähern zuschnappen mit kurzem Blitz, gesperrt grau gestrichelt. Gut sichtbar auf hellem Boden?
+- Pfeil: wippt weich, Schatten wird mit der Höhe kleiner; bereit = kurzer Hüpfer; gesperrt grau und still.
+- Symbol: richtiges Symbol je Kategorie (Erz Spitzhacke, Kraut Blatt, Quest Schriftrolle, Truhe, Angel, Leiche Beutel), wippt sanft.
+- Glitzer: nur Funkelsterne, kein Halo.
+- Klassisch: alte Stile weiter wählbar (Ringe jetzt flach auf dem Boden), Funken und Bodenschatten wie vorher.
+- Bestandsnutzer: wer „aura“ gespeichert hatte, hat jetzt „Zielsucher“ (bekannt, nicht unterscheidbar von ausdrücklicher Wahl); andere Wahl unverändert.
+- Alle vier Flavors: Texturen (TGA) laden ohne grüne Quadrate; `/lt debug` ohne Lua-Fehler beim Wechsel der Stile in der Vorschau.
+
+```text
+Client:
+Zielsucher gut lesbar auf Schnee/Sand (ja/nein):
+Symbole erkennbar (ja/nein):
+Pfeil/Symbol wippen ruhig, kein Flackern (ja/nein):
+```

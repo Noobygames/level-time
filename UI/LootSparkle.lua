@@ -1,37 +1,32 @@
 -- Das Glitzern selbst: Multi-Layer-2D-Effekt-Engine (Roadmap 456) an einer Namensplakette.
--- Kombiniert Bodenschatten (shade, BLEND), mehrschichtige Lichttexturen (SparkleHalo, SparkleRing,
--- SparkleArcs, SparkleBeam, SparkleSigil, SparkleFlare) im Blend-Modus ADD und Funken (Glint, SparkleFlare).
--- Nur AnimationGroups (Blizzard SimpleAnimGroup Alpha/Scale/Rotation), kein OnUpdate: ohne
--- angehängtes Glitzern läuft nichts.
--- 6 visuelle Stile (LootSparkle.STYLES):
---   "aura":    Halo + gegenläufig rotierende Sichelbögen + Funken
---   "beam":    Vertikale Lichtsäule + scharfer Bodenring + dezente Funken
---   "sigil":   Gegenläufig rotierendes Doppel-Siegel + Halo
---   "ripple":  Pulsierende konzentrische Bodenwellen + Halo
---   "sparkle": Aufsteigender Funkenschwarm + sanfter Halo
---   "subtle":  Dezenter, ruhiger Boden-Schein für minimale Ablenkung
--- Zustände (LootTarget): READY hell und kategoriefarben mit Aufblitz-Impuls (flash),
--- FAR gedämpft (alpha = 0.5), LOCKED grau (alpha = 0.45) mit eingefrorenen Zusatz-Layern.
+-- Stile und Schichten sind Daten in LootSparkleStyles.lua, die Animationen in LootSparkleAnimations.lua; hier
+-- entstehen die Texturen, der Funkenschwarm, der Bodenschatten und die Zustandswechsel.
+-- Stile (LootSparkle.STYLES, Reihenfolge wie im Auswahlfeld):
+--   "finder":  Zielsucher, vier Eckklammern wie ein Kamera-Fokus (Standard)
+--   "arrow":   Pfeil nach unten über dem Ziel, wippt
+--   "glitter": schlichtes Glitzern, nur Funkelsterne
+--   "symbol":  Kategorie-Symbol über dem Ziel, wippt
+--   Klassisch (Glow): "aura", "beam", "sigil", "ripple", "sparkle", "subtle"
+-- Nur AnimationGroups (Blizzard SimpleAnimGroup), kein OnUpdate: ohne angehängtes Glitzern läuft nichts.
+-- Zustände (LootTarget): READY hell und kategoriefarben mit Aufblitz-Impuls (flash) und Schicht-Impuls
+-- (readyAnimation), FAR gedämpft (alpha = 0.5), LOCKED grau (alpha = 0.45) mit eingefrorenen Zusatz-Layern.
 --   LootSparkle.Attach(plate, state, kind)  an die Plakette hängen und einblenden
 --   LootSparkle.SetState(state, kind)       Aussehen wechseln
 --   LootSparkle.Release()                   abnehmen und anhalten
 --   LootSparkle.AttachedTo()                aktuelle Plakette oder nil
 --   LootSparkle.Preview(kind)               Vorschau für 4 Sekunden
-local addonName, ns = ...
+local _, ns = ...
 
 local LootSparkle = {}
 ns.LootSparkle = LootSparkle
 
-LootSparkle.STYLES = { "aura", "beam", "sigil", "ripple", "sparkle", "subtle" }
+local Styles, Animations = ns.LootSparkleStyles, ns.LootSparkleAnimations
 
-LootSparkle.TEXTURE = "Interface\\AddOns\\" .. addonName .. "\\Media\\Glint"
-LootSparkle.TEXTURE_HALO = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleHalo"
-LootSparkle.TEXTURE_RING = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleRing"
-LootSparkle.TEXTURE_ARCS = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleArcs"
-LootSparkle.TEXTURE_FLARE = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleFlare"
-LootSparkle.TEXTURE_BEAM = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleBeam"
-LootSparkle.TEXTURE_SIGIL = "Interface\\AddOns\\" .. addonName .. "\\Media\\SparkleSigil"
+LootSparkle.STYLES = Styles.ORDER
+LootSparkle.TEXTURE = Styles.TEXTURE.glint
+LootSparkle.TEXTURE_FLARE = Styles.TEXTURE.flare
 LootSparkle.MIN_SCALE, LootSparkle.MAX_SCALE = 0.5, 2
+
 
 LootSparkle.CATEGORY_COLORS = {
   ore   = { 1.00, 0.60, 0.18 },
@@ -42,16 +37,10 @@ LootSparkle.CATEGORY_COLORS = {
   corpse = { 1.00, 0.86, 0.45 },
 }
 
-local STYLE_LAYERS = {
-  aura = { "arcs", "halo" },
-  beam = { "beam", "ring1" },
-  sigil = { "arcs", "halo", "sigil" },
-  ripple = { "halo", "ring1", "ring2" },
-  sparkle = { "halo" },
-  subtle = { "halo", "ring1" },
-}
+-- Schichtnamen in Zeichenreihenfolge, die Blitz-Sonderschicht zuletzt
+local LAYER_ORDER = {}
+for _, def in ipairs(Styles.LAYERS) do table.insert(LAYER_ORDER, def.name) end
 
-local LAYER_ORDER = { "halo", "ring1", "ring2", "arcs", "beam", "sigil", "flash" }
 
 local GLINT_COUNT = 6
 local GLINT_SIZE = 30      -- Pixel bei Größe 1
@@ -80,8 +69,10 @@ local silhouetteMask  -- Maske für Spieler-Silhouette
 local silhouetteActive = false
 local fadeIn      -- Einblenden des ganzen Schwarms
 local glints = {} -- { texture, animation }
-local layers = {} -- { halo, ring1, ring2, ring, arcs, beam, sigil, flash }
-local layerAnims = {}
+local layers = {}     -- Textur je Schichtname (LootSparkleStyles.LAYERS) plus ring = ring1
+local layerDefs = {}  -- Schichtdefinition je Name
+local layerAnims = {} -- Dauer-Animation je Schicht
+local readyAnims = {} -- Einmal-Animation beim Wechsel auf "ready" je Schicht
 local lastFlashAt = 0
 local plate, state, kind
 local previewToken = 0
@@ -124,120 +115,6 @@ local function createAnimation(texture)
     if step[2] == 1 then animation:SetStartDelay(pause) end
     step[3](animation)
   end
-  return group
-end
-
-local function createHaloAnim(tex)
-  local group = tex:CreateAnimationGroup()
-  group:SetLooping("REPEAT")
-  local a1 = group:CreateAnimation("Alpha")
-  a1:SetOrder(1)
-  a1:SetDuration(1.6)
-  a1:SetFromAlpha(0.65)
-  a1:SetToAlpha(0.95)
-  local a2 = group:CreateAnimation("Alpha")
-  a2:SetOrder(2)
-  a2:SetDuration(1.6)
-  a2:SetFromAlpha(0.95)
-  a2:SetToAlpha(0.65)
-  local s1 = group:CreateAnimation("Scale")
-  s1:SetOrder(1)
-  s1:SetDuration(1.6)
-  s1:SetScaleFrom(0.92, 0.92)
-  s1:SetScaleTo(1.08, 1.08)
-  local s2 = group:CreateAnimation("Scale")
-  s2:SetOrder(2)
-  s2:SetDuration(1.6)
-  s2:SetScaleFrom(1.08, 1.08)
-  s2:SetScaleTo(0.92, 0.92)
-  return group
-end
-
-local function createArcsAnim(tex)
-  local group = tex:CreateAnimationGroup()
-  group:SetLooping("REPEAT")
-  local r = group:CreateAnimation("Rotation")
-  r:SetDuration(5.0)
-  r:SetDegrees(360)
-  return group
-end
-
-local function createSigilAnim(tex)
-  local group = tex:CreateAnimationGroup()
-  group:SetLooping("REPEAT")
-  local r = group:CreateAnimation("Rotation")
-  r:SetDuration(12.0)
-  r:SetDegrees(-360)
-  return group
-end
-
-local function createBeamAnim(tex)
-  local group = tex:CreateAnimationGroup()
-  group:SetLooping("REPEAT")
-  local a1 = group:CreateAnimation("Alpha")
-  a1:SetOrder(1)
-  a1:SetDuration(1.2)
-  a1:SetFromAlpha(0.55)
-  a1:SetToAlpha(0.95)
-  local a2 = group:CreateAnimation("Alpha")
-  a2:SetOrder(2)
-  a2:SetDuration(1.2)
-  a2:SetFromAlpha(0.95)
-  a2:SetToAlpha(0.55)
-  local s1 = group:CreateAnimation("Scale")
-  s1:SetOrder(1)
-  s1:SetDuration(1.2)
-  s1:SetScaleFrom(0.95, 0.9)
-  s1:SetScaleTo(1.05, 1.1)
-  local s2 = group:CreateAnimation("Scale")
-  s2:SetOrder(2)
-  s2:SetDuration(1.2)
-  s2:SetScaleFrom(1.05, 1.1)
-  s2:SetScaleTo(0.95, 0.9)
-  return group
-end
-
-local function createRingAnim(tex, delay)
-  local group = tex:CreateAnimationGroup()
-  group:SetLooping("REPEAT")
-  local s = group:CreateAnimation("Scale")
-  s:SetDuration(1.8)
-  s:SetScaleFrom(0.4, 0.4)
-  s:SetScaleTo(1.3, 1.3)
-  if delay and delay > 0 then s:SetStartDelay(delay) end
-  local a1 = group:CreateAnimation("Alpha")
-  a1:SetOrder(1)
-  a1:SetDuration(0.4)
-  a1:SetFromAlpha(0.2)
-  a1:SetToAlpha(0.9)
-  if delay and delay > 0 then a1:SetStartDelay(delay) end
-  local a2 = group:CreateAnimation("Alpha")
-  a2:SetOrder(2)
-  a2:SetDuration(1.4)
-  a2:SetFromAlpha(0.9)
-  a2:SetToAlpha(0.0)
-  return group
-end
-
-local function createFlashAnim(tex)
-  local group = tex:CreateAnimationGroup()
-  local s = group:CreateAnimation("Scale")
-  s:SetDuration(0.26)
-  s:SetScaleFrom(0.4, 0.4)
-  s:SetScaleTo(1.3, 1.3)
-  local a1 = group:CreateAnimation("Alpha")
-  a1:SetOrder(1)
-  a1:SetDuration(0.08)
-  a1:SetFromAlpha(0.0)
-  a1:SetToAlpha(1.0)
-  local a2 = group:CreateAnimation("Alpha")
-  a2:SetOrder(2)
-  a2:SetDuration(0.18)
-  a2:SetFromAlpha(1.0)
-  a2:SetToAlpha(0.0)
-  group:SetScript("OnFinished", function()
-    tex:Hide()
-  end)
   return group
 end
 
@@ -303,17 +180,16 @@ end
 
 function LootSparkle.CurrentStyle()
   local style = ns.db and ns.db.lootSparkleStyle
-  if style and STYLE_LAYERS[style] then
+  if style and Styles.Get(style) then
     return style
   end
-  return "aura"
+  return Styles.DEFAULT
 end
 
+-- Aktive Schichten des Stils als Liste und Menge (Name = true); ring = true, sobald ring1 aktiv ist
 function LootSparkle.ActiveLayerNames()
-  local style = LootSparkle.CurrentStyle()
-  local names = STYLE_LAYERS[style] or STYLE_LAYERS.aura
   local result = {}
-  for i, name in ipairs(names) do
+  for i, name in ipairs(Styles.Get(LootSparkle.CurrentStyle()).layers) do
     result[i] = name
     result[name] = true
   end
@@ -327,26 +203,90 @@ function LootSparkle.LastFlashAt()
   return lastFlashAt or 0
 end
 
-local function applyStyle()
-  if not frame then return end
+-- Ist die Schicht im aktuellen Zustand zu sehen? (def.states = nur in diesen Zuständen)
+local function visibleInState(def)
+  return not def.states or def.states[state or "ready"] == true
+end
+
+-- Läuft die Dauer-Animation? Eingefroren im Zustand "locked", wenn die Schicht es verlangt.
+local function shouldAnimate(def)
+  return plate ~= nil and not (state == "locked" and def.freezeLocked)
+end
+
+local function glintsEnabled()
+  return Styles.Get(LootSparkle.CurrentStyle()).glints == true
+end
+
+-- Funkenschwarm passend zum Stil ein- oder ausschalten (läuft nur mit Plakette)
+local function syncGlints()
+  local enabled = plate ~= nil and glintsEnabled()
+  for _, glint in ipairs(glints) do
+    if enabled then
+      if not glint.animation:IsPlaying() then
+        place(glint)
+        glint.texture:Show()
+        glint.animation:Play()
+      end
+    else
+      glint.animation:Stop()
+      glint.texture:Hide()
+    end
+  end
+end
+
+-- Farbe zu Weiß aufhellen (amount 0 bis 1, nil = unverändert): heißer Kern statt flacher Farbe
+function LootSparkle.Whiten(color, amount)
+  if not amount or amount <= 0 then return color end
+  return {
+    color[1] + (1 - color[1]) * amount, color[2] + (1 - color[2]) * amount, color[3] + (1 - color[3]) * amount,
+  }
+end
+
+-- Schichten des Stils zeigen, einfärben, in der Größe des Zustands setzen; Animationen starten oder anhalten.
+-- Das Symbol wählt seinen Ausschnitt im Atlas nach der Kategorie.
+local function applyLayers()
   local activeNames = LootSparkle.ActiveLayerNames()
   local color = LootSparkle.ColorFor(state, kind)
   for _, name in ipairs(LAYER_ORDER) do
-    if name ~= "flash" then
-      local layer = layers[name]
-      local anim = layerAnims[name]
-      if activeNames[name] then
+    local def = layerDefs[name]
+    if not def.flash then
+      local layer, anim = layers[name], layerAnims[name]
+      if activeNames[name] and visibleInState(def) then
         layer:Show()
-        layer:SetVertexColor(color[1], color[2], color[3])
-        if plate and state ~= "locked" and anim and not anim:IsPlaying() then
-          anim:Play()
+        local tint = def.color or LootSparkle.Whiten(color, def.whiten)
+        layer:SetVertexColor(tint[1], tint[2], tint[3])
+        local size = def.sizes and def.sizes[state or "ready"] or def.size
+        layer:SetSize(size[1], size[2])
+        if name == "symbol" then layer:SetTexCoord(Styles.SymbolCoords(kind)) end
+        if anim then
+          if shouldAnimate(def) then
+            if not anim:IsPlaying() then anim:Play() end
+          else
+            anim:Stop()
+          end
         end
       else
-        if anim and anim:IsPlaying() then
-          anim:Stop()
-        end
+        if anim and anim:IsPlaying() then anim:Stop() end
         layer:Hide()
       end
+    end
+  end
+end
+
+local function applyStyle()
+  if not frame then return end
+  shade:SetShown(Styles.Get(LootSparkle.CurrentStyle()).shade == true)
+  applyLayers()
+  syncGlints()
+end
+
+-- Schicht-Impulse beim Wechsel auf "ready" (Zielsucher schnappt zu, Pfeil hüpft)
+local function playReadyAnimations()
+  local activeNames = LootSparkle.ActiveLayerNames()
+  for name, anim in pairs(readyAnims) do
+    if activeNames[name] and visibleInState(layerDefs[name]) then
+      anim:Stop()
+      anim:Play()
     end
   end
 end
@@ -382,57 +322,20 @@ local function create()
   alpha:SetToAlpha(1)
   alpha:SetDuration(FADE_IN_SECONDS)
 
-  layers.halo = frame:CreateTexture(nil, "ARTWORK", nil, 1)
-  layers.halo:SetTexture(LootSparkle.TEXTURE_HALO)
-  layers.halo:SetBlendMode("ADD")
-  layers.halo:SetSize(96, 96)
-  layers.halo:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layerAnims.halo = createHaloAnim(layers.halo)
-
-  layers.ring1 = frame:CreateTexture(nil, "ARTWORK", nil, 2)
-  layers.ring1:SetTexture(LootSparkle.TEXTURE_RING)
-  layers.ring1:SetBlendMode("ADD")
-  layers.ring1:SetSize(80, 80)
-  layers.ring1:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layerAnims.ring1 = createRingAnim(layers.ring1, 0)
-
-  layers.ring2 = frame:CreateTexture(nil, "ARTWORK", nil, 2)
-  layers.ring2:SetTexture(LootSparkle.TEXTURE_RING)
-  layers.ring2:SetBlendMode("ADD")
-  layers.ring2:SetSize(80, 80)
-  layers.ring2:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layerAnims.ring2 = createRingAnim(layers.ring2, 0.9)
-
+  for _, def in ipairs(Styles.LAYERS) do
+    local texture = frame:CreateTexture(nil, def.layer or "ARTWORK", nil, def.sublevel)
+    texture:SetTexture(def.texture)
+    texture:SetBlendMode(def.blend or "ADD")
+    texture:SetSize(def.size[1], def.size[2])
+    local point = def.point or { "CENTER", 0, 0, "CENTER" }
+    texture:SetPoint(point[1], frame, point[4], point[2], point[3])
+    if def.alpha then texture:SetAlpha(def.alpha) end
+    if def.flash then texture:Hide() end
+    layers[def.name], layerDefs[def.name] = texture, def
+    layerAnims[def.name] = def.animation and Animations[def.animation](texture, def) or nil
+    readyAnims[def.name] = def.readyAnimation and Animations[def.readyAnimation](texture, def) or nil
+  end
   layers.ring = layers.ring1
-
-  layers.arcs = frame:CreateTexture(nil, "ARTWORK", nil, 3)
-  layers.arcs:SetTexture(LootSparkle.TEXTURE_ARCS)
-  layers.arcs:SetBlendMode("ADD")
-  layers.arcs:SetSize(84, 84)
-  layers.arcs:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layerAnims.arcs = createArcsAnim(layers.arcs)
-
-  layers.beam = frame:CreateTexture(nil, "ARTWORK", nil, 4)
-  layers.beam:SetTexture(LootSparkle.TEXTURE_BEAM)
-  layers.beam:SetBlendMode("ADD")
-  layers.beam:SetSize(48, 120)
-  layers.beam:SetPoint("BOTTOM", frame, "CENTER", 0, -8)
-  layerAnims.beam = createBeamAnim(layers.beam)
-
-  layers.sigil = frame:CreateTexture(nil, "ARTWORK", nil, 3)
-  layers.sigil:SetTexture(LootSparkle.TEXTURE_SIGIL)
-  layers.sigil:SetBlendMode("ADD")
-  layers.sigil:SetSize(88, 88)
-  layers.sigil:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layerAnims.sigil = createSigilAnim(layers.sigil)
-
-  layers.flash = frame:CreateTexture(nil, "OVERLAY", nil, 5)
-  layers.flash:SetTexture(LootSparkle.TEXTURE_FLARE)
-  layers.flash:SetBlendMode("ADD")
-  layers.flash:SetSize(72, 72)
-  layers.flash:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  layers.flash:Hide()
-  layerAnims.flash = createFlashAnim(layers.flash)
 
   for i = 1, GLINT_COUNT do
     local texture = frame:CreateTexture(nil, "OVERLAY")
@@ -448,6 +351,7 @@ local function create()
 end
 
 local function restartGlints()
+  if not glintsEnabled() then return end
   for _, glint in ipairs(glints) do
     glint.animation:Stop()
     place(glint)
@@ -472,23 +376,7 @@ local function applyLook()
   for _, glint in ipairs(glints) do
     glint.texture:SetVertexColor(color[1], color[2], color[3])
   end
-  local activeNames = LootSparkle.ActiveLayerNames()
-  for _, name in ipairs(LAYER_ORDER) do
-    if name ~= "flash" and activeNames[name] then
-      local layer = layers[name]
-      layer:SetVertexColor(color[1], color[2], color[3])
-      local anim = layerAnims[name]
-      if anim then
-        if state == "locked" then
-          if name == "arcs" or name == "sigil" or name == "ring2" then
-            anim:Stop()
-          end
-        elseif plate and not anim:IsPlaying() then
-          anim:Play()
-        end
-      end
-    end
-  end
+  applyLayers()
 end
 
 function LootSparkle.CurrentScale()
@@ -567,6 +455,7 @@ function LootSparkle.Attach(target, newState, newKind)
   restartGlints()
   local readyState = ns.LootTarget and ns.LootTarget.READY or "ready"
   if state == readyState then
+    playReadyAnimations()
     triggerFlash()
   end
   ns.Debug("sparkle", "attached, state %s kind %s", newState, newKind)
@@ -589,6 +478,7 @@ function LootSparkle.SetState(newState, newKind)
   local readyState = ns.LootTarget and ns.LootTarget.READY or "ready"
   if state == readyState and oldState ~= state then
     restartGlints()
+    playReadyAnimations()
     triggerFlash()
   end
   ns.Debug("sparkle", "state %s kind %s", state, kind)
@@ -600,6 +490,7 @@ function LootSparkle.Release()
   previewToken = 0
   for _, glint in ipairs(glints) do glint.animation:Stop() end
   for _, anim in pairs(layerAnims) do anim:Stop() end
+  for _, anim in pairs(readyAnims) do anim:Stop() end
   fadeIn:Stop()
   frame:Hide()
   frame:ClearAllPoints()

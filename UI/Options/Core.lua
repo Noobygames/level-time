@@ -96,7 +96,7 @@ ns.OptionsCore = {
   builder = builder,
   addPage = addPage, finishPage = finishPage, addSection = addSection, addSlider = addSlider,
   addToggles = addToggles, addButton = addButton, addFooterButton = addFooterButton,
-  addChooser = addChooser, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
+  addChooser = addChooser, addCycle = builder.AddCycleButton, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
   toggle = toggle, localized = localized, advanced = advanced, requires = requires,
   percent = percent, toPercent = toPercent,
   addVisibilityCycle = addVisibilityCycle, addFrameScaleSlider = addFrameScaleSlider,

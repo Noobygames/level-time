@@ -181,3 +181,103 @@ func TestSparkleSpecifics(t *testing.T) {
 		t.Errorf("SparkleArcs: Mitte sollte transparent sein, Alpha = %d", a)
 	}
 }
+
+// Formtexturen der eigenen Stile (Roadmap 466, 471, 475): weiße RGB-Farbe, Form im Alphakanal, Maße als Zweierpotenz
+func TestSparkleShapes(t *testing.T) {
+	size := sparkleTexSize
+	bracket := renderSparkleBracket(size)
+	if a := bracket.NRGBAAt(size/2, size/2).A; a != 0 {
+		t.Errorf("SparkleBracket: Mitte sollte leer sein, Alpha = %d", a)
+	}
+	// Ecke (links oben) liegt auf der Klammer, Kantenmitte nicht
+	if a := bracket.NRGBAAt(8, 8).A; a == 0 {
+		t.Errorf("SparkleBracket: Ecke sollte gefüllt sein")
+	}
+	if a := bracket.NRGBAAt(size/2, 8).A; a != 0 {
+		t.Errorf("SparkleBracket: Kantenmitte sollte offen sein, Alpha = %d", a)
+	}
+	dashed := renderSparkleBracketDashed(size)
+	if a := dashed.NRGBAAt(size/2, size/2).A; a != 0 {
+		t.Errorf("SparkleBracketDashed: Mitte sollte leer sein, Alpha = %d", a)
+	}
+	var onEdge, offEdge int
+	for x := 0; x < size; x++ {
+		if dashed.NRGBAAt(x, 8).A > 0 {
+			onEdge++
+		} else {
+			offEdge++
+		}
+	}
+	if onEdge == 0 || offEdge == 0 {
+		t.Errorf("SparkleBracketDashed: Kante sollte Striche und Lücken haben (%d/%d)", onEdge, offEdge)
+	}
+	arrow := renderSparkleArrow(size)
+	if arrow.NRGBAAt(size/2, size/4).A == 0 || arrow.NRGBAAt(size/2, size*3/4).A == 0 {
+		t.Errorf("SparkleArrow: Schaft und Spitze sollten gefüllt sein")
+	}
+	if arrow.NRGBAAt(4, size-4).A != 0 {
+		t.Errorf("SparkleArrow: untere Ecke sollte leer sein")
+	}
+
+	atlas := renderSparkleSymbols()
+	if atlas.Bounds().Dx() != symbolAtlasW || atlas.Bounds().Dy() != symbolAtlasH {
+		t.Fatalf("SparkleSymbols: Maße %v", atlas.Bounds())
+	}
+	for i := range symbolShapes {
+		x0 := (i % symbolAtlasCols) * symbolCellSize
+		y0 := (i / symbolAtlasCols) * symbolCellSize
+		filled := 0
+		for y := 0; y < symbolCellSize; y++ {
+			for x := 0; x < symbolCellSize; x++ {
+				if atlas.NRGBAAt(x0+x, y0+y).A > 0 {
+					filled++
+				}
+			}
+		}
+		if filled < symbolCellSize*symbolCellSize/20 {
+			t.Errorf("SparkleSymbols: Symbol %d fast leer (%d Pixel)", i+1, filled)
+		}
+	}
+	for _, img := range []*image.NRGBA{bracket, dashed, arrow, atlas} {
+		for y := 0; y < img.Bounds().Dy(); y++ {
+			for x := 0; x < img.Bounds().Dx(); x++ {
+				if p := img.NRGBAAt(x, y); p.A > 0 && (p.R != 255 || p.G != 255 || p.B != 255) {
+					t.Fatalf("Pixel (%d,%d) nicht weiß: %v", x, y, p)
+				}
+			}
+		}
+	}
+}
+
+// Leuchthüllen: weich (Kantenpixel der Form nicht hart), breiter als die Form, Höchstwert 1
+func TestSparkleGlows(t *testing.T) {
+	size := sparkleTexSize
+	for name, pair := range map[string][2]*image.NRGBA{
+		"bracket": {renderSparkleBracket(size), renderSparkleBracketGlow(size)},
+		"arrow":   {renderSparkleArrow(size), renderSparkleArrowGlow(size)},
+	} {
+		shape, glow := pair[0], pair[1]
+		count := func(img *image.NRGBA) (n int, peak uint8) {
+			for y := 0; y < size; y++ {
+				for x := 0; x < size; x++ {
+					a := img.NRGBAAt(x, y).A
+					if a > 0 {
+						n++
+					}
+					if a > peak {
+						peak = a
+					}
+				}
+			}
+			return
+		}
+		shapeN, _ := count(shape)
+		glowN, glowPeak := count(glow)
+		if glowN <= shapeN {
+			t.Errorf("%s: Leuchthülle (%d Pixel) sollte breiter sein als die Form (%d)", name, glowN, shapeN)
+		}
+		if glowPeak < 250 {
+			t.Errorf("%s: Leuchthülle nicht normalisiert (Höchstwert %d)", name, glowPeak)
+		}
+	}
+}
