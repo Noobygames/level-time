@@ -1,5 +1,8 @@
 -- Hardcore-Schutz (Roadmap 449, Einstellungen warnWildernessLogout und warnFalling, Standard aus):
 -- Warnt beim Starten eines Logouts in der Wildnis (20s Countdown) und bei langem freiem Fall (>= 2.5s).
+-- Fall: IsFalling() wird jedes Bild geprüft (eigener Frame, nur sichtbar solange warnFalling an ist). Bei einer
+-- Abtastung alle 0,5 s fielen die kurzen Bodenkontakte beim Dauerhüpfen zwischen die Messpunkte und mehrere
+-- Sprünge zählten als ein langer Fall (Fehlalarm auf ebener Strecke, Debug-Log 2026-11-10).
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -75,8 +78,13 @@ function HardcoreSafeguard.CheckFalling()
   end
 end
 
-ns.Every(0.5, HardcoreSafeguard.CheckFalling, function()
-  return ns.db and ns.db.warnFalling
+local fallFrame = CreateFrame("Frame")
+fallFrame:Hide()
+ns.SetUpdateScript(fallFrame, "HardcoreSafeguard", function() HardcoreSafeguard.CheckFalling() end)
+
+ns.RegisterApply(function(db)
+  fallFrame:SetShown(db.warnFalling == true)
+  if not db.warnFalling then fallStart = nil end
 end)
 
 ns.RegisterEvent("PLAYER_CAMPING", function()

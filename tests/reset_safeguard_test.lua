@@ -136,6 +136,23 @@ wow.advance(0.5)
 wow.update(0.5)
 wow.printed = {}
 
+-- Dauerhüpfen auf ebener Strecke: je Sprung ~0,7 s in der Luft, dazwischen ein Bild Bodenkontakt; zusammen
+-- weit über 2,5 s, aber kein langer Fall (Fehlalarm aus dem Debug-Log 2026-11-10)
+wow.advance(11)   -- Sperre nach der letzten Warnung abgelaufen
+wow.update(0)
+wow.printed = {}
+for _ = 1, 8 do
+  wow.state.falling = true
+  for _ = 1, 7 do
+    wow.advance(0.1)
+    wow.update(0.1)
+  end
+  wow.state.falling = false
+  wow.advance(0.02)
+  wow.update(0.02)
+end
+expect("Hüpfen: keine Sturzwarnung", printedCount(L.WARN_FALLING_TEXT), 0)
+
 -- Kurzer Fall (1s) löst keine neue Warnung aus
 wow.state.falling = true
 for _ = 1, 2 do
