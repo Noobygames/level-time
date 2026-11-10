@@ -2,6 +2,22 @@
 
 Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
 
+## Geplant: Eigene Sparkle-Stile (November 2026)
+
+Neue `lootSparkleStyle`-Stile mit eigener Formsprache statt Glow (die Stile aus 456 erinnern zu sehr an Lueur). Technik wie 456: `UI/LootSparkle.lua`, nur AnimationGroups, Texturen aus `tools/artwork`, Zustände weit (`far`) / bereit (`ready`) / gesperrt (`locked`), Farbe je Kategorie (`ColorFor`). Neuer Standard: Zielsucher; die Glow-Stile aus 456 bleiben wählbar unter „Klassisch“.
+
+- [ ] 466. **Sparkle-Stil Zielsucher** (S–M): vier Eckklammern um das Ziel wie ein Kamera-Fokus; weit = offen und halbtransparent, bereit = schnappen zu + kurzer Blitz, gesperrt = grau gestrichelt. Neuer Standardstil.
+- [ ] 467. **Sparkle-Stil Uhrwerk** (S–M): dünner Ziffernring mit Zeiger unter dem Ziel; weit = Zeiger kriecht, bereit = Zeiger springt auf 12 und Ring tickt, gesperrt = Zeiger steht.
+- [ ] 468. **Sparkle-Stil Fortschrittsring** (M): Ring aus Segmenten wie die XP-Leiste, füllt sich beim Annähern (Cooldown-Swipe, kein OnUpdate), voll = lootbar mit kurzem Level-up-Puls.
+- [ ] 469. **Sparkle-Stil Glühwürmchen** (S–M): drei bis fünf kleine Punkte schweben unregelmäßig um das Ziel und blenden ein/aus; bereit = ziehen sich zur Mitte.
+- [ ] 470. **Sparkle-Stil Schatzkarte** (S–M): handgezeichnetes Tinten-X malt sich unter dem Ziel auf, kurzer gestrichelter Pfad; bereit = Kreis schließt um das X.
+- [ ] 471. **Sparkle-Stil Symbol** (S): kleines Kategorie-Symbol (Spitzhacke, Blatt, Schriftrolle, Beutel) wippt sanft; ohne Glow, gut lesbar auch bei Farbschwäche.
+- [ ] 472. **Sparkle-Stil Pixel-Pop** (S): eckige 8-Bit-Pixel springen kurz auf (Arcade-Look).
+- [ ] 473. **Sparkle-Stil Sternbild** (S–M): fünf Punkte erscheinen nacheinander und verbinden sich mit Linien; bereit = Bild komplett, kurzer Blitz.
+- [ ] 474. **Sparkle-Stil Standard-Glitzer** (S): schlichtes klassisches Glitzern (einige Funkelsterne, die auf- und abblenden), ohne Halo/Strahl-Schichten.
+- [ ] 475. **Sparkle-Stil Pfeil** (S): Pfeil nach unten über dem Ziel, wippt leicht hoch und runter; bereit = kurzer Hüpfer, gesperrt = grau und ruhig.
+- [ ] 476. **Sparkle-Stil Lichtsäule** (S–M): Säule aus warmem Licht vom Himmel auf das Ziel („Beacon of Light“), Bodenkreis und aufsteigende Lichtpunkte; bereit = Säule pulsiert hell.
+
 ## Geplant: Wettbewerbsanalyse (November 2026)
 
 Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Code; Lizenzen beachten), dazu CurseForge-Seiten und die Regeln auf speedrun.com. Komfort: Leatrix Plus (3.3.5-Port), Questie, RXPGuides, Guidelime, Plumber, Mapster, MoveAny, BlizzMove. Statistik: XPLedger (engster Konkurrent, Retail/Forever/Era/MoP), XToLevel, Experiencer, Rested, DataStore, Accountant Classic, Deathlog, Hardcore, NovaInstanceTracker, SavedInstances, LvlHistory. Speedrun: Sprint (vormals ForeverTimer), OnlySplits, Chromely, Earned: Self Found, SelfFound Tracker, Speed Splits, Forever Journey Log, Hardcore Deathrace. Stream/Ziele: Hardcore (Zarant), UltraHardcore, HC Challenge Wheel, FateLocked, Bingo/TiffBingo, FarmIt, Farming Bar, Cerealize. Alle API-Angaben stammen aus fremdem Code und sind vor dem Bau gegen die Blizzard-Doku je Client zu prüfen (CLAUDE.md); „im Spiel prüfen“ heißt `/dump` nötig.
