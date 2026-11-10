@@ -241,10 +241,10 @@ UnitChannelInfo = oldUnitChannelInfo
 -- 7. Roadmap 456: Multi-Layer-2D-Effekt-Engine & Stile
 -- 7.1 Stile und Umschalten
 expect("standard style is finder", LootSparkle.CurrentStyle(), "finder")
-expect("10 sparkle styles exist", #LootSparkle.STYLES, 10)
+expect("13 sparkle styles exist", #LootSparkle.STYLES, 13)
 
 local expectedStyles = {
-  finder = true, arrow = true, glitter = true, symbol = true,
+  finder = true, arrow = true, glitter = true, symbol = true, clock = true, progress = true, pillar = true,
   aura = true, beam = true, sigil = true, ripple = true, sparkle = true, subtle = true,
 }
 local Styles = addon.LootSparkleStyles
@@ -276,6 +276,14 @@ expectTrue("sparkle frame found", sparkleFrame ~= nil)
 local allLayerNames = { "halo", "ring1", "ring2", "arcs", "beam", "sigil", "bracket", "bracketLocked", "arrow", "symbol",
   "shadow", "shadowArrow", "shadowSymbol", "groundRing", "groundArrow", "groundSymbol", "bracketOutline", "bracketGlow",
   "bracketBloom", "bracketCore", "trail", "arrowOutline", "arrowGlow", "badge", "symbolBloom", "symbolOutline" }
+-- alle Schichten der Stile (auch die erzeugten Zeiger, Segmente, Ringe), außer dem Aufblitz-Impuls
+do
+  local known = {}
+  for _, name in ipairs(allLayerNames) do known[name] = true end
+  for _, def in ipairs(Styles.LAYERS) do
+    if not def.flash and not known[def.name] then table.insert(allLayerNames, def.name) end
+  end
+end
 local layers = LootSparkle.Layers()
 expectTrue("layers table returned", layers ~= nil)
 for _, name in ipairs(allLayerNames) do
@@ -290,6 +298,12 @@ local expectedActive = {
   arrow = { shadowArrow = true, groundArrow = true, trail = true, arrowOutline = true, arrowGlow = true, arrow = true },
   glitter = { shadow = true, groundRing = true },
   symbol = { shadowSymbol = true, groundSymbol = true, badge = true, symbolBloom = true, symbolOutline = true, symbol = true },
+  -- Bodenstile: in "ready" sichtbare Schichten (Zeiger 2 bis 16 gibt es nur bei "far")
+  clock = { shadowWide = true, clockOutline = true, clockGlow = true, clockFace = true, clockHand1 = true },
+  progress = { shadowWide = true, progressTrack = true, progressGlow = true },
+  pillar = { shadow = true, pillarShade = true, groundRing = true, pillarGround = true, pillar = true, pillarCore = true,
+    pillarSurge = true, pillarBloom = true, pillarRing1 = true, pillarRing2 = true, pillarRing3 = true,
+    pillarMote1 = true, pillarMote2 = true, pillarMote3 = true, pillarMote4 = true, pillarMote5 = true },
   aura = { arcs = true, halo = true },
   beam = { beam = true, ring1 = true },
   sigil = { arcs = true, halo = true, sigil = true },
@@ -303,6 +317,10 @@ for _, style in ipairs(LootSparkle.STYLES) do
   expect("style set to " .. style, LootSparkle.CurrentStyle(), style)
   local activeNames = LootSparkle.ActiveLayerNames()
   local exp = expectedActive[style]
+  if style == "progress" then
+    -- alle 16 Segmente sind bei "ready" sichtbar
+    exp = setmetatable({}, { __index = function(_, name) return expectedActive.progress[name] or name:find("^progressSeg") ~= nil end })
+  end
   expectTrue(style .. " layer names listed", #activeNames == #Styles.Get(style).layers)
 
   -- Prüfe, dass die erwarteten Layer aktiv sind
@@ -316,7 +334,8 @@ for _, style in ipairs(LootSparkle.STYLES) do
       expectColor(style .. " layer color " .. name, { r, g, b }, want)
     else
       -- Zustandsabhängige Schichten (Zielsucher gesperrt) gehören zum Stil, sind in "ready" aber verborgen
-      expectTrue(style .. " has inactive " .. name, activeNames[name] ~= true or (style == "finder" and name == "bracketLocked"))
+      local def = Styles.LAYERS_BY_NAME[name]
+      expectTrue(style .. " has inactive " .. name, activeNames[name] ~= true or (def.states ~= nil and not def.states.ready))
       expect(style .. " inactive layer is hidden: " .. name, layers[name]:IsShown(), false)
     end
   end
@@ -445,4 +464,82 @@ expectTrue("classic aura keeps shade", LootSparkle.Shade():IsShown())
 -- Aufräumen
 LootSparkle.Release()
 expect("released after section 7", LootSparkle.AttachedTo(), nil)
+addon.Set("lootSparkleStyle", "aura")
+
+
+-- Bodenstile (Roadmap 467, 468, 476) -----------------------------------------------------------------------------------
+LootSparkle.Preview("ore")  -- hängt das Glitzern an UIParent (Zustand ready)
+local function alphaOf(name) return layers[name]:GetAlpha() end
+local function anyPlaying(layer) return playingGroup(layer) end
+local function countShown(prefix)
+  local n = 0
+  for name, layer in pairs(layers) do
+    if name:find("^" .. prefix) and layer:IsShown() then n = n + 1 end
+  end
+  return n
+end
+
+-- Uhrwerk: weit = Zeiger kriecht (16 Stellungen, alle sichtbar und animiert), bereit = nur 12 Uhr, tickt
+addon.Set("lootSparkleStyle", "clock")
+LootSparkle.SetState("far", "ore")
+expect("clock far: all 16 hand positions shown", countShown("clockHand"), 16)
+expectTrue("clock far: hand 1 animates", anyPlaying(layers.clockHand1))
+expectTrue("clock far: hand 9 animates", anyPlaying(layers.clockHand9))
+expect("clock far: ring does not tick", anyPlaying(layers.clockFace), false)
+expectNear("clock far: hand 1 base alpha 0", alphaOf("clockHand1"), 0, 0.001)
+LootSparkle.SetState("ready", "ore")
+expect("clock ready: only 12 o'clock hand", countShown("clockHand"), 1)
+expectNear("clock ready: hand fully visible", alphaOf("clockHand1"), 1, 0.001)
+expectTrue("clock ready: ring ticks", anyPlaying(layers.clockFace))
+expectTrue("clock ready: outline ticks with it", anyPlaying(layers.clockOutline))
+expect("clock ready: creeping stopped", anyPlaying(layers.clockHand9), false)
+LootSparkle.SetState("locked", "ore")
+expect("clock locked: hand stands", countShown("clockHand"), 1)
+expect("clock locked: ring does not tick", anyPlaying(layers.clockFace), false)
+local lr, lg, lb = layers.clockFace:GetVertexColor()
+expectColor("clock locked: grey", { lr, lg, lb }, LootSparkle.Whiten({ 0.6, 0.6, 0.6 }, 0.2))
+local l, r, t, b = Styles.CellCoords(5)
+expectNear("cell 5 left", l, 0.25, 0.001)
+expectNear("cell 5 right", r, 0.5, 0.001)
+expectNear("cell 5 top", t, 0.25, 0.001)
+expectNear("cell 5 bottom", b, 0.5, 0.001)
+
+-- Fortschrittsring: weit = erste zehn Segmente laufen, bereit = alle 16 voll und poppen
+addon.Set("lootSparkleStyle", "progress")
+LootSparkle.SetState("far", "herb")
+expect("progress far: 16 segments in place", countShown("progressSeg"), 16)
+expectTrue("progress far: segment 1 fills", anyPlaying(layers.progressSeg1))
+expectTrue("progress far: segment 10 fills", anyPlaying(layers.progressSeg10))
+expect("progress far: segment 11 stays dark", anyPlaying(layers.progressSeg11), false)
+expectNear("progress far: segment 16 dark", alphaOf("progressSeg16"), 0, 0.001)
+expect("progress far: no glow yet", layers.progressGlow:IsShown(), false)
+LootSparkle.SetState("ready", "herb")
+expectNear("progress ready: segment 16 full", alphaOf("progressSeg16"), 1, 0.001)
+expectNear("progress ready: segment 1 full", alphaOf("progressSeg1"), 1, 0.001)
+expectTrue("progress ready: pop wave plays", anyPlaying(layers.progressSeg1))
+expectTrue("progress ready: glow shown", layers.progressGlow:IsShown())
+expectTrue("progress ready: track stays", layers.progressTrack:IsShown())
+LootSparkle.SetState("locked", "herb")
+expectNear("progress locked: ring dimmed", alphaOf("progressSeg4"), 0.35, 0.001)
+expect("progress locked: glow hidden", layers.progressGlow:IsShown(), false)
+
+-- Lichtsäule: Säule, Ringe und Lichtpunkte laufen; bereit pulsiert die Zusatzschicht, gesperrt steht alles
+addon.Set("lootSparkleStyle", "pillar")
+LootSparkle.SetState("far", "chest")
+expectTrue("pillar far: column shown", shown("pillar"))
+expectTrue("pillar far: column breathes", anyPlaying(layers.pillar))
+expectTrue("pillar far: ring 1 rises", anyPlaying(layers.pillarRing1))
+expectTrue("pillar far: ring 3 rises", anyPlaying(layers.pillarRing3))
+expectTrue("pillar far: mote rises", anyPlaying(layers.pillarMote2))
+expect("pillar far: no surge layer", shown("pillarSurge"), false)
+LootSparkle.SetState("ready", "chest")
+expectTrue("pillar ready: surge layer shown", shown("pillarSurge"))
+expectTrue("pillar ready: surge pulses", anyPlaying(layers.pillarSurge))
+expectTrue("pillar ready: bloom shown", shown("pillarBloom"))
+LootSparkle.SetState("locked", "chest")
+expect("pillar locked: ground light stands", anyPlaying(layers.pillarGround), false)
+expect("pillar locked: rings frozen", anyPlaying(layers.pillarRing2), false)
+expect("pillar locked: motes frozen", anyPlaying(layers.pillarMote1), false)
+expect("pillar locked: surge hidden", shown("pillarSurge"), false)
+LootSparkle.Release()
 addon.Set("lootSparkleStyle", "aura")

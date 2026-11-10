@@ -18,7 +18,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 
 - `UI/LootSparkle.lua`: layers `halo`, `ring1`/`ring2`, `arcs`, `beam`, `sigil`, `flash` plus a dark `BLEND` shade; `lootSparkleStyle` (`aura`, `beam`, `sigil`, `ripple`, `sparkle`, `subtle`) picks the active layers (`STYLE_LAYERS`, `ActiveLayerNames`), colors per category (`ColorFor`), `SetState` far (alpha 0.5) / ready (flash) / locked (grey, arcs/sigil/ring2 frozen). Chooser in Comfort > World. A running preview survives settings changes (`LootSparkles` release skips while `LootSparkle.IsPreviewing()`).
 
-### Sparkle styles v2 (roadmap 466, 471, 474, 475)
+### Sparkle styles v2 (roadmap 466, 471, 474, 475; ground styles below)
 
 - Daten statt Code: `UI/LootSparkleStyles.lua` (`STYLES` = Schichten/`glints`/`shade`/`group` je Stil, `ORDER`, `DEFAULT` = `finder`, `LAYERS` = Texturen mit `size/sizes/point/blend/animation/readyAnimation/states/color/whiten/alpha/freezeLocked`, `SymbolCoords`), `UI/LootSparkleAnimations.lua` (Fabriken je Name: halo, ring, arcs, bob, hop, snap, glowPulse, shadowArrow...), `UI/LootSparkle.lua` = Engine (`applyLayers`, `syncGlints`, `playReadyAnimations`). Neuer Stil = Eintrag in `STYLES`+`ORDER` (+ neue `LAYERS`/Animation/Locale `LOOT_SPARKLE_STYLE_<ID>`).
 - Stile: `finder` (Standard, Klammern weit 84 px / bereit 56 px mit Überschwingen / gesperrt gestrichelt), `arrow`, `glitter` (nur Funken), `symbol` (Atlas 4x2, Zelle je Kategorie), Gruppe "classic" = die Stile aus 456 (Anzeige "Klassisch: %s"). Funken (`glints`) und Bodenschatten (`shade`) nur, wo der Stil sie verlangt.
@@ -26,3 +26,12 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 - Texturen (`tools/artwork/sparkle_shapes.go`): 4x-Supersampling, `blurAlpha` für Leuchtränder, Symbole eigene Zeichnung (keine Blizzard-Atlanten wegen Flavor-Unterschieden). `go -C tools/artwork run . -sparkle-preview Datei.png` = Kontaktbogen auf Gras/Schnee/Sand (Werte in `sparkle_preview.go` spiegeln die Lua-Daten, von Hand nachziehen).
 - Einstellungs-Migration v8: gespeichertes `lootSparkleStyle == "aura"` (alter Standard) -> `finder` (auch Profile); Auswahl = `addCycle` (Zyklus-Button) in `ComfortWorld.lua`.
 - Polish (Kontaktbogen-Review): Körper-Texturen tragen Licht/Schatten im Grauwert (`sparkle_shading.go`: `bevelLight`, `morph`, `blur`), dazu je Form `*Outline` (BLEND schwarz), `*Glow` (ADD), `BracketCore`; Boden (`shadow`, `groundRing`, `groundArrow/Symbol`) am Fuß y -24, Pfeil = Kristall mit `trail`, Symbol auf `badge`; Glitzer-Sterne mit `glintRim` (dunkler Umriss + weißer Kern als `glint.extras`, gleiche Zeiten wie der Stern). Vorschau hat vier Hintergründe (Gras, Schnee, Sand, Höhle).
+
+### Sparkle ground styles (roadmap 467, 468, 476)
+
+- Stile `clock`, `progress`, `pillar` (Gruppe shapes), Texturen aus `tools/artwork/sparkle_ground.go`. Kreise liegen in quadratischen Texturen und werden per Schichtgröße auf 100 x 40 gestaucht (Bodenellipse am Fuß, `GROUND_ELLIPSE`); `clock`/`progress` sitzen auf `shadowWide`.
+- Erzeugte Schichten: `GROUND_LAYERS` in `LootSparkleStyles.lua` (Zeigerstellungen `clockHand1..16`, Segmente `progressSeg1..16`, `pillarRing1..3`, `pillarMote1..5`), vor `flash` einsortiert. Atlas-Zellen: `cell = i` + `Styles.CellCoords` (4 x 4), Parameter `index/delay/rise/drift` gehen an die Animationsfabrik.
+- Neue Engine-Felder: `stateAlpha` (Grunddeckkraft je Zustand, in `applyLayers`), `animStates` (Dauer-Animation nur in diesen Zuständen), `cell`. Fabriken geben bei Bedarf `nil` zurück (Segmente 11 bis 16 in "weit").
+- Zeiger kriecht per Überblenden von 16 Stellungen (Rotation + Stauchung ohne OnUpdate nicht möglich); Schleifenlängen sind über Pausen-Animationen für alle Schichten gleich (`alphaSequence`, `lightRing`, `mote`), damit versetzte Starts nicht driften.
+- Fortschritt ohne Cooldown-Frame (SetSwipeTexture je Flavor nicht belegbar, OmniCC hängt Zahlen an): "weit" füllt zehn Segmente in Schleife, "bereit" ist voll (Pop-Welle). Es wird kein Abstand gemessen.
+- Kontaktbogen: `-sparkle-preview` zeigt die drei Stile (Spiegel der Werte von Hand pflegen).

@@ -1914,4 +1914,7 @@ ns.locales.frFR = {
   LOOT_SPARKLE_STYLE_FINDER = "Viseur",
   LOOT_SPARKLE_STYLE_GLITTER = "Scintillement",
   LOOT_SPARKLE_STYLE_SYMBOL = "Icône",
+  LOOT_SPARKLE_STYLE_CLOCK = "Mécanisme d'horloge",
+  LOOT_SPARKLE_STYLE_PILLAR = "Pilier de lumière",
+  LOOT_SPARKLE_STYLE_PROGRESS = "Anneau de progression",
 }

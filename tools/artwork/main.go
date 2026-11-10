@@ -86,6 +86,17 @@ func runSparkles(dir string) error {
 		{"SparkleTrail", renderSparkleTrail(sparkleTexSize)},
 		{"SparkleBadge", renderSparkleBadge(sparkleTexSize)},
 		{"SparkleSymbolsOutline", renderSparkleSymbolsOutline()},
+		{"SparkleClockFace", renderSparkleClockFace(sparkleTexSize)},
+		{"SparkleClockOutline", renderSparkleClockOutline(sparkleTexSize)},
+		{"SparkleClockGlow", renderSparkleClockGlow(sparkleTexSize)},
+		{"SparkleClockHands", renderSparkleClockHands()},
+		{"SparkleSegments", renderSparkleSegments()},
+		{"SparkleProgressTrack", renderSparkleProgressTrack(sparkleTexSize)},
+		{"SparkleProgressGlow", renderSparkleProgressGlow(sparkleTexSize)},
+		{"SparkleColumn", renderSparkleColumnBody()},
+		{"SparkleColumnCore", renderSparkleColumnCore()},
+		{"SparkleColumnShade", renderSparkleColumnShade()},
+		{"SparkleLightRing", renderSparkleLightRing(sparkleTexSize)},
 	}
 	for _, s := range sparkles {
 		path := filepath.Join(dir, s.name+".tga")

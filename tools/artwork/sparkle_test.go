@@ -323,3 +323,98 @@ func TestSparkleGlows(t *testing.T) {
 		}
 	}
 }
+
+// Bodenstile (Roadmap 467, 468, 476): Atlanten mit 16 gefüllten Zellen, Leuchtränder enden vor dem Rand bei 0,
+// Körper tragen Licht und Schatten, Lichtsäule ist unten hell und oben leer
+func TestSparkleGroundTextures(t *testing.T) {
+	cellFilled := func(img *image.NRGBA, i int) int {
+		n := 0
+		x0, y0 := (i%atlasCols)*sparkleTexSize, (i/atlasCols)*sparkleTexSize
+		for y := 0; y < sparkleTexSize; y++ {
+			for x := 0; x < sparkleTexSize; x++ {
+				if img.NRGBAAt(x0+x, y0+y).A > 0 {
+					n++
+				}
+			}
+		}
+		return n
+	}
+	for name, atlas := range map[string]*image.NRGBA{"hands": renderSparkleClockHands(), "segments": renderSparkleSegments()} {
+		if atlas.Bounds().Dx() != atlasSize || atlas.Bounds().Dy() != atlasSize {
+			t.Fatalf("%s: Maße %v", name, atlas.Bounds())
+		}
+		for i := 0; i < atlasCells; i++ {
+			if n := cellFilled(atlas, i); n < 150 {
+				t.Errorf("%s: Zelle %d fast leer (%d Pixel)", name, i, n)
+			}
+		}
+	}
+	// Segment 1 liegt rechts oben von 12 Uhr, Segment 9 links unten
+	seg := renderSparkleSegments()
+	if seg.NRGBAAt(sparkleTexSize/2+12, 20).A == 0 {
+		t.Errorf("Segment 1 sollte rechts von 12 Uhr liegen")
+	}
+	if seg.NRGBAAt(sparkleTexSize/2-12, 20).A != 0 {
+		t.Errorf("Segment 1 sollte links von 12 Uhr leer sein")
+	}
+	// Zeiger Zelle 1 zeigt nach oben, Zelle 5 (90 Grad) nach rechts
+	hands := renderSparkleClockHands()
+	if hands.NRGBAAt(sparkleTexSize/2, 30).A == 0 {
+		t.Errorf("Zeiger 1 sollte nach oben zeigen")
+	}
+	if hands.NRGBAAt(sparkleTexSize/2, sparkleTexSize-8).A != 0 {
+		t.Errorf("Zeiger 1: unterer Rand sollte leer sein")
+	}
+	// Zelle 5 (Zeile 2, Spalte 1, 90 Grad) zeigt nach rechts
+	if hands.NRGBAAt(sparkleTexSize/2+40, sparkleTexSize+sparkleTexSize/2).A == 0 {
+		t.Errorf("Zeiger 5 sollte nach rechts zeigen")
+	}
+	for name, glow := range map[string]*image.NRGBA{"clock": renderSparkleClockGlow(sparkleTexSize), "progress": renderSparkleProgressGlow(sparkleTexSize)} {
+		for i := 0; i < sparkleTexSize; i++ {
+			for _, p := range [][2]int{{i, 0}, {i, sparkleTexSize - 1}, {0, i}, {sparkleTexSize - 1, i}} {
+				if a := glow.NRGBAAt(p[0], p[1]).A; a != 0 {
+					t.Fatalf("%s: Leuchtrand schneidet am Rand ab (Alpha %d bei %v)", name, a, p)
+				}
+			}
+		}
+	}
+	face := renderSparkleClockFace(sparkleTexSize)
+	var darkest, brightest uint8 = 255, 0
+	for y := 0; y < sparkleTexSize; y++ {
+		for x := 0; x < sparkleTexSize; x++ {
+			if p := face.NRGBAAt(x, y); p.A == 255 {
+				darkest, brightest = min(darkest, p.R), max(brightest, p.R)
+			}
+		}
+	}
+	if brightest-darkest < 25 {
+		t.Errorf("Zifferblatt ohne Licht und Schatten (%d bis %d)", darkest, brightest)
+	}
+	// Lichtsäule: hochkant 1:4, unten hell, oberste Zeile leer, seitlich leer; Kern schmaler als Körper
+	for name, col := range map[string]*image.NRGBA{"body": renderSparkleColumnBody(), "core": renderSparkleColumnCore(), "shade": renderSparkleColumnShade()} {
+		if col.Bounds().Dx() != columnWidth || col.Bounds().Dy() != columnHeight {
+			t.Fatalf("Säule %s: Maße %v", name, col.Bounds())
+		}
+		if col.NRGBAAt(columnWidth/2, 0).A != 0 || col.NRGBAAt(0, columnHeight*3/4).A != 0 || col.NRGBAAt(columnWidth-1, columnHeight*3/4).A != 0 {
+			t.Errorf("Säule %s: Oberkante und Seiten sollten leer sein", name)
+		}
+		if col.NRGBAAt(columnWidth/2, columnHeight*7/8).A < 150 {
+			t.Errorf("Säule %s: Fuß sollte hell sein", name)
+		}
+		if col.NRGBAAt(columnWidth/2, columnHeight/8).A >= col.NRGBAAt(columnWidth/2, columnHeight*7/8).A {
+			t.Errorf("Säule %s: oben sollte dunkler sein als unten", name)
+		}
+	}
+	body, core := renderSparkleColumnBody(), renderSparkleColumnCore()
+	if core.NRGBAAt(columnWidth/2+14, columnHeight*7/8).A >= body.NRGBAAt(columnWidth/2+14, columnHeight*7/8).A {
+		t.Errorf("Säulenkern sollte schmaler sein als der Körper")
+	}
+	// Lichtring: Mitte leer, vordere (untere) Hälfte heller als die hintere
+	ring := renderSparkleLightRing(sparkleTexSize)
+	if ring.NRGBAAt(sparkleTexSize/2, sparkleTexSize/2).A != 0 {
+		t.Errorf("Lichtring: Mitte sollte leer sein")
+	}
+	if ring.NRGBAAt(sparkleTexSize/2, sparkleTexSize/2+45).A <= ring.NRGBAAt(sparkleTexSize/2, sparkleTexSize/2-45).A {
+		t.Errorf("Lichtring: vorn sollte heller sein als hinten")
+	}
+}

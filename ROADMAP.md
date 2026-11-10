@@ -6,13 +6,10 @@ Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt 
 
 Neue `lootSparkleStyle`-Stile mit eigener Formsprache statt Glow (die Stile aus 456 erinnern zu sehr an Lueur). Technik wie 456: `UI/LootSparkle.lua`, nur AnimationGroups, Texturen aus `tools/artwork`, Zustände weit (`far`) / bereit (`ready`) / gesperrt (`locked`), Farbe je Kategorie (`ColorFor`). Neuer Standard: Zielsucher; die Glow-Stile aus 456 bleiben wählbar unter „Klassisch“.
 
-- [ ] 467. **Sparkle-Stil Uhrwerk** (S–M): dünner Ziffernring mit Zeiger unter dem Ziel; weit = Zeiger kriecht, bereit = Zeiger springt auf 12 und Ring tickt, gesperrt = Zeiger steht.
-- [ ] 468. **Sparkle-Stil Fortschrittsring** (M): Ring aus Segmenten wie die XP-Leiste, füllt sich beim Annähern (Cooldown-Swipe, kein OnUpdate), voll = lootbar mit kurzem Level-up-Puls.
 - [ ] 469. **Sparkle-Stil Glühwürmchen** (S–M): drei bis fünf kleine Punkte schweben unregelmäßig um das Ziel und blenden ein/aus; bereit = ziehen sich zur Mitte.
 - [ ] 470. **Sparkle-Stil Schatzkarte** (S–M): handgezeichnetes Tinten-X malt sich unter dem Ziel auf, kurzer gestrichelter Pfad; bereit = Kreis schließt um das X.
 - [ ] 472. **Sparkle-Stil Pixel-Pop** (S): eckige 8-Bit-Pixel springen kurz auf (Arcade-Look).
 - [ ] 473. **Sparkle-Stil Sternbild** (S–M): fünf Punkte erscheinen nacheinander und verbinden sich mit Linien; bereit = Bild komplett, kurzer Blitz.
-- [ ] 476. **Sparkle-Stil Lichtsäule** (S–M): Säule aus warmem Licht vom Himmel auf das Ziel („Beacon of Light“), Bodenkreis, aufsteigende Lichtpunkte und 2–3 flache Ringe (Boden-Ellipsen), die versetzt an der Säule hochwabern und oben ausblenden; bereit = Säule pulsiert hell.
 
 ## Geplant: Wettbewerbsanalyse (November 2026)
 

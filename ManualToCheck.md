@@ -3344,3 +3344,21 @@ Zielsucher gut lesbar auf Schnee/Sand (ja/nein):
 Symbole erkennbar (ja/nein):
 Pfeil/Symbol wippen ruhig, kein Flackern (ja/nein):
 ```
+
+### 233. Beute-Glitzer: Uhrwerk, Fortschrittsring, Lichtsäule (Roadmap 467, 468, 476)
+
+ [ ] geprüft
+
+Aussehen im Spiel (nur im Spiel prüfbar): Einstellungen > Komfort > Welt, „Effekt-Stil“ (Zyklus-Button), „Vorschau“ und echte Ziele über Gras, Schnee, Sand.
+
+- Uhrwerk: Zifferblatt flach am Fuß des Ziels, weit = Zeiger kriecht (kein sichtbares Ruckeln oder doppelter Zeiger), bereit = Zeiger auf 12 und Ring tickt; gesperrt grau, Zeiger steht.
+- Fortschrittsring: weit = Segmente füllen sich bis etwa zwei Drittel und blenden aus, bereit = Ring voll, Welle läuft herum; gesperrt gedimmt. Segmente lesbar auf Schnee?
+- Lichtsäule: warme Säule von oben, drei flache Ringe steigen versetzt auf, Lichtpunkte; bereit = Säule schießt auf und pulsiert hell; auf Schnee und Sand noch erkennbar (dunkler Schatten)?
+- Alle vier Flavors: neue Texturen (TGA, Atlanten 512 x 512, Säule 64 x 256) laden ohne grüne Quadrate; kein Lua-Fehler beim Wechsel der Stile.
+
+```text
+Client:
+Zeiger kriecht ruhig (ja/nein):
+Fortschrittsring lesbar (ja/nein):
+Lichtsäule lesbar auf Schnee/Sand (ja/nein):
+```

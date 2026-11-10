@@ -1,4 +1,4 @@
--- Animationen der Glitzer-Schichten (Roadmap 456, 466, 475): je Name eine Funktion(Textur, Schichtdefinition) -> AnimationGroup.
+-- Animationen der Glitzer-Schichten (Roadmap 456, 466, 467, 468, 475, 476): je Name eine Funktion(Textur, Schichtdefinition) -> AnimationGroup.
 -- Nur Blizzard-AnimationGroups (Alpha, Scale, Rotation, Translation), kein OnUpdate. Die Namen stehen in
 -- LootSparkleStyles.LAYERS (animation = Schleife, readyAnimation = einmalig beim Wechsel auf "ready").
 local _, ns = ...
@@ -156,3 +156,170 @@ function Animations.shadowArrow(texture) return groundBob(texture, 0.7, 0.3, 0.5
 function Animations.shadowSymbol(texture) return groundBob(texture, 0.9, 0.3, 0.55) end
 function Animations.groundArrow(texture) return groundBob(texture, 0.7, 0.18, 0.4) end
 function Animations.groundSymbol(texture) return groundBob(texture, 0.9, 0.18, 0.4) end
+
+-- Bodenstile (Roadmap 467, 468, 476) ---------------------------------------------------------------------------------
+
+-- Folge von Deckkraft-Schritten { von, bis, Dauer, Glättung } in aufeinanderfolgenden Ordnungen; der Rest bis zur
+-- Schleifenlänge period wird mit einer Pause (Deckkraft 0 bis 0) aufgefüllt, damit alle Schichten gleich lang laufen
+-- und versetzte Starts nie auseinanderdriften.
+local function alphaSequence(texture, steps, period)
+  local group = loopingGroup(texture)
+  local order, total = 0, 0
+  for _, step in ipairs(steps) do
+    order = order + 1
+    total = total + step[3]
+    add(group, "Alpha", order, step[3], function(a)
+      a:SetFromAlpha(step[1])
+      a:SetToAlpha(step[2])
+      if step[4] then a:SetSmoothing(step[4]) end
+    end)
+  end
+  if period - total > 0.001 then
+    add(group, "Alpha", order + 1, period - total, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end)
+  end
+  return group
+end
+
+-- Uhrwerk: Der Zeiger kriecht in 16 Stellungen; jede Stellung blendet ein, während die vorige ausblendet
+-- (def.index 0 bis 15, eine Stellung dauert HAND_STEP Sekunden). Stellung 0 (12 Uhr) beginnt die Schleife mit dem
+-- Ausblenden und endet mit dem Einblenden.
+local HAND_COUNT, HAND_STEP = 16, 1.5
+function Animations.clockHand(texture, def)
+  local k, step = def.index, HAND_STEP
+  local steps
+  if k == 0 then
+    steps = { { 1, 0, step }, { 0, 0, (HAND_COUNT - 2) * step }, { 0, 1, step } }
+  else
+    steps = {}
+    if k > 1 then table.insert(steps, { 0, 0, (k - 1) * step }) end
+    table.insert(steps, { 0, 1, step })
+    table.insert(steps, { 1, 0, step })
+  end
+  return alphaSequence(texture, steps, HAND_COUNT * step)
+end
+
+-- Zeiger springt auf 12: kleiner Rückschwung mit Überschwingen
+function Animations.clockSpring(texture)
+  local group = texture:CreateAnimationGroup()
+  add(group, "Scale", 1, 0.08, function(a) a:SetScaleFrom(1, 1); a:SetScaleTo(0.82, 0.82); a:SetSmoothing("IN") end)
+  add(group, "Scale", 2, 0.1, function(a) a:SetScaleFrom(0.82, 0.82); a:SetScaleTo(1.1, 1.1); a:SetSmoothing("OUT") end)
+  add(group, "Scale", 3, 0.14, function(a) a:SetScaleFrom(1.1, 1.1); a:SetScaleTo(1, 1); a:SetSmoothing("IN_OUT") end)
+  return group
+end
+
+-- Der Ring tickt einmal pro Sekunde: kurz größer, dann zurück
+function Animations.clockTick(texture)
+  local group = loopingGroup(texture)
+  add(group, "Scale", 1, 0.05, function(a) a:SetScaleFrom(1, 1); a:SetScaleTo(1.05, 1.05); a:SetSmoothing("OUT") end)
+  add(group, "Scale", 2, 0.2, function(a) a:SetScaleFrom(1.05, 1.05); a:SetScaleTo(1, 1); a:SetSmoothing("IN_OUT") end)
+  add(group, "Scale", 3, 0.75, function(a) a:SetScaleFrom(1, 1); a:SetScaleTo(1, 1) end)
+  return group
+end
+
+-- Leuchtrand im Takt des Tickens (Uhrwerk, Fortschrittsring): dieselbe Dauer wie clockTick
+function Animations.clockGlow(texture)
+  local group = loopingGroup(texture)
+  add(group, "Alpha", 1, 0.05, function(a) a:SetFromAlpha(0.35); a:SetToAlpha(0.8) end)
+  add(group, "Alpha", 2, 0.95, function(a) a:SetFromAlpha(0.8); a:SetToAlpha(0.35); a:SetSmoothing("OUT") end)
+  return group
+end
+
+-- Fortschrittsring, "weit": die ersten FAR_SEGMENTS Segmente füllen sich nacheinander, halten und blenden gemeinsam
+-- aus. Die übrigen Segmente bleiben dunkel und füllen sich erst bei "bereit" (es wird kein Abstand gemessen).
+local FAR_SEGMENTS, FILL_STEP, FILL_FADE_IN, FILL_HOLD_UNTIL, FILL_FADE_OUT, FILL_PERIOD = 10, 0.16, 0.3, 2.6, 0.6, 4.4
+function Animations.segmentFill(texture, def)
+  local i = def.index
+  if i >= FAR_SEGMENTS then return nil end
+  local start = i * FILL_STEP
+  local steps = {}
+  if start > 0 then table.insert(steps, { 0, 0, start }) end
+  table.insert(steps, { 0, 0.9, FILL_FADE_IN, "OUT" })
+  table.insert(steps, { 0.9, 0.9, FILL_HOLD_UNTIL - start - FILL_FADE_IN })
+  table.insert(steps, { 0.9, 0, FILL_FADE_OUT })
+  return alphaSequence(texture, steps, FILL_PERIOD)
+end
+
+-- Fortschrittsring voll: eine Welle läuft um den Ring, jedes Segment poppt kurz auf (Level-up-Puls)
+function Animations.segmentPop(texture, def)
+  local group = texture:CreateAnimationGroup()
+  local grow = add(group, "Scale", 1, 0.09, function(a) a:SetScaleFrom(1, 1); a:SetScaleTo(1.14, 1.14); a:SetSmoothing("OUT") end)
+  if def.index > 0 then grow:SetStartDelay(def.index * 0.02) end
+  add(group, "Scale", 2, 0.2, function(a) a:SetScaleFrom(1.14, 1.14); a:SetScaleTo(1, 1); a:SetSmoothing("IN_OUT") end)
+  return group
+end
+
+-- Lichtsäule ---------------------------------------------------------------------------------------------------------
+
+-- Atmen zwischen zwei Deckkräften (Säule, Bodenlicht, Zusatzschicht bei "bereit"); half = Dauer einer Richtung
+local function breathe(texture, half, low, high)
+  local group = loopingGroup(texture)
+  pingPong(group, "Alpha", half, function(a, forth)
+    a:SetFromAlpha(forth and low or high)
+    a:SetToAlpha(forth and high or low)
+    a:SetSmoothing("IN_OUT")
+  end)
+  return group
+end
+
+function Animations.pillarPulse(texture) return breathe(texture, 1.3, 0.5, 0.8) end
+function Animations.pillarGround(texture) return breathe(texture, 1.3, 0.45, 0.75) end
+-- bereit: schnell und hell, die Säule pulsiert
+function Animations.pillarSurge(texture) return breathe(texture, 0.45, 0.25, 0.85) end
+
+-- Säule schießt bei "bereit" auf: schmal und blass, kurz breiter als normal, dann zurück
+function Animations.surge(texture)
+  local group = texture:CreateAnimationGroup()
+  add(group, "Scale", 1, 0.1, function(a) a:SetScaleFrom(0.6, 1); a:SetScaleTo(1.35, 1); a:SetSmoothing("OUT") end)
+  add(group, "Alpha", 1, 0.1, function(a) a:SetFromAlpha(0.3); a:SetToAlpha(1) end)
+  add(group, "Scale", 2, 0.22, function(a) a:SetScaleFrom(1.35, 1); a:SetScaleTo(1, 1); a:SetSmoothing("IN_OUT") end)
+  return group
+end
+
+-- Flacher Ring steigt an der Säule auf: wabert leicht seitlich, wird schmaler und blendet oben aus. Drei Ringe laufen
+-- um def.delay versetzt, die Schleifenlänge RING_PERIOD ist für alle gleich.
+local RING_STEP, RING_PERIOD, RING_RISE = 0.6, 4.2, 25
+local RING_SCALE = { 1, 0.93, 0.85, 0.78, 0.7 }
+local RING_WOBBLE = { 3, -6, 6, -3 }
+local RING_ALPHA = { { 0, 0.9 }, { 0.9, 0.8 }, { 0.8, 0.5 }, { 0.5, 0 } }
+function Animations.lightRing(texture, def)
+  local group = loopingGroup(texture)
+  local order = 0
+  if def.delay > 0 then
+    order = 1
+    add(group, "Alpha", order, def.delay, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end)
+  end
+  for i = 1, #RING_WOBBLE do
+    order = order + 1
+    add(group, "Translation", order, RING_STEP, function(a) a:SetOffset(RING_WOBBLE[i], RING_RISE); a:SetSmoothing("NONE") end)
+    add(group, "Scale", order, RING_STEP, function(a)
+      a:SetScaleFrom(RING_SCALE[i], RING_SCALE[i])
+      a:SetScaleTo(RING_SCALE[i + 1], RING_SCALE[i + 1])
+    end)
+    add(group, "Alpha", order, RING_STEP, function(a) a:SetFromAlpha(RING_ALPHA[i][1]); a:SetToAlpha(RING_ALPHA[i][2]) end)
+  end
+  local rest = RING_PERIOD - def.delay - RING_STEP * #RING_WOBBLE
+  if rest > 0.001 then
+    add(group, "Alpha", order + 1, rest, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end)
+  end
+  return group
+end
+
+-- Lichtpunkt steigt auf: kurz einblenden, langsam nach oben treiben (def.rise Pixel, def.drift seitlich), ausblenden
+local MOTE_PERIOD = 3.2
+function Animations.mote(texture, def)
+  local group = loopingGroup(texture)
+  local order = 0
+  if def.delay > 0 then
+    order = 1
+    add(group, "Alpha", order, def.delay, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end)
+  end
+  add(group, "Alpha", order + 1, 0.6, function(a) a:SetFromAlpha(0); a:SetToAlpha(0.95) end)
+  add(group, "Translation", order + 1, 0.6, function(a) a:SetOffset(def.drift * 0.3, def.rise * 0.3); a:SetSmoothing("NONE") end)
+  add(group, "Scale", order + 1, 0.6, function(a) a:SetScaleFrom(0.6, 0.6); a:SetScaleTo(1, 1) end)
+  add(group, "Alpha", order + 2, 1.6, function(a) a:SetFromAlpha(0.95); a:SetToAlpha(0) end)
+  add(group, "Translation", order + 2, 1.6, function(a) a:SetOffset(def.drift * 0.7, def.rise * 0.7); a:SetSmoothing("NONE") end)
+  add(group, "Scale", order + 2, 1.6, function(a) a:SetScaleFrom(1, 1); a:SetScaleTo(0.4, 0.4) end)
+  local rest = MOTE_PERIOD - def.delay - 2.2
+  if rest > 0.001 then add(group, "Alpha", order + 3, rest, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end) end
+  return group
+end

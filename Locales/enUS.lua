@@ -1914,4 +1914,7 @@ ns.locales.enUS = {
   LOOT_SPARKLE_STYLE_FINDER = "Target brackets",
   LOOT_SPARKLE_STYLE_GLITTER = "Glitter",
   LOOT_SPARKLE_STYLE_SYMBOL = "Icon",
+  LOOT_SPARKLE_STYLE_CLOCK = "Clockwork",
+  LOOT_SPARKLE_STYLE_PILLAR = "Light pillar",
+  LOOT_SPARKLE_STYLE_PROGRESS = "Progress ring",
 }

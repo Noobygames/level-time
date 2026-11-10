@@ -1914,4 +1914,7 @@ ns.locales.deDE = {
   LOOT_SPARKLE_STYLE_FINDER = "Zielsucher",
   LOOT_SPARKLE_STYLE_GLITTER = "Glitzer",
   LOOT_SPARKLE_STYLE_SYMBOL = "Symbol",
+  LOOT_SPARKLE_STYLE_CLOCK = "Uhrwerk",
+  LOOT_SPARKLE_STYLE_PILLAR = "Lichtsäule",
+  LOOT_SPARKLE_STYLE_PROGRESS = "Fortschrittsring",
 }

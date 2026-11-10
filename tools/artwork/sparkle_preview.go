@@ -55,6 +55,11 @@ func previewStyles() []previewStyle {
 	arrowGlow := renderSparkleArrowGlow(sparkleTexSize)
 	trail, badge := renderSparkleTrail(sparkleTexSize), renderSparkleBadge(sparkleTexSize)
 	atlas, atlasOutline := renderSparkleSymbols(), renderSparkleSymbolsOutline()
+	clockFace, clockOutline, clockGlow := renderSparkleClockFace(sparkleTexSize), renderSparkleClockOutline(sparkleTexSize), renderSparkleClockGlow(sparkleTexSize)
+	hands, segments := renderSparkleClockHands(), renderSparkleSegments()
+	progressTrack, progressGlow := renderSparkleProgressTrack(sparkleTexSize), renderSparkleProgressGlow(sparkleTexSize)
+	column, columnCore, columnShade := renderSparkleColumnBody(), renderSparkleColumnCore(), renderSparkleColumnShade()
+	lightRing := renderSparkleLightRing(sparkleTexSize)
 	shadow := previewLayer{tex: halo, w: 72, h: 26, dy: -24, tint: &black, a: 0.55}
 	groundRing := previewLayer{tex: ring, w: 76, h: 28, dy: -24, add: true, whiten: 0.3, a: 0.45}
 	groundGlow := previewLayer{tex: halo, w: 60, h: 22, dy: -20, add: true, whiten: 0.2, a: 0.4}
@@ -85,6 +90,58 @@ func previewStyles() []previewStyle {
 				{tex: halo, w: 66, h: 66, dy: 47, add: true, a: 0.45},
 				cell(previewLayer{tex: atlasOutline, w: 54, h: 54, dy: 47, tint: &black, a: 0.9}),
 				cell(previewLayer{tex: atlas, w: 50, h: 50, dy: 47, whiten: 0.3, a: 1})}
+		}},
+		{"uhrwerk", func(ready bool) []previewLayer {
+			cell := func(l previewLayer, i int) previewLayer {
+				l.cu0, l.cu1 = float64(i%atlasCols)/atlasCols, float64(i%atlasCols+1)/atlasCols
+				l.cv0, l.cv1 = float64(i/atlasCols)/atlasRows, float64(i/atlasCols+1)/atlasRows
+				return l
+			}
+			out := []previewLayer{shadow,
+				{tex: clockOutline, w: 100, h: 40, dy: -24, tint: &black, a: 0.9},
+				{tex: clockGlow, w: 200, h: 80, dy: -24, add: true, a: 0.35},
+				{tex: clockFace, w: 100, h: 40, dy: -24, whiten: 0.2, a: 1}}
+			if ready {
+				return append(out, cell(previewLayer{tex: hands, w: 100, h: 40, dy: -24, whiten: 0.5, a: 1}, 0))
+			}
+			return append(out, cell(previewLayer{tex: hands, w: 100, h: 40, dy: -24, whiten: 0.3, a: 0.55}, 5),
+				cell(previewLayer{tex: hands, w: 100, h: 40, dy: -24, whiten: 0.3, a: 0.45}, 6))
+		}},
+		{"fortschritt", func(ready bool) []previewLayer {
+			cell := func(i int) previewLayer {
+				return previewLayer{tex: segments, w: 100, h: 40, dy: -24, whiten: 0.15, a: 1,
+					cu0: float64(i%atlasCols) / atlasCols, cu1: float64(i%atlasCols+1) / atlasCols,
+					cv0: float64(i/atlasCols) / atlasRows, cv1: float64(i/atlasCols+1) / atlasRows}
+			}
+			out := []previewLayer{shadow, {tex: progressTrack, w: 100, h: 40, dy: -24, tint: &black, a: 0.85}}
+			lit := 9
+			if ready {
+				lit = atlasCells
+				out = append(out, previewLayer{tex: progressGlow, w: 200, h: 80, dy: -24, add: true, a: 0.5})
+			}
+			for i := 0; i < lit; i++ {
+				out = append(out, cell(i))
+			}
+			return out
+		}},
+		{"lichtsaeule", func(ready bool) []previewLayer {
+			out := []previewLayer{shadow,
+				{tex: columnShade, w: 66, h: 132, dy: 42, tint: &black, a: 0.4},
+				groundRing, {tex: halo, w: 70, h: 26, dy: -24, add: true, whiten: 0.2, a: 0.6},
+				{tex: column, w: 64, h: 128, dy: 40, add: true, a: 0.55},
+				{tex: columnCore, w: 40, h: 124, dy: 38, add: true, whiten: 0.6, a: 0.8}}
+			if ready {
+				out = append(out, previewLayer{tex: column, w: 90, h: 140, dy: 46, add: true, a: 0.5},
+					previewLayer{tex: halo, w: 100, h: 38, dy: -24, add: true, whiten: 0.5, a: 0.7})
+			}
+			// drei Ringe in verschiedenen Höhen: unten kräftig, oben ausblendend
+			for _, r := range []struct{ h, w, a float64 }{{8, 56, 0.9}, {46, 50, 0.7}, {88, 44, 0.35}} {
+				out = append(out, previewLayer{tex: lightRing, w: r.w, h: r.w * 0.4, dy: -24 + r.h, add: true, whiten: 0.3, a: r.a})
+			}
+			for _, m := range [][3]float64{{-10, 30, 12}, {12, 62, 10}, {-4, 96, 8}, {8, 110, 6}} {
+				out = append(out, previewLayer{tex: flare, w: m[2], h: m[2], dx: m[0], dy: -24 + m[1], add: true, whiten: 0.5, a: 0.9})
+			}
+			return out
 		}},
 		{"glitzer", func(ready bool) []previewLayer {
 			out := []previewLayer{shadow, groundRing}

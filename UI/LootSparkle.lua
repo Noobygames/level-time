@@ -6,6 +6,7 @@
 --   "arrow":   Pfeil nach unten über dem Ziel, wippt
 --   "glitter": schlichtes Glitzern, nur Funkelsterne
 --   "symbol":  Kategorie-Symbol über dem Ziel, wippt
+--   "clock", "progress", "pillar": Uhrwerk, Fortschrittsring, Lichtsäule (Bodenstile)
 --   Klassisch (Glow): "aura", "beam", "sigil", "ripple", "sparkle", "subtle"
 -- Nur AnimationGroups (Blizzard SimpleAnimGroup), kein OnUpdate: ohne angehängtes Glitzern läuft nichts.
 -- Zustände (LootTarget): READY hell und kategoriefarben mit Aufblitz-Impuls (flash) und Schicht-Impuls
@@ -219,7 +220,8 @@ end
 
 -- Läuft die Dauer-Animation? Eingefroren im Zustand "locked", wenn die Schicht es verlangt.
 local function shouldAnimate(def)
-  return plate ~= nil and not (state == "locked" and def.freezeLocked)
+  if state == "locked" and def.freezeLocked then return false end
+  return plate ~= nil and (not def.animStates or def.animStates[state or "ready"] == true)
 end
 
 local function glintsEnabled()
@@ -285,6 +287,8 @@ local function applyLayers()
         local size = def.sizes and def.sizes[state or "ready"] or def.size
         layer:SetSize(size[1], size[2])
         if def.atlas then layer:SetTexCoord(Styles.SymbolCoords(kind)) end
+        local stateAlpha = def.stateAlpha and def.stateAlpha[state or "ready"]
+        if stateAlpha then layer:SetAlpha(stateAlpha) end
         if anim then
           if shouldAnimate(def) then
             if not anim:IsPlaying() then anim:Play() end
@@ -357,6 +361,7 @@ local function create()
     local point = def.point or { "CENTER", 0, 0, "CENTER" }
     texture:SetPoint(point[1], frame, point[4], point[2], point[3])
     if def.alpha then texture:SetAlpha(def.alpha) end
+    if def.cell then texture:SetTexCoord(Styles.CellCoords(def.cell)) end
     if def.flash then texture:Hide() end
     layers[def.name], layerDefs[def.name] = texture, def
     layerAnims[def.name] = def.animation and Animations[def.animation](texture, def) or nil
