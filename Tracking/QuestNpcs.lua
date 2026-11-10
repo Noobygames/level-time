@@ -106,3 +106,61 @@ function QuestNpcs.TurnInName(questID)
   local record = QuestNpcs.Get(questID)
   return record and record.turnIn and record.turnIn.name or nil
 end
+
+local HUB_DISTANCE = 0.06
+QuestNpcs.HUB_DISTANCE = HUB_DISTANCE
+
+local function hasTurnInInfo(turnIn)
+  if not turnIn then return false end
+  if turnIn.npcId and turnIn.npcId ~= 0 then return true end
+  if turnIn.name and turnIn.name ~= "" then return true end
+  if turnIn.mapID and turnIn.x and turnIn.y then return true end
+  return false
+end
+
+-- Abgabe-Ort einer Quest: NPC-Name (oder Fallback-Zone), mapID, x, y
+function QuestNpcs.TurnInHub(questID, fallbackZone)
+  local record = QuestNpcs.Get(questID)
+  local turnIn = record and record.turnIn
+  local npcName = turnIn and turnIn.name
+  if not npcName or npcName == "" then
+    npcName = fallbackZone
+  end
+  return npcName, turnIn and turnIn.mapID, turnIn and turnIn.x, turnIn and turnIn.y
+end
+
+-- Gehören zwei Quests zum selben Abgabe-Hub?
+-- Gleicher NPC (ID oder Name), nahe Koordinaten (HUB_DISTANCE) oder gleiche Zone (ohne gelernte Abgabe).
+function QuestNpcs.SameHub(questA, questB, zoneA, zoneB)
+  if questA and questB and questA == questB then return true end
+  local recA = QuestNpcs.Get(questA)
+  local recB = QuestNpcs.Get(questB)
+  local turnInA = recA and recA.turnIn
+  local turnInB = recB and recB.turnIn
+
+  if turnInA and turnInB then
+    if turnInA.npcId and turnInB.npcId and turnInA.npcId == turnInB.npcId then
+      return true
+    end
+    if turnInA.name and turnInB.name and turnInA.name ~= "" and turnInA.name == turnInB.name then
+      return true
+    end
+    if turnInA.mapID and turnInB.mapID and turnInA.mapID == turnInB.mapID
+      and turnInA.x and turnInA.y and turnInB.x and turnInB.y then
+      local dx = turnInA.x - turnInB.x
+      local dy = turnInA.y - turnInB.y
+      if math.sqrt(dx * dx + dy * dy) <= HUB_DISTANCE + 1e-7 then
+        return true
+      end
+    end
+  end
+
+  if not hasTurnInInfo(turnInA) and not hasTurnInInfo(turnInB) then
+    if zoneA and zoneB and zoneA ~= "" and zoneA == zoneB then
+      return true
+    end
+  end
+
+  return false
+end
+

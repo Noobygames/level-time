@@ -33,6 +33,7 @@ ns.Database.RegisterDefaults({
   settings = {
     lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
     lootSparkleCorpses = false, lootSparkleScale = 1,
+    lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
   },
   ranges = { lootSparkleScale = { 0.5, 2 } },
 })
@@ -216,9 +217,10 @@ local function release()
 end
 
 -- Ein neuer Zustand gilt erst, wenn er mehrmals hintereinander gesehen wurde
-local function proposeState(state)
+local function proposeState(state, kind)
   if state == LootSparkle.State() then
     candidate = nil
+    LootSparkle.SetState(state, kind)
     return
   end
   if candidate ~= state then
@@ -228,7 +230,7 @@ local function proposeState(state)
   candidateTicks = candidateTicks + 1
   if candidateTicks >= (state == LootTarget.LOCKED and LOCKED_TICKS or STATE_TICKS) then
     candidate = nil
-    LootSparkle.SetState(state)
+    LootSparkle.SetState(state, kind)
   end
 end
 
@@ -255,10 +257,10 @@ local function evaluate()
   local state = LootTarget.State(LootTarget.UNIT, blocked)
   if LootSparkle.AttachedTo() ~= plate or retarget then
     retarget, candidate = false, nil
-    LootSparkle.Attach(plate, state)
+    LootSparkle.Attach(plate, state, kind)
     ns.Debug("sparkle", "%s target", kind)
   else
-    proposeState(state)
+    proposeState(state, kind)
   end
 end
 

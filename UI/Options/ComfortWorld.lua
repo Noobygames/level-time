@@ -93,6 +93,10 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     toggle("LOOT_SPARKLE_CORPSES", "lootSparkleCorpses", LootSparkles.CanSoftTarget),
   })
   if LootSparkles.CanSoftTarget() then
+    addToggles({
+      toggle("LOOT_SPARKLE_CATEGORY_COLORS", "lootSparkleCategoryColors"),
+      advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
+    })
     addSlider(requires({
       label = "LOOT_SPARKLE_SCALE",
       advanced = true,
@@ -104,6 +108,7 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       set = function(value) ns.SetDeferred("lootSparkleScale", value / 100) end,
       format = percent,
     }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleQuestObjects", "lootSparkleCorpses"))
+    addButton("LOOT_SPARKLE_PREVIEW", function() ns.LootSparkle.Preview() end)
   end
 end
 -- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und

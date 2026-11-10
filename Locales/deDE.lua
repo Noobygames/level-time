@@ -1835,4 +1835,10 @@ ns.locales.deDE = {
   WARN_WILDERNESS_LOGOUT_TEXT = "Achtung: 20-Sekunden-Logout in der Wildnis aktiv!",
   WARN_WILDERNESS_LOGOUT_TIP = "Warnt beim Starten eines Logouts außerhalb eines Gasthauses oder Ruhegebiets vor der 20-Sekunden-Wartezeit.",
   WARN_WILDERNESS_LOGOUT_TITLE = "Wildnis-Logout!",
+  LOOT_SPARKLE_CATEGORY_COLORS = "Kategoriefarben",
+  LOOT_SPARKLE_CATEGORY_COLORS_TIP = "Färbt die Funken nach der Art des Objekts (Orange für Erz, Grün für Kräuter, Gold für Quests, Cyan für Truhen, Rot für Schwimmer, Hellgold für Leichen) statt im einheitlichen Gold.",
+  LOOT_SPARKLE_PREVIEW = "Glitzern testen",
+  LOOT_SPARKLE_PREVIEW_TIP = "Zeigt das Glitzern für 4 Sekunden im Bildzentrum und schaltet bei jedem Klick durch die verschiedenen Kategoriefarben.",
+  LOOT_SPARKLE_SILHOUETTE = "Spieler-Silhouettenmaske",
+  LOOT_SPARKLE_SILHOUETTE_TIP = "Blendet den Lichtschein hinter der Spielfigur im Zentrum des Bildschirms aus, damit die eigene Figur das Glitzern nicht überstrahlt.",
 }

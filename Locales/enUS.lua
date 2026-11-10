@@ -1835,4 +1835,10 @@ ns.locales.enUS = {
   WARN_WILDERNESS_LOGOUT_TEXT = "Caution: 20-second wilderness logout active!",
   WARN_WILDERNESS_LOGOUT_TIP = "Warns when starting a logout outside of an inn or rest area about the 20-second delay.",
   WARN_WILDERNESS_LOGOUT_TITLE = "Wilderness Logout!",
+  LOOT_SPARKLE_CATEGORY_COLORS = "Category colors",
+  LOOT_SPARKLE_CATEGORY_COLORS_TIP = "Colors glints by object category (orange for ore, green for herbs, gold for quests, cyan for chests, red for bobbers, light gold for corpses) instead of uniform gold.",
+  LOOT_SPARKLE_PREVIEW = "Test sparkle",
+  LOOT_SPARKLE_PREVIEW_TIP = "Shows the sparkle for 4 seconds in the center of the screen, cycling through category colors on each click.",
+  LOOT_SPARKLE_SILHOUETTE = "Player silhouette mask",
+  LOOT_SPARKLE_SILHOUETTE_TIP = "Masks the sparkle behind the player character in screen center so your character doesn't get washed out by the glow.",
 }

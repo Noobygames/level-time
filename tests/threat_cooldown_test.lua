@@ -29,6 +29,66 @@ addon.Set("threatShowNumeric", false)
 expect("vorheriges 1 wiederhergestellt", GetCVar("threatShowNumeric"), "1")
 
 ---------------------------------------------------------------------------
+-- 1b. ThreatDisplay: Ziel-Abzeichen (Solo / Forever) & Namensplaketten
+---------------------------------------------------------------------------
+addon.Set("threatShowNumeric", true)
+wow.state.inCombat = true
+wow.state.units.target = {
+  name = "Silithidsucher",
+  hostile = true,
+  combat = true,
+  tanking = true,
+  threatStatus = 3,
+  threatPercent = 100,
+  threatRawPercent = 255,
+  threatValue = 1427,
+}
+wow.fire("PLAYER_TARGET_CHANGED")
+expect("Ziel-Abzeichen sichtbar bei Solo-Aggro", ThreatDisplay.BadgeFrame():IsShown(), true)
+expect("Ziel-Abzeichen zeigt 100%", ThreatDisplay.BadgeText(), "100%")
+expect("Status 3: kein Oranger Leuchtrahmen", ThreatDisplay.IsGlowShown(), false)
+
+-- Status 2 (kurz vor Aggro / Verlust): Orange + Glow
+wow.state.units.target.threatStatus = 2
+wow.state.units.target.threatPercent = 88
+wow.fire("UNIT_THREAT_LIST_UPDATE", "target")
+expect("Status 2 zeigt 88%", ThreatDisplay.BadgeText(), "88%")
+expect("Status 2 zeigt Leuchtrahmen", ThreatDisplay.IsGlowShown(), true)
+
+-- Namensplaketten-Färbung im Kampf
+local plateBar = CreateFrame("StatusBar")
+plateBar:SetStatusBarColor(0.8, 0.1, 0.1)
+local plate = { UnitFrame = { healthBar = plateBar } }
+local origNamePlate = C_NamePlate
+C_NamePlate = { GetNamePlateForUnit = function(u) return u == "nameplate1" and plate or nil end }
+wow.state.units.nameplate1 = {
+  name = "Silithidsucher",
+  hostile = true,
+  combat = true,
+  threatStatus = 1,
+}
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+local pr, pg, pb = plateBar:GetStatusBarColor()
+expect("Plakette Status 1 Gelb R", pr, 1.00)
+expect("Plakette Status 1 Gelb G", pg, 1.00)
+expect("Plakette Status 1 Gelb B", pb, 0.47)
+
+-- Kampfende stellt Originalfarbe wieder her
+wow.state.inCombat = false
+wow.state.units.nameplate1.combat = false
+wow.fire("PLAYER_REGEN_ENABLED")
+local orR, orG, orB = plateBar:GetStatusBarColor()
+expect("Plakette Original R wiederhergestellt", orR, 0.8)
+expect("Plakette Original G wiederhergestellt", orG, 0.1)
+expect("Plakette Original B wiederhergestellt", orB, 0.1)
+
+C_NamePlate = origNamePlate
+wow.state.units.target = nil
+wow.state.units.nameplate1 = nil
+addon.Set("threatShowNumeric", false)
+expect("Abzeichen ausgeblendet wenn Option aus", ThreatDisplay.BadgeFrame():IsShown(), false)
+
+---------------------------------------------------------------------------
 -- 2. CooldownNumbers: CVar countdownForCooldowns
 ---------------------------------------------------------------------------
 expect("cooldownNumbers default false", addon.Database.SettingDefault("cooldownNumbers"), false)

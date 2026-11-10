@@ -1835,4 +1835,10 @@ ns.locales.esES = {
   WARN_WILDERNESS_LOGOUT_TEXT = "Atención: ¡desconexión de 20 segundos a la intemperie activa!",
   WARN_WILDERNESS_LOGOUT_TIP = "Avisa al iniciar una desconexión fuera de una posada o área de descanso del retraso de 20 segundos.",
   WARN_WILDERNESS_LOGOUT_TITLE = "¡Desconexión a la intemperie!",
+  LOOT_SPARKLE_CATEGORY_COLORS = "Colores por categoría",
+  LOOT_SPARKLE_CATEGORY_COLORS_TIP = "Colorea los destellos según la categoría del objeto (naranja para mineral, verde para hierbas, oro para misiones, cian para cofres, rojo para flotadores, oro claro para cadáveres) en lugar de oro uniforme.",
+  LOOT_SPARKLE_PREVIEW = "Probar destello",
+  LOOT_SPARKLE_PREVIEW_TIP = "Muestra el destello durante 4 segundos en el centro de la pantalla, alternando los colores de categoría con cada clic.",
+  LOOT_SPARKLE_SILHOUETTE = "Máscara de silueta del jugador",
+  LOOT_SPARKLE_SILHOUETTE_TIP = "Oculta el destello detrás del personaje en el centro de la pantalla para que tu personaje no quede cubierto por el brillo.",
 }

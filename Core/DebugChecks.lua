@@ -296,7 +296,8 @@ end)
 check("frames.addon", function()
   local names = {}
   for _, suffix in ipairs({ "Frame", "Alert", "Notice", "Camp", "Food", "Flight", "Splits", "LevelUp", "QuestItemBar",
-    "Recap", "MinimapButton", "MapCoordinates", "Emergency", "DeathMap", "Options", "History" }) do
+    "Recap", "MinimapButton", "MapCoordinates", "Emergency", "DeathMap", "Options", "History",
+    "ObsSignal", "SpellHistory", "TargetRange", "TargetThreat" }) do
     names[#names + 1] = ns.GlobalName(suffix)
   end
   return framesByName(names)
@@ -315,6 +316,7 @@ local CVARS = {
   "Sound_MasterVolume", "Sound_EnableAllSound", "SoftTargetInteract", "SoftTargetIconGameObject",
   "SoftTargetIconInteract", "SoftTargetNameplateInteract", "SoftTargetInteractRange", "SoftTargetIconLoot",
   "scriptErrors", "loadDeprecationFallbacks", "chatStyle", "chatMouseScroll",
+  "threatShowNumeric", "countdownForCooldowns",
 }
 check("329.cvars", function()
   local values, defaults = {}, {}
@@ -983,3 +985,39 @@ end)
 if ns.SleepTimer.IsAvailable() then
   DebugLog.OnStateChanged(function(enabled) sleepProbes.SetActive(enabled) end)
 end
+
+-- 443: Bedrohungsanzeige (CVar, Blizzards TargetFrame-Anzeige, eigenes Abzeichen LevelTimerTargetThreat, Zielwerte)
+check("443.threat", function()
+  local status, pct, tanking, value = ns.ThreatDisplay.TargetThreat()
+  local badge = ns.ThreatDisplay.BadgeFrame()
+  local modern = _G.TargetFrame and _G.TargetFrame.threatNumericIndicator
+  local classic = _G.TargetFrameNumericalThreat
+  return {
+    setting = ns.db.threatShowNumeric,
+    cvar = call("C_CVar.GetCVar", "threatShowNumeric") or call("GetCVar", "threatShowNumeric"),
+    targetStatus = status,
+    targetPercent = pct,
+    targetTanking = tanking,
+    targetValue = value,
+    badgeShown = badge and badge:IsShown() or false,
+    badgeText = ns.ThreatDisplay.BadgeText(),
+    glowShown = ns.ThreatDisplay.IsGlowShown(),
+    blizzardModernShown = modern and modern.IsShown and modern:IsShown() or false,
+    blizzardClassicShown = classic and classic.IsShown and classic:IsShown() or false,
+  }
+end)
+
+-- 445-449: Komfort-Helfer (DialogKey, Abklingzeit-Zahlen, Ziel-Reichweite, Instanz-Reset-Ansage, Hardcore-Schutz)
+check("445.qol", function()
+  return {
+    dialogKeys = ns.db.dialogKeys,
+    dialogOpen = ns.DialogKey and ns.DialogKey.GetDialogOpen() or nil,
+    cooldownNumbers = ns.db.cooldownNumbers,
+    cooldownCVar = call("C_CVar.GetCVar", "countdownForCooldowns") or call("GetCVar", "countdownForCooldowns"),
+    showTargetRange = ns.db.showTargetRange,
+    targetRange = ns.TargetRange and ns.TargetRange.Estimate("target") or nil,
+    announceInstanceReset = ns.db.announceInstanceReset,
+    warnWildernessLogout = ns.db.warnWildernessLogout,
+    warnFalling = ns.db.warnFalling,
+  }
+end)

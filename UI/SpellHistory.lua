@@ -22,7 +22,7 @@ local SpellHistory = {
 }
 ns.SpellHistory = SpellHistory
 
-local frame = CreateFrame("Frame", "LevelTimerSpellHistory", UIParent)
+local frame = CreateFrame("Frame", "LevelTimerSpellHistory", UIParent, "BackdropTemplate")
 frame:SetSize(SpellHistory.ICON_SIZE * 5 + SpellHistory.GAP * 4 + SpellHistory.PADDING * 2,
   SpellHistory.ICON_SIZE + SpellHistory.PADDING * 2)
 frame:Hide()

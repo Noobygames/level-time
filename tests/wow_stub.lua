@@ -168,6 +168,8 @@ local frameMethods = {
   -- Texturfarbe (z.B. Symbole der Aktionsknöpfe); Standard weiß
   SetVertexColor = function(self, r, g, b, a) self._vertexColor = { r, g, b, a or 1 } end,
   GetVertexColor = function(self) return unpack(rawget(self, "_vertexColor") or { 1, 1, 1, 1 }) end,
+  SetStatusBarColor = function(self, r, g, b, a) self._statusBarColor = { r, g, b, a or 1 } end,
+  GetStatusBarColor = function(self) return unpack(rawget(self, "_statusBarColor") or { 1, 1, 1, 1 }) end,
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
   SetColorTexture = function(self, r, g, b, a) self._colorTexture = { r, g, b, a or 1 } end,
@@ -259,6 +261,26 @@ local function noop() end
 frameMethods.SetTexture = function(self, texture) self._texture = texture end
 frameMethods.GetTexture = function(self) return rawget(self, "_texture") end
 frameMethods.GetAtlas = function(self) return rawget(self, "_atlas") end
+frameMethods.SetBlendMode = function(self, mode) self._blendMode = mode end
+frameMethods.GetBlendMode = function(self) return rawget(self, "_blendMode") or "BLEND" end
+frameMethods.AddMaskTexture = function(self, mask)
+  self._masks = rawget(self, "_masks") or {}
+  table.insert(self._masks, mask)
+end
+frameMethods.RemoveMaskTexture = function(self, mask)
+  local masks = rawget(self, "_masks")
+  if not masks then return end
+  for i, m in ipairs(masks) do
+    if m == mask then
+      table.remove(masks, i)
+      break
+    end
+  end
+end
+frameMethods.GetMaskTexture = function(self, index)
+  local masks = rawget(self, "_masks")
+  return masks and masks[index or 1]
+end
 
 -- Animationen: nur Abspielzustand (group:IsPlaying) und Skripte (OnLoop, OnFinished); Werte werden nicht ausgewertet.
 -- frame._animationGroups listet die Gruppen eines Frames bzw. einer Textur für Prüfungen.
@@ -296,6 +318,12 @@ local function newFrame()
     return fontString
   end
   frame.CreateTexture = function() return newFrame() end
+  frame.CreateMaskTexture = function()
+    local mask = newFrame()
+    frame._maskTextures = rawget(frame, "_maskTextures") or {}
+    table.insert(frame._maskTextures, mask)
+    return mask
+  end
   frame.CreateLine = function() return newFrame() end
   table.insert(frames, frame)
   return setmetatable(frame, {

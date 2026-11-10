@@ -25,6 +25,7 @@ func main() {
 	glintPath := flag.String("glint", "Media/Glint.tga", "Ziel für das Funkeln der Beute-Glitzer (TGA)")
 	barsDir := flag.String("bars", "Media", "Ordner für die Balkentexturen (TGA)")
 	wheelDir := flag.String("wheel", "StreamGoal/Media", "Ordner für die Teile des Glücksrads von Level Time Goals (TGA)")
+	sparklesDir := flag.String("sparkles", "Media", "Ordner für die Beute-Glitzer-Effekttexturen (TGA)")
 	flag.Parse()
 
 	if err := run(*logoPath, *iconPath, *previewPath); err != nil {
@@ -47,6 +48,33 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
+	if err := runSparkles(*sparklesDir); err != nil {
+		fmt.Fprintln(os.Stderr, "Fehler:", err)
+		os.Exit(1)
+	}
+}
+
+func runSparkles(dir string) error {
+	sparkles := []struct {
+		name string
+		img  *image.NRGBA
+	}{
+		{"SparkleHalo", renderSparkleHalo(sparkleTexSize)},
+		{"SparkleRing", renderSparkleRing(sparkleTexSize)},
+		{"SparkleArcs", renderSparkleArcs(sparkleTexSize)},
+		{"SparkleFlare", renderSparkleFlare(sparkleTexSize)},
+		{"SparkleBeam", renderSparkleBeam(sparkleTexSize)},
+		{"SparkleSigil", renderSparkleSigil(sparkleTexSize)},
+	}
+	for _, s := range sparkles {
+		path := filepath.Join(dir, s.name+".tga")
+		img := s.img
+		if err := writeFile(path, func(f *os.File) error { return writeTGA(f, img) }); err != nil {
+			return err
+		}
+		fmt.Printf("Glitzer: %s\n", path)
+	}
+	return nil
 }
 
 func runWheel(dir string) error {

@@ -1835,4 +1835,10 @@ ns.locales.frFR = {
   WARN_WILDERNESS_LOGOUT_TEXT = "Attention : déconnexion de 20 secondes en pleine nature active !",
   WARN_WILDERNESS_LOGOUT_TIP = "Avertit lors d'une déconnexion hors d'une auberge ou zone de repos du délai de 20 secondes.",
   WARN_WILDERNESS_LOGOUT_TITLE = "Déconnexion en pleine nature !",
+  LOOT_SPARKLE_CATEGORY_COLORS = "Couleurs par catégorie",
+  LOOT_SPARKLE_CATEGORY_COLORS_TIP = "Colore les étincelles selon la catégorie d'objet (orange pour le minerai, vert pour les herbes, or pour les quêtes, cyan pour les coffres, rouge pour les flotteurs, or clair pour les cadavres) au lieu de l'or uniforme.",
+  LOOT_SPARKLE_PREVIEW = "Tester le scintillement",
+  LOOT_SPARKLE_PREVIEW_TIP = "Affiche le scintillement pendant 4 secondes au centre de l'écran, en faisant défiler les couleurs de catégorie à chaque clic.",
+  LOOT_SPARKLE_SILHOUETTE = "Masque de silhouette du joueur",
+  LOOT_SPARKLE_SILHOUETTE_TIP = "Masque le scintillement derrière le personnage au centre de l'écran pour éviter que votre personnage ne soit ébloui par la lueur.",
 }

@@ -163,8 +163,15 @@ function IsInGroup() return state.inGroup end
 -- Gruppengröße samt Spieler (state.groupSize), Schlachtzug (state.inRaid)
 function GetNumGroupMembers() return state.groupSize or (state.inGroup and 2 or 0) end
 function IsInRaid() return state.inRaid == true end
--- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil; Rolle: state.role
-function UnitThreatSituation(unit) if unit == "player" then return state.threat end end
+-- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil (oder units[otherUnit].threatStatus); Rolle: state.role
+function UnitThreatSituation(unit, otherUnit)
+  if unit == "player" then
+    if otherUnit and state.units[otherUnit] and state.units[otherUnit].threatStatus ~= nil then
+      return state.units[otherUnit].threatStatus
+    end
+    return state.threat
+  end
+end
 function UnitGroupRolesAssigned() return state.role or "NONE" end
 -- Gegner: units[unit].hostile (UnitCanAttack), units[unit].tanking (1. Wert von UnitDetailedThreatSituation),
 -- Ziel des Gegners als units[unit .. "target"]
@@ -180,7 +187,7 @@ function UnitCanAssist(_, unit) return unit == "player" or (state.units[unit] ~=
 function UnitDetailedThreatSituation(_, unit)
   local enemy = state.units[unit]
   if enemy == nil then return nil end
-  return enemy.tanking
+  return enemy.tanking, enemy.threatStatus, enemy.threatPercent, enemy.threatRawPercent, enemy.threatValue
 end
 -- Gesendete Chat-Nachrichten landen in wow.sentChat als { message, chatType }
 wow.sentChat = {}

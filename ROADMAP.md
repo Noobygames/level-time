@@ -22,21 +22,9 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 - [ ] 451. **Minimap-Button-Sammler (HidingBar / MBB Light)** (M): Sammelt Minimap-Symbole fremder Addons (`Minimap:GetChildren()`) in einer einklappbaren Leiste am Minimap-Rand (`Assist/MinimapBar.lua`; ersetzt MinimapButtonBag/HidingBar).
 - [ ] 452. **Nahkampf- & Fernkampf-Schwungbalken (WeaponSwingTimer Light)** (M): Kompakte Swing-Timer-Leiste für Haupthand, Nebenhand sowie Zauberstab/Automatischen Schuss in Classic Era und Forever (`Assist/SwingTimer.lua` über `UnitAttackSpeed` und Zauber-/Kampf-Events; ersetzt WeaponSwingTimer).
 - [ ] 453. **Gruppen-Questabgleich (Party Quest Sync)** (M): Synchronisiert angenommene Quests und Ziel-Fortschritte innerhalb der Gruppe über `C_ChatInfo.SendAddonMessage` (`PARTY`) und zeigt im Questlog/Tooltip den Fortschritt der Gruppenmitglieder an (ersetzt den Gruppen-Sync von Questie).
-- [ ] 454. **Zonen-Abgaberouten-Bündler (Smart Turn-In Hub)** (S–M): Gruppiert abgabefertige Quests in `UI/QuestViews.lua` nach gelernten Abgabe-NPCs und Teilzonen (`QuestNpcs.lua`), damit auf einen Blick sichtbar ist, in welchem Hub sich mehrere Abgaben gleichzeitig lohnen.
-- [ ] 455. **Prozedurale 2D-Lichttexturen für Beute-Glitzer (`tools/artwork`)** (S–M): In `tools/artwork/draw.go` (`make artwork`) eigene 32-Bit-TGA-Texturen (Zweierpotenzen, komplett eigenständig generiert) für mehrschichtige Lichteffekte unter `Media/` erzeugen:
-  - `SparkleHalo.tga` (weicher radialer Lichthof für Grundschein und dunklen Kontrast-Bodenschatten),
-  - `SparkleRing.tga` (scharfer Lichtring für Fokus-Kreise und auslaufende Bodenwellen),
-  - `SparkleArcs.tga` (geschwungene Kometen-/Lichtbögen auf einer Kreisbahn für Rotation),
-  - `SparkleFlare.tga` (mehrstrahliger Stern-/Linsenblitz für das helle Zentrum),
-  - `SparkleBeam.tga` (vertikaler Lichtstrahl mit weichem Verlauf nach oben und zur Seite),
-  - `SparkleSigil.tga` (geometrischer Runen-/Ornamentring für gegenläufige Siegel-Effekte).
 - [ ] 456. **Multi-Layer-2D-Effekt-Engine für Beute-Glitzer (`UI/LootSparkle.lua`)** (M): Ausbau von `UI/LootSparkle.lua` zu einer mehrschichtigen 2D-Render-Engine mit wählbaren Effekt-Stilen (`lootSparkleStyle`: `aura` [Halo + rotierende Bögen + kreisende Funken], `beam` [vertikale Lichtsäule + Bodenring], `sigil` [gegenläufig rotierendes Siegel], `ripple` [pulsierende Bodenwellen], `sparkle` [aufsteigender Funkenschwarm], `subtle` [dezenter Schein]):
   - Dunkler Kontrast-Bodenschatten (`BLEND`-Schicht mit ~30 % Schwarz-Alpha unter den `ADD`-Lichtschichten), damit helle Effekte auf Schnee oder Sand nie auswaschen.
   - Dynamische Zustands-Übergänge: weiches Einblenden mit Zusammenziehen beim Erscheinen (`arrive`), Aufblitzen (`flash`) und beschleunigte Rotation/Wellen beim Erreichen der Interaktionsreichweite (`READY`), ruhiges Atmen außer Reichweite (`FAR`), entsättigter/eingefrorener Zustand bei gesperrten Objekten (`LOCKED`) sowie kurzes Ausklingen (`ghost`) beim Verschwinden.
-- [ ] 457. **Kategoriefarben, Silhouettenmaske & Effekt-Vorschau für Beute-Glitzer** (S–M):
-  - Eigene Farben je Objektkategorie statt Einheitsgelb (Erz = Orange, Kraut = Grün, Questobjekt = Gold, Truhe = Hellblau/Cyan, Angel-Schwimmer = Korallenrot, Leiche = Hellgold; mit aufgehelltem Kern im Zentrum).
-  - Optionale Spieler-Silhouettenmaske (`lootSparkleSilhouette` über `CreateMaskTexture`), die den Lichtschein hinter der eigenen Spielfigur ausblendet, wenn man direkt vor dem Objekt steht.
-  - Auswahl von Effekt-Stil, Intensität und Kategoriefarben samt Live-Vorschau in Komfort > Oberfläche > Beute-Glitzer.
 
 ### v2.22: Speedrun (Priorität 3)
 

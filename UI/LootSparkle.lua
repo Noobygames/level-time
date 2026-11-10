@@ -4,10 +4,11 @@
 -- Schleife mit anderer Dauer und Pause und springt bei jedem Durchlauf (OnLoop) an eine neue Stelle.
 -- Zustände (LootTarget): READY hell und golden, FAR gedämpft, LOCKED grau; der Wechsel zu READY lässt alle
 -- Funken auf einmal neu aufleuchten.
---   LootSparkle.Attach(plate, state)  an die Plakette hängen und einblenden
---   LootSparkle.SetState(state)       Aussehen wechseln
---   LootSparkle.Release()             abnehmen und anhalten
---   LootSparkle.AttachedTo()          aktuelle Plakette oder nil
+--   LootSparkle.Attach(plate, state, kind)  an die Plakette hängen und einblenden
+--   LootSparkle.SetState(state, kind)       Aussehen wechseln
+--   LootSparkle.Release()                   abnehmen und anhalten
+--   LootSparkle.AttachedTo()                aktuelle Plakette oder nil
+--   LootSparkle.Preview(kind)               Vorschau für 4 Sekunden
 local addonName, ns = ...
 
 local LootSparkle = {}
@@ -15,6 +16,15 @@ ns.LootSparkle = LootSparkle
 
 LootSparkle.TEXTURE = "Interface\\AddOns\\" .. addonName .. "\\Media\\Glint"
 LootSparkle.MIN_SCALE, LootSparkle.MAX_SCALE = 0.5, 2
+
+LootSparkle.CATEGORY_COLORS = {
+  ore   = { 1.00, 0.60, 0.18 },
+  herb  = { 0.40, 1.00, 0.42 },
+  quest = { 1.00, 0.84, 0.15 },
+  chest = { 0.45, 0.78, 1.00 },
+  bobber = { 1.00, 0.45, 0.40 },
+  corpse = { 1.00, 0.86, 0.45 },
+}
 
 local GLINT_COUNT = 6
 local GLINT_SIZE = 30      -- Pixel bei Größe 1
@@ -26,6 +36,10 @@ local MAX_PAUSE = 0.6      -- dunkle Pause vor einem Aufleuchten
 local MIN_GROWTH, MAX_GROWTH = 0.35, 1  -- Größe am Anfang und auf dem Höhepunkt
 local TURN_DEGREES = 60
 
+local SHADE_BASE_WIDTH, SHADE_BASE_HEIGHT = 96, 54
+local PREVIEW_DURATION = 4
+local PREVIEW_CYCLE = { "ore", "herb", "quest", "chest", "bobber", "corpse" }
+
 -- Farbe und Deckkraft je Zustand
 local LOOKS = {
   ready = { color = { 1, 0.86, 0.45 }, alpha = 1 },
@@ -34,9 +48,14 @@ local LOOKS = {
 }
 
 local frame       -- Träger der Funken, wird an die Plakette gehängt
+local shade       -- Dunkler Bodenschatten für Kontrast
+local silhouetteMask  -- Maske für Spieler-Silhouette
+local silhouetteActive = false
 local fadeIn      -- Einblenden des ganzen Schwarms
 local glints = {} -- { texture, animation }
-local plate, state
+local plate, state, kind
+local previewToken = 0
+local previewIndex = 0
 
 local function between(low, high)
   return low + (high - low) * math.random()
@@ -78,10 +97,68 @@ local function createAnimation(texture)
   return group
 end
 
+local function updateShadeSize()
+  if not shade then return end
+  local scale = LootSparkle.CurrentScale()
+  shade:SetSize(SHADE_BASE_WIDTH * scale, SHADE_BASE_HEIGHT * scale)
+end
+
+local function applySilhouette()
+  if not frame then return end
+  local enabled = ns.db and ns.db.lootSparkleSilhouette == true
+  if enabled and type(frame.CreateMaskTexture) == "function" then
+    if not silhouetteMask then
+      local mask = frame:CreateMaskTexture()
+      if mask then
+        mask:SetSize(128, 128)
+        mask:ClearAllPoints()
+        mask:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        if mask.SetTexture then
+          mask:SetTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+        end
+        silhouetteMask = mask
+      end
+    end
+    if silhouetteMask then
+      for _, glint in ipairs(glints) do
+        if glint.texture and glint.texture.AddMaskTexture then
+          glint.texture:AddMaskTexture(silhouetteMask)
+        end
+      end
+      if shade and shade.AddMaskTexture then
+        shade:AddMaskTexture(silhouetteMask)
+      end
+    end
+    silhouetteActive = true
+  else
+    if silhouetteMask then
+      for _, glint in ipairs(glints) do
+        if glint.texture and glint.texture.RemoveMaskTexture then
+          glint.texture:RemoveMaskTexture(silhouetteMask)
+        end
+      end
+      if shade and shade.RemoveMaskTexture then
+        shade:RemoveMaskTexture(silhouetteMask)
+      end
+    end
+    silhouetteActive = false
+  end
+end
+
 local function create()
   frame = CreateFrame("Frame")
   frame:SetSize(1, 1)
   frame:Hide()
+
+  shade = frame:CreateTexture(nil, "BACKGROUND")
+  shade:SetTexture(LootSparkle.TEXTURE)
+  shade:SetBlendMode("BLEND")
+  shade:SetVertexColor(0, 0, 0)
+  shade:SetAlpha(0.30)
+  shade:ClearAllPoints()
+  shade:SetPoint("CENTER", frame, "CENTER", 0, 0)
+  updateShadeSize()
+
   fadeIn = frame:CreateAnimationGroup()
   local alpha = fadeIn:CreateAnimation("Alpha")
   alpha:SetFromAlpha(0)
@@ -106,11 +183,22 @@ local function restartGlints()
   end
 end
 
+function LootSparkle.ColorFor(colorState, colorKind)
+  if colorState == "locked" or (ns.LootTarget and colorState == ns.LootTarget.LOCKED) then
+    return LOOKS.locked.color
+  end
+  if ns.db and ns.db.lootSparkleCategoryColors == false then
+    return LOOKS.ready.color
+  end
+  return (colorKind and LootSparkle.CATEGORY_COLORS[colorKind]) or LOOKS.ready.color
+end
+
 local function applyLook()
   local look = LOOKS[state] or LOOKS.ready
   frame:SetAlpha(look.alpha)
+  local color = LootSparkle.ColorFor(state, kind)
   for _, glint in ipairs(glints) do
-    glint.texture:SetVertexColor(look.color[1], look.color[2], look.color[3])
+    glint.texture:SetVertexColor(color[1], color[2], color[3])
   end
 end
 
@@ -127,36 +215,85 @@ function LootSparkle.State()
   return state
 end
 
-function LootSparkle.Attach(target, newState)
+function LootSparkle.CurrentKind()
+  return kind
+end
+
+function LootSparkle.HasShade()
   if not frame then create() end
-  plate, state = target, newState
+  return shade ~= nil
+end
+
+function LootSparkle.Shade()
+  if not frame then create() end
+  return shade
+end
+
+function LootSparkle.Glints()
+  if not frame then create() end
+  return glints
+end
+
+function LootSparkle.IsSilhouetteActive()
+  return silhouetteActive == true
+end
+
+function LootSparkle.SilhouetteMask()
+  return silhouetteMask
+end
+
+function LootSparkle.IsPreviewing()
+  return previewToken > 0
+end
+
+function LootSparkle.Attach(target, newState, newKind)
+  if not frame then create() end
+  if previewToken > 0 and target ~= UIParent then
+    previewToken = 0
+  end
+  plate, state, kind = target, newState, newKind
   frame:SetParent(target)
   -- unter dem Inhalt der Plakette, damit der Name lesbar bleibt
   local level = target.GetFrameLevel and target:GetFrameLevel()
-  if type(level) == "number" and not ns.IsSecret(level) then frame:SetFrameLevel(math.max(level - 1, 0)) end
+  if type(level) == "number" and not ns.IsSecret(level) then
+    frame:SetFrameLevel(target == UIParent and math.max(level, 10) or math.max(level - 1, 0))
+  end
   frame:ClearAllPoints()
   frame:SetPoint("CENTER", target, "CENTER", 0, OFFSET_Y)
   -- gedimmte Plaketten (nicht anvisiert) sollen das Glitzern nicht mit abdunkeln
   frame:SetIgnoreParentAlpha(true)
-  frame:SetScale(LootSparkle.CurrentScale())
+  local scale = LootSparkle.CurrentScale()
+  frame:SetScale(scale)
+  updateShadeSize()
+  applySilhouette()
   applyLook()
   frame:Show()
   fadeIn:Play()
   restartGlints()
-  ns.Debug("sparkle", "attached, state %s", newState)
+  ns.Debug("sparkle", "attached, state %s kind %s", newState, newKind)
 end
 
-function LootSparkle.SetState(newState)
-  if not plate or newState == state then return end
-  state = newState
+function LootSparkle.SetState(newState, newKind)
+  if not plate then return end
+  local changed = false
+  if newState and newState ~= state then
+    state = newState
+    changed = true
+  end
+  if newKind and newKind ~= kind then
+    kind = newKind
+    changed = true
+  end
+  if not changed then return end
   applyLook()
-  if newState == ns.LootTarget.READY then restartGlints() end  -- in Reichweite: alle Funken auf einmal
-  ns.Debug("sparkle", "state %s", newState)
+  if state == (ns.LootTarget and ns.LootTarget.READY or "ready") then restartGlints() end
+  ns.Debug("sparkle", "state %s kind %s", state, kind)
 end
 
 function LootSparkle.Release()
   if not plate then return end
-  plate, state = nil, nil
+  plate, state, kind = nil, nil, nil
+  previewToken = 0
   for _, glint in ipairs(glints) do glint.animation:Stop() end
   fadeIn:Stop()
   frame:Hide()
@@ -164,6 +301,28 @@ function LootSparkle.Release()
   frame:SetParent(nil)
 end
 
+function LootSparkle.Preview(previewKind)
+  if not previewKind then
+    previewIndex = (previewIndex % #PREVIEW_CYCLE) + 1
+    previewKind = PREVIEW_CYCLE[previewIndex]
+  end
+  previewToken = previewToken + 1
+  local currentToken = previewToken
+  local readyState = ns.LootTarget and ns.LootTarget.READY or "ready"
+  LootSparkle.Attach(UIParent, readyState, previewKind)
+  C_Timer.After(PREVIEW_DURATION, function()
+    if previewToken == currentToken then
+      LootSparkle.Release()
+    end
+  end)
+end
+
 ns.RegisterApply(function()
-  if frame then frame:SetScale(LootSparkle.CurrentScale()) end
+  if frame then
+    local scale = LootSparkle.CurrentScale()
+    frame:SetScale(scale)
+    updateShadeSize()
+    applySilhouette()
+    if plate then applyLook() end
+  end
 end)

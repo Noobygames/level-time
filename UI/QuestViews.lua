@@ -28,18 +28,150 @@ local function levelXp()
   return not ns.IsSecret(max) and type(max) == "number" and max or 0
 end
 
--- Abgabebereite Quests: { questID, title, zone, xp, share (Anteil am Level, 0..) }
-function QuestViews.TurnInRecords(characterKey)
-  local records = {}
-  if characterKey ~= ns.characterKey then return records end
+-- Bündelt abgabebereite Quests zu Hubs (Roadmap 454)
+function QuestViews.TurnInHubs(characterKey)
+  local hubs = {}
+  if characterKey ~= ns.characterKey then return hubs end
   local max = levelXp()
+  local ready = {}
   for _, entry in ipairs(QuestLog.Entries()) do
     if entry.ready then
       local xp = QuestLog.RewardXp(entry.questID) or 0
-      table.insert(records, { questID = entry.questID, title = entry.title, zone = entry.header, xp = xp,
-        share = max > 0 and xp / max or 0, level = entry.level })
+      local npc = ns.QuestNpcs and ns.QuestNpcs.TurnInName and ns.QuestNpcs.TurnInName(entry.questID) or ""
+      table.insert(ready, {
+        questID = entry.questID,
+        title = entry.title,
+        zone = entry.header,
+        xp = xp,
+        share = max > 0 and xp / max or 0,
+        level = entry.level,
+        npc = npc,
+      })
     end
   end
+
+  if #ready == 0 then return hubs end
+
+  local n = #ready
+  local parent = {}
+  for i = 1, n do parent[i] = i end
+  local function find(i)
+    local root = i
+    while parent[root] ~= root do
+      root = parent[root]
+    end
+    local curr = i
+    while curr ~= root do
+      local nxt = parent[curr]
+      parent[curr] = root
+      curr = nxt
+    end
+    return root
+  end
+
+  for i = 1, n do
+    for j = i + 1, n do
+      if ns.QuestNpcs and ns.QuestNpcs.SameHub
+        and ns.QuestNpcs.SameHub(ready[i].questID, ready[j].questID, ready[i].zone, ready[j].zone) then
+        local rootI = find(i)
+        local rootJ = find(j)
+        if rootI ~= rootJ then
+          parent[rootJ] = rootI
+        end
+      end
+    end
+  end
+
+  local groups = {}
+  local groupOrder = {}
+  for i = 1, n do
+    local root = find(i)
+    if not groups[root] then
+      groups[root] = {}
+      table.insert(groupOrder, root)
+    end
+    table.insert(groups[root], ready[i])
+  end
+
+  for _, root in ipairs(groupOrder) do
+    local list = groups[root]
+    local totalXp, totalShare = 0, 0
+    local npcName, zoneName = "", ""
+    for _, q in ipairs(list) do
+      totalXp = totalXp + q.xp
+      totalShare = totalShare + q.share
+      if npcName == "" and q.npc and q.npc ~= "" then
+        npcName = q.npc
+      end
+      if zoneName == "" and q.zone and q.zone ~= "" then
+        zoneName = q.zone
+      end
+    end
+    local hubName = npcName ~= "" and npcName or (zoneName ~= "" and zoneName or "")
+    local count = #list
+    for _, q in ipairs(list) do
+      q.hub = hubName
+      q.hubCount = count
+      q.hubXp = totalXp
+      q.hubShare = totalShare
+    end
+    table.insert(hubs, {
+      hub = hubName,
+      zone = zoneName,
+      npc = npcName,
+      count = count,
+      xp = totalXp,
+      share = totalShare,
+      quests = list,
+    })
+  end
+
+  table.sort(hubs, function(a, b)
+    if a.count ~= b.count then
+      return a.count > b.count
+    end
+    if a.xp ~= b.xp then
+      return a.xp > b.xp
+    end
+    if (a.zone or "") ~= (b.zone or "") then
+      return (a.zone or "") < (b.zone or "")
+    end
+    return (a.hub or "") < (b.hub or "")
+  end)
+
+  return hubs
+end
+
+-- Abgabebereite Quests mit Bündel-Informationen:
+-- { questID, title, zone, xp, share, level, npc, hubCount, hubXp }
+function QuestViews.TurnInRecords(characterKey)
+  local hubs = QuestViews.TurnInHubs(characterKey)
+  local records = {}
+  for _, hub in ipairs(hubs) do
+    for _, q in ipairs(hub.quests) do
+      table.insert(records, q)
+    end
+  end
+
+  table.sort(records, function(a, b)
+    local ac, bc = a.hubCount or 0, b.hubCount or 0
+    if ac ~= bc then
+      return ac > bc
+    end
+    local ax, bx = a.hubXp or 0, b.hubXp or 0
+    if ac > 1 and ax ~= bx then
+      return ax > bx
+    end
+    local az, bz = a.zone or "", b.zone or ""
+    if az ~= bz then
+      return az < bz
+    end
+    if ax ~= bx then
+      return ax > bx
+    end
+    return (a.title or "") < (b.title or "")
+  end)
+
   return records
 end
 
@@ -57,8 +189,14 @@ local TURN_IN_COLUMNS = {
   { header = "HISTORY_LEVEL_SHARE", width = 64, value = function(r) return percent(r.share) end,
     sort = function(r) return r.share end },
   { header = "HISTORY_TURN_IN_NPC", width = 110, align = LEFT, value = function(r)
-      return ns.QuestNpcs.TurnInName(r.questID) or ""
-    end },
+      local npc = r.npc or (ns.QuestNpcs and ns.QuestNpcs.TurnInName and ns.QuestNpcs.TurnInName(r.questID)) or ""
+      if r.hubCount and r.hubCount > 1 then
+        return npc ~= "" and string.format("%s (%d×)", npc, r.hubCount)
+          or string.format("%s (%d×)", r.zone or "", r.hubCount)
+      end
+      return npc
+    end,
+    sort = function(r) return r.hubCount or 0 end },
 }
 
 -- Fußzeile: Anzahl, XP-Summe, Anteil am Level
@@ -79,7 +217,9 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   columns = TURN_IN_COLUMNS,
   records = QuestViews.TurnInRecords,
   footer = turnInFooter,
-  revision = function() return revision end,
+  revision = function()
+    return revision + (ns.QuestNpcs and ns.QuestNpcs.Revision and ns.QuestNpcs.Revision() or 0)
+  end,
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "TURN_IN_HINT",
   -- Andere Charaktere: leer, weil nur der eigene Questlog lesbar ist (nicht "noch nichts aufgezeichnet")
