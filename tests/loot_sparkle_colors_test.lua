@@ -274,7 +274,8 @@ end)
 expectTrue("sparkle frame found", sparkleFrame ~= nil)
 
 local allLayerNames = { "halo", "ring1", "ring2", "arcs", "beam", "sigil", "bracket", "bracketLocked", "arrow", "symbol",
-  "shadow", "shadowArrow", "shadowSymbol", "bracketShade", "bracketGlow", "arrowShade", "arrowGlow", "symbolShade", "symbolBloom" }
+  "shadow", "shadowArrow", "shadowSymbol", "groundRing", "groundArrow", "groundSymbol", "bracketOutline", "bracketGlow",
+  "bracketBloom", "bracketCore", "trail", "arrowOutline", "arrowGlow", "badge", "symbolBloom", "symbolOutline" }
 local layers = LootSparkle.Layers()
 expectTrue("layers table returned", layers ~= nil)
 for _, name in ipairs(allLayerNames) do
@@ -285,10 +286,10 @@ expectTrue("flash layer exists", layers.flash ~= nil)
 
 local expectedActive = {
   -- bracketLocked gehört zum Zielsucher, ist aber nur im Zustand "locked" sichtbar
-  finder = { shadow = true, bracketShade = true, bracketGlow = true, bracket = true },
-  arrow = { shadowArrow = true, arrowShade = true, arrowGlow = true, arrow = true },
-  glitter = { shadow = true },
-  symbol = { shadowSymbol = true, symbolShade = true, symbolBloom = true, symbol = true },
+  finder = { shadow = true, groundRing = true, bracketOutline = true, bracketGlow = true, bracketBloom = true, bracket = true, bracketCore = true },
+  arrow = { shadowArrow = true, groundArrow = true, trail = true, arrowOutline = true, arrowGlow = true, arrow = true },
+  glitter = { shadow = true, groundRing = true },
+  symbol = { shadowSymbol = true, groundSymbol = true, badge = true, symbolBloom = true, symbolOutline = true, symbol = true },
   aura = { arcs = true, halo = true },
   beam = { beam = true, ring1 = true },
   sigil = { arcs = true, halo = true, sigil = true },
@@ -362,15 +363,20 @@ LootSparkle.SetState("far", "ore")
 expectTrue("finder far: bracket shown", shown("bracket"))
 expect("finder far: dashed hidden", shown("bracketLocked"), false)
 expect("finder far: wide brackets", layers.bracket:GetWidth(), 84)
+expect("finder far: outline follows size", layers.bracketOutline:GetWidth(), 84)
+expect("finder far: no bloom yet", shown("bracketBloom"), false)
+expectTrue("finder far: ground ring at the foot", shown("groundRing"))
 expect("finder: no glints", glintsShown(), false)
 expect("finder: no classic shade", LootSparkle.Shade():IsShown(), false)
 expectTrue("finder: contact shadow shown", shown("shadow"))
 r, g, b = layers.shadow:GetVertexColor()
 expectColor("contact shadow is black, not category colored", { r, g, b }, { 0, 0, 0 })
 r, g, b = layers.bracket:GetVertexColor()
-expectColor("bracket core is whitened ore color", { r, g, b }, LootSparkle.Whiten({ 1.00, 0.60, 0.18 }, 0.25))
+expectColor("bracket core is whitened ore color", { r, g, b }, LootSparkle.Whiten({ 1.00, 0.60, 0.18 }, 0.2))
 LootSparkle.SetState("ready", "ore")
 expect("finder ready: snapped brackets", layers.bracket:GetWidth(), 56)
+expectTrue("finder ready: bloom shown", shown("bracketBloom"))
+expectTrue("finder ready: hot core shown", shown("bracketCore"))
 expectTrue("finder ready: snap animation played", Styles.Get("finder") ~= nil and wow.findFrame ~= nil)
 LootSparkle.SetState("locked", "ore")
 expect("finder locked: solid hidden", shown("bracket"), false)
@@ -395,7 +401,7 @@ LootSparkle.SetState("locked", "herb")
 expect("arrow still when locked", playingGroup(layers.arrow), false)
 expect("arrow shadow still when locked", playingGroup(layers.shadowArrow), false)
 r, g, b = layers.arrow:GetVertexColor()
-expectColor("arrow locked grey (core slightly whitened)", { r, g, b }, LootSparkle.Whiten({ 0.6, 0.6, 0.6 }, 0.2))
+expectColor("arrow locked grey (core slightly whitened)", { r, g, b }, LootSparkle.Whiten({ 0.6, 0.6, 0.6 }, 0.15))
 LootSparkle.SetState("ready", "herb")
 expectTrue("arrow bobs again when ready", playingGroup(layers.arrow))
 expect("arrow: no glints", glintsShown(), false)
@@ -420,16 +426,20 @@ expectNear("unknown kind falls back to scroll", l3, 0.5, 0.001)
 addon.Set("lootSparkleStyle", "glitter")
 LootSparkle.SetState("far", "quest")
 for _, name in ipairs(allLayerNames) do
-  if name ~= "shadow" then expect("glitter has no layer " .. name, shown(name), false) end
+  if name ~= "shadow" and name ~= "groundRing" then expect("glitter has no layer " .. name, shown(name), false) end
 end
 expectTrue("glitter keeps its contact shadow", shown("shadow"))
 expectTrue("glitter: glints shown", glintsShown())
+local extra = LootSparkle.Glints()[1].extras[1]
+expectTrue("glitter: star outline shown", extra.texture:IsShown())
+expectTrue("glitter: star outline animates in sync", extra.animation:IsPlaying())
 expectTrue("glitter: glints animate", LootSparkle.Glints()[1].animation:IsPlaying())
 addon.Set("lootSparkleStyle", "finder")
 expect("glints off after switch to finder", glintsShown(), false)
 expect("glint animation stopped", LootSparkle.Glints()[1].animation:IsPlaying(), false)
 addon.Set("lootSparkleStyle", "aura")
 expectTrue("classic aura keeps glints", glintsShown())
+expect("classic aura: no star outline", LootSparkle.Glints()[1].extras[1].texture:IsShown(), false)
 expectTrue("classic aura keeps shade", LootSparkle.Shade():IsShown())
 
 -- Aufräumen

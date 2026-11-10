@@ -238,12 +238,46 @@ func TestSparkleShapes(t *testing.T) {
 			t.Errorf("SparkleSymbols: Symbol %d fast leer (%d Pixel)", i+1, filled)
 		}
 	}
-	for _, img := range []*image.NRGBA{bracket, dashed, arrow, atlas} {
+	// Körper tragen Licht und Schatten als Grauwert (R = G = B, nicht nur weiß); Umrisse, Gestrichelt weiß
+	for _, img := range []*image.NRGBA{bracket, arrow, atlas} {
+		var darkest, brightest uint8 = 255, 0
+		for y := 0; y < img.Bounds().Dy(); y++ {
+			for x := 0; x < img.Bounds().Dx(); x++ {
+				p := img.NRGBAAt(x, y)
+				if p.A == 0 {
+					continue
+				}
+				if p.R != p.G || p.G != p.B {
+					t.Fatalf("Pixel (%d,%d) nicht grau: %v", x, y, p)
+				}
+				if p.A == 255 && p.R < darkest {
+					darkest = p.R
+				}
+				if p.A == 255 && p.R > brightest {
+					brightest = p.R
+				}
+			}
+		}
+		if brightest-darkest < 40 {
+			t.Errorf("Körper ohne Licht und Schatten (Grauwerte %d bis %d)", darkest, brightest)
+		}
+	}
+	for _, img := range []*image.NRGBA{dashed, renderSparkleBracketOutline(size), renderSparkleArrowOutline(size),
+		renderSparkleSymbolsOutline(), renderSparkleTrail(size), renderSparkleBadge(size), renderSparkleBracketCore(size)} {
 		for y := 0; y < img.Bounds().Dy(); y++ {
 			for x := 0; x < img.Bounds().Dx(); x++ {
 				if p := img.NRGBAAt(x, y); p.A > 0 && (p.R != 255 || p.G != 255 || p.B != 255) {
 					t.Fatalf("Pixel (%d,%d) nicht weiß: %v", x, y, p)
 				}
+			}
+		}
+	}
+	// Umriss umschließt die Form (mindestens so viele Pixel, an der Formkante voll deckend)
+	body, outline := bracket, renderSparkleBracketOutline(size)
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
+			if body.NRGBAAt(x, y).A == 255 && outline.NRGBAAt(x, y).A < 250 {
+				t.Fatalf("SparkleBracketOutline: Pixel (%d,%d) unter der Form nicht deckend", x, y)
 			}
 		}
 	}
@@ -272,6 +306,14 @@ func TestSparkleGlows(t *testing.T) {
 			return
 		}
 		shapeN, _ := count(shape)
+		shapeN = int(float64(shapeN) * glowShapeScale * glowShapeScale) // Glow-Form liegt verkleinert auf der Textur
+		for i := 0; i < size; i++ {
+			for _, p := range [][2]int{{i, 0}, {i, size - 1}, {0, i}, {size - 1, i}} {
+				if a := glow.NRGBAAt(p[0], p[1]).A; a != 0 {
+					t.Fatalf("%s: Leuchtrand schneidet am Texturrand ab (Alpha %d bei %v)", name, a, p)
+				}
+			}
+		}
 		glowN, glowPeak := count(glow)
 		if glowN <= shapeN {
 			t.Errorf("%s: Leuchthülle (%d Pixel) sollte breiter sein als die Form (%d)", name, glowN, shapeN)

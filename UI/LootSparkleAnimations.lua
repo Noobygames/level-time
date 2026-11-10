@@ -135,21 +135,24 @@ function Animations.glowPulse(texture)
   return group
 end
 
--- Schatten unter wippender Form: kleiner und blasser, wenn die Form oben ist (gleiche Dauer wie bob/bobSmall)
-local function shadowBob(texture, half)
+-- Boden unter wippender Form (Schatten, Bodenlicht): kleiner und blasser, wenn die Form oben ist, gleiche Dauer
+-- wie bob/bobSmall; hoch/niedrig = Deckkraft unten bzw. oben
+local function groundBob(texture, half, low, high)
   local group = loopingGroup(texture)
   pingPong(group, "Alpha", half, function(a, forth)
-    a:SetFromAlpha(forth and 0.4 or 0.22)
-    a:SetToAlpha(forth and 0.22 or 0.4)
+    a:SetFromAlpha(forth and high or low)
+    a:SetToAlpha(forth and low or high)
     a:SetSmoothing("IN_OUT")
   end)
   pingPong(group, "Scale", half, function(a, forth)
-    a:SetScaleFrom(forth and 1 or 0.82, forth and 1 or 0.82)
-    a:SetScaleTo(forth and 0.82 or 1, forth and 0.82 or 1)
+    a:SetScaleFrom(forth and 1 or 0.8, forth and 1 or 0.8)
+    a:SetScaleTo(forth and 0.8 or 1, forth and 0.8 or 1)
     a:SetSmoothing("IN_OUT")
   end)
   return group
 end
 
-function Animations.shadowArrow(texture) return shadowBob(texture, 0.7) end
-function Animations.shadowSymbol(texture) return shadowBob(texture, 0.9) end
+function Animations.shadowArrow(texture) return groundBob(texture, 0.7, 0.3, 0.55) end
+function Animations.shadowSymbol(texture) return groundBob(texture, 0.9, 0.3, 0.55) end
+function Animations.groundArrow(texture) return groundBob(texture, 0.7, 0.18, 0.4) end
+function Animations.groundSymbol(texture) return groundBob(texture, 0.9, 0.18, 0.4) end

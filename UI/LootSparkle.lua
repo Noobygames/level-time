@@ -43,6 +43,11 @@ for _, def in ipairs(Styles.LAYERS) do table.insert(LAYER_ORDER, def.name) end
 
 
 local GLINT_COUNT = 6
+-- Zusatztexturen am Stern (nur in Stilen mit glintRim): dunkler weicher Umriss für Schnee und Sand, kleiner weißer Kern
+local GLINT_EXTRAS = {
+  { texture = Styles.TEXTURE.flare, blend = "BLEND", color = { 0, 0, 0 }, factor = 1.15, alpha = 0.35, sublevel = 0 },
+  { texture = Styles.TEXTURE.glint, blend = "ADD", color = { 1, 1, 1 }, factor = 0.5, alpha = 0.9, sublevel = 2 },
+}
 local GLINT_SIZE = 30      -- Pixel bei Größe 1
 local SPREAD_X, SPREAD_Y = 40, 28  -- Halbachsen der Fläche, in der Funken erscheinen
 local OFFSET_Y = -40       -- von der Plakette nach unten zum Objekt
@@ -68,7 +73,7 @@ local shade       -- Dunkler Bodenschatten für Kontrast
 local silhouetteMask  -- Maske für Spieler-Silhouette
 local silhouetteActive = false
 local fadeIn      -- Einblenden des ganzen Schwarms
-local glints = {} -- { texture, animation }
+local glints = {} -- { texture, animation, extras = { { texture, animation, factor } } }
 local layers = {}     -- Textur je Schichtname (LootSparkleStyles.LAYERS) plus ring = ring1
 local layerDefs = {}  -- Schichtdefinition je Name
 local layerAnims = {} -- Dauer-Animation je Schicht
@@ -90,14 +95,19 @@ local function place(glint)
   texture:SetPoint("CENTER", frame, "CENTER", math.cos(angle) * reach * SPREAD_X, math.sin(angle) * reach * SPREAD_Y)
   local size = GLINT_SIZE * between(0.6, 1.2)
   texture:SetSize(size, size)
+  -- Umriss und heller Kern hängen mittig am Stern und wachsen mit ihm
+  for _, extra in ipairs(glint.extras) do
+    extra.texture:ClearAllPoints()
+    extra.texture:SetPoint("CENTER", texture, "CENTER", 0, 0)
+    extra.texture:SetSize(size * extra.factor, size * extra.factor)
+  end
 end
 
 -- Aufleuchten: einblenden und wachsen, dann ausblenden und schrumpfen, dabei leicht drehen
-local function createAnimation(texture)
-  local shine = between(MIN_SHINE, MAX_SHINE)
+local function createAnimation(texture, timing)
+  local shine, turn, pause = timing.shine, timing.turn, timing.pause
   local group = texture:CreateAnimationGroup()
   group:SetLooping("REPEAT")
-  local turn = (math.random() < 0.5 and TURN_DEGREES or -TURN_DEGREES) / 2
   local steps = {
     { "Alpha", 1, function(a) a:SetFromAlpha(0); a:SetToAlpha(1) end },
     { "Alpha", 2, function(a) a:SetFromAlpha(1); a:SetToAlpha(0) end },
@@ -107,7 +117,6 @@ local function createAnimation(texture)
     { "Rotation", 2, function(a) a:SetDegrees(turn) end },
   }
   -- Pause nur vor der ersten Hälfte; die Textur selbst ist unsichtbar (Alpha 0), also bleibt es dann dunkel
-  local pause = between(0, MAX_PAUSE)
   for _, step in ipairs(steps) do
     local animation = group:CreateAnimation(step[1])
     animation:SetOrder(step[2])
@@ -218,6 +227,23 @@ local function glintsEnabled()
 end
 
 -- Funkenschwarm passend zum Stil ein- oder ausschalten (läuft nur mit Plakette)
+local function glintRimEnabled()
+  return Styles.Get(LootSparkle.CurrentStyle()).glintRim == true
+end
+
+-- Zusatztexturen der Sterne laufen mit, solange der Stil sie verlangt
+local function syncGlintExtras(glint, enabled)
+  for _, extra in ipairs(glint.extras) do
+    if enabled and glintRimEnabled() then
+      extra.texture:Show()
+      if not extra.animation:IsPlaying() then extra.animation:Play() end
+    else
+      extra.animation:Stop()
+      extra.texture:Hide()
+    end
+  end
+end
+
 local function syncGlints()
   local enabled = plate ~= nil and glintsEnabled()
   for _, glint in ipairs(glints) do
@@ -231,6 +257,7 @@ local function syncGlints()
       glint.animation:Stop()
       glint.texture:Hide()
     end
+    syncGlintExtras(glint, enabled)
   end
 end
 
@@ -257,7 +284,7 @@ local function applyLayers()
         layer:SetVertexColor(tint[1], tint[2], tint[3])
         local size = def.sizes and def.sizes[state or "ready"] or def.size
         layer:SetSize(size[1], size[2])
-        if name == "symbol" then layer:SetTexCoord(Styles.SymbolCoords(kind)) end
+        if def.atlas then layer:SetTexCoord(Styles.SymbolCoords(kind)) end
         if anim then
           if shouldAnimate(def) then
             if not anim:IsPlaying() then anim:Play() end
@@ -342,7 +369,22 @@ local function create()
     texture:SetTexture(i % 2 == 0 and LootSparkle.TEXTURE_FLARE or LootSparkle.TEXTURE)
     texture:SetBlendMode("ADD")
     texture:SetAlpha(0)
-    local glint = { texture = texture, animation = createAnimation(texture) }
+    -- ein Aufleuchten für den Stern und seine Zusatztexturen: gleiche Zeiten, damit sie im Gleichtakt laufen
+    local timing = {
+      shine = between(MIN_SHINE, MAX_SHINE), pause = between(0, MAX_PAUSE),
+      turn = (math.random() < 0.5 and TURN_DEGREES or -TURN_DEGREES) / 2,
+    }
+    local glint = { texture = texture, animation = createAnimation(texture, timing), extras = {} }
+    for _, extra in ipairs(GLINT_EXTRAS) do
+      local part = frame:CreateTexture(nil, "OVERLAY", nil, extra.sublevel)
+      part:SetTexture(extra.texture)
+      part:SetBlendMode(extra.blend)
+      part:SetVertexColor(extra.color[1], extra.color[2], extra.color[3], extra.alpha)
+      part:SetAlpha(0)
+      table.insert(glint.extras, {
+        texture = part, factor = extra.factor, animation = createAnimation(part, timing), maxAlpha = extra.alpha,
+      })
+    end
     glint.animation:SetScript("OnLoop", function() place(glint) end)
     glints[i] = glint
   end
@@ -356,6 +398,10 @@ local function restartGlints()
     glint.animation:Stop()
     place(glint)
     glint.animation:Play()
+    for _, extra in ipairs(glint.extras) do
+      extra.animation:Stop()
+      if glintRimEnabled() then extra.animation:Play() end
+    end
   end
 end
 
@@ -488,7 +534,10 @@ function LootSparkle.Release()
   if not plate then return end
   plate, state, kind = nil, nil, nil
   previewToken = 0
-  for _, glint in ipairs(glints) do glint.animation:Stop() end
+  for _, glint in ipairs(glints) do
+    glint.animation:Stop()
+    for _, extra in ipairs(glint.extras) do extra.animation:Stop() end
+  end
   for _, anim in pairs(layerAnims) do anim:Stop() end
   for _, anim in pairs(readyAnims) do anim:Stop() end
   fadeIn:Stop()

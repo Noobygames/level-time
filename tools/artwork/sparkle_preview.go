@@ -10,11 +10,11 @@ import (
 )
 
 // Kontaktbogen der Glitzer-Stile (`-sparkle-preview Datei.png`): setzt die Texturen jedes eigenen Stils in "weit"
-// und "bereit" auf drei spielähnliche Hintergründe (dunkles Gras, Schnee, Sand), ADD und BLEND wie im Spiel.
-// Zum Prüfen von Lesbarkeit und Kontrast; die Schichtwerte spiegeln UI/LootSparkleStyles.lua und müssen bei
-// neuen Stilen von Hand nachgezogen werden. Nur ein Hilfsmittel, nichts davon liegt im Addon.
+// und "bereit" auf vier spielähnliche Hintergründe (dunkles Gras, Schnee, Sand, Höhle bei Nacht), ADD und BLEND
+// wie im Spiel. Zum Prüfen von Lesbarkeit, Kontrast und Leuchten; die Schichtwerte spiegeln
+// UI/LootSparkleStyles.lua und müssen bei neuen Stilen von Hand nachgezogen werden. Nur ein Hilfsmittel.
 const (
-	previewCell  = 220
+	previewCell  = 340
 	previewScale = 2.0
 )
 
@@ -27,12 +27,16 @@ type previewLayer struct {
 	whiten, a float64
 	cu0, cu1  float64 // Ausschnitt im Atlas (Anteil von 0 bis 1), 0/0 = ganze Textur
 	cv0, cv1  float64
+	readyOnly bool
 }
 
 var previewBackgrounds = []struct {
 	name string
 	rgb  [3]float64
-}{{"gras", [3]float64{0.16, 0.28, 0.14}}, {"schnee", [3]float64{0.92, 0.94, 0.97}}, {"sand", [3]float64{0.80, 0.68, 0.45}}}
+}{
+	{"gras", [3]float64{0.16, 0.28, 0.14}}, {"schnee", [3]float64{0.92, 0.94, 0.97}},
+	{"sand", [3]float64{0.80, 0.68, 0.45}}, {"hoehle", [3]float64{0.05, 0.05, 0.08}},
+}
 
 var previewOre = [3]float64{1.00, 0.60, 0.18}
 
@@ -42,58 +46,83 @@ type previewStyle struct {
 }
 
 func previewStyles() []previewStyle {
-	bracket, bracketGlow := renderSparkleBracket(sparkleTexSize), renderSparkleBracketGlow(sparkleTexSize)
-	arrow, arrowGlow := renderSparkleArrow(sparkleTexSize), renderSparkleArrowGlow(sparkleTexSize)
-	halo, flare := renderSparkleHalo(sparkleTexSize), renderSparkleFlare(sparkleTexSize)
-	atlas := renderSparkleSymbols()
 	black := [3]float64{0, 0, 0}
-	shadow := previewLayer{tex: halo, w: 64, h: 24, dy: -10, tint: &black, a: 0.4}
+	halo, ring := renderSparkleHalo(sparkleTexSize), renderSparkleRing(sparkleTexSize)
+	flare, glint := renderSparkleFlare(sparkleTexSize), renderGlint(glintSize)
+	bracket, bracketOutline := renderSparkleBracket(sparkleTexSize), renderSparkleBracketOutline(sparkleTexSize)
+	bracketGlow, bracketCore := renderSparkleBracketGlow(sparkleTexSize), renderSparkleBracketCore(sparkleTexSize)
+	arrow, arrowOutline := renderSparkleArrow(sparkleTexSize), renderSparkleArrowOutline(sparkleTexSize)
+	arrowGlow := renderSparkleArrowGlow(sparkleTexSize)
+	trail, badge := renderSparkleTrail(sparkleTexSize), renderSparkleBadge(sparkleTexSize)
+	atlas, atlasOutline := renderSparkleSymbols(), renderSparkleSymbolsOutline()
+	shadow := previewLayer{tex: halo, w: 72, h: 26, dy: -24, tint: &black, a: 0.55}
+	groundRing := previewLayer{tex: ring, w: 76, h: 28, dy: -24, add: true, whiten: 0.3, a: 0.45}
+	groundGlow := previewLayer{tex: halo, w: 60, h: 22, dy: -20, add: true, whiten: 0.2, a: 0.4}
 	return []previewStyle{
 		{"zielsucher", func(ready bool) []previewLayer {
 			size := 84.0
 			if ready {
 				size = 56
 			}
-			return []previewLayer{shadow,
-				{tex: bracketGlow, w: size, h: size, tint: &black, a: 0.4},
-				{tex: bracketGlow, w: size, h: size, add: true, a: 0.6},
-				{tex: bracket, w: size, h: size, whiten: 0.25, a: 1}}
+			return []previewLayer{shadow, groundRing,
+				{tex: bracketOutline, w: size, h: size, tint: &black, a: 0.9},
+				{tex: bracketGlow, w: size / glowShapeScale, h: size / glowShapeScale, add: true, a: 0.35},
+				{tex: halo, w: 110, h: 110, add: true, a: 0.18, readyOnly: true},
+				{tex: bracket, w: size, h: size, whiten: 0.2, a: 1},
+				{tex: bracketCore, w: size, h: size, add: true, whiten: 0.75, a: 0.6}}
 		}},
 		{"pfeil", func(ready bool) []previewLayer {
-			return []previewLayer{shadow,
-				{tex: arrowGlow, w: 28, h: 28, dy: 40, tint: &black, a: 0.4},
-				{tex: arrowGlow, w: 28, h: 28, dy: 40, add: true, a: 0.6},
-				{tex: arrow, w: 28, h: 28, dy: 40, whiten: 0.2, a: 1}}
+			return []previewLayer{shadow, groundGlow,
+				{tex: trail, w: 20, h: 56, dy: 85, add: true, whiten: 0.3, a: 0.85},
+				{tex: arrowOutline, w: 44, h: 44, dy: 44, tint: &black, a: 0.9},
+				{tex: arrowGlow, w: 44 / glowShapeScale, h: 44 / glowShapeScale, dy: 44, add: true, a: 0.8},
+				{tex: arrow, w: 44, h: 44, dy: 44, whiten: 0.15, a: 1}}
 		}},
 		{"symbol", func(ready bool) []previewLayer {
-			return []previewLayer{shadow,
-				{tex: halo, w: 46, h: 46, dy: 43, tint: &black, a: 0.35},
-				{tex: halo, w: 50, h: 50, dy: 43, add: true, a: 0.45},
-				{tex: atlas, w: 34, h: 34, dy: 43, whiten: 0.2, a: 1, cu0: 0, cu1: 0.25, cv0: 0, cv1: 0.5}}
+			cell := func(l previewLayer) previewLayer { l.cu0, l.cu1, l.cv0, l.cv1 = 0, 0.25, 0, 0.5; return l }
+			return []previewLayer{shadow, groundGlow,
+				{tex: badge, w: 60, h: 60, dy: 47, tint: &black, a: 0.5},
+				{tex: halo, w: 66, h: 66, dy: 47, add: true, a: 0.45},
+				cell(previewLayer{tex: atlasOutline, w: 54, h: 54, dy: 47, tint: &black, a: 0.9}),
+				cell(previewLayer{tex: atlas, w: 50, h: 50, dy: 47, whiten: 0.3, a: 1})}
 		}},
 		{"glitzer", func(ready bool) []previewLayer {
-			var out []previewLayer
-			for i, p := range [][2]float64{{-22, 8}, {18, 14}, {-6, -10}, {26, -4}, {-28, -14}, {4, 24}} {
-				s := 22.0 + float64(i%3)*6
-				out = append(out, previewLayer{tex: flare, w: s, h: s, dx: p[0], dy: p[1], add: true, whiten: 0.35, a: 0.9})
+			out := []previewLayer{shadow, groundRing}
+			for i, p := range [][2]float64{{-26, 14}, {20, 22}, {-8, -2}, {30, 4}, {-32, -6}, {4, 34}} {
+				s := 24.0 + float64(i%3)*7
+				out = append(out,
+					previewLayer{tex: flare, w: s * 1.15, h: s * 1.15, dx: p[0], dy: p[1], tint: &black, a: 0.35},
+					previewLayer{tex: flare, w: s, h: s, dx: p[0], dy: p[1], add: true, whiten: 0.1, a: 0.95},
+					previewLayer{tex: glint, w: s * 0.5, h: s * 0.5, dx: p[0], dy: p[1], add: true, whiten: 1, a: 0.9})
 			}
 			return out
 		}},
 	}
 }
 
-func sampleAlpha(img *image.NRGBA, u, v float64) float64 {
+// sampleTexture liefert Grauwert und Deckkraft der Textur an (u, v), bilinear
+func sampleTexture(img *image.NRGBA, u, v float64) (grey, alpha float64) {
 	b := img.Bounds()
 	x, y := u*float64(b.Dx())-0.5, v*float64(b.Dy())-0.5
 	x0, y0 := int(math.Floor(x)), int(math.Floor(y))
 	fx, fy := x-float64(x0), y-float64(y0)
-	at := func(px, py int) float64 {
+	at := func(px, py int, w float64) {
 		if px < 0 || py < 0 || px >= b.Dx() || py >= b.Dy() {
-			return 0
+			return
 		}
-		return float64(img.NRGBAAt(px, py).A) / 255
+		p := img.NRGBAAt(px, py)
+		a := float64(p.A) / 255
+		alpha += a * w
+		grey += float64(p.R) / 255 * a * w
 	}
-	return at(x0, y0)*(1-fx)*(1-fy) + at(x0+1, y0)*fx*(1-fy) + at(x0, y0+1)*(1-fx)*fy + at(x0+1, y0+1)*fx*fy
+	at(x0, y0, (1-fx)*(1-fy))
+	at(x0+1, y0, fx*(1-fy))
+	at(x0, y0+1, (1-fx)*fy)
+	at(x0+1, y0+1, fx*fy)
+	if alpha > 0 {
+		grey /= alpha
+	}
+	return grey, alpha
 }
 
 func drawPreviewLayer(buf [][3]float64, l previewLayer, frameAlpha float64) {
@@ -116,13 +145,15 @@ func drawPreviewLayer(buf [][3]float64, l previewLayer, frameAlpha float64) {
 		for x := int(math.Max(0, left)); x < int(math.Min(previewCell, left+w)); x++ {
 			u := cu0 + (float64(x)+0.5-left)/w*(cu1-cu0)
 			v := cv0 + (float64(y)+0.5-top)/h*(cv1-cv0)
-			a := sampleAlpha(l.tex, u, v) * l.a * frameAlpha
+			grey, alpha := sampleTexture(l.tex, u, v)
+			a := alpha * l.a * frameAlpha
 			p := &buf[y*previewCell+x]
 			for i := range p {
+				col := c[i] * grey
 				if l.add {
-					p[i] = math.Min(1, p[i]+c[i]*a)
+					p[i] = math.Min(1, p[i]+col*a)
 				} else {
-					p[i] = p[i]*(1-a) + c[i]*a
+					p[i] = p[i]*(1-a) + col*a
 				}
 			}
 		}
@@ -151,6 +182,9 @@ func runSparklePreview(path string) error {
 					}
 				}
 				for _, l := range style.layer(state.ready) {
+					if l.readyOnly && !state.ready {
+						continue
+					}
 					drawPreviewLayer(buf, l, state.alpha)
 				}
 				x0, y0 := bi*previewCell, (si*len(states)+sti)*previewCell
@@ -165,7 +199,7 @@ func runSparklePreview(path string) error {
 		}
 	}
 	return writeFile(path, func(f *os.File) error {
-		fmt.Printf("Glitzer-Vorschau: %s (Zeilen: Stile je weit/bereit, Spalten: Gras/Schnee/Sand)\n", path)
+		fmt.Printf("Glitzer-Vorschau: %s (Zeilen: Stile je weit/bereit, Spalten: Gras/Schnee/Sand/Höhle)\n", path)
 		return png.Encode(f, sheet)
 	})
 }
