@@ -35,7 +35,7 @@ function FlightTooltip.Line(slot)
   if not known then return nil end
   local time = formatTime(known.seconds)
   if known.estimated then return string.format(L.FLIGHT_TOOLTIP_ESTIMATE, time), true end
-  if known.source == ns.FlightTimes.DATA then return string.format(L.FLIGHT_TOOLTIP_DATA, time), false end
+  if known.source == ns.FlightTimes.DATA or known.source == ns.FlightTimes.PATH then return string.format(L.FLIGHT_TOOLTIP_DATA, time), false end
   return string.format(L.FLIGHT_TOOLTIP_MEASURED, time), false
 end
 

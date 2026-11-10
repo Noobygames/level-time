@@ -1,5 +1,7 @@
 -- Flugzeit im Tooltip der Flugkarte (TaxiFrame): gemessen, geschätzt, aus und nur bei erreichbaren Zielen
 local L = addon.L
+-- Ohne Flugstrecken aus den Spieldaten (eigenes Szenario flight_paths), sonst gewinnt die Flugroute
+addon.FlightPathsData = nil
 
 local NODES = {
   { name = "Crossroads, Brachland", x = 0.55735743045807, y = 0.53047657012939, id = 25 },

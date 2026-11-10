@@ -140,7 +140,12 @@ Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\SleepTimer.lua
 Assist\FlightTimesData.lua
+Assist\FlightPathsData\anniversary.lua
+Assist\FlightPathsData\classic_era.lua
+Assist\FlightPathsData\forever.lua
+Assist\FlightPathsData\retail.lua
 Assist\FlightMap.lua
+Assist\FlightPaths.lua
 Assist\FlightTimes.lua
 Assist\FlightTimer.lua
 Assist\FlightTooltip.lua

@@ -3,6 +3,8 @@
 local FlightTimes = addon.FlightTimes
 local FlightTimer = addon.FlightTimer
 local FlightMap = addon.FlightMap
+-- Ohne Flugstrecken aus den Spieldaten (eigenes Szenario flight_paths), sonst gewinnt die Flugroute
+addon.FlightPathsData = nil
 
 local KALIMDOR = {
   { name = "Thunder Bluff, Mulgore", x = 0.44947779178619, y = 0.56151235103607, id = 22 },

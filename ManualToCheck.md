@@ -3175,3 +3175,25 @@ Bildrate spürbar schlechter (ja/nein):
 Ausschalten stellt die alten Werte wieder her (ja/nein):
 Fehler:
 ```
+
+### 225. Flugzeiten aus den Spieldaten (Roadmap 458, alle Clients)
+
+- [ ] geprüft
+
+Flugzeiten an (Komfort), Debug-Log an (`/lt debug log`). Am Flugmeister Ziele überfahren, zu denen du noch nie
+geflogen bist: Tooltip „Flugzeit m:ss (Level-Time-Daten)“ (Era/TBC: „~m:ss (geschätzt)“, geliehene
+Geschwindigkeit aus Forever). Retail: erst nach dem ersten Flug. Dann hinfliegen; Debug `flight` zeigt beim Start
+`path <Yards> yd + <Halte> s` und bei der Landung die eigene Geschwindigkeit `speed <x> yd/s`.
+
+1. Angezeigte Zeit gegen die echte Flugdauer (direkt und mit Zwischenhalt).
+2. Era/TBC: Ist die Geschwindigkeit wie in Forever (~29,8 yd/s)? Retail: welcher Wert nach mehreren Flügen, gleich
+   für alle Strecken?
+
+**Antwort:**
+
+```text
+Client (Retail/Era/TBC/Forever):
+Strecke, angezeigt / gemessen (mehrere):
+speed yd/s laut Debug-Log:
+Fehler:
+```

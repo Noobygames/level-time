@@ -1,4 +1,6 @@
 -- Flug-Anzeige: geschätzte Restzeit mit "~" und leiser Farbe, gemessene normal
+-- Ohne Flugstrecken aus den Spieldaten (eigenes Szenario flight_paths), sonst gewinnt die Flugroute
+addon.FlightPathsData = nil
 local Theme = addon.Theme
 
 local function openMap(current)

@@ -1,15 +1,20 @@
--- Flugzeiten als Daten: eigene Messungen, mitgelieferte Messungen (Assist/FlightTimesData.lua) und Schätzung.
+-- Flugzeiten als Daten: eigene Messungen, mitgelieferte Messungen (Assist/FlightTimesData.lua), Flugstrecken aus den
+-- Spieldaten (Assist/FlightPaths.lua) und Schätzung.
 -- Gespeichert account-weit, je Flavor und Flugkarte (Positionen sind je Karte normiert, nur Knoten derselben Karte
 -- sind vergleichbar):
 --   LevelTimerStatsDB.flights[flavor][map] = {
 --     nodes  = { [nodeKey] = { x, y, name } },
---     routes = { ["vonKey>nachKey"] = { seconds, samples = { ... }, distance, hops, from, to } } }
+--     routes = { ["vonKey>nachKey"] = { seconds, samples = { ... }, distance, hops, from, to, pathLength, pathStops } } }
 --   nodeKey = nodeID aus C_TaxiMap, sonst gerundete Position "x,y" (Assist/FlightMap.lua). seconds = Median der
---   letzten SAMPLE_LIMIT Messungen. Namen nur zur Anzeige (Sprache des Clients).
+--   letzten SAMPLE_LIMIT Messungen. Namen nur zur Anzeige (Sprache des Clients). pathLength/pathStops = Länge (Yards)
+--   und Halte der Flugroute aus den Spieldaten, soweit bekannt; daraus die eigene Fluggeschwindigkeit.
 -- Ältere Messungen stehen unter LevelTimerStatsDB.flightTimes["Start > Ziel"] (Namen, Sprache des Clients); sie
 -- werden übernommen, sobald beide Knoten auf einer offenen Karte zu sehen sind, und bleiben lesbar.
--- Reihenfolge beim Nachschlagen: eigene Messung > mitgelieferte Messung > Gegenrichtung (eigene, dann mitgelieferte)
--- > Schätzung aus der Strecke (Faktor aus eigenen Flügen der Karte, sonst mitgelieferter Faktor).
+-- Reihenfolge beim Nachschlagen: eigene Messung > mitgelieferte Messung > Flugroute aus den Spieldaten (Länge /
+-- Geschwindigkeit; eigene Geschwindigkeit, sonst mitgelieferte, geliehene gilt als Schätzung) > Gegenrichtung (eigene,
+-- dann mitgelieferte) > Schätzung aus der Strecke (Faktor aus eigenen Flügen der Karte, sonst mitgelieferter Faktor).
+-- Geschwindigkeit: Median aus pathLength / (Sekunden - pathStops) aller eigenen Strecken des Flavors (tools/flights
+-- rechnet genauso).
 -- Schätzung: Sekunden = Start/Landung (offset) + Sekunden je Karteneinheit (perUnit) × Strecke. Ab MIN_FIT_SAMPLES
 -- Strecken per kleinster Quadrate, sonst offset = DEFAULT_OFFSET und perUnit = Median der Einzelwerte. Ohne
 -- gemessenen Flug auf der Karte (eigen oder mitgeliefert) keine Schätzung. tools/flights rechnet genauso.
@@ -20,6 +25,7 @@ ns.FlightTimes = FlightTimes
 
 FlightTimes.MEASURED, FlightTimes.DATA = "measured", "data"
 FlightTimes.REVERSE, FlightTimes.ESTIMATE = "reverse", "estimate"
+FlightTimes.PATH = "path"
 
 local SAMPLE_LIMIT = 5
 local MIN_FIT_SAMPLES = 3
@@ -133,6 +139,32 @@ function FlightTimes.Factor(map)
   return nil
 end
 
+-- Eigene Fluggeschwindigkeit (Yards je Sekunde) aus allen Strecken des Flavors mit bekannter Flugroute,
+-- zwischengespeichert bis zur nächsten Messung (false = keine)
+local speedCache
+
+function FlightTimes.OwnSpeed()
+  if speedCache ~= nil then return speedCache or nil end
+  local ratios = {}
+  for _, store in pairs(flavorStore()) do
+    for _, route in pairs(store.routes) do
+      local moving = route.pathLength and route.seconds - (route.pathStops or 0)
+      if moving and moving > 0 and route.pathLength > 0 then ratios[#ratios + 1] = route.pathLength / moving end
+    end
+  end
+  speedCache = median(ratios) or false
+  return speedCache or nil
+end
+
+-- Geschwindigkeit, Herkunft (MEASURED/DATA) und ob sie nur geschätzt ist (geliehen von einem anderen Flavor)
+function FlightTimes.Speed()
+  local own = FlightTimes.OwnSpeed()
+  if own then return own, FlightTimes.MEASURED, false end
+  local shipped, borrowed = ns.FlightPaths.ShippedSpeed()
+  if shipped then return shipped, FlightTimes.DATA, borrowed end
+  return nil
+end
+
 ---------------------------------------------------------------------------
 -- Karte lernen, alte Messungen übernehmen
 ---------------------------------------------------------------------------
@@ -186,11 +218,12 @@ function FlightTimes.Record(flight, seconds)
     route = newRoute(seconds, flight.distance, flight.hops, flight.fromName, flight.toName)
     routes[routeKey] = route
   end
-  factorCache[flight.map] = nil
+  route.pathLength, route.pathStops = flight.pathLength or route.pathLength, flight.pathStops or route.pathStops
+  factorCache[flight.map], speedCache = nil, nil
   local factor = FlightTimes.OwnFactor(flight.map)
-  ns.Debug("flight", "recorded %s on map %s: %s s (median %s, distance %s); factor offset %s, per unit %s, samples %s",
-    routeKey, flight.map, seconds, route.seconds, flight.distance, factor and factor.offset,
-    factor and factor.perUnit, factor and factor.samples)
+  ns.Debug("flight", "recorded %s on map %s: %s s (median %s, distance %s, path %s yd); factor offset %s, per unit %s, "
+    .. "samples %s; speed %s yd/s", routeKey, flight.map, seconds, route.seconds, flight.distance, flight.pathLength,
+    factor and factor.offset, factor and factor.perUnit, factor and factor.samples, FlightTimes.OwnSpeed())
 end
 
 ---------------------------------------------------------------------------
@@ -212,12 +245,23 @@ local function measured(map, fromKey, toKey, fromName, toName)
   return nil
 end
 
--- query = { map, fromKey, toKey, fromName, toName, distance }
+-- Dauer der Flugroute aus den Spieldaten oder nil (ohne Strecke oder ohne Geschwindigkeit)
+local function pathTime(query)
+  if not query.pathLength then return nil end
+  local speed, origin, borrowed = FlightTimes.Speed()
+  if not speed then return nil end
+  return { seconds = (query.pathStops or 0) + query.pathLength / speed, source = FlightTimes.PATH,
+    estimated = borrowed, origin = origin }
+end
+
+-- query = { map, fromKey, toKey, fromName, toName, distance, pathLength, pathStops }
 -- Ergebnis: { seconds, source, estimated, origin } (origin: Herkunft der Zahl bei Gegenrichtung/Schätzung) oder nil
 function FlightTimes.Lookup(query)
   local map = query.map or "0"
   local seconds, origin = measured(map, query.fromKey, query.toKey, query.fromName, query.toName)
   if seconds then return { seconds = seconds, source = origin, estimated = false, origin = origin } end
+  local path = pathTime(query)
+  if path then return path end
   seconds, origin = measured(map, query.toKey, query.fromKey, query.toName, query.fromName)
   if seconds then return { seconds = seconds, source = FlightTimes.REVERSE, estimated = true, origin = origin } end
   local factor, factorOrigin = FlightTimes.Factor(map)
@@ -249,9 +293,11 @@ function FlightTimes.Summary()
   local legacy = {}
   for key, seconds in pairs(legacyTimes()) do legacy[#legacy + 1] = key .. " = " .. tostring(seconds) end
   table.sort(legacy)
-  return { flavor = ns.Client.Flavor(), maps = maps, legacy = legacy }
+  local speed, speedOrigin, borrowed = FlightTimes.Speed()
+  return { flavor = ns.Client.Flavor(), maps = maps, legacy = legacy, speed = speed, speedOrigin = speedOrigin,
+    speedBorrowed = borrowed }
 end
 
 ns.OnLogin(function()
-  factorCache = {}
+  factorCache, speedCache = {}, nil
 end)

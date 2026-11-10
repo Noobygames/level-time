@@ -41,10 +41,11 @@ artwork:
 records:
 	go -C $(RECORDS) run . -out "$(CURDIR)/Speedrun/SpeedrunRecords.lua"
 
-# Selbst gemessene Flugzeiten aus den SavedVariables aller Flavors (nur lesen) nach Assist/FlightTimesData.lua,
+# Selbst gemessene Flugzeiten aus den SavedVariables aller Flavors (nur lesen) nach Assist/FlightTimesData.lua und
+# Flugstrecken aus den Spieldaten (wago.tools) nach Assist/FlightPathsData/<flavor>.lua,
 # z.B. make flights ARGS="-wow 'D:/Games/World of Warcraft'" (oder WOW_DIR)
 flights:
-	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" $(ARGS)
+	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" -paths "$(CURDIR)/Assist/FlightPathsData" $(ARGS)
 
 # Texte in alle vier Sprachdateien schreiben/entfernen, ohne sie zu lesen: make locale ARGS="-file texts.json" oder ARGS="-remove KEY"
 locale:

@@ -38,8 +38,9 @@ local function queryFor(slot)
   local from, to = map.nodes[map.current], map.nodes[slot]
   if not from or not to then return nil end
   local distance, hops = ns.FlightMap.Distance(map, map.current, slot)
+  local pathLength, pathStops = ns.FlightPaths.Measure(ns.FlightMap.RouteNodeKeys(map, map.current, slot))
   return { map = map.map, fromKey = from.key, toKey = to.key, fromName = from.name, toName = to.name,
-    distance = distance, hops = hops }
+    distance = distance, hops = hops, pathLength = pathLength, pathStops = pathStops }
 end
 
 -- Bekannte oder geschätzte Dauer zum Slot der offenen Karte: { seconds, source, estimated, origin } oder nil
@@ -84,9 +85,11 @@ local function onTakeoff(slot)
   flight = query
   flight.startedAt = GetTime()
   flight.known = ns.FlightTimes.Lookup(query)
-  ns.Debug("flight", "takeoff %s (%s > %s) on map %s, distance %s, hops %s, source %s, seconds %s, origin %s",
+  ns.Debug("flight", "takeoff %s (%s > %s) on map %s, distance %s, hops %s, path %s yd + %s s, source %s, "
+    .. "seconds %s, origin %s",
     ns.FlightMap.RouteKey(tostring(query.fromKey), tostring(query.toKey)), query.fromName, query.toName, query.map,
-    query.distance, query.hops, flight.known and flight.known.source, flight.known and flight.known.seconds,
+    query.distance, query.hops, query.pathLength, query.pathStops, flight.known and flight.known.source,
+    flight.known and flight.known.seconds,
     flight.known and flight.known.origin)
   if ns.db.flightTimer then announce() end
   show()

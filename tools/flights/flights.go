@@ -27,10 +27,35 @@ const (
 	minDistance   = 0.001
 )
 
-// Route sammelt alle Messungen einer Richtung auf einer Karte.
+// Route sammelt alle Messungen einer Richtung auf einer Karte; PathLengths/PathStops sind Länge (Yards) und Halte
+// der Flugroute aus Assist/FlightPaths.lua, soweit das Addon sie beim Flug kannte.
 type Route struct {
-	Samples   []float64
-	Distances []float64
+	Samples     []float64
+	Distances   []float64
+	Hops        []float64
+	PathLengths []float64
+	PathStops   []float64
+}
+
+// pathLength liefert die gemerkte Länge und Halte der Flugroute (Median), ok = false ohne Angabe.
+func (r *Route) pathLength() (length, stops float64, ok bool) {
+	if len(r.PathLengths) == 0 {
+		return 0, 0, false
+	}
+	if len(r.PathStops) > 0 {
+		stops = Median(r.PathStops)
+	}
+	return Median(r.PathLengths), stops, true
+}
+
+// multiHop: mindestens eine Messung lief über einen Zwischenhalt (dann passt die direkte Strecke nicht)
+func (r *Route) multiHop() bool {
+	for _, hops := range r.Hops {
+		if hops > 1 {
+			return true
+		}
+	}
+	return false
 }
 
 // Factor ist die gelernte Gerade: Sekunden = Offset + PerUnit × Strecke.
@@ -58,6 +83,12 @@ func asTable(value any) map[string]any {
 func asNumber(value any) (float64, bool) {
 	number, ok := value.(float64)
 	return number, ok && !math.IsNaN(number) && !math.IsInf(number, 0)
+}
+
+func appendNumber(list *[]float64, raw any) {
+	if number, ok := asNumber(raw); ok {
+		*list = append(*list, number)
+	}
 }
 
 // numbers liest eine Lua-Liste { 1, 2, ... } in Reihenfolge
@@ -92,9 +123,10 @@ func (s *Snapshot) Add(stats map[string]any, dirFlavor string) {
 				}
 				target := s.route(flavor, mapKey, routeKey)
 				target.Samples = append(target.Samples, samples...)
-				if distance, ok := asNumber(route["distance"]); ok {
-					target.Distances = append(target.Distances, distance)
-				}
+				appendNumber(&target.Distances, route["distance"])
+				appendNumber(&target.Hops, route["hops"])
+				appendNumber(&target.PathLengths, route["pathLength"])
+				appendNumber(&target.PathStops, route["pathStops"])
 			}
 		}
 	}

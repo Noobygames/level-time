@@ -101,6 +101,23 @@ local function hopsTo(slot)
   return hops
 end
 
+-- Knoten-Schlüssel entlang der Flugroute { Start, Zwischenhalte..., Ziel }; ohne Teilstrecken nur Start und Ziel.
+-- nil, wenn ein Knoten keinen Schlüssel hat.
+function FlightMap.RouteNodeKeys(snapshot, fromSlot, toSlot)
+  local slots = { fromSlot }
+  if fromSlot == snapshot.current then
+    for _, hop in ipairs(hopsTo(toSlot)) do slots[#slots + 1] = hop[2] end
+  end
+  if slots[#slots] ~= toSlot then slots = { fromSlot, toSlot } end
+  local keys = {}
+  for index, slot in ipairs(slots) do
+    local node = snapshot.nodes[slot]
+    if not (node and node.key) then return nil end
+    keys[index] = node.key
+  end
+  return keys
+end
+
 -- Flugstrecke in Karteneinheiten: Summe der Teilstrecken, sonst Luftlinie; dazu die Zahl der Teilstrecken
 function FlightMap.Distance(snapshot, fromSlot, toSlot)
   local nodes = snapshot.nodes
