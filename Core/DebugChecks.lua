@@ -813,6 +813,7 @@ local function worldPositionProbe(position)
     probe.ok, probe.continent = ok, ok and continent or tostring(continent)
     if ok and world and world.GetXY then probe.worldX, probe.worldY = world:GetXY() end
   end
+  probe.data = { ns.MapCoords.MapToWorldData(position.mapID, position.x, position.y) } -- 461: erzeugte Daten zum Vergleich
   if _G.UnitPosition then probe.unitPosition = { pcall(_G.UnitPosition, "player") } end
   return probe
 end

@@ -50,6 +50,7 @@ Lib\QuestRewards.lua
 Lib\MapPins.lua
 Lib\Overrides.lua
 Lib\CVars.lua
+Lib\MapCoords.lua
 Lib\Widgets.lua
 Lib\TabStrip.lua
 Lib\Frames.lua
@@ -63,9 +64,13 @@ Tracking\Journal.lua
 Tracking\JournalArchive.lua
 Tracking\Classification.lua
 Assist\InstanceData\anniversary.lua
+Assist\MapCoordsData\anniversary.lua
 Assist\InstanceData\classic_era.lua
+Assist\MapCoordsData\classic_era.lua
 Assist\InstanceData\forever.lua
+Assist\MapCoordsData\forever.lua
 Assist\InstanceData\retail.lua
+Assist\MapCoordsData\retail.lua
 Tracking\InstanceInfo.lua
 Tracking\InstanceCopy.lua
 Tracking\PlayedTime.lua

@@ -134,3 +134,16 @@ func (c *wagoClient) Instances(build, flavor string) (*Instances, []string, erro
 	}
 	return ParseInstances(build, flavor, bytes.NewReader(tables[0]), bytes.NewReader(tables[1]), bytes.NewReader(tables[2]))
 }
+
+// MapCoords lädt UiMap und UiMapAssignment eines Builds und rechnet die Weltbereiche der Karten.
+func (c *wagoClient) MapCoords(build string) (*MapCoords, error) {
+	uiMap, err := c.table("UiMap", build)
+	if err != nil {
+		return nil, err
+	}
+	assignment, err := c.table("UiMapAssignment", build)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMapCoords(build, bytes.NewReader(uiMap), bytes.NewReader(assignment))
+}

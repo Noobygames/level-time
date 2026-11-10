@@ -3267,3 +3267,22 @@ Dungeons fürs Level (passend):
 Historie-Spalten:
 Fehler:
 ```
+
+### 229. Kartenbereiche: Weltkoordinaten aus den Spieldaten (Roadmap 461)
+
+- [ ] geprüft
+
+Debug-Log an, auf einer Zonenkarte stehen, `/lt debug check`: `440.transport.state` > `worldPosition`. `worldX`/`worldY`
+sind die Antwort von `C_Map.GetWorldPosFromMapPos`, `data` die Rechnung aus den erzeugten Kartenbereichen
+(`Lib/MapCoords.lua`: Instanz-ID, Nord, West).
+
+1. Stimmen `data` und (`continent`, `worldX`, `worldY`) auf etwa 1 Yard überein (Achsen gleich, nicht vertauscht)?
+2. Ist `worldX` (Nord) der erste Wert von `UnitPosition` im Feld `unitPosition`, oder der zweite? (Info für 226)
+
+**Antwort:**
+
+```text
+Client / Zone (UiMapID):
+worldX/worldY (API) und data:
+Achsen vertauscht (ja/nein):
+```

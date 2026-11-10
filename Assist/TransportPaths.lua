@@ -1,8 +1,8 @@
 -- Schiffs- und Zeppelin-Rundkurse aus den Spieldaten (Roadmap 459; Assist/TransportData/<flavor>.lua, generiert von
 -- tools/flights aus TaxiPathNode): Halte mit Weltposition, Liegezeit (in Era/TBC/Forever 60 s) und Yards bis zum
 -- nächsten Halt. Damit wird aus einer gelernten Strecke (Assist/TransportTimes.lua) ein ganzer Fahrplan:
---   Zuordnung  gelernter Anleger (Karte, x, y) -> Weltposition über C_Map.GetWorldPosFromMapPos (alle Classic-Clients
---              laut Blizzards API-Dokumentation) -> Halt innerhalb MATCH_YARDS; eine Strecke gehört zu dem Rundkurs,
+--   Zuordnung  gelernter Anleger (Karte, x, y) -> Weltposition über Lib/MapCoords.lua (Client-API, sonst erzeugte
+--              Kartenbereiche) -> Halt innerhalb MATCH_YARDS; eine Strecke gehört zu dem Rundkurs,
 --              der Start- und Zielanleger als Halte hat. Die Achsen der Weltposition werden in beiden Reihenfolgen
 --              geprüft (ungeprüft, welche der Client liefert; Debug-Check 440.transport.state zeigt den Treffer).
 --   Tempo      liegt beim Server, steht nicht in den Daten: Yards je Sekunde aus jeder Strecke mit gelernter Periode
@@ -27,15 +27,8 @@ local function worldOf(dock)
   local cached = worldCache[dock]
   if cached ~= nil and cached.x0 == dock.x and cached.y0 == dock.y then return cached.world or nil end
   local world = false
-  if C_Map and C_Map.GetWorldPosFromMapPos and CreateVector2D and dock.mapID then
-    local ok, continent, position = pcall(C_Map.GetWorldPosFromMapPos, dock.mapID, CreateVector2D(dock.x, dock.y))
-    if ok and position and not ns.IsSecret(continent) and type(continent) == "number" then
-      local x, y = position:GetXY()
-      if not ns.IsSecret(x) and type(x) == "number" and type(y) == "number" then
-        world = { continent = continent, x = x, y = y }
-      end
-    end
-  end
+  local continent, x, y = ns.MapCoords.MapToWorld(dock.mapID, dock.x, dock.y)
+  if continent then world = { continent = continent, x = x, y = y } end
   worldCache[dock] = { x0 = dock.x, y0 = dock.y, world = world }
   return world or nil
 end
