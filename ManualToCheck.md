@@ -3286,3 +3286,24 @@ Client / Zone (UiMapID):
 worldX/worldY (API) und data:
 Achsen vertauscht (ja/nein):
 ```
+
+### 230. Flugpunkt-Namen: alte Messungen auf nodeIDs (Roadmap 462)
+
+- [ ] geprüft
+
+Mit einem Charakter, der noch alte Messungen unter Namen hat (`LevelTimerStatsDB.flightTimes`), WoW Forever (und, falls
+möglich, Era/Anniversary) starten, Debug-Log an, `/lt debug check`: `258.flight.estimates` zeigt unter `legacy` die
+Namen-Schlüssel und Einträge `id <von>><nach>`.
+
+1. Entstehen nach dem Login `id ...`-Einträge, ohne dass eine Flugkarte offen war?
+2. Zeigt der Flugpunkt-Tooltip einer dieser Strecken danach die gemessene Zeit, auch wenn der Client nicht auf Deutsch läuft?
+3. Liefert `C_TaxiMap.GetAllTaxiNodes` in Era/Anniversary nodeIDs (Schlüssel in `nodes` zahlen- statt `x,y`)?
+
+**Antwort:**
+
+```text
+Client / Sprache:
+id-Einträge nach Login (ja/nein, Anzahl):
+Tooltip gemessen (ja/nein):
+Era/Anniversary nodeIDs (ja/nein):
+```

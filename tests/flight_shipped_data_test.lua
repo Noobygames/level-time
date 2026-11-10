@@ -9,7 +9,6 @@ addon.FlightTimesData = {
       routes = { ["25>77"] = 88, ["80>25"] = 66 },
       factor = { offset = 12, perUnit = 1000, samples = 4 },
     },
-    names = { ["Orgrimmar, Durotar > Crossroads, Brachland"] = 120 },
   },
   forever = { ["1411"] = { routes = { ["77>23"] = 999 } } },
 }
@@ -41,13 +40,9 @@ expect("mitgeliefert: Zeit", shipped.seconds, 88)
 expect("mitgeliefert: ohne ~", shipped.estimated, false)
 expect("Tooltip: Level-Time-Daten", hover(2), string.format(L.FLIGHT_TOOLTIP_DATA, "1:28"))
 
--- Gegenrichtung aus mitgelieferten Daten, auch nach Namen
+-- Gegenrichtung aus mitgelieferten Daten
 openMap(2)
 expect("Gegenrichtung mitgeliefert", FlightTimer.Lookup(1).source, FlightTimes.REVERSE)
-openMap(1)
-local byName = FlightTimer.Lookup(3)
-expect("Gegenrichtung nach Namen", byName.seconds, 120)
-expect("Gegenrichtung nach Namen ist Schätzung", byName.estimated, true)
 
 -- Anderer Flavor zählt nicht; Schätzung mit dem mitgelieferten Faktor
 openMap(2)

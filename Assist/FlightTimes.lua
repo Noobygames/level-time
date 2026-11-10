@@ -8,8 +8,11 @@
 --   nodeKey = nodeID aus C_TaxiMap, sonst gerundete Position "x,y" (Assist/FlightMap.lua). seconds = Median der
 --   letzten SAMPLE_LIMIT Messungen. Namen nur zur Anzeige (Sprache des Clients). pathLength/pathStops = Länge (Yards)
 --   und Halte der Flugroute aus den Spieldaten, soweit bekannt; daraus die eigene Fluggeschwindigkeit.
--- Ältere Messungen stehen unter LevelTimerStatsDB.flightTimes["Start > Ziel"] (Namen, Sprache des Clients); sie
--- werden übernommen, sobald beide Knoten auf einer offenen Karte zu sehen sind, und bleiben lesbar.
+-- Ältere Messungen standen unter LevelTimerStatsDB.flightTimes["Start > Ziel"] (Namen, Sprache des Clients). Beim
+-- Login werden sie mit Assist/FlightNamesData (Name in allen Sprachen -> nodeID) zusätzlich nach
+-- LevelTimerStatsDB.flightTimesById[flavor]["vonID>nachID"] kopiert, ohne offene Karte; sobald beide Knoten auf einer
+-- Flugkarte zu sehen sind, werden sie dort zur Strecke. Der Name-Schlüssel bleibt lesbar (Clients ohne nodeIDs) und
+-- wird bei offener Karte wie früher übernommen.
 -- Reihenfolge beim Nachschlagen: eigene Messung > mitgelieferte Messung > Flugroute aus den Spieldaten (Länge /
 -- Geschwindigkeit; eigene Geschwindigkeit, sonst mitgelieferte, geliehene gilt als Schätzung) > Gegenrichtung (eigene,
 -- dann mitgelieferte) > Schätzung aus der Strecke (Faktor aus eigenen Flügen der Karte, sonst mitgelieferter Faktor).
@@ -61,9 +64,11 @@ local function shippedMap(map)
   return data and data[map]
 end
 
-local function shippedNames()
-  local data = ns.FlightTimesData and ns.FlightTimesData[ns.Client.Flavor()]
-  return data and data.names
+local function byIdStore()
+  LevelTimerStatsDB.flightTimesById = LevelTimerStatsDB.flightTimesById or {}
+  local flavor = ns.Client.Flavor()
+  LevelTimerStatsDB.flightTimesById[flavor] = LevelTimerStatsDB.flightTimesById[flavor] or {}
+  return LevelTimerStatsDB.flightTimesById[flavor]
 end
 
 ---------------------------------------------------------------------------
@@ -168,6 +173,10 @@ end
 ---------------------------------------------------------------------------
 -- Karte lernen, alte Messungen übernehmen
 ---------------------------------------------------------------------------
+local function isNodeId(key)
+  return key ~= nil and tostring(key):match("^%d+$") ~= nil
+end
+
 local function newRoute(seconds, distance, hops, from, to)
   return { seconds = seconds, samples = { seconds }, distance = distance, hops = hops, from = from, to = to }
 end
@@ -177,13 +186,27 @@ end
 function FlightTimes.Learn(snapshot, distanceOf)
   local store = mapStore(snapshot.map)
   local byName = {}
+  local byKey = {}
   for _, node in pairs(snapshot.nodes) do
     if node.key then
       store.nodes[node.key] = { x = node.x, y = node.y, name = node.name }
       byName[node.name] = node
+      byKey[node.key] = node
     end
   end
   local migrated = 0
+  for routeKey, seconds in pairs(byIdStore()) do
+    local fromKey, toKey = routeKey:match("^([^>]+)>(.+)$")
+    local from, to = byKey[fromKey or ""], byKey[toKey or ""]
+    if from and to then
+      if not store.routes[routeKey] then
+        local distance, hops = distanceOf(from.slot, to.slot)
+        store.routes[routeKey] = newRoute(seconds, distance, hops, from.name, to.name)
+        migrated = migrated + 1
+      end
+      byIdStore()[routeKey] = nil
+    end
+  end
   for key, seconds in pairs(legacyTimes()) do
     local fromName, toName = key:match("^(.-)" .. LEGACY_SEPARATOR .. "(.+)$")
     local from, to = byName[fromName or ""], byName[toName or ""]
@@ -202,9 +225,12 @@ function FlightTimes.Learn(snapshot, distanceOf)
   end
 end
 
--- Gelandet: Messung zur Strecke legen (Median der letzten Messungen) und den alten Namens-Schlüssel nachführen
+-- Gelandet: Messung zur Strecke legen (Median der letzten Messungen). Ohne nodeIDs zusätzlich unter dem Namens-Schlüssel
+-- (FlightTimer.Get); mit nodeIDs trägt die Strecke die Messung allein.
 function FlightTimes.Record(flight, seconds)
-  legacyTimes()[FlightTimes.LegacyKey(flight.fromName, flight.toName)] = seconds
+  if not (isNodeId(flight.fromKey) and isNodeId(flight.toKey)) then
+    legacyTimes()[FlightTimes.LegacyKey(flight.fromName, flight.toName)] = seconds
+  end
   if not (flight.map and flight.fromKey and flight.toKey) then return end
   local routes = mapStore(flight.map).routes
   local routeKey = ns.FlightMap.RouteKey(flight.fromKey, flight.toKey)
@@ -226,6 +252,34 @@ function FlightTimes.Record(flight, seconds)
     factor and factor.offset, factor and factor.perUnit, factor and factor.samples, FlightTimes.OwnSpeed())
 end
 
+-- Alte Messungen unter Namen auf nodeIDs umschreiben (Assist/FlightNamesData, alle Sprachen), ohne offene Karte:
+-- LevelTimerStatsDB.flightTimesById[flavor]["vonID>nachID"]. Eine vorhandene Zeit (auch aus einer anderen Sprache
+-- derselben Strecke) bleibt. Der Name-Schlüssel bleibt stehen: Clients ohne nodeIDs (Positions-Schlüssel, Era?) lesen nur ihn.
+-- Nicht zuordenbare Namen (mehrdeutig, unbekannt) bleiben ohnehin unter dem Namen.
+function FlightTimes.MigrateLegacy()
+  local names = ns.FlightNamesData
+  if not names then return 0 end
+  local legacy, byId = legacyTimes(), byIdStore()
+  local moved, kept = 0, 0
+  for key, seconds in pairs(legacy) do
+    local fromName, toName = key:match("^(.-)" .. LEGACY_SEPARATOR .. "(.+)$")
+    local fromId, toId = names[fromName or ""], names[toName or ""]
+    if fromId and toId and type(seconds) == "number" then
+      local routeKey = ns.FlightMap.RouteKey(tostring(fromId), tostring(toId))
+      if byId[routeKey] == nil then byId[routeKey] = seconds end
+      moved = moved + 1
+    else
+      kept = kept + 1
+    end
+  end
+  if moved > 0 or kept > 0 then
+    ns.Debug("flight", "old name times: %s copied to node IDs, %s only under the name", moved, kept)
+  end
+  return moved
+end
+
+ns.OnLogin(function() FlightTimes.MigrateLegacy() end)
+
 ---------------------------------------------------------------------------
 -- Nachschlagen
 ---------------------------------------------------------------------------
@@ -234,14 +288,13 @@ local function measured(map, fromKey, toKey, fromName, toName)
   local routeKey = fromKey and toKey and ns.FlightMap.RouteKey(fromKey, toKey)
   local own = routeKey and mapStore(map).routes[routeKey]
   if own then return own.seconds, FlightTimes.MEASURED end
+  local byId = routeKey and byIdStore()[routeKey]
+  if byId then return byId, FlightTimes.MEASURED end
   local legacy = legacyTimes()[FlightTimes.LegacyKey(fromName, toName)]
   if legacy then return legacy, FlightTimes.MEASURED end
   local shipped = shippedMap(map)
   local shippedSeconds = routeKey and shipped and shipped.routes and shipped.routes[routeKey]
   if shippedSeconds then return shippedSeconds, FlightTimes.DATA end
-  local names = shippedNames()
-  local named = names and names[FlightTimes.LegacyKey(fromName, toName)]
-  if named then return named, FlightTimes.DATA end
   return nil
 end
 
@@ -292,6 +345,7 @@ function FlightTimes.Summary()
   end
   local legacy = {}
   for key, seconds in pairs(legacyTimes()) do legacy[#legacy + 1] = key .. " = " .. tostring(seconds) end
+  for routeKey, seconds in pairs(byIdStore()) do legacy[#legacy + 1] = "id " .. routeKey .. " = " .. tostring(seconds) end
   table.sort(legacy)
   local speed, speedOrigin, borrowed = FlightTimes.Speed()
   return { flavor = ns.Client.Flavor(), maps = maps, legacy = legacy, speed = speed, speedOrigin = speedOrigin,

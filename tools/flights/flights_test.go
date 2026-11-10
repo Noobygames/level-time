@@ -121,7 +121,6 @@ func TestCollectAndWriteLua(t *testing.T) {
 		`["80>22"] = 251,`,
 		`factor = { offset = `,
 		`samples = 3 }`,
-		`["Tarrens Mühle, Hillsbrad > Undercity, Tirisfal"] = 140,`,
 		"Nicht von Hand ändern",
 	} {
 		if !strings.Contains(lua, want) {

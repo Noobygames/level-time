@@ -67,12 +67,14 @@ type Factor struct {
 
 // Snapshot ist alles, was mitgeliefert wird: flavor -> map -> route, dazu Namen-Messungen je flavor.
 type Snapshot struct {
-	Maps  map[string]map[string]map[string]*Route // flavor, map, routeKey
-	Names map[string]map[string][]float64         // flavor, "Start > Ziel"
+	Maps     map[string]map[string]map[string]*Route // flavor, map, routeKey
+	Names    map[string]map[string][]float64         // flavor, "Start > Ziel" (noch nicht auf nodeIDs umgeschrieben)
+	NodeMaps map[string]map[string]string            // flavor, nodeID -> Flugkarte, in der der Knoten gesehen wurde
 }
 
 func NewSnapshot() *Snapshot {
-	return &Snapshot{Maps: map[string]map[string]map[string]*Route{}, Names: map[string]map[string][]float64{}}
+	return &Snapshot{Maps: map[string]map[string]map[string]*Route{}, Names: map[string]map[string][]float64{},
+		NodeMaps: map[string]map[string]string{}}
 }
 
 func asTable(value any) map[string]any {
@@ -110,7 +112,9 @@ func numbers(value any) []float64 {
 func (s *Snapshot) Add(stats map[string]any, dirFlavor string) {
 	for flavor, maps := range asTable(stats["flights"]) {
 		for mapKey, store := range asTable(maps) {
+			s.rememberNodes(flavor, mapKey, asTable(asTable(store)["nodes"]))
 			for routeKey, raw := range asTable(asTable(store)["routes"]) {
+				s.rememberRouteNodes(flavor, mapKey, routeKey)
 				route := asTable(raw)
 				samples := numbers(route["samples"])
 				if len(samples) == 0 {
@@ -244,13 +248,9 @@ func (s *Snapshot) WriteLua(w io.Writer, date string) error {
 	b.WriteString("-- (SavedVariables LevelTimerStatsDB), Stand " + date + ". Nicht von Hand ändern.\n")
 	b.WriteString("-- ns.FlightTimesData[flavor][map] = { routes = { [\"vonKey>nachKey\"] = Sekunden (Median) },\n")
 	b.WriteString("--   factor = { offset, perUnit, samples } }   (Schlüssel wie Assist/FlightMap.lua: nodeID oder \"x,y\")\n")
-	b.WriteString("-- ns.FlightTimesData[flavor].names = { [\"Start > Ziel\"] = Sekunden }   (alte Messungen nach Namen)\n")
 	b.WriteString("local _, ns = ...\n\nns.FlightTimesData = {\n")
 	flavors := map[string]bool{}
 	for flavor := range s.Maps {
-		flavors[flavor] = true
-	}
-	for flavor := range s.Names {
 		flavors[flavor] = true
 	}
 	for _, flavor := range sortedKeys(flavors) {
@@ -266,13 +266,6 @@ func (s *Snapshot) WriteLua(w io.Writer, date string) error {
 			if factor := MapFactor(routes); factor != nil {
 				fmt.Fprintf(&b, "      factor = { offset = %s, perUnit = %s, samples = %d },\n",
 					luaNumber(factor.Offset), luaNumber(factor.PerUnit), factor.Samples)
-			}
-			b.WriteString("    },\n")
-		}
-		if names := s.Names[flavor]; len(names) > 0 {
-			b.WriteString("    names = {\n")
-			for _, name := range sortedKeys(names) {
-				fmt.Fprintf(&b, "      [%q] = %s,\n", name, luaNumber(Median(names[name])))
 			}
 			b.WriteString("    },\n")
 		}
@@ -318,4 +311,66 @@ func flavorOfPath(root, path string) string {
 	}
 	first := strings.Split(filepath.ToSlash(rel), "/")[0]
 	return strings.Trim(first, "_")
+}
+
+// rememberNodes merkt, auf welcher Flugkarte ein Knoten (nodeID) zu sehen war; nur echte nodeIDs, keine Positionen.
+func (s *Snapshot) rememberNodes(flavor, mapKey string, nodes map[string]any) {
+	for id := range nodes {
+		s.rememberNode(flavor, mapKey, id)
+	}
+}
+
+func (s *Snapshot) rememberRouteNodes(flavor, mapKey, routeKey string) {
+	from, to, _ := strings.Cut(routeKey, ">")
+	s.rememberNode(flavor, mapKey, from)
+	s.rememberNode(flavor, mapKey, to)
+}
+
+func (s *Snapshot) rememberNode(flavor, mapKey, id string) {
+	if _, err := strconv.Atoi(id); err != nil {
+		return
+	}
+	if s.NodeMaps[flavor] == nil {
+		s.NodeMaps[flavor] = map[string]string{}
+	}
+	if _, known := s.NodeMaps[flavor][id]; !known {
+		s.NodeMaps[flavor][id] = mapKey
+	}
+}
+
+// ResolveNames schreibt die alten Messungen unter Namen auf nodeIDs um und legt sie als Strecken der Flugkarte ab
+// (die Karte kennt man von den Knoten aus den eigenen Messungen). Eine vorhandene Strecke bleibt unberührt.
+// Zurück: die Schlüssel, die sich nicht zuordnen ließen (Name unbekannt oder mehrdeutig, Karte unbekannt); sie
+// kommen nicht in die Datei (die Messung im Addon bleibt unter dem Namen lesbar).
+func (s *Snapshot) ResolveNames(flavor string, index *NameIndex) (resolved int, unresolved []string) {
+	for _, legacyKey := range sortedKeys(s.Names[flavor]) {
+		from, to, ok := index.Resolve(legacyKey)
+		mapKey := ""
+		if ok {
+			mapKey = s.nodeMap(flavor, from, to)
+		}
+		if mapKey == "" {
+			unresolved = append(unresolved, legacyKey)
+			continue
+		}
+		routeKey := fmt.Sprintf("%d>%d", from, to)
+		if existing := s.Maps[flavor][mapKey][routeKey]; existing == nil {
+			s.route(flavor, mapKey, routeKey).Samples = []float64{Median(s.Names[flavor][legacyKey])}
+		}
+		resolved++
+	}
+	delete(s.Names, flavor)
+	return resolved, unresolved
+}
+
+// nodeMap: Flugkarte der beiden Knoten (die eine bekannte, wenn nur ein Knoten bekannt ist; "" bei Widerspruch).
+func (s *Snapshot) nodeMap(flavor string, from, to int) string {
+	fromMap, toMap := s.NodeMaps[flavor][strconv.Itoa(from)], s.NodeMaps[flavor][strconv.Itoa(to)]
+	if fromMap != "" && toMap != "" && fromMap != toMap {
+		return ""
+	}
+	if fromMap != "" {
+		return fromMap
+	}
+	return toMap
 }

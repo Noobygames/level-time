@@ -39,14 +39,22 @@ var BorrowSpeed = map[string]string{
 
 type wagoClient struct {
 	http *http.Client
+	base string // leer = wagoBase (Tests setzen einen Testserver)
 }
 
 func newWagoClient() *wagoClient {
 	return &wagoClient{http: &http.Client{Timeout: wagoTimeout}}
 }
 
+func (c *wagoClient) baseURL() string {
+	if c.base != "" {
+		return c.base
+	}
+	return wagoBase
+}
+
 func (c *wagoClient) get(path string) (io.ReadCloser, error) {
-	request, err := http.NewRequest(http.MethodGet, wagoBase+path, nil)
+	request, err := http.NewRequest(http.MethodGet, c.baseURL()+path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +102,16 @@ func (c *wagoClient) LatestBuilds() (map[string]string, error) {
 }
 
 func (c *wagoClient) table(name, build string) ([]byte, error) {
-	body, err := c.get("/db2/" + name + "/csv?build=" + url.QueryEscape(build))
+	return c.tableLocale(name, build, "")
+}
+
+// tableLocale lädt eine DB2-Tabelle als CSV; locale (z.B. "deDE") wählt die Sprache der Name_lang-Spalten.
+func (c *wagoClient) tableLocale(name, build, locale string) ([]byte, error) {
+	query := "?build=" + url.QueryEscape(build)
+	if locale != "" {
+		query += "&locale=" + url.QueryEscape(locale)
+	}
+	body, err := c.get("/db2/" + name + "/csv" + query)
 	if err != nil {
 		return nil, err
 	}
@@ -146,4 +163,19 @@ func (c *wagoClient) MapCoords(build string) (*MapCoords, error) {
 		return nil, err
 	}
 	return ParseMapCoords(build, bytes.NewReader(uiMap), bytes.NewReader(assignment))
+}
+
+// TaxiNames lädt die Flugpunkt-Namen (TaxiNodes) eines Builds in den angegebenen Sprachen.
+func (c *wagoClient) TaxiNames(build string, locales []string) (NodeNames, error) {
+	names := NodeNames{}
+	for _, locale := range locales {
+		data, err := c.tableLocale("TaxiNodes", build, locale)
+		if err != nil {
+			return nil, err
+		}
+		if names[locale], err = ParseNodeNames(bytes.NewReader(data)); err != nil {
+			return nil, fmt.Errorf("%s: %w", locale, err)
+		}
+	}
+	return names, nil
 }

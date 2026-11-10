@@ -6,7 +6,6 @@ Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt 
 
 Quelle: DB2-Tabellen der Clients als CSV von wago.tools (`/db2/<Tabelle>/csv?build=<Version>`, neuester Build je Produkt aus `/api/builds`: `wow`, `wow_classic_era`, `wow_anniversary`, `wowf` = Forever), wie die Flugstrecken (458, `tools/flights/wago.go`). Spieldaten von Blizzard, keine fremde Datenbank. Nicht in den Client-Daten (serverseitig): Quest-Level/-Belohnungen, Questgeber, NPC-/Mob-Standorte und -Level, Beutetabellen. Generierte Dateien je Flavor mit frühem `return` in fremden Flavors (nur eine Tabelle im Speicher). Reihenfolge = Priorität.
 
-- [ ] 462. **Flugpunkt-Namen in allen Sprachen (`TaxiNodes`)** (S): `TaxiNodes.Name_lang` je Sprache (wago.tools-Parameter für die Locale prüfen) beim `make flights` mitnehmen; alte Messungen unter Namen (`LevelTimerStatsDB.flightTimes`, `FlightTimesData.names`) direkt auf nodeIDs umschreiben, auch ohne beide Knoten auf einer offenen Karte. Danach `names` im Daten-Export abbauen.
 - [ ] 463. **Gegenstands- und Fraktions-Stammdaten für Auswertungen** (S–M): `ItemSparse` (Verkaufspreis, Qualität, Itemlevel) und `Faction` (Name, Eltern-Fraktion) offline für Auswertungen und Exporte (Beute-Journal-Wert ohne `GetItemInfo`-Cache, Fraktionsnamen in Historie/CSV). Nur wenn die In-Game-API nicht reicht; Datenmenge (ItemSparse groß) vorher prüfen, ggf. nur benötigte IDs.
 
 ## Geplant: Wettbewerbsanalyse (November 2026)

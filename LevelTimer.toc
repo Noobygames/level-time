@@ -155,6 +155,9 @@ Assist\FlightPathsData\anniversary.lua
 Assist\FlightPathsData\classic_era.lua
 Assist\FlightPathsData\forever.lua
 Assist\FlightPathsData\retail.lua
+Assist\FlightNamesData\anniversary.lua
+Assist\FlightNamesData\classic_era.lua
+Assist\FlightNamesData\forever.lua
 Assist\FlightMap.lua
 Assist\FlightPaths.lua
 Assist\FlightTimes.lua
