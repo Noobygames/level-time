@@ -62,7 +62,7 @@ local ROW_CHOOSER = 26
 local ROW_HINT = 30
 local SECTION_GAP = 8
 local MAX_CHOOSER_TABS = 4   -- mehr Möglichkeiten zeigt AddChooser als Auswahlliste (AddDropdown) statt als Reiter
-local DROPDOWN_ARROW = "Interface\Buttons\Arrow-Down-Up"
+local DROPDOWN_ARROW = "Interface\\Buttons\\Arrow-Down-Up"
 local DROPDOWN_ARROW_SIZE = 14
 local DROPDOWN_ARROW_INSET = 6
 local DISABLED_ALPHA = 0.4   -- ausgegraute Bausteine (enabled(db) == false)
@@ -527,6 +527,9 @@ function OptionsBuilder.New(options)
     -- ruhend um -SCROLL_TOP verschoben.
     local scroll = Widgets.CreateScrollArea(panel, { step = SCROLL_STEP, top = -SCROLL_TOP, keepInRange = true })
     local entry = { key = labelKey, scroll = scroll, frame = CreateFrame("Frame", nil, scroll) }
+    -- Gültige Breite von Anfang an (fitWidth setzt die endgültige): Texte, die der Client bei Breite 0 setzt, zeichnet
+    -- er nicht, bis sich der Text ändert (Seitenleiste und "Standard" blieben nach /reload leer)
+    entry.frame:SetWidth(panel:GetWidth())
     currentTab, currentSub = entry, nil
     scroll:SetScrollChild(entry.frame)
     entry.tabButton = pageTabs:Add(function() showPage(entry) end)
