@@ -388,6 +388,7 @@ end
 ns.DebugLog.AddCheck("lootSparkles.target", function()
   local unit = LootTarget.UNIT
   local info = { available = LootTarget.IsAvailable(), cvars = {} }
+  info.style = ns.LootSparkle and ns.LootSparkle.CurrentStyle and ns.LootSparkle.CurrentStyle() or nil
   for _, name in ipairs({ "SoftTargetInteract", "SoftTargetIconGameObject", "SoftTargetInteractRange",
     "SoftTargetInteractArc", "SoftTargetInteractOnlyInRange", "SoftTargetNameplateInteract",
     "outlineModeShowLootEffectWhenDisabled", "graphicsOutlineMode" }) do

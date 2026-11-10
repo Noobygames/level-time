@@ -21,12 +21,7 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 ### v2.32: „1 Addon, das viele ablöst“ (Konkurrenzanalyse, Threat & Lueur-Sparkles)
 
-- [ ] 451. **Minimap-Button-Sammler (HidingBar / MBB Light)** (M): Sammelt Minimap-Symbole fremder Addons (`Minimap:GetChildren()`) in einer einklappbaren Leiste am Minimap-Rand (`Assist/MinimapBar.lua`; ersetzt MinimapButtonBag/HidingBar).
 - [ ] 452. **Nahkampf- & Fernkampf-Schwungbalken (WeaponSwingTimer Light)** (M): Kompakte Swing-Timer-Leiste für Haupthand, Nebenhand sowie Zauberstab/Automatischen Schuss in Classic Era und Forever (`Assist/SwingTimer.lua` über `UnitAttackSpeed` und Zauber-/Kampf-Events; ersetzt WeaponSwingTimer).
-- [ ] 453. **Gruppen-Questabgleich (Party Quest Sync)** (M): Synchronisiert angenommene Quests und Ziel-Fortschritte innerhalb der Gruppe über `C_ChatInfo.SendAddonMessage` (`PARTY`) und zeigt im Questlog/Tooltip den Fortschritt der Gruppenmitglieder an (ersetzt den Gruppen-Sync von Questie).
-- [ ] 456. **Multi-Layer-2D-Effekt-Engine für Beute-Glitzer (`UI/LootSparkle.lua`)** (M): Ausbau von `UI/LootSparkle.lua` zu einer mehrschichtigen 2D-Render-Engine mit wählbaren Effekt-Stilen (`lootSparkleStyle`: `aura` [Halo + rotierende Bögen + kreisende Funken], `beam` [vertikale Lichtsäule + Bodenring], `sigil` [gegenläufig rotierendes Siegel], `ripple` [pulsierende Bodenwellen], `sparkle` [aufsteigender Funkenschwarm], `subtle` [dezenter Schein]):
-  - Dunkler Kontrast-Bodenschatten (`BLEND`-Schicht mit ~30 % Schwarz-Alpha unter den `ADD`-Lichtschichten), damit helle Effekte auf Schnee oder Sand nie auswaschen.
-  - Dynamische Zustands-Übergänge: weiches Einblenden mit Zusammenziehen beim Erscheinen (`arrive`), Aufblitzen (`flash`) und beschleunigte Rotation/Wellen beim Erreichen der Interaktionsreichweite (`READY`), ruhiges Atmen außer Reichweite (`FAR`), entsättigter/eingefrorener Zustand bei gesperrten Objekten (`LOCKED`) sowie kurzes Ausklingen (`ghost`) beim Verschwinden.
 
 ### v2.22: Speedrun (Priorität 3)
 

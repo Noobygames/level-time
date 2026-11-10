@@ -156,6 +156,18 @@ local frameMethods = {
   end,
   GetNumPoints = function(self) return #self._points end,
   SetParent = function(self, parent) self._parent = parent end,
+  GetName = function(self) return rawget(self, "_name") end,
+  GetObjectType = function(self) return rawget(self, "_type") or "Frame" end,
+  IsObjectType = function(self, kind) return (rawget(self, "_type") or "Frame"):lower() == tostring(kind):lower() end,
+  GetChildren = function(self)
+    local children = {}
+    for _, f in ipairs(frames) do
+      if rawget(f, "_parent") == self then
+        table.insert(children, f)
+      end
+    end
+    return unpack(children)
+  end,
   EnableMouse = function(self, enabled) self._mouse = enabled and true or false end,
   IsMouseEnabled = function(self) return rawget(self, "_mouse") == true end,
   EnableMouseWheel = function(self, enabled) self._mouseWheel = enabled and true or false end,

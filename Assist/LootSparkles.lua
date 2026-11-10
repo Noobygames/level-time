@@ -35,6 +35,7 @@ ns.Database.RegisterDefaults({
     lootSparkleCorpses = false, lootSparkleScale = 1,
     lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
     lootSparkleChests = false, lootSparkleBobber = false, lootSparkleHideUntrained = false,
+    lootSparkleStyle = "aura",
   },
   ranges = { lootSparkleScale = { 0.5, 2 } },
 })
@@ -224,7 +225,8 @@ local function findPlate()
 end
 
 local function release()
-  LootSparkle.Release()
+  -- Eine laufende Vorschau (Stil in den Einstellungen umschalten) bleibt stehen; sie endet selbst
+  if not LootSparkle.IsPreviewing() then LootSparkle.Release() end
   waiting, candidate = false, nil
 end
 
@@ -295,7 +297,7 @@ local function evaluate()
   local plate = findPlate()
   if not plate then
     -- gerade eingeschaltet: NAME_PLATE_UNIT_ADDED folgt
-    LootSparkle.Release()
+    release()
     waiting = true
     return
   end

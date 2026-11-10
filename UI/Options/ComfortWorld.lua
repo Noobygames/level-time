@@ -56,6 +56,7 @@ addToggles({
   toggle("MINIMAP_WHEEL_ZOOM", "minimapWheelZoom", MinimapTweaks.CanWheelZoom),
   toggle("MINIMAP_HIDE_ZOOM_BUTTONS", "minimapHideZoomButtons", MinimapTweaks.HasZoomButtons),
   toggle("MINIMAP_HIDE_CALENDAR", "minimapHideCalendar", MinimapTweaks.HasCalendarButton),
+  toggle("MINIMAP_BUTTON_BAR", "minimapButtonBar", ns.MinimapBar.IsAvailable),
   advanced(toggle("MINIMAP_SQUARE", "minimapSquare", MinimapTweaks.CanSquare)),
 })
 addSection("SECTION_WORLD_MAP")
@@ -100,6 +101,12 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
       advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
       advanced(toggle("LOOT_SPARKLE_HIDE_UNTRAINED", "lootSparkleHideUntrained", LootSparkles.CanSoftTarget)),
     })
+    local sparkleStyles = {}
+    for _, value in ipairs(ns.LootSparkle.STYLES) do
+      table.insert(sparkleStyles, { value = value, name = localized("LOOT_SPARKLE_STYLE_" .. value:upper()) })
+    end
+    addChooser(requires({ label = "LOOT_SPARKLE_STYLE", setting = "lootSparkleStyle", choices = sparkleStyles },
+      "lootSparkleOre", "lootSparkleHerbs", "lootSparkleChests", "lootSparkleBobber", "lootSparkleQuestObjects", "lootSparkleCorpses"))
     addSlider(requires({
       label = "LOOT_SPARKLE_SCALE",
       advanced = true,

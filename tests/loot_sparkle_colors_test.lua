@@ -237,3 +237,93 @@ expectTrue("IsFishing mit Trade_Fishing", LootSparkles.IsFishing())
 UnitChannelInfo = function() return nil end
 expect("IsFishing ohne Kanalisieren", LootSparkles.IsFishing(), false)
 UnitChannelInfo = oldUnitChannelInfo
+
+-- 7. Roadmap 456: Multi-Layer-2D-Effekt-Engine & Stile
+-- 7.1 Stile und Umschalten
+expect("standard style is aura", LootSparkle.CurrentStyle(), "aura")
+expect("6 sparkle styles exist", #LootSparkle.STYLES, 6)
+
+local expectedStyles = { aura = true, beam = true, sigil = true, ripple = true, sparkle = true, subtle = true }
+for _, s in ipairs(LootSparkle.STYLES) do
+  expectTrue("valid style in STYLES: " .. s, expectedStyles[s] == true)
+end
+
+-- Vorbereitung für Schicht-Prüfungen via Vorschau
+LootSparkle.Preview("herb")
+expect("attached in preview", LootSparkle.AttachedTo(), UIParent)
+expect("kind is herb", LootSparkle.CurrentKind(), "herb")
+expect("state is ready", LootSparkle.State(), "ready")
+
+local sparkleFrame = wow.findFrame(function(f)
+  return f._parent == UIParent and rawget(f, "_animationGroups") ~= nil
+end)
+expectTrue("sparkle frame found", sparkleFrame ~= nil)
+
+local allLayerNames = { "halo", "ring1", "ring2", "arcs", "beam", "sigil" }
+local layers = LootSparkle.Layers()
+expectTrue("layers table returned", layers ~= nil)
+for _, name in ipairs(allLayerNames) do
+  expectTrue("layer texture exists: " .. name, layers[name] ~= nil)
+end
+expectTrue("ring alias exists", layers.ring == layers.ring1)
+expectTrue("flash layer exists", layers.flash ~= nil)
+
+local expectedActive = {
+  aura = { arcs = true, halo = true },
+  beam = { beam = true, ring1 = true },
+  sigil = { arcs = true, halo = true, sigil = true },
+  ripple = { halo = true, ring1 = true, ring2 = true },
+  sparkle = { halo = true },
+  subtle = { halo = true, ring1 = true },
+}
+
+for _, style in ipairs(LootSparkle.STYLES) do
+  addon.Set("lootSparkleStyle", style)
+  expect("style set to " .. style, LootSparkle.CurrentStyle(), style)
+  local activeNames = LootSparkle.ActiveLayerNames()
+  local exp = expectedActive[style]
+
+  -- Prüfe, dass die erwarteten Layer aktiv sind
+  for _, name in ipairs(allLayerNames) do
+    if exp[name] then
+      expectTrue(style .. " has active " .. name, activeNames[name] == true)
+      expectTrue(style .. " layer is shown: " .. name, layers[name]:IsShown())
+      local r, g, b = layers[name]:GetVertexColor()
+      expectColor(style .. " layer color " .. name, { r, g, b }, { 0.40, 1.00, 0.42 })
+    else
+      expectTrue(style .. " has inactive " .. name, activeNames[name] ~= true)
+      expect(style .. " inactive layer is hidden: " .. name, layers[name]:IsShown(), false)
+    end
+  end
+end
+
+-- 7.2 Dynamische Zustandswechsel (FAR -> READY -> LOCKED)
+addon.Set("lootSparkleStyle", "aura")
+LootSparkle.SetState("far", "ore")
+expect("switched to far", LootSparkle.State(), "far")
+expectNear("far alpha is 0.5", sparkleFrame:GetAlpha(), 0.5, 0.01)
+local r, g, b = layers.halo:GetVertexColor()
+expectColor("far state keeps category color", { r, g, b }, { 1.00, 0.60, 0.18 })
+
+-- READY Impuls (Flash & Aufhellung)
+local beforeFlash = LootSparkle.LastFlashAt()
+LootSparkle.SetState("ready", "ore")
+expect("switched to ready", LootSparkle.State(), "ready")
+expectNear("ready alpha is 1", sparkleFrame:GetAlpha(), 1, 0.01)
+expectTrue("flash triggered on ready", LootSparkle.LastFlashAt() >= beforeFlash)
+r, g, b = layers.arcs:GetVertexColor()
+expectColor("ready state color", { r, g, b }, { 1.00, 0.60, 0.18 })
+
+-- LOCKED Zustand (Entsättigt / grau)
+LootSparkle.SetState("locked", "ore")
+expect("switched to locked", LootSparkle.State(), "locked")
+expectNear("locked alpha is 0.45", sparkleFrame:GetAlpha(), 0.45, 0.01)
+r, g, b = layers.halo:GetVertexColor()
+expectColor("locked halo color is gray", { r, g, b }, { 0.6, 0.6, 0.6 })
+r, g, b = layers.arcs:GetVertexColor()
+expectColor("locked arcs color is gray", { r, g, b }, { 0.6, 0.6, 0.6 })
+
+-- Aufräumen
+LootSparkle.Release()
+expect("released after section 7", LootSparkle.AttachedTo(), nil)
+addon.Set("lootSparkleStyle", "aura")

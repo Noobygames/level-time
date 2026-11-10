@@ -722,7 +722,10 @@ check("329.minimap", function()
   local zoom = {}
   for _, button in ipairs(ns.MinimapTweaks.ZoomButtons()) do zoom[frameName(button)] = frameState(button) end
   return { zoom = zoom, calendar = frameState(_G.GameTimeFrame), canWheelZoom = ns.MinimapTweaks.CanWheelZoom(),
-    wheel = method(_G.Minimap, "IsMouseWheelEnabled") }
+    wheel = method(_G.Minimap, "IsMouseWheelEnabled"),
+    buttonBar = ns.db.minimapButtonBar,
+    collectedButtons = ns.MinimapBar and #ns.MinimapBar.Collected() or 0,
+    barExpanded = ns.MinimapBar and ns.MinimapBar.IsExpanded() or false }
 end)
 
 -- 357: Theme, Font-Objekte je Rolle (Schrift, Größe, Flags nach dem Anwenden), LibSharedMedia geladen
@@ -1045,5 +1048,15 @@ check("450.mail", function()
     isOpening = ns.Mail and ns.Mail.IsOpening and ns.Mail.IsOpening() or false,
     openAllButtonShown = _G.LevelTimerMailOpenAllButton and _G.LevelTimerMailOpenAllButton:IsShown() or false,
     altButtonShown = _G.LevelTimerMailAltButton and _G.LevelTimerMailAltButton:IsShown() or false,
+  }
+end)
+
+-- 453: Gruppen-Questabgleich (PartyQuestSync.lua)
+check("453.partyQuestSync", function()
+  local sync = ns.PartyQuestSync
+  return {
+    setting = ns.db.partyQuestSync,
+    peers = sync and sync.GetPeerCount and sync.GetPeerCount() or 0,
+    queued = sync and sync.GetQueueLength and sync.GetQueueLength() or 0,
   }
 end)

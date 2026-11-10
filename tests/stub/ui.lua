@@ -22,8 +22,10 @@ do
 end
 
 -- Benannte Frames landen wie im Client als Global (z.B. LevelTimerFrame)
-CreateFrame = function(_, name, parent)
+CreateFrame = function(kind, name, parent)
   local frame = newFrame()
+  frame._type = kind or "Frame"
+  frame._name = name
   frame._parent = parent
   if name then _G[name] = frame end
   return frame

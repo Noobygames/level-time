@@ -14,3 +14,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 - Comfort sub page "Quests" holds quest display/marks/learning/log options; alerts `alertQuestComplete/Objective`, `alertRareSpotted/Flash`; History group "Quests" (Turn-in, Efficiency).
 - Gotchas: gopher-lua `tonumber(s:match(...))` without match errors, write `tonumber((s:match(...)))`; new textures/fontstrings are shown by default (hide overlays right away); tests using `ns.NamePlates.Active()` must fire `NAME_PLATE_UNIT_ADDED`.
 - Instance difficulty: a same-name difficulty change while inside is the same visit (`difficultySettled`); difficulty 0 counts as unsettled (`unsettledSibling` matches a visit of the same name with difficulty 0 on either side). Forever reports 0 right after entering.
+
+### Party quest sync (roadmap 453)
+
+- `Assist/PartyQuestSync.lua` (`partyQuestSync`, off by default): addon messages with prefix `ns.ADDON_ID .. "Q"` in party only (not in raids > 5): `Q` request (on roster update, 30 s cooldown), `S:<id>:<idx>=<have>/<need>,...;...` snapshot (max 240 chars per message), `U:<id>:<idx>:<have>:<need>`, `C:<id>` ready, `R:<id>` removed/turned in. Producers via `QuestWatch.Subscribe`; peers per short name, cleared on leaving the group. Tooltip line "Party progress: Name (2/5), ..." on quest hyperlinks (`GameTooltip:SetHyperlink` post-hook). Queue flushed every second while the setting is on, respects `GroupChat.Locked`. Debug check `453.partyQuestSync`.

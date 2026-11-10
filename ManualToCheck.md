@@ -3221,3 +3221,25 @@ Gegenrichtung korrekt (ja/nein, Abweichung):
 Meister-Plakette / Weltkarte (ja/nein):
 Fehler:
 ```
+
+### 227. Minimap-Leiste, Gruppen-Questabgleich, Glitzer-Stile (Roadmap 451, 453, 456)
+
+- [ ] geprüft
+
+1. Komfort > Fenster > Minimap: „Minimap-Knöpfe sammeln“ an. Fremde Addon-Knöpfe (Details, Questie-Button, ...)
+   verschwinden von der Minimap und liegen in der Leiste links daneben (Pfeil klappt auf/zu). Ausschalten: alle
+   Knöpfe wieder an ihrer alten Stelle. Im Kampf umschalten: passiert erst nach dem Kampf, keine Lua-Fehler.
+2. Komfort > Quests: „Gruppen-Questabgleich“ bei zwei Spielern mit Level Time an. Quest-Link im Chat überfahren:
+   Zeile „Gruppenfortschritt: Name (2/5)“; nach einem Kill steigt der Wert beim anderen Spieler.
+3. Komfort > Welt: jeden Effekt-Stil am Erz/Kraut ansehen (Vorschau-Knopf); Stilwechsel während der Vorschau
+   ändert sie sofort. Weit weg gedämpft, in Reichweite Aufblitzen, gesperrt grau.
+
+**Antwort:**
+
+```text
+Client:
+Minimap-Leiste (gesammelte Knöpfe, Rückweg ok):
+Questabgleich (Zeile gesehen, Werte aktuell):
+Glitzer-Stile (welche gut/schlecht):
+Fehler:
+```

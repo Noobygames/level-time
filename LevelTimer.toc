@@ -163,6 +163,7 @@ Assist\BreathWarning.lua
 Assist\ManaCallout.lua
 Assist\ControlCallout.lua
 Assist\QuestProgress.lua
+Assist\PartyQuestSync.lua
 Assist\QuestCompleteAlert.lua
 Assist\RareAlert.lua
 Assist\InstanceReport.lua
@@ -215,6 +216,7 @@ Assist\PlayerChain.lua
 Assist\DruidManaBar.lua
 Assist\Tooltip.lua
 Assist\MinimapTweaks.lua
+Assist\MinimapBar.lua
 Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua

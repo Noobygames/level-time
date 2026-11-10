@@ -27,6 +27,7 @@ builder.AddTextInput({
 addSection("SECTION_QUEST_NOTICES", { collapsible = true })
 addToggles({
   toggle("QUEST_PROGRESS_TOGGLE", "announceQuestProgress"),
+  toggle("PARTY_QUEST_SYNC_TOGGLE", "partyQuestSync"),
   toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),

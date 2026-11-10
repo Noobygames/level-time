@@ -19,7 +19,7 @@ local CHECKS = {
   "357.theme", "358.frames.positions", "359.editMode",
   "364.lootRoll.api", "365.blizzardXpBar", "258.flight.estimates", "440.transport.state", "442.graphics.cvars",
   "360.window.layout", "360.xpTooltip", "362.visibility", "371.blizzardFrames", "403.blizzardSettings", "361.readability",
-  "443.threat", "445.qol", "450.mail",
+  "443.threat", "445.qol", "450.mail", "453.partyQuestSync",
 }
 
 wow.login()
