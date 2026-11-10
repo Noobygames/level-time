@@ -49,6 +49,7 @@ addToggles({
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
 })
+O.addFramePreview("QUEST_ITEM_PREVIEW", "questItem")
 if ns.QuestTextSize.IsAvailable() then
   addToggles({ advanced(toggle("QUEST_TEXT_RESIZE", "questTextResize")) })
   addSlider({

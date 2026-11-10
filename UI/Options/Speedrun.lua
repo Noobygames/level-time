@@ -45,6 +45,7 @@ addToggles({
   requires(toggle("SHOW_CUSTOM_SPLITS", "splitListShowCustom"), "showSplitList"),
 })
 addFrameScaleSlider("SPLIT_LIST_SIZE", "splitList", function(db) return db.showSplitList end)
+O.addFramePreview("SPLIT_LIST_PREVIEW", "splitList")
 addVisibilityCycle("SPLIT_LIST_VISIBILITY", "splitListVisibility")
 addSlider(requires({
   label = "SPLIT_LIST_ROWS",

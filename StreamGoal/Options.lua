@@ -113,6 +113,7 @@ builder.AddSlider({
 builder.AddButtonRow({
   { label = "EDIT_MODE", onClick = function() LT.EditMode.Toggle() end },
   { label = "SG_RESET_POSITION", onClick = function() Frames.Reset(Tracker.FRAME_ID) end },
+  { label = "SG_TRACKER_PREVIEW", onClick = function() Frames.Preview(Tracker.FRAME_ID) end },
 })
 builder.AddSection("SG_OPTIONS_SECTION_MINIMAP")
 builder.AddToggles({
@@ -133,6 +134,7 @@ builder.AddToggles({
 })
 builder.AddButtonRow({
   { label = "SG_OPEN_BINGO_EDITOR", onClick = function() ns.Manager.Toggle("bingo") end },
+  { label = "SG_BINGO_PREVIEW", onClick = function() Frames.Preview(ns.BingoView.FRAME_ID) end },
 })
 
 -- Glücksrad: Drehen, Neuwürfe, Animation; was das Rad ziehen darf, steht im Reiter "Glücksrad"
@@ -153,6 +155,7 @@ builder.AddButtonRow({
   { label = "SG_WHEEL_SPIN", onClick = function() ns.Commands.Wheel("") end },
   { label = "SG_WHEEL_REROLL", onClick = function() ns.Commands.Wheel("reroll") end },
   { label = "SG_WHEEL_OPEN_POOL", onClick = function() ns.Manager.Toggle("wheel") end },
+  { label = "SG_WHEEL_PREVIEW", onClick = function() Frames.Preview(ns.WheelDisplay.FRAME_ID) end },
 })
 
 builder.AddSubPage(PAGES.NOTICES)

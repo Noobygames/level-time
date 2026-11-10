@@ -196,7 +196,7 @@ end
 ns.Frames.Register({
   id = "transport", frame = frame, label = "EDIT_FRAME_TRANSPORT",
   default = { "TOPRIGHT", "TOPRIGHT", -20, -230 },  -- unter der Minimap
-  settingsPage = "COMFORT_PAGE_TIMERS", clickable = true,
+  settingsPage = "COMFORT_PAGE_TRAVEL", clickable = true,
   available = Transports.IsAvailable,
   preview = function(on)
     previewing = on and true or false

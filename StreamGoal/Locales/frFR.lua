@@ -618,4 +618,10 @@ ns.AddLocale("frFR", {
   SG_PARTY_JOINED_GOAL = "Objectif partagé lié : %s",
   SG_USAGE_SHARE = "share <id> : partager l'objectif avec le groupe",
   SG_ERR_NOT_IN_GROUP = "Vous n'êtes pas dans un groupe.",
+  SG_TRACKER_PREVIEW = "Aperçu",
+  SG_TRACKER_PREVIEW_TIP = "Affiche les cartes d'objectifs avec des objectifs d'exemple pendant quelques secondes.",
+  SG_BINGO_PREVIEW = "Aperçu",
+  SG_BINGO_PREVIEW_TIP = "Affiche la grille de bingo avec des cases d'exemple pendant quelques secondes.",
+  SG_WHEEL_PREVIEW = "Aperçu",
+  SG_WHEEL_PREVIEW_TIP = "Affiche la roue avec des entrées d'exemple pendant quelques secondes.",
 })

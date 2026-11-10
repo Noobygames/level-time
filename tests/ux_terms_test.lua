@@ -120,7 +120,7 @@ local function controlOf(labelKey)
   end
 end
 for _, case in ipairs({
-  { page = "COMFORT_PAGE_TIMERS", label = "FLIGHT_TOOLTIP_TOGGLE", setting = "flightTimer" },
+  { page = "COMFORT_PAGE_TRAVEL", label = "FLIGHT_TOOLTIP_TOGGLE", setting = "flightTimer" },
   { page = "COMFORT_PAGE_AUTOMATION", label = "AUTO_REPAIR_GUILD", setting = "autoRepair" },
   { page = "OPTIONS_PAGE_ALERT_KINDS", label = "ALERT_TOGGLE_RARE_FLASH", setting = "alertRareSpotted" },
   { page = "OPTIONS_PAGE_LEVEL_UP", label = "LEVEL_UP_COMPACT", setting = "levelUpWindow" },

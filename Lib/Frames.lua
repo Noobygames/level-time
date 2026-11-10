@@ -44,6 +44,25 @@ function Frames.Get(id)
   return registry[id]
 end
 
+-- Vorschau aus den Einstellungen: zeigt den Beispielinhalt der Anmeldung (preview wie im Edit-Modus) für
+-- PREVIEW_SECONDS und blendet ihn danach wieder aus, außer der Edit-Modus läuft inzwischen (der steuert dann selbst).
+-- Ein erneuter Klick verlängert die Vorschau. false, wenn die Anzeige keine Vorschau kennt.
+Frames.PREVIEW_SECONDS = 5
+local previewTokens = {}
+
+function Frames.Preview(id)
+  local reg = registry[id]
+  if not (reg and reg.preview) then return false end
+  previewTokens[id] = (previewTokens[id] or 0) + 1
+  local token = previewTokens[id]
+  reg.preview(true)
+  C_Timer.After(Frames.PREVIEW_SECONDS, function()
+    if previewTokens[id] ~= token or (ns.EditMode and ns.EditMode.IsActive()) then return end
+    reg.preview(false)
+  end)
+  return true
+end
+
 -- Alle Anmeldungen, die es in diesem Client gibt, in Anmeldereihenfolge
 function Frames.All()
   local list = {}

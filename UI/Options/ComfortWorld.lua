@@ -1,4 +1,5 @@
--- Optionen, Reiter Komfort (3/3): Frames, Beute, Timer & Flüge, System, Grafik und Ton; schließt den Reiter ab.
+-- Optionen, Reiter Komfort (3/3): Fenster, Tooltip & Karten, Beute, Beute-Glitzer, Timer, Reisen, System, Grafik
+-- (lange Seiten in Unterseiten geteilt, Roadmap 465) und Ton; schließt den Reiter ab.
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
@@ -18,6 +19,7 @@ addToggles({
   toggle("DRUID_MANA_BAR", "druidManaBar", ns.DruidManaBar.IsAvailable),
   toggle("COMFORT_TARGET_RANGE", "showTargetRange"),
 })
+O.addFramePreview("TARGET_RANGE_PREVIEW", "targetRange")
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
   for _, value in ipairs(ns.PlayerChain.ORDER) do
@@ -25,6 +27,7 @@ if ns.PlayerChain.IsAvailable() then
   end
   addChooser({ label = "PLAYER_CHAIN", setting = "playerChain", choices = chains, advanced = true })
 end
+addSubPage("COMFORT_PAGE_MAPS")
 addSection("SECTION_TOOLTIP")
 addToggles({
   toggle("TOOLTIP_CLASS_COLORS", "tooltipClassColors"),
@@ -82,9 +85,11 @@ addToggles({
   toggle("LOOT_ROLL_HISTORY_TOGGLE", "lootRollHistory"),
 })
 addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls", nil, true)
+O.addFramePreview("LOOT_ROLL_PREVIEW", "lootRolls")
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
 local LootSparkles = ns.LootSparkles
 if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
+  addSubPage("COMFORT_PAGE_SPARKLES")
   addSection("SECTION_LOOT_SPARKLES")
   addToggles({
     toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
@@ -169,7 +174,8 @@ if ns.SleepTimer.IsAvailable() then
   addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
 end
 
--- Flugzeiten: eigene Messung je Strecke (wie Leatrix Plus "Show flight times")
+-- Reisen: Flugzeiten (eigene Messung je Strecke wie Leatrix Plus "Show flight times"), Schiffe und Zeppeline
+addSubPage("COMFORT_PAGE_TRAVEL")
 addSection("SECTION_FLIGHTS")
 addToggles({
   toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
@@ -191,6 +197,7 @@ if ns.Transports.IsAvailable() then
   })
   addHint("TRANSPORT_NAMEPLATE_HINT")
   addFrameScaleSlider("TRANSPORT_SCALE", "transport", nil, true)
+  O.addFramePreview("TRANSPORT_PREVIEW", "transport")
 end
 addSubPage("COMFORT_PAGE_SYSTEM")
 addSection("SECTION_DIALOGS")

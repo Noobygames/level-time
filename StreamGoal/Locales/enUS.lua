@@ -618,4 +618,10 @@ ns.AddLocale("enUS", {
   SG_PARTY_JOINED_GOAL = "Linked to shared party goal: %s",
   SG_USAGE_SHARE = "share <id>: share goal with party",
   SG_ERR_NOT_IN_GROUP = "You are not in a group.",
+  SG_TRACKER_PREVIEW = "Preview",
+  SG_TRACKER_PREVIEW_TIP = "Shows the goal cards with sample goals for a few seconds.",
+  SG_BINGO_PREVIEW = "Preview",
+  SG_BINGO_PREVIEW_TIP = "Shows the bingo card with sample fields for a few seconds.",
+  SG_WHEEL_PREVIEW = "Preview",
+  SG_WHEEL_PREVIEW_TIP = "Shows the wheel with sample entries for a few seconds.",
 })

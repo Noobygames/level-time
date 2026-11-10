@@ -210,6 +210,7 @@ local minimapReset = {
 addPage("SECTION_GENERAL")
 addSubPage("OPTIONS_PAGE_WINDOW")
 addFrameScaleSlider("WINDOW_SIZE", "main")
+O.addFramePreview("MAIN_WINDOW_PREVIEW", "main")
 addSlider({
   label = "BG_OPACITY",
   setting = "bgAlpha",
@@ -267,6 +268,8 @@ addSlider(requires({
   set = function(value) ns.SetDeferred("obsSignalSize", value) end,
   format = function(value) return tostring(value) end,
 }, "obsSignal"))
+O.addFramePreview("OBS_SIGNAL_PREVIEW", "obsSignal")
+O.addFramePreview("SPELL_HISTORY_PREVIEW", "spellHistory")
 addSlider(requires({
   label = "SPELL_HISTORY_COUNT",
   setting = "spellHistoryCount",

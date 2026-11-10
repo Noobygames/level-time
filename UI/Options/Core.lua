@@ -69,6 +69,11 @@ end
 
 -- Größe einer Anzeige (Lib/Frames.lua, db.frames[id].scale); der Edit-Modus kann sie auch per Mausrad ändern;
 -- enabled(db) optional (ausgegraut, solange die Anzeige aus ist), isAdvanced optional (nur mit allen Optionen)
+-- Knopf "Vorschau" für eine verschiebbare Anzeige (ns.Frames.Preview: Beispielinhalt für ein paar Sekunden)
+local function addFramePreview(label, id)
+  addButton(label, function() ns.Frames.Preview(id) end)
+end
+
 local function addFrameScaleSlider(label, id, enabled, isAdvanced)
   local Frames = ns.Frames
   addSlider({
@@ -91,7 +96,7 @@ ns.OptionsCore = {
   builder = builder,
   addPage = addPage, finishPage = finishPage, addSection = addSection, addSlider = addSlider,
   addToggles = addToggles, addButton = addButton, addFooterButton = addFooterButton,
-  addChooser = addChooser, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
+  addChooser = addChooser, addFramePreview = addFramePreview, addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
   toggle = toggle, localized = localized, advanced = advanced, requires = requires,
   percent = percent, toPercent = toPercent,
   addVisibilityCycle = addVisibilityCycle, addFrameScaleSlider = addFrameScaleSlider,
