@@ -1,7 +1,8 @@
 -- Anzeigen der Schiffs- und Zeppelin-Zeiten (Assist/TransportTimes.lua, Roadmap 440):
 --   Minimap   kleine Beschriftung (Frame LevelTimerTransport, Edit-Modus-ID "transport"), solange der Spieler an einem
 --             gelernten Anleger steht: "Orgrimmar > Tirisfal Glades: Abfahrt in 1:23"
---   Plakette  derselbe Text über der Namensplakette des Transportmeisters (NPC-ID in dock.npcIds, /lt transport master).
+--   Plakette  über der Namensplakette des Transportmeisters je Strecke "Tirisfal Glades: Abfahrt in 1:23" (NPC-ID in
+--             dock.npcIds; bekannte Zeppelinmeister ordnet Transports.DockOfMaster selbst zu, sonst /lt transport master).
 --             Befreundete NPC-Namensplaketten müssen im Spiel eingeschaltet sein; die CVar ändern wir nicht.
 --   Tooltip   eine Zeile im Tooltip des Transportmeisters (Post-Call wie Assist/Tooltip.lua, kein Taint)
 -- Aktualisierung im Ein-Sekunden-Takt (ns.Every), Texte nur bei Änderung gesetzt.
@@ -37,17 +38,23 @@ local function routeName(route)
   return route.from .. " > " .. route.to
 end
 
+-- Kurzer Name für die Plakette: wohin es geht (Abfahrt) bzw. woher es kommt (Ankunft)
+local function shortName(route, kind)
+  return kind == "arrives" and route.from or route.to
+end
+
 local function lineText(name, kind, seconds)
   if kind == "departs" then return string.format(L.TRANSPORT_DEPARTS, name, clock(seconds)) end
   if kind == "arrives" then return string.format(L.TRANSPORT_ARRIVES, name, clock(seconds)) end
   return string.format(L.TRANSPORT_UNKNOWN, name)
 end
 
--- Textzeilen für einen Anleger (Liste von Strings)
-function TransportDisplay.TextsFor(dockName)
+-- Textzeilen für einen Anleger (Liste von Strings); short = nur Ziel bzw. Herkunft statt "Von > Nach"
+function TransportDisplay.TextsFor(dockName, short)
   local texts = {}
   for _, line in ipairs(Transports.LinesFor(dockName)) do
-    table.insert(texts, lineText(routeName(line.route), line.kind, line.seconds))
+    local name = short and shortName(line.route, line.kind) or routeName(line.route)
+    table.insert(texts, lineText(name, line.kind, line.seconds))
   end
   return texts
 end
@@ -89,7 +96,7 @@ end
 local function dockOfUnit(unit)
   local guid = UnitGUID(unit)
   local npcId = Transports.NpcId(guid)
-  return npcId and Transports.DockOfNpc(npcId)
+  return npcId and Transports.DockOfMaster(npcId)
 end
 
 local function hidePlate(unit)
@@ -104,7 +111,7 @@ local function showPlate(unit)
   if not dockName then return end
   local plate = plateOf(unit)
   if not plate then return end
-  local texts = TransportDisplay.TextsFor(dockName)
+  local texts = TransportDisplay.TextsFor(dockName, true)
   if #texts == 0 then return end
   local entry = plates[unit]
   if not entry then
@@ -118,7 +125,7 @@ local function showPlate(unit)
   entry.frame:ClearAllPoints()
   entry.frame:SetPoint("BOTTOM", plate, "TOP", 0, PLATE_OFFSET)
   entry.text.unit = unit
-  ns.Widgets.SetTextIfChanged(entry.text, texts[1])
+  ns.Widgets.SetTextIfChanged(entry.text, table.concat(texts, "\n"))
   entry.frame:Show()
 end
 
@@ -127,7 +134,7 @@ local function refreshPlates()
     for unit in pairs(plates) do hidePlate(unit) end
     return
   end
-  if not Transports.HasMasters() then return end
+  if not (Transports.HasMasters() or Transports.NearestDock(Transports.PlayerPosition())) then return end
   for unit in pairs(ns.NamePlates.Active()) do
     local exists = UnitExists(unit)
     if not ns.IsSecret(exists) and exists then showPlate(unit) end

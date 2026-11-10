@@ -8,7 +8,7 @@ if ns.Client.Flavor() ~= "classic_era" then return end
 
 ns.FlightPathsData = {
   build = "1.15.9.70576",
-  speed = { yardsPerSecond = 29.782, samples = 16, borrowedFrom = "forever" },
+  speed = { yardsPerSecond = 29.782, samples = 18, borrowedFrom = "forever" },
   legs = {
     ["0>0"] = 184,
     ["2>4"] = 2319,

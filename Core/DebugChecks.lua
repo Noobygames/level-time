@@ -814,7 +814,7 @@ check("440.transport.state", function()
     ride = ride and { from = ride.from.name, leftAt = ride.leftAt } or nil,
     api = { getServerTime = type(_G.GetServerTime), isPlayerMoving = type(_G.IsPlayerMoving),
       namePlate = type(C_NamePlate and C_NamePlate.GetNamePlateForUnit), mapInfo = type(C_Map and C_Map.GetMapInfo) },
-    unitFrame = Probe.unitInfo("target") }
+    unitFrame = Probe.unitInfo("target"), paths = ns.TransportPaths.Summary() }
 end)
 
 -- 442: Grafikdetails (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes Original

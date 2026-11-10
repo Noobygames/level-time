@@ -130,7 +130,7 @@ C_NamePlate = { GetNamePlateForUnit = function(unit) return unit == "nameplate1"
 wow.state.units.nameplate1 = { name = "Frezza", guid = "Creature-0-4379-1-1-3149-00001A2B3C" }
 wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 local plateText = Display.PlateText("nameplate1")
-expectTrue("Plakette hat Text", plateText ~= nil and plateText:find("Orgrimmar > Tirisfal Glades", 1, true) ~= nil)
+expectTrue("Plakette: Ziel und Abfahrt", plateText ~= nil and plateText:find("Tirisfal Glades: ", 1, true) == 1)
 wow.fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 expect("Plakette weg", Display.PlateText("nameplate1"), nil)
 

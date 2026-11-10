@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -25,6 +26,9 @@ var Products = map[string]string{
 	"anniversary": "wow_anniversary",
 	"forever":     "wowf",
 }
+
+// TransportFlavors haben Schiffs- und Zeppelin-Zeiten (Assist/TransportTimes.lua, nicht in Retail).
+var TransportFlavors = map[string]bool{"classic_era": true, "anniversary": true, "forever": true}
 
 // BorrowSpeed: Flavor ohne eigene Messungen nimmt die Geschwindigkeit dieses Flavors (gleiche Classic-Flugrouten);
 // das Addon zeigt die Zeit dann als Schätzung. Retail hat andere Geschwindigkeiten und leiht nicht.
@@ -89,17 +93,30 @@ func (c *wagoClient) LatestBuilds() (map[string]string, error) {
 	return latest, nil
 }
 
-// Paths lädt TaxiPath und TaxiPathNode eines Builds und rechnet die Strecken.
-func (c *wagoClient) Paths(build string) (*Paths, error) {
-	taxiPath, err := c.get("/db2/TaxiPath/csv?build=" + url.QueryEscape(build))
+func (c *wagoClient) table(name, build string) ([]byte, error) {
+	body, err := c.get("/db2/" + name + "/csv?build=" + url.QueryEscape(build))
 	if err != nil {
 		return nil, err
 	}
-	defer taxiPath.Close()
-	taxiPathNode, err := c.get("/db2/TaxiPathNode/csv?build=" + url.QueryEscape(build))
+	defer body.Close()
+	return io.ReadAll(body)
+}
+
+// Taxi lädt TaxiPath und TaxiPathNode eines Builds einmal und rechnet daraus die Flugstrecken und die
+// Transport-Rundkurse (Schiffe, Zeppeline).
+func (c *wagoClient) Taxi(build string) (*Paths, *TransportPaths, error) {
+	taxiPath, err := c.table("TaxiPath", build)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	defer taxiPathNode.Close()
-	return ParsePaths(build, taxiPath, taxiPathNode)
+	taxiPathNode, err := c.table("TaxiPathNode", build)
+	if err != nil {
+		return nil, nil, err
+	}
+	paths, err := ParsePaths(build, bytes.NewReader(taxiPath), bytes.NewReader(taxiPathNode))
+	if err != nil {
+		return nil, nil, err
+	}
+	transports, err := ParseTransports(build, bytes.NewReader(taxiPathNode))
+	return paths, transports, err
 }

@@ -3197,3 +3197,27 @@ Strecke, angezeigt / gemessen (mehrere):
 speed yd/s laut Debug-Log:
 Fehler:
 ```
+
+### 226. Schiffs- und Zeppelin-Takt aus den Spieldaten (Roadmap 459, Era/TBC/Forever)
+
+- [ ] geprüft
+
+Komfort > Timer: Schiffe und Zeppeline an, Weltkarte an, Debug-Log an. Eine Strecke zweimal abfahren sehen (oder
+geteilte Phase empfangen), damit es eine Periode gibt. Danach `/lt debug check`: `440.transport.state` > `paths`
+zeigt je Strecke den Rundkurs (`path`), `speed` (Yards/s), `period`, `travel` und `docks` mit Weltposition.
+
+1. Werden die Anleger einem Rundkurs zugeordnet (`path` nicht `false`)? Wenn nein: `docks`-Positionen notieren.
+2. Stimmen Periode und Abfahrt der Gegenrichtung (ohne sie gefahren zu sein) mit dem Spiel überein?
+3. Zeppelinturm: Steht über dem Zeppelinmeister „Ziel: Abfahrt in m:ss“, ohne `/lt transport master`?
+4. Weltkarte (Zonenkarte mit Anleger): Beschriftung am Anleger, wandert beim Zoomen mit.
+
+**Antwort:**
+
+```text
+Client (Era/TBC/Forever):
+Zuordnung (path je Strecke):
+speed yd/s, Periode laut Spiel:
+Gegenrichtung korrekt (ja/nein, Abweichung):
+Meister-Plakette / Weltkarte (ja/nein):
+Fehler:
+```

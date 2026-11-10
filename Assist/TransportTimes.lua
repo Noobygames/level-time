@@ -22,6 +22,9 @@
 -- Takt: period aus den Abfahrten (Abstände sind Vielfache der Periode, Median je Zyklus), Vorhersage
 -- nächste Abfahrt = syncAt + k * period >= jetzt. Ohne Periode: "unbekannt".
 -- Teilen: Addon-Nachrichten wie Speedrun/FriendRace.lua (eigenes Präfix, Warteschlange, GroupChat.Locked).
+-- Spieldaten (Roadmap 459, Assist/TransportPaths.lua): Sobald eine Strecke des Realms eine Periode hat, liefern die
+-- Rundkurse Periode und Fahrzeit jeder zugeordneten Strecke; eine beobachtete Abfahrt gibt auch der Gegenrichtung
+-- ihre Phase (Abfahrt + Fahrzeit + Liegezeit am Ziel). Gelernte Werte gehen vor.
 local _, ns = ...
 
 local Transports = {
@@ -64,6 +67,12 @@ Transports.ROUTES = {
   { from = "Teldrassil", to = "Darkshore", kind = "boat" },             -- Rut'theran <> Auberdine
   { from = "Darkshore", to = "Teldrassil", kind = "boat" },
 }
+
+-- Bekannte Zeppelinmeister (NPC-IDs laut Wowhead Classic, Titel "Zeppelin Master"; Boote haben in Classic keinen
+-- Meister): Durotar 9564 Frezza, 12136 Snurk Bucksquick; Tirisfal 3150 Hin Denburg, 9566 Zapetta; Schlingendorntal
+-- 3149 Nez'raz, 12137 Squibby Overspeck. Sie werden dem nächsten gelernten Anleger zugeordnet, sobald man dort steht.
+Transports.KNOWN_MASTERS = { [3149] = true, [3150] = true, [9564] = true, [9566] = true, [12136] = true,
+  [12137] = true }
 
 local KIND_UNKNOWN = "unknown"
 -- Kartentyp Zone (Enum.UIMapType, Retail und Classic); Kontinent- und Weltkarten taugen nicht als Anleger
@@ -218,9 +227,30 @@ function Transports.EstimatePeriod(samples, seed)
   return math.floor(period + 0.5)
 end
 
-local function saneSeedPeriod(route, fromName, toName)
-  local known = routeDefaults(fromName, toName)
-  return route.period or (known and known.period) or nil
+-- Periode: gelernt, sonst aus ROUTES, sonst aus den Spieldaten
+local function periodOf(route)
+  local known = routeDefaults(route.from, route.to)
+  return route.period or (known and known.period) or ns.TransportPaths.Period(route)
+end
+
+-- Phase (Serverzeit einer Abfahrt): eigene, sonst aus der Gegenrichtung über Fahrzeit und Liegezeit
+local function phaseOf(route)
+  if route.syncAt then return route.syncAt end
+  local reverse = Transports.Data().routes[Transports.RouteKey(route.to, route.from)]
+  if not (reverse and reverse.syncAt) then return nil end
+  local travel, wait = ns.TransportPaths.Travel(reverse), ns.TransportPaths.WaitAtDestination(reverse)
+  if not (travel and wait) then return nil end
+  return reverse.syncAt + travel + wait
+end
+
+-- Fahrzeit: aus den Spieldaten (genau, auch über ein Ladebild), sonst die gemessene
+local function travelOf(route)
+  return ns.TransportPaths.Travel(route) or route.travel
+end
+
+local function newRoute(from, to)
+  local known = routeDefaults(from, to)
+  return { from = from, to = to, kind = known and known.kind or KIND_UNKNOWN, samples = {} }
 end
 
 -- Eine beobachtete Abfahrt (Serverzeit) einer Strecke verbuchen
@@ -231,17 +261,19 @@ function Transports.Record(fromPosition, toPosition, departedAt, arrivedAt)
   rememberDock(fromPosition)
   rememberDock(toPosition)
   local key = Transports.RouteKey(fromName, toName)
-  local known = routeDefaults(fromName, toName)
   local route = data.routes[key]
   if not route then
-    route = { from = fromName, to = toName, kind = known and known.kind or KIND_UNKNOWN, samples = {} }
+    route = newRoute(fromName, toName)
     data.routes[key] = route
   end
+  -- Gegenrichtung anlegen, damit ihre Phase aus den Spieldaten angezeigt wird
+  local reverseKey = Transports.RouteKey(toName, fromName)
+  if not data.routes[reverseKey] then data.routes[reverseKey] = newRoute(toName, fromName) end
   -- Abfahrten, die kein Vielfaches ergeben, ersetzen die alte Liste (Neustart des Servers, Fahrplanwechsel)
   table.insert(route.samples, departedAt)
   table.sort(route.samples)
   while #route.samples > Transports.MAX_SAMPLES do table.remove(route.samples, 1) end
-  local period = Transports.EstimatePeriod(route.samples, route.period)
+  local period = Transports.EstimatePeriod(route.samples, route.period or ns.TransportPaths.Period(route))
   if not period and #route.samples > 2 then
     route.samples = { route.samples[#route.samples] }
     route.period = nil
@@ -262,19 +294,19 @@ end
 -- Sekunden bis zur nächsten Abfahrt der Strecke; nil = unbekannt (keine Phase oder keine Periode)
 function Transports.SecondsToDeparture(route, now)
   now = now or Transports.Now()
-  local period = route.period or (routeDefaults(route.from, route.to) or {}).period
-  if not (route.syncAt and period) then return nil end
-  local cycles = math.max(0, math.ceil((now - route.syncAt) / period))
-  return route.syncAt + cycles * period - now
+  local period, syncAt = periodOf(route), phaseOf(route)
+  if not (syncAt and period) then return nil end
+  local cycles = math.max(0, math.ceil((now - syncAt) / period))
+  return syncAt + cycles * period - now
 end
 
 -- Sekunden bis zur Ankunft des nächsten Transports am Zielanleger (nur mit gelernter Fahrzeit)
 function Transports.SecondsToArrival(route, now)
   now = now or Transports.Now()
-  local period = route.period
-  if not (route.syncAt and period and route.travel) then return nil end
-  local cycles = math.max(0, math.ceil((now - route.syncAt - route.travel) / period))
-  return route.syncAt + route.travel + cycles * period - now
+  local period, syncAt, travel = periodOf(route), phaseOf(route), travelOf(route)
+  if not (syncAt and period and travel) then return nil end
+  local cycles = math.max(0, math.ceil((now - syncAt - travel) / period))
+  return syncAt + travel + cycles * period - now
 end
 
 -- Zeilen für einen Anleger: { { route, kind = "departs"|"arrives"|"unknown", seconds } ... }
@@ -283,7 +315,10 @@ function Transports.LinesFor(dockName, now)
   for key, route in pairs(Transports.Data().routes) do
     if route.from == dockName then
       local seconds = Transports.SecondsToDeparture(route, now)
-      table.insert(lines, { key = key, route = route, kind = seconds and "departs" or "unknown", seconds = seconds })
+      -- Gegenrichtung ohne eigene Messung (bei Record angelegt) nur zeigen, wenn die Spieldaten eine Zeit liefern
+      if seconds or #route.samples > 0 or route.syncAt then
+        table.insert(lines, { key = key, route = route, kind = seconds and "departs" or "unknown", seconds = seconds })
+      end
     elseif route.to == dockName then
       local seconds = Transports.SecondsToArrival(route, now)
       if seconds then table.insert(lines, { key = key, route = route, kind = "arrives", seconds = seconds }) end
@@ -301,6 +336,17 @@ function Transports.DockOfNpc(npcId)
     end
   end
   return nil
+end
+
+-- Anleger eines Transportmeisters: gemerkt, sonst bei einem bekannten Meister der Anleger, an dem man steht
+function Transports.DockOfMaster(npcId)
+  local dockName = Transports.DockOfNpc(npcId)
+  if dockName or not Transports.KNOWN_MASTERS[npcId] then return dockName end
+  local name, dock = Transports.NearestDock(Transports.PlayerPosition())
+  if not name then return nil end
+  table.insert(dock.npcIds, npcId)
+  ns.Debug("transport", "known master npc %s assigned to dock %s", npcId, name)
+  return name
 end
 
 function Transports.HasMasters()
@@ -471,8 +517,7 @@ function Transports.Receive(body)
   local key = Transports.RouteKey(from, to)
   local route = data.routes[key]
   if not route then
-    local known = routeDefaults(from, to)
-    route = { from = from, to = to, kind = known and known.kind or KIND_UNKNOWN, samples = {} }
+    route = newRoute(from, to)
     data.routes[key] = route
   end
   if route.syncAt and route.syncAt >= syncAt then return false end

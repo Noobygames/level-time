@@ -131,7 +131,7 @@ ns.locales.enUS = {
   TRANSPORT_MINIMAP_TOGGLE = "Time at the minimap",
   TRANSPORT_MINIMAP_TOGGLE_TIP = "Shows the departure or arrival below the minimap while you stand at a learned dock or zeppelin tower. Movable in layout mode.",
   TRANSPORT_NAMEPLATE_TOGGLE = "Time above the transport master",
-  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Writes the time above the transport master's nameplate. Friendly NPC nameplates must be enabled in the game; Level Time does not change that. Remember the master with /lt transport master (target them, stand at the dock).",
+  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Writes the departure per destination above the transport master's nameplate, e.g. \"Tirisfal: departs in 1:23\". Friendly NPC nameplates must be enabled in the game; Level Time does not change that. Zeppelin masters are recognized automatically, remember other masters with /lt transport master (target them, stand at the dock).",
   TRANSPORT_TOOLTIP_TOGGLE = "Time in the transport master tooltip",
   TRANSPORT_TOOLTIP_TOGGLE_TIP = "Adds the departure and arrival time to the transport master's tooltip.",
   TRANSPORT_SHARE_TOGGLE = "Share times with group and guild",
@@ -1856,4 +1856,6 @@ ns.locales.enUS = {
   LOOT_SPARKLE_CHESTS_TIP = "Glints over chests, crates, and containers you walk towards: dim out of reach, bright in reach, grey when locked. Uses the game's soft targeting like ore. Not in combat.",
   LOOT_SPARKLE_HIDE_UNTRAINED = "Hide untrained professions",
   LOOT_SPARKLE_HIDE_UNTRAINED_TIP = "Only sparkle ore and herbs if the character has learned the matching gathering profession (Mining or Herbalism).",
+  TRANSPORT_WORLDMAP_TOGGLE = "Time on the world map",
+  TRANSPORT_WORLDMAP_TOGGLE_TIP = "Writes the next departure or arrival next to every learned dock and zeppelin tower on the zone map.",
 }

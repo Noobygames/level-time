@@ -131,7 +131,7 @@ ns.locales.frFR = {
   TRANSPORT_MINIMAP_TOGGLE = "Horaire à la minicarte",
   TRANSPORT_MINIMAP_TOGGLE_TIP = "Affiche le départ ou l'arrivée sous la minicarte tant que vous êtes à un quai ou une tour de zeppelin connu. Déplaçable en mode disposition.",
   TRANSPORT_NAMEPLATE_TOGGLE = "Horaire au-dessus du maître des transports",
-  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Écrit l'horaire au-dessus de la plaque de nom du maître des transports. Les plaques de PNJ amicaux doivent être activées dans le jeu ; Level Time ne les change pas. Mémorisez le maître avec /lt transport master (cibler, rester au quai).",
+  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Écrit le départ par destination au-dessus de la plaque de nom du maître des transports, p. ex. « Tirisfal : départ dans 1:23 ». Les plaques de PNJ amicaux doivent être activées dans le jeu ; Level Time ne les change pas. Les maîtres des zeppelins sont reconnus automatiquement, mémorisez les autres avec /lt transport master (cibler, rester au quai).",
   TRANSPORT_TOOLTIP_TOGGLE = "Horaire dans l'infobulle du maître des transports",
   TRANSPORT_TOOLTIP_TOGGLE_TIP = "Ajoute l'heure de départ et d'arrivée à l'infobulle du maître des transports.",
   TRANSPORT_SHARE_TOGGLE = "Partager les horaires avec groupe et guilde",
@@ -1856,4 +1856,6 @@ ns.locales.frFR = {
   LOOT_SPARKLE_CHESTS_TIP = "Des étincelles au-dessus des coffres, caisses et conteneurs vers lesquels vous allez : atténuées hors de portée, vives à portée, grises si verrouillés. Utilise le ciblage souple du jeu comme pour le minerai. Pas en combat.",
   LOOT_SPARKLE_HIDE_UNTRAINED = "Masquer les métiers non appris",
   LOOT_SPARKLE_HIDE_UNTRAINED_TIP = "Ne faire scintiller le minerai et les herbes que si le personnage a appris le métier de récolte correspondant (Minage ou Herboristerie).",
+  TRANSPORT_WORLDMAP_TOGGLE = "Horaire sur la carte du monde",
+  TRANSPORT_WORLDMAP_TOGGLE_TIP = "Écrit le prochain départ ou la prochaine arrivée à côté de chaque quai et tour de zeppelin appris sur la carte de zone.",
 }

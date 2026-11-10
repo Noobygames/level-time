@@ -8,7 +8,7 @@ if ns.Client.Flavor() ~= "anniversary" then return end
 
 ns.FlightPathsData = {
   build = "2.5.6.70577",
-  speed = { yardsPerSecond = 29.782, samples = 16, borrowedFrom = "forever" },
+  speed = { yardsPerSecond = 29.782, samples = 18, borrowedFrom = "forever" },
   legs = {
     ["0>36"] = 832,
     ["2>4"] = 2319,

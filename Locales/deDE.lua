@@ -131,7 +131,7 @@ ns.locales.deDE = {
   TRANSPORT_MINIMAP_TOGGLE = "Zeit an der Minimap",
   TRANSPORT_MINIMAP_TOGGLE_TIP = "Zeigt unter der Minimap die Abfahrt oder Ankunft, solange du an einem gelernten Anleger oder Zeppelinturm stehst. Verschiebbar im Layout-Modus.",
   TRANSPORT_NAMEPLATE_TOGGLE = "Zeit über dem Transportmeister",
-  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Schreibt die Zeit über die Namensplakette des Transportmeisters. Dafür müssen befreundete NPC-Namensplaketten im Spiel eingeschaltet sein; Level Time ändert das nicht. Den Meister merkst du mit /lt transport master (Ziel wählen, am Anleger stehen).",
+  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Schreibt über die Namensplakette des Transportmeisters je Ziel die Abfahrt, z.B. „Tirisfal: Abfahrt in 1:23“. Dafür müssen befreundete NPC-Namensplaketten im Spiel eingeschaltet sein; Level Time ändert das nicht. Zeppelinmeister erkennt Level Time selbst, andere Meister merkst du mit /lt transport master (Ziel wählen, am Anleger stehen).",
   TRANSPORT_TOOLTIP_TOGGLE = "Zeit im Tooltip des Transportmeisters",
   TRANSPORT_TOOLTIP_TOGGLE_TIP = "Fügt dem Tooltip des Transportmeisters die Abfahrts- und Ankunftszeit hinzu.",
   TRANSPORT_SHARE_TOGGLE = "Zeiten mit Gruppe und Gilde teilen",
@@ -1856,4 +1856,6 @@ ns.locales.deDE = {
   LOOT_SPARKLE_CHESTS_TIP = "Funken über Truhen, Kisten und Behältern, auf die du zugehst: gedämpft außer Reichweite, hell in Reichweite, grau, wenn verschlossen. Nutzt das Soft-Targeting des Spiels wie bei Erz. Im Kampf nicht.",
   LOOT_SPARKLE_HIDE_UNTRAINED = "Nicht erlernte Berufe ausblenden",
   LOOT_SPARKLE_HIDE_UNTRAINED_TIP = "Erz und Kräuter nur glitzern lassen, wenn der Charakter den passenden Sammelberuf (Bergbau oder Kräuterkunde) erlernt hat.",
+  TRANSPORT_WORLDMAP_TOGGLE = "Zeit auf der Weltkarte",
+  TRANSPORT_WORLDMAP_TOGGLE_TIP = "Schreibt auf der Zonenkarte an jeden gelernten Anleger und Zeppelinturm die nächste Abfahrt oder Ankunft.",
 }

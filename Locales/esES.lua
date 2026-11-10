@@ -131,7 +131,7 @@ ns.locales.esES = {
   TRANSPORT_MINIMAP_TOGGLE = "Hora en el minimapa",
   TRANSPORT_MINIMAP_TOGGLE_TIP = "Muestra la salida o llegada bajo el minimapa mientras estés en un muelle o torre de zepelín conocidos. Movible en el modo de diseño.",
   TRANSPORT_NAMEPLATE_TOGGLE = "Hora sobre el maestro de transportes",
-  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Escribe la hora sobre la placa de nombre del maestro de transportes. Las placas de PNJ amistosos deben estar activadas en el juego; Level Time no lo cambia. Recuerda al maestro con /lt transport master (fíjalo como objetivo, junto al muelle).",
+  TRANSPORT_NAMEPLATE_TOGGLE_TIP = "Escribe la salida por destino sobre la placa de nombre del maestro de transportes, p. ej. «Tirisfal: sale en 1:23». Las placas de PNJ amistosos deben estar activadas en el juego; Level Time no lo cambia. Los maestros de zepelines se reconocen solos; recuerda a los demás con /lt transport master (fíjalo como objetivo, junto al muelle).",
   TRANSPORT_TOOLTIP_TOGGLE = "Hora en el tooltip del maestro de transportes",
   TRANSPORT_TOOLTIP_TOGGLE_TIP = "Añade la hora de salida y llegada al tooltip del maestro de transportes.",
   TRANSPORT_SHARE_TOGGLE = "Compartir horas con grupo y hermandad",
@@ -1856,4 +1856,6 @@ ns.locales.esES = {
   LOOT_SPARKLE_CHESTS_TIP = "Destellos sobre cofres, arquetas y contenedores hacia los que vas: tenues fuera de alcance, brillantes a tu alcance, grises si están cerrados. Usa la selección suave del juego como con el mineral. No en combate.",
   LOOT_SPARKLE_HIDE_UNTRAINED = "Ocultar profesiones no aprendidas",
   LOOT_SPARKLE_HIDE_UNTRAINED_TIP = "Solo mostrar destellos en minerales y hierbas si el personaje ha aprendido la profesión de recolección correspondiente (Minería o Herboristería).",
+  TRANSPORT_WORLDMAP_TOGGLE = "Hora en el mapa del mundo",
+  TRANSPORT_WORLDMAP_TOGGLE_TIP = "Escribe la próxima salida o llegada junto a cada muelle y torre de zepelín aprendidos en el mapa de zona.",
 }

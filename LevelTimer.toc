@@ -150,8 +150,13 @@ Assist\FlightPaths.lua
 Assist\FlightTimes.lua
 Assist\FlightTimer.lua
 Assist\FlightTooltip.lua
+Assist\TransportData\anniversary.lua
+Assist\TransportData\classic_era.lua
+Assist\TransportData\forever.lua
 Assist\TransportTimes.lua
+Assist\TransportPaths.lua
 UI\TransportDisplay.lua
+UI\TransportWorldMap.lua
 Assist\GearWarnings.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua

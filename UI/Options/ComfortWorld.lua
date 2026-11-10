@@ -177,6 +177,7 @@ if ns.Transports.IsAvailable() then
   addToggles({
     toggle("TRANSPORT_TIMERS_TOGGLE", "transportTimers"),
     requires(toggle("TRANSPORT_MINIMAP_TOGGLE", "transportMinimap"), "transportTimers"),
+    requires(toggle("TRANSPORT_WORLDMAP_TOGGLE", "transportWorldMap"), "transportTimers"),
     requires(toggle("TRANSPORT_NAMEPLATE_TOGGLE", "transportNameplate"), "transportTimers"),
     requires(toggle("TRANSPORT_TOOLTIP_TOGGLE", "transportTooltip"), "transportTimers"),
     requires(toggle("TRANSPORT_SHARE_TOGGLE", "transportShare"), "transportTimers"),

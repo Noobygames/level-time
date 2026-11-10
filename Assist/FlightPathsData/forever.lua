@@ -8,7 +8,7 @@ if ns.Client.Flavor() ~= "forever" then return end
 
 ns.FlightPathsData = {
   build = "1.60.1.70862",
-  speed = { yardsPerSecond = 29.782, samples = 16 },
+  speed = { yardsPerSecond = 29.782, samples = 18 },
   legs = {
     ["0>0"] = 184,
     ["2>4"] = 2329,
