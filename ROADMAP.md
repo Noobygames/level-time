@@ -2,15 +2,6 @@
 
 Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
 
-## Geplant: Eigene Sparkle-Stile (November 2026)
-
-Neue `lootSparkleStyle`-Stile mit eigener Formsprache statt Glow (die Stile aus 456 erinnern zu sehr an Lueur). Technik wie 456: `UI/LootSparkle.lua`, nur AnimationGroups, Texturen aus `tools/artwork`, Zustände weit (`far`) / bereit (`ready`) / gesperrt (`locked`), Farbe je Kategorie (`ColorFor`). Neuer Standard: Zielsucher; die Glow-Stile aus 456 bleiben wählbar unter „Klassisch“.
-
-- [ ] 469. **Sparkle-Stil Glühwürmchen** (S–M): drei bis fünf kleine Punkte schweben unregelmäßig um das Ziel und blenden ein/aus; bereit = ziehen sich zur Mitte.
-- [ ] 470. **Sparkle-Stil Schatzkarte** (S–M): handgezeichnetes Tinten-X malt sich unter dem Ziel auf, kurzer gestrichelter Pfad; bereit = Kreis schließt um das X.
-- [ ] 472. **Sparkle-Stil Pixel-Pop** (S): eckige 8-Bit-Pixel springen kurz auf (Arcade-Look).
-- [ ] 473. **Sparkle-Stil Sternbild** (S–M): fünf Punkte erscheinen nacheinander und verbinden sich mit Linien; bereit = Bild komplett, kurzer Blitz.
-
 ## Geplant: Wettbewerbsanalyse (November 2026)
 
 Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Code; Lizenzen beachten), dazu CurseForge-Seiten und die Regeln auf speedrun.com. Komfort: Leatrix Plus (3.3.5-Port), Questie, RXPGuides, Guidelime, Plumber, Mapster, MoveAny, BlizzMove. Statistik: XPLedger (engster Konkurrent, Retail/Forever/Era/MoP), XToLevel, Experiencer, Rested, DataStore, Accountant Classic, Deathlog, Hardcore, NovaInstanceTracker, SavedInstances, LvlHistory. Speedrun: Sprint (vormals ForeverTimer), OnlySplits, Chromely, Earned: Self Found, SelfFound Tracker, Speed Splits, Forever Journey Log, Hardcore Deathrace. Stream/Ziele: Hardcore (Zarant), UltraHardcore, HC Challenge Wheel, FateLocked, Bingo/TiffBingo, FarmIt, Farming Bar, Cerealize. Alle API-Angaben stammen aus fremdem Code und sind vor dem Bau gegen die Blizzard-Doku je Client zu prüfen (CLAUDE.md); „im Spiel prüfen“ heißt `/dump` nötig.

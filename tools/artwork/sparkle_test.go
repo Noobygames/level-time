@@ -418,3 +418,93 @@ func TestSparkleGroundTextures(t *testing.T) {
 		t.Errorf("Lichtring: vorn sollte heller sein als hinten")
 	}
 }
+
+// Szenen-Stile (Roadmap 469, 470, 472, 473): Glühwürmchen mit heißem Kern und Rand 0, Karten-Atlas mit dunkler Tinte
+// und hellem Rand, Pixel mit harten Kanten, Sternbild-Linien mit Schatten
+func TestSparkleSceneTextures(t *testing.T) {
+	size := sparkleTexSize
+	fly := renderSparkleFirefly(size)
+	if fly.NRGBAAt(size/2, size/2).A < 250 {
+		t.Errorf("Glühwürmchen: Kern nicht weißglühend")
+	}
+	if a := fly.NRGBAAt(size/2+size/4, size/2).A; a == 0 || a > 200 {
+		t.Errorf("Glühwürmchen: Hof fehlt oder zu hart (%d)", a)
+	}
+	for i := 0; i < size; i++ {
+		for _, p := range [][2]int{{i, 0}, {i, size - 1}, {0, i}, {size - 1, i}} {
+			if fly.NRGBAAt(p[0], p[1]).A != 0 {
+				t.Fatalf("Glühwürmchen: Rand nicht 0 bei %v", p)
+			}
+		}
+	}
+	ink := renderSparkleMapInk()
+	for i := 0; i < atlasCells; i++ {
+		n, dark, light := 0, 0, 0
+		x0, y0 := (i%atlasCols)*size, (i/atlasCols)*size
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				p := ink.NRGBAAt(x0+x, y0+y)
+				if p.A > 0 {
+					n++
+				}
+				if p.A == 255 && p.R < 80 {
+					dark++
+				}
+				if p.A > 100 && p.R > 200 {
+					light++
+				}
+				if (x == 0 || y == 0 || x == size-1 || y == size-1) && p.A != 0 {
+					t.Fatalf("Karte Zelle %d: Rand nicht leer bei (%d,%d)", i, x, y)
+				}
+			}
+		}
+		if n < 100 || dark < 10 || light < 20 {
+			t.Errorf("Karte Zelle %d: Tinte oder Rand fehlt (Pixel %d, dunkel %d, hell %d)", i, n, dark, light)
+		}
+	}
+	glow := renderSparkleMapGlow(size)
+	for i := 0; i < size; i++ {
+		for _, p := range [][2]int{{i, 0}, {i, size - 1}, {0, i}, {size - 1, i}} {
+			if glow.NRGBAAt(p[0], p[1]).A != 0 {
+				t.Fatalf("Kartenleuchten schneidet am Rand ab bei %v", p)
+			}
+		}
+	}
+	// Pixel: harte Kanten (Block deckend, direkt daneben nur weicher Schatten) und Platz für den Schatten
+	block := renderSparkleBlock()
+	if block.NRGBAAt(16, 16).A != 255 || block.NRGBAAt(2, 16).A >= 200 || block.NRGBAAt(0, 0).A != 0 {
+		t.Errorf("Pixelblock: Kanten oder Schatten falsch")
+	}
+	if block.NRGBAAt(7, 16).R >= block.NRGBAAt(16, 16).R {
+		t.Errorf("Pixelblock: dunkler Rand fehlt")
+	}
+	star := renderSparkleStar()
+	if star.NRGBAAt(32, 32).A != 255 || star.NRGBAAt(12, 12).A == 255 {
+		t.Errorf("Pixelstern: Form falsch")
+	}
+	a, b := renderSparkleBlockRing(size, 0), renderSparkleBlockRing(size, 1)
+	same := true
+	for i := range a.Pix {
+		if a.Pix[i] != b.Pix[i] {
+			same = false
+			break
+		}
+	}
+	if same {
+		t.Errorf("Pixelring: beide Hälften gleich")
+	}
+	// Sternbild: Linie 1 liegt zwischen Stern 1 und 2, Schatten in Zelle 9
+	sky := renderSparkleConstellation()
+	mx, my := (constellationStars[0][0]+constellationStars[1][0])/2, (constellationStars[0][1]+constellationStars[1][1])/2
+	px := int(size/2 + int(mx/constellationSpan*float64(size)))
+	py := int(float64(size)/2 - (my-constellationCenterY)/constellationSpan*float64(size))
+	if sky.NRGBAAt(px, py).A < 200 {
+		t.Errorf("Sternbild: Linie 1 fehlt in der Mitte (%d,%d)", px, py)
+	}
+	if sky.NRGBAAt(size*(constellationShadeFirst%atlasCols)+px, size*(constellationShadeFirst/atlasCols)+py).A < 100 {
+		t.Errorf("Sternbild: Schatten der Linie 1 fehlt")
+	}
+	if sky.NRGBAAt(size/2+1, size*3+size/2).A != 0 {
+		t.Errorf("Sternbild: ungenutzte Zelle sollte leer sein")
+	}
+}

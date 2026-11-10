@@ -323,3 +323,6 @@ function Animations.mote(texture, def)
   if rest > 0.001 then add(group, "Alpha", order + 3, rest, function(a) a:SetFromAlpha(0); a:SetToAlpha(0) end) end
   return group
 end
+
+-- Hilfsfunktionen für LootSparkleSceneAnimations.lua (Szenen-Stile, Roadmap 469, 470, 472, 473)
+Animations.helpers = { add = add, loopingGroup = loopingGroup, alphaSequence = alphaSequence, breathe = breathe }

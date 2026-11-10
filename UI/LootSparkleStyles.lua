@@ -1,4 +1,4 @@
--- Stil- und Schichtdefinitionen des Beute-Glitzerns (Roadmap 456, 466, 467, 468, 471, 474, 475, 476). Reine Daten: LootSparkle.lua
+-- Stil- und Schichtdefinitionen des Beute-Glitzerns (Roadmap 456, 466 bis 476). Reine Daten: LootSparkle.lua
 -- baut daraus die Texturen, LootSparkleAnimations.lua liefert die Animationen. Ein neuer Stil = ein Eintrag in
 -- STYLES (und ORDER); braucht er eine neue Schicht, ein Eintrag in LAYERS (Texturen aus tools/artwork).
 local addonName, ns = ...
@@ -21,7 +21,30 @@ Styles.TEXTURE = {
   clockHands = media("SparkleClockHands"), segments = media("SparkleSegments"), progressTrack = media("SparkleProgressTrack"),
   progressGlow = media("SparkleProgressGlow"), column = media("SparkleColumn"), columnCore = media("SparkleColumnCore"),
   columnShade = media("SparkleColumnShade"), lightRing = media("SparkleLightRing"),
+  firefly = media("SparkleFirefly"), mapInk = media("SparkleMapInk"), mapGlow = media("SparkleMapGlow"),
+  block = media("SparkleBlock"), blockRingA = media("SparkleBlockRingA"), blockRingB = media("SparkleBlockRingB"),
+  star = media("SparkleStar"), constellation = media("SparkleConstellation"),
 }
+
+-- Namen "prefix1" bis "prefixN" und Listen zusammenfügen (Schichten der Szenen-Stile, Roadmap 469, 470, 472, 473)
+local FIREFLY_COUNT, MAP_CELLS, PIXEL_COUNT, BURST_COUNT, SKY_STARS = 4, 16, 8, 10, 5
+local SKY_LINES = SKY_STARS - 1
+local function numbered(prefix, count)
+  local names = {}
+  for i = 1, count do names[i] = prefix .. i end
+  return names
+end
+local function join(...)
+  local names = {}
+  for _, part in ipairs({ ... }) do
+    if type(part) == "table" then
+      for _, name in ipairs(part) do table.insert(names, name) end
+    else
+      table.insert(names, part)
+    end
+  end
+  return names
+end
 
 -- Gruppen im Auswahlfeld: eigene Formen zuerst, die Glow-Stile aus Roadmap 456 als "Klassisch"
 Styles.GROUP_SHAPES, Styles.GROUP_CLASSIC = "shapes", "classic"
@@ -60,6 +83,27 @@ Styles.STYLES = {
     layers = { "shadow", "pillarShade", "groundRing", "pillarGround", "pillar", "pillarCore", "pillarSurge", "pillarBloom",
       "pillarRing1", "pillarRing2", "pillarRing3", "pillarMote1", "pillarMote2", "pillarMote3", "pillarMote4", "pillarMote5" },
   },
+  fireflies = {
+    group = Styles.GROUP_SHAPES, glints = false, shade = false,
+    layers = join("shadow", numbered("fireflyShade", FIREFLY_COUNT), numbered("fireflyGlow", FIREFLY_COUNT),
+      numbered("fireflyCore", FIREFLY_COUNT), numbered("fireflyReadyShade", FIREFLY_COUNT),
+      numbered("fireflyReadyGlow", FIREFLY_COUNT), numbered("fireflyReadyCore", FIREFLY_COUNT), "fireflyBloom"),
+  },
+  treasure = {
+    group = Styles.GROUP_SHAPES, glints = false, shade = false,
+    layers = join("shadowInk", "mapGlow", numbered("mapCell", MAP_CELLS)),
+  },
+  pixels = {
+    group = Styles.GROUP_SHAPES, glints = false, shade = false,
+    layers = join("shadow", "pixelRingA", "pixelRingB", numbered("pixelBlock", PIXEL_COUNT), "pixelStarGlow", "pixelStar",
+      numbered("pixelBurst", BURST_COUNT)),
+  },
+  constellation = {
+    group = Styles.GROUP_SHAPES, glints = false, shade = false,
+    layers = join("shadow", "groundRing", numbered("skyLineShade", SKY_LINES), numbered("skyStarShade", SKY_STARS),
+      numbered("skyLine", SKY_LINES), numbered("skyStarGlow", SKY_STARS), numbered("skyStar", SKY_STARS),
+      numbered("skyStarCore", SKY_STARS), "skyBloom"),
+  },
   aura = { group = Styles.GROUP_CLASSIC, layers = { "arcs", "halo" }, glints = true, shade = true },
   beam = { group = Styles.GROUP_CLASSIC, layers = { "beam", "ring1" }, glints = true, shade = true },
   sigil = { group = Styles.GROUP_CLASSIC, layers = { "arcs", "halo", "sigil" }, glints = true, shade = true },
@@ -68,7 +112,7 @@ Styles.STYLES = {
   subtle = { group = Styles.GROUP_CLASSIC, layers = { "halo", "ring1" }, glints = true, shade = true },
 }
 
-Styles.ORDER = { "finder", "arrow", "glitter", "symbol", "clock", "progress", "pillar", "aura", "beam", "sigil", "ripple", "sparkle", "subtle" }
+Styles.ORDER = { "finder", "arrow", "glitter", "symbol", "clock", "progress", "pillar", "fireflies", "treasure", "pixels", "constellation", "aura", "beam", "sigil", "ripple", "sparkle", "subtle" }
 
 -- Schichten in Zeichenreihenfolge. name, texture, size {Breite, Höhe}, point {Anker, x, y, Bezugsanker} (Standard
 -- CENTER, 0, 0, CENTER), sublevel, blend (Standard ADD), animation (Name aus LootSparkleAnimations, läuft in Schleife),
@@ -131,6 +175,142 @@ for i, mote in ipairs(MOTES) do
     point = { "CENTER", mote.x, -22, "CENTER" }, sublevel = 4, whiten = 0.5, alpha = 0, delay = mote.delay, rise = mote.rise,
     drift = mote.drift, animation = "mote", freezeLocked = true })
 end
+
+-- Kopie einer Schichtdefinition mit überschriebenen Feldern
+local function derive(base, fields)
+  local def = {}
+  for key, value in pairs(base) do def[key] = value end
+  for key, value in pairs(fields) do def[key] = value end
+  return def
+end
+local function square(size) return { size, size } end
+
+-- Glühwürmchen (Roadmap 469): weit = vier Tiere irren in verschiedenen Höhen (home = Ausgangspunkt relativ zur
+-- Mitte, steps = { dx, dy, Dauer, Deckkraft, Größe }, closing = Rückweg), bereit = sie sammeln sich um ready und
+-- leuchten heller. Je Tier Schatten (für Schnee), Hof und weißglühender Kern mit gleichen Zeiten.
+local FIREFLIES = {
+  { home = { -34, 12 }, ready = { -22, 34 }, closing = 1.4,
+    steps = { { 12, 16, 2.0, 0.95, 1.0 }, { -5, 10, 1.5, 0.3, 0.8 }, { 15, -9, 2.3, 1.0, 1.1 }, { -8, -12, 1.8, 0.45, 0.85 } } },
+  { home = { 30, 30 }, ready = { 20, 46 }, closing = 1.6,
+    steps = { { -14, 8, 1.7, 0.8, 1.0 }, { -9, -12, 2.2, 1.0, 1.1 }, { 12, 6, 1.4, 0.25, 0.8 }, { 9, -10, 2.0, 0.9, 1.0 } } },
+  { home = { -8, 54 }, ready = { -6, 14 }, closing = 2.0,
+    steps = { { 16, -6, 2.4, 1.0, 1.05 }, { 6, -14, 1.5, 0.35, 0.8 }, { -18, 2, 2.1, 0.95, 1.0 } } },
+  { home = { 22, -2 }, ready = { 24, 20 }, closing = 1.7,
+    steps = { { -12, 12, 1.8, 0.9, 0.9 }, { -10, -4, 2.2, 0.3, 0.8 }, { 18, 10, 1.6, 1.0, 1.1 }, { 4, -9, 2.0, 0.6, 0.9 } } },
+}
+local FIREFLY_FAR = { far = true, locked = true }
+for i, fly in ipairs(FIREFLIES) do
+  local home = { "CENTER", fly.home[1], fly.home[2], "CENTER" }
+  local wander = { point = home, states = FIREFLY_FAR, animation = "fireflyWander", freezeLocked = true, steps = fly.steps,
+    closing = fly.closing, alpha = 0 }
+  table.insert(GROUND_LAYERS, derive(wander, { name = "fireflyShade" .. i, texture = Styles.TEXTURE.halo, blend = "BLEND", size = square(30),
+    sublevel = 1, color = DARK, peak = 0.45, stateAlpha = { far = 0, locked = 0.3 } }))
+  table.insert(GROUND_LAYERS, derive(wander, { name = "fireflyGlow" .. i, texture = Styles.TEXTURE.firefly, size = square(40),
+    sublevel = 2, whiten = 0.1, peak = 0.9, stateAlpha = { far = 0, locked = 0.6 } }))
+  table.insert(GROUND_LAYERS, derive(wander, { name = "fireflyCore" .. i, texture = Styles.TEXTURE.firefly, size = square(18),
+    sublevel = 3, whiten = 0.85, stateAlpha = { far = 0, locked = 0.8 } }))
+  local anchor = { "CENTER", fly.ready[1], fly.ready[2], "CENTER" }
+  local gathered = { point = anchor, states = { ready = true }, animation = "fireflyOrbit", index = i, readyAnimation = "fireflyGather",
+    fromX = fly.home[1] - fly.ready[1], fromY = fly.home[2] - fly.ready[2] }
+  table.insert(GROUND_LAYERS, derive(gathered, { name = "fireflyReadyShade" .. i, texture = Styles.TEXTURE.halo, blend = "BLEND",
+    size = square(54), sublevel = 1, color = DARK, alpha = 0.6 }))
+  table.insert(GROUND_LAYERS, derive(gathered, { name = "fireflyReadyGlow" .. i, texture = Styles.TEXTURE.firefly, size = square(42),
+    sublevel = 2, whiten = 0.25, alpha = 0.5 }))
+  table.insert(GROUND_LAYERS, derive(gathered, { name = "fireflyReadyCore" .. i, texture = Styles.TEXTURE.firefly, size = square(20),
+    sublevel = 3, whiten = 0.9, alpha = 1 }))
+end
+table.insert(GROUND_LAYERS, { name = "fireflyBloom", texture = Styles.TEXTURE.halo, size = square(96), point = { "CENTER", 0, 28, "CENTER" },
+  sublevel = 0, whiten = 0.2, alpha = 0.15, peak = 0.4, states = { ready = true }, animation = "softPulse" })
+
+-- Schatzkarte (Roadmap 470): Zellen des Atlas SparkleMapInk (0 bis 3 = X, 4 bis 7 = Pfad, 8 bis 15 = Kreis), als
+-- Bodenellipse am Fuß; weit = X und Pfad werden nacheinander gemalt, bereit = Kreis schließt sich um das X
+local MAP_ELLIPSE = { 150, 60 }
+local MAP_X_CELLS, MAP_DASH_CELLS = 4, 4
+for i = 1, MAP_CELLS do
+  local cell = i - 1
+  local painted = cell < MAP_X_CELLS + MAP_DASH_CELLS
+  local def = { name = "mapCell" .. i, texture = Styles.TEXTURE.mapInk, blend = "BLEND", size = MAP_ELLIPSE, point = FOOT, sublevel = 3,
+    whiten = 0.1, alpha = 0, cell = cell, index = cell }
+  if painted then
+    def.stateAlpha = { far = 0, ready = cell < MAP_X_CELLS and 1 or 0.85, locked = cell < MAP_X_CELLS and 0.9 or 0.5 }
+    def.animation, def.animStates, def.freezeLocked = "mapStroke", { far = true }, true
+  else
+    def.states, def.stateAlpha = { ready = true }, { ready = 1 }
+    def.readyAnimation, def.index = "mapInk", cell - MAP_X_CELLS - MAP_DASH_CELLS
+  end
+  table.insert(GROUND_LAYERS, def)
+end
+table.insert(GROUND_LAYERS, { name = "mapGlow", texture = Styles.TEXTURE.mapGlow, size = glowSized(MAP_ELLIPSE), point = FOOT, sublevel = 2,
+  alpha = 0.45, states = { ready = true }, animation = "glowPulse" })
+table.insert(GROUND_LAYERS, { name = "shadowInk", texture = Styles.TEXTURE.halo, blend = "BLEND", size = { 110, 42 }, point = FOOT, sublevel = 0,
+  color = DARK, alpha = 0.3 })
+
+-- Pixel-Pop (Roadmap 472): Pixelblöcke springen auf und fallen (rise Höhe, drift seitlich, delay Startversatz), ein
+-- Bodenring aus Quadraten blinkt im Wechsel; bereit = Ring voll, Pixelstern, Burst aus Pixeln
+local PIXELS = {
+  { x = -34, y = -6, size = 16, delay = 0.0, rise = 28, drift = -8, whiten = 0.0 },
+  { x = 28, y = -8, size = 13, delay = 0.35, rise = 36, drift = 10, whiten = 0.35 },
+  { x = -14, y = 6, size = 18, delay = 0.7, rise = 32, drift = 6, whiten = 0.6 },
+  { x = 38, y = 14, size = 14, delay = 1.05, rise = 26, drift = -6, whiten = 0.15 },
+  { x = -40, y = 20, size = 12, delay = 1.4, rise = 34, drift = 8, whiten = 0.45 },
+  { x = 8, y = -2, size = 16, delay = 1.75, rise = 38, drift = -10, whiten = 0.0 },
+  { x = 20, y = 24, size = 13, delay = 2.1, rise = 24, drift = 5, whiten = 0.6 },
+  { x = -24, y = -10, size = 15, delay = 2.4, rise = 30, drift = -5, whiten = 0.3 },
+}
+local PIXEL_STAR_POINT = { "CENTER", 0, 46, "CENTER" }
+local PIXEL_BURST_POINT = { "CENTER", 0, 24, "CENTER" }
+for phase, name in ipairs({ "pixelRingA", "pixelRingB" }) do
+  table.insert(GROUND_LAYERS, { name = name, texture = phase == 1 and Styles.TEXTURE.blockRingA or Styles.TEXTURE.blockRingB, blend = "BLEND",
+    size = GROUND_ELLIPSE, point = FOOT, sublevel = 1, whiten = 0.2, alpha = 0, index = phase - 1,
+    stateAlpha = { far = 0, ready = 1, locked = 0.5 }, animation = "pixelBlink", animStates = { far = true }, freezeLocked = true })
+end
+for i, pixel in ipairs(PIXELS) do
+  table.insert(GROUND_LAYERS, { name = "pixelBlock" .. i, texture = Styles.TEXTURE.block, blend = "BLEND", size = square(pixel.size),
+    point = { "CENTER", pixel.x, pixel.y, "CENTER" }, sublevel = 3, whiten = pixel.whiten, alpha = 0, delay = pixel.delay,
+    rise = pixel.rise, drift = pixel.drift, stateAlpha = { far = 0, ready = 0, locked = 0.85 },
+    animation = "pixelPop", freezeLocked = true })
+end
+table.insert(GROUND_LAYERS, { name = "pixelStarGlow", texture = Styles.TEXTURE.halo, size = square(84), point = PIXEL_STAR_POINT, sublevel = 2,
+  whiten = 0.2, alpha = 0.15, peak = 0.4, states = { ready = true }, animation = "softPulse" })
+table.insert(GROUND_LAYERS, { name = "pixelStar", texture = Styles.TEXTURE.star, blend = "BLEND", size = square(60), point = PIXEL_STAR_POINT,
+  sublevel = 4, whiten = 0.25, states = { ready = true }, animation = "pixelTwinkle", readyAnimation = "pixelStarPop" })
+for i = 1, BURST_COUNT do
+  local angle, distance = math.rad(36 * i + 10), 32 + (i % 3) * 8
+  table.insert(GROUND_LAYERS, { name = "pixelBurst" .. i, texture = Styles.TEXTURE.block, blend = "BLEND",
+    size = square(14 + (i % 2) * 4), point = PIXEL_BURST_POINT, sublevel = 5, whiten = (i % 4) * 0.2, alpha = 0, states = { ready = true },
+    dirX = math.sin(angle) * distance, dirY = math.cos(angle) * distance, readyAnimation = "pixelBurst" })
+end
+
+-- Sternbild (Roadmap 473): fünf Sterne (Pixel relativ zur Mitte, gleich wie constellationStars in
+-- tools/artwork/sparkle_constellation.go) und vier Linien als Zellen des Atlas SparkleConstellation (Leuchtlinie
+-- Zelle i, dunkler Schatten Zelle 8 + i); weit = Sterne und Linien erscheinen nacheinander, bereit = komplett
+local SKY_POINT = { "CENTER", 0, 27, "CENTER" }
+local SKY_SPAN = 110
+local SKY_SHADE_FIRST = 8
+local SKY_STEP, SKY_LINE_LAG = 0.9, 0.5
+local SKY_STAR_POSITIONS = { { -38, 8 }, { -26, 44 }, { -2, 28 }, { 22, 58 }, { 40, 22 } }
+local SKY_STAR_SIZES = { 26, 22, 30, 24, 28 }
+local SKY_SEEN = { far = 0, ready = 1, locked = 0.6 }
+for i = 1, SKY_LINES do
+  local line = { texture = Styles.TEXTURE.constellation, size = square(SKY_SPAN), point = SKY_POINT, alpha = 0, cell = i - 1,
+    delay = (i - 1) * SKY_STEP + SKY_LINE_LAG, stateAlpha = SKY_SEEN, animation = "skyReveal", animStates = { far = true }, freezeLocked = true }
+  table.insert(GROUND_LAYERS, derive(line, { name = "skyLineShade" .. i, blend = "BLEND", sublevel = 1, color = DARK, cell = SKY_SHADE_FIRST + i - 1 }))
+  table.insert(GROUND_LAYERS, derive(line, { name = "skyLine" .. i, sublevel = 2, whiten = 0.45, stateAlpha = { far = 0, ready = 0.95, locked = 0.5 } }))
+end
+for i, position in ipairs(SKY_STAR_POSITIONS) do
+  local size = SKY_STAR_SIZES[i]
+  local star = { point = { "CENTER", position[1], position[2], "CENTER" }, alpha = 0, delay = (i - 1) * SKY_STEP, pop = true,
+    stateAlpha = { far = 0, ready = 1, locked = 0.75 }, animation = "skyReveal", animStates = { far = true }, freezeLocked = true,
+    readyAnimation = "skyPop" }
+  table.insert(GROUND_LAYERS, derive(star, { name = "skyStarShade" .. i, texture = Styles.TEXTURE.flare, blend = "BLEND", size = square(size * 1.5),
+    sublevel = 1, color = DARK, peak = 0.8, stateAlpha = { far = 0, ready = 0.8, locked = 0.5 } }))
+  table.insert(GROUND_LAYERS, derive(star, { name = "skyStar" .. i, texture = Styles.TEXTURE.flare, size = square(size), sublevel = 3, whiten = 0.2 }))
+  table.insert(GROUND_LAYERS, derive(star, { name = "skyStarCore" .. i, texture = Styles.TEXTURE.halo, size = square(10), sublevel = 4, whiten = 1 }))
+  table.insert(GROUND_LAYERS, { name = "skyStarGlow" .. i, texture = Styles.TEXTURE.halo, size = square(size * 2), point = star.point,
+    sublevel = 2, whiten = 0.3, alpha = 0.2, states = { ready = true }, half = 0.55 + 0.17 * i, animation = "skyTwinkle" })
+end
+table.insert(GROUND_LAYERS, { name = "skyBloom", texture = Styles.TEXTURE.halo, size = square(120), point = SKY_POINT, sublevel = 0,
+  whiten = 0.3, alpha = 0.1, peak = 0.4, states = { ready = true }, animation = "softPulse" })
 
 Styles.LAYERS = {
   { name = "shadow", texture = Styles.TEXTURE.halo, blend = "BLEND", size = { 72, 26 }, point = FOOT, sublevel = 0,

@@ -63,7 +63,7 @@ func previewStyles() []previewStyle {
 	shadow := previewLayer{tex: halo, w: 72, h: 26, dy: -24, tint: &black, a: 0.55}
 	groundRing := previewLayer{tex: ring, w: 76, h: 28, dy: -24, add: true, whiten: 0.3, a: 0.45}
 	groundGlow := previewLayer{tex: halo, w: 60, h: 22, dy: -20, add: true, whiten: 0.2, a: 0.4}
-	return []previewStyle{
+	styles := []previewStyle{
 		{"zielsucher", func(ready bool) []previewLayer {
 			size := 84.0
 			if ready {
@@ -155,6 +155,7 @@ func previewStyles() []previewStyle {
 			return out
 		}},
 	}
+	return append(styles, scenePreviewStyles()...)
 }
 
 // sampleTexture liefert Grauwert und Deckkraft der Textur an (u, v), bilinear
@@ -218,7 +219,7 @@ func drawPreviewLayer(buf [][3]float64, l previewLayer, frameAlpha float64) {
 }
 
 func runSparklePreview(path string) error {
-	styles := previewStyles()
+	styles := filterPreviewStyles(previewStyles(), os.Getenv("SPARKLE_PREVIEW_STYLES"))
 	states := []struct {
 		name  string
 		ready bool

@@ -3362,3 +3362,23 @@ Zeiger kriecht ruhig (ja/nein):
 Fortschrittsring lesbar (ja/nein):
 Lichtsäule lesbar auf Schnee/Sand (ja/nein):
 ```
+
+### 234. Beute-Glitzer: Glühwürmchen, Schatzkarte, Pixel-Pop, Sternbild (Roadmap 469, 470, 472, 473)
+
+ [ ] geprüft
+
+Aussehen im Spiel (nur im Spiel prüfbar): Einstellungen > Komfort > Welt, „Effekt-Stil“ (Zyklus-Button), „Vorschau“ und echte Ziele über Gras, Schnee, Sand.
+
+- Glühwürmchen: vier Punkte irren ruhig in verschiedenen Höhen, blenden weich ein und aus, nie im Gleichtakt; bereit = sie fliegen zur Mitte und leuchten heller (kein Springen sichtbar); gesperrt grau und still; auf Schnee noch erkennbar (dunkler Schatten)?
+- Schatzkarte: weit = X und Pfad malen sich nacheinander am Fuß des Ziels, bereit = Kreis schließt sich um das X; Tinte auf Schnee/Gras/Höhle lesbar (goldener Rand)?
+- Pixel-Pop: Pixel springen in harten Einzelbildern und blinken aus, Ring aus Quadrate blinkt im Wechsel; bereit = Pixelstern und Burst; Kanten scharf (kein Verwaschen).
+- Sternbild: Sterne erscheinen nacheinander, Linien folgen; bereit = komplett, Sterne funkeln; Linien auf Schnee sichtbar?
+- Alle vier Flavors: neue Texturen (TGA, Atlanten 512 x 512) laden ohne grüne Quadrate; kein Lua-Fehler beim Wechsel der Stile (neue Datei `LootSparkleSceneAnimations.lua` nach Neustart des Clients, da `.toc` geändert).
+
+```text
+Client:
+Glühwürmchen ruhig, Sammeln ohne Sprung (ja/nein):
+Schatzkarte lesbar (ja/nein):
+Pixel-Pop scharf und lesbar (ja/nein):
+Sternbild lesbar auf Schnee (ja/nein):
+```

@@ -241,10 +241,11 @@ UnitChannelInfo = oldUnitChannelInfo
 -- 7. Roadmap 456: Multi-Layer-2D-Effekt-Engine & Stile
 -- 7.1 Stile und Umschalten
 expect("standard style is finder", LootSparkle.CurrentStyle(), "finder")
-expect("13 sparkle styles exist", #LootSparkle.STYLES, 13)
+expect("17 sparkle styles exist", #LootSparkle.STYLES, 17)
 
 local expectedStyles = {
   finder = true, arrow = true, glitter = true, symbol = true, clock = true, progress = true, pillar = true,
+  fireflies = true, treasure = true, pixels = true, constellation = true,
   aura = true, beam = true, sigil = true, ripple = true, sparkle = true, subtle = true,
 }
 local Styles = addon.LootSparkleStyles
@@ -320,6 +321,14 @@ for _, style in ipairs(LootSparkle.STYLES) do
   if style == "progress" then
     -- alle 16 Segmente sind bei "ready" sichtbar
     exp = setmetatable({}, { __index = function(_, name) return expectedActive.progress[name] or name:find("^progressSeg") ~= nil end })
+  end
+  if style == "fireflies" or style == "treasure" or style == "pixels" or style == "constellation" then
+    -- Szenen-Stile: sichtbar bei "ready" ist jede Schicht des Stils ohne Zustandsbeschränkung oder mit "ready"
+    exp = {}
+    for _, name in ipairs(Styles.Get(style).layers) do
+      local def = Styles.LAYERS_BY_NAME[name]
+      if not def.states or def.states.ready then exp[name] = true end
+    end
   end
   expectTrue(style .. " layer names listed", #activeNames == #Styles.Get(style).layers)
 
@@ -541,5 +550,80 @@ expect("pillar locked: ground light stands", anyPlaying(layers.pillarGround), fa
 expect("pillar locked: rings frozen", anyPlaying(layers.pillarRing2), false)
 expect("pillar locked: motes frozen", anyPlaying(layers.pillarMote1), false)
 expect("pillar locked: surge hidden", shown("pillarSurge"), false)
+LootSparkle.Release()
+addon.Set("lootSparkleStyle", "aura")
+
+-- Szenen-Stile (Roadmap 469, 470, 472, 473) ----------------------------------------------------------------------------
+LootSparkle.Preview("ore")
+
+-- Glühwürmchen: weit = vier Tiere irren (je eigene Dauer), bereit = gesammelt, Sammel-Animation läuft
+addon.Set("lootSparkleStyle", "fireflies")
+LootSparkle.SetState("far", "ore")
+expectTrue("fireflies far: wandering core 1", anyPlaying(layers.fireflyCore1))
+expectTrue("fireflies far: wandering glow 4", anyPlaying(layers.fireflyGlow4))
+expect("fireflies far: gathered layers hidden", layers.fireflyReadyCore1:IsShown(), false)
+LootSparkle.SetState("ready", "ore")
+expect("fireflies ready: wanderers hidden", layers.fireflyCore1:IsShown(), false)
+expectTrue("fireflies ready: gathered core shown", layers.fireflyReadyCore1:IsShown())
+expectTrue("fireflies ready: orbit runs", anyPlaying(layers.fireflyReadyGlow2))
+expectTrue("fireflies ready: bloom", layers.fireflyBloom:IsShown())
+expect("fireflies: gather starts at the old spot", Styles.LAYERS_BY_NAME.fireflyReadyCore1.fromX, -34 - -22)
+LootSparkle.SetState("locked", "ore")
+expectTrue("fireflies locked: frozen flies stay visible", layers.fireflyCore1:IsShown())
+expect("fireflies locked: no wandering", anyPlaying(layers.fireflyCore1), false)
+
+-- Schatzkarte: weit = X und Pfad werden gemalt, bereit = X steht, Kreis (Zellen 9 bis 16) erscheint
+addon.Set("lootSparkleStyle", "treasure")
+LootSparkle.SetState("far", "quest")
+expectTrue("treasure far: X stroke 1 painted", anyPlaying(layers.mapCell1))
+expectTrue("treasure far: dash painted", anyPlaying(layers.mapCell6))
+expect("treasure far: ring hidden", layers.mapCell12:IsShown(), false)
+expect("treasure far: glow hidden", layers.mapGlow:IsShown(), false)
+LootSparkle.SetState("ready", "quest")
+expectNear("treasure ready: X fully drawn", alphaOf("mapCell3"), 1, 0.001)
+expectTrue("treasure ready: ring segment 1 shown", layers.mapCell9:IsShown())
+expectTrue("treasure ready: ring closes", anyPlaying(layers.mapCell16))
+expectTrue("treasure ready: glow", layers.mapGlow:IsShown())
+expect("treasure ready: no more painting", anyPlaying(layers.mapCell1), false)
+LootSparkle.SetState("locked", "quest")
+expect("treasure locked: ring hidden", layers.mapCell12:IsShown(), false)
+expectNear("treasure locked: X stays", alphaOf("mapCell1"), 0.9, 0.001)
+
+-- Pixel-Pop: weit = Pixel springen, Ring blinkt; bereit = Stern, Burst, Ring voll
+addon.Set("lootSparkleStyle", "pixels")
+LootSparkle.SetState("far", "chest")
+expectTrue("pixels far: pixel pops", anyPlaying(layers.pixelBlock3))
+expectTrue("pixels far: ring A blinks", anyPlaying(layers.pixelRingA))
+expectTrue("pixels far: ring B blinks", anyPlaying(layers.pixelRingB))
+expect("pixels far: star hidden", layers.pixelStar:IsShown(), false)
+expect("pixels far: burst hidden", layers.pixelBurst1:IsShown(), false)
+LootSparkle.SetState("ready", "chest")
+expectTrue("pixels ready: star shown", layers.pixelStar:IsShown())
+expectTrue("pixels ready: star pops", anyPlaying(layers.pixelStar))
+expectTrue("pixels ready: burst plays", anyPlaying(layers.pixelBurst10))
+expectNear("pixels ready: ring solid", alphaOf("pixelRingA"), 1, 0.001)
+expect("pixels ready: ring does not blink", anyPlaying(layers.pixelRingA), false)
+LootSparkle.SetState("locked", "chest")
+expect("pixels locked: pixels stand", anyPlaying(layers.pixelBlock1), false)
+expectNear("pixels locked: pixel visible", alphaOf("pixelBlock1"), 0.85, 0.001)
+
+-- Sternbild: weit = Sterne und Linien erscheinen nacheinander, bereit = komplett mit Funkeln
+addon.Set("lootSparkleStyle", "constellation")
+LootSparkle.SetState("far", "herb")
+expectTrue("constellation far: star 1 appears", anyPlaying(layers.skyStar1))
+expectTrue("constellation far: line 4 appears", anyPlaying(layers.skyLine4))
+expect("constellation far: no glow yet", layers.skyStarGlow1:IsShown(), false)
+LootSparkle.SetState("ready", "herb")
+expectNear("constellation ready: star 5 complete", alphaOf("skyStar5"), 1, 0.001)
+expectNear("constellation ready: line 3 complete", alphaOf("skyLine3"), 0.95, 0.001)
+expectTrue("constellation ready: stars twinkle", anyPlaying(layers.skyStarGlow3))
+expectTrue("constellation ready: star pops", anyPlaying(layers.skyStar2))
+expect("constellation ready: reveal stopped", anyPlaying(layers.skyLine1), false)
+LootSparkle.SetState("locked", "herb")
+expectNear("constellation locked: star dimmed", alphaOf("skyStar1"), 0.75, 0.001)
+expect("constellation locked: still", anyPlaying(layers.skyLine1), false)
+local l1, r1 = Styles.CellCoords(8)
+expectNear("shade cell 8 left", l1, 0, 0.001)
+expectNear("shade cell 8 right", r1, 0.25, 0.001)
 LootSparkle.Release()
 addon.Set("lootSparkleStyle", "aura")

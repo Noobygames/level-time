@@ -1917,4 +1917,8 @@ ns.locales.deDE = {
   LOOT_SPARKLE_STYLE_CLOCK = "Uhrwerk",
   LOOT_SPARKLE_STYLE_PILLAR = "Lichtsäule",
   LOOT_SPARKLE_STYLE_PROGRESS = "Fortschrittsring",
+  LOOT_SPARKLE_STYLE_CONSTELLATION = "Sternbild",
+  LOOT_SPARKLE_STYLE_FIREFLIES = "Glühwürmchen",
+  LOOT_SPARKLE_STYLE_PIXELS = "Pixel-Pop",
+  LOOT_SPARKLE_STYLE_TREASURE = "Schatzkarte",
 }

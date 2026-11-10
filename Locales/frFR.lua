@@ -1917,4 +1917,8 @@ ns.locales.frFR = {
   LOOT_SPARKLE_STYLE_CLOCK = "Mécanisme d'horloge",
   LOOT_SPARKLE_STYLE_PILLAR = "Pilier de lumière",
   LOOT_SPARKLE_STYLE_PROGRESS = "Anneau de progression",
+  LOOT_SPARKLE_STYLE_CONSTELLATION = "Constellation",
+  LOOT_SPARKLE_STYLE_FIREFLIES = "Lucioles",
+  LOOT_SPARKLE_STYLE_PIXELS = "Pixels pop",
+  LOOT_SPARKLE_STYLE_TREASURE = "Carte au trésor",
 }

@@ -1917,4 +1917,8 @@ ns.locales.enUS = {
   LOOT_SPARKLE_STYLE_CLOCK = "Clockwork",
   LOOT_SPARKLE_STYLE_PILLAR = "Light pillar",
   LOOT_SPARKLE_STYLE_PROGRESS = "Progress ring",
+  LOOT_SPARKLE_STYLE_CONSTELLATION = "Constellation",
+  LOOT_SPARKLE_STYLE_FIREFLIES = "Fireflies",
+  LOOT_SPARKLE_STYLE_PIXELS = "Pixel pop",
+  LOOT_SPARKLE_STYLE_TREASURE = "Treasure map",
 }

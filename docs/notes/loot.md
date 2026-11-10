@@ -35,3 +35,13 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 - Zeiger kriecht per Überblenden von 16 Stellungen (Rotation + Stauchung ohne OnUpdate nicht möglich); Schleifenlängen sind über Pausen-Animationen für alle Schichten gleich (`alphaSequence`, `lightRing`, `mote`), damit versetzte Starts nicht driften.
 - Fortschritt ohne Cooldown-Frame (SetSwipeTexture je Flavor nicht belegbar, OmniCC hängt Zahlen an): "weit" füllt zehn Segmente in Schleife, "bereit" ist voll (Pop-Welle). Es wird kein Abstand gemessen.
 - Kontaktbogen: `-sparkle-preview` zeigt die drei Stile (Spiegel der Werte von Hand pflegen).
+
+### Sparkle scene styles (roadmap 469, 470, 472, 473)
+
+- Ziel der "Eigene Sparkle-Stile": eigene Formsprache statt Glow (456 erinnerte zu sehr an Lueur); Standard `finder`, Glow-Stile bleiben unter "Klassisch". Zustände `far` / `ready` / `locked`, Farbe je Kategorie (`ColorFor`).
+- Stile `fireflies`, `treasure`, `pixels`, `constellation`; Animationen in `UI/LootSparkleSceneAnimations.lua` (nutzt `Animations.helpers` aus `LootSparkleAnimations.lua`), Schichten als Generatoren in `LootSparkleStyles.lua` (in `GROUND_LAYERS`), Texturen `sparkle_firefly.go`, `sparkle_map.go`, `sparkle_sprite.go`, `sparkle_constellation.go`.
+- Engine-Felder neu genutzt: `peak` (Höchstdeckkraft der Animation, Schatten blasser), `delay/steps/closing/fromX/fromY/dirX/dirY/half/pop` als Fabrikparameter. Animationen ohne OnUpdate: Translation-Orders summieren sich (Wegstücke, Sprung + Halt bei Pixeln mit `NONE`), Pfade schließen sich (Summe 0) oder erlöschen am Ende.
+- Glühwürmchen: weit-Schichten (`fireflyShade/Glow/Core`) und bereit-Schichten (`fireflyReady*`) sind getrennt; `fireflyGather` springt unsichtbar (0.01 s) zum alten Ort und fliegt zum Anker, weil eine Einmal-Animation nicht an einer anderen Position starten kann.
+- Schatzkarte: Tinte und Rand liegen im Grauwert (dunkel/hell) in einer BLEND-Textur, `SetVertexColor` färbt nur den Rand; Atlas 4 X-Stücke, 4 Pfadstriche, 8 Kreisstücke (Kreis mit Überstand), Bodenellipse 120 x 48.
+- Pixel: harte Kanten (`spriteImage`, dreistufige Schattierung + eingebackener weicher Schatten, 32-Texel-Block); Sternbild: Sternpositionen stehen in `sparkle_constellation.go` UND `LootSparkleStyles.lua` (müssen übereinstimmen), Atlas Zelle i = Linie, Zelle 8 + i = Schatten.
+- Kontaktbogen: `SPARKLE_PREVIEW_STYLES=gluehwuermchen,schatzkarte,pixel-pop,sternbild` filtert die Stile (Spiegel in `sparkle_preview_scenes.go`, von Hand pflegen).
