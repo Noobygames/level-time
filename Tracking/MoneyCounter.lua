@@ -92,6 +92,9 @@ local function addIncome(kind, amount)
   Stats.Increment(kind, amount)
 end
 
+-- Einnahmen, die noch auf ihre Zuordnung warten; ein Logout davor bucht sie als "sonstige", statt sie zu verlieren
+local pendingIncome = {}
+
 local function bookIncome(amount)
   local window = currentContext()
   if window and window.income then
@@ -105,12 +108,23 @@ local function bookIncome(amount)
     addIncome(Stats.INCOME_LOOT, amount)
     return
   end
+  local entry = { amount = amount }
+  pendingIncome[entry] = true
   C_Timer.After(MONEY_MESSAGE_WAIT, function()
+    if not pendingIncome[entry] then return end
+    pendingIncome[entry] = nil
     local loot = nearMoneyMessage(at)
     ns.Debug("money", "income %s as %s (waited for a money message)", amount, loot and "loot" or "other")
     addIncome(loot and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
   end)
 end
+
+ns.OnLogout(function()
+  for entry in pairs(pendingIncome) do
+    pendingIncome[entry] = nil
+    addIncome(Stats.INCOME_OTHER, entry.amount)
+  end
+end)
 
 ns.OnLogin(function()
   lastMoney = GetMoney()

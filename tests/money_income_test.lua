@@ -115,3 +115,10 @@ wow.levelUp(addon.level + 1)
 wow.runTimers()
 expect("Summe im neuen Level", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 30)
 expect("Art im neuen Level", Stats.Get(Stats.LEVEL, Stats.INCOME_OTHER), 30)
+
+-- Logout während der Wartezeit: die Einnahme geht nicht verloren
+earn(20)
+wow.logout()
+expect("Summe beim Logout gebucht", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 50)
+wow.runTimers()
+expect("nicht doppelt gebucht", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 50)
