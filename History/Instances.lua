@@ -3,7 +3,9 @@
 -- dieselbe Kopie (Händler, /reload) setzt den Lauf fort; die Zeit draußen zählt nicht, außer als Geist
 -- auf dem Weg zurück zur Leiche. Wiederbelebt draußen (Geistheiler) hält die Uhr an.
 -- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level, mapID, difficultyID,
--- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed }.
+-- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses }.
+-- bosses = besiegte Bosse (InstanceBosses.lua); shortcut: beim Teilen (OnCorrected, neue Kopie) bleiben sie beim alten
+-- Lauf, auch wenn einer nach dem Wiedereintritt fiel (Zeitfenster bis zur Bestätigung ist kurz).
 -- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
 -- eine andere Kopie, wird dort geteilt.
 -- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation }
@@ -138,6 +140,7 @@ function Instances.ResetCurrent()
   run.startedAt = time()
   run.level = ns.level
   run.unconfirmed = nil
+  run.bosses = nil
   if runningSince then runningSince = GetTime() end
   ns.Debug("instances", "run reset: %s", run.name)
   return true
@@ -209,6 +212,7 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     if not previous then return end
     run.startedAt, run.level = previous.time, previous.level
     run.seconds = run.seconds + previous.seconds
+    if previous.bosses then run.bosses = run.bosses and (previous.bosses .. "," .. run.bosses) or previous.bosses end
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
     for _, mapping in ipairs(RECORD_COUNTERS) do

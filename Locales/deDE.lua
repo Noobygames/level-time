@@ -1938,4 +1938,9 @@ ns.locales.deDE = {
   QUEST_LEFTOVERS_DELETE = "Questreste löschen",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Endgültig löschen?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Löscht nach einer Rückfrage Questreste und als Müll markierte Gegenstände ohne Verkaufswert. Alles mit Verkaufswert bleibt zum Verkaufen in den Taschen.",
+  INSTANCE_COMPLETED = "%s abgeschlossen: Endboss besiegt nach %s (Bosse %s).",
+  HISTORY_BOSSES = "Bosse",
+  HISTORY_BOSSES_TIP = "Besiegte Bosse des Laufs von allen Bossen der Instanz (ohne Bossliste nur die Zahl). Maus über die Zeile zeigt jeden Boss mit Position: Totenkopf = besiegt, Kopf = lebt.",
+  INSTANCE_REPORT_BOSSES = "Bosse %s",
+  INSTANCE_REPORT_XP_RATE = "%s XP/h",
 }

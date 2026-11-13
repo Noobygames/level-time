@@ -22,6 +22,7 @@ func main() {
 	transportsDir := flag.String("transports", "Assist/TransportData", "Ordner für die Schiffs- und Zeppelin-Rundkurse")
 	instancesDir := flag.String("instances", "Assist/InstanceData", "Ordner für die Instanz-Stammdaten je Flavor")
 	mapCoordsDir := flag.String("mapcoords", "Assist/MapCoordsData", "Ordner für die Kartenbereiche (Weltkoordinaten) je Flavor")
+	bossesDir := flag.String("bosses", "Assist/BossData", "Ordner für die Boss-Listen je Instanz und Flavor")
 	namesDir := flag.String("names", "Assist/FlightNamesData", "Ordner für die Flugpunkt-Namen aller Sprachen je Flavor (leer = nicht laden)")
 	flag.Parse()
 
@@ -29,7 +30,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler: bitte -wow oder WOW_DIR setzen")
 		os.Exit(1)
 	}
-	if err := run(*wowDir, *out, Dirs{Paths: *pathsDir, Transports: *transportsDir, Instances: *instancesDir, MapCoords: *mapCoordsDir, Names: *namesDir}); err != nil {
+	if err := run(*wowDir, *out, Dirs{Paths: *pathsDir, Transports: *transportsDir, Instances: *instancesDir, MapCoords: *mapCoordsDir, Names: *namesDir, Bosses: *bossesDir}); err != nil {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
@@ -37,7 +38,7 @@ func main() {
 
 // Dirs sind die Zielordner der erzeugten Dateien je Flavor (leer = nicht erzeugen).
 type Dirs struct {
-	Paths, Transports, Instances, MapCoords, Names string
+	Paths, Transports, Instances, MapCoords, Names, Bosses string
 }
 
 func run(wowDir, out string, dirs Dirs) error {
@@ -157,6 +158,9 @@ func writePaths(client *wagoClient, builds map[string]string, snapshot *Snapshot
 		if err := writeMapCoords(client, mapCoordsDir, flavor, build, date); err != nil {
 			return err
 		}
+		if err := writeBosses(client, dirs.Bosses, flavor, build, date); err != nil {
+			return err
+		}
 		speeds[flavor] = MeasuredSpeed(snapshot.Maps[flavor], paths[flavor])
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -225,6 +229,27 @@ func writeInstances(client *wagoClient, dir, flavor, build, date string) error {
 		if len(missing) > 0 {
 			fmt.Printf("  ohne Karte (kein Level-Bereich): %v\n", missing)
 		}
+	}
+	return err
+}
+
+// writeBosses lädt die Boss-Listen eines Flavors und schreibt Assist/BossData/<flavor>.lua (nur BossFlavors).
+func writeBosses(client *wagoClient, dir, flavor, build, date string) error {
+	if dir == "" || !BossFlavors[flavor] {
+		return nil
+	}
+	bosses, err := client.Bosses(build)
+	if err != nil {
+		return fmt.Errorf("%s: %w", flavor, err)
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	err = writeFile(filepath.Join(dir, flavor+".lua"), func(file *os.File) error {
+		return WriteBossesLua(file, flavor, bosses, date)
+	})
+	if err == nil {
+		fmt.Printf("Bosse %s: %d Karten, %d Encounter, Build %s\n", flavor, len(bosses.Maps), len(bosses.Names), bosses.Build)
 	}
 	return err
 }

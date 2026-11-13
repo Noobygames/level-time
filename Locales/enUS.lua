@@ -1938,4 +1938,9 @@ ns.locales.enUS = {
   QUEST_LEFTOVERS_DELETE = "Delete quest leftovers",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Delete permanently?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "After asking, deletes quest leftovers and items marked as junk that have no sell value. Anything with a sell value stays in your bags to sell.",
+  INSTANCE_COMPLETED = "%s completed: final boss defeated after %s (bosses %s).",
+  HISTORY_BOSSES = "Bosses",
+  HISTORY_BOSSES_TIP = "Bosses defeated in the run out of all bosses of the instance (without a boss list only the count). Hover the row to see each boss with its position: skull = defeated, head = alive.",
+  INSTANCE_REPORT_BOSSES = "bosses %s",
+  INSTANCE_REPORT_XP_RATE = "%s XP/h",
 }

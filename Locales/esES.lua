@@ -1938,4 +1938,9 @@ ns.locales.esES = {
   QUEST_LEFTOVERS_DELETE = "Borrar restos de misión",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "¿Borrar definitivamente?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Tras confirmar, borra los restos de misión y los objetos marcados como basura sin valor de venta. Lo que tiene valor se queda en tus bolsas para venderlo.",
+  INSTANCE_COMPLETED = "%s completado: jefe final derrotado tras %s (jefes %s).",
+  HISTORY_BOSSES = "Jefes",
+  HISTORY_BOSSES_TIP = "Jefes derrotados en la incursión de todos los jefes de la instancia (sin lista de jefes solo el número). Pasa el ratón por la fila para ver cada jefe con su posición: calavera = derrotado, cabeza = vivo.",
+  INSTANCE_REPORT_BOSSES = "jefes %s",
+  INSTANCE_REPORT_XP_RATE = "%s XP/h",
 }

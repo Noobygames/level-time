@@ -9,7 +9,8 @@
 --   mapID/x/y: Ort auf der Karte (nil in Instanzen), lastWords: letzte eigene Chatzeile (DeathPlace.lua)
 -- Quest-Eintrag: { time, level, zone, questID, name, xp, money, duration, delta }
 --   duration: /played-Sekunden von Annahme bis Abgabe, delta: Abweichung zur bisherigen Bestzeit (QuestSplits.lua)
--- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID }
+-- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation }, zoneUID,
+--                mapID, difficultyID, bosses }   bosses = besiegte encounterIDs "2741,2747" (InstanceBosses.lua)
 -- Beute:        { time, level, zone, link, name, quality, quantity, source, rollChoice, roll, rollNeed, rollGreed,
 --                 rollPass, rollDisenchant, rollTransmog }
 --   roll*: gewonnener Wurf (Wahl, Zahl, wie viele Bedarf/Gier/Passen/Entzaubern/Transmog gewählt haben), nur mit
@@ -63,7 +64,8 @@ Journal.LOGS = {
   instanceLog = { max = Journal.MAX_INSTANCE_RUNS, fields = {
     { path = "time" }, { path = "name", kind = VALUE }, { path = "instanceType", kind = VALUE }, { path = "seconds" },
     { path = "level" }, { path = "xp" }, { path = "counters.kills" }, { path = "counters.deaths" },
-    { path = "zoneUID" }, { path = "counters.reputation" }, { path = "mapID" }, { path = "difficultyID" } } },
+    { path = "zoneUID" }, { path = "counters.reputation" }, { path = "mapID" }, { path = "difficultyID" },
+    { path = "bosses", kind = VALUE } } },
   lootLog = { max = Journal.MAX_LOOT, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
     { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE },
@@ -217,6 +219,7 @@ function Journal.AddInstanceRun(run)
     zoneUID = run.zoneUID,
     mapID = run.mapID,
     difficultyID = run.difficultyID,
+    bosses = run.bosses,
   })
 end
 

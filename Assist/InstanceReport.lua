@@ -1,6 +1,6 @@
 -- Instanz-Bericht an die Gruppe (Roadmap 282, Einstellung announceInstanceReport, Standard aus, wie NovaInstanceTracker):
--- beim Verlassen einer Instanz eine Zeile mit Dauer, XP, Kills, XP je Kill und Geld des offenen Laufs
--- ("Level Time: Todesminen: 32m 10s, 12.3k XP, 45 Kills (273 XP/Kill), 2g 30s 5c").
+-- beim Verlassen einer Instanz eine Zeile mit Dauer, XP, XP/h, Bosse (Roadmap 484), Kills, XP je Kill und Geld des
+-- offenen Laufs ("Level Time: Todesminen: 32m 10s, 12.3k XP, 23k XP/h, Bosse 5/7, 45 Kills (273 XP/Kill), 2g 30s 5c").
 -- Nur in einer Gruppe (GroupChat.PartyChannel), nicht als Geist (der Lauf geht weiter), erst ab MIN_SECONDS und nur,
 -- wenn sich der Lauf seit dem letzten Bericht verändert hat (raus und wieder rein meldet nicht doppelt). Bei
 -- gesperrtem Chat (GroupChat.Locked) fällt der Bericht weg. Instances.lua hält die Uhr beim Verlassen vorher an.
@@ -46,7 +46,12 @@ local lastReported  -- Stand des zuletzt gemeldeten Laufs ("Name:Sekunden:XP:Kil
 function InstanceReport.Text(run)
   local Instances = ns.Instances
   local xp, kills = Instances.Summarize(run)
-  local parts = { Format.Duration(Instances.GetRunSeconds(run)), string.format(L.INSTANCE_REPORT_XP, Format.Number(xp)) }
+  local seconds = Instances.GetRunSeconds(run)
+  local parts = { Format.Duration(seconds), string.format(L.INSTANCE_REPORT_XP, Format.Number(xp)) }
+  local rate = ns.Experience.CountRate(xp, seconds)
+  if rate and xp > 0 then parts[#parts + 1] = string.format(L.INSTANCE_REPORT_XP_RATE, Format.Number(math.floor(rate))) end
+  local bosses = ns.InstanceBosses.ProgressText(run)
+  if bosses then parts[#parts + 1] = string.format(L.INSTANCE_REPORT_BOSSES, bosses) end
   if kills > 0 then
     local perKill = xp > 0 and string.format(L.INSTANCE_REPORT_PER_KILL, Format.Number(math.floor(xp / kills))) or ""
     parts[#parts + 1] = string.format(L.INSTANCE_REPORT_KILLS, kills) .. perKill

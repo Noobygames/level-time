@@ -71,6 +71,9 @@ Assist\MapCoordsData\classic_era.lua
 Assist\InstanceData\forever.lua
 Assist\MapCoordsData\forever.lua
 Assist\InstanceData\retail.lua
+Assist\BossData\anniversary.lua
+Assist\BossData\classic_era.lua
+Assist\BossData\forever.lua
 Assist\MapCoordsData\retail.lua
 Tracking\InstanceInfo.lua
 Tracking\InstanceCopy.lua
@@ -109,6 +112,7 @@ History\Daily.lua
 History\Money.lua
 History\PlayHours.lua
 History\Instances.lua
+History\InstanceBosses.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
 History\QuestEfficiency.lua

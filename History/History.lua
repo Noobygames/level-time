@@ -221,6 +221,7 @@ function History.GetInstanceLog(characterKey)
       level = run.level,
       mapID = run.mapID,
       difficultyID = run.difficultyID,
+      bosses = run.bosses,
       xp = record.xp,
       counters = record.counters,
       isCurrent = true,

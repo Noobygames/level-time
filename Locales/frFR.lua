@@ -1938,4 +1938,9 @@ ns.locales.frFR = {
   QUEST_LEFTOVERS_DELETE = "Supprimer les restes de quête",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Supprimer définitivement ?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Après confirmation, supprime les restes de quête et les objets marqués comme camelote sans valeur de vente. Tout ce qui a une valeur reste dans vos sacs pour être vendu.",
+  INSTANCE_COMPLETED = "%s terminé : boss final vaincu après %s (boss %s).",
+  HISTORY_BOSSES = "Boss",
+  HISTORY_BOSSES_TIP = "Boss vaincus pendant la sortie sur tous les boss de l'instance (sans liste de boss, seulement le nombre). Survolez la ligne pour voir chaque boss et sa position : crâne = vaincu, tête = vivant.",
+  INSTANCE_REPORT_BOSSES = "boss %s",
+  INSTANCE_REPORT_XP_RATE = "%s XP/h",
 }
