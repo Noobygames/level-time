@@ -2,6 +2,7 @@
 local SwingTimer = addon.SwingTimer
 
 wow.state.attackSpeed = { 2 }
+wow.state.cvars = { showSwingTimer = "1" }
 wow.login({ level = 20 })
 expect("Forever: verfügbar", SwingTimer.IsAvailable(), true)
 addon.Set("swingTimer", true)
@@ -22,4 +23,13 @@ wow.advance(2.5)
 frame._scripts.OnUpdate(frame, 0.1)
 expect("nach dem Kampf: kein Schwung", SwingTimer.Remaining(SwingTimer.MAIN), nil)
 expect("Anzeige weg", frame:IsShown(), false)
+
+-- Blizzards eigene Schwungbalken (Roadmap 489, CVar showSwingTimer): aus, solange gewünscht; danach zurück
+addon.Set("swingTimerHideBlizzard", true)
+expect("Blizzard-Balken aus", wow.state.cvars.showSwingTimer, "0")
+addon.Set("swingTimerHideBlizzard", false)
+expect("Blizzard-Balken zurück", wow.state.cvars.showSwingTimer, "1")
+addon.Set("swingTimerHideBlizzard", true)
+addon.Set("swingTimer", false)
+expect("Schwungbalken aus: Blizzard-Balken zurück", wow.state.cvars.showSwingTimer, "1")
 expect("keine Lua-Fehler", #wow.errors, 0)

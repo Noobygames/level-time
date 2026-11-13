@@ -12,7 +12,6 @@ Reihenfolge = Priorität: Korrektheit zuerst, dann Funktionen. Bestätigt: Nachr
 
 ### Funktionen
 
-- [ ] 489. **Schwungbalken anpassbar machen** (S–M): WoW Forever baut auf Retail auf und bringt eigene Schwungbalken mit; unsere (452, `Assist/SwingTimer.lua`) müssen sich davon durch Anpassbarkeit abheben. Breite/Höhe, Farben je Hand, Textur (Theme), Text (Restzeit/Dauer/aus), welche Hände gezeigt werden (Haupthand/Nebenhand/Fernkampf einzeln), Ausblenden außerhalb des Kampfes, Anordnung (untereinander/nebeneinander); Optionen in `UI/Options/ComfortWorld.lua` mit Vorschau. Prüfen, ob Forever eigene Balken abschalten lässt (CVar/Edit-Mode), sonst Hinweis.
 
 ## Geplant: Wettbewerbsanalyse (November 2026)
 

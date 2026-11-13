@@ -21,7 +21,49 @@ addToggles({
   toggle("SWING_TIMER", "swingTimer", ns.SwingTimer.IsAvailable),
 })
 O.addFramePreview("TARGET_RANGE_PREVIEW", "targetRange")
-if ns.SwingTimer.IsAvailable() then O.addFramePreview("SWING_TIMER_PREVIEW", "swingTimer") end
+-- Schwungbalken anpassen (Roadmap 489): ausgegraut, solange die Balken aus sind
+local function addSwingTimerOptions()
+  local SwingTimer = ns.SwingTimer
+  O.addFramePreview("SWING_TIMER_PREVIEW", "swingTimer")
+  addToggles({
+    requires(toggle("SWING_TIMER_MAIN", "swingTimerMain"), "swingTimer"),
+    requires(toggle("SWING_TIMER_OFF", "swingTimerOff"), "swingTimer"),
+    requires(toggle("SWING_TIMER_RANGED", "swingTimerRanged"), "swingTimer"),
+    requires(toggle("SWING_TIMER_COMBAT_ONLY", "swingTimerCombatOnly"), "swingTimer"),
+    requires(toggle("SWING_TIMER_HIDE_BLIZZARD", "swingTimerHideBlizzard", function()
+      return ns.CVars.Exists(SwingTimer.BLIZZARD_CVAR)
+    end), "swingTimer"),
+  })
+  local function sizeSlider(label, setting, min, max)
+    addSlider(requires({
+      label = label, setting = setting, min = min, max = max, step = 2,
+      get = function(db) return db[setting] end,
+      set = function(value) ns.SetDeferred(setting, value) end,
+      format = tostring,
+    }, "swingTimer"))
+  end
+  sizeSlider("SWING_TIMER_WIDTH", "swingTimerWidth", SwingTimer.MIN_WIDTH, SwingTimer.MAX_WIDTH)
+  sizeSlider("SWING_TIMER_HEIGHT", "swingTimerHeight", SwingTimer.MIN_HEIGHT, SwingTimer.MAX_HEIGHT)
+  local function choicesOf(values, prefix)
+    local choices = {}
+    for i, value in ipairs(values) do choices[i] = { value = value, name = localized(prefix .. value:upper()) } end
+    return choices
+  end
+  addChooser(requires({ label = "SWING_TIMER_TEXT", setting = "swingTimerText",
+    choices = choicesOf(SwingTimer.TEXT_MODES, "SWING_TIMER_TEXT_") }, "swingTimer"))
+  addChooser(requires({ label = "SWING_TIMER_LAYOUT", setting = "swingTimerLayout",
+    choices = choicesOf(SwingTimer.LAYOUTS, "SWING_TIMER_LAYOUT_") }, "swingTimer"))
+  -- Farben: Akzentfarben des Themes, "" = Standardfarbe der Hand
+  local colors = {}
+  for i, key in ipairs(SwingTimer.COLOR_ORDER) do
+    colors[i] = { value = key, name = localized(key == "" and "SWING_TIMER_COLOR_DEFAULT" or "ACCENT_" .. key:upper()) }
+  end
+  for _, hand in ipairs({ SwingTimer.MAIN, SwingTimer.OFF, SwingTimer.RANGED }) do
+    addChooser(requires({ label = "SWING_TIMER_COLOR_" .. hand:upper(), setting = SwingTimer.COLOR_SETTING[hand],
+      choices = colors, advanced = true }, "swingTimer"))
+  end
+end
+if ns.SwingTimer.IsAvailable() then addSwingTimerOptions() end
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
   for _, value in ipairs(ns.PlayerChain.ORDER) do
