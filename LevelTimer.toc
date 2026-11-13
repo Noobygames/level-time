@@ -155,6 +155,7 @@ UI\LootSparkleSceneAnimations.lua
 UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
+Assist\Reagents.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\SleepTimer.lua
@@ -221,6 +222,7 @@ Assist\LootRollReport.lua
 Tracking\RollLog.lua
 UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
+Assist\QuestLogRewards.lua
 Assist\QuestTextSize.lua
 Assist\QuestBagItems.lua
 Assist\QuestItemButton.lua

@@ -1112,3 +1112,37 @@ check("452.swing.combatlog", function()
     autoAttacking = status.autoAttacking, mainSpeed = plain(mainSpeed), offSpeed = plain(offSpeed),
     rangedSpeed = plain(rangedSpeed) }
 end)
+
+-- 486: XP und Geld je Quest im Log (Lib/QuestLog.lua): beachtet GetQuestLogRewardMoney(questID) die ID (Era)?
+-- Verschiedene Beträge je Quest = ja; überall der Betrag der zuletzt angesehenen Quest (selectedMoney) = nein
+check("486.questRewards", function()
+  local quests = {}
+  for index, entry in ipairs(ns.QuestLog.Entries()) do
+    if index > RECENT_ENTRIES then break end
+    table.insert(quests, { questID = entry.questID, xp = ns.QuestLog.RewardXp(entry.questID),
+      money = ns.QuestLog.RewardMoney(entry.questID) })
+  end
+  return {
+    setting = ns.db.questLogRewards,
+    quests = quests,
+    selectedMoney = call("GetQuestLogRewardMoney"),
+    classicHook = type(QuestLogTitleButton_OnEnter) == "function",
+    mainlineHook = type(QuestLogQuests_Update) == "function",
+  }
+end)
+
+-- 488: Reagenzien (Reagents.lua): Name und Bestand je Item der eigenen Klasse und welche Zauber bekannt sind
+-- (stimmen die Classic-IDs in WoW Forever?)
+check("488.reagents", function()
+  local items = {}
+  for _, need in ipairs(ns.Reagents.CLASSES[select(2, UnitClass("player"))] or {}) do
+    for _, option in ipairs(need) do
+      local known = {}
+      for _, spell in ipairs(option.spells) do known[#known + 1] = call("IsPlayerSpell", spell) end
+      table.insert(items, { item = option.item, name = ns.Items.GetName(option.item),
+        count = call("C_Item.GetItemCount", option.item), known = known })
+    end
+  end
+  return { setting = ns.db.warnReagents, available = ns.Reagents.IsAvailable(), items = items,
+    low = ns.Reagents.LowText() }
+end)

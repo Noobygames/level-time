@@ -105,6 +105,24 @@ function QuestTooltip.ProgressText(unit)
   return nil
 end
 
+-- Belohnungszeile (Roadmap 486) "Belohnung: 1.250 XP, 1g 20s"; nil ohne XP und Geld
+function QuestTooltip.RewardText(questID)
+  local parts = {}
+  local xp, money = ns.QuestLog.RewardXp(questID), ns.QuestLog.RewardMoney(questID)
+  if xp and xp > 0 then table.insert(parts, string.format(ns.L.INSTANCE_REPORT_XP, ns.Format.Integer(xp))) end
+  if money and money > 0 then table.insert(parts, ns.Format.Money(money)) end
+  if #parts == 0 then return nil end
+  return string.format(ns.L.QUEST_REWARD_LINE, table.concat(parts, ", "))
+end
+
+-- Belohnungszeile an einen offenen Tooltip hängen; true, wenn eine Zeile dazukam
+function QuestTooltip.AddRewardLine(tooltip, questID)
+  local text = QuestTooltip.RewardText(questID)
+  if not text then return false end
+  tooltip:AddLine(text, 1, 1, 1)
+  return true
+end
+
 function QuestTooltip.Forget()
   cache = {}
 end

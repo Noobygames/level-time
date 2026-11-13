@@ -4,6 +4,7 @@
 --   warnAmmo       Jäger mit weniger als ammoLow Schuss (Einstellung, Standard 200) im Munitionsplatz (nicht in Retail,
 --                  zweite Warnung "fast leer" unter ammoCritical, Wiederholung alle ammoRepeat Minuten;
 --                  dort gibt es keine Munition; GearWarnings.HasAmmo)
+--   warnReagents   Reagenzien für Buffs und Wiederbelebung knapp (Reagents.lua, nur Classic)
 -- Gewarnt wird einmal, wenn der Zustand eintritt (Einblendung + Chat), und erst wieder, nachdem er
 -- vorbei war (Munition: zusätzlich wiederholt, solange sie knapp bleibt). Geprüft wird alle CHECK_INTERVAL Sekunden statt auf viele Einzel-Events zu hören.
 -- Freie Plätze: Bags.GetFreeSlots (nur normale Taschen; Köcher und Berufstaschen zählen nicht).
@@ -123,16 +124,22 @@ local function bagsDetail()
 end
 
 -- Je Hinweis: Einstellung, Prüfung (true = warnen), Text, detail() (optional, Zusatz hinter dem Text); active = Zustand bei der letzten Prüfung;
--- repeatMinutes() (optional) wiederholt den Hinweis in diesem Abstand, solange der Zustand anhält (0 = nie)
+-- repeatMinutes() (optional) wiederholt den Hinweis in diesem Abstand, solange der Zustand anhält (0 = nie);
+-- available() (optional) = Hinweis passt zu Client und Klasse (Testen-Knopf)
 local WARNINGS = {
   { setting = "warnBagsFull", message = "WARN_BAGS_FULL", title = "NOTICE_BAGS", icon = "bags",
     isDue = function() return ns.Bags.GetFreeSlots() < BAGS_LOW end, detail = bagsDetail },
   { setting = "warnDurability", message = "WARN_DURABILITY", title = "NOTICE_DURABILITY", icon = "durability",
     isDue = function() return GearWarnings.GetLowestDurability() < DURABILITY_LOW end },
   { setting = "warnAmmo", message = "WARN_AMMO", title = "NOTICE_AMMO", icon = "ammo", isDue = isAmmoLow,
-    detail = ammoDetail, repeatMinutes = function() return ns.db.ammoRepeat end },
+    detail = ammoDetail, repeatMinutes = function() return ns.db.ammoRepeat end,
+    available = GearWarnings.ShowsAmmoOptions },
   { setting = "warnAmmo", message = "WARN_AMMO_CRITICAL", title = "NOTICE_AMMO", icon = "ammo", isDue = isAmmoCritical,
-    detail = ammoDetail, repeatMinutes = function() return ns.db.ammoRepeat end },
+    detail = ammoDetail, repeatMinutes = function() return ns.db.ammoRepeat end,
+    available = GearWarnings.ShowsAmmoOptions },
+  { setting = "warnReagents", message = "WARN_REAGENTS", title = "NOTICE_REAGENTS", icon = "reagents",
+    isDue = function() return #ns.Reagents.Low() > 0 end, detail = function() return ns.Reagents.LowText() end,
+    available = function() return ns.Reagents.IsAvailable() end },
 }
 
 local function notify(warning)
@@ -142,11 +149,12 @@ local function notify(warning)
     ns.Alerts.WARNING_COLOR)
 end
 
--- Vorschau (Testen-Knopf): ein Schritt je Hinweis, wie echt ausgelöst; Munition nur für Jäger
+-- Vorschau (Testen-Knopf): ein Schritt je Hinweis, wie echt ausgelöst; Munition nur für Jäger, Reagenzien nur für
+-- Klassen mit Reagenzien
 function GearWarnings.PreviewSteps()
   local steps = {}
   for _, warning in ipairs(WARNINGS) do
-    if warning.setting ~= "warnAmmo" or GearWarnings.ShowsAmmoOptions() then
+    if not warning.available or warning.available() then
       steps[#steps + 1] = function() notify(warning) end
     end
   end

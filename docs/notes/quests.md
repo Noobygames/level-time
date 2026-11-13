@@ -15,6 +15,10 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 - Gotchas: gopher-lua `tonumber(s:match(...))` without match errors, write `tonumber((s:match(...)))`; new textures/fontstrings are shown by default (hide overlays right away); tests using `ns.NamePlates.Active()` must fire `NAME_PLATE_UNIT_ADDED`.
 - Instance difficulty: a same-name difficulty change while inside is the same visit (`difficultySettled`); difficulty 0 counts as unsettled (`unsettledSibling` matches a visit of the same name with difficulty 0 on either side). Forever reports 0 right after entering.
 
+### Quest reward tooltip (roadmap 486)
+
+- `QuestLog.RewardMoney`, `QuestTooltip.RewardText/AddRewardLine` (XP + gold line); QuestMap pins always, quest log rows via `Assist/QuestLogRewards.lua` (`questLogRewards`, off): Era hooks `QuestLogTitleButton_OnEnter`, Retail/Forever `HookScript("OnEnter")` per `QuestScrollFrame.titleFramePool` button after `QuestLogQuests_Update` (XML binds `QuestMapLogTitleButton_OnEnter` at creation). Check `486.questRewards`.
+
 ### Party quest sync (roadmap 453)
 
 - `Assist/PartyQuestSync.lua` (`partyQuestSync`, off by default): addon messages with prefix `ns.ADDON_ID .. "Q"` in party only (not in raids > 5): only accepted on PARTY/RAID/INSTANCE_CHAT; `Q` request (on roster update, 30 s cooldown; answered with a snapshot at most once per cooldown), `S:<id>:<idx>=<have>/<need>,...;...` snapshot (max 240 chars per message), `U:<id>:<idx>:<have>:<need>`, `C:<id>` ready, `R:<id>` removed/turned in. Producers via `QuestWatch.Subscribe`; peers per short name, cleared on leaving the group. Tooltip line "Party progress: Name (2/5), ..." on quest hyperlinks (`GameTooltip:SetHyperlink` post-hook). Queue flushed every second while the setting is on, respects `GroupChat.Locked`. Debug check `453.partyQuestSync`.

@@ -84,6 +84,7 @@ addToggles({
   toggle("WARN_BAGS_FULL_TOGGLE", "warnBagsFull"),
   toggle("WARN_DURABILITY_TOGGLE", "warnDurability"),
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
+  toggle("WARN_REAGENTS_TOGGLE", "warnReagents", ns.Reagents.IsAvailable),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
@@ -136,6 +137,20 @@ if ns.GearWarnings.ShowsAmmoOptions() then
     set = function(value) ns.SetDeferred("ammoRepeat", value) end,
     format = function(value) return value == 0 and L.AMMO_ONCE or string.format(L.MINUTES, value) end,
   }, "warnAmmo"))
+end
+
+-- Reagenzien: nur Klassen mit Reagenzien außerhalb von Retail (Roadmap 488)
+if ns.Reagents.IsAvailable() then
+  addSlider(requires({
+    label = "WARN_REAGENTS_BELOW",
+    setting = "reagentLow",
+    min = ns.Reagents.MIN_LOW,
+    max = ns.Reagents.MAX_LOW,
+    step = 1,
+    get = function(db) return db.reagentLow end,
+    set = function(value) ns.SetDeferred("reagentLow", value) end,
+    format = function(value) return tostring(value) end,
+  }, "warnReagents"))
 end
 
 -- Testen: eine Warnung je Klick (Atem, Taschen, Haltbarkeit, Munition, Instanzlimit, Aggro, Hardcore, Notfall), wie echt

@@ -160,6 +160,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **238. Zauberrang in der Zauberleiste, Datenteil (Roadmap 487)**: check `487.spellHistory.rank` nach ein paar Zaubern (roher Untertext je Zauber und gelesene Rangzahl; Era „Rang n“, Retail/Forever ohne Zahl = leer)
 - **239. Häutbare Leichen glitzern, Datenteil (Roadmap 479)**: check `479.lootSparkles.skinning` als Kürschner vor einer leergeplünderten, häutbaren Leiche (Tooltipzeilen mit „Häutbar“, `hasLoot`/`canLoot` nach dem Plündern, `skinningTrained`, `kind` = corpse); ob das Soft-Targeting solche Leichen überhaupt wählt, zeigt `name`/`dead`
 - **240. Boss-Kills je Instanz-Lauf, Datenteil (Roadmap 483)**: check `483.bosses` (Bossliste der Instanz mit Namen, besiegte encounterIDs des Laufs, letzte Meldung: `encounter` = ENCOUNTER_END bzw. `died` = Fallback über UNIT_DIED, success, gezählt) und debug `instances` (boss killed ...); je Client einen Dungeon bis zum Endboss spielen, dann `/lt debug check`
+- **242. XP und Gold im Quest-Tooltip, Datenteil (Roadmap 486)**: check `486.questRewards` (je Quest XP und Geld; in Era gleiche Beträge bei allen Quests = `GetQuestLogRewardMoney(questID)` ignoriert die ID, Vergleich `selectedMoney`; welche Hooks es gibt). Sichtprüfung: Questlog-Zeile überfahren (Einstellung an), Questkarte-Punkt überfahren
+- **243. Reagenzien-Erinnerung, Datenteil (Roadmap 488, Classic Era/WoW Forever)**: check `488.reagents` (je Item der Klasse Name, Bestand, bekannte Zauber; in Forever: liefern die Classic-IDs Namen und `IsPlayerSpell` true?), debug `warnings` (WARN_REAGENTS, reagents sold here …). Sichtprüfung: Warnung mit Bestand, Chathinweis beim Reagenzienhändler
 
 ---
 

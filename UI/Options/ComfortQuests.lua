@@ -41,6 +41,7 @@ addSubPage("COMFORT_PAGE_QUEST_DISPLAY")
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
+  toggle("QUEST_LOG_REWARDS_TOGGLE", "questLogRewards"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
   advanced(requires(toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"), "questTargetButton")),
