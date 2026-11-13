@@ -17,7 +17,8 @@ end
 -- Anderer Charakter hatte Level 10 in 600 s (Bestzeit)
 LevelTimerStatsDB = { characters = {
   ["Alt-Testrealm"] = { schemaVersion = addon.Database.CHARACTER_SCHEMA_VERSION, name = "Alt", realm = "Testrealm",
-    currentLevel = { level = 30 }, levelHistory = { [10] = { level = 10, seconds = 600, xp = 1000, counters = {} } } },
+    currentLevel = { level = 30 }, levelHistory = { [10] = { level = 10, seconds = 600, xp = 1000, counters = {} },
+    [11] = { level = 11, seconds = 600, xp = 1000, counters = {} } } },
 } }
 wow.login({ level = 10, xp = 0, xpMax = 100000, playedSeconds = 0 })
 addon.Set("announceRecords", true)
@@ -85,3 +86,15 @@ local count = #wow.printed
 gain(300000)
 expect("ohne Meldung gespeichert", Records.Get(Records.BIGGEST_GAIN).value, 300000)
 expect("keine Chatzeile", #wow.printed, count)
+
+-- Mit goldSplitNotice meldet nur Splits.lua das schnellste Level (sonst doppelt)
+addon.Set("announceRecords", true)
+addon.Set("goldSplitNotice", true)
+wow.fire("TIME_PLAYED_MSG", 100300, 300)
+wow.state.xp = wow.state.xpMax
+wow.fire("PLAYER_XP_UPDATE", "player")
+wow.levelUp(12, 120000)
+expectTrue("Gold-Split gemeldet", announced(string.format(L.GOLD_SPLIT, 11, addon.Format.Duration(300),
+  addon.Format.SignedDuration(-300))))
+expect("kein zweiter Rekord-Hinweis", announced(string.format(L.RECORD_FASTEST_LEVEL, 11, addon.Format.Duration(300),
+  addon.Format.Duration(600))), false)

@@ -7,7 +7,6 @@
 local _, ns = ...
 local L = ns.L
 local Runs = ns.Runs
-local History = ns.History
 
 local LiveSplitExport = {}
 ns.LiveSplitExport = LiveSplitExport
@@ -33,17 +32,6 @@ local function escape(text)
   return (tostring(text):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"))
 end
 
--- Schnellste Zeit je Level über alle eigenen Charaktere (ohne Teil-Level)
-local function bestSegments()
-  local best = {}
-  for _, key in ipairs(History.GetCharacterKeys()) do
-    for level, seconds in pairs(Runs.LevelTimes(key, true)) do
-      if not best[level] or seconds < best[level] then best[level] = seconds end
-    end
-  end
-  return best
-end
-
 -- Erstes Level mit Zeit und das letzte davon ohne Lücke; nil ohne abgeschlossenes Level
 local function contiguousRange(times)
   local first
@@ -67,7 +55,7 @@ function LiveSplitExport.Build(characterKey)
   local times = Runs.LevelTimes(characterKey)
   local first, last = contiguousRange(times)
   if not first then return nil end
-  local best = bestSegments()
+  local best = Runs.BestPerLevel()
   local lines = {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<Run version="1.7.0">',

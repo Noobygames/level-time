@@ -126,28 +126,15 @@ ns.Journal.OnAdd(function(logName, entry)
   PersonalRecords.Offer(PersonalRecords.BEST_INSTANCE_RATE, Experience.CalculateRate(entry.xp, entry.seconds))
 end)
 
--- Schnellstes Level: Bestzeit aller anderen Einträge für dieses Level (ohne Teil-Level, Coverage.lua)
-local function bestOtherLevelSeconds(level, own)
-  local best
-  for _, character in pairs(ns.Database.GetCharacters()) do
-    local record = character.levelHistory and character.levelHistory[level]
-    if record and record ~= own and record.seconds and not record.partial and (not best or record.seconds < best) then
-      best = record.seconds
-    end
-  end
-  return best
-end
-
--- Läuft nach History.lua (lädt früher): der Eintrag des abgeschlossenen Levels steht schon in levelHistory
+-- Schnellstes Level = Gold-Split (Splits.lua, lädt später, hier erst zur Laufzeit gelesen); mit goldSplitNotice
+-- meldet Splits.lua es schon selbst. Läuft nach History.lua: der Eintrag des Levels steht schon in levelHistory
 ns.OnLevelCompleted(function(completedLevel)
-  local own = ns.character.levelHistory[completedLevel]
-  if not own or not own.seconds or own.partial then return end
-  local best = bestOtherLevelSeconds(completedLevel, own)
-  if best and own.seconds < best then
-    ns.Debug("records", "fastest level %s: %s (before %s)", completedLevel, own.seconds, best)
-    announce(L.RECORD_TITLE, string.format(L.RECORD_FASTEST_LEVEL, completedLevel, Format.Duration(own.seconds),
-      Format.Duration(best)))
-  end
+  local Splits = ns.Splits
+  if ns.db.goldSplitNotice or not Splits.IsGoldSplit(completedLevel) then return end
+  local seconds, best = ns.character.levelHistory[completedLevel].seconds, Splits.GetBestTime(completedLevel)
+  ns.Debug("records", "fastest level %s: %s (before %s)", completedLevel, seconds, best)
+  announce(L.RECORD_TITLE, string.format(L.RECORD_FASTEST_LEVEL, completedLevel, Format.Duration(seconds),
+    Format.Duration(best)))
 end)
 
 ns.OnLogin(function() announcedThisSession = {} end)

@@ -191,23 +191,13 @@ end
 
 -- { level, seconds, run, ownSeconds }, höchstes Level zuerst
 local function recordRows()
-  local best = {}
   assignShortNames(Runs.GetAll())
-  for _, run in ipairs(Runs.GetAll()) do
-    if not run.imported then
-      for level, seconds in pairs(run.bestTimes) do  -- ohne Teil-Level (Coverage.lua)
-        if not best[level] or seconds < best[level].seconds then
-          best[level] = { level = level, seconds = seconds, run = run }
-        end
-      end
-    end
-  end
+  local best, holders = Runs.BestPerLevel()
   local rows = {}
-  for level, entry in pairs(best) do
+  for level, seconds in pairs(best) do
     local own = ns.character.levelHistory[level]
-    entry.ownSeconds = own and own.seconds
-    entry.isCurrent = entry.run.id == ns.characterKey  -- Rekord vom eingeloggten Charakter hervorheben
-    table.insert(rows, entry)
+    table.insert(rows, { level = level, seconds = seconds, run = holders[level], ownSeconds = own and own.seconds,
+      isCurrent = holders[level].id == ns.characterKey })  -- Rekord vom eingeloggten Charakter hervorheben
   end
   table.sort(rows, function(a, b) return a.level > b.level end)
   return rows
