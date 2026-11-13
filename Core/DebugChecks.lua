@@ -758,6 +758,28 @@ check("451.minimapBar.buttons", function()
     shown = method(bar, "IsShown"), mouse = method(bar, "IsMouseEnabled") }, buttons = buttons }
 end)
 
+-- 481: Ebenen und Anker der gesammelten Knöpfe (feste Ebene wie LibDBIcon, Zusatzanker an der Minimap)
+check("481.minimapBar.layers", function()
+  local bar = ns.MinimapBar and ns.MinimapBar.BarFrame()
+  local buttons = {}
+  for _, button in ipairs(ns.MinimapBar and ns.MinimapBar.Collected() or {}) do
+    local points = {}
+    for i = 1, method(button, "GetNumPoints") or 0 do
+      local ok, point, relativeTo = pcall(button.GetPoint, button, i)
+      points[#points + 1] = ok and { point, frameName(relativeTo) } or "error"
+    end
+    buttons[#buttons + 1] = {
+      name = frameName(button), level = method(button, "GetFrameLevel"), strata = method(button, "GetFrameStrata"),
+      fixedLevel = method(button, "HasFixedFrameLevel"), fixedStrata = method(button, "HasFixedFrameStrata"),
+      aboveBar = bar ~= nil and (method(button, "GetFrameLevel") or 0) > (method(bar, "GetFrameLevel") or 0),
+      parentIsBar = bar ~= nil and method(button, "GetParent") == bar, points = points,
+      dragScript = method(button, "GetScript", "OnDragStart") ~= nil,
+    }
+  end
+  return { barLevel = bar and method(bar, "GetFrameLevel"), barStrata = bar and method(bar, "GetFrameStrata"),
+    buttons = buttons }
+end)
+
 -- 357: Theme, Font-Objekte je Rolle (Schrift, Größe, Flags nach dem Anwenden), LibSharedMedia geladen
 check("357.theme", function()
   local fonts = {}

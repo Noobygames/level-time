@@ -157,6 +157,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
+- **239. Minimap-Knopfleiste, Ebenen und Anker (Roadmap 481)**: check `481.minimapBar.layers` (je Knopf Ebene, feste Ebene/Schicht, alle Anker, über der Leiste)
 - **238. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`)
 
 ---
@@ -3449,4 +3450,23 @@ Datenteil per Debug-Log: check `450.mail` (`unitName` muss Vorname und Nachname 
 ```text
 Client:
 Empfänger richtig (ja/nein):
+```
+
+### 239. Minimap-Knopfleiste: fremde Knöpfe bedienbar (Roadmap 481)
+
+- [ ] geprüft
+
+Datenteil per Debug-Log: check `481.minimapBar.layers` (bei aufgeklappter Leiste `/lt debug check 481.minimapBar.layers`,
+jeder Knopf `aboveBar: true`, genau ein Anker an der Leiste). Fix: LibDBIcon-Knöpfe (feste Ebene) liegen über der Leiste,
+Zusatzanker an der Minimap werden sofort zurückgesetzt.
+
+- Leiste aufklappen: Details, Questie, DBM und andere LibDBIcon-Knöpfe per Links- und Rechtsklick bedienbar, Tooltip erscheint
+- Knopf in der Leiste ziehen: bleibt an seinem Platz (wandert nicht an die Minimap)
+- Leiste ausschalten: Knöpfe sitzen wieder an der Minimap und lassen sich dort wie gewohnt ziehen
+
+```text
+Client:
+Alle Symbole klickbar (ja/nein):
+Ziehen bleibt in der Leiste (ja/nein):
+Betroffene Addons (falls noch welche):
 ```

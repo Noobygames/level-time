@@ -83,8 +83,22 @@ end
 -- sie bleiben dann auf niedriger Deckkraft ("ausgegraut").
 local MAX_CHILD_DEPTH = 3
 local hookedButtons = {}
-local hookedLibs = false
 local settingAlpha = false
+local placing = false
+
+-- Feste Ebene/Schicht (LibDBIcon: SetFixedFrameLevel/SetFixedFrameStrata(true)) lässt SetFrameLevel/-Strata wirkungslos;
+-- kurz lösen wie Blizzard TalentFrameBaseMixin:SetElementFrameLevel. Sonst bleibt der Knopf unter der Leiste,
+-- die per EnableMouse jeden Klick abfängt.
+local function setLayer(frame, strata, level)
+  local fixedStrata = type(frame.HasFixedFrameStrata) == "function" and frame:HasFixedFrameStrata()
+  local fixedLevel = type(frame.HasFixedFrameLevel) == "function" and frame:HasFixedFrameLevel()
+  if fixedStrata then frame:SetFixedFrameStrata(false) end
+  if fixedLevel then frame:SetFixedFrameLevel(false) end
+  if strata and frame.SetFrameStrata then frame:SetFrameStrata(strata) end
+  if level and frame.SetFrameLevel then frame:SetFrameLevel(level) end
+  if fixedStrata then frame:SetFixedFrameStrata(true) end
+  if fixedLevel then frame:SetFixedFrameLevel(true) end
+end
 
 local function holdAlpha(child)
   if not child.SetAlpha then return end
@@ -104,17 +118,38 @@ local function raiseChildren(frame, strata, level, depth, saved)
       if saved and not saved[sub] then
         saved[sub] = { strata = sub.GetFrameStrata and sub:GetFrameStrata(), level = sub:GetFrameLevel() }
       end
-      if sub.SetFrameStrata then sub:SetFrameStrata(strata) end
-      sub:SetFrameLevel(level)
+      setLayer(sub, strata, level)
       raiseChildren(sub, strata, level + 1, depth + 1, saved)
     end
   end
 end
 
--- Fade-Animation und spätere SetAlpha-Aufrufe des Addons wieder auf volle Deckkraft zwingen (nur solange gesammelt)
+-- Platz des Knopfs in der Leiste (Spalte/Zeile aus der Reihenfolge der sichtbaren Knöpfe)
+local layoutButtons
+
+local function placeButton(child, index)
+  local col = (index - 1) % MAX_PER_ROW
+  local row = math.floor((index - 1) / MAX_PER_ROW)
+  placing = true
+  child:SetParent(barFrame)
+  child:ClearAllPoints()
+  child:SetPoint("TOPLEFT", barFrame, "TOPLEFT", PADDING + col * (BUTTON_SIZE + GAP), -(PADDING + row * (BUTTON_SIZE + GAP)))
+  placing = false
+end
+
+-- Fade-Animation und spätere SetAlpha-Aufrufe des Addons wieder auf volle Deckkraft zwingen (nur solange gesammelt).
+-- SetPoint: LibDBIcon (updatePosition bei Ziehen, Refresh, Show, SetButtonRadius, ...) und andere Addons hängen den
+-- Knopf zusätzlich an die Minimap, ohne ClearAllPoints; gesammelt wird die Leiste sofort neu angeordnet
+-- (deckt auch lib:Show eines zuvor versteckten Knopfs ab).
 local function hookButton(child)
   if hookedButtons[child] then return end
   hookedButtons[child] = true
+  if type(hooksecurefunc) == "function" and type(child.SetPoint) == "function" then
+    hooksecurefunc(child, "SetPoint", function(self, _, relativeTo)
+      if placing or not originalStates[self] or relativeTo == nil or relativeTo == barFrame or inCombat() then return end
+      layoutButtons()
+    end)
+  end
   if type(hooksecurefunc) == "function" and type(child.SetAlpha) == "function" then
     hooksecurefunc(child, "SetAlpha", function(self, alpha)
       if settingAlpha or not originalStates[self] or ns.IsSecret(alpha) then return end
@@ -132,8 +167,7 @@ end
 local function prepareButton(child)
   local strata = barFrame:GetFrameStrata() or "MEDIUM"
   local level = (barFrame:GetFrameLevel() or 1) + 2
-  if child.SetFrameStrata then child:SetFrameStrata(strata) end
-  if child.SetFrameLevel then child:SetFrameLevel(level) end
+  setLayer(child, strata, level)
   local saved = originalStates[child]
   if saved then saved.children = saved.children or {} end
   raiseChildren(child, strata, level + 1, 1, saved and saved.children)
@@ -142,7 +176,7 @@ local function prepareButton(child)
 end
 
 -- Nur sichtbare Knöpfe anordnen: vom Addon versteckte (z.B. LibDBIcon "hide") bleiben versteckt und ohne Lücke
-local function layoutButtons()
+function layoutButtons()
   if not barFrame then return end
   local shown = {}
   for _, child in ipairs(collectedButtons) do
@@ -160,13 +194,7 @@ local function layoutButtons()
   barFrame:SetSize(barWidth, barHeight)
 
   for i, child in ipairs(shown) do
-    child:SetParent(barFrame)
-    child:ClearAllPoints()
-    local col = (i - 1) % MAX_PER_ROW
-    local row = math.floor((i - 1) / MAX_PER_ROW)
-    local x = PADDING + col * (BUTTON_SIZE + GAP)
-    local y = -(PADDING + row * (BUTTON_SIZE + GAP))
-    child:SetPoint("TOPLEFT", barFrame, "TOPLEFT", x, y)
+    placeButton(child, i)
     prepareButton(child)
     if child.SetScale then
       child:SetScale(1)
@@ -290,27 +318,9 @@ function MinimapBar.Scan()
   return candidates
 end
 
--- LibDBIcon setzt Knöpfe bei Refresh/Show/SetButtonToPosition zurück an die Minimap: Leistenlage danach erneuern
-local function hookLibDBIcon()
-  if hookedLibs or type(hooksecurefunc) ~= "function" or not LibStub then return end
-  local lib = LibStub("LibDBIcon-1.0", true)
-  if not lib then return end
-  hookedLibs = true
-  for _, name in ipairs({ "Refresh", "Show", "SetButtonToPosition" }) do
-    if type(lib[name]) == "function" then
-      hooksecurefunc(lib, name, function()
-        if ns.db and ns.db.minimapButtonBar and #collectedButtons > 0 and not inCombat() then
-          layoutButtons()
-        end
-      end)
-    end
-  end
-end
-
 local function doCollect()
   if not MinimapBar.IsAvailable() then return end
   createFrames()
-  hookLibDBIcon()
   local candidates = MinimapBar.Scan()
   for _, child in ipairs(candidates) do
     -- Versteckte Knöpfe (vom Addon oder Spieler ausgeblendet) nicht einsammeln
@@ -366,16 +376,14 @@ local function doRestoreAll()
   for _, child in ipairs(collectedButtons) do
     local saved = originalStates[child]
     if saved then
+      originalStates[child] = nil
       if child.SetParent then child:SetParent(saved.parent) end
       child:ClearAllPoints()
-      if #saved.points > 0 then
-        for _, pt in ipairs(saved.points) do
-          child:SetPoint(pt[1], pt[2], pt[3], pt[4], pt[5])
-        end
+      for _, pt in ipairs(saved.points) do
+        child:SetPoint(pt[1], pt[2], pt[3], pt[4], pt[5])
       end
       if child.SetScale then child:SetScale(saved.scale) end
-      if child.SetFrameStrata then child:SetFrameStrata(saved.strata) end
-      if child.SetFrameLevel then child:SetFrameLevel(saved.level) end
+      setLayer(child, saved.strata, saved.level)
       if child.SetShown then
         child:SetShown(saved.shown)
       elseif saved.shown then
@@ -389,10 +397,8 @@ local function doRestoreAll()
         settingAlpha = false
       end
       for sub, state in pairs(saved.children or {}) do
-        if state.strata and sub.SetFrameStrata then sub:SetFrameStrata(state.strata) end
-        if sub.SetFrameLevel then sub:SetFrameLevel(state.level) end
+        setLayer(sub, state.strata, state.level)
       end
-      originalStates[child] = nil
     end
   end
   collectedButtons = {}
