@@ -1,6 +1,6 @@
 # Roadmap
 
-Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **499**.
+Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **503**.
 
 ## Funde aus dem Spieltest (November 2026)
 
@@ -11,6 +11,11 @@ Reihenfolge = Priorität: Korrektheit zuerst, dann Funktionen. Bestätigt: Nachr
 - [ ] 482. **Schiffs- und Zeppelinzeiten lernen nicht** (M): Auch nach mehrmaligem Mitfahren zeigen `Assist/TransportTimes.lua`/`TransportPaths.lua` keine Abfahrtszeiten (440, 459; offene Checks 222 und 226). Client notieren, Debug-Log `440.transport.state` auswerten (Strecke erkannt? Phase/Periode gemessen? Anleger-Position passend?) und die Messung bzw. Zuordnung der Fahrt zur Strecke korrigieren. Vor dem Bau gegen die Blizzard-Doku je Client prüfen (Transport-Erkennung, `C_Map`-Positionen auf dem Schiff). **Teilweise: Ursache im Code: eine Periode entstand nur aus zwei Fahrten derselben Richtung binnen 30 min (`MAX_PERIOD`), und die Ankunft galt schon beim Ladebild (Zielanleger mitten im Anflug, Fahrzeit zu kurz). Jetzt: Ankunft = Transport hat angelegt (Spieler steht, Position `STAND_MIN_SECONDS` ruhig), `rideTime` Anleger zu Anleger; daraus über die Rundkurse (`TransportPaths.Speed`) eine geschätzte Periode schon nach einer Fahrt, die als Vorgabe auch Fahrten Stunden später zählbar macht (`MAX_ESTIMATE_CYCLES`). Neue Debug-Zeilen `no departure at`, `player moving`, `arrival at`, `estimate`; Check `440.transport.state` mit `moving`, `ride.still`, `rideTime`. Offen: im Spiel bestätigen (Check 222/226), v.a. ob `IsPlayerMoving` auf dem fahrenden Transport false liefert und die Anleger einem Rundkurs zugeordnet werden.**
 
 ### Funktionen
+
+- [ ] 499. **Kill-Zahl im Gegner-Tooltip** (S): Im Tooltip eines Gegners „x-mal getötet“ zeigen (Zahl aus dem Kill-Journal je Name).
+- [ ] 500. **Gewählte Buffs bei eingeklappter Buffleiste sichtbar** (M): Klappt man Blizzards Buffleiste ein, bleiben einstellbare Buffs sichtbar, z. B. Wasserschild/Blitzschild, deren Ladungen man im Auge behalten muss (Screenshot `wasserschild-stacks.png`). Einstellung: Liste der Buffs, die sichtbar bleiben. Vorher prüfen: Kann Blizzards Cooldown-Manager (Retail) dieses Buff-Tracking übernehmen?
+- [ ] 501. **Kacheln-Layout: Bereich umschalten** (S–M): Im Kacheln-Layout des Hauptfensters fehlt der Wechsel zwischen Session, Instanz und Level.
+- [ ] 502. **Addon „OnForAll“ ansehen** (S): Funktionen des Addons prüfen, Lücken und Ideen als Roadmap-Punkte anlegen (genauer Name klären).
 
 
 ## Geplant: Instanzen, Quests, Klassen (November 2026)
