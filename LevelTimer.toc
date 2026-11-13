@@ -310,5 +310,7 @@ UI\BlizzardOverlays.lua
 Core\DebugChecks.lua
 Core\DebugTools.lua
 UI\WelcomeCard.lua
+UI\ChangelogData.lua
+UI\Changelog.lua
 Lib\SlashCommands.lua
 Core\Commands.lua

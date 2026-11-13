@@ -237,6 +237,9 @@ addToggles({
     set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 addVisibilitySection()
+-- Changelog (UI/Changelog.lua): nach Updates automatisch, jederzeit die letzten 14 Tage
+addToggles({ toggle("CHANGELOG_AUTO_SHOW", "changelogAutoShow") })
+addButton("CHANGELOG_SHOW", function() ns.Changelog.ShowRecent() end)
 addHint("OPTIONS_HINT")
 addSubPage("OPTIONS_PAGE_LAYOUT")
 addDisplaySection()

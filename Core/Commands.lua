@@ -46,6 +46,7 @@ local commands = {
   reset = function() ns.EditMode.ConfirmResetAll() end,  -- Position und Größe aller Anzeigen, nach Rückfrage
   edit = function() ns.EditMode.Toggle() end,
   welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
+  changelog = function() ns.Changelog.ShowRecent() end,  -- Änderungen der letzten 14 Tage (UI/Changelog.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
   bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,

@@ -9,7 +9,9 @@ local ADDON_DIR = stub.ADDON_DIR
 -- state.addOnsUnavailable[name] = true wie ein fehlendes oder ausgeschaltetes Addon; wow.addOnLoads zählt Ladevorgänge.
 wow.addOnLoads = {}
 local loadedAddOns = {}
+-- state.addOnVersion = Feld "Version" der .toc (GetAddOnMetadata), sonst nil wie ein fehlendes Feld
 C_AddOns = {
+  GetAddOnMetadata = function(_, field) if field == "Version" then return state.addOnVersion end end,
   IsAddOnLoaded = function(name) return loadedAddOns[name] == true end,
   LoadAddOn = function(name)
     if loadedAddOns[name] then return true end
