@@ -228,11 +228,14 @@ local function instancesToday()
   return string.format(ns.L.INSTANCES_TODAY_DAILY, today, InstanceLimit.GetDayCount(), dailyLimit)
 end
 
--- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP"
+-- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP" (mit Bossen: ", Bosse 2/7")
 local function instanceRun()
   local run = ns.Instances.GetCurrentRun()
   if not run then return NO_VALUE end
-  return string.format(ns.L.INSTANCE_RUN_VALUE, Format.Duration(ns.Instances.GetRunSeconds(run)), Format.Number(ns.Instances.Summarize(run)))
+  local text = string.format(ns.L.INSTANCE_RUN_VALUE, Format.Duration(ns.Instances.GetRunSeconds(run)),
+    Format.Number(ns.Instances.Summarize(run)))
+  local bosses = ns.InstanceBosses.ProgressText(run)
+  return bosses and (text .. ", " .. string.format(ns.L.INSTANCE_REPORT_BOSSES, bosses)) or text
 end
 
 -- Stammdaten der Instanz des laufenden Laufs "5 Spieler, Reset: Täglich, Level 15-28" (InstanceInfo)

@@ -274,6 +274,9 @@ local INSTANCE_COLUMNS = {
   counterColumn("HISTORY_KILLS", "kills", 50),
   counterColumn("HISTORY_DEATHS", "deaths", 40),
   counterColumn("HISTORY_REPUTATION", "reputation", 40),
+  -- Bosse "x/y" (InstanceBosses.lua); Symbole je Boss im Tooltip der Zeile
+  { header = "HISTORY_BOSSES", width = 45, value = function(r) return ns.InstanceBosses.ProgressText(r) or "-" end,
+    sort = function(r) return select(2, ns.InstanceBosses.Killed(r)) end },
   levelColumn(40),
 }
 
@@ -473,9 +476,10 @@ HistoryTables.ANALYSIS = "HISTORY_GROUP_ANALYSIS"
 local LEVELS, SESSIONS, JOURNAL, ANALYSIS = HistoryTables.LEVELS, HistoryTables.SESSIONS, HistoryTables.JOURNAL,
   HistoryTables.ANALYSIS
 
-local function addTable(tab, group, columns, records, footer, hint, rowLink)
+local function addTable(tab, group, columns, records, footer, hint, rowLink, rowTooltip)
   ns.HistoryWindow.AddView(TableView.Create({
     tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint, rowLink = rowLink,
+    rowTooltip = rowTooltip,
   }))
 end
 
@@ -524,7 +528,8 @@ addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
 addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
 addJournalTable("HISTORY_TAB_LOOT", LOOT_COLUMNS, "lootLog", itemLink)
 addJournalTable("HISTORY_TAB_ROLLS", ROLL_COLUMNS, "rollLog", itemLink, "HISTORY_ROLLS_EMPTY")
-addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
+addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells, nil, nil,
+  ns.InstanceBosses.TooltipLines)
 -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
 if ns.NearDeath.IsAvailable() then
   addJournalTable("HISTORY_TAB_NEAR_DEATHS", NEAR_DEATH_COLUMNS, "nearDeathLog")

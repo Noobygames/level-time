@@ -3451,3 +3451,20 @@ Client:
 Meldung (ja/nein, Bosse x/y stimmt):
 Fehler:
 ```
+
+### 239. Instanz-Ansicht mit Bossen (Roadmap 484)
+
+- [ ] geprüft
+
+Nach einem Dungeon (Classic Era, Anniversary, Forever): Historie > Instanzen zeigt die Spalte „Bosse“ mit x/y; Maus
+über die Zeile listet jeden Boss mit Position, Totenkopf = besiegt, Kopf = lebt (Symbole sichtbar, Namen in der
+Client-Sprache). `/lt report` und die Fensterzeile „Instanz-Lauf“ zeigen „Bosse x/y“, der Bericht auch XP/h.
+Retail: Spalte zeigt nur die Zahl, kein Tooltip.
+
+**Antwort:**
+
+```text
+Client:
+Spalte/Tooltip/Symbole ok:
+Fehler:
+```

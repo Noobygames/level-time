@@ -50,6 +50,15 @@ expect("Tooltip: Titel + sieben Bosse", #lines, 8)
 expectTrue("Rhahk'Zor besiegt", lines[2]:find("Skull", 1, true) ~= nil and lines[2]:find("1. Rhahk'Zor", 1, true) ~= nil)
 expectTrue("Sneed lebt", lines[3]:find("Head", 1, true) ~= nil)
 
+-- Roadmap 484: Bericht und Fensterzeile zeigen "Bosse 2/7"
+local bossesPart = string.format(addon.L.INSTANCE_REPORT_BOSSES, "2/7")
+expectTrue("Bericht mit Bossen", addon.InstanceReport.Text(run):find(bossesPart, 1, true) ~= nil)
+local windowRow
+for _, line in ipairs(addon.STAT_LINES) do
+  if line.setting == "showInstanceRun" then windowRow = line.rows[1].value() end
+end
+expectTrue("Fensterzeile mit Bossen", windowRow:find(bossesPart, 1, true) ~= nil)
+
 -- Historie: laufender Lauf und beendeter Eintrag tragen die Bosse
 expect("Historie laufender Lauf", addon.History.GetInstanceLog(addon.characterKey)[1].bosses, "2741,2747")
 addon.Instances.ResetCurrent()
