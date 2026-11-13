@@ -1941,4 +1941,12 @@ ns.locales.deDE = {
   QUEST_LOG_REWARDS_TOGGLE = "XP und Gold im Questlog-Tooltip",
   QUEST_LOG_REWARDS_TOGGLE_TIP = "Beim Überfahren einer Quest im Questlog zeigt der Tooltip, wie viel XP und Gold ihre Abgabe bringt. Auf der Questkarte (gelernte Questorte) steht die Belohnung immer im Tooltip.",
   QUEST_REWARD_LINE = "Belohnung: %s",
+  NOTICE_REAGENTS = "Reagenzien",
+  REAGENTS_AT_MERCHANT = "Reagenzien knapp, hier zu kaufen: %s",
+  REAGENT_STOCK = "%s: %d",
+  WARN_REAGENTS = "Reagenzien knapp!",
+  WARN_REAGENTS_TOGGLE = "Reagenzien knapp (Buffs, Wiederbelebung)",
+  WARN_REAGENTS_TOGGLE_TIP = "Warnt, wenn Reagenzien für deine Gruppen-Buffs oder Wiederbelebung knapp werden (Ankh, Symbol der Könige, Kerzen, Arkanes Pulver, Samen, ...), und nennt den Bestand. Beim Händler, der ein knappes Reagenz verkauft, kommt ein Hinweis im Chat. Nur für Zauber, die du kennst.",
+  WARN_REAGENTS_BELOW = "Reagenzien knapp unter",
+  WARN_REAGENTS_BELOW_TIP = "Grenze für die Reagenzien-Warnung, bezogen auf häufig gebrauchte Reagenzien (Symbol der Könige, Arkanes Pulver). Seltener gebrauchte warnen anteilig früher: Kerzen, Beeren und Seelensplitter bei der Hälfte, Ankh, Samen und Runen bei einem Fünftel (mindestens 1).",
 }

@@ -1941,4 +1941,12 @@ ns.locales.enUS = {
   QUEST_LOG_REWARDS_TOGGLE = "XP and gold in the quest log tooltip",
   QUEST_LOG_REWARDS_TOGGLE_TIP = "When you hover a quest in the quest log, the tooltip shows how much XP and gold turning it in gives. On the quest map (learned quest places) the reward is always in the tooltip.",
   QUEST_REWARD_LINE = "Reward: %s",
+  NOTICE_REAGENTS = "Reagents",
+  REAGENTS_AT_MERCHANT = "Reagents low, sold here: %s",
+  REAGENT_STOCK = "%s: %d",
+  WARN_REAGENTS = "Low on reagents!",
+  WARN_REAGENTS_TOGGLE = "Low reagents (buffs, resurrection)",
+  WARN_REAGENTS_TOGGLE_TIP = "Warns when reagents for your group buffs or resurrection run low (Ankh, Symbol of Kings, candles, Arcane Powder, seeds, ...) and shows your stock. At a merchant who sells a low reagent you get a chat hint. Only for spells you know.",
+  WARN_REAGENTS_BELOW = "Reagents low below",
+  WARN_REAGENTS_BELOW_TIP = "Threshold for the reagent warning, for frequently used reagents (Symbol of Kings, Arcane Powder). Rarely used ones scale down: candles, berries and soul shards at half, Ankh, seeds and runes at a fifth (at least 1).",
 }

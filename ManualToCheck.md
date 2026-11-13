@@ -158,6 +158,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
 - **238. XP und Gold im Quest-Tooltip, Datenteil (Roadmap 486)**: check `486.questRewards` (je Quest XP und Geld; in Era gleiche Beträge bei allen Quests = `GetQuestLogRewardMoney(questID)` ignoriert die ID, Vergleich `selectedMoney`; welche Hooks es gibt). Sichtprüfung: Questlog-Zeile überfahren (Einstellung an), Questkarte-Punkt überfahren
+- **239. Reagenzien-Erinnerung, Datenteil (Roadmap 488, Classic Era/WoW Forever)**: check `488.reagents` (je Item der Klasse Name, Bestand, bekannte Zauber; in Forever: liefern die Classic-IDs Namen und `IsPlayerSpell` true?), debug `warnings` (WARN_REAGENTS, reagents sold here …). Sichtprüfung: Warnung mit Bestand, Chathinweis beim Reagenzienhändler
 
 ---
 

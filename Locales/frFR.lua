@@ -1941,4 +1941,12 @@ ns.locales.frFR = {
   QUEST_LOG_REWARDS_TOGGLE = "XP et or dans l'infobulle du journal de quêtes",
   QUEST_LOG_REWARDS_TOGGLE_TIP = "Au survol d'une quête dans le journal, l'infobulle indique l'XP et l'or que rapporte sa remise. Sur la carte des quêtes (lieux appris), la récompense figure toujours dans l'infobulle.",
   QUEST_REWARD_LINE = "Récompense : %s",
+  NOTICE_REAGENTS = "Composants",
+  REAGENTS_AT_MERCHANT = "Composants bas, en vente ici : %s",
+  REAGENT_STOCK = "%s : %d",
+  WARN_REAGENTS = "Composants presque épuisés !",
+  WARN_REAGENTS_TOGGLE = "Composants bas (améliorations, résurrection)",
+  WARN_REAGENTS_TOGGLE_TIP = "Avertit quand les composants de vos améliorations de groupe ou de résurrection s'épuisent (Ankh, Symbole des rois, bougies, Poudre des arcanes, graines, ...) et indique votre stock. Chez un marchand qui vend un composant bas, un message apparaît dans la discussion. Seulement pour les sorts que vous connaissez.",
+  WARN_REAGENTS_BELOW = "Composants bas sous",
+  WARN_REAGENTS_BELOW_TIP = "Seuil de l'avertissement de composants, pour les composants souvent utilisés (Symbole des rois, Poudre des arcanes). Les plus rares sont réduits en proportion : bougies, baies et fragments d'âme à la moitié, Ankh, graines et runes au cinquième (au moins 1).",
 }

@@ -151,6 +151,7 @@ UI\LootSparkleSceneAnimations.lua
 UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
+Assist\Reagents.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\SleepTimer.lua

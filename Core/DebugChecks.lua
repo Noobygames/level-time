@@ -1130,3 +1130,19 @@ check("486.questRewards", function()
     mainlineHook = type(QuestLogQuests_Update) == "function",
   }
 end)
+
+-- 488: Reagenzien (Reagents.lua): Name und Bestand je Item der eigenen Klasse und welche Zauber bekannt sind
+-- (stimmen die Classic-IDs in WoW Forever?)
+check("488.reagents", function()
+  local items = {}
+  for _, need in ipairs(ns.Reagents.CLASSES[select(2, UnitClass("player"))] or {}) do
+    for _, option in ipairs(need) do
+      local known = {}
+      for _, spell in ipairs(option.spells) do known[#known + 1] = call("IsPlayerSpell", spell) end
+      table.insert(items, { item = option.item, name = ns.Items.GetName(option.item),
+        count = call("C_Item.GetItemCount", option.item), known = known })
+    end
+  end
+  return { setting = ns.db.warnReagents, available = ns.Reagents.IsAvailable(), items = items,
+    low = ns.Reagents.LowText() }
+end)

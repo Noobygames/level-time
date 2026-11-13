@@ -85,6 +85,12 @@ end
 
 -- Händler; RepairAllItems bucht die Kosten ab (mit PLAYER_MONEY) und merkt sich die Reparatur in wow.repairs
 wow.repairs = {}
+-- Waren des Händlers: state.merchant.items = { Item-ID, ... } (Links wie im Client)
+function GetMerchantNumItems() return #(state.merchant.items or {}) end
+function GetMerchantItemLink(index)
+  local itemID = (state.merchant.items or {})[index]
+  return itemID and string.format("|cffffffff|Hitem:%d::::|h[Item %d]|h|r", itemID, itemID) or nil
+end
 function CanMerchantRepair() return state.merchant.canRepair end
 function GetRepairAllCost() return state.merchant.repairCost, state.merchant.repairCost > 0 end
 -- Gildenreparatur gelingt nur, wenn das, was die Gilde dem Charakter zahlt (merchant.guildFunds:

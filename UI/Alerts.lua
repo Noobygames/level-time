@@ -81,6 +81,7 @@ Alerts.ICONS = {
   durability = iconPath("INV_Misc_Gear_01"),
   aggro = iconPath("Ability_Warrior_Charge"),
   ammo = iconPath("INV_Ammo_Arrow_02"),
+  reagents = iconPath("Spell_Holy_Resurrection"),
   trainer = iconPath("INV_Misc_Book_09"),
   instanceLimit = iconPath("INV_Misc_PocketWatch_01"),
   levelUp = iconPath("Spell_Holy_HolyBolt"),
