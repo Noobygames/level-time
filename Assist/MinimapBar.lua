@@ -156,6 +156,12 @@ local function hookButton(child)
       if type(alpha) == "number" and alpha < 1 then holdAlpha(self) end
     end)
   end
+  -- Debug-Log statt Sichtprüfung (481): kommt ein Klick beim gesammelten Knopf an?
+  if type(child.HookScript) == "function" then
+    pcall(child.HookScript, child, "OnMouseDown", function(self, mouseButton)
+      if originalStates[self] then ns.Debug("minimapbar", "mouse down on %s (%s)", self:GetName(), mouseButton) end
+    end)
+  end
   local fade = child.fadeOut
   if type(fade) == "table" and type(fade.HookScript) == "function" then
     pcall(fade.HookScript, fade, "OnPlay", function()

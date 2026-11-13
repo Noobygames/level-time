@@ -120,6 +120,7 @@ function QuestTooltip.AddRewardLine(tooltip, questID)
   local text = QuestTooltip.RewardText(questID)
   if not text then return false end
   tooltip:AddLine(text, 1, 1, 1)
+  ns.Debug("quests", "reward line for %s: %s", questID, text)
   return true
 end
 

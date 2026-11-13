@@ -91,6 +91,7 @@ local function recordKill(id, source)
   ns.Debug("instances", "boss killed (%s): %s, bosses %s", source, id, run.bosses)
   local list = InstanceBosses.List(run.mapID, run.difficultyID)
   if list and list[#list] == id then
+    ns.Debug("instances", "dungeon completed: %s, bosses %s", run.name, InstanceBosses.ProgressText(run))
     ns.Print(string.format(L.INSTANCE_COMPLETED, run.name or "?",
       ns.Format.Duration(ns.Instances.GetRunSeconds(run)), InstanceBosses.ProgressText(run)))
   end
@@ -156,5 +157,7 @@ ns.DebugLog.AddCheck("483.bosses", function()
     run = run and { name = run.name, mapID = run.mapID, difficultyID = run.difficultyID, bosses = run.bosses,
       progress = InstanceBosses.ProgressText(run) },
     list = table.concat(names, ", "), last = lastEvent,
+    -- Tooltip der Historienzeile (484) als Text: Symbolpfad zeigt besiegt/lebt ohne Sichtprüfung
+    tooltip = run and InstanceBosses.TooltipLines(run) or false,
   }
 end)

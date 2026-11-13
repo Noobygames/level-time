@@ -1105,6 +1105,12 @@ check("450.mail", function()
     -- 480: UnitName-Rückgaben und gespeicherter Nachname (WoW Forever: Vor- und Nachname)
     unitName = { UnitName("player") },
     surname = ns.character and ns.character.surname,
+    -- Empfänger, die der Twink-Knopf der Reihe nach einträgt (ohne Sichtprüfung am Briefkasten)
+    altRecipients = (function()
+      local names = {}
+      for _, alt in ipairs(ns.Mail and ns.Mail.GetKnownAlts() or {}) do names[#names + 1] = alt.name end
+      return names
+    end)(),
   }
 end)
 

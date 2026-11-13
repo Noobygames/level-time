@@ -159,11 +159,11 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
 - **238. Zauberrang in der Zauberleiste, Datenteil (Roadmap 487)**: check `487.spellHistory.rank` nach ein paar Zaubern (roher Untertext je Zauber und gelesene Rangzahl; Era „Rang n“, Retail/Forever ohne Zahl = leer)
 - **239. Häutbare Leichen glitzern, Datenteil (Roadmap 479)**: check `479.lootSparkles.skinning` als Kürschner vor einer leergeplünderten, häutbaren Leiche (Tooltipzeilen mit „Häutbar“, `hasLoot`/`canLoot` nach dem Plündern, `skinningTrained`, `kind` = corpse); ob das Soft-Targeting solche Leichen überhaupt wählt, zeigt `name`/`dead`
-- **240. Boss-Kills je Instanz-Lauf, Datenteil (Roadmap 483)**: check `483.bosses` (Bossliste der Instanz mit Namen, besiegte encounterIDs des Laufs, letzte Meldung: `encounter` = ENCOUNTER_END bzw. `died` = Fallback über UNIT_DIED, success, gezählt) und debug `instances` (boss killed ...); je Client einen Dungeon bis zum Endboss spielen, dann `/lt debug check`
-- **242. XP und Gold im Quest-Tooltip, Datenteil (Roadmap 486)**: check `486.questRewards` (je Quest XP und Geld; in Era gleiche Beträge bei allen Quests = `GetQuestLogRewardMoney(questID)` ignoriert die ID, Vergleich `selectedMoney`; welche Hooks es gibt). Sichtprüfung: Questlog-Zeile überfahren (Einstellung an), Questkarte-Punkt überfahren
+- **240. Boss-Kills, „Dungeon abgeschlossen“ und Instanz-Ansicht (Roadmap 483/484)**: check `483.bosses` (Bossliste der Instanz mit Namen, besiegte encounterIDs des Laufs, letzte Meldung: `encounter` = ENCOUNTER_END bzw. `died` = Fallback über UNIT_DIED, success, gezählt) und debug `instances` (boss killed ...); je Client einen Dungeon bis zum Endboss spielen, dann `/lt debug check`; debug `instances` „dungeon completed“ genau einmal je Lauf, `tooltip` im Check = Zeilen der Historien-Zeile (Totenkopf-/Kopf-Pfad je Boss)
+- **242. XP und Gold im Quest-Tooltip, Datenteil (Roadmap 486)**: check `486.questRewards` (je Quest XP und Geld; in Era gleiche Beträge bei allen Quests = `GetQuestLogRewardMoney(questID)` ignoriert die ID, Vergleich `selectedMoney`; welche Hooks es gibt). Sichtprüfung: Questlog-Zeile überfahren (Einstellung an), Questkarte-Punkt überfahren; debug `quests` „reward line for …“ beim Überfahren statt Sichtprüfung
 - **243. Reagenzien-Erinnerung, Datenteil (Roadmap 488, Classic Era/WoW Forever)**: check `488.reagents` (je Item der Klasse Name, Bestand, bekannte Zauber; in Forever: liefern die Classic-IDs Namen und `IsPlayerSpell` true?), debug `warnings` (WARN_REAGENTS, reagents sold here …). Sichtprüfung: Warnung mit Bestand, Chathinweis beim Reagenzienhändler
-- **245. Minimap-Knopfleiste, Ebenen und Anker (Roadmap 481)**: check `481.minimapBar.layers` (je Knopf Ebene, feste Ebene/Schicht, alle Anker, über der Leiste)
-- **244. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`)
+- **245. Minimap-Knopfleiste, Ebenen und Anker (Roadmap 481)**: check `481.minimapBar.layers` (je Knopf Ebene, feste Ebene/Schicht, alle Anker, über der Leiste); debug `minimapbar` „mouse down on …“ je Klick auf einen gesammelten Knopf (kommt der Klick an?), Punkte nach dem Ziehen zeigen, ob er in der Leiste bleibt
+- **244. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`); `altRecipients` = Namen, die der Knopf einträgt, debug `mail` „filled recipient“
 
 ---
 
@@ -3445,50 +3445,3 @@ Einstellungen > Chat & Erinnerungen, je Unterseite ein Knopf „Testen“ (unabh
 - Warnungen: Atem, Taschen, Haltbarkeit, Munition (Jäger), Instanzlimit, Aggro, Hardcore-Schutz (Wildnis-Logout, Sturz), Notfall-Markierung (einige Sekunden) wie echt
 - Gruppe: alle Ansagen und der Instanzbericht nur im eigenen Chat mit „[Vorschau]“; in einer Gruppe prüfen, dass nichts im Gruppenchat erscheint
 - Texte in allen vier Sprachen passen in die Knöpfe
-
-### 240. Boss-Kills und „Dungeon abgeschlossen“ (Roadmap 483)
-
-- [ ] geprüft
-
-Einen Dungeon (Classic Era, Anniversary, Forever) bis zum Endboss spielen: nach dem Endboss steht im Chat
-„<Instanz> abgeschlossen: Endboss besiegt nach <Zeit> (Bosse x/y)“, genau einmal. Ein Wipe zählt nicht.
-
-**Antwort:**
-
-```text
-Client:
-Meldung (ja/nein, Bosse x/y stimmt):
-Fehler:
-```
-
-### 241. Instanz-Ansicht mit Bossen (Roadmap 484)
-
-- [ ] geprüft
-
-Nach einem Dungeon (Classic Era, Anniversary, Forever): Historie > Instanzen zeigt die Spalte „Bosse“ mit x/y; Maus
-über die Zeile listet jeden Boss mit Position, Totenkopf = besiegt, Kopf = lebt (Symbole sichtbar, Namen in der
-Client-Sprache). `/lt report` und die Fensterzeile „Instanz-Lauf“ zeigen „Bosse x/y“, der Bericht auch XP/h.
-Retail: Spalte zeigt nur die Zahl, kein Tooltip.
-
-**Antwort:**
-
-```text
-Client:
-Spalte/Tooltip/Symbole ok:
-Fehler:
-### 244. Twink-Knopf im Postfach mit Vor- und Nachname (Roadmap 480, WoW Forever)
-Datenteil per Debug-Log: check `450.mail` (`unitName` muss Vorname und Nachname getrennt zeigen). Jeden Twink einmal einloggen
-(der Nachname wird beim Login gespeichert), dann am Briefkasten „Post-Helfer“ an, Senden-Reiter, Twink-Knopf klicken.
-- Empfängerfeld zeigt „Vorname Nachname“, Post kommt beim Twink an
-Empfänger richtig (ja/nein):
-### 245. Minimap-Knopfleiste: fremde Knöpfe bedienbar (Roadmap 481)
-Datenteil per Debug-Log: check `481.minimapBar.layers` (bei aufgeklappter Leiste `/lt debug check 481.minimapBar.layers`,
-jeder Knopf `aboveBar: true`, genau ein Anker an der Leiste). Fix: LibDBIcon-Knöpfe (feste Ebene) liegen über der Leiste,
-Zusatzanker an der Minimap werden sofort zurückgesetzt.
-- Leiste aufklappen: Details, Questie, DBM und andere LibDBIcon-Knöpfe per Links- und Rechtsklick bedienbar, Tooltip erscheint
-- Knopf in der Leiste ziehen: bleibt an seinem Platz (wandert nicht an die Minimap)
-- Leiste ausschalten: Knöpfe sitzen wieder an der Minimap und lassen sich dort wie gewohnt ziehen
-Alle Symbole klickbar (ja/nein):
-Ziehen bleibt in der Leiste (ja/nein):
-Betroffene Addons (falls noch welche):
-```
