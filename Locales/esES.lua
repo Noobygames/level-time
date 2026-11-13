@@ -2007,4 +2007,10 @@ ns.locales.esES = {
   TOOLTIP_KILL_COUNT = "Matado %s veces",
   TOOLTIP_KILL_COUNT_TOGGLE = "Mostrar veces abatido",
   TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Muestra en la descripción de los enemigos cuántas veces este personaje ha matado enemigos con ese nombre (muertes que dieron experiencia).",
+  COLLAPSED_BUFFS = "Beneficios elegidos con la barra plegada",
+  COLLAPSED_BUFFS_LIST = "Beneficios siempre visibles",
+  COLLAPSED_BUFFS_LIST_TIP = "ID de hechizos o nombres de beneficios, separados por comas. Un ID cuenta para todos los rangos del hechizo. Por defecto: Escudo de relámpagos, de agua y de tierra.",
+  COLLAPSED_BUFFS_PREVIEW = "Vista previa",
+  COLLAPSED_BUFFS_PREVIEW_TIP = "Muestra los beneficios elegidos durante unos segundos, aunque la barra esté desplegada.",
+  COLLAPSED_BUFFS_TIP = "Al plegar la barra de beneficios de Blizzard con su flecha, los beneficios elegidos siguen visibles con cargas y tiempo restante, p. ej. Escudo de agua o Escudo de relámpagos.",
 }

@@ -259,6 +259,7 @@ Assist\ThreatDisplay.lua
 Assist\CooldownNumbers.lua
 Assist\DialogKey.lua
 Assist\TargetRange.lua
+Assist\CollapsedBuffs.lua
 Assist\SwingTimer.lua
 Assist\InstanceResetAnnounce.lua
 Assist\HardcoreSafeguard.lua

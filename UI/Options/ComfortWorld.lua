@@ -21,6 +21,15 @@ addToggles({
   toggle("SWING_TIMER", "swingTimer", ns.SwingTimer.IsAvailable),
 })
 O.addFramePreview("TARGET_RANGE_PREVIEW", "targetRange")
+-- Gewählte Buffs bei eingeklappter Buffleiste (Roadmap 500)
+addToggles({ toggle("COLLAPSED_BUFFS", "collapsedBuffs") })
+O.builder.AddTextInput({
+  label = "COLLAPSED_BUFFS_LIST",
+  setting = "collapsedBuffsList",
+  get = function(db) return db.collapsedBuffsList end,
+  set = function(text) ns.Set("collapsedBuffsList", strtrim(text)) end,
+})
+O.addFramePreview("COLLAPSED_BUFFS_PREVIEW", "collapsedBuffs")
 -- Schwungbalken anpassen (Roadmap 489): ausgegraut, solange die Balken aus sind
 local function addSwingTimerOptions()
   local SwingTimer = ns.SwingTimer

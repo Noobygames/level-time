@@ -2007,4 +2007,10 @@ ns.locales.frFR = {
   TOOLTIP_KILL_COUNT = "Tué %s fois",
   TOOLTIP_KILL_COUNT_TOGGLE = "Afficher le nombre de victimes",
   TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Affiche dans l'infobulle des ennemis combien de fois ce personnage a tué des ennemis de ce nom (victimes ayant rapporté de l'expérience).",
+  COLLAPSED_BUFFS = "Améliorations choisies quand la barre est repliée",
+  COLLAPSED_BUFFS_LIST = "Améliorations toujours visibles",
+  COLLAPSED_BUFFS_LIST_TIP = "ID de sorts ou noms d'améliorations, séparés par des virgules. Un ID compte pour tous les rangs du sort. Par défaut : Bouclier de foudre, d'eau et de terre.",
+  COLLAPSED_BUFFS_PREVIEW = "Aperçu",
+  COLLAPSED_BUFFS_PREVIEW_TIP = "Affiche les améliorations choisies pendant quelques secondes, même si la barre est dépliée.",
+  COLLAPSED_BUFFS_TIP = "Quand vous repliez la barre d'améliorations de Blizzard avec sa flèche, les améliorations choisies restent visibles avec charges et temps restant, p. ex. Bouclier d'eau ou Bouclier de foudre.",
 }

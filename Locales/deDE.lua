@@ -2007,4 +2007,10 @@ ns.locales.deDE = {
   TOOLTIP_KILL_COUNT = "%s-mal getötet",
   TOOLTIP_KILL_COUNT_TOGGLE = "Zeigen, wie oft getötet",
   TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Zeigt im Tooltip von Gegnern, wie oft dieser Charakter Gegner mit diesem Namen schon getötet hat (Kills mit Erfahrung).",
+  COLLAPSED_BUFFS = "Gewählte Buffs bei eingeklappter Buffleiste",
+  COLLAPSED_BUFFS_LIST = "Buffs, die sichtbar bleiben",
+  COLLAPSED_BUFFS_LIST_TIP = "Zauber-IDs oder Buffnamen, durch Komma getrennt. Eine ID zählt für alle Ränge des Zaubers. Standard: Blitzschlag-, Wasser- und Erdschild.",
+  COLLAPSED_BUFFS_PREVIEW = "Vorschau",
+  COLLAPSED_BUFFS_PREVIEW_TIP = "Zeigt die Anzeige der gewählten Buffs für ein paar Sekunden, auch wenn die Buffleiste gerade ausgeklappt ist.",
+  COLLAPSED_BUFFS_TIP = "Klappst du Blizzards Buffleiste mit dem Pfeil ein, bleiben die gewählten Buffs mit Ladungen und Restzeit sichtbar, z. B. Wasser- oder Blitzschlagschild.",
 }

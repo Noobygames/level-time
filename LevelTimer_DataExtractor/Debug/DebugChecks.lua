@@ -1354,3 +1354,26 @@ check("487.spellHistory.rank", function()
   end
   return { hasSubtext = type(getSubtext) == "function", spells = list }
 end)
+
+-- Gewählte Buffs bei eingeklappter Buffleiste (Roadmap 500): Einklapp-Zustand je Client, passende Buffs mit
+-- Ladungen und Restzeit, und ob Blizzards Cooldown-Manager in diesem Client verfügbar ist
+check("500.collapsedBuffs", function()
+  local CollapsedBuffs = ns.CollapsedBuffs
+  local buffFrame = type(BuffFrame) == "table" and BuffFrame or nil
+  local button = buffFrame and buffFrame.CollapseAndExpandButton
+  local matches = {}
+  local aurasReadable = ns.Auras.ForEachBuff(function(aura)
+    if CollapsedBuffs.Matches(aura) then
+      table.insert(matches, { name = readable(aura.name), spellId = readable(aura.spellId),
+        applications = readable(aura.applications), remaining = ns.Auras.RemainingSeconds(aura) })
+    end
+  end)
+  return {
+    setting = ns.db.collapsedBuffs, list = ns.db.collapsedBuffsList, collapsed = CollapsedBuffs.IsBarCollapsed(),
+    hasIsExpanded = buffFrame ~= nil and buffFrame.IsExpanded ~= nil,
+    buttonEnabled = button and safe(button.IsEnabled, button) or false,
+    consolidateBuffs = ns.CVars.Get("consolidateBuffs") or "<missing>",
+    cooldownViewer = call("C_CooldownViewer.IsCooldownViewerAvailable"),
+    aurasReadable = aurasReadable == true, matches = matches, shown = CollapsedBuffs.ShownCount(),
+  }
+end)

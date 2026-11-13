@@ -2007,4 +2007,10 @@ ns.locales.enUS = {
   TOOLTIP_KILL_COUNT = "Killed %s times",
   TOOLTIP_KILL_COUNT_TOGGLE = "Show kill count",
   TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Shows in the enemy tooltip how often this character has killed enemies with that name (kills that gave experience).",
+  COLLAPSED_BUFFS = "Selected buffs while the buff bar is collapsed",
+  COLLAPSED_BUFFS_LIST = "Buffs that stay visible",
+  COLLAPSED_BUFFS_LIST_TIP = "Spell IDs or buff names, separated by commas. An ID counts for every rank of the spell. Default: Lightning, Water and Earth Shield.",
+  COLLAPSED_BUFFS_PREVIEW = "Preview",
+  COLLAPSED_BUFFS_PREVIEW_TIP = "Shows the selected-buffs display for a few seconds, even while the buff bar is expanded.",
+  COLLAPSED_BUFFS_TIP = "When you collapse Blizzard's buff bar with its arrow, the selected buffs stay visible with charges and time left, e.g. Water Shield or Lightning Shield.",
 }

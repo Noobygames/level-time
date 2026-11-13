@@ -19,7 +19,7 @@ local CHECKS = {
   "360.window.layout", "360.xpTooltip", "362.visibility", "371.blizzardFrames", "403.blizzardSettings", "361.readability", "430.sleep.state",
   "443.threat", "445.qol", "450.mail", "453.partyQuestSync", "451.minimapBar.buttons", "character.guid", "452.swing.combatlog",
   "487.spellHistory.rank", "479.lootSparkles.skinning",
-  "486.questRewards", "488.reagents", "481.minimapBar.layers",
+  "486.questRewards", "488.reagents", "481.minimapBar.layers", "500.collapsedBuffs",
 }
 
 wow.login()

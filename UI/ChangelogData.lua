@@ -18,6 +18,11 @@ ns.CHANGELOG = {
         enUS = "New option: the enemy tooltip shows how often you have killed them.",
         frFR = "Nouvelle option : l'infobulle des ennemis indique combien de fois vous les avez tués.",
         esES = "Nueva opción: la descripción de los enemigos muestra cuántas veces los has matado." },
+      { kind = "new",
+        deDE = "Klappst du die Buffleiste ein, bleiben gewählte Buffs wie Wasser- oder Blitzschlagschild mit Ladungen und Restzeit sichtbar.",
+        enUS = "When you collapse the buff bar, selected buffs such as Water Shield or Lightning Shield stay visible with charges and time left.",
+        frFR = "Quand vous repliez la barre d'améliorations, les améliorations choisies comme Bouclier d'eau ou de foudre restent visibles avec charges et temps restant.",
+        esES = "Al plegar la barra de beneficios, los beneficios elegidos como Escudo de agua o de relámpagos siguen visibles con cargas y tiempo restante." },
     },
   },
   {
