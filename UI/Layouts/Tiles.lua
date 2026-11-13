@@ -1,6 +1,7 @@
 -- Layout "tiles" (Kacheln): Raster mit tileColumns Spalten; jede Kachel zeigt einen Wert groß und darunter klein die
 -- Beschriftung (Kurzform). Erste Kachel = Spielzeit mit dem Bereich ("Level 23") als Beschriftung, dann die
 -- eingeschalteten Zeilen. Alle Kacheln sind gleich breit (breitester Inhalt); XP-Balken unter dem Raster.
+-- Darüber die Reiter Level/Session/Instanz wie in der Tabelle (Bereich umschalten).
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -50,7 +51,7 @@ local function placeTiles(el, model, db)
     local column, line = (index - 1) % columns, math.floor((index - 1) / columns)
     tile.frame:ClearAllPoints()
     tile.frame:SetPoint("TOPLEFT", el.window, "TOPLEFT", PADDING + column * (el.tileWidth + GAP),
-      -(PADDING + line * (el.tileHeight + GAP)))
+      -(el.tilesTop + line * (el.tileHeight + GAP)))
     tile.frame:SetSize(el.tileWidth, el.tileHeight)
   end
 end
@@ -60,6 +61,7 @@ function layout.Build(el, model, db)
   local first = el:Tile(1)
   el.tileWidth = MIN_TILE_WIDTH
   el.tileHeight = fontSize(first.value) + fontSize(first.label) + 2 * Elements.TILE_PADDING + LABEL_GAP
+  el.tilesTop = PADDING + Layouts.PlaceTabsCentered(el, PADDING)
   for index = 1, count do
     local tile = el:Tile(index)
     Theme.ApplyCard(tile.frame)  -- Fläche im Stil des Themes, auch nach einem Wechsel
@@ -69,14 +71,15 @@ function layout.Build(el, model, db)
   el:HideTilesFrom(count + 1)
   placeTiles(el, model, db)
   local lines = math.ceil(count / columnsOf(db, count))
-  local y = PADDING + lines * el.tileHeight + (lines - 1) * GAP + Layouts.TABLE_GAP
+  local y = el.tilesTop + lines * el.tileHeight + (lines - 1) * GAP + Layouts.TABLE_GAP
   y = Layouts.PlaceXpBar(el, model, y, PADDING)
   return y - Layouts.TABLE_GAP + PADDING
 end
 
 function layout.Render(el, model)
   local first = el.tiles[1]
-  local changed = setText(first.value, model.time.text)
+  local changed = el:RenderTabs(model)
+  changed = setText(first.value, model.time.text) or changed
   changed = setText(first.label, model.scopeText or "") or changed
   for index, data in ipairs(model.rows) do
     local tile = el.tiles[index + 1]
@@ -98,7 +101,7 @@ function layout.Measure(el, model, db)
     placeTiles(el, model, db)
   end
   local columns = columnsOf(db, tileCount(model))
-  return 2 * PADDING + columns * el.tileWidth + (columns - 1) * GAP
+  return math.max(Layouts.CenteredTabsWidth(el), 2 * PADDING + columns * el.tileWidth + (columns - 1) * GAP)
 end
 
 Layouts.Register("tiles", layout)

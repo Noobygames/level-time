@@ -6,6 +6,16 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-14",
+    entries = {
+      { kind = "new",
+        deDE = "Im Kacheln-Layout des Hauptfensters kannst du jetzt wie in der Tabelle zwischen Level, Session und Instanz wechseln.",
+        enUS = "The main window's tiles layout can now switch between Level, Session and Instance, just like the table.",
+        frFR = "La disposition en tuiles de la fenêtre principale peut désormais basculer entre Niveau, Session et Instance, comme le tableau.",
+        esES = "El diseño de mosaicos de la ventana principal ahora puede cambiar entre Nivel, Sesión e Instancia, igual que la tabla." },
+    },
+  },
+  {
     date = "2026-11-13",
     entries = {
       { kind = "fix",
