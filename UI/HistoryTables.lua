@@ -134,7 +134,11 @@ local TIME_COLUMNS = {
     local rest = restSeconds(r)
     return rest and Format.Duration(rest) or "?"
   end, sort = restSeconds },
+  timePartColumn("HISTORY_WELL_FED", Stats.WELL_FED_SECONDS, 62),   -- Roadmap 485: aktive Zeit mit Buff
 }
+if ns.Client.IsForever() then
+  table.insert(TIME_COLUMNS, timePartColumn("HISTORY_WELL_RESTED", Stats.WELL_RESTED_SECONDS, 62))
+end
 
 -- XP-Quellen und Ort je Level (XpSources.lua): Anteile an der XP des Levels
 local function xpPartColumn(header, name, width)

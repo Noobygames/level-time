@@ -3129,8 +3129,11 @@ mit `state.map`. Nichts davon ist bisher im Spiel bestätigt: Takt, Wartezeit un
 
 1. Eine Strecke fahren, z.B. Orgrimmar > Tirisfal (Zeppelin): am Turm stehen bleiben (nicht laufen), bis er abfährt, bis
    zum Ziel mitfahren. Im Log muss `departure from ...` beim Ablegen stehen, nicht schon beim Betreten; bei
-   Kontinentwechsel `loading screen during ride`, danach `learned ...`.
-2. Dieselbe Strecke 2-3 Mal fahren (Abfahrt abwarten): ab der zweiten Fahrt steht eine Periode im Log. Plausibel? Passt
+   Kontinentwechsel `loading screen during ride`, danach erst nach dem Anlegen `arrival at ..., docked at server time
+   ...` und `learned ...` mit `ride time` (Roadmap 482: Fahrzeit Anleger zu Anleger) und `estimate` (Periode aus den
+   Spieldaten). Fehlt `departure`, zeigt `no departure at ...` oder `player moving true` (IsPlayerMoving auf dem
+   Transport), wo es hängt; `/lt debug check` `440.transport.state` > `moving`, `ride.still`.
+2. Dieselbe Strecke später noch einmal fahren (auch Stunden später): `learned ...` zeigt eine Periode. Plausibel? Passt
    die Vorhersage „Abfahrt in m:ss“ an der Minimap zur echten Abfahrt (Abweichung in Sekunden notieren)?
 3. Der Text an der Minimap erscheint nur am Anleger (Reichweite: zu klein / zu groß?), ist im Layout-Modus (`/lt edit`)
    verschiebbar und skalierbar.

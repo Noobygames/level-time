@@ -854,14 +854,15 @@ check("440.transport.state", function()
   local position = ns.Transports.PlayerPosition()
   local routes, docks = {}, {}
   for key, route in pairs(data.routes) do
-    routes[key] = { kind = route.kind, syncAt = route.syncAt, period = route.period, travel = route.travel,
+    routes[key] = { kind = route.kind, syncAt = route.syncAt, period = route.period, rideTime = route.rideTime,
       samples = #route.samples, sharedAt = route.sharedAt, next = ns.Transports.SecondsToDeparture(route) }
   end
   for name, dock in pairs(data.docks) do docks[name] = { mapID = dock.mapID, x = dock.x, y = dock.y, npcIds = dock.npcIds } end
   local ride = ns.Transports.Ride()
   return { available = ns.Transports.IsAvailable(), enabled = ns.Transports.IsEnabled(), now = ns.Transports.Now(),
     routes = routes, docks = docks, position = position, nearestDock = (ns.Transports.NearestDock(position)),
-    ride = ride and { from = ride.from.name, leftAt = ride.leftAt } or nil,
+    ride = ride and { from = ride.from.name, leftAt = ride.leftAt, moving = ride.moving, still = ride.still } or nil,
+    moving = _G.IsPlayerMoving and _G.IsPlayerMoving() or nil,
     api = { getServerTime = type(_G.GetServerTime), isPlayerMoving = type(_G.IsPlayerMoving),
       namePlate = type(C_NamePlate and C_NamePlate.GetNamePlateForUnit), mapInfo = type(C_Map and C_Map.GetMapInfo) },
     unitFrame = Probe.unitInfo("target"), paths = ns.TransportPaths.Summary(), worldPosition = worldPositionProbe(position) }

@@ -9,6 +9,10 @@
 -- lädt vor History.lua, damit der Historie-Eintrag alles enthält) und beim Logout. Getter rechnen
 -- die noch nicht gebuchte Zeit mit ein.
 -- APIs in allen Clients: UnitIsDeadOrGhost, UnitAffectingCombat, UnitOnTaxi, UnitIsAFK.
+-- Buff-Zeit (Roadmap 485): "Satt" und "Gut erholt" (Schlafsack, Forever) überlappen die Tätigkeiten, darum eigene
+-- Zähler (BUFFS) neben PARTS. Gezählt wird nur aktive Zeit (nicht tot, AFK oder im Leerlauf); "ohne Buff" = aktive Zeit
+-- minus "mit" (WithoutBuff). Erkennung wie BuffReminder über Lib/Auras.lua; sind die Auren gesperrt (Kampf in
+-- Retail/Forever), gilt der zuletzt gelesene Zustand weiter.
 local _, ns = ...
 
 local TimeBreakdown = {}
@@ -21,6 +25,8 @@ TimeBreakdown.MAX_IDLE_MINUTES = 30
 ns.RegisterDefaults({
   settings = {
     showTimeBreakdown = false,
+    showWellFedTime = false,
+    showWellRestedTime = false,
     xpRateWithoutAfk = false,
     idleMinutes = 0,
   },
@@ -32,6 +38,8 @@ ns.RegisterDefaults({
     taxiSeconds = 0,
     afkSeconds = 0,
     idleSeconds = 0,
+    wellFedSeconds = 0,
+    wellRestedSeconds = 0,
   },
 })
 local Stats = ns.Stats
@@ -42,12 +50,18 @@ local FLUSH_INTERVAL = 10  -- Sekunden, nach denen gesammelte Zeit spätestens g
 -- Zähler, aus denen sich die Aufteilung zusammensetzt (ohne Rest)
 TimeBreakdown.PARTS = { Stats.COMBAT_SECONDS, Stats.TAXI_SECONDS, Stats.AFK_SECONDS, Stats.IDLE_SECONDS,
   Stats.DEAD_SECONDS }
+-- Nicht aktive Anteile: ohne sie bleibt die aktive Zeit, auf die sich die Buff-Zeit bezieht
+local INACTIVE_PARTS = { Stats.AFK_SECONDS, Stats.IDLE_SECONDS, Stats.DEAD_SECONDS }
+TimeBreakdown.BUFFS = { Stats.WELL_FED_SECONDS, Stats.WELL_RESTED_SECONDS }
 local SECONDS_PER_MINUTE = 60
 
 local activity       -- Zähler der laufenden Tätigkeit, nil = Rest oder tot
 local pending = 0    -- Sekunden der laufenden Tätigkeit, noch nicht gebucht
 local sinceFlush = 0
 local lastActiveAt   -- GetTime() des letzten XP-Gewinns oder Kampfs (Leerlauf)
+local counting = false   -- war der Spieler seit der letzten Prüfung aktiv (Buff-Zeit zählt)?
+local buffActive = {}    -- Zähler -> zuletzt gelesener Zustand des Buffs
+local buffPending = {}   -- Zähler -> Sekunden mit Buff, noch nicht gebucht
 
 -- Geheime Werte (Retail/Forever, z.B. UnitIsAFK während der Chat-Sperre) zuerst ausschließen:
 -- schon ein Wahrheitstest auf einen geheimen Wert ist für Addons ein Fehler. Danach nur auf
@@ -79,14 +93,25 @@ local function currentActivity()
   return nil
 end
 
+-- Buffs lesen (BuffReminder lädt später, wird erst zur Laufzeit gebraucht); nil = gesperrt, Zustand bleibt
+local function readBuffs()
+  local foodMissing = ns.BuffReminder.IsFoodMissing()
+  if foodMissing ~= nil then buffActive[Stats.WELL_FED_SECONDS] = not foodMissing end
+  if not ns.BuffReminder.HasSleepingBagSystem() then return end
+  local rested = ns.Auras.FindBySpellId(ns.BuffReminder.WELL_RESTED_SPELL_ID)
+  if rested ~= nil then buffActive[Stats.WELL_RESTED_SECONDS] = rested ~= false end
+end
+
 local function flush()
   -- Zuerst zurücksetzen: scheitert ein Listener, dürfen die Sekunden nicht ein zweites Mal gebucht werden
-  local booked, counter = pending, activity
+  local booked, counter, buffs = pending, activity, buffPending
   pending = 0
   sinceFlush = 0
+  buffPending = {}
   if counter and booked > 0 then
     Stats.Increment(counter, booked)
   end
+  for buff, seconds in pairs(buffs) do Stats.Increment(buff, seconds) end
 end
 
 -- Gesammelte Zeit sofort buchen (z.B. wenn der Instanz-Lauf anhält oder weiterläuft, damit nichts davor/danach
@@ -98,19 +123,34 @@ end
 -- elapsed Sekunden der bisherigen Tätigkeit zuordnen, dann die Tätigkeit neu bestimmen
 function TimeBreakdown.Update(elapsed)
   if activity then pending = pending + elapsed end
+  if counting then
+    for _, buff in ipairs(TimeBreakdown.BUFFS) do
+      if buffActive[buff] then buffPending[buff] = (buffPending[buff] or 0) + elapsed end
+    end
+  end
   sinceFlush = sinceFlush + elapsed
   local now = currentActivity()
+  counting = now ~= Stats.AFK_SECONDS and now ~= Stats.IDLE_SECONDS and not isTrue(UnitIsDeadOrGhost("player"))
+  readBuffs()
   if now ~= activity or sinceFlush >= FLUSH_INTERVAL then
     flush()
     activity = now
   end
 end
 
--- Sekunden einer Tätigkeit im Bereich, inklusive der noch nicht gebuchten
+-- Sekunden einer Tätigkeit oder eines Buffs im Bereich, inklusive der noch nicht gebuchten
 function TimeBreakdown.GetSeconds(scope, counter)
   if counter == Stats.DEAD_SECONDS then return ns.DeathCounter.GetDeadSeconds(scope) end
-  local running = (activity == counter and Stats.IsCounting(scope)) and pending or 0
-  return Stats.Get(scope, counter) + running
+  local running = (activity == counter and pending or 0) + (buffPending[counter] or 0)
+  return Stats.Get(scope, counter) + (Stats.IsCounting(scope) and running or 0)
+end
+
+-- Aktive Zeit ohne den Buff (counter aus BUFFS); nil, solange die Spielzeit unbekannt ist
+function TimeBreakdown.WithoutBuff(scope, counter)
+  local seconds = Stats.GetSeconds(scope)
+  if not seconds then return nil end
+  for _, part in ipairs(INACTIVE_PARTS) do seconds = seconds - TimeBreakdown.GetSeconds(scope, part) end
+  return math.max(0, seconds - TimeBreakdown.GetSeconds(scope, counter))
 end
 
 -- Alle Zähler des Bereichs wie Stats.Snapshot, aber mit der noch nicht gebuchten Zeit der Aufteilung,
@@ -118,6 +158,9 @@ end
 function TimeBreakdown.Snapshot(scope)
   local counters = Stats.Snapshot(scope)
   for _, counter in ipairs(TimeBreakdown.PARTS) do
+    counters[counter] = TimeBreakdown.GetSeconds(scope, counter)
+  end
+  for _, counter in ipairs(TimeBreakdown.BUFFS) do
     counters[counter] = TimeBreakdown.GetSeconds(scope, counter)
   end
   return counters
@@ -143,7 +186,7 @@ ns.Every(TICK, TimeBreakdown.Update)
 ns.Experience.OnGain(markActive)
 
 ns.OnLogin(function()
-  activity, pending, sinceFlush = nil, 0, 0
+  activity, pending, sinceFlush, counting, buffActive, buffPending = nil, 0, 0, false, {}, {}
   markActive()
 end)
 ns.OnLevelCompleted(flush)

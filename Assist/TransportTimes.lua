@@ -10,14 +10,17 @@
 --      Stehposition gilt als möglicher Anleger.
 --   2. Abfahrt: Steht er weiter still und die Kartenposition ändert sich dauerhaft (> DEPART_DISTANCE), fährt der
 --      Transport los. Dieser Zeitpunkt (Serverzeit) ist ein Punkt im Takt der Strecke.
---   3. Ankunft: Zwischen Kontinenten zeigt PLAYER_LEAVING_WORLD das Ladebild, nach PLAYER_ENTERING_WORLD gibt die Karte
---      den Zielanleger. Auf demselben Kontinent (kein Ladebild) gilt: mind. SAME_MAP_MIN_RIDE Sekunden unterwegs,
---      Spieler läuft wieder und ist >= SAME_MAP_MIN_DISTANCE vom Abfahrtsort entfernt (ungeprüft in Forever).
+--   3. Ankunft: Der Spieler steht und die Position bleibt STAND_MIN_SECONDS ruhig (angelegt) auf einer möglichen
+--      Zielkarte: zwischen Kontinenten (PLAYER_LEAVING_WORLD zeigt das Ladebild) jede andere Karte, auf demselben
+--      Kontinent mind. SAME_MAP_MIN_RIDE Sekunden unterwegs und >= SAME_MAP_MIN_DISTANCE vom Abfahrtsort (ungeprüft in
+--      Forever). Das gibt die Fahrzeit rideTime von Anleger zu Anleger und daraus über die Spieldaten eine geschätzte
+--      Periode, mit der auch Fahrten im Stundenabstand die genaue Periode ergeben (Roadmap 482).
 -- Eine Fahrt wird nur gespeichert, wenn Start- und Zielanleger verschiedene Karten-Namen haben und sie höchstens
 -- MAX_RIDE_SECONDS dauerte.
 --
 -- Speicher: LevelTimerStatsDB.transports[Flavor][Realm] = { docks = { [Name] = { mapID, x, y, npcIds = {...} } },
--- routes = { ["Von>Nach"] = { from, to, kind, syncAt, period, samples = { Abfahrten... }, travel, sharedAt } } }.
+-- routes = { ["Von>Nach"] = { from, to, kind, syncAt, period, samples = { Abfahrten... }, rideTime, sharedAt } } }
+-- (das alte Feld travel maß nur bis zum Ladebild und wird ignoriert).
 -- Namen sind die Kartennamen in der Clientsprache (geteilte Daten passen daher nur zwischen gleichen Sprachen).
 -- Takt: period aus den Abfahrten (Abstände sind Vielfache der Periode, Median je Zyklus), Vorhersage
 -- nächste Abfahrt = syncAt + k * period >= jetzt. Ohne Periode: "unbekannt".
@@ -39,6 +42,8 @@ local Transports = {
   MIN_PERIOD = 60,              -- Grenzen für eine glaubwürdige Periode (Sekunden)
   MAX_PERIOD = 1800,
   PERIOD_TOLERANCE = 0.03,      -- Abstände dürfen höchstens so weit von einem Vielfachen abweichen (mind. 3 s)
+  MAX_ESTIMATE_CYCLES = 16,     -- geschätzte Periode (aus der Fahrzeit) zählt höchstens so viele Zyklen eindeutig
+                                -- (1 / (2 * PERIOD_TOLERANCE): darüber kann der Fehler einen ganzen Zyklus ausmachen)
   MAX_SAMPLES = 8,
   SHARE_MAX_AGE = 2 * 86400,    -- geteilte Phasen älter als 2 Tage zählen nicht
   SHARE_MAX_FUTURE = 60,
@@ -202,7 +207,8 @@ end
 ---------------------------------------------------------------------------
 -- Periode aus Abfahrtszeiten (aufsteigend): kleinster glaubwürdiger Abstand als Kandidat (oder die Vorgabe), alle
 -- anderen Abstände müssen Vielfache davon sein; Ergebnis = Median von Abstand / Vielfachem. nil = nicht erkennbar.
-function Transports.EstimatePeriod(samples, seed)
+-- maxCycles: bei einer nur geschätzten Vorgabe wird das Vielfache großer Abstände mehrdeutig, dann nil.
+function Transports.EstimatePeriod(samples, seed, maxCycles)
   if #samples < 2 then return nil end
   local gaps = {}
   for index = 2, #samples do table.insert(gaps, samples[index] - samples[index - 1]) end
@@ -218,6 +224,7 @@ function Transports.EstimatePeriod(samples, seed)
     local count = math.floor(gap / base + 0.5)
     local tolerance = math.max(3, base * Transports.PERIOD_TOLERANCE)
     if count < 1 or math.abs(gap - count * base) > tolerance * math.max(1, count) then return nil end
+    if maxCycles and count > maxCycles then return nil end
     table.insert(cycles, gap / count)
   end
   table.sort(cycles)
@@ -245,7 +252,7 @@ end
 
 -- Fahrzeit: aus den Spieldaten (genau, auch über ein Ladebild), sonst die gemessene
 local function travelOf(route)
-  return ns.TransportPaths.Travel(route) or route.travel
+  return ns.TransportPaths.Travel(route) or route.rideTime
 end
 
 local function newRoute(from, to)
@@ -273,7 +280,12 @@ function Transports.Record(fromPosition, toPosition, departedAt, arrivedAt)
   table.insert(route.samples, departedAt)
   table.sort(route.samples)
   while #route.samples > Transports.MAX_SAMPLES do table.remove(route.samples, 1) end
-  local period = Transports.EstimatePeriod(route.samples, route.period or ns.TransportPaths.Period(route))
+  -- Gemessene Fahrzeit zuerst: aus ihr schätzen die Spieldaten die Periode, die dann weit auseinanderliegende
+  -- Abfahrten zählbar macht (ohne Schätzung bräuchte es zwei Fahrten binnen MAX_PERIOD)
+  if arrivedAt and arrivedAt > departedAt then route.rideTime = arrivedAt - departedAt end
+  local estimate = not route.period and ns.TransportPaths.Period(route) or nil
+  local period = Transports.EstimatePeriod(route.samples, route.period or estimate,
+    estimate and Transports.MAX_ESTIMATE_CYCLES or nil)
   if not period and #route.samples > 2 then
     route.samples = { route.samples[#route.samples] }
     route.period = nil
@@ -281,9 +293,8 @@ function Transports.Record(fromPosition, toPosition, departedAt, arrivedAt)
     route.period = period
   end
   route.syncAt, route.sharedAt = departedAt, nil
-  if arrivedAt and arrivedAt > departedAt then route.travel = arrivedAt - departedAt end
-  ns.Debug("transport", "learned %s: departure %s, samples %s, period %s, travel %s", key, departedAt,
-    #route.samples, route.period or "unknown", route.travel or "unknown")
+  ns.Debug("transport", "learned %s: departure %s, samples %s, period %s (estimate %s), ride time %s", key,
+    departedAt, #route.samples, route.period or "unknown", estimate or "none", route.rideTime or "unknown")
   Transports.Share(route)
   return route
 end
@@ -394,15 +405,27 @@ local function cannotObserve()
   return taxi == true or dead == true or instance == true
 end
 
-local function finishRide(position)
+-- arrivedAt = Serverzeit des Anlegens am Ziel oder nil (unbekannt, dann keine Fahrzeit)
+local function finishRide(position, arrivedAt)
   local current = ride
   ride = nil
-  if not current or position.name == current.from.name then return end
-  local now = GetTime()
-  if now - current.startedAt > Transports.MAX_RIDE_SECONDS then return end
-  Transports.Record(current.from, position, current.departedAt, Transports.Now())
+  if position.name == current.from.name then
+    ns.Debug("transport", "ride from %s dropped: arrival on the same map", current.from.name)
+    return
+  end
+  ns.Debug("transport", "arrival at %s, docked at server time %s", position.name, arrivedAt or "unknown")
+  Transports.Record(current.from, position, current.departedAt, arrivedAt)
 end
 
+-- Mögliches Ziel? Nach dem Ladebild jede andere Karte, ohne Ladebild genug Fahrzeit und Abstand zum Start
+local function atDestination(position, elapsed)
+  if ride.leftAt then return position.mapID ~= ride.from.mapID end
+  return elapsed >= Transports.SAME_MAP_MIN_RIDE and distance(position, ride.from) >= Transports.SAME_MAP_MIN_DISTANCE
+end
+
+-- Ankunft: Spieler steht, Position bleibt STAND_MIN_SECONDS ruhig (Transport hat angelegt). So zählt die Fahrzeit von
+-- Anleger zu Anleger und nicht bis zum Ladebild (danach fliegt der Zeppelin noch eine Weile). Läuft der Spieler vorher
+-- los, gilt der letzte ruhige Punkt am Ziel, sonst die aktuelle Position ohne Ankunftszeit.
 local function observeRide(position, moving)
   local elapsed = GetTime() - ride.startedAt
   if elapsed > Transports.MAX_RIDE_SECONDS then
@@ -411,15 +434,27 @@ local function observeRide(position, moving)
     return
   end
   if not position then return end
-  if ride.leftAt then
-    -- Ladebild gesehen: sobald die Karte lesbar ist, ist das der Zielanleger
-    if position.mapID ~= ride.from.mapID then finishRide(position) return end
+  if ride.leftAt and position.mapID == ride.from.mapID then
+    ns.Debug("transport", "ride from %s dropped: same map after the loading screen", ride.from.name)
     ride = nil
     return
   end
-  if elapsed >= Transports.SAME_MAP_MIN_RIDE and moving
-    and distance(position, ride.from) >= Transports.SAME_MAP_MIN_DISTANCE then
-    finishRide(position)
+  -- Zeigt im Log, ob IsPlayerMoving auf dem fahrenden Transport true liefert (Check 222)
+  if moving ~= ride.moving then
+    ride.moving = moving
+    ns.Debug("transport", "ride from %s: player moving %s on %s", ride.from.name, moving, position.name)
+  end
+  local still = ride.still
+  if moving then
+    if still and atDestination(still, elapsed) then finishRide(still, still.at)
+    elseif atDestination(position, elapsed) then finishRide(position, nil) end
+    return
+  end
+  if not still or distance(position, still) > Transports.DEPART_DISTANCE then
+    ride.still = { mapID = position.mapID, x = position.x, y = position.y, name = position.name, since = GetTime(),
+      at = Transports.Now() }
+  elseif GetTime() - still.since >= Transports.STAND_MIN_SECONDS and atDestination(still, elapsed) then
+    finishRide(still, still.at)
   end
 end
 
@@ -439,6 +474,8 @@ local function observe()
   local settled = GetTime() - standing.since >= Transports.STAND_MIN_SECONDS
   -- Großer Sprung oder Bewegung vor der Ruhezeit (Transport legt noch an): neue Stehposition statt Abfahrt
   if step > Transports.DEPART_MAX_STEP or (step > Transports.DEPART_DISTANCE and not settled) then
+    ns.Debug("transport", "no departure at %s: moved %s while standing %s s", position.name, step,
+      GetTime() - standing.since)
     standing = { mapID = position.mapID, x = position.x, y = position.y, name = position.name, since = GetTime() }
   elseif step > Transports.DEPART_DISTANCE then
     ride = { from = standing, departedAt = Transports.Now() - 1, startedAt = GetTime() }

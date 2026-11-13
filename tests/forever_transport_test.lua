@@ -44,7 +44,7 @@ expect("aus: keine Strecken", next(Transports.Data().routes), nil)
 addon.Set("transportTimers", true)
 expect("Standard Minimap", addon.db.transportMinimap, true)
 
--- Eine Fahrt: stehen, Transport fährt los, Ladebild, Ankunft auf der anderen Karte
+-- Eine Fahrt: stehen, Transport fährt los, Ladebild, nach dem Ladebild noch 10 s Anflug, dann liegt er am Ziel
 local function ride(departureAt, from, to)
   wow.state.moving = false
   placeAt(from[1], from[2], from[3])
@@ -55,7 +55,13 @@ local function ride(departureAt, from, to)
   expectTrue("Fahrt beginnt", Transports.Ride() ~= nil)
   wow.advance(50)
   wow.fire("PLAYER_LEAVING_WORLD")
+  placeAt(to[1], to[2] - 0.05, to[3])
+  tick()
+  wow.advance(10)
   placeAt(to[1], to[2], to[3])
+  tick()
+  expectTrue("Anflug: Fahrt läuft noch", Transports.Ride() ~= nil)
+  wow.advance(Transports.STAND_MIN_SECONDS)
   tick()
   expect("Fahrt beendet", Transports.Ride(), nil)
 end
@@ -69,7 +75,8 @@ expect("Abfahrt", route.syncAt, base - 1)
 expect("Art unbekannt", route.kind, "zeppelin")  -- aus der Streckenliste
 expect("noch keine Periode", route.period, nil)
 expect("Ziel-Anleger", Transports.Data().docks["Tirisfal Glades"].mapID, 1420)
-expect("Fahrzeit", route.travel ~= nil, true)
+expect("Fahrzeit Anleger zu Anleger (nicht bis zum Ladebild)", route.rideTime, 61)
+expect("Ziel-Anleger am Liegeplatz, nicht im Anflug", Transports.Data().docks["Tirisfal Glades"].x, 0.60)
 expect("ohne Periode unbekannt", Transports.SecondsToDeparture(route), nil)
 
 ride(base + 240, ORG, TIRISFAL)
@@ -239,8 +246,16 @@ tick()
 expectTrue("Kontinentkarte: Fahrt läuft weiter", Transports.Ride() ~= nil)
 placeAt(1420, 0.61, 0.51)
 tick()
-expect("Zone lesbar: Fahrt beendet", Transports.Ride(), nil)
-expectTrue("Ziel ist die Zone", Transports.Data().routes["Stranglethorn Vale>Tirisfal Glades"] ~= nil)
+expectTrue("Zone lesbar, Ruhezeit läuft", Transports.Ride() ~= nil)
+-- Spieler läuft sofort los: der letzte ruhige Punkt gilt als Ankunft
+wow.advance(1)
+wow.state.moving = true
+tick()
+wow.state.moving = false
+expect("Losgelaufen: Fahrt beendet", Transports.Ride(), nil)
+local stvRoute = Transports.Data().routes["Stranglethorn Vale>Tirisfal Glades"]
+expectTrue("Ziel ist die Zone", stvRoute ~= nil)
+expect("Fahrzeit bis zum ruhigen Punkt", stvRoute.rideTime, 51)
 expect("kein Kontinent-Anleger", Transports.Data().docks["Eastern Kingdoms"], nil)
 
 -- Transport legt noch an (Spieler steht, Position wandert): keine Abfahrt vor der Ruhezeit
