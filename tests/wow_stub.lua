@@ -137,7 +137,13 @@ local frameMethods = {
   GetHeight = function(self) return self._height end,
   SetHeight = function(self, height) self._height = height end,
   GetFrameLevel = function(self) return rawget(self, "_level") or 1 end,
-  SetFrameLevel = function(self, level) self._level = level end,
+  -- Feste Ebene (LibDBIcon SetFixedFrameLevel(true)): SetFrameLevel wirkt nicht (Blizzard löst sie dafür kurz)
+  SetFrameLevel = function(self, level)
+    if rawget(self, "_fixedLevel") then return end
+    self._level = level
+  end,
+  SetFixedFrameLevel = function(self, fixed) self._fixedLevel = fixed and true or false end,
+  HasFixedFrameLevel = function(self) return rawget(self, "_fixedLevel") == true end,
   -- Scrollbereiche: Position wird gemerkt; Bereich = frame._scrollRange (Standard groß genug für jede Seite)
   SetVerticalScroll = function(self, offset) self._verticalScroll = offset end,
   GetVerticalScroll = function(self) return rawget(self, "_verticalScroll") or 0 end,

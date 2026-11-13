@@ -125,6 +125,17 @@ function Mail.TryAttachBagItem(bag, slot)
 end
 
 
+-- WoW Forever: Empfänger braucht Vor- und Nachname (Trenner wie Blizzard NameUtil.GetFullNameWithoutRealm)
+local SURNAME_SEPARATOR = " "
+
+local function recipientName(data, keyName)
+  local name = data.name or keyName
+  if not data.surname or not name then return name end
+  local consts = Constants and Constants.CharacterNameSeparatorConsts
+  local separator = consts and consts.CHARACTERNAME_SURNAME_SEPARATOR or SURNAME_SEPARATOR
+  return name .. separator .. data.surname
+end
+
 function Mail.GetKnownAlts()
   local result = {}
   local stats = LevelTimerStatsDB and LevelTimerStatsDB.characters
@@ -141,9 +152,8 @@ function Mail.GetKnownAlts()
       local name, realm = key:match("^([^-]+)%-(.+)$")
       local charRealm = data.realm or realm
       if currentRealm and charRealm and charRealm:lower() == currentRealm:lower() then
-        local charName = data.name or name
         table.insert(result, {
-          name = charName,
+          name = recipientName(data, name),
           key = key,
           class = data.class,
         })

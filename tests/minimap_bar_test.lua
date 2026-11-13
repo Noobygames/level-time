@@ -29,6 +29,11 @@ hiddenIcon:Hide()
 -- LibDBIcon-Knopf mit ausgeblendeter Deckkraft (showOnMouseover) und Unterframe auf niedriger Ebene
 details:SetAlpha(0)
 details:SetFrameLevel(8)
+details:SetFixedFrameLevel(true)   -- wie LibDBIcon createButton (Roadmap 481)
+-- LibDBIcon updatePosition (Ziehen, Refresh, Show): Zusatzanker an der Minimap, ohne ClearAllPoints
+local function libDBIconUpdatePosition(button, x, y)
+  button:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
 local hitArea = CreateFrame("Frame", nil, details)
 hitArea:SetFrameLevel(3)
 local stopped = 0
@@ -65,6 +70,14 @@ expectTrue("Unterframe über der Leiste", hitArea:GetFrameLevel() > bar:GetFrame
 expectTrue("Knopf über der Leiste", details:GetFrameLevel() > bar:GetFrameLevel())
 details:SetAlpha(0.2)
 expect("späteres SetAlpha(0.2) wird auf 1 gehalten", details:GetAlpha(), 1)
+expect("feste Ebene bleibt fest", details:HasFixedFrameLevel(), true)
+
+-- Ziehen/Refresh hängt den Knopf an die Minimap: sofort zurück in die Leiste, nur ein Anker
+libDBIconUpdatePosition(details, 30, 40)
+expect("nach updatePosition ein Anker", details:GetNumPoints(), 1)
+local _, anchor = details:GetPoint(1)
+expect("nach updatePosition an der Leiste", anchor, bar)
+expect("nach updatePosition Eltern Leiste", details:GetParent(), bar)
 
 -- Auf- und Zuklappen
 expect("initial eingeklappt", MinimapBar.IsExpanded(), false)
@@ -99,6 +112,11 @@ expect("Details wieder an Minimap", details:GetParent(), Minimap)
 expect("MyAddon wieder an Minimap", myAddon:GetParent(), Minimap)
 
 expect("Unterframe Ebene wiederhergestellt", hitArea:GetFrameLevel(), 3)
+expect("LibDBIcon-Ebene wiederhergestellt", details:GetFrameLevel(), 8)
+expect("LibDBIcon-Ebene wieder fest", details:HasFixedFrameLevel(), true)
+expect("nach Restore ein Anker", details:GetNumPoints(), 1)
+libDBIconUpdatePosition(details, 30, 40)
+expect("nach Restore bleibt updatePosition unberührt", details:GetNumPoints(), 2)
 details:SetAlpha(0.2)
 expect("nach Restore wird Alpha nicht mehr erzwungen", details:GetAlpha(), 0.2)
 

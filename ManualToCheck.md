@@ -162,6 +162,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **240. Boss-Kills je Instanz-Lauf, Datenteil (Roadmap 483)**: check `483.bosses` (Bossliste der Instanz mit Namen, besiegte encounterIDs des Laufs, letzte Meldung: `encounter` = ENCOUNTER_END bzw. `died` = Fallback über UNIT_DIED, success, gezählt) und debug `instances` (boss killed ...); je Client einen Dungeon bis zum Endboss spielen, dann `/lt debug check`
 - **242. XP und Gold im Quest-Tooltip, Datenteil (Roadmap 486)**: check `486.questRewards` (je Quest XP und Geld; in Era gleiche Beträge bei allen Quests = `GetQuestLogRewardMoney(questID)` ignoriert die ID, Vergleich `selectedMoney`; welche Hooks es gibt). Sichtprüfung: Questlog-Zeile überfahren (Einstellung an), Questkarte-Punkt überfahren
 - **243. Reagenzien-Erinnerung, Datenteil (Roadmap 488, Classic Era/WoW Forever)**: check `488.reagents` (je Item der Klasse Name, Bestand, bekannte Zauber; in Forever: liefern die Classic-IDs Namen und `IsPlayerSpell` true?), debug `warnings` (WARN_REAGENTS, reagents sold here …). Sichtprüfung: Warnung mit Bestand, Chathinweis beim Reagenzienhändler
+- **245. Minimap-Knopfleiste, Ebenen und Anker (Roadmap 481)**: check `481.minimapBar.layers` (je Knopf Ebene, feste Ebene/Schicht, alle Anker, über der Leiste)
+- **244. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`)
 
 ---
 
@@ -3474,4 +3476,19 @@ Retail: Spalte zeigt nur die Zahl, kein Tooltip.
 Client:
 Spalte/Tooltip/Symbole ok:
 Fehler:
+### 244. Twink-Knopf im Postfach mit Vor- und Nachname (Roadmap 480, WoW Forever)
+Datenteil per Debug-Log: check `450.mail` (`unitName` muss Vorname und Nachname getrennt zeigen). Jeden Twink einmal einloggen
+(der Nachname wird beim Login gespeichert), dann am Briefkasten „Post-Helfer“ an, Senden-Reiter, Twink-Knopf klicken.
+- Empfängerfeld zeigt „Vorname Nachname“, Post kommt beim Twink an
+Empfänger richtig (ja/nein):
+### 245. Minimap-Knopfleiste: fremde Knöpfe bedienbar (Roadmap 481)
+Datenteil per Debug-Log: check `481.minimapBar.layers` (bei aufgeklappter Leiste `/lt debug check 481.minimapBar.layers`,
+jeder Knopf `aboveBar: true`, genau ein Anker an der Leiste). Fix: LibDBIcon-Knöpfe (feste Ebene) liegen über der Leiste,
+Zusatzanker an der Minimap werden sofort zurückgesetzt.
+- Leiste aufklappen: Details, Questie, DBM und andere LibDBIcon-Knöpfe per Links- und Rechtsklick bedienbar, Tooltip erscheint
+- Knopf in der Leiste ziehen: bleibt an seinem Platz (wandert nicht an die Minimap)
+- Leiste ausschalten: Knöpfe sitzen wieder an der Minimap und lassen sich dort wie gewohnt ziehen
+Alle Symbole klickbar (ja/nein):
+Ziehen bleibt in der Leiste (ja/nein):
+Betroffene Addons (falls noch welche):
 ```

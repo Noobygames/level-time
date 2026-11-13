@@ -478,6 +478,8 @@ end
 -- LevelTimerCharDB werden dabei einmalig übernommen und durchlaufen dieselben Migrationen.
 local function loadCharacter(stats)
   local name, realm = UnitName("player"), GetRealmName()
+  -- WoW Forever: zweiter Rückgabewert von UnitName ist der Nachname (Blizzard NameUtil, Camelot)
+  local surname = ns.Client.IsForever() and select(2, UnitName("player")) or nil
   local key = Database.CharacterKey(name, realm)
 
   local guid = playerGuid()
@@ -505,6 +507,7 @@ local function loadCharacter(stats)
 
   data.guid = guid or data.guid
   data.name, data.realm = name, realm
+  data.surname = surname ~= "" and surname or nil
   data.class = select(2, UnitClass("player"))
   return key, data
 end
