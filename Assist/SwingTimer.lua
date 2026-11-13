@@ -11,11 +11,30 @@
 --              Dauer aus UnitRangedDamage("player") (erster Wert).
 -- shortcut: Tempo-Änderungen mitten im Schwung (Hast, Parieren) passen die laufende Restzeit nicht an; erst der
 -- nächste Schlag nimmt die neue Geschwindigkeit, nachrüsten bei Rückmeldungen über ungenaue Balken.
+-- Anpassbar (Roadmap 489, WoW Forever bringt eigene Schwungbalken mit): Breite/Höhe, Farbe je Hand (Akzentfarben
+-- des Themes), Textur aus dem Theme (themeBarTexture), Text, Hände einzeln, nur im Kampf, Anordnung; in Forever
+-- blendet swingTimerHideBlizzard Blizzards Balken über die CVar showSwingTimer (Blizzard_SwingTimer) aus.
 local _, ns = ...
 
 ns.RegisterDefaults({
   settings = {
     swingTimer = false,
+    swingTimerWidth = 180,
+    swingTimerHeight = 12,
+    swingTimerText = "remaining",
+    swingTimerLayout = "vertical",
+    swingTimerMain = true,
+    swingTimerOff = true,
+    swingTimerRanged = true,
+    swingTimerCombatOnly = false,
+    swingTimerColorMain = "",
+    swingTimerColorOff = "",
+    swingTimerColorRanged = "",
+    swingTimerHideBlizzard = false,
+  },
+  ranges = {
+    swingTimerWidth = { 60, 400 },
+    swingTimerHeight = { 6, 40 },
   },
 })
 
@@ -29,8 +48,17 @@ local AUTO_SHOT, WAND_SHOOT = 75, 5019
 -- Grundränge der Fähigkeiten "beim nächsten Schlag"; das Kampflog nennt den Namen, der für alle Ränge gleich ist
 local NEXT_SWING_SPELLS = { 78, 845, 2973, 6807 }
 
-local BAR_WIDTH, BAR_HEIGHT, BAR_GAP = 180, 12, 2
-local BAR_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
+SwingTimer.MIN_WIDTH, SwingTimer.MAX_WIDTH = 60, 400    -- Grenzen der Regler in den Einstellungen
+SwingTimer.MIN_HEIGHT, SwingTimer.MAX_HEIGHT = 6, 40
+SwingTimer.TEXT_MODES = { "remaining", "both", "none" }
+SwingTimer.LAYOUTS = { "vertical", "horizontal" }
+SwingTimer.COLOR_ORDER = { "", "blue", "green", "purple", "class" }  -- "" = Standardfarbe der Hand
+SwingTimer.BLIZZARD_CVAR = "showSwingTimer"
+-- Einstellungsschlüssel je Hand: sichtbar und Farbe
+local SHOW_SETTING = { main = "swingTimerMain", off = "swingTimerOff", ranged = "swingTimerRanged" }
+SwingTimer.COLOR_SETTING = { main = "swingTimerColorMain", off = "swingTimerColorOff", ranged = "swingTimerColorRanged" }
+
+local BAR_GAP = 2
 local BACKGROUND = { 0, 0, 0, 0.5 }
 local COLORS = {
   main = { 0.9, 0.75, 0.2 },
@@ -38,6 +66,7 @@ local COLORS = {
   ranged = { 0.35, 0.7, 1 },
 }
 local PREVIEW_PROGRESS = { main = 0.6, off = 0.3, ranged = 0.8 }
+local PREVIEW_DURATION = 2
 
 local swings = {}           -- hand -> { startedAt, duration }
 local nextSwingNames = {}   -- Name -> true
@@ -47,6 +76,8 @@ local combatLogSeen = false -- true, sobald ein eigener Schlag im Kampflog ankam
 local previewing = false
 local frame
 local bars = {}
+local shownHands = {}       -- hand -> true, wenn die Hand in den Einstellungen an ist
+local textMode, combatOnly = "remaining", false
 
 -- Spieler-Zauber verträgt keine geheimen oder fehlenden Werte: nur positive Zahlen
 local function positive(value)
@@ -104,12 +135,8 @@ end
 ---------------------------------------------------------------------------
 -- Anzeige
 ---------------------------------------------------------------------------
-local function createBar(index, hand)
+local function createBar()
   local bar = CreateFrame("StatusBar", nil, frame)
-  bar:SetSize(BAR_WIDTH, BAR_HEIGHT)
-  bar:SetPoint("TOP", frame, "TOP", 0, -(index - 1) * (BAR_HEIGHT + BAR_GAP))
-  bar:SetStatusBarTexture(BAR_TEXTURE)
-  bar:SetStatusBarColor(unpack(COLORS[hand]))
   bar:SetMinMaxValues(0, 1)
   local background = bar:CreateTexture(nil, "BACKGROUND")
   background:SetAllPoints()
@@ -120,15 +147,62 @@ local function createBar(index, hand)
   return bar
 end
 
+local function barText(remaining, duration)
+  if textMode == "none" then return "" end
+  if textMode == "both" then return string.format("%.1f / %.1f", remaining, duration) end
+  return string.format("%.1f", remaining)
+end
+
+-- Farbe einer Hand: gewählte Akzentfarbe (Theme), sonst die Standardfarbe der Hand
+local function handColor(db, hand)
+  local key = db[SwingTimer.COLOR_SETTING[hand]]
+  if key == "class" then return ns.Theme.ClassColor(UnitClass and select(2, UnitClass("player")), COLORS[hand]) end
+  return ns.Theme.ACCENTS[key] or COLORS[hand]
+end
+
+-- Größe, Anordnung, Textur und Farben aus den Einstellungen; nur eingeschaltete Hände bekommen einen Platz
+local function layout(db)
+  local width, height = db.swingTimerWidth, db.swingTimerHeight
+  local horizontal = db.swingTimerLayout == "horizontal"
+  local texture = ns.Theme.BarTexturePath(db.themeBarTexture)
+  local slot = 0
+  for _, hand in ipairs(HANDS) do
+    local bar = bars[hand]
+    shownHands[hand] = db[SHOW_SETTING[hand]] == true
+    bar:SetSize(width, height)
+    bar:SetStatusBarTexture(texture)
+    bar:SetStatusBarColor(unpack(handColor(db, hand)))
+    bar:ClearAllPoints()
+    if shownHands[hand] then
+      if horizontal then
+        bar:SetPoint("TOPLEFT", frame, "TOPLEFT", slot * (width + BAR_GAP), 0)
+      else
+        bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -slot * (height + BAR_GAP))
+      end
+      slot = slot + 1
+    end
+  end
+  local span = math.max(slot, 1)
+  if horizontal then
+    frame:SetSize(span * width + (span - 1) * BAR_GAP, height)
+  else
+    frame:SetSize(width, span * height + (span - 1) * BAR_GAP)
+  end
+  textMode, combatOnly = db.swingTimerText, db.swingTimerCombatOnly == true
+end
+
 -- Balken neu setzen; Schwünge, die abgelaufen sind, enden (Ersatzschleife: Haupthand läuft im Kampf weiter)
 local function refresh()
   local now, anyShown = GetTime(), false
+  -- "nur im Kampf": außerhalb des Kampfes laufen die Schwünge weiter, nur die Anzeige ruht
+  local hidden = combatOnly and not previewing and not UnitAffectingCombat("player")
   for _, hand in ipairs(HANDS) do
     local bar = bars[hand]
     local remaining, progress
+    local duration = PREVIEW_DURATION
     if previewing then
       progress = PREVIEW_PROGRESS[hand]
-      remaining = (1 - progress) * 2
+      remaining = (1 - progress) * duration
     else
       remaining, progress = SwingTimer.Remaining(hand, now)
       if remaining == 0 then
@@ -139,10 +213,11 @@ local function refresh()
           swings[hand], remaining = nil, nil
         end
       end
+      duration = swings[hand] and swings[hand].duration
     end
-    if remaining then
+    if remaining and shownHands[hand] and not hidden then
       bar:SetValue(progress)
-      ns.Widgets.SetTextIfChanged(bar.text, string.format("%.1f", remaining))
+      ns.Widgets.SetTextIfChanged(bar.text, barText(remaining, duration))
       bar:Show()
       anyShown = true
     else
@@ -154,9 +229,8 @@ end
 
 local function create()
   frame = CreateFrame("Frame", ns.GlobalName("SwingTimer"), UIParent)
-  frame:SetSize(BAR_WIDTH, #HANDS * BAR_HEIGHT + (#HANDS - 1) * BAR_GAP)
   frame:Hide()
-  for index, hand in ipairs(HANDS) do bars[hand] = createBar(index, hand) end
+  for _, hand in ipairs(HANDS) do bars[hand] = createBar() end
   -- jedes Bild, solange sichtbar: der Balken soll flüssig laufen, drei SetValue-Aufrufe sind billig
   ns.SetUpdateScript(frame, "SwingTimer", refresh)
 end
@@ -241,8 +315,15 @@ end)
 
 ns.RegisterApply(function(db)
   local active = db.swingTimer == true and SwingTimer.IsAvailable()
+  layout(db)
   events.SetActive(active)
   setCombatLog(active)
+  -- Blizzards eigene Schwungbalken (nur Forever kennt die CVar; anderswo übergeht CVars sie)
+  if active and db.swingTimerHideBlizzard then
+    ns.CVars.Override(SwingTimer.BLIZZARD_CVAR, "0")
+  else
+    ns.CVars.Restore(SwingTimer.BLIZZARD_CVAR)
+  end
   if not active then
     swings[SwingTimer.MAIN], swings[SwingTimer.OFF], swings[SwingTimer.RANGED] = nil, nil, nil
     autoAttacking = false
