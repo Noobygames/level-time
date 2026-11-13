@@ -61,6 +61,7 @@ local function mapSize(mapID)
   mapSizes[mapID] = { width, height }
   return width, height
 end
+CorpseArrow.MapSize = mapSize
 
 function CorpseArrow.IsGhost()
   return UnitIsGhost ~= nil and readable(UnitIsGhost("player")) == true
@@ -121,17 +122,3 @@ for _, event in ipairs({ "PLAYER_DEAD", "PLAYER_ALIVE", "PLAYER_UNGHOST", "PLAYE
   ns.RegisterEvent(event, CorpseArrow.Refresh)
 end
 ns.RegisterApply(CorpseArrow.Refresh)
-
--- /lt debug check (als Geist): Karte, Positionen, Blickrichtung und Ergebnis
-ns.DebugLog.AddCheck("deaths.corpseArrow", function()
-  local mapID = C_Map and C_Map.GetBestMapForUnit and readable(C_Map.GetBestMapForUnit("player"))
-  local info = { ghost = CorpseArrow.IsGhost(), mapID = mapID,
-    hasWorldPos = C_Map ~= nil and C_Map.GetWorldPosFromMapPos ~= nil, hasFacing = GetPlayerFacing ~= nil }
-  if type(mapID) == "number" and C_DeathInfo and C_DeathInfo.GetCorpseMapPosition then
-    info.corpseX, info.corpseY = xy(C_DeathInfo.GetCorpseMapPosition(mapID))
-    info.width, info.height = mapSize(mapID)
-  end
-  info.facing = GetPlayerFacing and readable(GetPlayerFacing())
-  info.rotation, info.distance = CorpseArrow.Direction()
-  return info
-end)

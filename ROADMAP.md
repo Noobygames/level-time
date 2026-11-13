@@ -1,6 +1,6 @@
 # Roadmap
 
-Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird abgehakt und unter „Erledigt“ mit Version vermerkt. Nummern laufen über alle Versionen weiter.
+Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **499**.
 
 ## Funde aus dem Spieltest (November 2026)
 
@@ -12,6 +12,18 @@ Reihenfolge = Priorität: Korrektheit zuerst, dann Funktionen. Bestätigt: Nachr
 
 ### Funktionen
 
+
+## Geplant: Instanzen, Quests, Klassen (November 2026)
+
+Ideensammlung für Level Time und Level Time Goals. Gegner- und Questdaten müssen selbst gepflegt werden (keine fremden Datenbanken, siehe „Bewusst nicht“ unten); API-Annahmen vor dem Bau je Client prüfen.
+
+- [ ] 490. **Boss-Mechaniken im Tooltip** (L): Bei Bossen in Dungeons und Raids im Tooltip die 1–2 wichtigsten Kernmechaniken zeigen (Ausweichen/Laufen, z. B. rotierende Strahlen; Unterbrechbares; Überlebensmechaniken). Raid-Bosse mit komplexeren Encountern ebenso. Boss-Daten aus 483.
+- [ ] 491. **Trash-Fähigkeiten im Tooltip** (L): Wichtige Fähigkeiten normaler Gegner in Instanzen und Raids hervorheben: Schadensspitzen/AoE (rausgehen, Schildwall), Heiler, Zauber, die unterbrochen werden müssen; gefährlicher Raid-Trash eingeschlossen. Teilt Datenformat und Tooltip-Code mit 490.
+- [ ] 492. **Quest-Check beim Betreten einer Instanz** (M): Beim Betreten prüfen, ob alle verfügbaren Quests der Instanz angenommen sind; Level berücksichtigen (freigeschaltet?), abgeschlossene Quests erkennen, bei fehlenden eine kompakte Warnung zeigen.
+- [ ] 493. **Dungeon-Fortschritt mit Statistik** (M–L): Boss-Status wie im Dungeon Journal nativ anzeigen (besiegte Bosse) und mit eigenen Daten verknüpfen: Kill-Zeiten, Tode, frühere Runs, Level-Fortschritt. Baut auf `Instances`/`InstanceCopy`, verwandt mit 322. Entwurf im Clickdummy (Board „Dungeon- und Raid-Runs“, `DungeonRun.dc.html`): Live-Tracker in der Instanz (Zeit, Splits je Boss gegen die Bestzeit, Trash, Tode, XP/h) und Run-Fenster (Liste mit Filter Dungeons/Raids, Kacheln Zeit/Tode/Trash/XP/Bosse/Geld/Quests/Gruppe, Bossliste mit Split, Vergleich Bestzeit oder letzter Run, Beute und Würfe). Vorbild ForeverDungeonJournal `Systems/RunLog.lua` (Run = Instanz-ID aus Kreatur-GUIDs, Wiedereinstieg 90 min, ohne Kampflog). Fehlt in unseren Daten: Zeitpunkt und XP je Boss-Kill (`InstanceBosses` speichert nur die IDs), Trash-Zahl je Run.
+- [ ] 494. **Feature-Parität mit Questie und RestedXP** (M): Funktionen beider Addons systematisch gegen Level Time abgleichen (Vorgaben vom Spieler), Lücken als Roadmap-Punkte anlegen und eigene Alleinstellungsmerkmale festhalten.
+- [ ] 495. **Klassenquests und Level-Up-Fenster** (M–L): Datenbasis der Klassenquests (Stufe 10, 20, 30 …, auch WoW Forever) mit Belohnungen (Item-IDs für Chat-Links) und Fähigkeiten. Im Level-Up-Fenster Hinweis auf Klassenlehrer/Klassenquests; eigene Einblendung für Spieler, die das Fenster abgeschaltet haben. Fenster schließt sich standardmäßig nicht mehr selbst; Checkbox im Fenster (gleich mit der Einstellung) schaltet das automatische Schließen wieder ein.
+- [ ] 498. **Glitzern nur an einer Leiche** (S, Forever): Das Glitzern hängt am Soft-Interact-Ziel, das Spiel liefert davon genau eins (das nächste); weitere Leichen in der Nähe glitzern nicht (Spieltest Schlingendorntal, Raptoren). Prüfen per `lootSparkles.target` (`cvars.SoftTargetInteractRange` = wirklich 60?, `inRange`), ob das Spiel die Reichweite kappt. Mehrere Leichen gleichzeitig gingen nur mit einer anderen Quelle (tote Einheiten haben keine Namensplakette); Quelle suchen oder als Grenze dokumentieren.
 
 ## Geplant: Wettbewerbsanalyse (November 2026)
 
@@ -85,3 +97,4 @@ Schwerpunkt: Werte, die Zuschauer im Spielbild sehen und verstehen. Addons haben
 ### Projekt und Verbreitung
 
 - [ ] 20. **Uploads aktivieren** (S): CurseForge aktiv (Projekt 1721235, Secret `CF_API_KEY`). Wago-Projekte angelegt: Level Time `rNkgkwNa` (addons.wago.io/addons/level-time), Level Time Goals `v63QzDGb` (addons.wago.io/addons/level-time-goals), `## X-Wago-ID` in beiden `.toc`. Offen: Secret `WAGO_API_TOKEN` (Wago > Account > API Keys), WoWInterface-ID in die `.toc` und Secret `WOWI_API_TOKEN`.
+- [ ] 496. **Vikunja als Taskboard prüfen** (S–M): Große Markdown-Roadmaps zu lesen und zu überschreiben kostet viele Token. Vikunja (self-hosted, Go + Vue.js) bietet MCP, damit Agenten gefiltert abfragen (z. B. nur Top-Priorität) statt ganze Dateien zu laden. Bewerten und ggf. Roadmap dorthin umziehen.

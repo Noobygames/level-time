@@ -4,13 +4,14 @@ ARTWORK   := tools/artwork
 RECORDS   := tools/records
 FLIGHTS   := tools/flights
 LOCALE    := tools/locale
+EXTRACTOR := tools/extractor
 VERSION   := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run debuglog package artwork records flights locale test test-addon test-installer test-artwork test-records test-flights test-locale vet
+.PHONY: install update dry-run debuglog extract extract-check package artwork records flights locale test test-addon test-installer test-artwork test-records test-flights test-locale test-extractor vet
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -33,6 +34,14 @@ package:
 debuglog:
 	$(RUN) -debuglog $(ARGS)
 
+# Spieldaten des Data Extractors (LevelTimerExtractorDB) je Flavor nach dist/extractor/<flavor>.json, mit Übersicht
+extract:
+	go -C $(EXTRACTOR) run . -out "$(CURDIR)/dist/extractor" $(ARGS)
+
+# Wie extract, dazu Abgleich der Forever-Daten mit dem Dungeonführer (nur Bericht, ändert nichts)
+extract-check:
+	go -C $(EXTRACTOR) run . -out "$(CURDIR)/dist/extractor" -guide "$(CURDIR)/Assist/InstanceData/forever_guide.lua" $(ARGS)
+
 # CurseForge-Logo und Addon-Icon aus tools/artwork neu erzeugen
 artwork:
 	go -C $(ARTWORK) run . -logo "$(CURDIR)/curseforge/logo.png" -icon "$(CURDIR)/Media/Icon.tga" -goal-logo "$(CURDIR)/curseforge/streamgoal/logo.png" -goal-icon "$(CURDIR)/StreamGoal/Media/Icon.tga" -glint "$(CURDIR)/Media/Glint.tga" -bars "$(CURDIR)/Media" -wheel "$(CURDIR)/StreamGoal/Media" -sparkles "$(CURDIR)/Media"
@@ -52,7 +61,7 @@ flights:
 locale:
 	go -C $(LOCALE) run . -dir "$(CURDIR)/Locales" $(ARGS)
 
-test: test-addon test-installer test-artwork test-records test-flights test-locale
+test: test-addon test-installer test-artwork test-records test-flights test-locale test-extractor
 
 # Lua-Szenarien aus tests/ gegen eine nachgebaute WoW-API.
 # -count=1: Go kennt die Lua-Dateien nicht und würde sonst veraltete Ergebnisse aus dem Cache zeigen.
@@ -74,6 +83,9 @@ test-flights:
 test-locale:
 	go -C $(LOCALE) test ./...
 
+test-extractor:
+	go -C $(EXTRACTOR) test ./...
+
 vet:
 	go -C $(INSTALLER) vet ./...
 	go -C $(ADDONTEST) vet ./...
@@ -81,6 +93,16 @@ vet:
 	go -C $(RECORDS) vet ./...
 	go -C $(FLIGHTS) vet ./...
 	go -C $(LOCALE) vet ./...
+	go -C $(EXTRACTOR) vet ./...
 
 code-graph-build:
-	code-review-graph build
+	code-review-graph build 			# parse the codebase
+
+code-graph-install:
+	code-review-graph install              # set up the AI coding tools found on this machine
+
+code-graph-changes:
+	code-review-graph detect-changes --brief  # see what your last change touches
+
+code-graph-update:
+	code-review-graph update  # update the code graph with the latest changes

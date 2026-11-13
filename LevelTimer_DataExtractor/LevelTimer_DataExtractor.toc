@@ -1,0 +1,27 @@
+## Interface: 120105, 11509, 20506, 16001
+## Title: Level Time Data Extractor
+## Version: @project-version@
+## Author: Nerzal
+## Notes: Local developer tool: collects game data (NPCs, quests, items, loot, vendors, trainers, flights, instances) and holds the Level Time debug log. Not published.
+## Notes-deDE: Lokales Entwickler-Werkzeug: sammelt Spieldaten (NPCs, Quests, Gegenstände, Beute, Händler, Lehrer, Flüge, Instanzen) und enthält das Debug-Log von Level Time. Nicht veröffentlicht.
+## OptionalDeps: LevelTimer
+## SavedVariables: LevelTimerExtractorDB, LevelTimerDebugLog
+
+# Kern: Texte, Namespace, Ereignisse, Speicher (läuft auch ohne Level Time)
+Locale.lua
+Core.lua
+
+# Datensammler (X.db, LevelTimerExtractorDB)
+Collect\Items.lua
+Collect\Units.lua
+Collect\Loot.lua
+Collect\Quests.lua
+Collect\Services.lua
+Collect\World.lua
+
+# Debug-Werkzeug von Level Time (nur mit Level Time, über LevelTimerAPI)
+Debug\DebugLog.lua
+Debug\DebugProbes.lua
+Debug\Profiler.lua
+Debug\DebugChecks.lua
+Debug\DebugTools.lua

@@ -8,6 +8,13 @@ local newFrame = stub.newFrame
 -- Timer laufen nicht von selbst; Tests starten sie mit wow.runTimers()
 wow.timers = {}
 C_Timer = { After = function(_, callback) table.insert(wow.timers, callback) end }
+-- Wiederkehrende Timer: nur gesammelt (wow.tickers), Tests rufen sie bei Bedarf selbst auf
+wow.tickers = {}
+C_Timer.NewTicker = function(seconds, callback)
+  local ticker = { seconds = seconds, callback = callback, Cancel = function(self) self.cancelled = true end }
+  table.insert(wow.tickers, ticker)
+  return ticker
+end
 -- Chatfenster wie im Client: schreiben /played in ihrem TIME_PLAYED_MSG-Handler (wow.playedLines)
 -- Wie im Client ohne loadDeprecationFallbacks: nur die Konstante, nicht der Alias NUM_CHAT_WINDOWS
 Constants = { ChatFrameConstants = { MaxChatWindows = 2 } }

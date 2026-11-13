@@ -15,7 +15,7 @@ local Frames = addon.Frames
 local db = LevelTimerDB
 
 -- Migration v6: alle alten Schlüssel ziehen nach frames[id] um und sind danach weg
-expect("Schema", db.schemaVersion, 8)
+expect("Schema", db.schemaVersion, 9)
 expect("Hauptfenster: Größe", db.frames.main.scale, 1.3)
 expect("Hauptfenster: Position", db.frames.main.point .. " " .. db.frames.main.x, "TOPLEFT 40")
 expect("Split-Liste: Position", db.frames.splitList.y, -10)

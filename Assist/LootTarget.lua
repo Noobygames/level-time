@@ -145,6 +145,12 @@ local function readCursor(unit)
   return kindFromName(read(probe.GetAtlas, probe))
 end
 
+-- Für die Fehlersuche: Art und ausgegraut laut Zeiger, dazu die rohe Textur (Datei-ID oder Pfad) und der Atlas
+function LootTarget.ReadCursor(unit)
+  local kind, blocked = readCursor(unit)
+  return kind, blocked, probe and read(probe.GetTexture, probe), probe and read(probe.GetAtlas, probe)
+end
+
 ---------------------------------------------------------------------------
 -- Behälter-Lernen & Schlüsselwörter
 ---------------------------------------------------------------------------
@@ -370,6 +376,7 @@ local function tooltipTexts(unit)
   scanner:Hide()
   return texts
 end
+LootTarget.TooltipTexts = tooltipTexts
 
 -- Leiche, die der Spieler häuten, abbauen oder sammeln kann (auch leergeplündert); Beruf muss erlernt sein
 local function isGatherableCorpse(unit)
@@ -423,40 +430,3 @@ function LootTarget.State(unit, blocked)
   if blocked then return inRange == true and LootTarget.LOCKED or LootTarget.FAR end
   return LootTarget.READY
 end
-
--- /lt debug check (vor einem Erz, Kraut oder einer Leiche stehen): was der Client über das Ziel verrät, roh
--- (Datei-ID, Pfad oder Atlas des Zeigers sind nicht dokumentiert) und eingeordnet; dazu die beteiligten CVars
-ns.DebugLog.AddCheck("lootSparkles.target", function()
-  local unit = LootTarget.UNIT
-  local info = { available = LootTarget.IsAvailable(), cvars = {} }
-  info.style = ns.LootSparkle and ns.LootSparkle.CurrentStyle and ns.LootSparkle.CurrentStyle() or nil
-  for _, name in ipairs({ "SoftTargetInteract", "SoftTargetIconGameObject", "SoftTargetInteractRange",
-    "SoftTargetInteractArc", "SoftTargetInteractOnlyInRange", "SoftTargetNameplateInteract",
-    "outlineModeShowLootEffectWhenDisabled", "graphicsOutlineMode" }) do
-    info.cvars[name] = ns.CVars.Get(name) or "<missing>"
-  end
-  if not info.available then return info end
-  info.exists, info.isObject, info.name = read(UnitExists, unit), read(UnitIsGameObject, unit), read(UnitName, unit)
-  info.dead, info.inRange = read(UnitIsDead, unit), read(UnitIsInInteractRange, unit)
-  info.related = C_QuestLog and read(C_QuestLog.UnitIsRelatedToActiveQuest, unit)
-  info.cursorKind = readCursor(unit)
-  info.cursorTexture, info.cursorAtlas = read(probe.GetTexture, probe), read(probe.GetAtlas, probe)
-  info.kind, info.blocked = LootTarget.Classify(unit)
-  info.plate = read(C_NamePlate.GetNamePlateForUnit, unit) ~= nil
-  return info
-end)
-
--- /lt debug check (als Kürschner vor einer leergeplünderten, häutbaren Leiche): zeigt der Tooltip des
--- Interaktionsziels die Kürschner-Zeile, was meldet CanLootUnit danach, ist Kürschnern erkannt?
-ns.DebugLog.AddCheck("479.lootSparkles.skinning", function()
-  local unit = LootTarget.UNIT
-  local info = { dead = read(UnitIsDead, unit), name = read(UnitName, unit), lines = tooltipTexts(unit),
-    skinningTrained = LootTarget.IsGatheringTrained(LootTarget.SKIN), skinnableText = UNIT_SKINNABLE_LEATHER }
-  local guid = read(UnitGUID, unit)
-  if guid and type(CanLootUnit) == "function" then
-    local ok, hasLoot, canLoot = pcall(CanLootUnit, guid)
-    info.hasLoot, info.canLoot = ok and not ns.IsSecret(hasLoot) and hasLoot, ok and not ns.IsSecret(canLoot) and canLoot
-  end
-  info.kind = LootTarget.Classify(unit)
-  return info
-end)

@@ -10,10 +10,10 @@ function ns.SetChatName(name)
   PREFIX = "|cfff4c95d" .. name .. ":|r "
 end
 
--- Erweitertes Logging für /lt debug (ns.debug, bis /reload). Technische Zeilen für die
--- Fehlersuche, daher englisch und nicht übersetzt. Werte werden zu Text, daher nur %s:
--- ns.Debug("stats", "%s +%s", counter, amount)
-local DEBUG_PREFIX = "|cff888888[debug] %s:|r "
+-- Debug-Haken: ns.Debug-Zeilen, Chatzeilen (ns.Print, Bereich "print") und von ns.SafeCall abgefangene Fehler
+-- ("error") gehen an einen Empfänger, den nur das lokale Entwickler-Addon LevelTimer_DataExtractor setzt (Debug-Log,
+-- Chat-Logging mit /lt debug). Ohne Empfänger kostet ns.Debug einen Vergleich. Technische Zeilen, daher englisch und
+-- nicht übersetzt. Werte werden zu Text, daher nur %s: ns.Debug("stats", "%s +%s", counter, amount)
 
 -- Werte zu Text (geheime als "<secret>") und in format einsetzen
 function ns.FormatDebug(format, ...)
@@ -25,44 +25,31 @@ function ns.FormatDebug(format, ...)
   return string.format(format, unpack(args, 1, count))
 end
 
-local function printDebug(area, text)
-  print(PREFIX .. string.format(DEBUG_PREFIX, area) .. text)
-end
-
--- Technische Zeile immer ausgeben (Ergebnisse der /lt debug-Befehle)
-function ns.DebugPrint(area, format, ...)
-  printDebug(area, ns.FormatDebug(format, ...))
-end
-
--- Empfänger der Debug-Zeilen neben dem Chat: recorder(area, text), z.B. das dauerhafte Log (DebugLog.lua); nil = keiner
+-- Empfänger der Debug-Zeilen: recorder(area, text); nil = keiner
 local debugRecorder
 function ns.SetDebugRecorder(recorder)
   debugRecorder = recorder
 end
 
 local function record(area, text)
-  if debugRecorder then pcall(debugRecorder, area, text) end  -- ein defektes Log darf nichts aufhalten
+  if debugRecorder then pcall(debugRecorder, area, text) end  -- ein defekter Empfänger darf nichts aufhalten
 end
 
--- Chatzeile mit Präfix; mit laufendem Debug-Log steht sie dort auch (Bereich "print"), damit sich gemeldete
--- Ergebnisse (Hinweise, Ablehnungen, Zusammenfassungen) ohne Bildschirmfoto auswerten lassen
+-- Chatzeile mit Präfix; mit Empfänger steht sie auch dort (Bereich "print"), damit sich gemeldete Ergebnisse
+-- (Hinweise, Ablehnungen, Zusammenfassungen) ohne Bildschirmfoto auswerten lassen
 function ns.Print(msg)
   print(PREFIX .. msg)
   record("print", msg)
 end
 
--- Läuft gerade irgendein Logging (Chat mit /lt debug oder dauerhaftes Log)? Für Aufrufer, die vor ns.Debug teure
--- Vorarbeit leisten (Listen, Sortieren, berechnete Werte)
+-- Hört jemand zu? Für Aufrufer, die vor ns.Debug teure Vorarbeit leisten (Listen, Sortieren, berechnete Werte)
 function ns.DebugActive()
-  return ns.debug == true or debugRecorder ~= nil
+  return debugRecorder ~= nil
 end
 
--- Nur bei eingeschaltetem Logging (Chat mit /lt debug, dauerhaftes Log mit /lt debug log)
 function ns.Debug(area, format, ...)
-  if not ns.debug and not debugRecorder then return end
-  local text = ns.FormatDebug(format, ...)
-  if ns.debug then printDebug(area, text) end
-  record(area, text)
+  if not debugRecorder then return end
+  record(area, ns.FormatDebug(format, ...))
 end
 
 -- Retail kann Werte als "secret" markieren; die dürfen Addons nicht auswerten
@@ -136,11 +123,11 @@ end
 
 local safeCall = XPCALL_PASSES_ARGS and nativeSafeCall or slotSafeCall
 ns.SafeCall = safeCall
--- Ungemessener Aufruf für den Profiler (Core/Profiler.lua), der ns.SafeCall beim Messen ersetzt
+-- Ungemessener Aufruf für den Profiler (LevelTimer_DataExtractor/Debug/Profiler.lua), der ns.SafeCall beim Messen ersetzt
 ns.RawSafeCall = safeCall
 
 ---------------------------------------------------------------------------
--- Profiler-Haken (/lt debug perf, Core/Profiler.lua). Ausgeschaltet kostet er nichts: der Kern tauscht beim
+-- Profiler-Haken (/lt debug perf, LevelTimer_DataExtractor/Debug/Profiler.lua). Ausgeschaltet kostet er nichts: der Kern tauscht beim
 -- Einschalten die Verteiler (OnEvent, OnUpdate, ns.SafeCall) gegen gemessene Varianten aus und beim Ausschalten
 -- zurück. Herkunft jedes Callbacks ("Datei.lua:Zeile") wird beim Registrieren einmal gemerkt.
 ---------------------------------------------------------------------------

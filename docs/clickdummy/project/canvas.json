@@ -1,0 +1,85 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Spielszene: Hauptfenster, Minimap, Einblendung",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Options.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Einstellungen (/lt)",
+      "w": 1100,
+      "x": 1360,
+      "y": 0
+    },
+    "History.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Verlauf (Shift+Klick Minimap)",
+      "w": 1100,
+      "x": 2540,
+      "y": 0
+    },
+    "Displays.dc.html": {
+      "h": 1060,
+      "is_interactive": true,
+      "title": "Weitere Anzeigen und Fenster",
+      "w": 1400,
+      "x": 0,
+      "y": 880
+    },
+    "DungeonRun.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Dungeon- und Raid-Runs (Planung)",
+      "w": 1300,
+      "x": 2160,
+      "y": 880
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-13T20:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "title",
+    "howto"
+  ],
+  "notes": {
+    "howto": {
+      "fill": "orange",
+      "size": 24,
+      "text": "Zum Planen neuer UIs: neue Idee als eigenes Artboard daneben legen oder im bestehenden Screen umbauen. Quelle im Repo: docs/clickdummy/project/ (eine .dc.html je Screen, canvas.json = Anordnung). Einstellungen und Verlauf lesen options-data.json und history-data.json; neu erzeugen mit docs/clickdummy/gen/options.py und history.py. Texte = deutsche Locale-Texte, Werte sind Beispielwerte.",
+      "w": 560,
+      "x": 1480,
+      "y": 880
+    },
+    "title": {
+      "kind": "title1",
+      "maxW": 3640,
+      "text": "Level Time Clickdummy",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Options.dc.html",
+    "History.dc.html",
+    "Displays.dc.html",
+    "DungeonRun.dc.html"
+  ],
+  "pages": [],
+  "title": "Level Time Clickdummy"
+}

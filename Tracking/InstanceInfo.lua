@@ -1,5 +1,6 @@
 -- Instanz-Stammdaten (Roadmap 460): Reset, Gruppengröße und Level-Bereich je Karte aus den Spieldaten
--- (ns.InstanceData, generiert von tools/flights nach Assist/InstanceData/<flavor>.lua; Retail und Forever ohne Level).
+-- (ns.InstanceData, generiert von tools/flights nach Assist/InstanceData/<flavor>.lua; Retail ohne Level). Forever liefert
+-- keine Level-Spalten: dort kommen die Bereiche aus dem gepflegten ns.InstanceGuide (Assist/InstanceData/forever_guide.lua).
 -- Schlüssel ist die Karten-ID (8. Rückgabewert von GetInstanceInfo) und die Schwierigkeit.
 local _, ns = ...
 
@@ -19,6 +20,7 @@ local DAILY_DAYS, WEEKLY_DAYS = 1, 7
 local MAX_PARTY_PLAYERS = 10  -- größere Karten sind Schlachtzüge (kein Dungeon-Hinweis)
 
 local function data() return ns.InstanceData or {} end
+local function levels() return data().levels or (ns.InstanceGuide or {}).levels or {} end
 
 -- Stammdaten einer Schwierigkeit; ohne genaue Schwierigkeit die mit der kleinsten ID der Karte
 local function modeOf(mapID, difficultyID)
@@ -37,14 +39,14 @@ function InstanceInfo.Get(mapID, difficultyID)
   if type(mapID) ~= "number" or ns.IsSecret(mapID) then return nil end
   local mode = modeOf(mapID, difficultyID)
   if not mode then return nil end
-  local range = (data().levels or {})[mapID]
+  local range = levels()[mapID]
   return { resetDays = mode[RESET_INDEX], players = mode[PLAYERS_INDEX],
     minLevel = range and range[MIN_INDEX], maxLevel = range and range[MAX_INDEX] }
 end
 
--- Liefert dieser Client Level-Bereiche? (Era und Anniversary)
+-- Gibt es Level-Bereiche? (Era, Anniversary, Forever)
 function InstanceInfo.HasLevels()
-  return next(data().levels or {}) ~= nil
+  return next(levels()) ~= nil
 end
 
 -- "Kein Reset", "Täglich", "Wöchentlich" oder "Alle 3 Tage"
@@ -82,7 +84,7 @@ end
 -- { { mapID, minLevel, maxLevel }, ... }; leer ohne Level-Spalten
 function InstanceInfo.ForLevel(level)
   local list = {}
-  for mapID, range in pairs(data().levels or {}) do
+  for mapID, range in pairs(levels()) do
     local mode = modeOf(mapID)
     if mode and mode[PLAYERS_INDEX] <= MAX_PARTY_PLAYERS and level >= range[MIN_INDEX] and level <= range[MAX_INDEX] then
       table.insert(list, { mapID = mapID, minLevel = range[MIN_INDEX], maxLevel = range[MAX_INDEX] })

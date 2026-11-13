@@ -35,20 +35,6 @@ expect("PvP aus", LevelTimerDB.showPvpKills, false)
 expect("PvE bleibt an", LevelTimerDB.showPveKills, true)
 addon.Set("showPvpKills", true)
 
--- Fehlersuche schreibt XP-Meldungen in den Chat
-SlashCmdList.LEVELTIMER("debug")
-local debugPrintedBefore = #wow.printed
-wow.fire("CHAT_MSG_COMBAT_XP_GAIN", "Wolf stirbt, Ihr bekommt 100 Erfahrung.")
-local function printedSince(index, text)
-  for i = index + 1, #wow.printed do
-    if wow.printed[i]:find(text, 1, true) then return true end
-  end
-  return false
-end
-expectTrue("Debug-Ausgabe für Kill", printedSince(debugPrintedBefore, "Wolf"))
-expectTrue("erweitertes Logging der Zähler", printedSince(debugPrintedBefore, "[debug] stats:"))
-SlashCmdList.LEVELTIMER("debug")
-
 -- Fenster zwischen Level und Session umschalten
 addon.Set("windowScope", addon.Stats.SESSION)
 expect("Bereich Session", LevelTimerDB.windowScope, "session")

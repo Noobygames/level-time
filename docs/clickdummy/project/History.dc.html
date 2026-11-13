@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Verlauf</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1100px; height: 760px; box-sizing: border-box; background: #22302a; padding: 20px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2">
+  <div style="width: 100%; height: 100%; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; padding: 12px 16px">
+
+    <!-- Kopf -->
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Level Time: Verlauf</span>
+      <input type="search" placeholder="Filtern …" style="margin-left: auto; width: 200px; height: 32px; box-sizing: border-box; padding: 0 10px; background: #111; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; font-size: 13px; font-family: inherit">
+      <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee; font-size: 13px">Charakter: Beispiel-Krieger ▾</button>
+      <a href="Main.dc.html" aria-label="Schließen" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #555; border-radius: 4px; color: #ddd; text-decoration: none">
+        <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"></path></svg>
+      </a>
+    </div>
+
+    <!-- Hauptreiter (HistoryWindow.TAB_ORDER) -->
+    <div style="display: flex; column-gap: 18px; flex-wrap: wrap; border-bottom: 1px solid #333; padding-bottom: 4px">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="7">
+        <button type="button" onClick="{{g.pick}}" style="{{g.style}}">{{g.label}}</button>
+      </sc-for>
+    </div>
+
+    <!-- Unterreiter -->
+    <sc-if value="{{hasSubs}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; column-gap: 14px; flex-wrap: wrap">
+        <sc-for list="{{subs}}" as="s" hint-placeholder-count="4">
+          <button type="button" onClick="{{s.pick}}" style="{{s.style}}">{{s.label}}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+      <span style="font-size: 13px; color: #8a8a8a">{{loadText}}</span>
+    </sc-if>
+
+    <!-- Inhalt: Tabelle mit den echten Spalten, Beispielwerte -->
+    <sc-if value="{{isTable}}" hint-placeholder-val="{{ true }}">
+      <div style="flex: 1; min-height: 0; overflow: auto; border: 1px solid #2c2c2c; border-radius: 4px">
+        <div style="display: grid; grid-template-columns: {{gridColumns}}; font-size: 13px; min-width: max-content">
+          <sc-for list="{{head}}" as="h" hint-placeholder-count="7">
+            <button type="button" onClick="{{h.sort}}" style="text-align: left; padding: 8px 10px; background: #1a1a1a; color: #ffd100; font-weight: 600; border: 0; border-bottom: 1px solid #333; cursor: pointer; font-size: 13px; white-space: nowrap">{{h.label}}{{h.arrow}}</button>
+          </sc-for>
+          <sc-for list="{{cells}}" as="c" hint-placeholder-count="28">
+            <span style="padding: 6px 10px; border-bottom: 1px solid #222; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{c.color}}">{{c.text}}</span>
+          </sc-for>
+          <sc-for list="{{footer}}" as="f" hint-placeholder-count="7">
+            <span style="padding: 6px 10px; background: #141414; font-weight: 600; white-space: nowrap">{{f}}</span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- Inhalt: Graph -->
+    <sc-if value="{{isChart}}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 14px; color: #ddd">{{chartTitle}} (Beispiel)</span>
+        <div style="flex: 1; display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px solid #555; padding: 0 4px">
+          <sc-for list="{{bars}}" as="b" hint-placeholder-count="12">
+            <div title="{{b.tip}}" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px">
+              <div style="width: 100%; height: {{b.height}}px; background: #5fa8ff; border-radius: 2px 2px 0 0"></div>
+              <span style="font-size: 11px; color: #aaa">{{b.label}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; gap: 10px; align-items: center; font-size: 13px; color: #8a8a8a; flex-wrap: wrap">
+      <span>Spaltenkopf anklicken sortiert. Zeile anklicken: Details bzw. Link in den Chat.</span>
+      <button type="button" style="margin-left: auto; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Exportieren</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":760}}'>
+class Component extends DCLogic {
+  // Reiter, Unterreiter und Spalten aus history-data.json (erzeugt von docs/clickdummy/gen/history.py)
+  constructor(props) {
+    super(props);
+    this.state = { data: null, error: false, group: 0, sub: 0, sortCol: -1, sortDesc: false };
+  }
+  componentDidMount() {
+    fetch('./history-data.json')
+      .then((r) => r.json())
+      .then((data) => this.setState({ data }))
+      .catch(() => this.setState({ error: true }));
+  }
+  // Beispielwert je Spaltenname und Zeile
+  sample(header, row) {
+    const h = header.toLowerCase();
+    const n = (base, step) => base + ((row * step) % (base + 7));
+    if (h === 'level' || h.startsWith('level')) return String(18 + row);
+    if (h.includes('xp/h')) return (12000 + row * 640).toLocaleString('de-DE');
+    if (h.includes('gold') || h.includes('geld') || h.includes('einnahmen') || h.includes('ausgaben')) return (2 + row % 3) + 'g ' + (10 + row * 7 % 90) + 's';
+    if (h.includes('wann') || h.includes('datum') || h.includes('start') || h.includes('zeitpunkt')) return (8 + row) + '.11. ' + (17 + row % 5) + ':' + String(10 + row * 7 % 50);
+    if (h.includes('zone') || h.includes('ort')) return ['Westfall', 'Rotkammgebirge', 'Dämmerwald', 'Schlingendorntal', 'Brachland', 'Sumpfland'][row % 6];
+    if (h.includes('zeit') || h.includes('dauer') || h.includes('kampf') || h.includes('flug') || h.includes('afk') || h.includes('leerlauf') || h.includes('split') || h.includes('bestzeit') || h.includes('rekord')) return '1:' + String(4 + row * 3).padStart(2, '0') + ':' + String(10 + row * 13 % 50);
+    if (h.includes('%') || h.includes('anteil')) return (20 + row * 9 % 60) + ' %';
+    if (h.includes('name') || h.includes('gegner') || h.includes('ursache')) return ['Defias-Schläger', 'Wildschwein', 'Gnoll-Brecher', 'Murloc-Jäger', 'Harvest Golem', 'Kobold-Tunnelgräber'][row % 6];
+    if (h.includes('instanz')) return ['Die Todesminen', 'Die Höhlen des Wehklagens', 'Burg Schattenfang', 'Das Verlies', 'Gnomeregan', 'Kloster'][row % 6];
+    if (h.includes('quest')) return h === 'quests' ? String(n(6, 3)) : ['Die Volksmiliz', 'Wildes Wolfsfleisch', 'Ein drohendes Unheil', 'Gnolle im Wald', 'Rote Bandanas', 'Die Defias-Bruderschaft'][row % 6];
+    if (h.includes('gegenstand') || h.includes('item') || h.includes('beute')) return ['[Zähes Wolfsfleisch]', '[Grober Faden]', '[Schwert des Kriegers]', '[Leinenstoff]', '[Kupfererz]', '[Heiltrank]'][row % 6];
+    if (h.includes('xp')) return (8000 + row * 1210).toLocaleString('de-DE');
+    if (h.includes('tod') || h.includes('tode')) return String(row % 3);
+    return String(n(40, 17));
+  }
+  renderVals() {
+    const s = this.state;
+    const groups = s.data || [];
+    const group = groups[s.group] || { label: '', subs: [] };
+    const sub = group.subs[s.sub] || group.subs[0] || { label: '', cols: [] };
+    const tabStyle = (on, size) => 'background: none; border: 0; padding: 4px 0; cursor: pointer; font-size: ' + size + 'px; color: ' +
+      (on ? '#ffd100; font-weight: 600' : '#a0a0a0');
+    const cols = sub.cols;
+    const ROWS = 8;
+    let rows = [];
+    for (let r = 0; r < ROWS; r++) rows.push(cols.map((c) => this.sample(c, r)));
+    if (s.sortCol >= 0 && s.sortCol < cols.length) {
+      const key = (v) => { const x = parseFloat(String(v).replace(/[.:g s%]/g, '')); return isNaN(x) ? v : x; };
+      rows = rows.slice().sort((a, b) => {
+        const x = key(a[s.sortCol]), y = key(b[s.sortCol]);
+        return (x > y ? 1 : x < y ? -1 : 0) * (s.sortDesc ? -1 : 1);
+      });
+    }
+    const cells = [];
+    rows.forEach((row) => row.forEach((text, i) => cells.push({ text, color: /tod/i.test(cols[i]) && text !== '0' ? '#ff9a3c' : '#e8e8e8' })));
+    const BAR_VALUES = [9, 14, 19, 26, 31, 38, 44, 52, 58, 64, 70, 81];
+    return {
+      loading: !s.data, loadText: s.error ? 'history-data.json konnte nicht geladen werden.' : 'Lädt …',
+      groups: groups.map((g, i) => ({ label: g.label, style: tabStyle(i === s.group, 14), pick: () => this.setState({ group: i, sub: 0, sortCol: -1 }) })),
+      subs: group.subs.map((u, i) => ({ label: u.label, style: tabStyle(u === sub, 12), pick: () => this.setState({ sub: i, sortCol: -1 }) })),
+      hasSubs: group.subs.length > 1,
+      isTable: !!s.data && !group.chart && cols.length > 0,
+      isChart: !!group.chart,
+      chartTitle: sub.label,
+      gridColumns: 'repeat(' + Math.max(1, cols.length) + ', minmax(80px, auto))',
+      head: cols.map((label, i) => ({
+        label, arrow: s.sortCol === i ? (s.sortDesc ? ' ▼' : ' ▲') : '',
+        sort: () => this.setState({ sortCol: i, sortDesc: s.sortCol === i ? !s.sortDesc : false })
+      })),
+      cells,
+      footer: cols.map((c, i) => (i === 0 ? 'Gesamt' : '')),
+      bars: BAR_VALUES.map((v, i) => ({ label: String(i + 12), height: v * 4, tip: sub.label + ': ' + v }))
+    };
+  }
+}
+</script>
+</body>
+</html>

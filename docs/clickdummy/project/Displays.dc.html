@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: weitere Anzeigen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1060px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+
+  <!-- Willkommenskarte (UI/WelcomeCard.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Willkommenskarte (erster Start)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Willkommen bei Level Time</span>
+      <span style="font-size: 13px; color: #c8c8c8; line-height: 1.45">Vier schnelle Entscheidungen, alles lässt sich später in den Einstellungen ändern (/lt). Fahr mit der Maus über eine Wahl, um zu sehen, was sie tut.</span>
+      <span style="font-size: 13px; font-weight: 600">1. Welche Werte?</span>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap">
+        <sc-for list="{{presets}}" as="p" hint-placeholder-count="4">
+          <button type="button" onClick="{{p.pick}}" style="{{p.style}}">{{p.label}}</button>
+        </sc-for>
+      </div>
+      <span style="font-size: 13px; font-weight: 600">2. Wie aussehen?</span>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap">
+        <sc-for list="{{layouts}}" as="p" hint-placeholder-count="7">
+          <button type="button" onClick="{{p.pick}}" style="{{p.style}}">{{p.label}}</button>
+        </sc-for>
+      </div>
+      <span style="font-size: 13px; font-weight: 600">3. Stream-Modus</span>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer">
+        <input type="checkbox" checked="{{stream}}" onChange="{{toggleStream}}" style="width: 18px; height: 18px; accent-color: #ffd100">
+        <span>Für Streams: grüner Hintergrund zum Freistellen</span>
+      </label>
+      <span style="font-size: 13px; font-weight: 600">4. Position anpassen</span>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px">
+        <a href="Options.dc.html" style="display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border: 1px solid #555; border-radius: 4px; text-decoration: none; font-size: 13px">Alle Einstellungen</a>
+        <button type="button" style="height: 32px; padding: 0 16px; background: #ffd100; border: 0; border-radius: 4px; color: #1a1a1a; font-weight: 600">Fertig</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Changelog (UI/Changelog.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Changelog nach Update (/lt changelog)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Neu in Level Time</span>
+      <span style="font-size: 13px; font-weight: 600; color: #ddd">13.11.2026</span>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4">
+        <span><span style="color: #5fa8ff; font-weight: 600">Neu</span> WoW Forever: Dungeon-Eingänge auf der Karte, im Tooltip mit Level-Bereich und den Dungeonquests, die dir noch fehlen.</span>
+        <span><span style="color: #5fa8ff; font-weight: 600">Neu</span> WoW Forever: Level-Bereiche der Dungeons, die Zeile „Dungeons für dein Level“ und Boss-Level im Instanz-Tooltip.</span>
+        <span><span style="color: #ff9a3c; font-weight: 600">Geändert</span> Die Befehle zur Fehlersuche (/lt debug) sind entfernt; Level Time lädt dadurch weniger Code.</span>
+        <span><span style="color: #ff9a3c; font-weight: 600">Geändert</span> Schiffs- und Zeppelinzeiten werden jetzt standardmäßig mit Gruppe und Gilde geteilt.</span>
+      </div>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 6px; cursor: pointer">
+        <input type="checkbox" style="width: 18px; height: 18px; accent-color: #ffd100">
+        <span>Nicht mehr automatisch anzeigen</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Level-Up-Fenster (UI/LevelUpWindow.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Level-Up-Fenster (statt Blizzard-Banner)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #5a4a12; border-top: 4px solid #ffd100; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 26px; font-weight: 700; color: #ffd100; text-align: center">Level 24</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, auto)); column-gap: 16px; row-gap: 3px; font-size: 13px; justify-content: center">
+        <span style="color: #bbb">Leben</span><span>812</span><span style="color: #5fa8ff">→ 856</span>
+        <span style="color: #bbb">Stärke</span><span>48</span><span style="color: #5fa8ff">→ 50</span>
+        <span style="color: #bbb">Ausdauer</span><span>44</span><span style="color: #5fa8ff">→ 46</span>
+        <span style="color: #bbb">Talentpunkte</span><span>14</span><span style="color: #5fa8ff">→ 15</span>
+      </div>
+      <span style="font-size: 13px; color: #ddd">Neu beim Klassenlehrer:</span>
+      <div style="display: flex; gap: 8px; justify-content: center">
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #3a2f22"></span>
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #2f3a22"></span>
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #22303a"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Session-Zusammenfassung (UI/RecapWindow.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Session-Zusammenfassung (/lt recap)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Session-Zusammenfassung</span>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, auto)); column-gap: 20px; row-gap: 3px; font-size: 13px">
+        <span style="color: #bbb">Charakter</span><span>Beispiel-Krieger</span>
+        <span style="color: #bbb">Spielzeit</span><span>2:41:05</span>
+        <span style="color: #bbb">Level</span><span>21 bis 23</span>
+        <span style="color: #bbb">Erfahrung</span><span>37.210</span>
+        <span style="color: #bbb">Kills</span><span>301</span>
+        <span style="color: #bbb">Beinahe-Tode</span><span>1</span>
+        <span style="color: #bbb">Beste Beute</span><span style="color: #3d8bff">[Schwert des Kriegers]</span>
+        <span style="color: #bbb">Gefährlichster Gegner</span><span>Defias-Schläger</span>
+      </div>
+      <button type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee; font-size: 13px">Kopieren</button>
+    </div>
+  </section>
+
+  <!-- Split-Liste (Speedrun/SplitList.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Split-Liste (/lt splits)</span>
+    <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-variant-numeric: tabular-nums">
+      <span style="font-weight: 600; color: #ffd100">Splits</span>
+      <sc-for list="{{splits}}" as="s" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 70px; gap: 8px; {{s.rowStyle}}">
+          <span style="color: #bbb">{{s.level}}</span><span>{{s.time}}</span><span style="text-align: right; color: {{s.color}}">{{s.diff}}</span>
+        </div>
+      </sc-for>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 8px; border-top: 1px solid #333; padding-top: 3px">
+        <span>Split gesamt</span><span style="text-align: right; color: #5fa8ff">-2:41</span>
+        <span style="color: #bbb">/played</span><span style="text-align: right">1T 2:14:09</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- XP-Tooltip (UI/XpTooltip.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Tooltip des XP-Balkens</span>
+    <div style="background: rgba(8,8,16,0.95); border: 1px solid #666; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px">
+      <span style="font-weight: 600">Erfahrung (Level 23)</span>
+      <span style="color: #ddd">XP: 18.450 / 25.300 (73 %)</span>
+      <span style="color: #ddd">Bis zum Level-Up: 6.850</span>
+      <span style="color: #5fa8ff">Erholt übrig: 3.200 (13 % des Levels)</span>
+      <span style="color: #5fa8ff">Erholt reicht für 47 % des Wegs zum Level-Up</span>
+      <span style="color: #ffd100">XP abgabebereiter Quests: 2.900 (11 % des Levels)</span>
+    </div>
+  </section>
+
+  <!-- Timer-Karten (Lib/TimerDisplay.lua) -->
+  <section style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Timer-Karten (Flug, Essen, Schlafsack, Lagerfeuer) und Schiffszeiten</span>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: start">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+        <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px">
+          <span style="font-size: 13px; font-weight: 600; color: {{c.titleColor}}">{{c.title}}</span>
+          <span style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">{{c.time}}</span>
+          <div style="height: 6px; background: #2a2a2a; border-radius: 2px; overflow: hidden">
+            <div style="height: 6px; width: {{c.percent}}%; background: {{c.barColor}}"></div>
+          </div>
+          <span style="font-size: 11px; color: #9a9a9a">{{c.note}}</span>
+        </div>
+      </sc-for>
+      <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12px">
+        <span style="font-weight: 600; color: #ffd100">Schiffe &amp; Zeppeline</span>
+        <span>Tirisfal: Abfahrt in 1:23</span>
+        <span style="color: #9a9a9a">Schlingendorntal: unbekannt, einmal mitfahren</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Würfel-Zähler und Zauberleiste -->
+  <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Zähler unter dem Würfelfenster (Tooltip: Namen mit Wurf)</span>
+    <div style="display: flex; gap: 18px; align-items: center; background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 12px; font-size: 13px; flex-wrap: wrap">
+      <span title="Bedarf: Beispiel-Magier (87)">Bedarf 1</span>
+      <span title="Gier: zwei Spieler">Gier 2</span>
+      <span title="Passen">Passen 1</span>
+      <span title="Noch offen" style="color: #9a9a9a">Wartet 1</span>
+    </div>
+  </section>
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Zauberleiste für Zuschauer (Stream)</span>
+    <div style="display: flex; gap: 6px; background: #00b140; padding: 8px; border-radius: 4px">
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #3a2f22; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 10px; padding: 1px; box-sizing: border-box">3</span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #2f3a22"></span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #22303a"></span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #3a2236"></span>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { preset: 'Leveln', layout: 'Tabelle', stream: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const pill = (on) => 'height: 32px; padding: 0 10px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid ' +
+      (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
+    const GOOD = '#5fa8ff', BAD = '#ff9a3c';
+    const SPLITS = [['19', '1:04:30', '-0:42', GOOD], ['20', '1:09:47', '+0:18', BAD], ['21', '1:21:05', '+1:02', BAD],
+      ['22', '1:06:58', '-3:19', GOOD], ['23', '1:12:34', '…', '#ddd']];
+    return {
+      presets: ['Minimal', 'Leveln', 'Dungeon', 'Farmen'].map((label) => ({ label, style: pill(s.preset === label), pick: () => this.setState({ preset: label }) })),
+      layouts: ['Tabelle', 'Leiste', 'Kompakt', 'Text', 'Uhr', 'XP-Balken', 'Kacheln'].map((label) => ({ label, style: pill(s.layout === label), pick: () => this.setState({ layout: label }) })),
+      stream: s.stream, toggleStream: () => this.setState({ stream: !s.stream }),
+      splits: SPLITS.map(([level, time, diff, color], i) => ({ level, time, diff, color, rowStyle: i === SPLITS.length - 1 ? 'color: #ffd100' : '' })),
+      cards: [
+        { title: 'Burg Sturmwind', time: '1:12', percent: 64, note: 'Flug, gemessene Dauer', titleColor: '#ffd100', barColor: '#5fa8ff' },
+        { title: 'Essen: sitzen bleiben!', time: '0:14', percent: 30, note: 'danach „Satt aktiv!“', titleColor: '#ffd100', barColor: '#5fa8ff' },
+        { title: 'Ausruhen: Gut erholt ×2/3', time: '4:20', percent: 52, note: 'WoW Forever, Schlafsack', titleColor: '#ffd100', barColor: '#7a4fd6' },
+        { title: 'Lagerfeuer: sitzen bleiben!', time: '0:38', percent: 80, note: 'WoW Forever, danach „Lagervorteile aktiv!“', titleColor: '#ffd100', barColor: '#ff9a3c' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

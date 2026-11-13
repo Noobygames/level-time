@@ -5,8 +5,10 @@
 -- rufen keine geschützten Funktionen.
 -- Namen: "<Roadmap>.<Bereich>.<Was>" (Nummer = Roadmap-Punkt), allgemeine ohne Nummer. ManualToCheck.md nennt je
 -- Punkt die Namen, die ihn beantworten.
-local _, ns = ...
-local DebugLog = ns.DebugLog
+local _, X = ...
+local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
+if not ns then return end
+local DebugLog = X.DebugLog
 local Probe = DebugLog.Probe
 local call, safe, api = Probe.call, Probe.safe, Probe.api
 local write, packCount = DebugLog.Write, DebugLog.PackCount
@@ -887,7 +889,8 @@ check("440.transport.state", function()
     moving = _G.IsPlayerMoving and _G.IsPlayerMoving() or nil,
     api = { getServerTime = type(_G.GetServerTime), isPlayerMoving = type(_G.IsPlayerMoving),
       namePlate = type(C_NamePlate and C_NamePlate.GetNamePlateForUnit), mapInfo = type(C_Map and C_Map.GetMapInfo) },
-    unitFrame = Probe.unitInfo("target"), paths = ns.TransportPaths.Summary(), worldPosition = worldPositionProbe(position) }
+    unitFrame = Probe.unitInfo("target"), targetTitle = ns.Transports.UnitTitle("target"),
+    targetIsMaster = ns.Transports.IsMasterTitle(ns.Transports.UnitTitle("target")), paths = ns.TransportPaths.Summary(), worldPosition = worldPositionProbe(position) }
 end)
 
 -- 442: Grafikdetails (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes Original
@@ -1163,6 +1166,27 @@ check("486.questRewards", function()
   }
 end)
 
+-- 497: Dungeon-Eingänge (DungeonEntrances.lua, WoW Forever): kennt der Client den Atlas "Dungeon", wie viele
+-- Eingänge liegen auf der offenen bzw. aktuellen Zonenkarte, offene Dungeonquests je Instanz dort
+check("497.dungeonEntrances", function()
+  local mapID = WorldMapFrame and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID()
+    or (C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player"))
+  local entrances = {}
+  for _, point in ipairs(type(mapID) == "number" and ns.DungeonEntrances.PointsOn(mapID) or {}) do
+    for _, instance in ipairs(point.mapIDs) do
+      table.insert(entrances, { mapID = instance, x = point.x, y = point.y,
+        openQuests = #ns.DungeonEntrances.OpenQuests(instance) })
+    end
+  end
+  return {
+    setting = ns.db.dungeonEntrances,
+    available = ns.DungeonEntrances.IsAvailable(),
+    atlas = C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo("Dungeon") ~= nil,
+    mapID = mapID,
+    entrances = entrances,
+  }
+end)
+
 -- 488: Reagenzien (Reagents.lua): Name und Bestand je Item der eigenen Klasse und welche Zauber bekannt sind
 -- (stimmen die Classic-IDs in WoW Forever?)
 check("488.reagents", function()
@@ -1177,4 +1201,156 @@ check("488.reagents", function()
   end
   return { setting = ns.db.warnReagents, available = ns.Reagents.IsAvailable(), items = items,
     low = ns.Reagents.LowText() }
+end)
+
+---------------------------------------------------------------------------
+-- Prüfungen einzelner Module (lagen früher in den Modulen selbst; lesen nur deren öffentliche Funktionen)
+---------------------------------------------------------------------------
+local function readable(value)
+  if value == nil or ns.IsSecret(value) then return nil end
+  return value
+end
+
+-- Erster Rückgabewert von api(path)(...), geschützt; Fehler, geheime oder fehlende Werte = nil
+local function read(path, ...)
+  local fn = api(path)
+  if type(fn) ~= "function" then return nil end
+  local ok, value = pcall(fn, ...)
+  return ok and readable(value) or nil
+end
+
+local function readXY(vector)
+  if type(vector) ~= "table" or ns.IsSecret(vector) or not vector.GetXY then return nil end
+  local x, y = vector:GetXY()
+  return readable(x), readable(y)
+end
+
+-- /lt debug check (als Geist): Karte, Positionen, Blickrichtung und Ergebnis des Leichenpfeils
+check("deaths.corpseArrow", function()
+  local CorpseArrow = ns.CorpseArrow
+  local mapID = read("C_Map.GetBestMapForUnit", "player")
+  local info = { ghost = CorpseArrow.IsGhost(), mapID = mapID,
+    hasWorldPos = api("C_Map.GetWorldPosFromMapPos") ~= nil, hasFacing = GetPlayerFacing ~= nil }
+  if type(mapID) == "number" and api("C_DeathInfo.GetCorpseMapPosition") then
+    info.corpseX, info.corpseY = readXY(C_DeathInfo.GetCorpseMapPosition(mapID))
+    info.width, info.height = CorpseArrow.MapSize(mapID)
+  end
+  info.facing = GetPlayerFacing and readable(GetPlayerFacing())
+  info.rotation, info.distance = CorpseArrow.Direction()
+  return info
+end)
+
+-- /lt debug check: welche Items und Zauber der Notfall-Liste der Client kennt (Namen in der Client-Sprache)
+check("emergency.actions", function()
+  local items, spells = {}, {}
+  for _, itemId in ipairs(ns.Emergency.ITEMS) do
+    items[#items + 1] = { id = itemId, name = read("C_Item.GetItemInfo", itemId) }
+  end
+  for _, spellId in ipairs(ns.Emergency.SPELLS) do
+    spells[#spells + 1] = { id = spellId, name = read("C_Spell.GetSpellName", spellId) or read("GetSpellInfo", spellId) }
+  end
+  return { items = items, spells = spells }
+end)
+
+-- /lt debug check (vor einem Erz, Kraut oder einer Leiche stehen): was der Client über das Ziel verrät, roh
+-- (Datei-ID, Pfad oder Atlas des Zeigers sind nicht dokumentiert) und eingeordnet; dazu die beteiligten CVars
+check("lootSparkles.target", function()
+  local LootTarget = ns.LootTarget
+  local unit = LootTarget.UNIT
+  local info = { available = LootTarget.IsAvailable(), cvars = {} }
+  info.style = ns.LootSparkle and ns.LootSparkle.CurrentStyle and ns.LootSparkle.CurrentStyle() or nil
+  for _, name in ipairs({ "SoftTargetInteract", "SoftTargetIconGameObject", "SoftTargetInteractRange",
+    "SoftTargetInteractArc", "SoftTargetInteractOnlyInRange", "SoftTargetNameplateInteract",
+    "outlineModeShowLootEffectWhenDisabled", "graphicsOutlineMode" }) do
+    info.cvars[name] = ns.CVars.Get(name) or "<missing>"
+  end
+  if not info.available then return info end
+  info.exists, info.isObject = read("UnitExists", unit), read("UnitIsGameObject", unit)
+  info.name, info.dead = read("UnitName", unit), read("UnitIsDead", unit)
+  info.inRange = read("UnitIsInInteractRange", unit)
+  info.related = read("C_QuestLog.UnitIsRelatedToActiveQuest", unit)
+  info.cursorKind, info.cursorBlocked, info.cursorTexture, info.cursorAtlas = LootTarget.ReadCursor(unit)
+  info.kind, info.blocked = LootTarget.Classify(unit)
+  info.plate = read("C_NamePlate.GetNamePlateForUnit", unit) ~= nil
+  return info
+end)
+
+-- /lt debug check (als Kürschner vor einer leergeplünderten, häutbaren Leiche): zeigt der Tooltip des
+-- Interaktionsziels die Kürschner-Zeile, was meldet CanLootUnit danach, ist Kürschnern erkannt?
+check("479.lootSparkles.skinning", function()
+  local LootTarget = ns.LootTarget
+  local unit = LootTarget.UNIT
+  local info = { dead = read("UnitIsDead", unit), name = read("UnitName", unit),
+    lines = LootTarget.TooltipTexts(unit), skinningTrained = LootTarget.IsGatheringTrained(LootTarget.SKIN),
+    skinnableText = UNIT_SKINNABLE_LEATHER }
+  local guid = read("UnitGUID", unit)
+  if guid and type(CanLootUnit) == "function" then
+    local ok, hasLoot, canLoot = pcall(CanLootUnit, guid)
+    info.hasLoot, info.canLoot = ok and readable(hasLoot), ok and readable(canLoot)
+  end
+  info.kind = LootTarget.Classify(unit)
+  return info
+end)
+
+-- Offene Frage: kommen ENCOUNTER_END bzw. UNIT_DIED bei Dungeon-Bossen je Client, passen Liste und Namen?
+check("483.bosses", function()
+  local InstanceBosses = ns.InstanceBosses
+  local run = ns.Instances.GetCurrentRun()
+  local list = run and InstanceBosses.List(run.mapID, run.difficultyID)
+  local names = {}
+  for index, id in ipairs(list or {}) do names[index] = id .. "=" .. tostring(InstanceBosses.Name(id)) end
+  return {
+    data = ns.BossData and ns.BossData.build or false, locale = GetLocale(),
+    run = run and { name = run.name, mapID = run.mapID, difficultyID = run.difficultyID, bosses = run.bosses,
+      progress = InstanceBosses.ProgressText(run) },
+    list = table.concat(names, ", "), last = InstanceBosses.LastEvent(),
+    -- Tooltip der Historienzeile (484) als Text: Symbolpfad zeigt besiegt/lebt ohne Sichtprüfung
+    tooltip = run and InstanceBosses.TooltipLines(run) or false,
+  }
+end)
+
+-- /lt debug check (vor einem Questgegner mit Ziel): rohe Tooltipzeilen (Typ, Text, completed) und die Deutung
+check("quests.unitTooltip", function()
+  local QuestTooltip = ns.QuestTooltip
+  local unit = "target"
+  local info = { hasTooltipInfo = QuestTooltip.HasTooltipInfo(), name = readable(UnitName(unit)), lines = {} }
+  if info.hasTooltipInfo then
+    local ok, data = pcall(C_TooltipInfo.GetUnit, unit)
+    if ok and type(data) == "table" and type(data.lines) == "table" then
+      for _, line in ipairs(data.lines) do
+        table.insert(info.lines, { type = readable(line.type), text = readable(line.leftText),
+          completed = readable(line.completed) })
+      end
+    end
+  end
+  QuestTooltip.Forget()
+  info.parsed = QuestTooltip.Objectives(unit)
+  info.progress = QuestTooltip.ProgressText(unit)
+  return info
+end)
+
+-- /lt debug check: wie viele Quests, Ziele und Namen gelernt sind und was gerade offen ist
+check("quests.learned", function()
+  local quests, objectives, names = 0, 0, 0
+  for _, learned in pairs(LevelTimerStatsDB and LevelTimerStatsDB.questMobs or {}) do
+    quests = quests + 1
+    for _, data in pairs(learned) do
+      objectives = objectives + 1
+      for _ in pairs(data.mobs) do names = names + 1 end
+    end
+  end
+  return { quests = quests, objectives = objectives, mobNames = names, openMobs = ns.QuestMobs.OpenMobNames(),
+    pending = ns.QuestMobs.PendingCount(),
+    related = C_QuestLog ~= nil and C_QuestLog.UnitIsRelatedToActiveQuest ~= nil }
+end)
+
+-- /lt debug check (nach ein paar Zaubern): roher Untertext und gelesener Rang der letzten Zauber
+check("487.spellHistory.rank", function()
+  local getSubtext = api("C_Spell.GetSpellSubtext") or api("GetSpellSubtext")
+  local list = {}
+  for _, entry in ipairs(ns.SpellHistory.Recent()) do
+    local ok, subtext = pcall(getSubtext, entry.spellID)
+    table.insert(list, { spellID = entry.spellID, subtext = ok and readable(subtext) or nil, rank = entry.rank })
+  end
+  return { hasSubtext = type(getSubtext) == "function", spells = list }
 end)

@@ -130,22 +130,3 @@ end
 
 ns.RegisterEvent("QUEST_LOG_UPDATE", QuestTooltip.Forget)
 ns.RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player", QuestTooltip.Forget)
-
--- /lt debug check (vor einem Questgegner mit Ziel): rohe Tooltipzeilen (Typ, Text, completed) und die Deutung
-ns.DebugLog.AddCheck("quests.unitTooltip", function()
-  local unit = "target"
-  local info = { hasTooltipInfo = QuestTooltip.HasTooltipInfo(), name = readable(UnitName(unit)), lines = {} }
-  if info.hasTooltipInfo then
-    local ok, data = pcall(C_TooltipInfo.GetUnit, unit)
-    if ok and type(data) == "table" and type(data.lines) == "table" then
-      for _, line in ipairs(data.lines) do
-        table.insert(info.lines, { type = readable(line.type), text = readable(line.leftText),
-          completed = readable(line.completed) })
-      end
-    end
-  end
-  QuestTooltip.Forget()
-  info.parsed = QuestTooltip.Objectives(unit)
-  info.progress = QuestTooltip.ProgressText(unit)
-  return info
-end)

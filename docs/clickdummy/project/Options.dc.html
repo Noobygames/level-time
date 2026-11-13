@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Einstellungen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1100px; height: 760px; box-sizing: border-box; background: #22302a; padding: 20px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2">
+  <div style="width: 100%; height: 100%; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; display: flex; flex-direction: column">
+
+    <!-- Kopf: Titel, Suche, Schließen -->
+    <div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #333">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Level Time</span>
+      <label style="display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 13px; color: #aaa">
+        <span>Suchen</span>
+        <input type="search" placeholder="Suchen …" value="{{query}}" onInput="{{onSearch}}" style="width: 240px; height: 32px; box-sizing: border-box; padding: 0 10px; background: #111; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; font-size: 13px">
+      </label>
+      <a href="Main.dc.html" aria-label="Schließen" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #555; border-radius: 4px; color: #ddd; text-decoration: none">
+        <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"></path></svg>
+      </a>
+    </div>
+
+    <div style="display: flex; flex: 1; min-height: 0">
+      <!-- Reiter -->
+      <div style="width: 210px; flex: none; border-right: 1px solid #333; padding: 10px 0; display: flex; flex-direction: column; gap: 2px">
+        <sc-for list="{{pages}}" as="page" hint-placeholder-count="7">
+          <button type="button" onClick="{{page.pick}}" style="{{page.style}}">{{page.label}}</button>
+        </sc-for>
+      </div>
+
+      <!-- Inhalt -->
+      <div style="flex: 1; min-width: 0; padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto">
+        <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 13px; color: #8a8a8a">{{loadText}}</span>
+        </sc-if>
+
+        <sc-if value="{{searching}}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 13px; color: #aaa">Treffer für „{{query}}“ ({{hitCount}})</span>
+          <sc-for list="{{hits}}" as="hit" hint-placeholder-count="3">
+            <button type="button" onClick="{{hit.pick}}" title="{{hit.tip}}" style="text-align: left; background: #151515; border: 1px solid #333; border-radius: 4px; padding: 8px 10px; color: #f2f2f2; cursor: pointer; font-size: 13px">{{hit.label}} <span style="color: #8a8a8a">· {{hit.where}}</span></button>
+          </sc-for>
+          <sc-if value="{{noHits}}" hint-placeholder-val="{{ false }}">
+            <span style="font-size: 13px; color: #8a8a8a">Nichts gefunden</span>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{notSearching}}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{hasSubs}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; column-gap: 14px; row-gap: 2px; flex-wrap: wrap; border-bottom: 1px solid #333; padding-bottom: 6px">
+              <sc-for list="{{subs}}" as="sub" hint-placeholder-count="4">
+                <button type="button" onClick="{{sub.pick}}" style="{{sub.style}}">{{sub.label}}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{hasPresets}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px">
+              <span style="color: #aaa">Voreinstellung:</span>
+              <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Minimal</button>
+              <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Leveln</button>
+              <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Dungeon</button>
+              <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Farmen</button>
+              <button type="button" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Rückgängig</button>
+            </div>
+          </sc-if>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; row-gap: 4px; align-items: center">
+            <sc-for list="{{items}}" as="c" hint-placeholder-count="8">
+              <sc-if value="{{c.isSec}}" hint-placeholder-val="{{ false }}">
+                <div style="grid-column: 1 / -1; margin-top: 10px; font-size: 14px; font-weight: 600; color: #ffd100; border-bottom: 1px solid #2c2c2c; padding-bottom: 3px">{{c.label}}<span style="color: #8a8a8a; font-weight: 400">{{c.advTag}}</span></div>
+              </sc-if>
+              <sc-if value="{{c.isHint}}" hint-placeholder-val="{{ false }}">
+                <div style="grid-column: 1 / -1; font-size: 12px; color: #a8a8a8; line-height: 1.45">{{c.label}}</div>
+              </sc-if>
+              <sc-if value="{{c.isSpecial}}" hint-placeholder-val="{{ false }}">
+                <div style="grid-column: 1 / -1; font-size: 13px; color: #c8c8c8; border: 1px dashed #4a4a4a; border-radius: 4px; padding: 8px 10px">{{c.label}}</div>
+              </sc-if>
+              <sc-if value="{{c.isCheck}}" hint-placeholder-val="{{ true }}">
+                <label title="{{c.tip}}" style="display: flex; align-items: center; gap: 10px; min-height: 34px; font-size: 14px; cursor: pointer">
+                  <input type="checkbox" checked="{{c.checked}}" onChange="{{c.toggle}}" style="width: 18px; height: 18px; flex: none; accent-color: #ffd100">
+                  <span>{{c.label}}<span style="color: #8a8a8a">{{c.advTag}}</span></span>
+                </label>
+              </sc-if>
+              <sc-if value="{{c.isSlider}}" hint-placeholder-val="{{ false }}">
+                <label title="{{c.tip}}" style="display: flex; flex-direction: column; gap: 2px; min-height: 44px; font-size: 13px">
+                  <span>{{c.label}}<span style="color: #8a8a8a">{{c.advTag}}</span></span>
+                  <input type="range" min="0" max="100" value="{{c.value}}" onInput="{{c.slide}}" style="width: 100%; accent-color: #ffd100">
+                </label>
+              </sc-if>
+              <sc-if value="{{c.isSelect}}" hint-placeholder-val="{{ false }}">
+                <label title="{{c.tip}}" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; font-size: 13px">
+                  <span>{{c.label}}<span style="color: #8a8a8a">{{c.advTag}}</span></span>
+                  <select style="height: 30px; min-width: 140px; background: #111; border: 1px solid #555; border-radius: 4px; color: #eee; font-family: inherit">
+                    <option>Auswahl</option>
+                  </select>
+                </label>
+              </sc-if>
+              <sc-if value="{{c.isButton}}" hint-placeholder-val="{{ false }}">
+                <div style="min-height: 36px; display: flex; align-items: center">
+                  <button type="button" title="{{c.tip}}" style="height: 32px; padding: 0 14px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee; font-size: 13px; cursor: pointer">{{c.label}}</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{c.isText}}" hint-placeholder-val="{{ false }}">
+                <label title="{{c.tip}}" style="display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 13px">
+                  <span>{{c.label}}<span style="color: #8a8a8a">{{c.advTag}}</span></span>
+                  <input type="text" style="flex: 1; min-width: 0; height: 30px; box-sizing: border-box; padding: 0 8px; background: #111; border: 1px solid #555; border-radius: 4px; color: #eee">
+                </label>
+              </sc-if>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- Fuß -->
+    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-top: 1px solid #333; font-size: 13px; flex-wrap: wrap">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+        <input type="checkbox" checked="{{advanced}}" onChange="{{toggleAdvanced}}" style="width: 18px; height: 18px; accent-color: #ffd100">
+        <span>Erweitert</span>
+      </label>
+      <span style="color: #8a8a8a">Maus über einem Eintrag zeigt den Tooltip. (E) = nur im erweiterten Modus.</span>
+      <a href="History.dc.html" style="margin-left: auto">Verlauf öffnen</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":760}}'>
+class Component extends DCLogic {
+  // Inhalt aus options-data.json (erzeugt von docs/clickdummy/gen/options.py aus UI/Options/*.lua)
+  // Eintrag: [Art, Text, Tooltip, nur erweitert, Standard an]
+  constructor(props) {
+    super(props);
+    this.state = { data: null, error: false, page: 0, sub: 0, query: '', advanced: false, checks: {}, sliders: {} };
+  }
+  componentDidMount() {
+    fetch('./options-data.json')
+      .then((r) => r.json())
+      .then((data) => this.setState({ data }))
+      .catch(() => this.setState({ error: true }));
+  }
+  renderVals() {
+    const s = this.state;
+    const pages = s.data || [];
+    const page = pages[s.page] || { label: '', subs: [] };
+    // Unterseite ohne Namen = Kopf der Seite (Hinweise vor der ersten Unterseite)
+    const intro = page.subs.filter((u) => u.label === '');
+    const subs = page.subs.filter((u) => u.label !== '');
+    const sub = subs[s.sub] || subs[0] || { label: '', items: [] };
+    const subIndex = page.subs.indexOf(sub);
+    const isPresets = page.label === 'Statistiken';
+    const navStyle = (on) => 'text-align: left; min-height: 36px; padding: 0 16px; border: 0; cursor: pointer; font-size: 14px; ' +
+      (on ? 'background: #2b2410; color: #ffd100; font-weight: 600' : 'background: none; color: #ddd');
+    const subStyle = (on) => 'background: none; border: 0; padding: 6px 0; cursor: pointer; font-size: 13px; color: ' +
+      (on ? '#ffd100; font-weight: 600' : '#a0a0a0');
+    const makeItem = (c, key) => {
+      const kind = c[0];
+      const checked = s.checks[key] ?? !!c[4];
+      const value = s.sliders[key] ?? 50;
+      return {
+        label: c[1], tip: c[2] || c[1], advTag: c[3] ? ' (E)' : '',
+        isSec: kind === 'sec', isHint: kind === 'hint', isSpecial: kind === 'special', isCheck: kind === 'check',
+        isSlider: kind === 'slider', isSelect: kind === 'select', isButton: kind === 'button', isText: kind === 'text',
+        checked, value,
+        toggle: () => this.setState({ checks: Object.assign({}, s.checks, { [key]: !checked }) }),
+        slide: (e) => this.setState({ sliders: Object.assign({}, s.sliders, { [key]: e.target.value }) })
+      };
+    };
+    const visible = (c) => (s.advanced || !c[3]) && !(isPresets && (c[1] === 'Knopfreihe' || c[1] === 'Voreinstellung'));
+    const items = [];
+    intro.concat([sub]).forEach((u) => {
+      const ui = page.subs.indexOf(u);
+      u.items.forEach((c, i) => { if (visible(c)) items.push(makeItem(c, s.page + '.' + ui + '.' + i)); });
+    });
+    const query = s.query.trim().toLowerCase();
+    const hits = [];
+    if (query) {
+      pages.forEach((p, pi) => {
+        const named = p.subs.filter((u) => u.label !== '');
+        p.subs.forEach((u) => u.items.forEach((c) => {
+          if (c[0] === 'sec' || c[0] === 'hint') return;
+          if ((c[1] + ' ' + c[2]).toLowerCase().includes(query)) {
+            const si = Math.max(0, named.indexOf(u));
+            hits.push({ label: c[1], tip: c[2], where: p.label + (u.label ? ' › ' + u.label : ''),
+              pick: () => this.setState({ page: pi, sub: si, query: '' }) });
+          }
+        }));
+      });
+    }
+    return {
+      loading: !s.data, loadText: s.error ? 'options-data.json konnte nicht geladen werden.' : 'Lädt …',
+      pages: pages.map((p, i) => ({ label: p.label, style: navStyle(i === s.page), pick: () => this.setState({ page: i, sub: 0 }) })),
+      subs: subs.map((u, i) => ({ label: u.label, style: subStyle(page.subs.indexOf(u) === subIndex), pick: () => this.setState({ sub: i }) })),
+      hasSubs: subs.length > 1, items, hasPresets: isPresets,
+      query: s.query, searching: !!query, notSearching: !query && !!s.data,
+      hits: hits.slice(0, 40), hitCount: hits.length, noHits: !!query && hits.length === 0,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      advanced: s.advanced, toggleAdvanced: () => this.setState({ advanced: !s.advanced })
+    };
+  }
+}
+</script>
+</body>
+</html>

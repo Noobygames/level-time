@@ -7,8 +7,10 @@
 --   - Prüfungen für /lt debug check (CHECKS).
 -- Die Nummern in Kommentaren sind die Roadmap-Punkte, für die die Daten gedacht sind. Alles läuft geschützt: ein
 -- fehlendes API landet als Fehlertext im Log, nie als Lua-Fehler. Neue Fragen ans Spiel kommen hier dazu.
-local _, ns = ...
-local DebugLog = ns.DebugLog
+local _, X = ...
+local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
+if not ns then return end
+local DebugLog = X.DebugLog
 local write, pack, packCount = DebugLog.Write, DebugLog.Pack, DebugLog.PackCount
 
 local SNAPSHOT_SECONDS = 60

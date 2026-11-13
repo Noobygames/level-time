@@ -25,6 +25,8 @@
 -- Takt: period aus den Abfahrten (Abstände sind Vielfache der Periode, Median je Zyklus), Vorhersage
 -- nächste Abfahrt = syncAt + k * period >= jetzt. Ohne Periode: "unbekannt".
 -- Teilen: Addon-Nachrichten wie Speedrun/FriendRace.lua (eigenes Präfix, Warteschlange, GroupChat.Locked).
+-- Gesendet wird nach jeder eigenen Fahrt sowie ein Abgleich aller frischen Phasen (jünger als SHARE_MAX_AGE, auch
+-- geteilte) beim Einloggen (Gruppe, Gilde) und wenn die Gruppe wächst (neue Mitglieder kennen sie sonst nicht).
 -- Spieldaten (Roadmap 459, Assist/TransportPaths.lua): Sobald eine Strecke des Realms eine Periode hat, liefern die
 -- Rundkurse Periode und Fahrzeit jeder zugeordneten Strecke; eine beobachtete Abfahrt gibt auch der Gegenrichtung
 -- ihre Phase (Abfahrt + Fahrzeit + Liegezeit am Ziel). Gelernte Werte gehen vor.
@@ -48,7 +50,7 @@ local Transports = {
   SHARE_MAX_AGE = 2 * 86400,    -- geteilte Phasen älter als 2 Tage zählen nicht
   SHARE_MAX_FUTURE = 60,
   MAX_NAME = 40,
-  MAX_QUEUE = 20,
+  MAX_QUEUE = 40,              -- reicht für einen Abgleich aller Strecken an Gruppe und Gilde
   SEND_INTERVAL = 1,
 }
 ns.Transports = Transports
@@ -76,10 +78,14 @@ Transports.ROUTES = {
 -- Bekannte Zeppelinmeister (NPC-IDs laut Wowhead Classic, Titel "Zeppelin Master"; Boote haben in Classic keinen
 -- Meister): Durotar 9564 Frezza, 12136 Snurk Bucksquick; Tirisfal 3150 Hin Denburg, 9566 Zapetta; Schlingendorntal
 -- 3149 Nez'raz, 12137 Squibby Overspeck. Sie werden dem nächsten gelernten Anleger zugeordnet, sobald man dort steht.
+-- WoW Forever hat auch an Schiffsanlegern Meister mit Titel (Beutebucht: Grizzlowe <Schiffsmeister>, NPC-ID
+-- unbekannt): sie erkennt der Titel (Teiltexte L.TRANSPORT_MASTER_TITLES; nur deDE im Spiel gesehen, der Rest ist
+-- ungeprüft, Check 440.transport.state > targetTitle zeigt den echten Titel).
 Transports.KNOWN_MASTERS = { [3149] = true, [3150] = true, [9564] = true, [9566] = true, [12136] = true,
   [12137] = true }
 
 local KIND_UNKNOWN = "unknown"
+local notMasters = {}  -- NPC-IDs mit gelesenem Titel, der kein Meistertitel ist (Sitzung; spart Tooltip-Abfragen)
 -- Kartentyp Zone (Enum.UIMapType, Retail und Classic); Kontinent- und Weltkarten taugen nicht als Anleger
 local MAP_TYPE_ZONE = Enum and Enum.UIMapType and Enum.UIMapType.Zone or 3
 
@@ -349,12 +355,42 @@ function Transports.DockOfNpc(npcId)
   return nil
 end
 
--- Anleger eines Transportmeisters: gemerkt, sonst bei einem bekannten Meister der Anleger, an dem man steht
-function Transports.DockOfMaster(npcId)
+-- Titelzeile einer Einheit (zweite Tooltip-Zeile) oder nil. Nur mit C_TooltipInfo (Retail/Forever); in Era haben
+-- Schiffe keine Meister und die Zeppelinmeister stehen in KNOWN_MASTERS.
+function Transports.UnitTitle(unit)
+  if type(unit) ~= "string" or not (C_TooltipInfo and C_TooltipInfo.GetUnit) then return nil end
+  local ok, data = pcall(C_TooltipInfo.GetUnit, unit)
+  if not ok or ns.IsSecret(data) or type(data) ~= "table" or type(data.lines) ~= "table" then return nil end
+  local line = data.lines[2]
+  local text = type(line) == "table" and line.leftText or nil
+  if ns.IsSecret(text) or type(text) ~= "string" then return nil end
+  return text
+end
+
+-- Ist das der Titel eines Schiffs- oder Zeppelinmeisters? Teiltexte ohne Groß-/Kleinschreibung (auch "-meisterin")
+function Transports.IsMasterTitle(title)
+  if type(title) ~= "string" then return false end
+  title = title:lower()
+  for part in ns.L.TRANSPORT_MASTER_TITLES:gmatch("[^|]+") do
+    if title:find(part:lower(), 1, true) then return true end
+  end
+  return false
+end
+
+-- Anleger eines Transportmeisters: gemerkt, sonst bei einem bekannten Meister (NPC-ID oder Titel der Einheit) der
+-- Anleger, an dem man steht
+function Transports.DockOfMaster(npcId, unit)
   local dockName = Transports.DockOfNpc(npcId)
-  if dockName or not Transports.KNOWN_MASTERS[npcId] then return dockName end
+  if dockName or notMasters[npcId] then return dockName end
   local name, dock = Transports.NearestDock(Transports.PlayerPosition())
   if not name then return nil end
+  if not Transports.KNOWN_MASTERS[npcId] then
+    local title = Transports.UnitTitle(unit)
+    if not Transports.IsMasterTitle(title) then
+      if title then notMasters[npcId] = true end
+      return nil
+    end
+  end
   table.insert(dock.npcIds, npcId)
   ns.Debug("transport", "known master npc %s assigned to dock %s", npcId, name)
   return name
@@ -519,14 +555,33 @@ end
 
 function Transports.QueueLength() return #queue end
 
+local function shareEnabled()
+  return ns.db ~= nil and ns.db.transportShare == true and Transports.IsEnabled()
+end
+
 function Transports.Share(route)
-  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) then return false end
+  if not shareEnabled() then return false end
   local message = messageFor(route)
   if not message then return false end
   local party, guild = ns.GroupChat.PartyChannel(), ns.GroupChat.GuildChannel()
   if party then enqueue(message, party) end
   if guild then enqueue(message, guild) end
   return true
+end
+
+-- Alle frischen Phasen an einen Kanal; gibt die Zahl der Nachrichten zurück
+function Transports.ShareAll(chatType)
+  if not (chatType and shareEnabled()) then return 0 end
+  local oldest, count = Transports.Now() - Transports.SHARE_MAX_AGE, 0
+  for _, route in pairs(Transports.Data().routes) do
+    local message = route.syncAt and route.syncAt >= oldest and messageFor(route)
+    if message then
+      enqueue(message, chatType)
+      count = count + 1
+    end
+  end
+  ns.Debug("transport", "sync %s phases to %s", count, chatType)
+  return count
 end
 
 local function flush()
@@ -563,14 +618,31 @@ end
 ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
   if ns.IsSecret(prefix) or ns.IsSecret(text) or ns.IsSecret(sender) then return end
   if prefix ~= Transports.PREFIX or type(text) ~= "string" or type(sender) ~= "string" then return end
-  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) or ns.GroupChat.IsOwnSender(sender) then return end
+  if not shareEnabled() or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):(.*)$")
   if kind == "P" then Transports.Receive(body) end
 end)
 
+-- Gruppengröße beim letzten Abgleich: nur wenn sie wächst, wird erneut gesendet
+local groupSize = 0
+local function currentGroupSize()
+  return GetNumGroupMembers and GetNumGroupMembers() or 0
+end
+
 ns.OnLogin(function()
   local api = chatInfo()
   if api and api.RegisterAddonMessagePrefix then api.RegisterAddonMessagePrefix(Transports.PREFIX) end
+  groupSize = currentGroupSize()
+  Transports.ShareAll(ns.GroupChat.PartyChannel())
+  Transports.ShareAll(ns.GroupChat.GuildChannel())
+end)
+
+ns.RegisterEvent("GROUP_ROSTER_UPDATE", function()
+  local size = currentGroupSize()
+  if ns.IsSecret(size) or type(size) ~= "number" then return end
+  local grew = size > groupSize
+  groupSize = size
+  if grew then Transports.ShareAll(ns.GroupChat.PartyChannel()) end
 end)
 ns.Every(Transports.SEND_INTERVAL, flush, function() return ns.db ~= nil and ns.db.transportShare == true end)
 
@@ -583,6 +655,6 @@ ns.Database.RegisterDefaults({
     transportMinimap = true,     -- Beschriftung an der Minimap, solange man an einem Anleger steht
     transportNameplate = true,   -- Text über dem Transportmeister (befreundete NPC-Namensplaketten nötig)
     transportTooltip = true,     -- Zeile im Tooltip des Transportmeisters
-    transportShare = false,      -- Phasen mit Gruppe und Gilde teilen
+    transportShare = true,       -- Phasen mit Gruppe und Gilde teilen
   },
 })

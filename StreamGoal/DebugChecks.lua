@@ -1,4 +1,5 @@
--- Debug-Checks von Level Time Goals für offene Fragen im Spiel (/lt debug check, Ergebnis im Debug-Log von Level Time).
+-- Debug-Checks von Level Time Goals für offene Fragen im Spiel (/lt debug check, Ergebnis im Debug-Log, das im lokalen
+-- LevelTimer_DataExtractor liegt; ohne ihn gibt es LT.DebugLog nicht und die Datei tut nichts).
 -- Namen <Roadmap>.goals.<was>; ManualToCheck nennt sie bei den Punkten 173-183.
 local _, ns = ...
 local LT = ns.LT

@@ -33,10 +33,12 @@ Diese Punkte beantwortet das Debug-Log ohne Hinsehen; sie stehen unten nicht meh
 
 **So geht's:**
 
-1. Nach dem Update einmal den Client neu starten (neue Datei `Core\DebugChecks.lua` in der `.toc`).
+1. Debug-Log, Prüfungen und `/lt debug` liegen im lokalen Addon **Level Time Data Extractor**
+   (`LevelTimer_DataExtractor/`, nie veröffentlicht). `make install` bzw. `make update` installiert es mit; nach dem
+   ersten Installieren einmal den Client neu starten (neues Addon, neue SavedVariables).
 2. Die Einstellungen der Punkte einschalten, die du prüfen willst (Komfort, Hinweise, Speedrun, Statistiken); das
    Log hält fest, was an war (`settings.all`).
-3. Log an (bleibt über `/reload` an):
+3. Das Log ist mit dem Data Extractor von selbst an (bleibt über `/reload` an); falls es ausgeschaltet wurde:
 
 ```
 /lt debug log
@@ -70,11 +72,7 @@ Diese Punkte beantwortet das Debug-Log ohne Hinsehen; sie stehen unten nicht meh
    offener Weltkarte; mit Namensplaketten an Questgegnern; vor Erz, Kraut, Quest-Objekt und Leiche (Beute-Glitzer);
    vor und nach dem Umschalten der System-Schalter (CVars); einmal je Sprache (Einheiten).
 6. `/reload` oder ausloggen (schreibt das Log auf die Platte), dann Bescheid sagen; ich lese es mit `make debuglog`.
-7. Danach Log wieder aus (oder leeren mit `/lt debug log clear`):
-
-```
-/lt debug log
-```
+7. Danach bei Bedarf leeren mit `/lt debug log clear` (aus: `/lt debug log off`).
 
 **Legende:** check `Name` = Eintrag einer Prüfung aus `/lt debug check`; event `NAME` = Ereignis-Probe; debug `bereich`
 = Entscheidungszeile eines Moduls (`ns.Debug`); `print` = Chatzeile des Addons; `error` = abgefangener Lua-Fehler mit
@@ -164,6 +162,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **243. Reagenzien-Erinnerung, Datenteil (Roadmap 488, Classic Era/WoW Forever)**: check `488.reagents` (je Item der Klasse Name, Bestand, bekannte Zauber; in Forever: liefern die Classic-IDs Namen und `IsPlayerSpell` true?), debug `warnings` (WARN_REAGENTS, reagents sold here …). Sichtprüfung: Warnung mit Bestand, Chathinweis beim Reagenzienhändler
 - **245. Minimap-Knopfleiste, Ebenen und Anker (Roadmap 481)**: check `481.minimapBar.layers` (je Knopf Ebene, feste Ebene/Schicht, alle Anker, über der Leiste); debug `minimapbar` „mouse down on …“ je Klick auf einen gesammelten Knopf (kommt der Klick an?), Punkte nach dem Ziehen zeigen, ob er in der Leiste bleibt
 - **244. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`); `altRecipients` = Namen, die der Knopf einträgt, debug `mail` „filled recipient“
+- **246. Dungeon-Eingänge auf der Karte, Datenteil (Roadmap 497, WoW Forever)**: check `497.dungeonEntrances` (`atlas` = Client kennt den Atlas „Dungeon“, sonst Runen-Symbol; Eingänge der offenen Karte mit Instanz und Zahl offener Dungeonquests). Sichtprüfung: Einstellung an, Weltkarte einer Zone mit Dungeon öffnen (z.B. Brachland, Tirisfal); Symbol am Eingang, Tooltip mit Name, Level-Bereich und Quests; Boss-Level im Instanz-Tooltip der Historie
 
 ---
 

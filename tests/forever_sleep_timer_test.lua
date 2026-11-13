@@ -3,6 +3,7 @@
 -- Countdown: 180 s unter 3 Stapeln "Gut erholt", bei 3 Stapeln 60 s bis zur Auffrischung. Fertig bei Stapel 3, bei
 -- erkannter Auffrischung mit 3 Stapeln oder wenn die Zeit um ist; Bewegen, Kampf, Aufstehen oder Springen brechen ab;
 -- ohne Schlafsack kein Start. Fremde Emotes ("READ") landen nicht im Debug-Log.
+wow.loadExtractor()  -- Debug-Log und Profiler liegen im lokalen Data Extractor
 local L = addon.L
 local SleepTimer = addon.SleepTimer
 local BAG, WELL_RESTED, BAG_SPELL = 211527, 429959, 429961
@@ -203,7 +204,7 @@ wow.state.itemCounts[BAG] = 1
 ---------------------------------------------------------------------------
 -- Debug-Log: nur SLEEP/STAND und Emotes rund ums Liegen
 ---------------------------------------------------------------------------
-addon.debug = true
+SlashCmdList.LEVELTIMER("debug")  -- Chat-Logging an
 C_ChatInfo.PerformEmote("READ")
 expect("READ nicht geloggt", countPrinted("emote READ"), 0)
 sleep()
@@ -220,7 +221,7 @@ expect("READ kurz nach dem Ausrollen geloggt", countPrinted("emote READ"), 2)
 wait(SleepTimer.PROBE_SECONDS + 1)
 C_ChatInfo.PerformEmote("READ")
 expect("READ 16 s nach dem Ausrollen still", countPrinted("emote READ"), 2)
-addon.debug = false
+SlashCmdList.LEVELTIMER("debug")  -- und wieder aus
 wait(5)
 
 -- Ausgeschaltet: kein Start, laufender Timer verschwindet

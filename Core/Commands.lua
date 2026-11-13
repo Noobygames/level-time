@@ -146,15 +146,6 @@ local commands = {
       ns.Print(result == "no-dock" and L.TRANSPORT_MASTER_NO_DOCK or L.TRANSPORT_MASTER_NO_NPC)
     end
   end,
-  -- /lt debug schaltet das erweiterte Logging, /lt debug <befehl> löst Testfunktionen aus (DebugTools.lua)
-  debug = function(argument)
-    if argument ~= "" then
-      ns.DebugTools.Run(argument)
-      return
-    end
-    ns.debug = not ns.debug  -- bewusst nicht gespeichert, gilt bis /reload
-    ns.Print(ns.debug and L.DEBUG_ON or L.DEBUG_OFF)
-  end,
   sync = function()
     ns.Print(L.CMD_SYNC)
     ns.PlayedTime.Sync(function(total, thisLevel)
@@ -175,6 +166,11 @@ local commands = {
     if not hide then ns.Print(L.CMD_MINIMAP_ON) end
   end,
 }
+
+-- Weitere Befehle aus Schwester-Addons (z.B. /lt debug aus dem lokalen LevelTimer_DataExtractor)
+function ns.AddCommand(name, handler)
+  commands[name:lower()] = handler
+end
 
 -- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30"; Lib/SlashCommands.lua)
 ns.SlashCommands.Register({

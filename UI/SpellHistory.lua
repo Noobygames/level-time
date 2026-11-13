@@ -165,17 +165,10 @@ local function setPreview(active)
   end
 end
 
--- /lt debug check (nach ein paar Zaubern): roher Untertext und gelesener Rang der letzten Zauber
-ns.DebugLog.AddCheck("487.spellHistory.rank", function()
-  local getSubtext = C_Spell and C_Spell.GetSpellSubtext or GetSpellSubtext
-  local list = {}
-  for _, entry in ipairs(spells) do
-    local ok, subtext = pcall(getSubtext, entry.spellID)
-    table.insert(list, { spellID = entry.spellID, subtext = ok and not ns.IsSecret(subtext) and subtext or nil,
-      rank = entry.rank })
-  end
-  return { hasSubtext = type(getSubtext) == "function", spells = list }
-end)
+-- Zuletzt gezeigte Zauber { { spellID, rank, time, ... } } (für die Fehlersuche; nicht verändern)
+function SpellHistory.Recent()
+  return spells
+end
 
 ns.Frames.Register({
   id = "spellHistory",

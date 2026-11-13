@@ -11,12 +11,13 @@ import (
 	"strings"
 )
 
-// Debug-Log von Level Time (/lt debug log) lesen: Der Client schreibt die SavedVariable LevelTimerDebugLog bei
-// /reload und Logout nach <Flavor>/WTF/Account/<Konto>/SavedVariables/LevelTimer.lua. Nur lesen, nie schreiben.
+// Debug-Log von Level Time (/lt debug log) lesen: Es liegt im lokalen Addon LevelTimer_DataExtractor; der Client
+// schreibt die SavedVariable LevelTimerDebugLog bei /reload und Logout nach
+// <Flavor>/WTF/Account/<Konto>/SavedVariables/LevelTimer_DataExtractor.lua. Nur lesen, nie schreiben.
 
 const (
 	debugLogVariable = "LevelTimerDebugLog"
-	savedVarsFile    = "LevelTimer.lua"
+	savedVarsFile    = "LevelTimer_DataExtractor.lua"
 )
 
 // Zeilen der Tabelle "lines" im SavedVariables-Format des Clients: "\t\t\"text\", -- [n]"

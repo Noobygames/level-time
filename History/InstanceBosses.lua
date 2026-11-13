@@ -5,6 +5,7 @@
 -- NPC-Name sind bei Classic-Dungeonbossen gleich; geheime Namen fallen weg).
 -- Bossliste je Karte und Schwierigkeit aus ns.BossData (Assist/BossData/<flavor>.lua, DB2 DungeonEncounter),
 -- Reihenfolge = OrderIndex, der letzte gilt als Endboss: fällt er, meldet der Chat "Dungeon abgeschlossen".
+-- Boss-Level (nur Forever) aus ns.InstanceGuide.bossLevels (Assist/InstanceData/forever_guide.lua).
 -- shortcut: Retail hat keine Bossliste (nur die Zahl der Kills), bei Bedarf über das Encounter-Journal nachrüsten.
 local _, ns = ...
 local L = ns.L
@@ -47,6 +48,16 @@ function InstanceBosses.Name(encounterID)
   return names
 end
 
+-- Level eines Bosses oder nil ohne Daten
+function InstanceBosses.Level(encounterID)
+  return ns.InstanceGuide and ns.InstanceGuide.bossLevels[encounterID]
+end
+
+-- Letzte Boss-Meldung (für die Fehlersuche): { source = "encounter"|"died", id, name, success, counted } oder nil
+function InstanceBosses.LastEvent()
+  return lastEvent
+end
+
 -- Besiegte Bosse eines Laufs oder Journal-Eintrags als Menge { [encounterID] = true } und ihre Zahl
 function InstanceBosses.Killed(record)
   local killed, count = {}, 0
@@ -69,7 +80,8 @@ function InstanceBosses.ProgressText(record)
   return done .. "/" .. #list
 end
 
--- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon und Name; nil ohne Liste
+-- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon, Name und Level, wo bekannt;
+-- nil ohne Liste
 function InstanceBosses.TooltipLines(record)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
   if not list then return nil end
@@ -77,7 +89,9 @@ function InstanceBosses.TooltipLines(record)
   local lines = { record.name or "?" }
   for index, id in ipairs(list) do
     local icon = killed[id] and ICON_DEAD or ICON_ALIVE
-    lines[#lines + 1] = string.format("|T%s:%d|t %d. %s", icon, ICON_SIZE, index, InstanceBosses.Name(id) or "?")
+    local line = string.format("|T%s:%d|t %d. %s", icon, ICON_SIZE, index, InstanceBosses.Name(id) or "?")
+    local level = InstanceBosses.Level(id)
+    lines[#lines + 1] = level and string.format("%s (%d)", line, level) or line
   end
   return lines
 end
@@ -145,19 +159,3 @@ if getCombatLogEventInfo and ns.BossData then
     ns.SetEventScript(combatLogFrame, "COMBAT_LOG_EVENT_UNFILTERED InstanceBosses", onCombatLogEvent)
   end
 end
-
--- Offene Frage: kommen ENCOUNTER_END bzw. UNIT_DIED bei Dungeon-Bossen je Client, passen Liste und Namen?
-ns.DebugLog.AddCheck("483.bosses", function()
-  local run = ns.Instances.GetCurrentRun()
-  local list = run and InstanceBosses.List(run.mapID, run.difficultyID)
-  local names = {}
-  for index, id in ipairs(list or {}) do names[index] = id .. "=" .. tostring(InstanceBosses.Name(id)) end
-  return {
-    data = ns.BossData and ns.BossData.build or false, locale = GetLocale(),
-    run = run and { name = run.name, mapID = run.mapID, difficultyID = run.difficultyID, bosses = run.bosses,
-      progress = InstanceBosses.ProgressText(run) },
-    list = table.concat(names, ", "), last = lastEvent,
-    -- Tooltip der Historienzeile (484) als Text: Symbolpfad zeigt besiegt/lebt ohne Sichtprüfung
-    tooltip = run and InstanceBosses.TooltipLines(run) or false,
-  }
-end)

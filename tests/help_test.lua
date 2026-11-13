@@ -24,11 +24,11 @@ before = #wow.printed
 SlashCmdList.LEVELTIMER("help all")
 expect("alle Befehle", #wow.printed - before, linesOf(L.HELP_ALL))
 
--- Alle Sprachen: debug nur in der langen Hilfe, compact so beschrieben wie die Meldung des Befehls
+-- Alle Sprachen: debug in keiner Hilfe (gehört zum lokalen Data Extractor), compact so beschrieben wie die Meldung des Befehls
 for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
   local texts = addon.locales[language]
   expectTrue(language .. ": debug nicht in der kurzen Hilfe", not texts.HELP:find("debug", 1, true))
-  expectTrue(language .. ": debug in help all", texts.HELP_ALL:find("debug", 1, true) ~= nil)
+  expectTrue(language .. ": debug nicht in help all", not texts.HELP_ALL:find("debug", 1, true))
   expectTrue(language .. ": compact ohne alte Beschreibung", not texts.HELP_ALL:find("XP/h)", 1, true)
     and not texts.HELP_ALL:find("PX/h)", 1, true))
 end

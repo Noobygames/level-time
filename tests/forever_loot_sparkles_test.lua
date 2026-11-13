@@ -1,6 +1,7 @@
 -- Beute-Glitzer (WoW Forever): Quest-Gegenstände per CVar, Glitzern beim Annähern an Erz, Kräuter, Quest-Objekte
 -- und Leichen mit Beute über das Soft-Targeting. Aus = keine CVar angefasst, ausgeschaltet kommen die Werte des
 -- Spielers zurück, in der Kampfsperre wird nichts geändert.
+wow.loadExtractor()  -- Debug-Log und Profiler liegen im lokalen Data Extractor
 local LootSparkles, LootSparkle, LootTarget = addon.LootSparkles, addon.LootSparkle, addon.LootTarget
 local L = addon.L
 

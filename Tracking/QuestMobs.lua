@@ -293,16 +293,7 @@ ns.RegisterEvent("QUEST_LOG_UPDATE", invalidate)
 ns.RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player", invalidate)
 ns.OnLogin(invalidate)
 
--- /lt debug check: wie viele Quests, Ziele und Namen gelernt sind und was gerade offen ist
-ns.DebugLog.AddCheck("quests.learned", function()
-  local quests, objectives, names = 0, 0, 0
-  for _, learned in pairs(LevelTimerStatsDB and LevelTimerStatsDB.questMobs or {}) do
-    quests = quests + 1
-    for _, data in pairs(learned) do
-      objectives = objectives + 1
-      for _ in pairs(data.mobs) do names = names + 1 end
-    end
-  end
-  return { quests = quests, objectives = objectives, mobNames = names, openMobs = QuestMobs.OpenMobNames(),
-    pending = #pending, related = C_QuestLog ~= nil and C_QuestLog.UnitIsRelatedToActiveQuest ~= nil }
-end)
+-- Offene Zuordnungen (Kill/Beute wartet auf Questfortschritt), für die Fehlersuche
+function QuestMobs.PendingCount()
+  return #pending
+end

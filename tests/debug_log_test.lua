@@ -1,8 +1,8 @@
--- Dauerhaftes Debug-Log: /lt debug log schreibt Debug-Zeilen, abgefangene Fehler, Ereignis-Proben und Schnappschüsse
+-- Dauerhaftes Debug-Log (im lokalen Data Extractor, nach Neuinstallation an): /lt debug log schreibt Debug-Zeilen, abgefangene Fehler, Ereignis-Proben und Schnappschüsse
 -- als JSON-Zeilen in LevelTimerDebugLog, bleibt über Neuladen an und kürzt auf MAX_LINES; /lt debug check schreibt
 -- alle Prüfungen einmal, auch bei ausgeschaltetem Log.
 local DebugLog = addon.DebugLog
-local L = addon.L
+local L = extractor.L
 
 local function lastPrint() return wow.printed[#wow.printed] end
 local function hasLine(text)
@@ -13,7 +13,10 @@ local function hasLine(text)
 end
 
 wow.login()
-expect("aus nach Neuinstallation", DebugLog.IsEnabled(), false)
+expect("an nach Neuinstallation", DebugLog.IsEnabled(), true)
+SlashCmdList.LEVELTIMER("debug log off")
+SlashCmdList.LEVELTIMER("debug log clear")
+expect("ausgeschaltet", DebugLog.IsEnabled(), false)
 addon.Debug("test", "nicht geschrieben")
 expect("aus: nichts geschrieben", DebugLog.LineCount(), 0)
 
@@ -96,7 +99,7 @@ expect("neueste bleibt", hasLine('"msg":"' .. (DebugLog.MAX_LINES + 1100) .. '"'
 SlashCmdList.LEVELTIMER("debug log clear")
 expect("geleert", DebugLog.LineCount(), 0)
 
-SlashCmdList.LEVELTIMER("debug log")
+SlashCmdList.LEVELTIMER("debug log off")
 expect("aus", DebugLog.IsEnabled(), false)
 addon.Debug("test", "danach")
 expect("aus: nichts mehr", DebugLog.LineCount(), 0)

@@ -169,6 +169,33 @@ addon.Set("transportTooltip", true)
 wow.state.units.mouseover = { name = "Wache", guid = "Creature-0-4379-1-1-9999-00001A2B3D" }
 expect("fremder NPC ohne Tooltip", #hover("mouseover"), 0)
 
+-- Meister mit Titel (Forever: Schiffsmeister ohne bekannte NPC-ID) wird dem Anleger zugeordnet, an dem man steht
+local titles = {}
+C_TooltipInfo = { GetUnit = function(unit)
+  local title = titles[unit]
+  return { lines = { { leftText = "Name" }, { leftText = title or "Level 45" } } }
+end }
+expect("Titel gelesen", Transports.UnitTitle("mouseover"), "Level 45")
+expectTrue("Meistertitel erkannt", Transports.IsMasterTitle("<Schiffsmeisterin>"))
+expectTrue("kein Meistertitel", not Transports.IsMasterTitle("Level 45"))
+wow.state.units.nameplate4 = { name = "Grizzlowe", guid = "Creature-0-4379-1-1-77001-00001A2B3E" }
+titles.nameplate4 = "Schiffsmeister"
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate4")
+expectTrue("Schiffsmeister per Titel gemerkt", Transports.DockOfNpc(77001) == "Orgrimmar")
+expectTrue("Schiffsmeister: Plakette", Display.PlateText("nameplate4") ~= nil)
+-- NPC ohne Meistertitel bleibt draußen
+wow.state.units.nameplate5 = { name = "Wache", guid = "Creature-0-4379-1-1-77002-00001A2B3F" }
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate5")
+expect("ohne Titel nicht gemerkt", Transports.DockOfNpc(77002), nil)
+-- Meister an einem Anleger ohne gelernte Zeiten: Hinweis im Tooltip
+placeAt(1434, 0.10, 0.10)
+wow.state.units.mouseover = { name = "Grizzlowe", guid = "Creature-0-4379-1-1-77003-00001A2B40" }
+titles.mouseover = "Schiffsmeister"
+local hint = hover("mouseover")
+expect("Hinweis: einmal mitfahren", hint[1], L.TRANSPORT_MASTER_UNLEARNED)
+titles.mouseover = nil
+C_TooltipInfo = nil
+
 -- Teilen: gültige Phase wird übernommen, schlechte Daten werden abgelehnt
 local function receive(body, sender, prefix)
   local before = Transports.Data().routes
@@ -178,6 +205,8 @@ local function routeCount() local n = 0 for _ in pairs(Transports.Data().routes)
 local now = Transports.Now()
 local count = routeCount()
 
+expect("Teilen ist Standard", addon.db.transportShare, true)
+addon.Set("transportShare", false)
 receive(string.format("P:Barrens:Stranglethorn Vale:%d:300", now - 30))
 expect("ohne Teilen-Schalter nichts", routeCount(), count)
 addon.Set("transportShare", true)
@@ -220,6 +249,35 @@ for _, entry in ipairs(wow.addonMessages) do
   if entry.prefix == Transports.PREFIX then sent = entry end
 end
 expectTrue("Phase gesendet", sent ~= nil and sent.message:find("^P:Orgrimmar:Tirisfal Glades:%d+:240$") ~= nil)
+
+-- Abgleich: wächst die Gruppe, gehen alle frischen Phasen (auch geteilte) an die Gruppe; kleiner werden sendet nicht
+local function drainQueue()
+  for _ = 1, Transports.MAX_QUEUE + 1 do wow.update(Transports.SEND_INTERVAL) end
+end
+local function partyPhases()
+  local found = {}
+  for _, entry in ipairs(wow.addonMessages) do
+    if entry.prefix == Transports.PREFIX and entry.chatType == "PARTY" then
+      found[entry.message:match("^P:([^:]+:[^:]+):")] = true
+    end
+  end
+  return found
+end
+drainQueue()
+wow.addonMessages = {}
+wow.state.inGroup, wow.state.groupSize = true, 2
+wow.fire("GROUP_ROSTER_UPDATE")
+drainQueue()
+local synced = partyPhases()
+expectTrue("Abgleich: eigene Phase an Gruppe", synced["Orgrimmar:Tirisfal Glades"] == true)
+expectTrue("Abgleich: geteilte Phase weitergegeben", synced["Barrens:Stranglethorn Vale"] == true)
+wow.addonMessages = {}
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.groupSize = 1
+wow.fire("GROUP_ROSTER_UPDATE")
+drainQueue()
+expect("gleiche oder kleinere Gruppe: kein Abgleich", next(partyPhases()), nil)
+wow.state.inGroup, wow.state.groupSize = false, nil
 
 -- Hauptschalter aus: alles weg
 addon.Set("transportTimers", false)

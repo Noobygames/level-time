@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Spielszene</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1280px; height: 760px; position: relative; overflow: hidden; background: #22302a; font-family: Inter, system-ui, sans-serif; color: #f2f2f2">
+
+  <!-- Clickdummy-Steuerung (nicht Teil des Addons) -->
+  <div style="position: absolute; left: 0; top: 0; right: 0; height: 56px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; gap: 12px; background: #f4f1ea; color: #222; font-size: 13px; flex-wrap: wrap">
+    <strong style="margin-right: 8px">Clickdummy</strong>
+    <span style="color: #555">Layout:</span>
+    <sc-for list="{{layouts}}" as="item" hint-placeholder-count="7">
+      <button type="button" onClick="{{item.pick}}" style="{{item.style}}">{{item.label}}</button>
+    </sc-for>
+    <button type="button" onClick="{{toggleAlert}}" style="margin-left: 12px; height: 32px; padding: 0 12px; border: 1px solid #8a6d00; background: #fff4c2; color: #3d3000; border-radius: 6px; cursor: pointer">Level-Up testen</button>
+    <a href="Options.dc.html" style="margin-left: auto; color: #1a4fa0">Einstellungen</a>
+    <a href="History.dc.html" style="color: #1a4fa0">Verlauf</a>
+    <a href="Displays.dc.html" style="color: #1a4fa0">Weitere Anzeigen</a>
+  </div>
+
+  <div style="position: absolute; left: 24px; bottom: 20px; font-size: 13px; color: #9fb3a8">Spielwelt (Platzhalter). Rechtsklick aufs Hauptfenster öffnet im Spiel die Einstellungen.</div>
+
+  <!-- Einblendung (Alerts.lua, Stil Banner) -->
+  <sc-if value="{{showAlert}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 440px; top: 84px; width: 400px; box-sizing: border-box; padding: 14px 18px; display: flex; align-items: center; gap: 14px; background: rgba(10,10,12,0.92); border: 1px solid #5a4a12; border-left: 0; border-top: 4px solid #ffd100; border-radius: 4px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffd100" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 22px; font-weight: 700; color: #ffd100">Level 24!</span>
+        <span style="font-size: 13px; color: #d0d0d0">Level 23: 1:12:34, 142 Kills, 1 Tod, 15.320 XP/h</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Minimap mit Level-Time-Knopf (MinimapButton.lua) -->
+  <div style="position: absolute; right: 36px; top: 84px; width: 170px; height: 170px; border-radius: 50%; background: #3c5a44; border: 4px solid #6b5a2e; box-sizing: border-box"></div>
+  <button type="button" aria-label="Level Time Minimap-Knopf" onClick="{{toggleMenu}}" style="position: absolute; right: 162px; top: 197px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #c9a227; background: #1a1a1a; color: #ffd100; font-weight: 700; font-size: 13px; cursor: pointer">LT</button>
+  <sc-if value="{{showMenu}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; right: 84px; top: 250px; width: 260px; box-sizing: border-box; padding: 10px 12px; background: rgba(0,0,0,0.9); border: 1px solid #555; border-radius: 4px; font-size: 13px; display: flex; flex-direction: column; gap: 6px">
+      <span style="color: #ffd100; font-weight: 600">Level Time</span>
+      <a href="Options.dc.html">Linksklick: Einstellungen</a>
+      <a href="History.dc.html">Shift+Linksklick: Verlauf</a>
+      <span style="color: #bbb">Rechtsklick: Hauptfenster an/aus</span>
+    </div>
+  </sc-if>
+
+  <!-- Hauptfenster (TimerWindow.lua) -->
+  <div style="position: absolute; left: 470px; top: 150px; min-width: 300px; box-sizing: border-box; padding: 8px 10px 10px; background: rgba(0,0,0,{{bgAlpha}}); border: 1px solid #4a4a4a; border-radius: 4px; display: flex; flex-direction: column; gap: 6px">
+    <div style="display: flex; gap: 14px; font-size: 13px; border-bottom: 1px solid #333; padding-bottom: 4px">
+      <sc-for list="{{tabs}}" as="item" hint-placeholder-count="3">
+        <button type="button" onClick="{{item.pick}}" style="{{item.style}}">{{item.label}}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{isClock}}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 44px; font-weight: 700; text-align: center; padding: 6px 0; font-variant-numeric: tabular-nums">{{time}}</div>
+    </sc-if>
+
+    <sc-if value="{{showTimeLine}}" hint-placeholder-val="{{ true }}">
+      <div style="font-size: 22px; font-weight: 700; color: #ffd100; font-variant-numeric: tabular-nums">{{time}}</div>
+    </sc-if>
+
+    <sc-if value="{{showSmallXp}}" hint-placeholder-val="{{ true }}">
+      <div style="height: 8px; background: #2a2a2a; border-radius: 2px; overflow: hidden">
+        <div style="height: 8px; width: {{xpPercent}}%; background: #7a4fd6"></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isXpBar}}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; width: 520px; height: 26px; background: #2a2a2a; border-radius: 3px; overflow: hidden">
+        <div style="height: 26px; width: {{xpPercent}}%; background: #7a4fd6"></div>
+        <span style="position: absolute; left: 10px; top: 4px; font-size: 13px; font-weight: 600">{{xpBarText}}</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isTable}}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, auto)); column-gap: 24px; row-gap: 3px; font-size: 14px">
+        <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+          <span style="color: #cfcfcf">{{row.label}}</span>
+          <span style="text-align: right; font-variant-numeric: tabular-nums; color: {{row.color}}">{{row.value}}</span>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isCompact}}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, auto)); column-gap: 14px; row-gap: 1px; font-size: 12px">
+        <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+          <span style="color: #cfcfcf">{{row.short}}</span>
+          <span style="text-align: right; font-variant-numeric: tabular-nums; color: {{row.color}}">{{row.value}}</span>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isText}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+        <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+          <span>{{row.label}}: <span style="color: {{row.color}}">{{row.value}}</span></span>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isBar}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; gap: 16px; font-size: 13px; flex-wrap: nowrap; white-space: nowrap">
+        <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+          <span><span style="color: #9a9a9a">{{row.short}}</span> <span style="color: {{row.color}}">{{row.value}}</span></span>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isTiles}}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+        <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+          <div style="background: #181818; border: 1px solid #333; border-radius: 3px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; min-width: 90px">
+            <span style="font-size: 17px; font-weight: 700; color: {{row.color}}">{{row.value}}</span>
+            <span style="font-size: 11px; color: #a8a8a8">{{row.short}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"layout":{"editor":"enum","options":["table","bar","compact","text","clock","xpbar","tiles"],"default":"table"},"bgAlpha":{"editor":"range","min":0,"max":1,"step":0.05,"default":0.8},"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'level', layout: null, showAlert: false, showMenu: false };
+  }
+  renderVals() {
+    const GOOD = '#5fa8ff', BAD = '#ff9a3c', PLAIN = '#f2f2f2';
+    const LAYOUTS = [
+      ['table', 'Tabelle'], ['bar', 'Leiste'], ['compact', 'Kompakt'], ['text', 'Text'],
+      ['clock', 'Uhr'], ['xpbar', 'XP-Balken'], ['tiles', 'Kacheln']
+    ];
+    // Beispielwerte je Bereich (Reiter Level | Session | Instanz)
+    const DATA = {
+      level: { time: '1:12:34', xp: 73, eta: '26:48', rows: [
+        ['XP/h', 'XP/h', '15.320', GOOD], ['XP', 'XP', '18.450', PLAIN], ['Level-Up in', 'Level-Up in', '26:48', PLAIN],
+        ['Kills (PvE)', 'Kills', '142', PLAIN], ['Kills/h', 'Kills/h', '117', PLAIN], ['Tode', 'Tode', '1', BAD],
+        ['Quests', 'Quests', '9', PLAIN], ['Einnahmen', 'Gold', '3g 12s 40c', PLAIN]
+      ] },
+      session: { time: '2:41:05', xp: 73, eta: '31:02', rows: [
+        ['XP/h', 'XP/h', '13.870', PLAIN], ['XP', 'XP', '37.210', PLAIN], ['Level-Up in', 'Level-Up in', '31:02', PLAIN],
+        ['Kills (PvE)', 'Kills', '301', PLAIN], ['Kills/h', 'Kills/h', '112', PLAIN], ['Tode', 'Tode', '2', BAD],
+        ['Quests', 'Quests', '21', PLAIN], ['Einnahmen', 'Gold', '7g 55s 10c', PLAIN]
+      ] },
+      instance: { time: '0:18:22', xp: 73, eta: '14:10', rows: [
+        ['Instanz', 'Instanz', 'Die Todesminen', PLAIN], ['XP/h', 'XP/h', '21.400', GOOD], ['XP', 'XP', '6.540', PLAIN],
+        ['Kills (PvE)', 'Kills', '64', PLAIN], ['Tode', 'Tode', '0', PLAIN], ['Beinahe-Tode', 'Beinahe', '1', BAD]
+      ] }
+    };
+    const layout = this.state.layout || this.props.layout || 'table';
+    const tab = this.state.tab;
+    const data = DATA[tab];
+    const pill = (on) => 'height: 32px; padding: 0 10px; border-radius: 6px; cursor: pointer; border: 1px solid ' +
+      (on ? '#1a4fa0; background: #1a4fa0; color: #fff' : '#bbb; background: #fff; color: #222');
+    const tabStyle = (on) => 'background: none; border: 0; padding: 2px 0; cursor: pointer; font-size: 13px; color: ' +
+      (on ? '#ffd100; font-weight: 600' : '#a0a0a0');
+    const tabs = [['level', 'Level 23'], ['session', 'Session'], ['instance', 'Instanz']].map(([id, label]) => ({
+      label, style: tabStyle(id === tab), pick: () => this.setState({ tab: id })
+    }));
+    return {
+      layouts: LAYOUTS.map(([id, label]) => ({ label, style: pill(id === layout), pick: () => this.setState({ layout: id }) })),
+      tabs,
+      rows: data.rows.map(([label, short, value, color]) => ({ label, short, value, color })),
+      time: data.time,
+      xpPercent: data.xp,
+      xpBarText: 'Level 23 · ' + data.xp + ' % · Level-Up in ' + data.eta,
+      bgAlpha: this.props.bgAlpha ?? 0.8,
+      isTable: layout === 'table', isCompact: layout === 'compact', isText: layout === 'text', isBar: layout === 'bar',
+      isClock: layout === 'clock', isXpBar: layout === 'xpbar', isTiles: layout === 'tiles',
+      showTimeLine: layout !== 'clock' && layout !== 'xpbar',
+      showSmallXp: layout !== 'xpbar' && layout !== 'clock',
+      showAlert: this.state.showAlert, showMenu: this.state.showMenu,
+      toggleAlert: () => this.setState({ showAlert: !this.state.showAlert }),
+      toggleMenu: () => this.setState({ showMenu: !this.state.showMenu })
+    };
+  }
+}
+</script>
+</body>
+</html>

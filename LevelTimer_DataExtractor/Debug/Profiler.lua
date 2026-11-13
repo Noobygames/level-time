@@ -4,11 +4,14 @@
 -- Zuwachs von collectgarbage("count") in KB (grob: ein Garbage-Collector-Lauf mitten im Aufruf senkt den Wert,
 -- dann zählt 0). Zeiten sind inklusiv: misst ein Handler einen weiteren Callback mit, steht dessen Zeit in beiden.
 -- Aus kostet nichts: der Kern tauscht die Verteiler nur bei eingeschaltetem Profiler aus (ns.SetProfiler).
--- Bis /reload, wie ns.debug. Bericht im Chat (ns.DebugPrint) und bei eingeschaltetem Debug-Log auch dort.
-local _, ns = ...
+-- Bis /reload. Bericht im Chat (X.DebugPrint) und bei eingeschaltetem Debug-Log auch dort.
+local _, X = ...
+local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
+if not ns then return end
 
 local Profiler = {}
-ns.Profiler = Profiler
+X.Profiler = Profiler
+ns.Profiler = Profiler  -- Tests und Prüfungen lesen ihn über Level Time
 
 Profiler.DEFAULT_TOP = 15
 
@@ -98,11 +101,11 @@ function Profiler.Summary()
 end
 
 local function logResults(list)
-  if not (ns.DebugLog and ns.DebugLog.IsEnabled()) then return end
+  if not (X.DebugLog and X.DebugLog.IsEnabled()) then return end
   local seconds, grown = Profiler.Summary()
-  ns.DebugLog.Write({ area = "perf", seconds = seconds, kb = grown, keys = #list })
+  X.DebugLog.Write({ area = "perf", seconds = seconds, kb = grown, keys = #list })
   for _, item in ipairs(list) do
-    ns.DebugLog.Write({ area = "perf", key = item.key, ms = item.ms, count = item.count, max = item.max, kb = item.kb })
+    X.DebugLog.Write({ area = "perf", key = item.key, ms = item.ms, count = item.count, max = item.max, kb = item.kb })
   end
 end
 
@@ -111,11 +114,11 @@ function Profiler.Report(top)
   top = top or Profiler.DEFAULT_TOP
   local list = Profiler.Results()
   local seconds, grown = Profiler.Summary()
-  ns.DebugPrint("perf", "%s s measured, %s keys, memory %s KB", round(seconds, 1), #list,
+  X.DebugPrint("perf", "%s s measured, %s keys, memory %s KB", round(seconds, 1), #list,
     grown and round(grown, 1) or "?")
   for index = 1, math.min(top, #list) do
     local item = list[index]
-    ns.DebugPrint("perf", "%s: %s ms, %s calls, %s ms avg, %s ms max, %s KB", item.key, round(item.ms, 2),
+    X.DebugPrint("perf", "%s: %s ms, %s calls, %s ms avg, %s ms max, %s KB", item.key, round(item.ms, 2),
       item.count, round(item.ms / item.count, 3), round(item.max, 2), round(item.kb, 1))
   end
   logResults(list)
@@ -130,20 +133,20 @@ end)
 function Profiler.Command(argument)
   local action, rest = (argument or ""):match("^(%S*)%s*(.-)$")
   if not Profiler.IsAvailable() then
-    ns.DebugPrint("perf", "debugprofilestop is not available in this client")
+    X.DebugPrint("perf", "debugprofilestop is not available in this client")
     return
   end
   if action == "report" then
     Profiler.Report(tonumber(rest))
   elseif action == "reset" then
     Profiler.Reset()
-    ns.DebugPrint("perf", "reset")
+    X.DebugPrint("perf", "reset")
   else
     local enabled
     if action == "on" then enabled = true
     elseif action == "off" then enabled = false
     else enabled = not Profiler.IsEnabled() end
     Profiler.SetEnabled(enabled)
-    ns.DebugPrint("perf", "profiler %s", enabled and "on" or "off")
+    X.DebugPrint("perf", "profiler %s", enabled and "on" or "off")
   end
 end

@@ -1,0 +1,44 @@
+# Data sources of Level Time
+
+Level Time ships static game data (flight paths, flight times, ship and zeppelin routes, instance data, dungeon
+bosses, map coordinates, speedrun records). Generated data files say in their first lines where they come from and
+when they were built. This page lists all the sources.
+
+## 1. Our own data extractor
+
+We collect game data ourselves while playing, with a small developer addon that we use only on our own machines. It is
+not part of Level Time and is never published.
+
+- It records what the game client shows us during normal play: creatures (name, level, health, where they were seen,
+  experience per kill, what they drop), quests (who starts and ends them, objectives, rewards, experience and money per
+  character level, where objectives progress), items, vendors, trainers, flight masters and flight times, dungeon
+  entrances, bosses, and experience per level and from exploring.
+- Collection happens only through the official addon API of the game client, on our own characters; other players
+  are skipped.
+- We use the collected data to build and verify the data files Level Time ships. The measured flight times
+  (`Assist/FlightTimesData.lua`) also come from our own flights, recorded with Level Time itself.
+- A local tool (`tools/extractor`) exports the collected data to JSON and compares it with our hand-maintained
+  dungeon guide; it only reports, it never changes a shipped file.
+
+## 2. Public game data from wago.tools
+
+Static client data (DB2 tables) comes from the public database at <https://wago.tools>, per game version (Retail,
+Classic Era, Anniversary, WoW Forever). Our generator `tools/flights` (`make flights`) reads the tables and writes:
+
+- flight paths and flight master names (`Assist/FlightPathsData/`, `Assist/FlightNamesData/`)
+- ship and zeppelin routes (`Assist/TransportData/`)
+- instance resets, group sizes and level ranges (`Assist/InstanceData/<flavor>.lua`)
+- dungeon bosses in order (`Assist/BossData/`)
+- map coordinates (`Assist/MapCoordsData/`)
+
+Each of these files names the game build it was generated from.
+
+## 3. Speedrun records
+
+The world records shown by the speedrun features come from the public API of <https://www.speedrun.com>
+(`tools/records`, `make records`, written to `Speedrun/SpeedrunRecords.lua`).
+
+## Hand-maintained data
+
+`Assist/InstanceData/forever_guide.lua` (WoW Forever dungeon level ranges, entrances, boss levels and dungeon quests)
+is maintained by hand. It is being checked against, and will be replaced by, data from our own extractor.

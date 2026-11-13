@@ -4,8 +4,9 @@
 -- OnMapChanged (MapCanvasMixin), Größenänderungen über OnSizeChanged des eigenen Rahmens; ein gedrosseltes OnUpdate
 -- des eigenen Rahmens (nur bei offener Karte) bemerkt neue Daten. Gezeichnet wird nur bei geänderter Karte oder
 -- geändertem Datenstand, bei geänderter Größe nur neu verankert.
--- MapPins.Create({ name, label, points(mapID) -> { { x, y, size, color = { r, g, b, a } oder texture } },
+-- MapPins.Create({ name, label, points(mapID) -> { { x, y, size, color = { r, g, b, a } oder texture, atlas } },
 -- revision() -> Datenstand (ein oder zwei Werte), onEnter(pin, point) }) -> { SetEnabled(enabled), Refresh(force) }.
+-- atlas hat Vorrang vor texture, wenn der Client ihn kennt (C_Texture.GetAtlasInfo); texture bleibt der Rückfall.
 -- Die Weltkarte kann später geladen werden (Blizzard_WorldMap): dann hängt sich jede eingeschaltete Karte an.
 local _, ns = ...
 
@@ -16,6 +17,10 @@ local CHECK_SECONDS = 0.5
 local DEFAULT_SIZE = 8
 
 local layers = {}
+
+local function knownAtlas(atlas)
+  return atlas and C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas) ~= nil
+end
 
 local function newLayer(definition)
   local layer = { definition = definition, pins = {}, enabled = false }
@@ -64,8 +69,12 @@ local function newLayer(definition)
       pin.point = point
       local size = point.size or DEFAULT_SIZE
       pin:SetSize(size, size)
-      if point.texture then
+      if knownAtlas(point.atlas) then
+        pin.texture:SetAtlas(point.atlas)
+        pin.texture:SetVertexColor(1, 1, 1, 1)
+      elseif point.texture then
         pin.texture:SetTexture(point.texture)
+        pin.texture:SetTexCoord(0, 1, 0, 1)
         pin.texture:SetVertexColor(1, 1, 1, 1)
       else
         pin.texture:SetColorTexture(unpack(point.color))

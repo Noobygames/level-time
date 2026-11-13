@@ -1,4 +1,4 @@
--- Debug-Proben (Core/DebugProbes.lua) hängen nur bei eingeschaltetem Debug-Log an Events und Aufgaben;
+-- Debug-Proben (LevelTimer_DataExtractor/Debug/DebugProbes.lua) hängen nur bei eingeschaltetem Debug-Log an Events und Aufgaben;
 -- ausgeschaltet kosten sie nichts. /lt debug check findet unbekannte Events auch bei ausgeschaltetem Log.
 local PROBE_ONLY_EVENT = "UNIT_THREAT_SITUATION_UPDATE"  -- nur die Proben hören darauf
 
@@ -14,12 +14,13 @@ local function probeTaskRan()
 end
 
 wow.login()
+addon.DebugLog.SetEnabled(false)  -- nach Neuinstallation an; hier zuerst der ausgeschaltete Zustand
 expect("Log aus: Proben-Event nicht angemeldet", registered(PROBE_ONLY_EVENT), false)
 addon.Profiler.SetEnabled(true)
 wow.update(61)
 expect("Log aus: Proben-Aufgaben laufen nicht", probeTaskRan(), false)
 
-SlashCmdList.LEVELTIMER("debug log")
+addon.DebugLog.SetEnabled(true)
 expect("Log an: angemeldet", registered(PROBE_ONLY_EVENT), true)
 wow.update(61)
 expect("Log an: Proben-Aufgaben laufen", probeTaskRan(), true)
@@ -36,7 +37,7 @@ for _ = 1, 3 do wow.fire("CVAR_UPDATE", "cameraDistanceMaxZoomFactor", "2.6") en
 expect("fremde CVar: eine Zeile", #addon.DebugLog.Lines(), before + 1)
 expect("eigene Änderung läuft nicht", addon.CVars.IsWriting(), false)
 
-SlashCmdList.LEVELTIMER("debug log")
+addon.DebugLog.SetEnabled(false)
 expect("Log wieder aus: abgemeldet", registered(PROBE_ONLY_EVENT), false)
 addon.Profiler.Reset()
 wow.update(61)

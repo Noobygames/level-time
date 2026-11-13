@@ -494,6 +494,28 @@ for line in io.lines(ADDON_DIR .. "/LevelTimer.toc") do
   end
 end
 
+-- Lokales Entwickler-Addon LevelTimer_DataExtractor (Datensammler und Debug-Werkzeug von Level Time): eigener Namespace
+-- (global `extractor`), hängt sich über LevelTimerAPI an. Szenarien mit "debug", "profiler" oder "extractor" im Namen
+-- laden es automatisch (vor StreamGoal, wie im Client über OptionalDeps), andere rufen wow.loadExtractor() vor dem Login.
+function wow.loadExtractor()
+  if extractor then return extractor end
+  extractor = {}
+  for line in io.lines(ADDON_DIR .. "/LevelTimer_DataExtractor/LevelTimer_DataExtractor.toc") do
+    line = line:gsub("\r", ""):gsub("\\", "/")
+    if line ~= "" and not line:match("^#") then
+      local chunk, err = loadfile(ADDON_DIR .. "/LevelTimer_DataExtractor/" .. line)
+      if not chunk then error(err, 0) end
+      chunk("LevelTimer_DataExtractor", extractor)
+    end
+  end
+  return extractor
+end
+local scenarioName = SCENARIO or ""
+if scenarioName:find("debug", 1, true) or scenarioName:find("profiler", 1, true)
+  or scenarioName:find("extractor", 1, true) then
+  wow.loadExtractor()
+end
+
 -- Schwester-Addon StreamGoal (Szenarien streamgoal_*): eigener Namespace, hängt wie im Client von LevelTimer ab
 if (SCENARIO or ""):match("^streamgoal_") then
   streamGoal = {}

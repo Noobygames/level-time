@@ -11,7 +11,7 @@
 ## Notes-esMX: Estadísticas por nivel y por sesión (tiempo de juego, PX/h, abatidos, muertes y más) con historial para todos los personajes
 ## IconTexture: Interface\AddOns\LevelTimer\Media\Icon
 ## AddonCompartmentFunc: LevelTimer_OnAddonCompartmentClick
-## SavedVariables: LevelTimerDB, LevelTimerStatsDB, LevelTimerDebugLog
+## SavedVariables: LevelTimerDB, LevelTimerStatsDB
 # LevelTimerCharDB: veraltet, nur noch geladen, um alte Daten in LevelTimerStatsDB zu übernehmen
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
@@ -26,9 +26,6 @@ Core\Database.lua
 Lib\Lifecycle.lua
 Core\LevelTimer.lua
 Core\Client.lua
-Core\DebugLog.lua
-Core\DebugProbes.lua
-Core\Profiler.lua
 Lib\Theme.lua
 Lib\Format.lua
 Lib\TickCache.lua
@@ -69,6 +66,7 @@ Assist\MapCoordsData\anniversary.lua
 Assist\InstanceData\classic_era.lua
 Assist\MapCoordsData\classic_era.lua
 Assist\InstanceData\forever.lua
+Assist\InstanceData\forever_guide.lua
 Assist\MapCoordsData\forever.lua
 Assist\InstanceData\retail.lua
 Assist\BossData\anniversary.lua
@@ -244,6 +242,7 @@ Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
 Assist\QuestMap.lua
+Assist\DungeonEntrances.lua
 Assist\CorpseArrow.lua
 Assist\ScreenEffects.lua
 Assist\ForeverGraphics.lua
@@ -307,8 +306,6 @@ UI\ExternalOptions.lua
 UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua
-Core\DebugChecks.lua
-Core\DebugTools.lua
 UI\WelcomeCard.lua
 UI\ChangelogData.lua
 UI\Changelog.lua

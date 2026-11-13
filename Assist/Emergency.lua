@@ -212,15 +212,3 @@ ns.RegisterApply(function(db)
   healthEvents.SetActive(db.emergencyHighlight and Emergency.IsAvailable())
   update()
 end)
-
--- /lt debug check: welche Items und Zauber der Liste der Client kennt (Namen in der Client-Sprache)
-ns.DebugLog.AddCheck("emergency.actions", function()
-  local items, spells = {}, {}
-  for _, itemId in ipairs(Emergency.ITEMS) do
-    items[#items + 1] = { id = itemId, name = C_Item and C_Item.GetItemInfo and (C_Item.GetItemInfo(itemId)) or nil }
-  end
-  for _, spellId in ipairs(Emergency.SPELLS) do
-    spells[#spells + 1] = { id = spellId, name = spellName(spellId) }
-  end
-  return { items = items, spells = spells }
-end)

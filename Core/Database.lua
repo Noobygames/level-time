@@ -101,7 +101,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 8
+local SETTINGS_SCHEMA_VERSION = 9
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -174,6 +174,11 @@ local settingsMigrations = {
     forEachSettingsCopy(settings, function(values)
       if values.lootSparkleStyle == "aura" then values.lootSparkleStyle = "finder" end
     end)
+  end,
+  -- Schiffs- und Zeppelinzeiten teilen ist jetzt Standard: einmalig für alle eingeschaltet, auch in Profilen
+  -- (der alte Standard "aus" war von einer bewussten Wahl nicht zu unterscheiden)
+  [9] = function(settings)
+    forEachSettingsCopy(settings, function(values) values.transportShare = true end)
   end,
 }
 

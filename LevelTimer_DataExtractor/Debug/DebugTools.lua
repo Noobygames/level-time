@@ -1,17 +1,19 @@
 -- Testbefehle für die Fehlersuche: /lt debug <befehl>. Lösen Addon-Funktionen von Hand aus oder
 -- zeigen den inneren Zustand, ohne gespeicherte Statistiken zu verändern. /lt debug ohne Befehl
--- schaltet das erweiterte Logging (ns.Debug) an und aus.
--- Ausgaben sind technische Zeilen (ns.DebugPrint, englisch); nur die Hilfe ist übersetzt.
-local _, ns = ...
-local L = ns.L
+-- schaltet das erweiterte Logging (ns.Debug) im Chat an und aus.
+-- Ausgaben sind technische Zeilen (X.DebugPrint, englisch); nur die Hilfe ist übersetzt.
+local _, X = ...
+local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
+if not ns then return end
+local L = X.L
 local Stats = ns.Stats
 local Format = ns.Format
 
 local DebugTools = {}
-ns.DebugTools = DebugTools
+X.DebugTools = DebugTools
 
 local function out(area, format, ...)
-  ns.DebugPrint(area, format, ...)
+  X.DebugPrint(area, format, ...)
 end
 
 local function seconds(value)
@@ -101,17 +103,17 @@ end
 
 -- Dauerhaftes Debug-Log (DebugLog.lua): an/aus, clear, status
 function actions.log(argument)
-  ns.DebugLog.Command(argument)
+  X.DebugLog.Command(argument)
 end
 
 -- Alle Prüfungen (DebugLog.CHECKS) einmal ausführen und ins Debug-Log schreiben
 function actions.check()
-  ns.DebugLog.CheckCommand()
+  X.DebugLog.CheckCommand()
 end
 
 -- CPU-Messung (Profiler.lua): an/aus, report [n], reset
 function actions.perf(argument)
-  ns.Profiler.Command(argument)
+  X.Profiler.Command(argument)
 end
 
 function actions.help()
@@ -124,3 +126,12 @@ function DebugTools.Run(input)
   local action = actions[name:lower()] or actions.help
   action(argument:lower())
 end
+
+-- /lt debug ohne Befehl schaltet das Chat-Logging (bis /reload), mit Befehl die Testfunktionen; Level Time kennt den
+-- Befehl selbst nicht mehr, der Data Extractor hängt ihn über ns.AddCommand an
+ns.AddCommand("debug", function(argument)
+  if argument ~= "" then return DebugTools.Run(argument) end
+  X.chatDebug = not X.chatDebug
+  X.DebugLog.Refresh()
+  ns.Print(X.chatDebug and L.DEBUG_ON or L.DEBUG_OFF)
+end)

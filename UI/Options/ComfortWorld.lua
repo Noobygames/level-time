@@ -107,8 +107,13 @@ addToggles({
   advanced(toggle("MINIMAP_SQUARE", "minimapSquare", MinimapTweaks.CanSquare)),
 })
 addSection("SECTION_WORLD_MAP")
-addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
-  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
+local worldMapToggles = { toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
+  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") }
+-- Dungeon-Eingänge nur mit gepflegten Eingangsdaten (WoW Forever)
+if ns.DungeonEntrances.IsAvailable() then
+  table.insert(worldMapToggles, toggle("DUNGEON_ENTRANCES_TOGGLE", "dungeonEntrances"))
+end
+addToggles(worldMapToggles)
 -- Blizzard-Fenster verschieben und skalieren (UX S16: bei den übrigen Fenstern statt unter Oberfläche)
 addSection("SECTION_WINDOWS")
 addToggles({ toggle("MOVE_FRAMES", "moveFrames") })

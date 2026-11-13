@@ -16,7 +16,7 @@
 --   UNIT_SPELLCAST_SUCCEEDED (player)    der Zauber des Items laut C_Item.GetItemSpell (Ausrollen, im Spiel 429961)
 -- Mit dem Emote startet der Timer nur, wenn der Schlafsack in der Tasche ist oder vor kurzem ausgerollt wurde. Stapel
 -- und Ablauf kommen aus aura.applications/expirationTime (Felder wie in BuffFrame.lua); ein Buff ohne Stapel (0)
--- zählt als 1. Prüfung 430.sleep.state, Proben in DebugChecks.lua.
+-- zählt als 1. Prüfung 430.sleep.state, Proben in LevelTimer_DataExtractor/Debug/DebugChecks.lua.
 -- Einstellungen: sleepTimer, sleepTimerSound (Ton bei jedem Stapel, bei der Auffrischung und am Ende),
 -- sleepStackNotice (Hinweise zu Stapeln, Auffrischung und Ausrollen).
 local _, ns = ...

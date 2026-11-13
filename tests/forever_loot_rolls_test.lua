@@ -1,5 +1,6 @@
 -- Würfeln um Beute in WoW Forever (Roadmap 364): geheime Chatzeilen fallen ohne Fehler weg, lesbare zählen;
 -- Forever-Formate ("Ihr habt "Bedarf" ausgewählt für: %s", "Weitergegeben von Euch: %s", Forever deDE).
+wow.loadExtractor()  -- Debug-Log und Profiler liegen im lokalen Data Extractor
 local LootRolls = addon.LootRolls
 
 local AXE = "|cff1eff00|Hitem:3030::::::::20:::::|h[Axt des Holzfällers]|h|r"
@@ -56,7 +57,7 @@ local function hasLine(text)
     if logged:find(text, 1, true) then return logged end
   end
 end
-SlashCmdList.LEVELTIMER("debug log")
+addon.DebugLog.SetEnabled(true)
 wow.fire("START_LOOT_ROLL", 10, 60000)
 wow.fire("LOOT_HISTORY_UPDATE_DROP", 100, 3)
 wow.fire("CHAT_MSG_LOOT", wow.SECRET)
