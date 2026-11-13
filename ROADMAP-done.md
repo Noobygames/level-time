@@ -43,6 +43,7 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ### Funde aus dem Spieltest (November 2026)
 
+- [x] 479. **Kürschner: Leichen glitzern nicht** (S–M): Als Kürschner leuchten kürschnerbare Leichen nicht auf. `Assist/LootTarget.lua` erkennt Leichen nur über `isCorpseWithLoot` (`UnitIsDead` + `CanLootUnit`); eine leergeplünderte, aber kürschnerbare Leiche fällt dort heraus. Nur mit erlerntem Kürschnern; gilt sinngemäß für Bergbau/Kräuterkunde an Leichen. **Erledigt: Tote Ziele ohne eigene Beute gelten als Leiche (`CORPSE`, Schalter „Leichen“, kein neuer Schalter), wenn der Einheiten-Tooltip die Zeile `UNIT_SKINNABLE_LEATHER`/`_ROCK`/`_HERB` zeigt (GlobalStrings live und classic_era) und der passende Beruf erlernt ist; Tooltip über `C_TooltipInfo.GetUnit`, in Era über einen versteckten Tooltip. Berufsprüfung `IsGatheringTrained` auf eine Tabelle je Beruf umgebaut (Kürschnern: Zauber 8613/8617/8618/10768, Fertigkeitslinie 393, Namen in vier Sprachen). Check `479.lootSparkles.skinning` (Tooltipzeilen, `CanLootUnit` nach dem Plündern, Kürschnern erkannt), Szenario `forever_loot_sparkles`.**
 - [x] 487. **Zauberrang in der Zauber-Historie** (S): `UI/SpellHistory.lua` zeigt zum Zauber den Rang („Rang 3“), z.B. über `C_Spell.GetSpellSubtext` bzw. `GetSpellSubtext`. Vor dem Bau gegen die Blizzard-Doku je Client prüfen (Retail hat keine Ränge, dann nichts anzeigen). **Erledigt: Rangzahl unten rechts im Symbol (wie eine Stapelzahl), gelesen beim Wirken aus `C_Spell.GetSpellSubtext` (laut SpellDocumentation in Era, Retail und Forever; Fallback `GetSpellSubtext`); nur die Zahl aus dem Untertext, Untertexte ohne Zahl (Retail „Volksfähigkeit“, „Passiv“, Berufsstufen) zeigen nichts. Check `487.spellHistory.rank` (roher Untertext je Zauber), Szenario `stream_features`.**
 
 ### v2.19: Korrektheit und Fundament
@@ -559,7 +560,7 @@ Archiv der abgehakten Punkte aus `ROADMAP.md` (Nummern bleiben gleich). Offene P
 
 ## Erledigt
 
-- unveröffentlicht: 487. Zauberrang in der Zauberleiste
+- unveröffentlicht: 479. Häutbare/abbaubare Leichen glitzern; 487. Zauberrang in der Zauberleiste
 - v2.37.1: Fix: Seitenleiste und "Standard"-Knopf der Einstellungen nach /reload unsichtbar (Seiten haben von Anfang an eine Breite); Pfeil der Auswahllisten (Texturpfad)
 - v2.37.0: 477. Auswahllisten mit Suche statt Durchklicken; 478. Testen-Knöpfe für Chat & Erinnerungen; Fix: Minimap-Knopfleiste hält gesammelte Knöpfe sichtbar und klickbar (LibDBIcon-Fade, Unterframes über der Leiste)
 - v2.36.0: 466. Sparkle-Stil Zielsucher (neuer Standard); 467. Uhrwerk; 468. Fortschrittsring; 469. Glühwürmchen; 470. Schatzkarte; 471. Symbol; 472. Pixel-Pop; 473. Sternbild; 474. Standard-Glitzer; 475. Pfeil; 476. Lichtsäule (Glow-Stile aus 456 unter „Klassisch“)

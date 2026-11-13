@@ -4,7 +4,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 
 ### Loot sparkles (roadmap 330)
 
-- `Assist/LootTarget.lua` classifies the soft-interact target (cursor via `SetUnitCursorTexture` into a probe texture, `CanLootUnit`, `UnitIsInInteractRange` Forever-only, quest objects via `UnitIsRelatedToActiveQuest`/tooltip/objective names); debug check `lootSparkles.target` logs raw cursor file ID/path/atlas.
+- `Assist/LootTarget.lua` classifies the soft-interact target (cursor via `SetUnitCursorTexture` into a probe texture, `CanLootUnit`, `UnitIsInInteractRange` Forever-only, quest objects via `UnitIsRelatedToActiveQuest`/tooltip/objective names); debug check `lootSparkles.target` logs raw cursor file ID/path/atlas. Dead units without own loot still count as `CORPSE` when the unit tooltip has a `UNIT_SKINNABLE_LEATHER/_ROCK/_HERB` line and the matching profession is trained (`IsGatheringTrained`, table `GATHERING`; Era reads a hidden scan tooltip); check `479.lootSparkles.skinning`.
 - `UI/LootSparkle.lua`: AnimationGroups only (no OnUpdate), `Media/Glint.tga` from `tools/artwork -glint`.
 - `Assist/LootSparkles.lua`: settings `lootSparkleQuestItems` (Forever CVar `outlineModeShowLootEffectWhenDisabled`, off needs a restart), `lootSparkleOre/Herbs/QuestObjects/Corpses`, `lootSparkleScale`; CVars via CVars.lua (`SoftTargetNameplateInteract` Override = open / Restore = player value; "once" CVars guarded with `CVars.IsOverridden`); no CVar writes in combat lockdown; inert while ForeverLootSparkles or Lueur is loaded.
 

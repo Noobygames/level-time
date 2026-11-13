@@ -194,6 +194,21 @@ loot["Creature-9"] = { false, false }
 wow.fire("LOOT_CLOSED")
 expect("geplündert: kein Glitzern", LootSparkle.AttachedTo(), nil)
 
+-- leergeplündert, aber häutbar (Roadmap 479): glitzert nur mit erlerntem Kürschnern
+UNIT_SKINNABLE_LEATHER, UNIT_SKINNABLE_ROCK = "Häutbar", "Benötigt Bergbau"
+local tooltipLines = { { leftText = "Kobold" }, { leftText = "Häutbar" } }
+C_TooltipInfo = { GetUnit = function() return { lines = tooltipLines } end }
+expect("häutbar ohne Kürschnern: nichts", (LootTarget.Classify(SOFT)), nil)
+wow.state.knownSpells = { [8613] = true }
+expect("häutbar mit Kürschnern: Leiche", (LootTarget.Classify(SOFT)), LootTarget.CORPSE)
+tooltipLines[2] = { leftText = "Benötigt Bergbau" }
+expect("abbaubare Leiche ohne Bergbau: nichts", (LootTarget.Classify(SOFT)), nil)
+wow.state.knownSpells = { [2575] = true }
+expect("abbaubare Leiche mit Bergbau: Leiche", (LootTarget.Classify(SOFT)), LootTarget.CORPSE)
+tooltipLines[2] = { leftText = wow.SECRET }
+expect("geheime Zeile: nichts", (LootTarget.Classify(SOFT)), nil)
+wow.state.knownSpells, C_TooltipInfo = nil, nil
+
 -- fremde Beute (z.B. Gruppe, nicht berechtigt): nichts
 loot["Creature-9"] = { true, false }
 expect("nicht berechtigt: keine Leiche", (LootTarget.Classify(SOFT)), nil)

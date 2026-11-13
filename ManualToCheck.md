@@ -156,6 +156,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **214. Momente, Datenteil (Roadmap 439)**: check `439.goals.moments` (verfügbare Modi, `IsSwimming`/`IsFalling` lesbar, `C_PlayerInfo.GetGlidingInfo`, `C_ChatInfo.PerformEmote`/`DoEmote`, `C_Spell.IsSpellHelpful`, `C_MerchantFrame.GetBuybackItemID`/`GetBuybackItemLink`/`BuybackItem`, Zahl gemerkter Quest-Belohnungen), debug `goal:moment` (rare seen …, fell … s, emote … at … (unit …), helpful spell … on … : heal/res, quest reward …, sold … (quest reward true/false), bought back slot …, <Modus> +1)
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **238. Zauberrang in der Zauberleiste, Datenteil (Roadmap 487)**: check `487.spellHistory.rank` nach ein paar Zaubern (roher Untertext je Zauber und gelesene Rangzahl; Era „Rang n“, Retail/Forever ohne Zahl = leer)
+- **239. Häutbare Leichen glitzern, Datenteil (Roadmap 479)**: check `479.lootSparkles.skinning` als Kürschner vor einer leergeplünderten, häutbaren Leiche (Tooltipzeilen mit „Häutbar“, `hasLoot`/`canLoot` nach dem Plündern, `skinningTrained`, `kind` = corpse); ob das Soft-Targeting solche Leichen überhaupt wählt, zeigt `name`/`dead`
 
 ---
 
