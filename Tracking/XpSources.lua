@@ -39,7 +39,6 @@ local CONTEXT_COUNTERS = {
   pvp = Stats.XP_BATTLEGROUND,
   arena = Stats.XP_BATTLEGROUND,
 }
-XpSources.CONTEXTS = { Stats.XP_WORLD, Stats.XP_DUNGEON, Stats.XP_RAID, Stats.XP_BATTLEGROUND }
 
 local lastOpeningAt, lastQuestAt, lastExploreAt
 
@@ -70,7 +69,15 @@ ns.Experience.OnGain(function(amount)
   end
 end)
 
-ns.RegisterEvent("CHAT_MSG_OPENING", function() lastOpeningAt = GetTime() end)
+-- Nur eigenes Sammeln; CHAT_MSG_OPENING meldet auch andere Spieler (OPEN_LOCK_OTHER)
+if OPEN_LOCK_SELF then
+  local openSelfFormat = ChatPatterns.Compile(OPEN_LOCK_SELF)
+
+  ns.RegisterEvent("CHAT_MSG_OPENING", function(message)
+    if ns.IsSecret(message) or not ChatPatterns.Match(message, openSelfFormat) then return end
+    lastOpeningAt = GetTime()
+  end)
+end
 ns.RegisterEvent("QUEST_TURNED_IN", function() lastQuestAt = GetTime() end)
 
 if ERR_ZONE_EXPLORED_XP then

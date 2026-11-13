@@ -91,14 +91,33 @@ local function classifySecretMessage(messageAt)
   ns.Debug("xp", "secret XP message counted as kill, %s XP", xp)
 end
 
+-- Noch nicht eingestufte Meldungen (Zeitpunkte, älteste zuerst). Ein Level-Up stuft sie sofort ein, damit Kill,
+-- XP und Journal im alten Level landen; der spätere Timer findet sie dann nicht mehr.
+local pendingMessages = {}
+
+local function classifyPending(messageAt)
+  for i, pendingAt in ipairs(pendingMessages) do
+    if pendingAt == messageAt then
+      table.remove(pendingMessages, i)
+      classifySecretMessage(messageAt)
+      return
+    end
+  end
+end
+
 local function onSecretMessage()
   local now = GetTime()
   if not inOrJustAfterCombat(now) then
     ns.Debug("xp", "secret XP message out of combat, not a kill")
     return
   end
-  C_Timer.After(CLASSIFY_DELAY, function() classifySecretMessage(now) end)
+  pendingMessages[#pendingMessages + 1] = now
+  C_Timer.After(CLASSIFY_DELAY, function() classifyPending(now) end)
 end
+
+ns.OnLevelCompleted(function()
+  while pendingMessages[1] do classifyPending(pendingMessages[1]) end
+end)
 
 ns.Experience.OnGain(function(amount)
   local now = GetTime()

@@ -71,3 +71,16 @@ gainXp(300)
 wow.runTimers()
 expect("Quest-XP kein Kill", kills(), 5)
 expect("Quest-XP nicht bei Kills", killXp(), 350)
+
+-- Kill bringt den Level-Up: Kill und XP gehören noch zum alten Level, nicht zum neuen
+wow.advance(10)
+local oldLevel = addon.level
+secretMessage()
+gainXp(70)
+wow.levelUp(oldLevel + 1)
+wow.runTimers()
+local record = addon.character.levelHistory[oldLevel]
+expect("Kill im alten Level", record.counters[Stats.PVE_KILLS], 6)
+expect("Kill-XP im alten Level", record.counters[Stats.XP_KILLS], 420)
+expect("neues Level ohne Kill", kills(), 0)
+expect("nicht doppelt gezählt", Stats.Get(Stats.SESSION, Stats.PVE_KILLS), 6)

@@ -96,3 +96,25 @@ expect("Instanz-Feld versteckt bei tour", widget("instance"):IsShown(), false)
 -- Fertiges Paket Dungeon-Tour
 SlashCmdList.STREAMGOAL("pack dungeons")
 expect("Paket mit Boss-Ziel", Goals.Active()[1].kind, "dungeon")
+
+-- Reload im selben Lauf: Kennung = Startzeit des Laufs, zählt nicht doppelt; Level-Time-Daten bleiben unberührt
+local function enter(name)
+  wow.state.instance = name and { name = name, type = "party" } or nil
+  wow.fire("PLAYER_ENTERING_WORLD", false, name ~= nil)
+end
+SlashCmdList.STREAMGOAL("add dungeon complete 5 Burg Schattenfang")
+local reloadGoal = Goals.Active()[#Goals.Active()]
+enter(nil)
+enter("Burg Schattenfang")
+wow.advance(60)
+wow.fire("ENCOUNTER_END", 3001, "Rethilgore", 1, 5, 1)
+expect("erster Boss im Lauf", reloadGoal.progress, 1)
+expectTrue("Lauf offen", addon.character.currentRun ~= nil)
+expect("kein Feld in Level Times Lauf", addon.character.currentRun._sgToken, nil)
+wow.logout()
+wow.advance(5)
+wow.login()
+enter("Burg Schattenfang")
+wow.runTimers()
+wow.fire("ENCOUNTER_END", 3002, "Razorclaw", 1, 5, 1)
+expect("nach Reload derselbe Lauf", reloadGoal.progress, 1)
