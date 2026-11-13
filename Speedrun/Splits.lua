@@ -51,14 +51,9 @@ local function otherCharacters(sameClass)
   return keys
 end
 
+-- Bestzeit je Level der anderen Charaktere (Teil-Level zählen nie als Bestzeit)
 local function bestPerLevel()
-  local best = {}
-  for _, key in ipairs(otherCharacters()) do
-    for level, seconds in pairs(Runs.LevelTimes(key, true)) do  -- Teil-Level zählen nie als Bestzeit
-      if not best[level] or seconds < best[level] then best[level] = seconds end
-    end
-  end
-  return best
+  return (Runs.BestPerLevel(ns.characterKey))
 end
 
 -- Erstes Level, ab dem der eingeloggte Charakter Zeiten hat (Addon evtl. später installiert)

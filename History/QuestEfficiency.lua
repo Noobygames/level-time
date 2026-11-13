@@ -1,7 +1,7 @@
 -- Quest-Effizienz (Roadmap 347): je Quest-ID über alle eigenen Charaktere, wie oft sie abgegeben wurde, wie lange sie
 -- im Schnitt von der Annahme bis zur Abgabe dauerte (Quest-Splits, Journal-Feld duration) und wie viel XP sie brachte;
 -- daraus XP pro Minute. Nur eigene Daten (Journal questLog aller Charaktere, inklusive Archiv).
--- Neu berechnet nur bei neuem Journal-Stand (Journal.Revision) oder anderer Charakterzahl.
+-- Neu berechnet nur bei neuem Journal-Stand (Journal.Revision("questLog")) oder anderer Charakterzahl.
 -- Tooltipzeile (Einstellung questEfficiencyTooltip, aus): an Quest-Links im GameTooltip
 -- (hooksecurefunc(GameTooltip, "SetHyperlink"), alle Clients; Chat-Links, Historientabellen, Retail-/Forever-Questliste,
 -- soweit sie den Link-Tooltip zeigt) "Bisher: Ø 3:40, 1.250 XP/min (3x)".
@@ -61,7 +61,7 @@ local function build()
 end
 
 local function data()
-  local key = ns.Journal.Revision() .. ":" .. #ns.History.GetCharacterKeys()
+  local key = ns.Journal.Revision("questLog") .. ":" .. #ns.History.GetCharacterKeys()
   if key ~= cachedFor then
     cache, cachedFor = build(), key
   end

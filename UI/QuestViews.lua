@@ -249,7 +249,7 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   columns = EFFICIENCY_COLUMNS,
   records = function() return ns.QuestEfficiency.GetRecords() end,
   footer = HistoryTables.CountCells,
-  revision = ns.Journal.Revision,
+  revision = ns.Journal.RevisionOf("questLog"),
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "QUEST_EFFICIENCY_HINT",
 }))

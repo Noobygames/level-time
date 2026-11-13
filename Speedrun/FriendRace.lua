@@ -23,7 +23,7 @@ local FriendRace = {
   MAX_MESSAGE = 240,     -- Grenze 255 Byte, mit Reserve
   SEND_INTERVAL = 1,
   MAX_QUEUE = 50,
-  REQUEST_PAUSE = 60,    -- dieselbe Anfrage an Gruppe/Spieler höchstens so oft
+  REQUEST_PAUSE = 60,    -- dieselbe Anfrage an Gruppe/Spieler und die Antwort je Absender höchstens so oft
 }
 ns.FriendRace = FriendRace
 
@@ -31,6 +31,7 @@ local WHISPER = "WHISPER"
 local queue = {}
 local peers = {}         -- Absender, die in dieser Sitzung gefragt haben (bekommen Level-Ups)
 local lastRequest = {}   -- Ziel -> GetTime() der letzten Anfrage
+local lastAnswer = {}    -- Absender -> GetTime() der letzten Antwort
 local current            -- zuletzt gehörter Freund
 
 local function runs()
@@ -98,8 +99,11 @@ local function timeMessages()
   return messages
 end
 
+-- Gedrosselt je Absender: viele "Q" würden sonst die Warteschlange füllen und ältere Nachrichten verdrängen
 local function answer(sender)
   peers[sender] = true
+  if lastAnswer[sender] and GetTime() - lastAnswer[sender] < FriendRace.REQUEST_PAUSE then return end
+  lastAnswer[sender] = GetTime()
   enqueue("I:" .. ns.level .. ":" .. (ns.character.class or ""), WHISPER, sender)
   for _, message in ipairs(timeMessages()) do enqueue(message, WHISPER, sender) end
 end
@@ -134,28 +138,42 @@ local function runOf(sender)
   return all[sender]
 end
 
+-- Werte von außen: nur gültige Level und Zeiten (Runs.lua), sonst würden Level 0 oder riesige Zahlen gespeichert
+local function validLevel(text)
+  local level = tonumber(text)
+  return ns.Runs.IsValidLevel(level) and level or nil
+end
+
+local function validSeconds(text)
+  local seconds = tonumber(text)
+  return ns.Runs.IsValidSeconds(seconds) and seconds or nil
+end
+
 local HANDLERS = {
   Q = function(sender) answer(sender) end,
   I = function(sender, body)
     local level, class = body:match("^(%d+):(%u*)$")
+    level = validLevel(level)
     if not level then return end
     local run = runOf(sender)
-    run.level, run.class = tonumber(level), class ~= "" and class or nil
+    run.level, run.class = level, class ~= "" and class or nil
   end,
   T = function(sender, body)
     local from, list = body:match("^(%d+):([%d,]+)$")
-    if not from then return end
-    local run, level = runOf(sender), tonumber(from)
-    for seconds in list:gmatch("%d+") do
-      run.times[level] = tonumber(seconds)
+    local level = validLevel(from)
+    if not level then return end
+    local run = runOf(sender)
+    for text in list:gmatch("%d+") do
+      local seconds = validSeconds(text)
+      if seconds and ns.Runs.IsValidLevel(level) then run.times[level] = seconds end
       level = level + 1
     end
   end,
   L = function(sender, body)
     local level, seconds = body:match("^(%d+):(%d+)$")
-    if not level then return end
+    level, seconds = validLevel(level), validSeconds(seconds)
+    if not level or level < 2 or not seconds then return end  -- Level-Up erreicht frühestens Level 2
     local run = runOf(sender)
-    level, seconds = tonumber(level), tonumber(seconds)
     run.level, run.times[level - 1] = level, seconds
     peers[sender] = true
     ns.Print(string.format(L.FRIEND_LEVEL_UP, sender, level, ns.Format.Duration(seconds)))

@@ -34,6 +34,30 @@ expect("Vergleich aus Import", addon.Splits.GetReference(10), 2500)
 expect("Müll", Runs.Import("hallo"), nil)
 local broken = addon.Serializer.Encode("run", { name = "X", times = { [10] = "viel" } })
 expect("Zeiten keine Zahlen", Runs.Import(broken), nil)
+-- Unendlich: Lua 5.1 im Spiel macht aus n1e999 inf, gopher-lua lehnt den Text schon beim Lesen ab; daher zusätzlich
+-- mit untergeschobenem Decode-Ergebnis geprüft. Dazu Level ohne ganze Zahl 1..MAX_LEVEL und zu große Zeiten.
+local function withInfinity(run)
+  return (addon.Serializer.Encode("run", run):gsub("n12345", "n1e999"))
+end
+local function importDecoded(run)
+  local decode = addon.Serializer.Decode
+  addon.Serializer.Decode = function(kind) return kind == "run" and run or nil end
+  local added = Runs.Import("egal")
+  addon.Serializer.Decode = decode
+  return added
+end
+local inf = math.huge
+expect("Text n1e999", Runs.Import(withInfinity({ name = "X", times = { [10] = 12345 } })), nil)
+expect("Zeit unendlich", importDecoded({ name = "X", times = { [10] = inf } }), nil)
+expect("Level unendlich", importDecoded({ name = "X", times = { [inf] = 5 } }), nil)
+expect("Level 0", importDecoded({ name = "X", times = { [0] = 5 } }), nil)
+expect("Level negativ", importDecoded({ name = "X", times = { [-3] = 5 } }), nil)
+expect("Level krumm", importDecoded({ name = "X", times = { [2.5] = 5 } }), nil)
+expect("Level zu hoch", importDecoded({ name = "X", times = { [Runs.MAX_LEVEL + 1] = 5 } }), nil)
+expect("Zeit zu groß", importDecoded({ name = "X", times = { [10] = 1e250 } }), nil)
+local before = #LevelTimerStatsDB.importedRuns
+expect("erreichtes Level unendlich", importDecoded({ name = "Inf", reachedLevel = inf, times = { [10] = 77 } }), 1)
+expect("erreichtes Level verworfen", LevelTimerStatsDB.importedRuns[before + 1].reachedLevel, nil)
 
 -- Sicherung aller Läufe enthält eigene und importierte
 local backup = Runs.ExportAll()
