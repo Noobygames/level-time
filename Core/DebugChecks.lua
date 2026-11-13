@@ -1112,3 +1112,21 @@ check("452.swing.combatlog", function()
     autoAttacking = status.autoAttacking, mainSpeed = plain(mainSpeed), offSpeed = plain(offSpeed),
     rangedSpeed = plain(rangedSpeed) }
 end)
+
+-- 486: XP und Geld je Quest im Log (Lib/QuestLog.lua): beachtet GetQuestLogRewardMoney(questID) die ID (Era)?
+-- Verschiedene Beträge je Quest = ja; überall der Betrag der zuletzt angesehenen Quest (selectedMoney) = nein
+check("486.questRewards", function()
+  local quests = {}
+  for index, entry in ipairs(ns.QuestLog.Entries()) do
+    if index > RECENT_ENTRIES then break end
+    table.insert(quests, { questID = entry.questID, xp = ns.QuestLog.RewardXp(entry.questID),
+      money = ns.QuestLog.RewardMoney(entry.questID) })
+  end
+  return {
+    setting = ns.db.questLogRewards,
+    quests = quests,
+    selectedMoney = call("GetQuestLogRewardMoney"),
+    classicHook = type(QuestLogTitleButton_OnEnter) == "function",
+    mainlineHook = type(QuestLogQuests_Update) == "function",
+  }
+end)

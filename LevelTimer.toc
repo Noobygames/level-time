@@ -217,6 +217,7 @@ Assist\LootRollReport.lua
 Tracking\RollLog.lua
 UI\LootRollDisplay.lua
 Assist\QuestLevels.lua
+Assist\QuestLogRewards.lua
 Assist\QuestTextSize.lua
 Assist\QuestBagItems.lua
 Assist\QuestItemButton.lua

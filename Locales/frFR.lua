@@ -1938,4 +1938,7 @@ ns.locales.frFR = {
   QUEST_LEFTOVERS_DELETE = "Supprimer les restes de quête",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Supprimer définitivement ?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Après confirmation, supprime les restes de quête et les objets marqués comme camelote sans valeur de vente. Tout ce qui a une valeur reste dans vos sacs pour être vendu.",
+  QUEST_LOG_REWARDS_TOGGLE = "XP et or dans l'infobulle du journal de quêtes",
+  QUEST_LOG_REWARDS_TOGGLE_TIP = "Au survol d'une quête dans le journal, l'infobulle indique l'XP et l'or que rapporte sa remise. Sur la carte des quêtes (lieux appris), la récompense figure toujours dans l'infobulle.",
+  QUEST_REWARD_LINE = "Récompense : %s",
 }

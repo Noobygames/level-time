@@ -1938,4 +1938,7 @@ ns.locales.deDE = {
   QUEST_LEFTOVERS_DELETE = "Questreste löschen",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Endgültig löschen?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Löscht nach einer Rückfrage Questreste und als Müll markierte Gegenstände ohne Verkaufswert. Alles mit Verkaufswert bleibt zum Verkaufen in den Taschen.",
+  QUEST_LOG_REWARDS_TOGGLE = "XP und Gold im Questlog-Tooltip",
+  QUEST_LOG_REWARDS_TOGGLE_TIP = "Beim Überfahren einer Quest im Questlog zeigt der Tooltip, wie viel XP und Gold ihre Abgabe bringt. Auf der Questkarte (gelernte Questorte) steht die Belohnung immer im Tooltip.",
+  QUEST_REWARD_LINE = "Belohnung: %s",
 }

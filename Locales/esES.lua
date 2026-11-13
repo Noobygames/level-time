@@ -1938,4 +1938,7 @@ ns.locales.esES = {
   QUEST_LEFTOVERS_DELETE = "Borrar restos de misión",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "¿Borrar definitivamente?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Tras confirmar, borra los restos de misión y los objetos marcados como basura sin valor de venta. Lo que tiene valor se queda en tus bolsas para venderlo.",
+  QUEST_LOG_REWARDS_TOGGLE = "PX y oro en la descripción del registro de misiones",
+  QUEST_LOG_REWARDS_TOGGLE_TIP = "Al pasar el ratón por una misión del registro, la descripción muestra cuánta PX y oro da entregarla. En el mapa de misiones (lugares aprendidos) la recompensa aparece siempre en la descripción.",
+  QUEST_REWARD_LINE = "Recompensa: %s",
 }

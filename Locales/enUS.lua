@@ -1938,4 +1938,7 @@ ns.locales.enUS = {
   QUEST_LEFTOVERS_DELETE = "Delete quest leftovers",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "Delete permanently?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "After asking, deletes quest leftovers and items marked as junk that have no sell value. Anything with a sell value stays in your bags to sell.",
+  QUEST_LOG_REWARDS_TOGGLE = "XP and gold in the quest log tooltip",
+  QUEST_LOG_REWARDS_TOGGLE_TIP = "When you hover a quest in the quest log, the tooltip shows how much XP and gold turning it in gives. On the quest map (learned quest places) the reward is always in the tooltip.",
+  QUEST_REWARD_LINE = "Reward: %s",
 }

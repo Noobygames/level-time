@@ -87,6 +87,14 @@ function QuestLog.RewardXp(questID)
   return type(xp) == "number" and xp or nil
 end
 
+-- Geld (Kupfer), das die Abgabe bringt: GetQuestLogRewardMoney([questID]) laut warcraft.wiki.gg in allen Clients
+-- (ohne ID die zuletzt angesehene Quest); nil, wenn unbekannt. Ob Era die ID beachtet: check 486.questRewards
+function QuestLog.RewardMoney(questID)
+  if not GetQuestLogRewardMoney or type(questID) ~= "number" then return nil end
+  local money = readable((GetQuestLogRewardMoney(questID)))
+  return type(money) == "number" and money or nil
+end
+
 -- Titel einer Überschrift (Zone, Kategorie) an Position index; nil für Quests und Unlesbares
 local function headerTitle(index)
   if useInfoApi() then

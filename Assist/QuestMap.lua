@@ -1,6 +1,6 @@
 -- Gelernte Questorte auf der Weltkarte (Roadmap 350, Einstellung questMap, aus): für Quests im eigenen Log
 -- abgabebereit = Fragezeichen am gelernten Abgabe-NPC, offen = gelbe Punkte, wo ihre Ziele bisher vorankamen
--- (Tracking/QuestNpcs.lua, accountweit gelernt). Tooltip mit Quest und NPC. Zeichnen übernimmt Lib/MapPins.lua.
+-- (Tracking/QuestNpcs.lua, accountweit gelernt). Tooltip mit Quest, NPC und Belohnung (XP, Geld; Roadmap 486). Zeichnen übernimmt Lib/MapPins.lua.
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -22,7 +22,7 @@ local SPOT_COLOR = { 1, 0.82, 0, 0.9 }
 local logRevision = 0
 ns.RegisterEvent("QUEST_LOG_UPDATE", function() logRevision = logRevision + 1 end)
 
--- Punkte auf einer Karte: { x, y, size, texture oder color, title, npc, ready }
+-- Punkte auf einer Karte: { x, y, size, texture oder color, title, questID, npc, ready }
 function QuestMap.PointsOn(mapID)
   local points = {}
   for _, entry in ipairs(QuestLog.Entries()) do
@@ -31,11 +31,12 @@ function QuestMap.PointsOn(mapID)
       local turnIn = record.turnIn
       if entry.ready and turnIn and turnIn.mapID == mapID then
         table.insert(points, { x = turnIn.x, y = turnIn.y, size = TURN_IN_SIZE, texture = TURN_IN_ICON,
-          title = entry.title, npc = turnIn.name, ready = true })
+          title = entry.title, questID = entry.questID, npc = turnIn.name, ready = true })
       elseif not entry.ready then
         for _, spot in ipairs(record.spots or {}) do
           if spot.mapID == mapID then
-            table.insert(points, { x = spot.x, y = spot.y, size = SPOT_SIZE, color = SPOT_COLOR, title = entry.title })
+            table.insert(points, { x = spot.x, y = spot.y, size = SPOT_SIZE, color = SPOT_COLOR, title = entry.title,
+              questID = entry.questID })
           end
         end
       end
@@ -52,6 +53,7 @@ local function showTooltip(pin, point)
   else
     GameTooltip:AddLine(L.QUEST_MAP_OBJECTIVE, 1, 1, 1)
   end
+  ns.QuestTooltip.AddRewardLine(GameTooltip, point.questID)
   GameTooltip:Show()
 end
 

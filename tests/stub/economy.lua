@@ -43,6 +43,13 @@ function GetQuestLogRewardXP(questID)
   end
   return 0, 0
 end
+-- Belohnungsgeld (Kupfer) je Quest-ID: questLog[i].rewardMoney
+function GetQuestLogRewardMoney(questID)
+  for _, quest in ipairs(state.questLog or {}) do
+    if quest.questID == questID then return quest.rewardMoney or 0 end
+  end
+  return 0
+end
 -- Quest-Item je Logeintrag: questLog[i].specialItem = { link, Symbol }
 function GetQuestLogSpecialItemInfo(index)
   local item = ((state.questLog or {})[index] or {}).specialItem
