@@ -20,7 +20,7 @@ button,input{font-family:inherit}
 
   <!-- Live-Tracker im Dungeon (kompakt, verschiebbar über Frames.Register) -->
   <section style="display: flex; flex-direction: column; gap: 8px">
-    <span style="font-size: 12px; color: #9fb3a8">Live-Tracker (nur in Instanzen, verschiebbar)</span>
+    <span style="font-size: 12px; color: #9fb3a8">Live-Tracker (nur in Instanzen, verschiebbar, Standard an)</span>
     <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
       <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
         <span style="font-size: 14px; font-weight: 700; color: #ffd100">Die Todesminen</span>
@@ -41,7 +41,7 @@ button,input{font-family:inherit}
         </sc-for>
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 12px; color: #c8c8c8; border-top: 1px solid #333; padding-top: 6px">
-        <span>Trash 58 / 92</span><span>Tode 1</span><span>XP/h 21.400</span>
+        <span>Kills 58</span><span>Tode 1</span><span>XP/h 21.400</span>
       </div>
     </div>
     <span style="font-size: 12px; color: #9fb3a8; line-height: 1.5">Splits gegen die eigene Bestzeit dieses Dungeons (blau = schneller, orange = langsamer). Fällt der Endboss: Chat „Dungeon abgeschlossen in 31:05 (neue Bestzeit!)“.</span>
@@ -162,7 +162,7 @@ class Component extends DCLogic {
       tiles: [
         { label: 'Zeit', value: run.time, note: '-4:47 zum letzten Run', noteColor: GOOD },
         { label: 'Tode', value: '1', note: 'Mr. Smite', noteColor: '#c8c8c8' },
-        { label: 'Trash getötet', value: '86 / 92', note: '93 %', noteColor: '#c8c8c8' },
+        { label: 'Kills', value: '93', note: 'alle Gegner im Run', noteColor: '#c8c8c8' },
         { label: 'XP von Gegnern', value: '14.380', note: '27.700 XP/h', noteColor: '#c8c8c8' },
         { label: 'Bosse', value: '7 / 7', note: '+1 Rar', noteColor: '#ffd100' },
         { label: 'Geld', value: '4g 12s', note: 'Beute + Verkauf', noteColor: '#c8c8c8' },
