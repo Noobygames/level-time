@@ -56,7 +56,6 @@ end
 function ns.DebugActive()
   return ns.debug == true or debugRecorder ~= nil
 end
-ns.IsDebugging = ns.DebugActive
 
 -- Nur bei eingeschaltetem Logging (Chat mit /lt debug, dauerhaftes Log mit /lt debug log)
 function ns.Debug(area, format, ...)

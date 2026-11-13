@@ -1091,3 +1091,12 @@ check("453.partyQuestSync", function()
     queued = sync and sync.GetQueueLength and sync.GetQueueLength() or 0,
   }
 end)
+
+-- Bleibt die GUID nach Fraktionswechsel/Charakter-Umzug gleich? Sonst hält Database.lua den Charakter für neu
+-- erstellt und seine Daten beginnen neu (Prüfung nach so einem Wechsel)
+check("character.guid", function()
+  local guid = UnitGUID("player")
+  if ns.IsSecret(guid) then guid = "<secret>" end
+  local stored = ns.character and ns.character.guid
+  return { current = guid, stored = stored, same = stored == guid }
+end)

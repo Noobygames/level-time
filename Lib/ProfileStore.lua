@@ -12,12 +12,7 @@ local KIND = "profile"  -- Kennung im Serializer-Text
 -- Verwaltung der Profile selbst, gehört zu keinem Profil
 local OWN_META_KEYS = { "profiles", "activeProfile", "characterProfiles", "schemaVersion" }
 
-local function deepCopy(value)
-  if type(value) ~= "table" then return value end
-  local copy = {}
-  for key, entry in pairs(value) do copy[key] = deepCopy(entry) end
-  return copy
-end
+local deepCopy = ns.Database.CopyValue  -- Core/Database.lua lädt vorher (.toc)
 
 -- host = {
 --   db()             -> aktive Einstellungen (Tabelle, wird an Ort und Stelle geändert)

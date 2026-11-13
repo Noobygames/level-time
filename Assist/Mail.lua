@@ -73,7 +73,7 @@ function Mail.StepOpenAll()
     else
       local hasMoney = money and money > 0
       local hasItems = hasItem and hasItem > 0
-      if hasItems and ns.Bags and ns.Bags.FreeSlots and ns.Bags.FreeSlots() <= 0 then
+      if hasItems and ns.Bags and ns.Bags.GetFreeSlots() <= 0 then
         ns.Debug("mail", "bags full at index %s", index)
         Mail.StopOpenAll()
         ns.Print(L.MAIL_STOPPED_BAGS_FULL)
