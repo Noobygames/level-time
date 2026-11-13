@@ -12,7 +12,6 @@ Reihenfolge = Priorität: Korrektheit zuerst, dann Funktionen. Bestätigt: Nachr
 
 ### Funktionen
 
-- [ ] 499. **Kill-Zahl im Gegner-Tooltip** (S): Im Tooltip eines Gegners „x-mal getötet“ zeigen (Zahl aus dem Kill-Journal je Name).
 - [ ] 500. **Gewählte Buffs bei eingeklappter Buffleiste sichtbar** (M): Klappt man Blizzards Buffleiste ein, bleiben einstellbare Buffs sichtbar, z. B. Wasserschild/Blitzschild, deren Ladungen man im Auge behalten muss (Screenshot `wasserschild-stacks.png`). Einstellung: Liste der Buffs, die sichtbar bleiben. Vorher prüfen: Kann Blizzards Cooldown-Manager (Retail) dieses Buff-Tracking übernehmen?
 - [ ] 502. **Addon „OnForAll“ ansehen** (S): Funktionen des Addons prüfen, Lücken und Ideen als Roadmap-Punkte anlegen (genauer Name klären).
 

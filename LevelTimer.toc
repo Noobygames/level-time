@@ -83,6 +83,7 @@ Tracking\LevelGains.lua
 Tracking\TrainerCache.lua
 Tracking\KillCounter.lua
 Tracking\MobXp.lua
+Tracking\MobKills.lua
 Tracking\DeathRecap.lua
 Tracking\DeathCounter.lua
 Tracking\DeathPlace.lua

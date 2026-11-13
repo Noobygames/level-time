@@ -78,6 +78,7 @@ addToggles({
   toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
   toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
+  toggle("TOOLTIP_KILL_COUNT_TOGGLE", "tooltipKillCount"),
   advanced(toggle("TOOLTIP_GUILD_RANK_TOGGLE", "tooltipGuildRank")),
   toggle("INFO_CARDS", "infoCards"),
 })

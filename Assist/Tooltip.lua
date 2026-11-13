@@ -6,6 +6,8 @@
 --   tooltipKillsToLevel  Zeile "Kills bis Level-Up: 12" an angreifbaren Gegnern (MobXp.lua, Roadmap 274), gefärbt nach
 --                        Stufenabstand wie Blizzards Gegnerfarben (GetCreatureDifficultyColor, alle Clients), "~" =
 --                        nach der Formel geschätzt.
+--   tooltipKillCount     Zeile "12-mal getötet" an Gegnern (keine Spieler), die dieser Charakter schon getötet hat
+--                        (MobKills.lua, gleicher Name; Roadmap 499).
 --   tooltipAnchor        Welt-Tooltips (Standardanker mit UIParent als Besitzer: Einheiten und Objekte der Spielwelt)
 --                        am Mauszeiger statt in der Ecke: "cursor", "cursorLeft", "cursorRight"; "default" = Blizzard.
 --                        Post-Hook auf GameTooltip_SetDefaultAnchor (SharedTooltipTemplates.lua in allen Clients,
@@ -26,6 +28,7 @@ ns.RegisterDefaults({
     tooltipTarget = false,
     tooltipHideInCombat = false,
     tooltipKillsToLevel = false,
+    tooltipKillCount = false,
     tooltipGuildRank = false,
     tooltipScale = 1,
     tooltipAnchor = "default",
@@ -85,6 +88,17 @@ function Tooltip.KillsLine(unit)
   return string.format(L.TOOLTIP_KILLS_TO_LEVEL, value), color
 end
 
+-- Text der Zeile "12-mal getötet", nil ohne Kill, bei geheimem Namen oder freundlichen Einheiten
+function Tooltip.KillCountLine(unit)
+  local canAttack = UnitCanAttack("player", unit)
+  if not readable(canAttack) or not canAttack then return nil end
+  local name = UnitName(unit)
+  if not readable(name) then return nil end
+  local count = ns.MobKills.Count(name)
+  if count == 0 then return nil end
+  return string.format(L.TOOLTIP_KILL_COUNT, ns.Format.Number(count))
+end
+
 local function onUnitTooltip(tooltip)
   if tooltip ~= GameTooltip or not ns.db then return end
   local unit = unitOf(tooltip)
@@ -107,6 +121,10 @@ local function onUnitTooltip(tooltip)
       local name = UnitName(unit)
       ns.Debug("tooltip", "kills line for %s (level %s): %s", name, UnitLevel(unit), text)
     end
+  end
+  if ns.db.tooltipKillCount and readable(isPlayer) and not isPlayer then
+    local text = Tooltip.KillCountLine(unit)
+    if text then tooltip:AddLine(text, unpack(NEUTRAL_COLOR)) end
   end
   if ns.db.questLearning then
     local text = Tooltip.LearnedQuestLine(unit)
@@ -214,5 +232,5 @@ ns.RegisterApply(function(db)
   if Tooltip.ANCHORS[db.tooltipAnchor] then hookAnchor() end
   Tooltip.ApplyScale(db.tooltipScale)
   if db.tooltipClassColors or db.tooltipTarget or db.tooltipGuildRank or db.tooltipHideInCombat or db.tooltipKillsToLevel
-    or db.questLearning then hook() end
+    or db.tooltipKillCount or db.questLearning then hook() end
 end)

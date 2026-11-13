@@ -13,6 +13,11 @@ ns.CHANGELOG = {
         enUS = "The main window's tiles layout can now switch between Level, Session and Instance, just like the table.",
         frFR = "La disposition en tuiles de la fenêtre principale peut désormais basculer entre Niveau, Session et Instance, comme le tableau.",
         esES = "El diseño de mosaicos de la ventana principal ahora puede cambiar entre Nivel, Sesión e Instancia, igual que la tabla." },
+      { kind = "new",
+        deDE = "Neue Option: Der Tooltip von Gegnern zeigt, wie oft du sie schon getötet hast.",
+        enUS = "New option: the enemy tooltip shows how often you have killed them.",
+        frFR = "Nouvelle option : l'infobulle des ennemis indique combien de fois vous les avez tués.",
+        esES = "Nueva opción: la descripción de los enemigos muestra cuántas veces los has matado." },
     },
   },
   {

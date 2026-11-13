@@ -2004,4 +2004,7 @@ ns.locales.frFR = {
   DUNGEON_QUEST_MIN_LEVEL = "Dès le niveau %d",
   TRANSPORT_MASTER_TITLES = "Maître de navire|Maîtresse de navire|Maître de zeppelin|Maîtresse de zeppelin|Ship Master|Zeppelin Master",
   TRANSPORT_MASTER_UNLEARNED = "Horaires de départ encore inconnus : fais le trajet une fois.",
+  TOOLTIP_KILL_COUNT = "Tué %s fois",
+  TOOLTIP_KILL_COUNT_TOGGLE = "Afficher le nombre de victimes",
+  TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Affiche dans l'infobulle des ennemis combien de fois ce personnage a tué des ennemis de ce nom (victimes ayant rapporté de l'expérience).",
 }

@@ -2004,4 +2004,7 @@ ns.locales.deDE = {
   DUNGEON_QUEST_MIN_LEVEL = "Ab Level %d",
   TRANSPORT_MASTER_TITLES = "Schiffsmeister|Zeppelinmeister",
   TRANSPORT_MASTER_UNLEARNED = "Abfahrtszeiten noch unbekannt: fahre die Strecke einmal mit.",
+  TOOLTIP_KILL_COUNT = "%s-mal getötet",
+  TOOLTIP_KILL_COUNT_TOGGLE = "Zeigen, wie oft getötet",
+  TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Zeigt im Tooltip von Gegnern, wie oft dieser Charakter Gegner mit diesem Namen schon getötet hat (Kills mit Erfahrung).",
 }

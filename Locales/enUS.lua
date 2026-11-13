@@ -2004,4 +2004,7 @@ ns.locales.enUS = {
   DUNGEON_QUEST_MIN_LEVEL = "From level %d",
   TRANSPORT_MASTER_TITLES = "Ship Master|Zeppelin Master",
   TRANSPORT_MASTER_UNLEARNED = "Departure times not known yet: ride the route once.",
+  TOOLTIP_KILL_COUNT = "Killed %s times",
+  TOOLTIP_KILL_COUNT_TOGGLE = "Show kill count",
+  TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Shows in the enemy tooltip how often this character has killed enemies with that name (kills that gave experience).",
 }

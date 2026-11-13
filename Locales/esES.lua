@@ -2004,4 +2004,7 @@ ns.locales.esES = {
   DUNGEON_QUEST_MIN_LEVEL = "Desde nivel %d",
   TRANSPORT_MASTER_TITLES = "Maestro de barco|Maestra de barco|Maestro de zepelín|Maestra de zepelín|Ship Master|Zeppelin Master",
   TRANSPORT_MASTER_UNLEARNED = "Horarios de salida aún desconocidos: haz el trayecto una vez.",
+  TOOLTIP_KILL_COUNT = "Matado %s veces",
+  TOOLTIP_KILL_COUNT_TOGGLE = "Mostrar veces abatido",
+  TOOLTIP_KILL_COUNT_TOGGLE_TIP = "Muestra en la descripción de los enemigos cuántas veces este personaje ha matado enemigos con ese nombre (muertes que dieron experiencia).",
 }
