@@ -157,6 +157,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
+- **238. Boss-Kills je Instanz-Lauf, Datenteil (Roadmap 483)**: check `483.bosses` (Bossliste der Instanz mit Namen, besiegte encounterIDs des Laufs, letzte Meldung: `encounter` = ENCOUNTER_END bzw. `died` = Fallback über UNIT_DIED, success, gezählt) und debug `instances` (boss killed ...); je Client einen Dungeon bis zum Endboss spielen, dann `/lt debug check`
 
 ---
 
@@ -3435,3 +3436,18 @@ Einstellungen > Chat & Erinnerungen, je Unterseite ein Knopf „Testen“ (unabh
 - Warnungen: Atem, Taschen, Haltbarkeit, Munition (Jäger), Instanzlimit, Aggro, Hardcore-Schutz (Wildnis-Logout, Sturz), Notfall-Markierung (einige Sekunden) wie echt
 - Gruppe: alle Ansagen und der Instanzbericht nur im eigenen Chat mit „[Vorschau]“; in einer Gruppe prüfen, dass nichts im Gruppenchat erscheint
 - Texte in allen vier Sprachen passen in die Knöpfe
+
+### 238. Boss-Kills und „Dungeon abgeschlossen“ (Roadmap 483)
+
+- [ ] geprüft
+
+Einen Dungeon (Classic Era, Anniversary, Forever) bis zum Endboss spielen: nach dem Endboss steht im Chat
+„<Instanz> abgeschlossen: Endboss besiegt nach <Zeit> (Bosse x/y)“, genau einmal. Ein Wipe zählt nicht.
+
+**Antwort:**
+
+```text
+Client:
+Meldung (ja/nein, Bosse x/y stimmt):
+Fehler:
+```

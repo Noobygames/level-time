@@ -11,7 +11,7 @@ local CHECKS = {
   "145.chatCopy.lines", "157.help", "175.level.records", "280.deaths.recent", "237.alerts.icons",
   "240.questMarks.plates", "249.trainer.cache", "253.coverage", "259.questLevels.log", "268.questItem.pick", "268.questItem.bagItems",
   "269.mapCoordinates", "270.questLogXp", "271.rested.estimate", "272.personalRecords", "274.tooltip.killsToLevel",
-  "276.money.periods", "277.playHours", "278.reputation", "279.progressCurve", "282.instances", "284.splitList.lines",
+  "276.money.periods", "277.playHours", "278.reputation", "279.progressCurve", "282.instances", "483.bosses", "284.splitList.lines",
   "286.bracketForecast", "287.ssf", "288.customSplits", "290.runs", "293.friendRace", "246.battleground",
   "329.social.target", "329.chat.windows", "329.chat.colors", "329.classColors", "329.characterFrame", "329.minimap",
   "357.theme", "358.frames.positions", "359.editMode",

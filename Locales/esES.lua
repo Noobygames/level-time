@@ -1938,4 +1938,5 @@ ns.locales.esES = {
   QUEST_LEFTOVERS_DELETE = "Borrar restos de misión",
   QUEST_LEFTOVERS_DELETE_CONFIRM = "¿Borrar definitivamente?\n%s",
   QUEST_LEFTOVERS_DELETE_TIP = "Tras confirmar, borra los restos de misión y los objetos marcados como basura sin valor de venta. Lo que tiene valor se queda en tus bolsas para venderlo.",
+  INSTANCE_COMPLETED = "%s completado: jefe final derrotado tras %s (jefes %s).",
 }
