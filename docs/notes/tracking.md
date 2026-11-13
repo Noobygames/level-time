@@ -33,7 +33,7 @@ Wortgetreu aus CLAUDE.md ausgelagert. Vor dem Aendern eines Moduls hier nach dem
 ### v2.21 modules
 
 - Quest log XP: `Tracking/QuestLogXp.lua` (`QuestLogXp.Get()` ready/open sums, recounted after QUEST_LOG_UPDATE; `QuestLog.RewardXp`, `Entry.ready`), settings `showQuestLogXp`, `questXpOnBar`.
-- `Tracking/XpSources.lua`: exploring (`ERR_ZONE_EXPLORED_XP`, CHAT_MSG_SYSTEM assumed), gathering (XP ≤ 5 s after CHAT_MSG_OPENING, out of combat) and location counters `xpWorld/xpDungeon/xpRaid/xpBattleground` from `Experience.OnGain`; `showXpContext`.
+- `Tracking/XpSources.lua`: exploring (`ERR_ZONE_EXPLORED_XP`, CHAT_MSG_SYSTEM assumed), gathering (XP ≤ 5 s after own CHAT_MSG_OPENING matching `OPEN_LOCK_SELF`, out of combat) and location counters `xpWorld/xpDungeon/xpRaid/xpBattleground` from `Experience.OnGain`; `showXpContext`.
 - Kill journal entries carry `xp` and `rested` (`Journal.AddKill(kind, name, classification, xp, rested)`); `Experience.CountToLevel` averages base XP of the last `toLevelSamples` inbox entries (0 = whole level), rested pool counts double.
 - Rates: `Experience.RateSeconds(seconds, afk, idle)`; idle (`idleMinutes > 0`, counter `idleSeconds`) removed like AFK. Use `Experience.RecordRateSeconds` / `ScopeRateSeconds` instead of reading the AFK counter; `History.Summarize` returns `ratedIdleSeconds`.
 - `History/PersonalRecords.lua`: `PersonalRecords.Offer(id, value)`, account-wide `LevelTimerStatsDB.personalRecords`, announces (`announceRecords`) only when beating an existing value, `once` kinds max once per session; sub-tab Levels > Personal records.

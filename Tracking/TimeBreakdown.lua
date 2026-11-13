@@ -11,6 +11,13 @@
 -- APIs in allen Clients: UnitIsDeadOrGhost, UnitAffectingCombat, UnitOnTaxi, UnitIsAFK.
 local _, ns = ...
 
+local TimeBreakdown = {}
+ns.TimeBreakdown = TimeBreakdown
+
+-- Grenzen der Einstellung idleMinutes
+TimeBreakdown.MIN_IDLE_MINUTES = 0   -- 0 = kein Leerlauf
+TimeBreakdown.MAX_IDLE_MINUTES = 30
+
 ns.RegisterDefaults({
   settings = {
     showTimeBreakdown = false,
@@ -18,7 +25,7 @@ ns.RegisterDefaults({
     idleMinutes = 0,
   },
   ranges = {
-    idleMinutes = { 0, 30 },
+    idleMinutes = { TimeBreakdown.MIN_IDLE_MINUTES, TimeBreakdown.MAX_IDLE_MINUTES },
   },
   counters = {
     combatSeconds = 0,
@@ -29,17 +36,12 @@ ns.RegisterDefaults({
 })
 local Stats = ns.Stats
 
-local TimeBreakdown = {}
-ns.TimeBreakdown = TimeBreakdown
-
 local TICK = 1             -- Sekunden zwischen zwei Prüfungen
 local FLUSH_INTERVAL = 10  -- Sekunden, nach denen gesammelte Zeit spätestens gebucht wird
 
 -- Zähler, aus denen sich die Aufteilung zusammensetzt (ohne Rest)
 TimeBreakdown.PARTS = { Stats.COMBAT_SECONDS, Stats.TAXI_SECONDS, Stats.AFK_SECONDS, Stats.IDLE_SECONDS,
   Stats.DEAD_SECONDS }
-TimeBreakdown.MIN_IDLE_MINUTES = 0   -- 0 = kein Leerlauf
-TimeBreakdown.MAX_IDLE_MINUTES = 30
 local SECONDS_PER_MINUTE = 60
 
 local activity       -- Zähler der laufenden Tätigkeit, nil = Rest oder tot

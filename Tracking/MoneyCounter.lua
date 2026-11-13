@@ -86,24 +86,29 @@ local function nearMoneyMessage(at)
   return lastMoneyMessageAt ~= nil and math.abs(lastMoneyMessageAt - at) <= MONEY_MESSAGE_WAIT
 end
 
-local function bookIncome(amount)
+-- Summe und Art immer gemeinsam, damit ein Level-Up dazwischen sie nicht auf zwei Level verteilt
+local function addIncome(kind, amount)
   Stats.Increment(Stats.MONEY_EARNED, amount)
+  Stats.Increment(kind, amount)
+end
+
+local function bookIncome(amount)
   local window = currentContext()
   if window and window.income then
     ns.Debug("money", "income %s from window %s", amount, window.open)
-    Stats.Increment(window.income, amount)
+    addIncome(window.income, amount)
     return
   end
   local at = GetTime()
   if nearMoneyMessage(at) then
     ns.Debug("money", "income %s as loot (money message before)", amount)
-    Stats.Increment(Stats.INCOME_LOOT, amount)
+    addIncome(Stats.INCOME_LOOT, amount)
     return
   end
   C_Timer.After(MONEY_MESSAGE_WAIT, function()
     local loot = nearMoneyMessage(at)
     ns.Debug("money", "income %s as %s (waited for a money message)", amount, loot and "loot" or "other")
-    Stats.Increment(loot and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
+    addIncome(loot and Stats.INCOME_LOOT or Stats.INCOME_OTHER, amount)
   end)
 end
 

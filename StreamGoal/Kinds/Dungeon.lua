@@ -120,7 +120,10 @@ Goals.RegisterKind("dungeon", {
 ---------------------------------------------------------------------------
 -- Erfassung
 ---------------------------------------------------------------------------
-local runToken = 1
+-- Lauf-Kennung für params.lastRun (gespeichert): der Startzeitpunkt des offenen Laufs aus Level Time (bleibt über
+-- /reload gleich, nichts wird in dessen Daten geschrieben). Ohne Lauf ein Zähler ab time(), damit er nach einem
+-- Neustart nicht auf einen gespeicherten Wert der letzten Sitzung trifft.
+local runToken = time()
 local lastSeenInstance = nil
 
 function Dungeon.NewRun()
@@ -130,13 +133,7 @@ end
 
 local function currentRunToken(instance)
   local run = LT.Instances and LT.Instances.GetCurrentRun()
-  if run then
-    if not run._sgToken then
-      runToken = runToken + 1
-      run._sgToken = runToken
-    end
-    return run._sgToken
-  end
+  if run and run.startedAt then return run.startedAt end
   if instance and instance ~= lastSeenInstance then
     lastSeenInstance = instance
     runToken = runToken + 1

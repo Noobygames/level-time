@@ -136,13 +136,6 @@ function Archive.Entries(characterKey, logName)
   return list, version
 end
 
--- Anzahl archivierter Einträge (ohne zu entpacken); 0 ohne Archiv
-function Archive.Count(characterKey, logName)
-  if not Archive.Load() then return 0 end
-  local archive = characterArchive(characterKey, false)
-  return archive and archive.logs[logName] and #archive.logs[logName] or 0
-end
-
 local function deleteCharacter(characterKey)
   if not Archive.Load() or not db().characters[characterKey] then return end
   db().characters[characterKey] = nil

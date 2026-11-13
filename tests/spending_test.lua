@@ -45,6 +45,7 @@ expect("Lehrer", spent(Stats.SPENT_TRAINER), 1000)
 local earned = spent(Stats.MONEY_EARNED)
 wow.state.money = wow.state.money + 500
 wow.fire("PLAYER_MONEY")
+wow.runTimers()  -- Einnahme ohne Fenster wird erst nach der Wartezeit gebucht
 expect("Einnahme", spent(Stats.MONEY_EARNED), earned + 500)
 expect("Lehrer unverändert", spent(Stats.SPENT_TRAINER), 1000)
 
