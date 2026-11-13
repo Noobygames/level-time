@@ -27,7 +27,7 @@ local function readable(value)
 end
 
 local function matchesName(unit, wanted)
-  local name, realm = UnitName(unit)
+  local name, realm = LT.Client.UnitNameAndRealm(unit)
   name, realm = readable(name), readable(realm)
   if type(name) ~= "string" then return false end
   if name == wanted then return true end

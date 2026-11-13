@@ -142,7 +142,7 @@ local function groupUnits()
 end
 
 local function unitFullName(unit)
-  local name, realm = UnitName(unit)
+  local name, realm = ns.Client.UnitNameAndRealm(unit)
   name, realm = readable(name), readable(realm)
   if type(name) ~= "string" then return nil end
   if type(realm) == "string" and realm ~= "" then return LootRolls.ShortName(name .. "-" .. realm) end

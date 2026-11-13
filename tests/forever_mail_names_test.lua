@@ -26,3 +26,9 @@ wow.fire("MAIL_SHOW")
 LevelTimerMailAltButton._scripts.OnClick(LevelTimerMailAltButton)
 expect("Empfängerfeld mit vollem Namen", SendMailNameEditBox:GetText(), "Jaina Prachtmeer")
 expect("keine Lua-Fehler", #wow.errors, 0)
+
+-- Nachname ist kein Realm: Gruppennamen der Würfelanzeige ohne "-Menethil"
+local name, realm = addon.Client.UnitNameAndRealm("player")
+expect("Name ohne Nachname", name, "Arthas")
+expect("kein Realm in Forever", realm, nil)
+expectTrue("Spieler in den Gruppennamen ohne Nachname", addon.LootRolls.GroupNames()[1] == "Arthas")

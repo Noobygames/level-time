@@ -54,3 +54,11 @@ function Client.Flavor()
   if Client.IsClassicEra() then return "classic_era" end
   return "other"
 end
+
+-- Name und Realm einer Einheit. In WoW Forever liefert UnitName als zweiten Wert den Nachnamen statt des Realms
+-- (Blizzard Camelot/NameUtil.lua), dort gibt es daher keinen Realm.
+function Client.UnitNameAndRealm(unit)
+  local name, second = UnitName(unit)
+  if Client.IsForever() then return name, nil end
+  return name, second
+end
