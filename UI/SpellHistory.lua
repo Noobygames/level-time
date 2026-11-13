@@ -1,5 +1,7 @@
 -- Zauberleiste für Zuschauer (Roadmap 316): die letzten N gewirkten Zauber als Symbole
 -- (UNIT_SPELLCAST_SUCCEEDED auf player, kein Kampflog), mit Chroma-Hintergrund für OBS.
+-- Rang (Roadmap 487): Zahl aus C_Spell.GetSpellSubtext (Era, Retail, Forever laut SpellDocumentation; ältere Clients
+-- GetSpellSubtext), in Classic "Rang 3". Retail-Untertexte ("Volksfähigkeit", "Passiv") haben keine Zahl: nichts.
 local _, ns = ...
 local Theme = ns.Theme
 
@@ -45,6 +47,14 @@ local function getTexture(spellID)
   return nil
 end
 
+local function getRank(spellID)
+  local getSubtext = C_Spell and C_Spell.GetSpellSubtext or GetSpellSubtext
+  if type(getSubtext) ~= "function" then return nil end
+  local ok, subtext = pcall(getSubtext, spellID)
+  if not ok or ns.IsSecret(subtext) or type(subtext) ~= "string" then return nil end
+  return subtext:match("%d+")
+end
+
 local function getIcon(index)
   if not iconPool[index] then
     local icon = CreateFrame("Frame", nil, frame)
@@ -53,6 +63,9 @@ local function getIcon(index)
     tex:SetAllPoints()
     tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     icon.texture = tex
+    local rank = icon:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+    rank:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -1, 1)
+    icon.rank = rank
     iconPool[index] = icon
   end
   return iconPool[index]
@@ -60,20 +73,20 @@ end
 
 local function updateDisplay()
   local count = ns.db and ns.db.spellHistoryCount or 5
-  local displayedTextures = {}
+  local displayed = {}
 
   if previewActive then
     for i = 1, count do
-      table.insert(displayedTextures, 134400) -- Interface\\Icons\\INV_Misc_QuestionMark
+      table.insert(displayed, { texture = 134400 }) -- Interface\\Icons\\INV_Misc_QuestionMark
     end
   else
     local maxDisplay = math.min(#spells, count)
     for i = #spells - maxDisplay + 1, #spells do
-      table.insert(displayedTextures, spells[i].texture)
+      table.insert(displayed, spells[i])
     end
   end
 
-  local total = #displayedTextures
+  local total = #displayed
   if total == 0 and not previewActive then
     frame:Hide()
     return
@@ -83,12 +96,13 @@ local function updateDisplay()
   local height = SpellHistory.ICON_SIZE + SpellHistory.PADDING * 2
   frame:SetSize(math.max(width, SpellHistory.ICON_SIZE + SpellHistory.PADDING * 2), height)
 
-  for i, tex in ipairs(displayedTextures) do
+  for i, entry in ipairs(displayed) do
     local icon = getIcon(i)
     icon:ClearAllPoints()
     local x = SpellHistory.PADDING + (i - 1) * (SpellHistory.ICON_SIZE + SpellHistory.GAP)
     icon:SetPoint("LEFT", frame, "LEFT", x, 0)
-    icon.texture:SetTexture(tex)
+    icon.texture:SetTexture(entry.texture)
+    icon.rank:SetText(entry.rank or "")
     icon:Show()
   end
 
@@ -121,7 +135,7 @@ function SpellHistory.AddSpell(spellID, castGUID)
   local texture = getTexture(spellID)
   if not texture then return end
 
-  table.insert(spells, { spellID = spellID, texture = texture, time = GetTime() })
+  table.insert(spells, { spellID = spellID, texture = texture, rank = getRank(spellID), time = GetTime() })
   local maxSpells = ns.db and ns.db.spellHistoryCount or 5
   while #spells > maxSpells do
     table.remove(spells, 1)
@@ -150,6 +164,18 @@ local function setPreview(active)
     end
   end
 end
+
+-- /lt debug check (nach ein paar Zaubern): roher Untertext und gelesener Rang der letzten Zauber
+ns.DebugLog.AddCheck("487.spellHistory.rank", function()
+  local getSubtext = C_Spell and C_Spell.GetSpellSubtext or GetSpellSubtext
+  local list = {}
+  for _, entry in ipairs(spells) do
+    local ok, subtext = pcall(getSubtext, entry.spellID)
+    table.insert(list, { spellID = entry.spellID, subtext = ok and not ns.IsSecret(subtext) and subtext or nil,
+      rank = entry.rank })
+  end
+  return { hasSubtext = type(getSubtext) == "function", spells = list }
+end)
 
 ns.Frames.Register({
   id = "spellHistory",

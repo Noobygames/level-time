@@ -157,6 +157,8 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
+- **238. Zauberrang in der Zauberleiste, Datenteil (Roadmap 487)**: check `487.spellHistory.rank` nach ein paar Zaubern (roher Untertext je Zauber und gelesene Rangzahl; Era „Rang n“, Retail/Forever ohne Zahl = leer)
+- **239. Häutbare Leichen glitzern, Datenteil (Roadmap 479)**: check `479.lootSparkles.skinning` als Kürschner vor einer leergeplünderten, häutbaren Leiche (Tooltipzeilen mit „Häutbar“, `hasLoot`/`canLoot` nach dem Plündern, `skinningTrained`, `kind` = corpse); ob das Soft-Targeting solche Leichen überhaupt wählt, zeigt `name`/`dead`
 
 ---
 

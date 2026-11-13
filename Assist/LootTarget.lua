@@ -6,6 +6,9 @@
 --                                  die Textur liefert danach eine Datei-ID, einen Pfad oder einen Atlas-Namen
 --   UnitIsInInteractRange(unit)    nur WoW Forever (UnitDocumentation); fehlt = Entfernung unbekannt
 --   CanLootUnit(guid)              hasLoot, canLoot; alle Clients (warcraft.wiki.gg API_CanLootUnit)
+--   UNIT_SKINNABLE_LEATHER/_ROCK/_HERB  Zeile im Einheiten-Tooltip toter Gegner ("Häutbar", "Benötigt Bergbau",
+--                                  "Benötigt Kräutersammeln"; GlobalStrings live und classic_era); gelesen über
+--                                  C_TooltipInfo.GetUnit, in Era (ohne C_TooltipInfo) über einen versteckten Tooltip
 -- Alle Werte können geheim sein oder fehlen; das zählt als "unbekannt" und führt nie zu einem Glitzern.
 local _, ns = ...
 
@@ -14,7 +17,7 @@ ns.LootTarget = LootTarget
 
 LootTarget.UNIT = "softinteract"
 LootTarget.ORE, LootTarget.HERB, LootTarget.QUEST, LootTarget.CORPSE = "ore", "herb", "quest", "corpse"
-LootTarget.CHEST, LootTarget.BOBBER = "chest", "bobber"
+LootTarget.CHEST, LootTarget.BOBBER, LootTarget.SKIN = "chest", "bobber", "skin"
 LootTarget.READY, LootTarget.FAR, LootTarget.LOCKED = "ready", "far", "locked"
 
 local OTHER = "other"
@@ -276,19 +279,34 @@ ns.RegisterEvent("QUEST_LOG_UPDATE", LootTarget.ForgetObjectives)
 ---------------------------------------------------------------------------
 -- Berufe-Filter (Erz & Kräuter)
 ---------------------------------------------------------------------------
-local MINING_SPELLS = { 2575, 2576, 3564, 10248, 29354, 50310, 74517, 102161, 158754, 265837, 2656 }
-local HERB_SPELLS = { 2366, 2383 }
+-- je Beruf: Zauber (IsPlayerSpell), Fertigkeitslinie (GetProfessionInfo, Retail/Forever) und Namensteile der
+-- Fertigkeit (GetSkillLineInfo, Classic) in allen vier Sprachen
+local GATHERING = {
+  [LootTarget.ORE] = {
+    spells = { 2575, 2576, 3564, 10248, 29354, 50310, 74517, 102161, 158754, 265837, 2656 },
+    skillLine = 186, words = { "bergbau", "mining", "minage", "minería" },
+  },
+  [LootTarget.HERB] = { spells = { 2366, 2383 }, skillLine = 182, words = { "kräuter", "herb" } },
+  [LootTarget.SKIN] = {
+    spells = { 8613, 8617, 8618, 10768 }, skillLine = 393, words = { "kürschner", "skinning", "dépeçage", "desuello" },
+  },
+}
+
+local function hasWord(name, words)
+  if type(name) ~= "string" then return false end
+  name = name:lower()
+  for _, word in ipairs(words) do
+    if name:find(word, 1, true) then return true end
+  end
+  return false
+end
 
 function LootTarget.IsGatheringTrained(kind)
+  local gathering = GATHERING[kind]
+  if not gathering then return false end
   if type(IsPlayerSpell) == "function" then
-    if kind == LootTarget.ORE then
-      for _, id in ipairs(MINING_SPELLS) do
-        if IsPlayerSpell(id) == true then return true end
-      end
-    elseif kind == LootTarget.HERB then
-      for _, id in ipairs(HERB_SPELLS) do
-        if IsPlayerSpell(id) == true then return true end
-      end
+    for _, id in ipairs(gathering.spells) do
+      if IsPlayerSpell(id) == true then return true end
     end
   end
   if type(GetProfessions) == "function" and type(GetProfessionInfo) == "function" then
@@ -296,26 +314,13 @@ function LootTarget.IsGatheringTrained(kind)
     for _, prof in ipairs({ prof1, prof2 }) do
       if prof then
         local name, _, _, _, _, _, skillLine = GetProfessionInfo(prof)
-        if skillLine then
-          if kind == LootTarget.ORE and skillLine == 186 then return true end
-          if kind == LootTarget.HERB and skillLine == 182 then return true end
-        end
-        if type(name) == "string" then
-          local lower = name:lower()
-          if kind == LootTarget.ORE and (lower:find("bergbau", 1, true) or lower:find("mining", 1, true)) then return true end
-          if kind == LootTarget.HERB and (lower:find("kräuter", 1, true) or lower:find("herb", 1, true)) then return true end
-        end
+        if skillLine == gathering.skillLine or hasWord(name, gathering.words) then return true end
       end
     end
   end
   if type(GetNumSkillLines) == "function" and type(GetSkillLineInfo) == "function" then
     for i = 1, GetNumSkillLines() do
-      local skillName = GetSkillLineInfo(i)
-      if type(skillName) == "string" then
-        local lower = skillName:lower()
-        if kind == LootTarget.ORE and (lower:find("bergbau", 1, true) or lower:find("mining", 1, true)) then return true end
-        if kind == LootTarget.HERB and (lower:find("kräuter", 1, true) or lower:find("herb", 1, true)) then return true end
-      end
+      if hasWord(GetSkillLineInfo(i), gathering.words) then return true end
     end
   end
   return false
@@ -333,6 +338,48 @@ local function isCorpseWithLoot(unit)
   local ok, hasLoot, canLoot = pcall(CanLootUnit, guid)
   if not ok or ns.IsSecret(hasLoot) or ns.IsSecret(canLoot) then return false end
   return hasLoot == true and canLoot ~= false
+end
+
+-- Tooltip-Zeile toter Gegner -> Beruf, der sie nutzt (Ingenieurskunst, UNIT_SKINNABLE_BOLTS, bleibt außen vor)
+local GATHER_LINES = {
+  UNIT_SKINNABLE_LEATHER = LootTarget.SKIN, UNIT_SKINNABLE_ROCK = LootTarget.ORE, UNIT_SKINNABLE_HERB = LootTarget.HERB,
+}
+local SCAN_TOOLTIP = ns.GlobalName("LootScanTooltip")
+local scanner
+
+-- Linke Tooltip-Zeilen der Einheit (geheime übersprungen)
+local function tooltipTexts(unit)
+  local texts = {}
+  if C_TooltipInfo and C_TooltipInfo.GetUnit then
+    local data = read(C_TooltipInfo.GetUnit, unit)
+    for _, line in ipairs(type(data) == "table" and type(data.lines) == "table" and data.lines or {}) do
+      if not ns.IsSecret(line.leftText) then table.insert(texts, line.leftText) end
+    end
+    return texts
+  end
+  if not scanner then
+    scanner = CreateFrame("GameTooltip", SCAN_TOOLTIP, UIParent, "GameTooltipTemplate")
+  end
+  scanner:SetOwner(UIParent, "ANCHOR_NONE")
+  scanner:SetUnit(unit)
+  for index = 2, read(scanner.NumLines, scanner) or 0 do  -- Zeile 1 ist der Name
+    local fontString = _G[SCAN_TOOLTIP .. "TextLeft" .. index]
+    local text = fontString and read(fontString.GetText, fontString)
+    if text then table.insert(texts, text) end
+  end
+  scanner:Hide()
+  return texts
+end
+
+-- Leiche, die der Spieler häuten, abbauen oder sammeln kann (auch leergeplündert); Beruf muss erlernt sein
+local function isGatherableCorpse(unit)
+  if read(UnitIsDead, unit) ~= true then return false end
+  for _, text in ipairs(tooltipTexts(unit)) do
+    for global, kind in pairs(GATHER_LINES) do
+      if text == _G[global] then return LootTarget.IsGatheringTrained(kind) end
+    end
+  end
+  return false
 end
 
 -- Art (ORE, HERB, QUEST, CHEST, BOBBER, CORPSE) und ob das Spiel die Interaktion gerade verweigert; nil = nichts zum Glitzern
@@ -365,7 +412,7 @@ function LootTarget.Classify(unit)
 
     return nil, blocked
   end
-  if isCorpseWithLoot(unit) then return LootTarget.CORPSE, false end
+  if isCorpseWithLoot(unit) or isGatherableCorpse(unit) then return LootTarget.CORPSE, false end
   return nil, false
 end
 
@@ -396,5 +443,20 @@ ns.DebugLog.AddCheck("lootSparkles.target", function()
   info.cursorTexture, info.cursorAtlas = read(probe.GetTexture, probe), read(probe.GetAtlas, probe)
   info.kind, info.blocked = LootTarget.Classify(unit)
   info.plate = read(C_NamePlate.GetNamePlateForUnit, unit) ~= nil
+  return info
+end)
+
+-- /lt debug check (als Kürschner vor einer leergeplünderten, häutbaren Leiche): zeigt der Tooltip des
+-- Interaktionsziels die Kürschner-Zeile, was meldet CanLootUnit danach, ist Kürschnern erkannt?
+ns.DebugLog.AddCheck("479.lootSparkles.skinning", function()
+  local unit = LootTarget.UNIT
+  local info = { dead = read(UnitIsDead, unit), name = read(UnitName, unit), lines = tooltipTexts(unit),
+    skinningTrained = LootTarget.IsGatheringTrained(LootTarget.SKIN), skinnableText = UNIT_SKINNABLE_LEATHER }
+  local guid = read(UnitGUID, unit)
+  if guid and type(CanLootUnit) == "function" then
+    local ok, hasLoot, canLoot = pcall(CanLootUnit, guid)
+    info.hasLoot, info.canLoot = ok and not ns.IsSecret(hasLoot) and hasLoot, ok and not ns.IsSecret(canLoot) and canLoot
+  end
+  info.kind = LootTarget.Classify(unit)
   return info
 end)
