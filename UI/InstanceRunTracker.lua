@@ -1,4 +1,4 @@
--- Live-Tracker für Dungeon- und Raid-Runs (Roadmap 493, Einstellung showRunTracker, Standard aus): eine Karte
+-- Live-Tracker für Dungeon- und Raid-Runs (Roadmap 493, Einstellung showRunTracker, Standard an): eine Karte
 -- (Lib/Card.lua), nur solange die Uhr des Instanz-Laufs läuft. Titel = Instanz, große Zeile = Laufzeit und Abstand
 -- zur Bestzeit beim letzten Boss (Format.SplitDelta: Theme good = schneller, bad = langsamer), Text = Bossliste
 -- (Haken, Split und Abstand zum Split der Bestzeit; ">" = nächster Boss) und Kills, Tode, XP/h; Balken = besiegte
@@ -15,7 +15,7 @@ local InstanceRuns = ns.InstanceRuns
 
 ns.RegisterDefaults({
   settings = {
-    showRunTracker = false,
+    showRunTracker = true,
   },
 })
 
