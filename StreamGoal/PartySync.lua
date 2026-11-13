@@ -132,14 +132,6 @@ end
 ---------------------------------------------------------------------------
 -- Empfangen
 ---------------------------------------------------------------------------
-local function isOwn(sender)
-  if not sender then return true end
-  local name, realm = sender:match("^([^-]+)-?(.*)$")
-  if name ~= UnitName("player") then return false end
-  local ownRealm = (GetRealmName and GetRealmName() or ""):gsub("%s", "")
-  return realm == "" or realm == ownRealm
-end
-
 local function readable(value)
   return type(value) == "string" and not LT.IsSecret(value) and value or nil
 end
@@ -198,7 +190,7 @@ local HANDLERS = {
 
 LT.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
   prefix, text, sender = readable(prefix), readable(text), readable(sender)
-  if prefix ~= PartySync.PREFIX or not text or not sender or not enabled() or isOwn(sender) then return end
+  if prefix ~= PartySync.PREFIX or not text or not sender or not enabled() or LT.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):?(.*)$")
   local handler = kind and HANDLERS[kind]
   if not handler then return end

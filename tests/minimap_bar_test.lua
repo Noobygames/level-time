@@ -21,6 +21,11 @@ GameTimeFrame:SetSize(40, 40)
 LevelTimerMinimapButton = CreateFrame("Button", "LevelTimerMinimapButton", Minimap)
 LevelTimerMinimapButton:SetSize(31, 31)
 
+-- Vom Addon versteckter LibDBIcon-Knopf: wird nicht eingesammelt und nicht gezeigt
+local hiddenIcon = CreateFrame("Button", "LibDBIcon10_Hidden", Minimap)
+hiddenIcon:SetSize(31, 31)
+hiddenIcon:Hide()
+
 -- LibDBIcon-Knopf mit ausgeblendeter Deckkraft (showOnMouseover) und Unterframe auf niedriger Ebene
 details:SetAlpha(0)
 details:SetFrameLevel(8)
@@ -46,6 +51,8 @@ expect("LevelTimerMinimapButton ignoriert", MinimapBar.IsMinimapButton(LevelTime
 -- Einschalten
 addon.Set("minimapButtonBar", true)
 expect("2 Buttons gesammelt", #MinimapBar.Collected(), 2)
+expect("Versteckter Knopf bleibt an der Minimap", hiddenIcon:GetParent(), Minimap)
+expect("Versteckter Knopf bleibt versteckt", hiddenIcon:IsShown(), false)
 
 local bar = MinimapBar.BarFrame()
 expect("Details in Bar", details:GetParent(), bar)
@@ -71,6 +78,19 @@ expect("BarFrame gezeigt", bar:IsShown(), true)
 MinimapBar.Toggle()
 expect("zugeklappt", MinimapBar.IsExpanded(), false)
 expect("BarFrame wieder versteckt", bar:IsShown(), false)
+
+-- Im Kampf kein Neuanordnen beim Aufklappen; danach nur sichtbare Knöpfe anordnen
+local twoWide = bar:GetWidth()
+myAddon:Hide()
+wow.state.combatLockdown = true
+MinimapBar.Toggle()
+expect("Im Kampf Leiste unverändert", bar:GetWidth(), twoWide)
+MinimapBar.Toggle()
+wow.state.combatLockdown = false
+MinimapBar.Toggle()
+expectTrue("Versteckter Knopf belegt keinen Platz", bar:GetWidth() < twoWide)
+MinimapBar.Toggle()
+myAddon:Show()
 
 -- Ausschalten: alles zurücksetzen
 addon.Set("minimapButtonBar", false)

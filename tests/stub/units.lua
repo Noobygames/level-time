@@ -59,6 +59,8 @@ function UnitExists(unit) return unit == "player" or state.units[unit] ~= nil en
 function UnitIsPlayer(unit) return unit == "player" or (state.units[unit] and state.units[unit].isPlayer) or false end
 function UnitClassification(unit) return state.units[unit] and state.units[unit].classification or "normal" end
 function GetRealmName() return state.realm end
+-- Wie der Client: Realm ohne Leerzeichen und Bindestriche ("Azjol-Nerub" -> "AzjolNerub")
+function GetNormalizedRealmName() return state.realm and (state.realm:gsub("[%s%-]", "")) end
 -- Andere Einheiten: units[unit].class, sonst die Klasse des Spielers
 function UnitClass(unit)
   local other = unit and unit ~= "player" and state.units[unit]

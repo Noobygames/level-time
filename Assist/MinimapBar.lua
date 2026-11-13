@@ -141,9 +141,14 @@ local function prepareButton(child)
   hookButton(child)
 end
 
+-- Nur sichtbare Knöpfe anordnen: vom Addon versteckte (z.B. LibDBIcon "hide") bleiben versteckt und ohne Lücke
 local function layoutButtons()
   if not barFrame then return end
-  local count = #collectedButtons
+  local shown = {}
+  for _, child in ipairs(collectedButtons) do
+    if child:IsShown() then table.insert(shown, child) end
+  end
+  local count = #shown
   if count == 0 then
     barFrame:SetSize(BUTTON_SIZE + PADDING * 2, BUTTON_SIZE + PADDING * 2)
     return
@@ -154,7 +159,7 @@ local function layoutButtons()
   local barHeight = PADDING * 2 + rows * BUTTON_SIZE + (rows - 1) * GAP
   barFrame:SetSize(barWidth, barHeight)
 
-  for i, child in ipairs(collectedButtons) do
+  for i, child in ipairs(shown) do
     child:SetParent(barFrame)
     child:ClearAllPoints()
     local col = (i - 1) % MAX_PER_ROW
@@ -166,7 +171,6 @@ local function layoutButtons()
     if child.SetScale then
       child:SetScale(1)
     end
-    child:Show()
   end
 end
 
@@ -309,7 +313,8 @@ local function doCollect()
   hookLibDBIcon()
   local candidates = MinimapBar.Scan()
   for _, child in ipairs(candidates) do
-    if not originalStates[child] then
+    -- Versteckte Knöpfe (vom Addon oder Spieler ausgeblendet) nicht einsammeln
+    if not originalStates[child] and child:IsShown() then
       local points = {}
       local numPoints = type(child.GetNumPoints) == "function" and child:GetNumPoints() or 0
       if numPoints > 0 then
@@ -411,7 +416,7 @@ function MinimapBar.SetExpanded(expanded)
   isExpanded = expanded and true or false
   createFrames()
   if isExpanded and ns.db and ns.db.minimapButtonBar then
-    layoutButtons()
+    if not inCombat() then layoutButtons() end
     barFrame:Show()
   else
     if barFrame then barFrame:Hide() end
