@@ -186,6 +186,11 @@ local function timePart(counter)
   return timeShare(function(scope) return ns.TimeBreakdown.GetSeconds(scope, counter) end)
 end
 
+-- Aktive Zeit ohne den Buff (Roadmap 485)
+local function withoutBuff(counter)
+  return timeShare(function(scope) return ns.TimeBreakdown.WithoutBuff(scope, counter) end)
+end
+
 -- Noch verfügbare Erholt-XP, Anteil am aktuellen Level (bis 150 %); unabhängig vom Bereich
 local function restedLeft()
   if not Experience.IsLeveling() then return NO_VALUE end
@@ -351,6 +356,15 @@ ns.STAT_LINES = {
     { label = "ROW_TIME_AFK", value = timePart(Stats.AFK_SECONDS) },
     { label = "ROW_TIME_IDLE", value = timePart(Stats.IDLE_SECONDS) },
     { label = "ROW_TIME_REST", value = timeShare(function(scope) return ns.TimeBreakdown.GetRestSeconds(scope) end) },
+  } },
+  { setting = "showWellFedTime", group = "STAT_GROUP_TIME_MONEY", label = "STAT_WELL_FED_TIME", rows = {
+    { label = "ROW_WELL_FED", value = timePart(Stats.WELL_FED_SECONDS) },
+    { label = "ROW_NOT_WELL_FED", value = withoutBuff(Stats.WELL_FED_SECONDS) },
+  } },
+  { setting = "showWellRestedTime", group = "STAT_GROUP_TIME_MONEY", label = "STAT_WELL_RESTED_TIME",
+    available = ns.Client.IsForever, rows = {
+    { label = "ROW_WELL_RESTED", value = timePart(Stats.WELL_RESTED_SECONDS) },
+    { label = "ROW_NOT_WELL_RESTED", value = withoutBuff(Stats.WELL_RESTED_SECONDS) },
   } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
     rows = { globalRow("ROW_INSTANCE_RUN", instanceRun) } },
