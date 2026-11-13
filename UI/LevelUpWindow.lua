@@ -455,11 +455,11 @@ end
 -- erscheint und die neue Stufe im Titel trägt. Geschlossen wird mit Blizzards eigener Funktion (wie der Rechtsklick
 -- auf den Toast); Alpha und Sichtbarkeit des Frames bleiben unangetastet.
 ---------------------------------------------------------------------------
-local TOAST_MAX_AGE = 5  -- Sekunden nach PLAYER_LEVEL_UP, in denen ein Toast als Level-Up-Banner gilt
+local TOAST_MAX_AGE = 5  -- Sekunden nach dem Level-Up, in denen ein Toast als Level-Up-Banner gilt
 local lastLevelUp        -- { level, time }
 local toastHooked = false
 
-ns.RegisterEvent("PLAYER_LEVEL_UP", function(level)
+ns.OnLevelStarted(function(level)
   lastLevelUp = { level = level, time = GetTime() }
 end)
 

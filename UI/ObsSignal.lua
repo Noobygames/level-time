@@ -30,6 +30,9 @@ frame:Hide()
 ObsSignal.frame = frame
 
 local texture = frame:CreateTexture(nil, "BACKGROUND")
+-- Eigener Kind-Frame nur für den Countdown: OnUpdate läuft nur, solange ein Signal aktiv ist
+local timer = CreateFrame("Frame", nil, frame)
+timer:Hide()
 texture:SetAllPoints()
 texture:SetColorTexture(unpack(COLORS.idle))
 
@@ -44,21 +47,19 @@ end
 local function resetSignal()
   currentSignal = nil
   signalRemaining = 0
-  frame:SetScript("OnUpdate", nil)
+  timer:Hide()
   setSignalColor(COLORS.idle)
   if not ns.db or not ns.db.obsSignal then
     if not previewActive then frame:Hide() end
   end
 end
 
-frame:SetScript("OnUpdate", nil)
-
-local function onUpdate(_, elapsed)
+ns.SetUpdateScript(timer, "ObsSignal", function(_, elapsed)
   signalRemaining = signalRemaining - elapsed
   if signalRemaining <= 0 then
     resetSignal()
   end
-end
+end)
 
 function ObsSignal.Trigger(kind)
   if not (ns.db and ns.db.obsSignal) and not previewActive then return end
@@ -68,7 +69,7 @@ function ObsSignal.Trigger(kind)
   signalRemaining = ObsSignal.DURATION
   setSignalColor(color)
   frame:Show()
-  frame:SetScript("OnUpdate", onUpdate)
+  timer:Show()
 end
 
 function ObsSignal.CurrentSignal()

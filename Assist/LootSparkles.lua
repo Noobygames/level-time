@@ -33,7 +33,7 @@ ns.Database.RegisterDefaults({
   settings = {
     lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
     lootSparkleCorpses = false, lootSparkleScale = 1,
-    lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
+    lootSparkleCategoryColors = true,
     lootSparkleChests = false, lootSparkleBobber = false, lootSparkleHideUntrained = false,
     lootSparkleStyle = ns.LootSparkleStyles.DEFAULT,
   },

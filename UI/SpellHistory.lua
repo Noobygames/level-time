@@ -162,7 +162,7 @@ ns.Frames.Register({
 
 -- Verblassen / Entfernen alter Zauber
 local sinceTick = 0
-frame:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(frame, "SpellHistory", function(_, elapsed)
   sinceTick = sinceTick + elapsed
   if sinceTick < 0.2 then return end
   sinceTick = 0

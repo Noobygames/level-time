@@ -103,7 +103,6 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
   if LootSparkles.CanSoftTarget() then
     addToggles({
       toggle("LOOT_SPARKLE_CATEGORY_COLORS", "lootSparkleCategoryColors"),
-      advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
       advanced(toggle("LOOT_SPARKLE_HIDE_UNTRAINED", "lootSparkleHideUntrained", LootSparkles.CanSoftTarget)),
     })
     -- Auswahlliste statt Reiter: viele Stile passen nicht in eine Reiterzeile; Überschriften je Gruppe (Formen, Klassisch)
