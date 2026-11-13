@@ -103,7 +103,7 @@ local function onUnitTooltip(tooltip)
   if ns.db.tooltipKillsToLevel and not (readable(isPlayer) and isPlayer) then
     local text, color = Tooltip.KillsLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
-    if ns.IsDebugging() then
+    if ns.DebugActive() then
       local name = UnitName(unit)
       ns.Debug("tooltip", "kills line for %s (level %s): %s", name, UnitLevel(unit), text)
     end

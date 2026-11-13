@@ -20,10 +20,6 @@ function TickCache.Run(fn)
   active = false
 end
 
-function TickCache.IsActive()
-  return active
-end
-
 -- fn(argument) mit höchstens einem Argument; im Takt je Argument einmal berechnet
 function TickCache.Memo(fn)
   local values, valuesStamp = {}, 0

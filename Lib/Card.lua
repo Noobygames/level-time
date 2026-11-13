@@ -135,7 +135,7 @@ function Card.Create(name)
       local texture = spec.texture or iconTexture(spec.icon)
       icon:SetTexture(texture)
       -- Fehlt die Textur im Client, zeigt er ein grünes Quadrat; das Log zeigt, was aufgelöst wurde (Roadmap 237, 244)
-      if ns.IsDebugging() then
+      if ns.DebugActive() then
         ns.Debug("card", "icon %s -> %s, file %s", spec.texture or spec.icon, texture,
           icon.GetTextureFileID and icon:GetTextureFileID())
       end
