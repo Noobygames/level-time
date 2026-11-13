@@ -55,7 +55,8 @@ function time(dateTable)
   return state.clock
 end
 function UnitName(unit)
-  if unit == nil or unit == "player" then return state.name end
+  -- surname: Nachname wie in WoW Forever (zweiter Rückgabewert)
+  if unit == nil or unit == "player" then return state.name, state.surname end
   return state.units[unit] and state.units[unit].name
 end
 function UnitExists(unit) return unit == "player" or state.units[unit] ~= nil end

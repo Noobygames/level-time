@@ -157,6 +157,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
 - **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
+- **238. Twink-Knopf mit Vor- und Nachname (Roadmap 480, WoW Forever)**: check `450.mail` (`unitName` = Rückgaben von `UnitName("player")`, gespeicherter `surname`)
 
 ---
 
@@ -3435,3 +3436,17 @@ Einstellungen > Chat & Erinnerungen, je Unterseite ein Knopf „Testen“ (unabh
 - Warnungen: Atem, Taschen, Haltbarkeit, Munition (Jäger), Instanzlimit, Aggro, Hardcore-Schutz (Wildnis-Logout, Sturz), Notfall-Markierung (einige Sekunden) wie echt
 - Gruppe: alle Ansagen und der Instanzbericht nur im eigenen Chat mit „[Vorschau]“; in einer Gruppe prüfen, dass nichts im Gruppenchat erscheint
 - Texte in allen vier Sprachen passen in die Knöpfe
+
+### 238. Twink-Knopf im Postfach mit Vor- und Nachname (Roadmap 480, WoW Forever)
+
+- [ ] geprüft
+
+Datenteil per Debug-Log: check `450.mail` (`unitName` muss Vorname und Nachname getrennt zeigen). Jeden Twink einmal einloggen
+(der Nachname wird beim Login gespeichert), dann am Briefkasten „Post-Helfer“ an, Senden-Reiter, Twink-Knopf klicken.
+
+- Empfängerfeld zeigt „Vorname Nachname“, Post kommt beim Twink an
+
+```text
+Client:
+Empfänger richtig (ja/nein):
+```

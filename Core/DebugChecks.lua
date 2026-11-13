@@ -1079,6 +1079,9 @@ check("450.mail", function()
     isOpening = ns.Mail and ns.Mail.IsOpening and ns.Mail.IsOpening() or false,
     openAllButtonShown = _G.LevelTimerMailOpenAllButton and _G.LevelTimerMailOpenAllButton:IsShown() or false,
     altButtonShown = _G.LevelTimerMailAltButton and _G.LevelTimerMailAltButton:IsShown() or false,
+    -- 480: UnitName-Rückgaben und gespeicherter Nachname (WoW Forever: Vor- und Nachname)
+    unitName = { UnitName("player") },
+    surname = ns.character and ns.character.surname,
   }
 end)
 
