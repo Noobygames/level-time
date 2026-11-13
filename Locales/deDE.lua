@@ -1929,4 +1929,8 @@ ns.locales.deDE = {
   NOTIFICATION_TEST_WARNINGS = "Testen",
   NOTIFICATION_TEST_WARNINGS_TIP = "Zeigt die Warnungen wie echt ausgelöst, jeder Klick die nächste: Atem, Taschen, Haltbarkeit, Munition, Instanzlimit, Aggro, Hardcore-Schutz und Notfall-Markierung. Unabhängig von den Schaltern.",
   PREVIEW_TAG = "|cff888888[Vorschau]|r",
+  SWING_TIMER = "Schwungbalken",
+  SWING_TIMER_PREVIEW = "Vorschau Schwungbalken",
+  SWING_TIMER_PREVIEW_TIP = "Zeigt den Schwungbalken für ein paar Sekunden, auch wenn er gerade aus ist.",
+  SWING_TIMER_TIP = "Zeigt eine verschiebbare Leiste mit der Zeit bis zum nächsten Schlag für Haupthand, Nebenhand und Fernkampf (Automatischer Schuss, Zauberstab).",
 }

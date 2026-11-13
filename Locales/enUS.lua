@@ -1929,4 +1929,8 @@ ns.locales.enUS = {
   NOTIFICATION_TEST_WARNINGS = "Test",
   NOTIFICATION_TEST_WARNINGS_TIP = "Shows the warnings as if they had triggered for real, the next one on each click: breath, bags, durability, ammo, instance limit, aggro, hardcore safeguards and emergency highlight. Independent of the toggles.",
   PREVIEW_TAG = "|cff888888[Preview]|r",
+  SWING_TIMER = "Swing timer",
+  SWING_TIMER_PREVIEW = "Preview swing timer",
+  SWING_TIMER_PREVIEW_TIP = "Shows the swing timer for a few seconds, even if it is currently off.",
+  SWING_TIMER_TIP = "Shows a movable bar with the time until your next swing for main hand, off hand and ranged (Auto Shot, wand).",
 }

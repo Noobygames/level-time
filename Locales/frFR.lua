@@ -1929,4 +1929,8 @@ ns.locales.frFR = {
   NOTIFICATION_TEST_WARNINGS = "Tester",
   NOTIFICATION_TEST_WARNINGS_TIP = "Affiche les alertes comme si elles s'étaient vraiment déclenchées, la suivante à chaque clic : souffle, sacs, durabilité, munitions, limite d'instances, aggro, protections hardcore et surbrillance d'urgence. Indépendant des options.",
   PREVIEW_TAG = "|cff888888[Aperçu]|r",
+  SWING_TIMER = "Minuteur de coups",
+  SWING_TIMER_PREVIEW = "Aperçu du minuteur de coups",
+  SWING_TIMER_PREVIEW_TIP = "Affiche le minuteur de coups pendant quelques secondes, même s'il est désactivé.",
+  SWING_TIMER_TIP = "Affiche une barre déplaçable avec le temps jusqu'au prochain coup pour la main droite, la main gauche et le combat à distance (Tir automatique, baguette).",
 }

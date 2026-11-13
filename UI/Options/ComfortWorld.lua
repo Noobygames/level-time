@@ -18,8 +18,10 @@ addToggles({
   toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
   toggle("DRUID_MANA_BAR", "druidManaBar", ns.DruidManaBar.IsAvailable),
   toggle("COMFORT_TARGET_RANGE", "showTargetRange"),
+  toggle("SWING_TIMER", "swingTimer", ns.SwingTimer.IsAvailable),
 })
 O.addFramePreview("TARGET_RANGE_PREVIEW", "targetRange")
+if ns.SwingTimer.IsAvailable() then O.addFramePreview("SWING_TIMER_PREVIEW", "swingTimer") end
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
   for _, value in ipairs(ns.PlayerChain.ORDER) do

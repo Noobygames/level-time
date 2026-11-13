@@ -32,7 +32,6 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 ### v2.32: „1 Addon, das viele ablöst“ (Konkurrenzanalyse, Threat & Lueur-Sparkles)
 
-- [ ] 452. **Nahkampf- & Fernkampf-Schwungbalken (WeaponSwingTimer Light)** (M): Kompakte Swing-Timer-Leiste für Haupthand, Nebenhand sowie Zauberstab/Automatischen Schuss in Classic Era und Forever (`Assist/SwingTimer.lua` über `UnitAttackSpeed` und Zauber-/Kampf-Events; ersetzt WeaponSwingTimer).
 
 ### v2.22: Speedrun (Priorität 3)
 

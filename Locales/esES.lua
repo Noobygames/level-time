@@ -1929,4 +1929,8 @@ ns.locales.esES = {
   NOTIFICATION_TEST_WARNINGS = "Probar",
   NOTIFICATION_TEST_WARNINGS_TIP = "Muestra las advertencias como si se hubieran activado de verdad, la siguiente en cada clic: aliento, bolsas, durabilidad, munición, límite de instancias, aggro, protecciones hardcore y resaltado de emergencia. Independiente de las opciones.",
   PREVIEW_TAG = "|cff888888[Vista previa]|r",
+  SWING_TIMER = "Temporizador de golpes",
+  SWING_TIMER_PREVIEW = "Vista previa del temporizador",
+  SWING_TIMER_PREVIEW_TIP = "Muestra el temporizador de golpes durante unos segundos, aunque esté desactivado.",
+  SWING_TIMER_TIP = "Muestra una barra movible con el tiempo hasta tu siguiente golpe con la mano principal, la secundaria y a distancia (Disparo automático, varita).",
 }

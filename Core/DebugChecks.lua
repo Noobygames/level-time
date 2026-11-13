@@ -1100,3 +1100,15 @@ check("character.guid", function()
   local stored = ns.character and ns.character.guid
   return { current = guid, stored = stored, same = stored == guid }
 end)
+
+-- 452: Liefert das Kampflog eigene Schläge (SWING_*)? Sonst nutzt der Schwungbalken den Ersatztakt ab Kampfbeginn
+check("452.swing.combatlog", function()
+  local status = ns.SwingTimer.Status()
+  local mainSpeed, offSpeed = UnitAttackSpeed and UnitAttackSpeed("player")
+  local rangedSpeed = UnitRangedDamage and UnitRangedDamage("player")
+  local function plain(value) return ns.IsSecret(value) and "<secret>" or value end
+  return { available = ns.SwingTimer.IsAvailable(), enabled = ns.db.swingTimer,
+    combatLogApi = (C_CombatLog and C_CombatLog.GetCurrentEventInfo) ~= nil, combatLogSeen = status.combatLogSeen,
+    autoAttacking = status.autoAttacking, mainSpeed = plain(mainSpeed), offSpeed = plain(offSpeed),
+    rangedSpeed = plain(rangedSpeed) }
+end)

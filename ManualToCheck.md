@@ -156,6 +156,7 @@ Aufrufstapel. „Aktion blockiert“ (Taint) steht als event `ADDON_ACTION_BLOCK
 - **214. Momente, Datenteil (Roadmap 439)**: check `439.goals.moments` (verfügbare Modi, `IsSwimming`/`IsFalling` lesbar, `C_PlayerInfo.GetGlidingInfo`, `C_ChatInfo.PerformEmote`/`DoEmote`, `C_Spell.IsSpellHelpful`, `C_MerchantFrame.GetBuybackItemID`/`GetBuybackItemLink`/`BuybackItem`, Zahl gemerkter Quest-Belohnungen), debug `goal:moment` (rare seen …, fell … s, emote … at … (unit …), helpful spell … on … : heal/res, quest reward …, sold … (quest reward true/false), bought back slot …, <Modus> +1)
 - **236. Minimap-Knopfleiste, Knöpfe nicht klickbar/ausgegraut (Roadmap 451)**: check `451.minimapBar.buttons` (je Knopf Deckkraft, Maus, Ebenen, Unterframes, Fade-Animation)
 - **Charakter-GUID nach Fraktionswechsel/Umzug**: check `character.guid` (aktuelle gegen gespeicherte GUID; `same` muss nach dem Wechsel `true` sein, sonst beginnen die Daten des Charakters neu)
+- **Schwungbalken, Kampflog in Forever (Roadmap 452)**: check `452.swing.combatlog` nach ein paar Nahkampfschlägen mit eingeschaltetem Schwungbalken (`combatLogSeen` = true heißt: eigene SWING_*-Events kommen an; false in Forever = Ersatztakt ab Kampfbeginn), debug `swing`
 
 ---
 

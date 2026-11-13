@@ -44,6 +44,9 @@ function UnitGUID(unit)
   return state.guid
 end
 function GetZoneText() return state.zone end
+-- Angriffstempo: state.attackSpeed = { Haupthand, Nebenhand }, state.rangedSpeed = Sekunden
+function UnitAttackSpeed() local speed = state.attackSpeed or { 2 } return speed[1], speed[2] end
+function UnitRangedDamage() return state.rangedSpeed or 0, 0, 0, 0, 0, 100 end
 -- Nur die C_CombatLog-Variante: das globale CombatLogGetCurrentEventInfo ist im Client ein
 -- Kompatibilitäts-Alias, der ohne CVar loadDeprecationFallbacks fehlt
 C_CombatLog = { GetCurrentEventInfo = function() return unpack(state.combatLog) end }
