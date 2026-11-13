@@ -77,6 +77,12 @@ addSlider({
   set = function(value) ns.SetDeferred("splitTolerancePercent", value) end,
   format = function(value) return value == 0 and L.TOLERANCE_OFF or percent(value) end,
 })
+-- Dungeon- und Raid-Runs: Live-Tracker in der Instanz und das Run-Fenster
+addSubPage("OPTIONS_PAGE_DUNGEON_RUNS")
+addToggles({ toggle("DUNGEON_RUN_TRACKER_TOGGLE", "showRunTracker") })
+addFrameScaleSlider("DUNGEON_RUN_TRACKER_SCALE", "dungeonRun", function(db) return db.showRunTracker end)
+O.addFramePreview("DUNGEON_RUN_TRACKER_PREVIEW", "dungeonRun")
+O.addButton("DUNGEON_RUNS_OPEN", function() ns.InstanceRunWindow.Show() end)
 addSubPage("OPTIONS_PAGE_RECORDS")
 addSection("SECTION_WORLD_RECORDS")
 local recordToggles = {

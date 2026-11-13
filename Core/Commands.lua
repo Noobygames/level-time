@@ -93,10 +93,12 @@ local commands = {
       ns.Print(L.PROFILE_UNKNOWN)
     end
   end,
-  -- /lt runs import | backup | verify | lss: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen,
-  -- Level-Splits als LiveSplit-Datei
+  -- /lt runs: Fenster Dungeon- und Raid-Runs; import | backup | verify | lss: Läufe einfügen, alle als Text sichern,
+  -- Prüfcodes nachrechnen, Level-Splits als LiveSplit-Datei
   runs = function(argument)
-    if argument == "import" then
+    if argument == "" then
+      ns.InstanceRunWindow.Toggle()
+    elseif argument == "import" then
       ns.ShowRunImport()
     elseif argument == "backup" then
       ns.Export.Show(L.RUNS_BACKUP, ns.Runs.ExportAll())

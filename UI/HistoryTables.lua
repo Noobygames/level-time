@@ -532,8 +532,17 @@ addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
 addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
 addJournalTable("HISTORY_TAB_LOOT", LOOT_COLUMNS, "lootLog", itemLink)
 addJournalTable("HISTORY_TAB_ROLLS", ROLL_COLUMNS, "rollLog", itemLink, "HISTORY_ROLLS_EMPTY")
-addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells, nil, nil,
-  ns.InstanceBosses.TooltipLines)
+-- Instanzen: Zeilenklick und Knopf öffnen das Fenster Dungeon- und Raid-Runs (UI/InstanceRunWindow.lua)
+ns.HistoryWindow.AddView(TableView.Create({
+  tab = "HISTORY_TAB_INSTANCES", group = JOURNAL, columns = INSTANCE_COLUMNS, records = History.GetInstanceLog,
+  footer = summaryCells, rowTooltip = ns.InstanceBosses.TooltipLines,
+  onRowClick = function(record)
+    ns.InstanceRunWindow.Show(ns.HistoryWindow.SelectedCharacter(), record.time)
+  end,
+  buttons = { { label = "DUNGEON_RUNS_OPEN", onClick = function()
+    ns.InstanceRunWindow.Show(ns.HistoryWindow.SelectedCharacter())
+  end } },
+}))
 -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
 if ns.NearDeath.IsAvailable() then
   addJournalTable("HISTORY_TAB_NEAR_DEATHS", NEAR_DEATH_COLUMNS, "nearDeathLog")

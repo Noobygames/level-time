@@ -3445,3 +3445,15 @@ Einstellungen > Chat & Erinnerungen, je Unterseite ein Knopf „Testen“ (unabh
 - Warnungen: Atem, Taschen, Haltbarkeit, Munition (Jäger), Instanzlimit, Aggro, Hardcore-Schutz (Wildnis-Logout, Sturz), Notfall-Markierung (einige Sekunden) wie echt
 - Gruppe: alle Ansagen und der Instanzbericht nur im eigenen Chat mit „[Vorschau]“; in einer Gruppe prüfen, dass nichts im Gruppenchat erscheint
 - Texte in allen vier Sprachen passen in die Knöpfe
+
+### 248. Dungeon- und Raid-Runs: Live-Tracker und Run-Fenster (Roadmap 493)
+
+- [ ] geprüft
+
+Einstellungen > Speedrun > Dungeon-Runs: „Live-Tracker in Instanzen“ an, einen Dungeon zweimal laufen.
+
+- Tracker nur in der Instanz (auch als Geist auf dem Rückweg), Bosse mit Haken, Split und blau/orange Abstand zur Bestzeit, „>“ am nächsten Boss, Balken wächst je Boss; Vorschau und Edit-Modus zeigen den Beispiel-Lauf
+- Endboss im schnelleren Lauf: Chat „... abgeschlossen ... (neue Bestzeit!)“
+- `/lt runs`, Knopf und Zeilenklick in Verlauf > Instanzen öffnen das Fenster; Filter, Vergleich Bestzeit/Letzter Run, Kacheln (Geld, Quests, Gruppe), XP je Boss, Beute und Würfe stimmen; Texte passen in allen vier Sprachen
+- Retail: Raid ohne Bossliste zeigt die besiegten Bosse in Kill-Reihenfolge; Zonenname = Instanzname (sonst fehlt eigene Beute)
+- WoW Forever Versunkene Stadt: Urtümlicher Elementar zählt nicht zum Fortschritt („5/5“, Kachel „+1 Rar“); ID des zweiten Rar-Bosses notieren und in `rareBosses` nachtragen

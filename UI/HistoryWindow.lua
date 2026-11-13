@@ -349,6 +349,11 @@ function HistoryWindow.ShowView(tabKey)
 end
 
 -- Gilt die gezeigte Ansicht für alle Charaktere (Charakter-Auswahl aus)
+-- Gewählter Charakter (Standard: eingeloggter)
+function HistoryWindow.SelectedCharacter()
+  return selectedCharacter or ns.characterKey
+end
+
 function HistoryWindow.IsAllCharacters()
   return selectedEntry ~= nil and selectedEntry.selected.allCharacters == true
 end

@@ -1,11 +1,15 @@
 -- Boss-Kills je Instanz-Lauf (Roadmap 483): run.bosses = besiegte encounterIDs in Kill-Reihenfolge als Text
--- ("2741,2747"; so passt es als ein Feld in den kompakten Journal-Speicher). Quelle ENCOUNTER_END(encounterID,
+-- ("2741,2747"; so passt es als ein Feld in den kompakten Journal-Speicher), run.splits = Laufzeit in ganzen Sekunden je
+-- Kill in derselben Reihenfolge ("192,305", Roadmap 493; Auswertung in InstanceRuns.lua). Quelle ENCOUNTER_END(encounterID,
 -- encounterName, difficultyID, groupSize, success) mit success = 1; Fallback (falls ein Client das Event bei einem
 -- Boss nicht schickt): Kampflog UNIT_DIED eines Gegners, dessen Name ein Boss der Instanz ist (Encounter- und
 -- NPC-Name sind bei Classic-Dungeonbossen gleich; geheime Namen fallen weg).
 -- Bossliste je Karte und Schwierigkeit aus ns.BossData (Assist/BossData/<flavor>.lua, DB2 DungeonEncounter),
--- Reihenfolge = OrderIndex, der letzte gilt als Endboss: fällt er, meldet der Chat "Dungeon abgeschlossen".
--- Boss-Level (nur Forever) aus ns.InstanceGuide.bossLevels (Assist/InstanceData/forever_guide.lua).
+-- Reihenfolge = OrderIndex, der letzte gilt als Endboss: fällt er, meldet der Chat "Dungeon abgeschlossen" (mit
+-- "neue Bestzeit", wenn er schneller fiel als im besten abgeschlossenen Lauf derselben Instanz).
+-- Boss-Level und optionale Rar-Bosse (nur Forever) aus ns.InstanceGuide.bossLevels/rareBosses
+-- (Assist/InstanceData/forever_guide.lua): Rar-Bosse zählen nicht zum Fortschritt ("5/5", eigene Zahl über
+-- RaresKilled) und nie als Endboss (Endboss = letzter Boss der Liste, der kein Rar-Boss ist).
 -- shortcut: Retail hat keine Bossliste (nur die Zahl der Kills), bei Bedarf über das Encounter-Journal nachrüsten.
 local _, ns = ...
 local L = ns.L
@@ -53,6 +57,30 @@ function InstanceBosses.Level(encounterID)
   return ns.InstanceGuide and ns.InstanceGuide.bossLevels[encounterID]
 end
 
+-- Optionaler Rar-Boss (zählt nicht zum Fortschritt, nie Endboss)?
+function InstanceBosses.IsRare(encounterID)
+  local rares = ns.InstanceGuide and ns.InstanceGuide.rareBosses
+  return rares ~= nil and rares[encounterID] == true
+end
+
+-- Endboss einer Bossliste: der letzte, der kein Rar-Boss ist (nil ohne Liste)
+function InstanceBosses.EndBoss(list)
+  if not list then return nil end
+  for index = #list, 1, -1 do
+    if not InstanceBosses.IsRare(list[index]) then return list[index] end
+  end
+  return nil
+end
+
+-- Zahl der besiegten Rar-Bosse eines Laufs oder Journal-Eintrags
+function InstanceBosses.RaresKilled(record)
+  local count = 0
+  for id in pairs(InstanceBosses.Killed(record)) do
+    if InstanceBosses.IsRare(id) then count = count + 1 end
+  end
+  return count
+end
+
 -- Letzte Boss-Meldung (für die Fehlersuche): { source = "encounter"|"died", id, name, success, counted } oder nil
 function InstanceBosses.LastEvent()
   return lastEvent
@@ -68,16 +96,27 @@ function InstanceBosses.Killed(record)
   return killed, count
 end
 
--- "3/7" (mit Bossliste), "3" (ohne Liste) oder nil, wenn es weder Liste noch Kill gibt
-function InstanceBosses.ProgressText(record)
-  local killed, count = InstanceBosses.Killed(record)
+-- Besiegte und nötige Bosse der Bossliste ohne Rar-Bosse; nil ohne Liste
+function InstanceBosses.Progress(record)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
-  if not list then return count > 0 and tostring(count) or nil end
-  local done = 0
+  if not list then return nil end
+  local killed = InstanceBosses.Killed(record)
+  local done, required = 0, 0
   for _, id in ipairs(list) do
-    if killed[id] then done = done + 1 end
+    if not InstanceBosses.IsRare(id) then
+      required = required + 1
+      if killed[id] then done = done + 1 end
+    end
   end
-  return done .. "/" .. #list
+  return done, required
+end
+
+-- "3/7" (mit Bossliste, ohne Rar-Bosse), "3" (ohne Liste) oder nil, wenn es weder Liste noch Kill gibt
+function InstanceBosses.ProgressText(record)
+  local done, required = InstanceBosses.Progress(record)
+  if done then return done .. "/" .. required end
+  local _, count = InstanceBosses.Killed(record)
+  return count > 0 and tostring(count) or nil
 end
 
 -- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon, Name und Level, wo bekannt;
@@ -102,12 +141,16 @@ local function recordKill(id, source)
   if not run or not ns.Instances.IsRunning() then return false end
   if InstanceBosses.Killed(run)[id] then return false end
   run.bosses = run.bosses and (run.bosses .. SEPARATOR .. id) or tostring(id)
+  local split = tostring(math.floor(ns.Instances.GetRunSeconds(run)))
+  run.splits = run.splits and (run.splits .. SEPARATOR .. split) or split
+  ns.Instances.NoteGroupSize(run)
   ns.Debug("instances", "boss killed (%s): %s, bosses %s", source, id, run.bosses)
   local list = InstanceBosses.List(run.mapID, run.difficultyID)
-  if list and list[#list] == id then
+  if list and InstanceBosses.EndBoss(list) == id then
     ns.Debug("instances", "dungeon completed: %s, bosses %s", run.name, InstanceBosses.ProgressText(run))
-    ns.Print(string.format(L.INSTANCE_COMPLETED, run.name or "?",
-      ns.Format.Duration(ns.Instances.GetRunSeconds(run)), InstanceBosses.ProgressText(run)))
+    local text = string.format(L.INSTANCE_COMPLETED, run.name or "?",
+      ns.Format.Duration(ns.Instances.GetRunSeconds(run)), InstanceBosses.ProgressText(run))
+    ns.Print(ns.InstanceRuns.IsNewBest(run) and (text .. " " .. L.DUNGEON_RUN_NEW_BEST) or text)
   end
   return true
 end

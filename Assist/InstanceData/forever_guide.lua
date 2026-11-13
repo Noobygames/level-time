@@ -5,10 +5,11 @@
 --   levels     = { [Karten-ID] = { MinLevel, MaxLevel } },
 --   entrances  = { [Karten-ID] = { { uiMapID, x, y }, ... } }       (x, y 0-1 auf der Zonenkarte),
 --   bossLevels = { [encounterID] = Level },
+--   rareBosses = { [encounterID] = true }   optionale Rar-Bosse der Bosslisten (nicht nötig für "abgeschlossen"),
 --   quests     = { [Karten-ID] = { { questID, Questlevel, Mindestlevel, Fraktion ("A"/"H", nil = beide), Klasse (Token)
 --                  oder nil, Name (enUS, nur Rückfall), Start-uiMapID, x, y (fehlen, wenn unbekannt) }, ... } },
 -- }
--- Lesen: Tracking/InstanceInfo.lua (Level), History/InstanceBosses.lua (Boss-Level), Assist/DungeonEntrances.lua.
+-- Lesen: Tracking/InstanceInfo.lua (Level), History/InstanceBosses.lua (Boss-Level, Rar-Bosse), Assist/DungeonEntrances.lua.
 local _, ns = ...
 if ns.Client.Flavor() ~= "forever" then return end
 
@@ -295,6 +296,11 @@ ns.InstanceGuide = {
     [3597] = 62,
     [3600] = 62,
     [3676] = 19,
+  },
+  -- Optionale Rar-Bosse in den Bosslisten (ns.BossData): zählen nicht zum Fortschritt und nie als Endboss.
+  -- Versunkene Stadt (2970): Urtümlicher Elementar; ein zweiter Rar-Boss dort fehlt in den Spieldaten (ID unbekannt).
+  rareBosses = {
+    [3511] = true,
   },
   quests = {
     [33] = {

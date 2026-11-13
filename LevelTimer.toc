@@ -112,6 +112,7 @@ History\Money.lua
 History\PlayHours.lua
 History\Instances.lua
 History\InstanceBosses.lua
+History\InstanceRuns.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
 History\QuestEfficiency.lua
@@ -220,6 +221,7 @@ Assist\LootSparkles.lua
 Assist\LootRollReport.lua
 Tracking\RollLog.lua
 UI\LootRollDisplay.lua
+UI\InstanceRunTracker.lua
 Assist\QuestLevels.lua
 Assist\QuestLogRewards.lua
 Assist\QuestTextSize.lua
@@ -282,6 +284,7 @@ Lib\TableView.lua
 Lib\OptionsBuilder.lua
 UI\CharacterMenu.lua
 UI\HistoryWindow.lua
+UI\InstanceRunWindow.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
