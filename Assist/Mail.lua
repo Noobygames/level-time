@@ -117,29 +117,13 @@ function Mail.TryAttachBagItem(bag, slot)
   if not (IsAltKeyDown and IsAltKeyDown()) then return false end
   if not bag or not slot then return false end
   ns.Debug("mail", "attaching bag item %s, %s", bag, slot)
-  if C_Container and C_Container.PickupContainerItem then
-    C_Container.PickupContainerItem(bag, slot)
-  elseif PickupContainerItem then
-    PickupContainerItem(bag, slot)
-  end
+  ns.Bags.Pickup(bag, slot)
   if ClickSendMailItemButton then
     ClickSendMailItemButton()
   end
   return true
 end
 
-local function hookBagClicks()
-  if type(hooksecurefunc) == "function" and type(ContainerFrameItemButton_OnModifiedClick) == "function" then
-    hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
-      if not (IsAltKeyDown and IsAltKeyDown()) then return end
-      local bag = (self.GetBagID and self:GetBagID()) or (self.GetParent and self:GetParent():GetID())
-      local slot = self.GetID and self:GetID()
-      if bag and slot then
-        Mail.TryAttachBagItem(bag, slot)
-      end
-    end)
-  end
-end
 
 function Mail.GetKnownAlts()
   local result = {}
@@ -272,5 +256,4 @@ ns.RegisterEvent("MAIL_INBOX_UPDATE", updateButtons)
 ns.RegisterEvent("MAIL_CLOSED", onMailClosed)
 ns.RegisterEvent("UI_ERROR_MESSAGE", onErrorMessage)
 
-hookBagClicks()
-ns.OnLogin(hookBagClicks)
+ns.Bags.OnModifiedClick(function(bag, slot) Mail.TryAttachBagItem(bag, slot) end)

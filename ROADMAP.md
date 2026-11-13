@@ -39,7 +39,6 @@ Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Rege
 
 ### v2.24: Quest-Unterstützung (Ideen aus RestedXP, eigener Code, keine RXP-Daten; Lizenz CC BY-NC-SA)
 
-- [ ] 352. **Questreste in den Taschen** (S–M): Items, die laut gelernten Daten oder `GetQuestLogSpecialItemInfo` zu einer abgegebenen oder abgebrochenen Quest gehörten (`QUEST_TURNED_IN`, `QUEST_REMOVED`), als Verkaufs-/Löschvorschlag beim Händler (`Merchant.lua`) oder bei vollen Taschen (`GearWarnings`); Löschen nur per Klick (`DeleteCursorItem` braucht eine Spieleraktion). Plus eigene Müll-Markierung je Item (Modifier-Rechtsklick). **Teilweise: Erledigt: `Assist/QuestLeftovers.lua` (questLeftovers, Komfort > Quests): Gegenstände abgegebener/abgebrochener Quests (gelernt über `QuestMobs.ItemsOf` und das gemerkte Quest-Item, `character.questSpecialItems`), die keine offene Quest braucht, als Hinweis beim Händler und als Zusatz im Hinweis „Taschen fast voll“; verkaufte Reste werden vergessen. Offen: eigene Müll-Markierung je Item (Modifier-Rechtsklick) und ein Lösch-Knopf (`DeleteCursorItem` nur per Klick); Folgequests, die denselben Gegenstand brauchen, kennt der Client vorher nicht.**
 
 ### Neue Addons und Werkzeuge (Ideen)
 

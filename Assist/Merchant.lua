@@ -67,8 +67,10 @@ function Merchant.Repair()
   end
 end
 
+-- Grau oder selbst als Müll markiert (QuestLeftovers, Alt+Rechtsklick in der Tasche)
 local function isJunk(info)
-  return info.quality == POOR_QUALITY and not info.hasNoValue and not info.isLocked
+  if info.hasNoValue or info.isLocked then return false end
+  return info.quality == POOR_QUALITY or ns.QuestLeftovers.IsMarked(info.itemID)
 end
 
 local function sellPrice(info)

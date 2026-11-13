@@ -130,6 +130,14 @@ function GetBuybackItemLink(index)
   return itemID and ("|cffffffff|Hitem:" .. itemID .. "::::::::|h[Item " .. itemID .. "]|h|r") or nil
 end
 C_MerchantFrame = { GetBuybackItemID = function(index) return (state.buyback or {})[index] end }
+-- Gegenstand am Mauszeiger (PickupContainerItem) wird gelöscht
+function DeleteCursorItem()
+  local cursor = state.cursorItem
+  if cursor then state.bags[cursor.bag][cursor.slot] = nil end
+  state.cursorItem = nil
+end
+-- Modifizierter Klick auf einen Taschenplatz (Classic-ContainerFrame); Tests rufen ihn mit einem Knopf-Frame auf
+function ContainerFrameItemButton_OnModifiedClick() end
 function BuybackItem(index) table.remove(state.buyback or {}, index) end
 -- Quest-Aktionen landen in wow.questActions, z.B. { "accept" } oder { "selectAvailable", 123 }
 wow.questActions = {}

@@ -33,3 +33,37 @@ function Bags.GetFreeSlots()
   end
   return free
 end
+
+-- Gegenstand eines Taschenplatzes an den Mauszeiger nehmen (C_Container in neueren Clients, sonst global)
+function Bags.Pickup(bag, slot)
+  if C_Container and C_Container.PickupContainerItem then
+    C_Container.PickupContainerItem(bag, slot)
+  elseif PickupContainerItem then
+    PickupContainerItem(bag, slot)
+  end
+end
+
+-- Modifizierte Klicks auf Taschenplätze: fn(bag, slot, mouseButton). Über Blizzards
+-- ContainerFrameItemButton_OnModifiedClick (Classic-Clients); fehlt die Funktion (Retail: Mixin), passiert nichts.
+-- Einmal hooken, auch wenn die Funktion erst nach dem Laden dieser Datei existiert (zweiter Versuch beim Login).
+local modifiedClickHandlers = {}
+local clickHooked = false
+
+local function hookModifiedClicks()
+  if clickHooked or type(hooksecurefunc) ~= "function"
+    or type(ContainerFrameItemButton_OnModifiedClick) ~= "function" then return end
+  clickHooked = true
+  hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(button, mouseButton)
+    local bag = (button.GetBagID and button:GetBagID()) or (button.GetParent and button:GetParent():GetID())
+    local slot = button.GetID and button:GetID()
+    if not (bag and slot) then return end
+    for _, handler in ipairs(modifiedClickHandlers) do ns.SafeCall(handler, bag, slot, mouseButton) end
+  end)
+end
+
+function Bags.OnModifiedClick(fn)
+  table.insert(modifiedClickHandlers, fn)
+  hookModifiedClicks()
+end
+
+ns.OnLogin(hookModifiedClicks)
