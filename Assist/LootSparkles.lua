@@ -251,7 +251,7 @@ end
 local fishingOverridden = false
 
 local function applyFishingRange()
-  if not ns.db or ns.db.lootSparkleBobber ~= true or InCombatLockdown() then return end
+  if conflict or not ns.db or ns.db.lootSparkleBobber ~= true or InCombatLockdown() then return end
   if LootSparkles.IsFishing() then
     if not fishingOverridden then
       fishingOverridden = true
@@ -397,13 +397,8 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if fishingOverridden and not LootSparkles.IsFishing() then applyFishingRange() end
 end)
 
-ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", function(unit)
-  if unit == "player" then applyFishingRange() end
-end)
-
-ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", function(unit)
-  if unit == "player" then applyFishingRange() end
-end)
+ns.RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player", applyFishingRange)
+ns.RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player", applyFishingRange)
 
 ns.RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED", function(oldTarget, newTarget)
   if not softTargetWanted() then return end

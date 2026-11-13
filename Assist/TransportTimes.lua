@@ -500,11 +500,6 @@ local function flush()
   api.SendAddonMessage(Transports.PREFIX, entry.message, entry.chatType)
 end
 
-local function isOwn(sender)
-  local name = sender:match("^([^-]+)")
-  return name == UnitName("player")
-end
-
 -- Fremde Phase prüfen und übernehmen. Gibt true zurück, wenn die Strecke geändert wurde.
 function Transports.Receive(body)
   local from, to, syncText, periodText = body:match("^([^:]+):([^:]+):(%d+):(%d+)$")
@@ -531,7 +526,7 @@ end
 ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
   if ns.IsSecret(prefix) or ns.IsSecret(text) or ns.IsSecret(sender) then return end
   if prefix ~= Transports.PREFIX or type(text) ~= "string" or type(sender) ~= "string" then return end
-  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) or isOwn(sender) then return end
+  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):(.*)$")
   if kind == "P" then Transports.Receive(body) end
 end)

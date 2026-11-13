@@ -118,14 +118,6 @@ end)
 ---------------------------------------------------------------------------
 -- Empfangen
 ---------------------------------------------------------------------------
--- Eigene Nachrichten an die Gruppe kommen zurück: Absender "Name" oder "Name-Realm" (Realm ohne Leerzeichen)
-local function isOwn(sender)
-  local name, realm = sender:match("^([^-]+)-?(.*)$")
-  if name ~= UnitName("player") then return false end
-  local ownRealm = (GetRealmName and GetRealmName() or ""):gsub("%s", "")
-  return realm == "" or realm == ownRealm
-end
-
 local function runOf(sender)
   local all = runs()
   all[sender] = all[sender] or { times = {} }
@@ -168,7 +160,7 @@ end
 
 ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
   prefix, text, sender = readable(prefix), readable(text), readable(sender)
-  if prefix ~= FriendRace.PREFIX or not text or not sender or not enabled() or isOwn(sender) then return end
+  if prefix ~= FriendRace.PREFIX or not text or not sender or not enabled() or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):?(.*)$")
   local handler = kind and HANDLERS[kind]
   if not handler then return end

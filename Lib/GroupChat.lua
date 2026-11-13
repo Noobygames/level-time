@@ -8,6 +8,7 @@
 --                             gibt alle anderen Teile schon als reinen Text (Format.PlainText) hinein
 --   GroupChat.Preview(text)   Vorschau aus den Einstellungen: nur lokal in den eigenen Chat mit Kennzeichnung, nie gesendet
 --   GroupChat.MAX_TEXT        so viele Bytes darf text haben (Chat-Grenze 255 Bytes samt Präfix, Links zählen voll)
+--   GroupChat.IsOwnSender(sender)  true, wenn eine Addon-Nachricht vom eigenen Charakter stammt
 -- C_ChatInfo.SendChatMessage ersetzt seit 11.2 die globale Funktion; ältere Clients haben nur diese.
 local _, ns = ...
 
@@ -49,4 +50,20 @@ end
 -- Vorschau (Testen-Knöpfe in den Einstellungen): dieselbe Zeile, die gesendet würde, aber nur im eigenen Chat
 function GroupChat.Preview(text)
   ns.Print(ns.L.PREVIEW_TAG .. " " .. text)
+end
+
+-- Eigene Addon-Nachrichten kommen zurück: Absender "Name" oder "Name-Realm" mit normalisiertem Realm
+-- (ohne Leerzeichen und Bindestriche, z.B. "AzjolNerub"). GetNormalizedRealmName fehlt evtl. in manchen Clients
+-- und liefert früh beim Login nil; dann aus GetRealmName nachbilden.
+local function ownRealm()
+  local realm = GetNormalizedRealmName and GetNormalizedRealmName()
+  if type(realm) == "string" and realm ~= "" then return realm end
+  return (GetRealmName and GetRealmName() or ""):gsub("[%s%-]", "")
+end
+
+function GroupChat.IsOwnSender(sender)
+  if type(sender) ~= "string" then return false end
+  local name, realm = sender:match("^([^-]+)-?(.*)$")
+  if name ~= UnitName("player") then return false end
+  return realm == "" or realm == ownRealm()
 end

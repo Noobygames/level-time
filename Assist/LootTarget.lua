@@ -280,10 +280,6 @@ local MINING_SPELLS = { 2575, 2576, 3564, 10248, 29354, 50310, 74517, 102161, 15
 local HERB_SPELLS = { 2366, 2383 }
 
 function LootTarget.IsGatheringTrained(kind)
-  if type(LootTarget.HasGatheringSkill) == "function" then
-    local override = LootTarget.HasGatheringSkill(kind)
-    if override ~= nil then return override == true end
-  end
   if type(IsPlayerSpell) == "function" then
     if kind == LootTarget.ORE then
       for _, id in ipairs(MINING_SPELLS) do
@@ -324,8 +320,6 @@ function LootTarget.IsGatheringTrained(kind)
   end
   return false
 end
-
-LootTarget.HasProfessionFor = LootTarget.IsGatheringTrained
 
 ---------------------------------------------------------------------------
 -- Einordnung
