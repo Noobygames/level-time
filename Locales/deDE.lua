@@ -2070,4 +2070,10 @@ ns.locales.deDE = {
   INSTANCE_QUEST_CHECK_START = "%s (%s)",
   INSTANCE_QUEST_CHECK_TOGGLE = "Quest-Check beim Betreten einer Instanz",
   INSTANCE_QUEST_CHECK_TOGGLE_TIP = "Nennt beim Betreten eines Dungeons im Chat die Dungeonquests, die du jetzt annehmen könntest (Level, Fraktion, Klasse und Vorquests passen), aber nicht im Log hast.",
+  HISTORY_LOOT_VALUE = "Beutewert",
+  HISTORY_LOOT_VALUE_TIP = "Wert der erbeuteten Items (Auktionspreis aus Auctionator, falls geladen, sonst Händlerpreis).",
+  ROW_FARM_GOLD_PER_HOUR = "Gold/h inkl. Beute",
+  ROW_LOOT_VALUE = "Beutewert",
+  STAT_LOOT_VALUE = "Beutewert",
+  STAT_LOOT_VALUE_TIP = "Wert der erbeuteten Items im Bereich (Auktionspreis aus Auctionator, falls geladen, sonst Händlerpreis) und Gold je Stunde einschließlich dieses Werts, über dieselbe Spielzeit wie XP/h.",
 }

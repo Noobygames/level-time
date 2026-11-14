@@ -56,10 +56,14 @@ local function perHourColumn(header, name, width)
   end, sort = function(r) return recordCountRate(r, name) end }
 end
 
+local function moneyColumn(header, name, width)
+  return { header = header, width = width, value = function(r)
+    return Format.Gold(counter(r, name))
+  end, sort = function(r) return counter(r, name) end }
+end
+
 local function goldColumn(width)
-  return { header = "HISTORY_GOLD", width = width, value = function(r)
-    return Format.Gold(counter(r, Stats.MONEY_EARNED))
-  end, sort = function(r) return counter(r, Stats.MONEY_EARNED) end }
+  return moneyColumn("HISTORY_GOLD", Stats.MONEY_EARNED, width)
 end
 
 -- Teil-Level (nur teilweise erfasst, Coverage.lua) mit Kennzeichen; Hinweis LEVELS_PARTIAL_HINT
@@ -192,6 +196,7 @@ local SESSION_KILL_COLUMNS = {
   perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 60),
   counterColumn("HISTORY_ITEMS_LOOTED", Stats.ITEMS_LOOTED, 60),
   perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 60),
+  moneyColumn("HISTORY_LOOT_VALUE", Stats.LOOT_VALUE, 64),
   counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 60),
 }
 

@@ -2070,4 +2070,10 @@ ns.locales.enUS = {
   INSTANCE_QUEST_CHECK_START = "%s (%s)",
   INSTANCE_QUEST_CHECK_TOGGLE = "Quest check when entering an instance",
   INSTANCE_QUEST_CHECK_TOGGLE_TIP = "When you enter a dungeon, lists in chat the dungeon quests you could pick up now (level, faction, class and prerequisites met) but don't have in your log.",
+  HISTORY_LOOT_VALUE = "Loot value",
+  HISTORY_LOOT_VALUE_TIP = "Value of the looted items (auction price from Auctionator if loaded, otherwise vendor price).",
+  ROW_FARM_GOLD_PER_HOUR = "Gold/h incl. loot",
+  ROW_LOOT_VALUE = "Loot value",
+  STAT_LOOT_VALUE = "Loot value",
+  STAT_LOOT_VALUE_TIP = "Value of the items looted in the scope (auction price from Auctionator if loaded, otherwise vendor price) and gold per hour including that value, over the same play time as XP/h.",
 }

@@ -2070,4 +2070,10 @@ ns.locales.frFR = {
   INSTANCE_QUEST_CHECK_START = "%s (%s)",
   INSTANCE_QUEST_CHECK_TOGGLE = "Vérifier les quêtes en entrant dans une instance",
   INSTANCE_QUEST_CHECK_TOGGLE_TIP = "En entrant dans un donjon, liste dans le chat les quêtes de donjon que vous pourriez prendre maintenant (niveau, faction, classe et quêtes préalables remplis) mais qui ne sont pas dans votre journal.",
+  HISTORY_LOOT_VALUE = "Butin",
+  HISTORY_LOOT_VALUE_TIP = "Valeur des objets ramassés (prix d'enchère d'Auctionator s'il est chargé, sinon prix du marchand).",
+  ROW_FARM_GOLD_PER_HOUR = "Or/h avec butin",
+  ROW_LOOT_VALUE = "Valeur butin",
+  STAT_LOOT_VALUE = "Valeur du butin",
+  STAT_LOOT_VALUE_TIP = "Valeur des objets ramassés dans la portée (prix d'enchère d'Auctionator s'il est chargé, sinon prix du marchand) et or par heure en incluant cette valeur, sur le même temps de jeu que l'XP/h.",
 }

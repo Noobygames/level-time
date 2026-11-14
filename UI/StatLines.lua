@@ -216,6 +216,13 @@ local function goldPerHour(scope)
   return rate and Format.Money(rate) or NO_VALUE
 end
 
+-- Gold je Stunde einschließlich Beutewert (Farm-Tracker: was die Beute beim Verkauf bringen würde)
+local function farmGoldPerHour(scope)
+  local total = Stats.Get(scope, Stats.MONEY_EARNED) + Stats.Get(scope, Stats.LOOT_VALUE)
+  local rate = ns.Money.PerHour(total, Experience.ScopeRateSeconds(scope))
+  return rate and Format.Money(rate) or NO_VALUE
+end
+
 -- Unabhängig vom Bereich: Instanzlimit "3/5, nächste in 14m" (siehe InstanceLimit.lua)
 local function instanceLimit()
   local InstanceLimit = ns.InstanceLimit
@@ -327,6 +334,10 @@ ns.STAT_LINES = {
     { label = "ROW_ITEMS_LOOTED", value = function(scope) return Format.Number(Stats.Get(scope, Stats.ITEMS_LOOTED)) end },
     { label = "ROW_ITEM_RATE", value = perHour(Stats.ITEMS_LOOTED) },
   } },
+  { setting = "showLootValue", group = "STAT_GROUP_LOOT", label = "STAT_LOOT_VALUE", rows = {
+    { label = "ROW_LOOT_VALUE", value = money(Stats.LOOT_VALUE) },
+    { label = "ROW_FARM_GOLD_PER_HOUR", value = farmGoldPerHour },
+  } },
   { setting = "showRecentItems", group = "STAT_GROUP_LOOT", label = "STAT_RECENT_ITEMS", rows = {
     globalRow("ROW_RECENT_ITEMS", recentCount(Stats.ITEMS_LOOTED)),
     globalRow("ROW_RECENT_ITEM_RATE", recentRate(Stats.ITEMS_LOOTED)),
@@ -420,7 +431,7 @@ ns.STAT_PRESETS = {
     "showKillsPerDeath", "showNearDeaths", "showInstanceRun", "showInstanceLimit", "showInstancesToday" } },
   -- Farm-Runde (Wunsch auf CurseForge, Roadmap 382): Tempo der Kills und der Beute, Gold/h steht in showIncome
   { label = "PRESET_FARMING", settings = { "showPveKills", "showKillRate", "showRecentKills", "showItemsLooted",
-    "showRecentItems", "showIncome" } },
+    "showRecentItems", "showIncome", "showLootValue" } },
 }
 
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im

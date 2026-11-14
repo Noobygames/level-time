@@ -1,7 +1,7 @@
 -- Item-Informationen über C_Item.GetItemInfo (ältere Clients: globales GetItemInfo), mit itemID oder
 -- Link. Rückgabewerte laut Doku (ItemDocumentation, alle Clients): 3 = itemQuality, 11 = sellPrice.
 -- nil, solange der Client das Item noch nicht geladen hat.
-local _, ns = ...
+local addonName, ns = ...
 
 local Items = {}
 ns.Items = Items
@@ -28,4 +28,18 @@ end
 -- Verkaufspreis eines Stücks in Kupfer
 function Items.GetSellPrice(item)
   return (select(SELL_PRICE_INDEX, itemInfo(item)))
+end
+
+-- Auktionspreis eines Stücks aus Auctionator (API v1, nur wenn das Addon geladen ist); die API wirft bei falschen
+-- Argumenten einen Fehler, deshalb pcall. nil ohne Auctionator oder ohne bekannten Preis.
+local function auctionPrice(link)
+  local api = Auctionator and Auctionator.API and Auctionator.API.v1
+  if not (api and api.GetAuctionPriceByItemLink) then return nil end
+  local ok, price = pcall(api.GetAuctionPriceByItemLink, addonName, link)
+  return ok and price or nil
+end
+
+-- Marktwert eines Stücks in Kupfer: Auctionator-Preis, sonst Händlerpreis; nil, solange das Item unbekannt ist
+function Items.GetMarketValue(link)
+  return auctionPrice(link) or Items.GetSellPrice(link)
 end

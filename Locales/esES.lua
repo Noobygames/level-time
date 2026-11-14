@@ -2070,4 +2070,10 @@ ns.locales.esES = {
   INSTANCE_QUEST_CHECK_START = "%s (%s)",
   INSTANCE_QUEST_CHECK_TOGGLE = "Comprobar misiones al entrar en una instancia",
   INSTANCE_QUEST_CHECK_TOGGLE_TIP = "Al entrar en una mazmorra, muestra en el chat las misiones de mazmorra que podrías aceptar ahora (nivel, facción, clase y misiones previas cumplidos) pero no tienes en tu registro.",
+  HISTORY_LOOT_VALUE = "Botín",
+  HISTORY_LOOT_VALUE_TIP = "Valor de los objetos saqueados (precio de subasta de Auctionator si está cargado, si no precio de vendedor).",
+  ROW_FARM_GOLD_PER_HOUR = "Oro/h con botín",
+  ROW_LOOT_VALUE = "Valor botín",
+  STAT_LOOT_VALUE = "Valor del botín",
+  STAT_LOOT_VALUE_TIP = "Valor de los objetos saqueados en el ámbito (precio de subasta de Auctionator si está cargado, si no precio de vendedor) y oro por hora incluyendo ese valor, sobre el mismo tiempo de juego que la PX/h.",
 }
