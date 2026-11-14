@@ -41,6 +41,8 @@ local OFTEN, HALF, RARE = 1, 0.5, 0.2
 Reagents.CLASSES = {
   SHAMAN = {
     { { item = 17030, scale = RARE, spells = { 20608 } } },                                    -- Ankh
+    { { item = 17058, scale = RARE, spells = { 546 } } },                                      -- Fischöl (Wasserwandeln)
+    { { item = 17057, scale = RARE, spells = { 131 } } },                         -- Schimmernde Fischschuppen (Wasseratmung)
   },
   PALADIN = {
     { { item = 21177, scale = OFTEN, spells = { 25782, 25894, 25898, 25895, 25890, 25899 } } }, -- Symbol der Könige
@@ -110,6 +112,17 @@ function Reagents.Tracked()
     end
   end
   return tracked
+end
+
+-- Reagenz der eigenen Klasse (auch ohne gelernten Zauber)? Questreste nennen solche Gegenstände nicht
+function Reagents.IsClassReagent(itemID)
+  if not Reagents.IsAvailable() then return false end
+  for _, need in ipairs(Reagents.CLASSES[className()] or {}) do
+    for _, option in ipairs(need) do
+      if option.item == itemID then return true end
+    end
+  end
+  return false
 end
 
 -- Knappe Reagenzien (Bestand unter low)

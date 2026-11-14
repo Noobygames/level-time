@@ -53,6 +53,11 @@ ns.CHANGELOG = {
         enUS = "WoW Forever: dungeon runs recognize boss kills more reliably and list defeated rares with their time, without counting them toward progress.",
         frFR = "WoW Forever : les runs de donjon reconnaissent mieux les victoires sur les boss et listent les rares vaincus avec leur temps, sans les compter dans la progression.",
         esES = "WoW Forever: las partidas de mazmorra reconocen mejor las muertes de jefes y listan los raros derrotados con su tiempo, sin contarlos para el progreso." },
+      { kind = "fix",
+        deDE = "Klassen-Reagenzien wie Fischöl für Schamanen gelten nicht mehr als Questreste.",
+        enUS = "Class reagents such as Fish Oil for shamans no longer count as quest leftovers.",
+        frFR = "Les composants de classe comme l'huile de poisson des chamans ne comptent plus comme restes de quête.",
+        esES = "Los componentes de clase como el aceite de pescado de los chamanes ya no cuentan como restos de misión." },
     },
   },
   {

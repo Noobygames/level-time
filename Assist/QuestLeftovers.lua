@@ -5,7 +5,8 @@
 -- Zu einer Quest gehören: gelernte Gegenstände (QuestMobs.ItemsOf) und ihr Quest-Item (GetQuestLogSpecialItemInfo über
 -- QuestItem.Candidates, gemerkt in character.questSpecialItems, damit es auch nach /reload bekannt ist). Von den
 -- Taschen-Kandidaten zählen nur sichere Zuordnungen (OWNED_SOURCES: beim Annehmen erhalten, Questinfo des Clients);
--- ein Namenstreffer im Zieltext macht einen Gegenstand nicht zum Questrest.
+-- ein Namenstreffer im Zieltext macht einen Gegenstand nicht zum Questrest. Reagenzien der eigenen Klasse
+-- (Reagents.IsClassReagent, z. B. Fischöl) sind nie Reste.
 -- Ereignisse: QUEST_TURNED_IN, QUEST_REMOVED (Abbruch; Retail/Forever auch bei Abgabe), MERCHANT_SHOW;
 -- Taschen über Lib/Bags.lua. Reste stehen je Charakter in character.questLeftovers[itemID] = { questID, name }
 -- und verschwinden, sobald sie nicht mehr in den Taschen sind.
@@ -114,7 +115,9 @@ function QuestLeftovers.InBags()
   end)
   local found = {}
   for itemID, entry in pairs(list) do
-    if counts[itemID] then
+    if ns.Reagents.IsClassReagent(itemID) and not marks[itemID] then
+      list[itemID] = nil  -- z. B. Fischöl aus einer Quest ist für Schamanen Reagenz, kein Rest
+    elseif counts[itemID] then
       local name = entry.name or ns.Items.GetName(itemID) or tostring(itemID)
       table.insert(found, { itemID = itemID, name = name, count = counts[itemID] })
     else
