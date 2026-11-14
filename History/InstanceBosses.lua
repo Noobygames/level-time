@@ -10,6 +10,10 @@
 -- Boss-Level und optionale Rar-Bosse (nur Forever) aus ns.InstanceGuide.bossLevels/rareBosses
 -- (Assist/InstanceData/forever_guide.lua): Rar-Bosse zählen nicht zum Fortschritt ("5/5", eigene Zahl über
 -- RaresKilled) und nie als Endboss (Endboss = letzter Boss der Liste, der kein Rar-Boss ist).
+-- Forever-Aliase (ns.InstanceGuide.encounterAliases): ältere und neuere Encounter-IDs desselben Bosses werden auf den
+-- Eintrag der Bossliste abgebildet, damit jeder Kill zum Fortschritt und zu den Splits zählt.
+-- Rare ohne Encounter (ns.InstanceGuide.rareNpcs): Kampflog UNIT_DIED mit passender NPC-ID in der destGUID; run.rares =
+-- "NPC-ID:Sekunden:Name;..." (Name = Einheitenname beim Kill in der Client-Sprache); zählen nur in RaresKilled.
 -- shortcut: Retail hat keine Bossliste (nur die Zahl der Kills), bei Bedarf über das Encounter-Journal nachrüsten.
 local _, ns = ...
 local L = ns.L
@@ -19,6 +23,7 @@ ns.InstanceBosses = InstanceBosses
 
 local SUCCESS = 1
 local SEPARATOR = ","
+local RARE_SEPARATOR = ";"
 local ICON_SIZE = 14
 local ICON_DEAD = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull"
 local ICON_ALIVE = "Interface\\Icons\\INV_Misc_Head_Dragon_01"
@@ -42,9 +47,36 @@ function InstanceBosses.List(mapID, difficultyID)
   return byDifficulty[difficultyID or 0] or byDifficulty[0]
 end
 
+local function guideTable(key)
+  return ns.InstanceGuide and ns.InstanceGuide[key]
+end
+
+-- Gemeinsame ID der Alias-Gruppe eines Bosses (ohne Alias die ID selbst)
+local function canonical(encounterID)
+  local aliases = guideTable("encounterAliases")
+  return aliases and aliases[encounterID] or encounterID
+end
+
+-- Gemeldete encounterID auf den Eintrag der Bossliste abbilden (gleiche Alias-Gruppe); ohne Treffer die Gruppen-ID
+function InstanceBosses.Normalize(list, encounterID)
+  local group = canonical(encounterID)
+  for _, id in ipairs(list or {}) do
+    if id == encounterID then return id end
+  end
+  for _, id in ipairs(list or {}) do
+    if canonical(id) == group then return id end
+  end
+  return group
+end
+
 -- Name eines Bosses in der Sprache des Clients (nil ohne Daten)
 function InstanceBosses.Name(encounterID)
-  local names = ns.BossData and ns.BossData.names[encounterID]
+  local allNames = ns.BossData and ns.BossData.names
+  local names = allNames and (allNames[encounterID] or allNames[canonical(encounterID)])
+  if not names then
+    local fallback = guideTable("bossNames")
+    return fallback and fallback[canonical(encounterID)]
+  end
   if type(names) == "table" then
     local name = names[nameColumn()]
     return (name and name ~= "") and name or names[1]
@@ -72,9 +104,41 @@ function InstanceBosses.EndBoss(list)
   return nil
 end
 
--- Zahl der besiegten Rar-Bosse eines Laufs oder Journal-Eintrags
+-- Besiegte Rare ohne Encounter eines Laufs oder Journal-Eintrags in Kill-Reihenfolge: { { npcID, seconds, name } }
+function InstanceBosses.Rares(record)
+  local rares = {}
+  for entry in string.gmatch(record.rares or "", "[^" .. RARE_SEPARATOR .. "]+") do
+    local npcID, seconds, name = entry:match("^(%d+):(%d+):?(.*)$")
+    if npcID then
+      npcID = tonumber(npcID)
+      local fallback = InstanceBosses.RareNpcName(record.mapID, npcID)
+      rares[#rares + 1] = { npcID = npcID, seconds = tonumber(seconds), name = name ~= "" and name or fallback }
+    end
+  end
+  return rares
+end
+
+-- Englischer Rückfall-Name eines Rares der Instanz oder nil, wenn die NPC-ID dort kein bekannter Rare ist
+function InstanceBosses.RareNpcName(mapID, npcID)
+  local byMap = guideTable("rareNpcs")
+  local rares = byMap and mapID and byMap[mapID]
+  return rares and rares[npcID]
+end
+
+-- rares-Text um offset Sekunden verschieben (Wiedereintritt, Instances.lua); nil bleibt nil
+function InstanceBosses.ShiftRares(text, offset)
+  if not text then return nil end
+  local shifted = {}
+  for entry in string.gmatch(text, "[^" .. RARE_SEPARATOR .. "]+") do
+    local npcID, seconds, rest = entry:match("^(%d+):(%d+)(.*)$")
+    if npcID then shifted[#shifted + 1] = npcID .. ":" .. (tonumber(seconds) + offset) .. rest end
+  end
+  return table.concat(shifted, RARE_SEPARATOR)
+end
+
+-- Zahl der besiegten Rar-Bosse und Rare eines Laufs oder Journal-Eintrags
 function InstanceBosses.RaresKilled(record)
-  local count = 0
+  local count = #InstanceBosses.Rares(record)
   for id in pairs(InstanceBosses.Killed(record)) do
     if InstanceBosses.IsRare(id) then count = count + 1 end
   end
@@ -155,9 +219,27 @@ local function recordKill(id, source)
   return true
 end
 
+-- Rare ohne Encounter im laufenden Lauf eintragen (jeder nur einmal)
+local function recordRare(run, npcID, name)
+  for _, rare in ipairs(InstanceBosses.Rares(run)) do
+    if rare.npcID == npcID then return false end
+  end
+  local entry = npcID .. ":" .. math.floor(ns.Instances.GetRunSeconds(run)) .. ":" .. (name:gsub(RARE_SEPARATOR, ""))
+  run.rares = run.rares and (run.rares .. RARE_SEPARATOR .. entry) or entry
+  ns.Debug("instances", "rare killed: %s (%s)", name, npcID)
+  return true
+end
+
+-- Kill-ID auf die Bossliste des laufenden Laufs abbilden (Aliase)
+local function normalizeForRun(encounterID)
+  local run = ns.Instances.GetCurrentRun()
+  return InstanceBosses.Normalize(run and InstanceBosses.List(run.mapID, run.difficultyID), encounterID)
+end
+
 ns.RegisterEvent("ENCOUNTER_END", function(encounterID, encounterName, _, _, success)
   if ns.IsSecret(encounterID) or ns.IsSecret(success) then return end
-  local counted = success == SUCCESS and type(encounterID) == "number" and recordKill(encounterID, "encounter")
+  local counted = success == SUCCESS and type(encounterID) == "number"
+    and recordKill(normalizeForRun(encounterID), "encounter")
   lastEvent = { source = "encounter", id = encounterID, success = success, counted = counted,
     name = not ns.IsSecret(encounterName) and encounterName or nil }
 end)
@@ -180,16 +262,28 @@ local function bossByName(list, name)
   return index[name]
 end
 
--- Feldreihenfolge wie in DeathCounter.lua: 2 = Event, 9 = Ziel-Name
+-- Feldreihenfolge wie in DeathCounter.lua: 2 = Event, 8 = Ziel-GUID, 9 = Ziel-Name
 local getCombatLogEventInfo = (C_CombatLog and C_CombatLog.GetCurrentEventInfo) or CombatLogGetCurrentEventInfo
 local isSecret = issecretvalue
 
--- Läuft für jedes Kampflog-Event: zuerst die billigen Abbrüche (kein Tod, kein laufender Lauf mit Bossliste)
+-- NPC-ID aus einer Kreatur-GUID ("Creature-0-Server-Instanz-Zone-NPC-ID-Spawn"), sonst nil
+local function npcIDOf(guid)
+  if type(guid) ~= "string" or (isSecret and isSecret(guid)) then return nil end
+  return tonumber((guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)%-")))
+end
+
+-- Läuft für jedes Kampflog-Event: zuerst die billigen Abbrüche (kein Tod, kein laufender Lauf)
 local function onCombatLogEvent()
-  local ok, _, subevent, _, _, _, _, _, _, destName = pcall(getCombatLogEventInfo)
+  local ok, _, subevent, _, _, _, _, _, destGUID, destName = pcall(getCombatLogEventInfo)
   if not ok or subevent ~= "UNIT_DIED" or (isSecret and isSecret(destName)) or type(destName) ~= "string" then return end
   local run = ns.Instances.GetCurrentRun()
-  local list = run and ns.Instances.IsRunning() and InstanceBosses.List(run.mapID, run.difficultyID)
+  if not run or not ns.Instances.IsRunning() then return end
+  local npcID = npcIDOf(destGUID)
+  if npcID and InstanceBosses.RareNpcName(run.mapID, npcID) then
+    recordRare(run, npcID, destName)
+    return
+  end
+  local list = InstanceBosses.List(run.mapID, run.difficultyID)
   local id = list and bossByName(list, destName)
   if id then
     lastEvent = { source = "died", id = id, name = destName, counted = recordKill(id, "died") }

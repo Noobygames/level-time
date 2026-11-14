@@ -225,6 +225,7 @@ function History.GetInstanceLog(characterKey)
       bosses = run.bosses,
       splits = run.splits,
       groupSize = run.groupSize,
+      rares = run.rares,
       xp = record.xp,
       counters = record.counters,
       isCurrent = true,

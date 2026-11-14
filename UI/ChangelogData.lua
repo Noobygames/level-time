@@ -33,6 +33,11 @@ ns.CHANGELOG = {
         enUS = "WoW Forever: optional rare bosses no longer count toward a dungeon's boss progress.",
         frFR = "WoW Forever : les boss rares optionnels ne comptent plus dans la progression des boss d'un donjon.",
         esES = "WoW Forever: los jefes raros opcionales ya no cuentan para el progreso de jefes de una mazmorra." },
+      { kind = "new",
+        deDE = "WoW Forever: Dungeon-Runs erkennen alle Boss-Kills zuverlässiger und listen besiegte Rare mit Zeit, ohne dass sie zum Fortschritt zählen.",
+        enUS = "WoW Forever: dungeon runs recognize boss kills more reliably and list defeated rares with their time, without counting them toward progress.",
+        frFR = "WoW Forever : les runs de donjon reconnaissent mieux les victoires sur les boss et listent les rares vaincus avec leur temps, sans les compter dans la progression.",
+        esES = "WoW Forever: las partidas de mazmorra reconocen mejor las muertes de jefes y listan los raros derrotados con su tiempo, sin contarlos para el progreso." },
     },
   },
   {

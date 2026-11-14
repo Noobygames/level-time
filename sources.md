@@ -42,3 +42,10 @@ The world records shown by the speedrun features come from the public API of <ht
 
 `Assist/InstanceData/forever_guide.lua` (WoW Forever dungeon level ranges, entrances, boss levels and dungeon quests)
 is maintained by hand. It is being checked against, and will be replaced by, data from our own extractor.
+
+## 4. ForeverDungeonJournal (WoW Forever bosses)
+
+The boss encounter aliases (older and newer encounter IDs of the same boss), the missing boss name, the rare bosses and
+the rare NPC IDs per dungeon in `Assist/InstanceData/forever_guide.lua` (`encounterAliases`, `bossNames`, `rareBosses`,
+`rareNpcs`) were imported once on 2026-11-14 from the addon ForeverDungeonJournal 2.0.5 (`Data/RunLogEncounters.lua`,
+`Data/Dungeons.lua`), licensed under the WTFPL. Thanks to its authors.

@@ -3,8 +3,9 @@
 -- dieselbe Kopie (Händler, /reload) setzt den Lauf fort; die Zeit draußen zählt nicht, außer als Geist
 -- auf dem Weg zurück zur Leiche. Wiederbelebt draußen (Geistheiler) hält die Uhr an.
 -- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level, mapID, difficultyID,
--- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses, splits, groupSize }.
--- bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill (InstanceBosses.lua), groupSize = größte gesehene Gruppe
+-- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses, splits, groupSize,
+-- rares }. bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill, rares = besiegte Rare (InstanceBosses.lua),
+-- groupSize = größte gesehene Gruppe
 -- (Betreten und Boss-Kills); shortcut: beim Teilen (OnCorrected, neue Kopie) bleiben sie beim alten
 -- Lauf, auch wenn einer nach dem Wiedereintritt fiel (Zeitfenster bis zur Bestätigung ist kurz).
 -- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
@@ -161,7 +162,7 @@ function Instances.ResetCurrent()
   run.startedAt = time()
   run.level = ns.level
   run.unconfirmed = nil
-  run.bosses, run.splits, run.groupSize = nil, nil, nil
+  run.bosses, run.splits, run.rares, run.groupSize = nil, nil, nil, nil
   Instances.NoteGroupSize(run)
   if runningSince then runningSince = GetTime() end
   ns.Debug("instances", "run reset: %s", run.name)
@@ -244,6 +245,8 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     else
       run.splits = ownSplits
     end
+    local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
+    run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
     run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp

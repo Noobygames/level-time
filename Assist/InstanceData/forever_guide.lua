@@ -6,10 +6,16 @@
 --   entrances  = { [Karten-ID] = { { uiMapID, x, y }, ... } }       (x, y 0-1 auf der Zonenkarte),
 --   bossLevels = { [encounterID] = Level },
 --   rareBosses = { [encounterID] = true }   optionale Rar-Bosse der Bosslisten (nicht nötig für "abgeschlossen"),
---   quests     = { [Karten-ID] = { { questID, Questlevel, Mindestlevel, Fraktion ("A"/"H", nil = beide), Klasse (Token)
+--   encounterAliases = { [encounterID] = encounterID }   weitere IDs desselben Bosses -> eine gemeinsame ID der Gruppe,
+--   bossNames  = { [encounterID] = Name (enUS) }   Namen, die in ns.BossData fehlen,
+--   rareNpcs   = { [Karten-ID] = { [NPC-ID] = Name (enUS, nur Rückfall) } }   Rare ohne Encounter (Erkennung per Kampflog),
+--   quests    = { [Karten-ID] = { { questID, Questlevel, Mindestlevel, Fraktion ("A"/"H", nil = beide), Klasse (Token)
 --                  oder nil, Name (enUS, nur Rückfall), Start-uiMapID, x, y (fehlen, wenn unbekannt) }, ... } },
 -- }
--- Lesen: Tracking/InstanceInfo.lua (Level), History/InstanceBosses.lua (Boss-Level, Rar-Bosse), Assist/DungeonEntrances.lua.
+-- encounterAliases, bossNames, rareNpcs und die Rar-Bosse außer 3511 sind einmalig aus dem Addon ForeverDungeonJournal
+-- 2.0.5 übernommen (WTFPL; Data/RunLogEncounters.lua, Data/Dungeons.lua; Stand 2026-11-14), siehe sources.md.
+-- Lesen: Tracking/InstanceInfo.lua (Level), History/InstanceBosses.lua (Boss-Level, Rar-Bosse, Aliase, Namen, Rare),
+-- Assist/DungeonEntrances.lua.
 local _, ns = ...
 if ns.Client.Flavor() ~= "forever" then return end
 
@@ -298,9 +304,155 @@ ns.InstanceGuide = {
     [3676] = 19,
   },
   -- Optionale Rar-Bosse in den Bosslisten (ns.BossData): zählen nicht zum Fortschritt und nie als Endboss.
-  -- Versunkene Stadt (2970): Urtümlicher Elementar; ein zweiter Rar-Boss dort fehlt in den Spieldaten (ID unbekannt).
+  -- Versunkene Stadt (2970): Urtümlicher Elementar (3511); die übrigen hält ForeverDungeonJournal für Rare.
   rareBosses = {
+    [473] = true,   -- Herdsänger Forresten (Stratholme)
+    [2783] = true,  -- Ragglesnout (Hügel der Klingenhauer)
+    [2794] = true,  -- Tsu'zee (Düsterbruch)
+    [2799] = true,  -- Skul (Stratholme)
+    [2800] = true,  -- Stonespine (Stratholme)
+    [3070] = true,  -- Lord Valthalak (Schwarzfelsspitze)
+    [3310] = true,  -- Lyn the Ignored (Dalaran)
+    [3408] = true,  -- Lordaeron Captain (Ruinen von Lordaeron)
     [3511] = true,
+    [3676] = true,  -- Miner Johnson (Todesminen)
+  },
+  -- Ältere und neuere Encounter-IDs desselben Bosses (z.B. Todesminen 161-167 und 2741-2747; Abgleich über Dungeon
+  -- und englischen Namen) -> eine gemeinsame ID der Gruppe; InstanceBosses gleicht eingehende IDs damit ab.
+  encounterAliases = {
+    [161] = 2741,
+    [162] = 2742,
+    [163] = 2743,
+    [164] = 2745,
+    [165] = 2746,
+    [166] = 2744,
+    [167] = 2747,
+    [219] = 2916,
+    [220] = 2915,
+    [221] = 2704,
+    [222] = 2913,
+    [224] = 2912,
+    [225] = 2911,
+    [226] = 2910,
+    [245] = 2790,
+    [276] = 3062,
+    [278] = 3063,
+    [279] = 3068,
+    [280] = 3069,
+    [378] = 2769,
+    [379] = 2768,
+    [380] = 2770,
+    [381] = 2771,
+    [382] = 2772,
+    [430] = 2732,
+    [431] = 2733,
+    [432] = 2734,
+    [433] = 2735,
+    [434] = 2780,
+    [435] = 2782,
+    [436] = 2784,
+    [437] = 2785,
+    [439] = 2774,
+    [440] = 2775,
+    [441] = 2776,
+    [443] = 2778,
+    [445] = 2779,
+    [464] = 2748,
+    [465] = 2749,
+    [466] = 2750,
+    [467] = 2751,
+    [468] = 2752,
+    [469] = 2753,
+    [470] = 2754,
+    [471] = 2755,
+    [487] = 486,
+    [488] = 3589,
+    [491] = 490,
+    [492] = 3583,
+    [493] = 3584,
+    [883] = 2777,
+    [2697] = 2916,
+    [2699] = 2915,
+    [2710] = 2913,
+    [2761] = 2916,
+    [2762] = 2915,
+    [2763] = 2704,
+    [2764] = 2913,
+    [2765] = 2912,
+    [2766] = 2911,
+    [2767] = 2910,
+    [2825] = 2911,
+    [2891] = 2910,
+    [2899] = 2771,
+    [2914] = 2704,
+    [2925] = 2768,
+    [2927] = 2770,
+    [2928] = 2769,
+    [2940] = 2772,
+    [2956] = 3583,
+    [2959] = 3584,
+  },
+  -- Boss ohne Gegenstück in ns.BossData (in keiner Bossliste: zählt als Kill, nicht zum Fortschritt)
+  bossNames = {
+    [277] = "Solakar Flamewreath",
+  },
+  -- Rare ohne Encounter-ID: Erkennung über die NPC-ID des gestorbenen Gegners im Kampflog, nie Fortschritt
+  rareNpcs = {
+    [33] = {
+      [3872] = "Deathsworn Captain",
+    },
+    [34] = {
+      [1720] = "Bruegal Ironknuckle",
+    },
+    [43] = {
+      [5912] = "Deviate Faerie Dragon",
+    },
+    [47] = {
+      [4425] = "Blind Hunter",
+      [4842] = "Earthcaller Halmgar",
+    },
+    [90] = {
+      [6228] = "Dark Iron Ambassador",
+    },
+    [189] = {
+      [6488] = "Fallen Champion",
+      [6489] = "Ironspine",
+      [6490] = "Azshir the Sleepless",
+    },
+    [209] = {
+      [10080] = "Sandarr Dunereaver",
+      [10081] = "Dustwraith",
+      [10082] = "Zerillis",
+    },
+    [229] = {
+      [9217] = "Spirestone Lord Magus",
+      [9218] = "Spirestone Battle Lord",
+      [9219] = "Spirestone Butcher",
+      [9596] = "Bannok Grimaxe",
+      [9718] = "Ghok Bashguud",
+      [10376] = "Crystal Fang",
+      [10509] = "Jed Runewatcher",
+    },
+    [230] = {
+      [8923] = "Panzor the Invincible",
+      [16059] = "Theldren",
+    },
+    [349] = {
+      [12237] = "Meshlok the Harvester",
+    },
+    [2970] = {
+      [260468] = "\"Pyromancer\" Braxton",
+      [264172] = "Umbra",
+      [264177] = "Gill",
+    },
+    [2974] = {
+      [250034] = "Tunnelweb Matriarch",
+      [269104] = "Moontouched Wanderer",
+      [269111] = "Gortek the Apprentice",
+    },
+    [3039] = {
+      [262716] = "Kroog",
+    },
   },
   quests = {
     [33] = {

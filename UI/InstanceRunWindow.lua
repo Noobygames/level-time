@@ -291,13 +291,33 @@ local function fillTiles(record, reference, compare)
   setTile(8, "DUNGEON_RUNS_TILE_GROUP", record.groupSize and tostring(record.groupSize) or "-")
 end
 
--- Bosse in Dungeon-Reihenfolge; ohne Bossliste die besiegten in Kill-Reihenfolge
+-- Bosse in Dungeon-Reihenfolge, danach besiegte Bosse außerhalb der Bossliste in Kill-Reihenfolge
 local function bossOrder(record)
-  local list = InstanceBosses.List(record.mapID, record.difficultyID)
-  if list then return list end
-  local order = {}
-  for id in string.gmatch(record.bosses or "", "%d+") do order[#order + 1] = tonumber(id) end
+  local order, listed = {}, {}
+  for _, id in ipairs(InstanceBosses.List(record.mapID, record.difficultyID) or {}) do
+    order[#order + 1], listed[id] = id, true
+  end
+  for id in string.gmatch(record.bosses or "", "%d+") do
+    id = tonumber(id)
+    if not listed[id] then order[#order + 1], listed[id] = id, true end
+  end
   return order
+end
+
+-- { [NPC-ID] = Sekunden } der Rare eines Laufs (Vergleichsspalte)
+local function rareSplits(record)
+  local splits = {}
+  for _, rare in ipairs(record and InstanceBosses.Rares(record) or {}) do splits[rare.npcID] = rare.seconds end
+  return splits
+end
+
+-- Zeile der Bosstabelle (wiederverwendet) an Position index
+local function bossRow(index)
+  local row = bossRows[index] or createTableRow("GameFontHighlightSmall")
+  bossRows[index] = row
+  row:SetPoint("TOPLEFT", tableHeader, "BOTTOMLEFT", 0, -(index - 1) * TABLE_ROW_HEIGHT)
+  row:Show()
+  return row
 end
 
 -- Bosstabelle füllen; Rückgabe: Höhe
@@ -312,9 +332,7 @@ local function fillBosses(record, reference, compare, xpById)
   local referenceSplits = reference and InstanceRuns.Splits(reference) or {}
   local order = bossOrder(record)
   for index, id in ipairs(order) do
-    local row = bossRows[index] or createTableRow("GameFontHighlightSmall")
-    bossRows[index] = row
-    row:SetPoint("TOPLEFT", tableHeader, "BOTTOMLEFT", 0, -(index - 1) * TABLE_ROW_HEIGHT)
+    local row = bossRow(index)
     local name = InstanceBosses.Name(id) or tostring(id)
     if InstanceBosses.IsRare(id) then name = name .. colored("accent", " " .. L.DUNGEON_RUNS_RARE_TAG) end
     local split, referenceSplit = splits[id], referenceSplits[id]
@@ -324,10 +342,20 @@ local function fillBosses(record, reference, compare, xpById)
     row.cells[3]:SetText(referenceSplit and colored("muted", Format.Duration(referenceSplit)) or "-")
     row.cells[4]:SetText(deltaText(split, referenceSplit))
     row.cells[5]:SetText(xpById[id] and Format.Number(xpById[id]) or "")
-    row:Show()
   end
-  for index = #order + 1, #bossRows do bossRows[index]:Hide() end
-  return (#order + 1) * TABLE_ROW_HEIGHT
+  -- Rare ohne Encounter (nur besiegte, nie Fortschritt) unter den Bossen
+  local rows, referenceRares = #order, rareSplits(reference)
+  for _, rare in ipairs(InstanceBosses.Rares(record)) do
+    rows = rows + 1
+    local row, referenceSplit = bossRow(rows), referenceRares[rare.npcID]
+    row.cells[1]:SetText((rare.name or tostring(rare.npcID)) .. colored("accent", " " .. L.DUNGEON_RUNS_RARE_TAG))
+    row.cells[2]:SetText(Format.Duration(rare.seconds))
+    row.cells[3]:SetText(referenceSplit and colored("muted", Format.Duration(referenceSplit)) or "-")
+    row.cells[4]:SetText(deltaText(rare.seconds, referenceSplit))
+    row.cells[5]:SetText("")
+  end
+  for index = rows + 1, #bossRows do bossRows[index]:Hide() end
+  return (rows + 1) * TABLE_ROW_HEIGHT
 end
 
 -- Ergebnis eines Wurfs aus Sicht des Charakters (ownName = Kurzname)
