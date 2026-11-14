@@ -1,6 +1,6 @@
 # Roadmap
 
-Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **504**.
+Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **505**.
 
 ## Funde aus dem Spieltest (November 2026)
 

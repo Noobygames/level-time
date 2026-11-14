@@ -2,7 +2,7 @@
 -- Läufe eines Charakters (neueste zuerst, Filter Alle/Dungeons/Raids, Markierung Bestzeit/offen/Raid), rechts der
 -- gewählte Lauf: Kopf (Name, Datum, Level, Status), Vergleich mit Bestzeit oder letztem Lauf derselben Instanz,
 -- acht Kacheln (Zeit, Tode, Kills, XP, Bosse, Geld, Quests, Gruppe), Bosstabelle (Split, Vergleich, Abstand, XP) und
--- Beute samt Würfen. Daten aus History.GetInstanceLog und InstanceRuns.lua; blau/orange = Theme good/bad.
+-- Beute samt Würfen; Boss-Porträts (Lib/CreatureModel.lua) je Zeile und groß für den Endboss im Kopf. Daten aus History.GetInstanceLog und InstanceRuns.lua; blau/orange = Theme good/bad.
 -- Läuft der gewählte Lauf noch, rechnet das Fenster einmal je Sekunde neu.
 -- shortcut: die Liste zeigt die neuesten MAX_LIST_ROWS Läufe des Filters; bei Bedarf Lazy Load wie in TableView.
 local _, ns = ...
@@ -12,6 +12,7 @@ local Theme = ns.Theme
 local Format = ns.Format
 local InstanceBosses = ns.InstanceBosses
 local InstanceRuns = ns.InstanceRuns
+local CreatureModel = ns.CreatureModel
 
 local InstanceRunWindow = {}
 ns.InstanceRunWindow = InstanceRunWindow
@@ -29,6 +30,9 @@ local TILE_COLUMNS = 4
 local TILE_HEIGHT = 50
 local TILE_GAP = 6
 local TABLE_ROW_HEIGHT = 18
+local BOSS_ROW_HEIGHT = 24
+local ROW_PORTRAIT_SIZE = 22
+local HEADER_PORTRAIT_SIZE = 36
 local TABLE_NUMBER_WIDTH = 70
 local SECTION_GAP = 12
 local SCROLL_STEP = 40
@@ -199,6 +203,13 @@ runName:SetPoint("TOPLEFT")
 runName:SetJustifyH("LEFT")
 local runInfo = detail:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 runInfo:SetPoint("TOPLEFT", runName, "BOTTOMLEFT", 0, -2)
+-- Platz rechts für das Endboss-Porträt
+runName:SetWidth(DETAIL_WIDTH - HEADER_PORTRAIT_SIZE - SECTION_GAP)
+runInfo:SetWidth(DETAIL_WIDTH - HEADER_PORTRAIT_SIZE - SECTION_GAP)
+runInfo:SetJustifyH("LEFT")
+-- Endboss groß rechts im Kopf (Kopf und Kacheln lassen rechts oben Platz)
+local endBossPortrait = CreatureModel.Create(detail, HEADER_PORTRAIT_SIZE)
+endBossPortrait:SetPoint("TOPRIGHT")
 local emptyText = detail:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 emptyText:SetPoint("TOPLEFT")
 
@@ -228,11 +239,11 @@ for index = 1, 2 * TILE_COLUMNS do
 end
 local TILES_BOTTOM = SECTION_GAP + 2 * TILE_HEIGHT + TILE_GAP + SECTION_GAP
 
--- Bosstabelle: Name links, vier Zahlenspalten rechts
+-- Bosstabelle: (Porträt,) Name links, vier Zahlenspalten rechts; portraitSize nil = Kopfzeile ohne Porträt
 local NUMBER_COLUMNS = 4
-local function createTableRow(fontObject)
+local function createTableRow(fontObject, portraitSize)
   local row = CreateFrame("Frame", nil, detail)
-  row:SetSize(DETAIL_WIDTH, TABLE_ROW_HEIGHT)
+  row:SetSize(DETAIL_WIDTH, portraitSize and BOSS_ROW_HEIGHT or TABLE_ROW_HEIGHT)
   row.cells = {}
   for column = NUMBER_COLUMNS, 1, -1 do
     local cell = row:CreateFontString(nil, "OVERLAY", fontObject)
@@ -241,8 +252,14 @@ local function createTableRow(fontObject)
     cell:SetPoint("RIGHT", row, "RIGHT", -(NUMBER_COLUMNS - column) * TABLE_NUMBER_WIDTH, 0)
     row.cells[column + 1] = cell
   end
+  local nameLeft = 4
+  if portraitSize then
+    row.portrait = CreatureModel.Create(row, portraitSize)
+    row.portrait:SetPoint("LEFT", nameLeft, 0)
+    nameLeft = nameLeft + portraitSize + 6
+  end
   local name = row:CreateFontString(nil, "OVERLAY", fontObject)
-  name:SetPoint("LEFT", 4, 0)
+  name:SetPoint("LEFT", nameLeft, 0)
   name:SetPoint("RIGHT", row.cells[2], "LEFT", -4, 0)
   name:SetJustifyH("LEFT")
   name:SetWordWrap(false)
@@ -313,9 +330,9 @@ end
 
 -- Zeile der Bosstabelle (wiederverwendet) an Position index
 local function bossRow(index)
-  local row = bossRows[index] or createTableRow("GameFontHighlightSmall")
+  local row = bossRows[index] or createTableRow("GameFontHighlightSmall", ROW_PORTRAIT_SIZE)
   bossRows[index] = row
-  row:SetPoint("TOPLEFT", tableHeader, "BOTTOMLEFT", 0, -(index - 1) * TABLE_ROW_HEIGHT)
+  row:SetPoint("TOPLEFT", tableHeader, "BOTTOMLEFT", 0, -(index - 1) * BOSS_ROW_HEIGHT)
   row:Show()
   return row
 end
@@ -333,6 +350,7 @@ local function fillBosses(record, reference, compare, xpById)
   local order = bossOrder(record)
   for index, id in ipairs(order) do
     local row = bossRow(index)
+    CreatureModel.Set(row.portrait, InstanceBosses.NpcID(id))
     local name = InstanceBosses.Name(id) or tostring(id)
     if InstanceBosses.IsRare(id) then name = name .. colored("accent", " " .. L.DUNGEON_RUNS_RARE_TAG) end
     local split, referenceSplit = splits[id], referenceSplits[id]
@@ -348,6 +366,7 @@ local function fillBosses(record, reference, compare, xpById)
   for _, rare in ipairs(InstanceBosses.Rares(record)) do
     rows = rows + 1
     local row, referenceSplit = bossRow(rows), referenceRares[rare.npcID]
+    CreatureModel.Set(row.portrait, rare.npcID)
     row.cells[1]:SetText((rare.name or tostring(rare.npcID)) .. colored("accent", " " .. L.DUNGEON_RUNS_RARE_TAG))
     row.cells[2]:SetText(Format.Duration(rare.seconds))
     row.cells[3]:SetText(referenceSplit and colored("muted", Format.Duration(referenceSplit)) or "-")
@@ -355,7 +374,7 @@ local function fillBosses(record, reference, compare, xpById)
     row.cells[5]:SetText("")
   end
   for index = rows + 1, #bossRows do bossRows[index]:Hide() end
-  return (rows + 1) * TABLE_ROW_HEIGHT
+  return TABLE_ROW_HEIGHT + rows * BOSS_ROW_HEIGHT
 end
 
 -- Ergebnis eines Wurfs aus Sicht des Charakters (ownName = Kurzname)
@@ -400,7 +419,7 @@ local function renderDetail(records, index)
   local hasRecord = record ~= nil
   emptyText:SetShown(not hasRecord)
   emptyText:SetText(L.DUNGEON_RUNS_EMPTY)
-  for _, part in ipairs({ runName, runInfo, tableHeader, lootTitle, lootText, compareLabel }) do part:SetShown(hasRecord) end
+  for _, part in ipairs({ runName, runInfo, tableHeader, lootTitle, lootText, compareLabel, endBossPortrait }) do part:SetShown(hasRecord) end
   for _, tile in ipairs(tiles) do tile:SetShown(hasRecord) end
   for _, tab in ipairs(compareTabs) do tab:SetShown(hasRecord) end
   if not hasRecord then
@@ -411,6 +430,8 @@ local function renderDetail(records, index)
   local compare = state.compare == InstanceRuns.LAST and COMPARES[2] or COMPARES[1]
   local reference = InstanceRuns.Reference(records, index, compare.id)
   runName:SetText(record.name or "?")
+  CreatureModel.Set(endBossPortrait,
+    InstanceBosses.NpcID(InstanceBosses.EndBoss(InstanceBosses.List(record.mapID, record.difficultyID))))
   runInfo:SetText(string.format(L.DUNGEON_RUNS_INFO, date(L.DATE_FORMAT, record.time), record.level or "?",
     statusText(record)))
   fillTiles(record, reference, compare)
@@ -479,7 +500,7 @@ end
 -- Test-Zugriff: gewählter Lauf, Kacheln, Bosszeilen und Beutetext
 function InstanceRunWindow.Parts()
   return { selected = state.selected, tiles = tiles, bossRows = bossRows, loot = lootText, listRows = listRows,
-    info = runInfo }
+    info = runInfo, endBossPortrait = endBossPortrait }
 end
 
 function InstanceRunWindow.SetCompare(id)

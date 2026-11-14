@@ -279,6 +279,8 @@ local function noop() end
 frameMethods.SetTexture = function(self, texture) self._texture = texture end
 frameMethods.GetTexture = function(self) return rawget(self, "_texture") end
 frameMethods.GetAtlas = function(self) return rawget(self, "_atlas") end
+-- Modellrahmen (PlayerModel) merken die Kreatur
+frameMethods.SetCreature = function(self, creatureID) self._creature = creatureID end
 frameMethods.SetBlendMode = function(self, mode) self._blendMode = mode end
 frameMethods.GetBlendMode = function(self) return rawget(self, "_blendMode") or "BLEND" end
 frameMethods.AddMaskTexture = function(self, mask)

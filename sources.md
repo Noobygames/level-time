@@ -50,6 +50,9 @@ the rare NPC IDs per dungeon and the boss-to-wing assignment of Stratholme, Dire
 Spire in `Assist/InstanceData/forever_guide.lua` (`encounterAliases`, `bossNames`, `rareBosses`, `rareNpcs`, `wings`)
 were imported once on 2026-11-14 from the addon ForeverDungeonJournal 2.0.5 (`Data/RunLogEncounters.lua`,
 `Data/Dungeons.lua`), licensed under the WTFPL. Thanks to its authors.
+The boss NPC IDs for the boss portraits in `Assist/InstanceData/boss_npcs.lua` (encounter ID -> NPC ID, `portraitNpcID`
+where given; matched by dungeon and boss name, else by the unique English boss name) come from the same one-time import
+(2026-11-14); Classic Era uses the subset of these encounters with the same Classic NPC IDs. Maintained by hand since.
 
 ## 5. QuestieDB (WoW Forever dungeon quests)
 

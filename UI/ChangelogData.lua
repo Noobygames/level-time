@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-14",
     entries = {
+      { kind = "new",
+        deDE = "Dungeon-Runs: Bosse und Rare erscheinen mit kleinem 3D-Porträt im Run-Fenster, der Endboss groß im Kopf, der Live-Tracker zeigt den nächsten Boss (Classic Era und WoW Forever).",
+        enUS = "Dungeon runs: bosses and rares show a small 3D portrait in the runs window, the final boss a large one in the header, and the live tracker shows the next boss (Classic Era and WoW Forever).",
+        frFR = "Donjons : les boss et rares affichent un petit portrait 3D dans la fenêtre des runs, le boss final en grand dans l'en-tête, et le suivi en direct montre le prochain boss (Classic Era et WoW Forever).",
+        esES = "Mazmorras: jefes y raros muestran un pequeño retrato 3D en la ventana de partidas, el jefe final uno grande en la cabecera y el seguimiento en vivo muestra el siguiente jefe (Classic Era y WoW Forever)." },
       { kind = "fix",
         deDE = "Dungeon-Runs: Setzt der Gruppenleiter die Instanz zurück, beginnt beim Wiederkommen ein neuer Run, sobald der Endboss schon lag oder ein besiegter Boss erneut fällt.",
         enUS = "Dungeon runs: if the group leader resets the instance, a new run starts when you return once the final boss was dead or a killed boss dies again.",

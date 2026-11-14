@@ -64,6 +64,12 @@ local card = addon.InstanceRunTracker.Card()
 expectTrue("Tracker in der Instanz sichtbar", card.frame:IsShown())
 expectTrue("Tracker zeigt die Bosse", card.frame.body:GetText():find("Rhahk'Zor", 1, true) ~= nil)
 expectTrue("Tracker zeigt den Abstand", card.frame.time:GetText():find("-10", 1, true) ~= nil)
+-- Porträt des nächsten Bosses (Rhahk'Zor besiegt -> zweiter Boss der Liste) über das Modell
+local _, trackerPortrait = addon.InstanceRunTracker.Card()
+local nextNpc = addon.InstanceBosses.NpcID(addon.InstanceBosses.List(36, 1)[2])
+expectTrue("NPC-ID des nächsten Bosses bekannt", nextNpc ~= nil)
+expect("Tracker-Porträt: Modell des nächsten Bosses", trackerPortrait.model._creature, nextNpc)
+expectTrue("Tracker-Porträt sichtbar", trackerPortrait:IsShown())
 
 wow.advance(150)
 printedBefore = #wow.printed
@@ -82,6 +88,17 @@ expectTrue("Fenster offen", Window.IsShown())
 local parts = Window.Parts()
 expect("offener Lauf gewählt", parts.selected, run.startedAt)
 expect("Kachel Bosse", parts.tiles[5].value:GetText(), "2/7")
+expect("Porträt Rhahk'Zor (NPC 644)", parts.bossRows[1].portrait.npcID, 644)
+expect("Porträt-Modell bekommt die NPC-ID", parts.bossRows[1].portrait.model._creature, 644)
+expect("Endboss-Porträt im Kopf: Edwin van Cleef (NPC 639)", parts.endBossPortrait.npcID, 639)
+-- Ohne Daten: Symbol statt Modell, ohne Fehler
+local CreatureModel = addon.CreatureModel
+local portrait = CreatureModel.Create(UIParent, 20)
+CreatureModel.Set(portrait, addon.InstanceBosses.NpcID(999999))
+expectTrue("ohne NPC-ID: Symbol", portrait.npcID == false and portrait.icon:IsShown() and portrait.model == false)
+CreatureModel.Set(portrait, 644)
+CreatureModel.Set(portrait, nil)
+expectTrue("zurück auf Symbol", portrait.icon:IsShown() and not portrait.model:IsShown())
 expectTrue("Bosstabelle: schneller als die Bestzeit", parts.bossRows[1].cells[4]:GetText():find("-10", 1, true) ~= nil)
 expectTrue("Beute mit Wurf", parts.loot:GetText():find("[Kapitänsmantel]", 1, true) ~= nil
   and parts.loot:GetText():find(string.format(L.DUNGEON_RUNS_ROLL_WON, L.LOOT_ROLL_KIND_NEED), 1, true) ~= nil)

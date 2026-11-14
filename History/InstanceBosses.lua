@@ -91,6 +91,12 @@ function InstanceBosses.Name(encounterID)
   return names
 end
 
+-- NPC-ID eines Bosses für sein Porträt (ns.BossNpcs, nur Forever und Classic Era) oder nil ohne Daten
+function InstanceBosses.NpcID(encounterID)
+  local npcs = ns.BossNpcs
+  return npcs and (npcs[encounterID] or npcs[canonical(encounterID)])
+end
+
 -- Level eines Bosses oder nil ohne Daten
 function InstanceBosses.Level(encounterID)
   return ns.InstanceGuide and ns.InstanceGuide.bossLevels[encounterID]

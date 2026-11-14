@@ -54,6 +54,7 @@ Lib\TabStrip.lua
 Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
+Lib\CreatureModel.lua
 Lib\TimerDisplay.lua
 
 # Erfassung: Zähler und Ereignisse (Tracking)
@@ -72,6 +73,7 @@ Assist\InstanceData\retail.lua
 Assist\BossData\anniversary.lua
 Assist\BossData\classic_era.lua
 Assist\BossData\forever.lua
+Assist\InstanceData\boss_npcs.lua
 Assist\MapCoordsData\retail.lua
 Tracking\InstanceInfo.lua
 Tracking\InstanceCopy.lua

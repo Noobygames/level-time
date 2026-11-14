@@ -3468,3 +3468,15 @@ Einstellungen > Komfort > Quests > Chat und Einblendungen: „Quest-Check beim B
 - Eine Chatzeile „Fehlende Dungeonquests (N): [Level] Titel (Zone (x, y)), …“; nur Quests, die der Charakter jetzt annehmen kann (Level, Fraktion, Klasse, Vorquests); angenommene und abgegebene fehlen
 - Nach Tod und Wiedereintritt als Geist keine zweite gleiche Zeile; nach dem Annehmen einer fehlenden Quest und Wiedereintritt die kürzere Liste
 - Titel in der Spielsprache, Zeile passt in allen vier Sprachen
+
+### 504. Boss-Porträts in Dungeon-Runs (Classic Era und WoW Forever)
+
+- [ ] geprüft
+
+`/lt runs` öffnen und einen Lauf in einem Classic-Dungeon (z.B. Todesminen) und einem Forever-Dungeon (z.B. Versunkene Stadt) wählen; danach in einem Dungeon den Live-Tracker ansehen.
+
+- Jede Bosszeile zeigt links das Gesicht des richtigen Bosses (Porträt-Zoom: Kopf ganz im Quadrat, nicht abgeschnitten, nicht nur Füße oder leer); besiegte Rare ebenso
+- Kopf rechts: großes Porträt des Endbosses; lange Instanznamen laufen nicht darunter
+- Live-Tracker: Porträt des nächsten Bosses im Symbolfeld, wechselt nach dem Kill; kein Flackern bei der Sekundenaktualisierung
+- Bosse ohne Daten (Retail, Raids ohne Eintrag): Totenkopf-Symbol, keine Lua-Fehler
+- Große Kreaturen (Drachen, Elementare) und Classic Era vs. Forever: Framing notieren; falls nötig Zoom oder Kameraabstand je Client anpassen

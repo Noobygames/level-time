@@ -2,8 +2,8 @@
 -- (Lib/Card.lua), nur solange die Uhr des Instanz-Laufs läuft. Titel = Instanz, große Zeile = Laufzeit und Abstand
 -- zur Bestzeit beim letzten Boss (Format.SplitDelta: Theme good = schneller, bad = langsamer), Text = Bossliste
 -- (Haken, Split und Abstand zum Split der Bestzeit; ">" = nächster Boss; Rar-Bosse und besiegte Rare mit "Rar", nie
--- im Balken) und Kills, Tode, XP/h; Balken = besiegte
--- Bosse. Vergleich = schnellster abgeschlossener Lauf derselben Instanz (InstanceRuns.lua).
+-- im Balken) und Kills, Tode, XP/h; Balken = besiegte Bosse; im Symbolfeld das Porträt des nächsten Bosses
+-- (Lib/CreatureModel.lua, nur mit NPC-ID). Vergleich = schnellster abgeschlossener Lauf derselben Instanz (InstanceRuns.lua).
 -- Position und Größe über Lib/Frames.lua (Id "dungeonRun", im Edit-Modus mit Beispiel-Lauf). Aktualisiert einmal je
 -- Sekunde, solange die Einstellung an ist.
 -- shortcut: die Bossliste ist ein Text ohne Spalten; bei Bedarf eigene Zeilen wie in der Split-Liste.
@@ -13,6 +13,7 @@ local Theme = ns.Theme
 local Format = ns.Format
 local InstanceBosses = ns.InstanceBosses
 local InstanceRuns = ns.InstanceRuns
+local CreatureModel = ns.CreatureModel
 
 ns.RegisterDefaults({
   settings = {
@@ -34,6 +35,7 @@ local SAMPLE_SECONDS = 1458
 local card = ns.Card.Create(ns.GlobalName("DungeonRun"))
 local previewing = false
 local cachedBest = {}  -- Bestzeit zum offenen Lauf: { key, record }
+local portrait  -- Porträt des nächsten Bosses, beim ersten Bedarf angelegt
 
 -- Erste n Bosse der Liste als bosses/splits-Text (Beispiel-Lauf)
 local function sampleRecord(splits)
@@ -67,13 +69,13 @@ local function rareName(name)
   return name .. " " .. Theme.Hex("accent") .. L.DUNGEON_RUNS_RARE_TAG .. "|r"
 end
 
--- Zeilen der Bossliste und Abstand zur Bestzeit beim zuletzt besiegten Boss (nil ohne Vergleich)
+-- Zeilen der Bossliste, Abstand zur Bestzeit beim zuletzt besiegten Boss (nil ohne Vergleich) und nächster Boss
 local function bossLines(record, best)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
-  if not list then return {}, nil end
+  if not list then return {}, nil, nil end
   local killed, splits = InstanceBosses.Killed(record), InstanceRuns.Splits(record)
   local bestSplits = best and InstanceRuns.Splits(best) or {}
-  local lines, nextShown, lastDelta, lastSplit = {}, false, nil, -1
+  local lines, nextID, lastDelta, lastSplit = {}, nil, nil, -1
   for _, id in ipairs(list) do
     local name = InstanceBosses.Name(id) or "?"
     if InstanceBosses.IsRare(id) then name = rareName(name) end
@@ -87,8 +89,8 @@ local function bossLines(record, best)
         end
       end
       lines[#lines + 1] = line
-    elseif not nextShown and not InstanceBosses.IsRare(id) then
-      nextShown = true
+    elseif not nextID and not InstanceBosses.IsRare(id) then
+      nextID = id
       lines[#lines + 1] = Theme.Hex("accent") .. NEXT_MARK .. " " .. name .. "|r"
     else
       lines[#lines + 1] = Theme.Hex("muted") .. "   " .. name .. "|r"
@@ -99,7 +101,18 @@ local function bossLines(record, best)
     lines[#lines + 1] = CHECK_MARK .. " " .. rareName(rare.name or tostring(rare.npcID)) .. "  "
       .. Format.Duration(rare.seconds)
   end
-  return lines, lastDelta
+  return lines, lastDelta, nextID
+end
+
+-- Porträt des nächsten Bosses über dem Kartensymbol (nur mit NPC-ID)
+local function showPortrait(npcID)
+  if not npcID and not portrait then return end
+  if not portrait then
+    portrait = CreatureModel.Create(card.frame, 1)
+    portrait:SetAllPoints(card.frame.icon)
+  end
+  portrait:SetShown(npcID ~= nil)
+  CreatureModel.Set(portrait, npcID)
 end
 
 local function footer(record)
@@ -115,21 +128,23 @@ function InstanceRunTracker.Refresh()
     card.frame:Hide()
     return
   end
-  local lines, delta = bossLines(record, best)
+  local lines, delta, nextID = bossLines(record, best)
+  local npcID = nextID and InstanceBosses.NpcID(nextID)
   lines[#lines + 1] = footer(record)
   local timeText = Format.Duration(record.seconds)
   if delta then timeText = timeText .. "  " .. string.format(L.DUNGEON_RUN_VS_BEST, Format.SplitDelta(delta)) end
   card.Set({ color = { Theme.RGB("accent") }, title = record.name or "?", body = table.concat(lines, "\n"),
-    time = true, timeText = timeText })
+    time = true, timeText = timeText, icon = npcID and CreatureModel.FALLBACK_ICON or nil })  -- Platzhalter, das Porträt liegt deckend darüber
+  showPortrait(npcID)
   -- Balken = Fortschritt ohne Rar-Bosse ("3/7")
   local done, required = InstanceBosses.Progress(record)
   card.SetFraction(done and required > 0 and done / required or 0)
   card.frame:Show()
 end
 
--- Test-Zugriff: die Karte (frame.title/.body/.time)
+-- Test-Zugriff: die Karte (frame.title/.body/.time) und das Porträt des nächsten Bosses (nil = nie gebraucht)
 function InstanceRunTracker.Card()
-  return card
+  return card, portrait
 end
 
 ns.Frames.Register({
