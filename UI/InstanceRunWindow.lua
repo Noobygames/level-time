@@ -179,7 +179,7 @@ local function renderList(records, indices, selectedIndex)
     row.name:SetText(record.name or "?")
     row.badge:SetText(badgeOf(records, index))
     row.date:SetText(date(L.DATE_FORMAT, record.time))
-    row.time:SetText(Format.Duration(record.seconds or 0))
+    row.time:SetText(Format.Duration(InstanceRuns.Seconds(record)))
     local r, g, b = Theme.RGB(index == selectedIndex and "accent" or "background")
     row.background:SetColorTexture(r, g, b, index == selectedIndex and LIST_ROW_ALPHA or 0)
     row:Show()
@@ -294,8 +294,8 @@ local function fillTiles(record, reference, compare)
   local counters = record.counters
   local rate = (record.seconds or 0) > 0 and (record.xp or 0) * SECONDS_PER_HOUR / record.seconds or 0
   local timeNote = reference and string.format(L[compare.id == InstanceRuns.BEST and "DUNGEON_RUN_VS_BEST"
-    or "DUNGEON_RUN_VS_LAST"], deltaText(record.seconds, reference.seconds)) or ""
-  setTile(1, "DUNGEON_RUNS_TILE_TIME", Format.Duration(record.seconds or 0), timeNote)
+    or "DUNGEON_RUN_VS_LAST"], deltaText(InstanceRuns.Seconds(record), InstanceRuns.Seconds(reference))) or ""
+  setTile(1, "DUNGEON_RUNS_TILE_TIME", Format.Duration(InstanceRuns.Seconds(record)), timeNote)
   setTile(2, "DUNGEON_RUNS_TILE_DEATHS", tostring(counters.deaths or 0))
   setTile(3, "DUNGEON_RUNS_TILE_KILLS", tostring(counters.kills or 0))
   setTile(4, "DUNGEON_RUNS_TILE_XP", Format.Number(record.xp or 0),

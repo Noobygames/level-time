@@ -82,4 +82,26 @@ expect("Fortschritt im Flügel", Bosses.ProgressText(run), "1/7")
 wow.fire("ENCOUNTER_END", 478, "Balnazzar", 1, 5, 1)
 expectTrue("Balnazzar schließt Lebend ab", addon.InstanceRuns.IsCompleted(run))
 expectTrue("Baron Totenschwur ist Endboss", Bosses.IsEndBoss(run, 484))
+
+-- Bestzeit je Route (Roadmap 322): ein Lauf durch den untoten Flügel vergleicht nicht mit dem lebenden
+local STRATHOLME = wow.state.instance
+local livingWing = Bosses.Wing(run)
+expectTrue("Flügel des Laufs", livingWing ~= nil)
+wow.state.instance = { name = "Die Todesminen", type = "party", difficulty = 1, mapID = 36, maxPlayers = 5 }
+wow.fire("PLAYER_ENTERING_WORLD")
+wow.state.instance = STRATHOLME
+wow.fire("PLAYER_ENTERING_WORLD")
+run = addon.Instances.GetCurrentRun()
+wow.fire("ENCOUNTER_END", 484, "Baron Rivendare", 1, 5, 1)
+expectTrue("anderer Flügel", Bosses.Wing(run) ~= livingWing)
+local records = addon.History.GetInstanceLog(addon.characterKey)
+expect("keine Bestzeit aus dem anderen Flügel", addon.InstanceRuns.Reference(records, 1, addon.InstanceRuns.BEST), nil)
+wow.state.instance = { name = "Die Todesminen", type = "party", difficulty = 1, mapID = 36, maxPlayers = 5 }
+wow.fire("PLAYER_ENTERING_WORLD")
+wow.state.instance = STRATHOLME
+wow.fire("PLAYER_ENTERING_WORLD")
+wow.fire("ENCOUNTER_END", 478, "Balnazzar", 1, 5, 1)
+records = addon.History.GetInstanceLog(addon.characterKey)
+local best = addon.InstanceRuns.Reference(records, 1, addon.InstanceRuns.BEST)
+expectTrue("Bestzeit aus demselben Flügel", best ~= nil and Bosses.Wing(best) == livingWing)
 expect("keine Lua-Fehler", #wow.errors, 0)

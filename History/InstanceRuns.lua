@@ -3,7 +3,10 @@
 -- Lauf vorne), Felder siehe Instances.lua.
 -- Splits: record.splits = Laufzeit je Boss-Kill parallel zu record.bosses (InstanceBosses.lua); passt die Zahl nicht
 -- (Lauf aus einer älteren Version), gibt es keine Splits.
--- Gleiche Instanz: Karte und Schwierigkeit, ohne Karten-ID (Läufe vor Roadmap 460) der Name.
+-- Laufzeit (Roadmap 322): Splits, Bestzeit und Anzeige zählen ab der ersten Bewegung in der Instanz (record.moveAt,
+-- Instances.lua); ohne moveAt (ältere Läufe, noch nicht bewegt) ab dem Betreten.
+-- Gleiche Instanz: Karte, Schwierigkeit und Flügel (Route, InstanceBosses.Wing), ohne Karten-ID (Läufe vor
+-- Roadmap 460) der Name.
 -- Vergleich: BEST = schnellster abgeschlossener anderer Lauf derselben Instanz, LAST = der vorige Lauf derselben
 -- Instanz. Abgeschlossen = Endboss der Bossliste besiegt (ohne Bossliste nie; Rar-Bosse sind nie Endboss).
 -- XP je Boss: erster Kill-Eintrag mit dem Bossnamen im Zeitfenster des Laufs (Start bis Beginn des nächsten Laufs);
@@ -23,13 +26,19 @@ InstanceRuns.DUNGEON = "party"
 InstanceRuns.RAID = "raid"
 local LOOT_MIN_QUALITY = 2  -- ab "selten" (grün)
 
--- { [encounterID] = Sekunden seit Start } eines Laufs (leer ohne passende Splits)
+-- Laufzeit ab der ersten Bewegung
+function InstanceRuns.Seconds(record)
+  return math.max(0, (record.seconds or 0) - (record.moveAt or 0))
+end
+
+-- { [encounterID] = Sekunden ab der ersten Bewegung } eines Laufs (leer ohne passende Splits)
 function InstanceRuns.Splits(record)
   local ids, seconds, splits = {}, {}, {}
   for id in string.gmatch(record.bosses or "", "%d+") do ids[#ids + 1] = tonumber(id) end
   for value in string.gmatch(record.splits or "", "%d+") do seconds[#seconds + 1] = tonumber(value) end
   if #ids ~= #seconds then return splits end
-  for index, id in ipairs(ids) do splits[id] = seconds[index] end
+  local offset = record.moveAt or 0
+  for index, id in ipairs(ids) do splits[id] = math.max(0, seconds[index] - offset) end
   return splits
 end
 
@@ -41,7 +50,9 @@ function InstanceRuns.IsCompleted(record)
 end
 
 function InstanceRuns.SameInstance(a, b)
-  if a.mapID and b.mapID then return a.mapID == b.mapID and a.difficultyID == b.difficultyID end
+  if a.mapID and b.mapID then
+    return a.mapID == b.mapID and a.difficultyID == b.difficultyID and InstanceBosses.Wing(a) == InstanceBosses.Wing(b)
+  end
   return a.name == b.name
 end
 
@@ -56,8 +67,8 @@ function InstanceRuns.Reference(records, index, mode)
   end
   local best
   for i, other in ipairs(records) do
-    if i ~= index and InstanceRuns.SameInstance(other, record) and (not best or other.seconds < best.seconds)
-      and InstanceRuns.IsCompleted(other) then
+    if i ~= index and InstanceRuns.SameInstance(other, record)
+      and (not best or InstanceRuns.Seconds(other) < InstanceRuns.Seconds(best)) and InstanceRuns.IsCompleted(other) then
       best = other
     end
   end
@@ -68,14 +79,19 @@ end
 function InstanceRuns.IsBest(records, index)
   if not InstanceRuns.IsCompleted(records[index]) then return false end
   local best = InstanceRuns.Reference(records, index, InstanceRuns.BEST)
-  return not best or records[index].seconds <= best.seconds
+  return not best or InstanceRuns.Seconds(records[index]) <= InstanceRuns.Seconds(best)
 end
 
 -- Offener Lauf schneller als der beste frühere abgeschlossene derselben Instanz (Chat beim Endboss)
-function InstanceRuns.IsNewBest(run)
+function InstanceRuns.IsNewBest()
   local records = ns.History.GetInstanceLog(ns.characterKey)
   local best = records[1] and records[1].isCurrent and InstanceRuns.Reference(records, 1, InstanceRuns.BEST)
-  return best and ns.Instances.GetRunSeconds(run) < best.seconds or false
+  return best and InstanceRuns.Seconds(records[1]) < InstanceRuns.Seconds(best) or false
+end
+
+-- Zeilen-Tooltip der Instanz-Ansicht im Verlauf: Bossliste mit der Zeit bis zu jedem Kill
+function InstanceRuns.TooltipLines(record)
+  return InstanceBosses.TooltipLines(record, InstanceRuns.Splits(record))
 end
 
 -- Ende des Zeitfensters von records[index]: Start des nächsten (neueren) Laufs oder jetzt

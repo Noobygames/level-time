@@ -12,7 +12,8 @@
 -- RaresKilled) und nie als Endboss (Endboss = letzter Boss der Liste, der kein Rar-Boss ist).
 -- Flügel einer Karte (nur Forever, ns.InstanceGuide.wings: Stratholme, Düsterbruch, Kloster, Schwarzfelsspitze): jeder
 -- Flügel ist eine Bossliste, sein letzter Boss schließt ihn ab; der Fortschritt zählt über den Flügel mit den meisten
--- Kills (vor dem ersten Kill über die ganze Liste), Bosse außerhalb aller Flügel (Event-Bosse) zählen dann nicht mit.
+-- Kills (vor dem ersten Kill über die ganze Liste), Bosse außerhalb aller Flügel (Event-Bosse) zählen dann nicht mit;
+-- ein abgeschlossener Flügel (Endboss besiegt) geht vor. Wing(record) = dieser Flügel (Bestzeit je Route, Roadmap 322).
 -- Forever-Aliase (ns.InstanceGuide.encounterAliases): ältere und neuere Encounter-IDs desselben Bosses werden auf den
 -- Eintrag der Bossliste abgebildet, damit jeder Kill zum Fortschritt und zu den Splits zählt.
 -- Rare ohne Encounter (ns.InstanceGuide.rareNpcs): Kampflog UNIT_DIED mit passender NPC-ID in der destGUID; run.rares =
@@ -136,7 +137,8 @@ function InstanceBosses.IsEndBoss(record, encounterID)
   return false
 end
 
--- Besiegte Rare ohne Encounter eines Laufs oder Journal-Eintrags in Kill-Reihenfolge: { { npcID, seconds, name } }
+-- Besiegte Rare ohne Encounter eines Laufs oder Journal-Eintrags in Kill-Reihenfolge: { { npcID, seconds, name } };
+-- seconds ab der ersten Bewegung (moveAt, Instances.lua) wie die Splits
 function InstanceBosses.Rares(record)
   local rares = {}
   for entry in string.gmatch(record.rares or "", "[^" .. RARE_SEPARATOR .. "]+") do
@@ -144,7 +146,8 @@ function InstanceBosses.Rares(record)
     if npcID then
       npcID = tonumber(npcID)
       local fallback = InstanceBosses.RareNpcName(record.mapID, npcID)
-      rares[#rares + 1] = { npcID = npcID, seconds = tonumber(seconds), name = name ~= "" and name or fallback }
+      rares[#rares + 1] = { npcID = npcID, seconds = math.max(0, tonumber(seconds) - (record.moveAt or 0)),
+        name = name ~= "" and name or fallback }
     end
   end
   return rares
@@ -204,18 +207,29 @@ local function countKilled(list, killed)
   return done, required
 end
 
--- Besiegte und nötige Bosse der Bossliste (mit Flügeln: des Flügels mit den meisten Kills) ohne Rar-Bosse; nil ohne Liste
+-- Flügel eines Laufs: Index des Flügels, dessen Endboss fiel, sonst des Flügels mit den meisten Kills; nil ohne
+-- Flügel oder ohne Kill darin
+local function wingIndex(record, killed)
+  local bestIndex, bestDone = nil, 0
+  for index, wing in ipairs(wingsOf(record.mapID) or {}) do
+    if killed[wing[#wing]] then return index end
+    local done = countKilled(wing, killed)
+    if done > bestDone then bestIndex, bestDone = index, done end
+  end
+  return bestIndex
+end
+
+function InstanceBosses.Wing(record)
+  return wingIndex(record, (InstanceBosses.Killed(record)))
+end
+
+-- Besiegte und nötige Bosse der Bossliste (mit Flügeln: des Flügels des Laufs) ohne Rar-Bosse; nil ohne Liste
 function InstanceBosses.Progress(record)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
   if not list then return nil end
   local killed = InstanceBosses.Killed(record)
-  local bestDone, bestRequired
-  for _, wing in ipairs(wingsOf(record.mapID) or {}) do
-    local done, required = countKilled(wing, killed)
-    if done > (bestDone or 0) then bestDone, bestRequired = done, required end
-  end
-  if bestDone then return bestDone, bestRequired end
-  return countKilled(list, killed)
+  local wing = wingIndex(record, killed)
+  return countKilled(wing and wingsOf(record.mapID)[wing] or list, killed)
 end
 
 -- "3/7" (mit Bossliste, ohne Rar-Bosse), "3" (ohne Liste) oder nil, wenn es weder Liste noch Kill gibt
@@ -226,9 +240,9 @@ function InstanceBosses.ProgressText(record)
   return count > 0 and tostring(count) or nil
 end
 
--- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon, Name und Level, wo bekannt;
--- nil ohne Liste
-function InstanceBosses.TooltipLines(record)
+-- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon, Name und Level, wo bekannt,
+-- und die Zeit bis zum Kill aus splits ({ [encounterID] = Sekunden }, optional); nil ohne Liste
+function InstanceBosses.TooltipLines(record, splits)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
   if not list then return nil end
   local killed = InstanceBosses.Killed(record)
@@ -237,7 +251,9 @@ function InstanceBosses.TooltipLines(record)
     local icon = killed[id] and ICON_DEAD or ICON_ALIVE
     local line = string.format("|T%s:%d|t %d. %s", icon, ICON_SIZE, index, InstanceBosses.Name(id) or "?")
     local level = InstanceBosses.Level(id)
-    lines[#lines + 1] = level and string.format("%s (%d)", line, level) or line
+    if level then line = string.format("%s (%d)", line, level) end
+    local split = killed[id] and splits and splits[id]
+    lines[#lines + 1] = split and (line .. "  " .. ns.Format.Duration(split)) or line
   end
   return lines
 end
@@ -260,8 +276,9 @@ local function recordKill(id, source)
     ns.InstanceCopy.MarkCompleted()
     ns.Debug("instances", "dungeon completed: %s, bosses %s", run.name, InstanceBosses.ProgressText(run))
     local text = string.format(L.INSTANCE_COMPLETED, run.name or "?",
-      ns.Format.Duration(ns.Instances.GetRunSeconds(run)), InstanceBosses.ProgressText(run))
-    ns.Print(ns.InstanceRuns.IsNewBest(run) and (text .. " " .. L.DUNGEON_RUN_NEW_BEST) or text)
+      ns.Format.Duration(math.max(0, ns.Instances.GetRunSeconds(run) - (run.moveAt or 0))),
+      InstanceBosses.ProgressText(run))
+    ns.Print(ns.InstanceRuns.IsNewBest() and (text .. " " .. L.DUNGEON_RUN_NEW_BEST) or text)
   end
   return true
 end

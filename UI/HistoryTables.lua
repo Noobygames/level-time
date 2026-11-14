@@ -283,7 +283,7 @@ local INSTANCE_COLUMNS = {
   counterColumn("HISTORY_KILLS", "kills", 50),
   counterColumn("HISTORY_DEATHS", "deaths", 40),
   counterColumn("HISTORY_REPUTATION", "reputation", 40),
-  -- Bosse "x/y" (InstanceBosses.lua); Symbole je Boss im Tooltip der Zeile
+  -- Bosse "x/y" (InstanceBosses.lua); Symbole und Zeit bis zum Kill je Boss im Tooltip der Zeile (InstanceRuns.lua)
   { header = "HISTORY_BOSSES", width = 45, value = function(r) return ns.InstanceBosses.ProgressText(r) or "-" end,
     sort = function(r) return select(2, ns.InstanceBosses.Killed(r)) end },
   levelColumn(40),
@@ -567,7 +567,7 @@ addJournalTable("HISTORY_TAB_ROLLS", ROLL_COLUMNS, "rollLog", itemLink, "HISTORY
 -- Instanzen: Zeilenklick und Knopf öffnen das Fenster Dungeon- und Raid-Runs (UI/InstanceRunWindow.lua)
 ns.HistoryWindow.AddView(TableView.Create({
   tab = "HISTORY_TAB_INSTANCES", group = JOURNAL, columns = INSTANCE_COLUMNS, records = History.GetInstanceLog,
-  footer = summaryCells, rowTooltip = ns.InstanceBosses.TooltipLines,
+  footer = summaryCells, rowTooltip = ns.InstanceRuns.TooltipLines,
   onRowClick = function(record)
     ns.InstanceRunWindow.Show(ns.HistoryWindow.SelectedCharacter(), record.time)
   end,

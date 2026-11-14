@@ -226,6 +226,7 @@ function History.GetInstanceLog(characterKey)
       splits = run.splits,
       groupSize = run.groupSize,
       rares = run.rares,
+      moveAt = run.moveAt,
       xp = record.xp,
       counters = record.counters,
       isCurrent = true,

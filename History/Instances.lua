@@ -4,8 +4,9 @@
 -- auf dem Weg zurück zur Leiche. Wiederbelebt draußen (Geistheiler) hält die Uhr an.
 -- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level, mapID, difficultyID,
 -- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses, splits, groupSize,
--- rares }. bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill, rares = besiegte Rare (InstanceBosses.lua),
--- groupSize = größte gesehene Gruppe
+-- rares, moveAt }. bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill, rares = besiegte Rare (InstanceBosses.lua),
+-- groupSize = größte gesehene Gruppe, moveAt = Laufzeit bei der ersten Bewegung in der Instanz (Roadmap 322: Splits und
+-- Bestzeiten zählen ab da, InstanceRuns.lua; seconds bleibt die ganze Zeit in der Instanz)
 -- (Betreten und Boss-Kills).
 -- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist (mit bosses, splits, rares);
 -- zeigt sich eine andere Kopie (zoneUID oder ein Boss, der vor dem Wiedereintritt schon fiel, siehe InstanceCopy.lua),
@@ -162,7 +163,7 @@ function Instances.ResetCurrent()
   run.startedAt = time()
   run.level = ns.level
   run.unconfirmed = nil
-  run.bosses, run.splits, run.rares, run.groupSize = nil, nil, nil, nil
+  run.bosses, run.splits, run.rares, run.groupSize, run.moveAt = nil, nil, nil, nil, nil
   Instances.NoteGroupSize(run)
   if runningSince then runningSince = GetTime() end
   ns.Debug("instances", "run reset: %s", run.name)
@@ -238,6 +239,9 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     fresh.bosses = appended(run.bosses, before.bosses)
     fresh.splits = shiftedSplits(appended(run.splits, before.splits), -before.seconds)
     fresh.rares = ns.InstanceBosses.ShiftRares(appended(run.rares, before.rares), -before.seconds)
+    -- Erste Bewegung erst nach dem Wiedereintritt gehört zum neuen Lauf, sonst läuft der neue ab seinem Start
+    if run.moveAt then fresh.moveAt = math.max(0, run.moveAt - before.seconds) end
+    if run.moveAt and run.moveAt > before.seconds then run.moveAt = nil end
     Instances.NoteGroupSize(fresh)
     run.seconds, run.stats = before.seconds, before.stats
     run.bosses, run.splits, run.rares = before.bosses, before.splits, before.rares
@@ -262,6 +266,7 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
     run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
     run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
+    run.moveAt = previous.moveAt or (run.moveAt and run.moveAt + previous.seconds)
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
     for _, mapping in ipairs(RECORD_COUNTERS) do
@@ -311,6 +316,14 @@ ns.OnLogin(function()
 end)
 
 ns.OnLogout(pause)
+
+-- Erste Bewegung bei laufender Uhr merken (PLAYER_STARTED_MOVING gibt es in Retail, Classic und Forever)
+ns.RegisterEvent("PLAYER_STARTED_MOVING", function()
+  local run = currentRun()
+  if not run or run.moveAt or not runningSince then return end
+  run.moveAt = math.floor(Instances.GetRunSeconds(run))
+  ns.Debug("instances", "first move: %s at %s s", run.name, run.moveAt)
+end)
 
 ns.RegisterEvent("PLAYER_ALIVE", onPossiblyAlive)
 ns.RegisterEvent("PLAYER_UNGHOST", onPossiblyAlive)

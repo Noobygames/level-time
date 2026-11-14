@@ -3,7 +3,8 @@
 -- zur Bestzeit beim letzten Boss (Format.SplitDelta: Theme good = schneller, bad = langsamer), Text = Bossliste
 -- (Haken, Split und Abstand zum Split der Bestzeit; ">" = nächster Boss; Rar-Bosse und besiegte Rare mit "Rar", nie
 -- im Balken) und Kills, Tode, XP/h; Balken = besiegte Bosse; im Symbolfeld das Porträt des nächsten Bosses
--- (Lib/CreatureModel.lua, nur mit NPC-ID). Vergleich = schnellster abgeschlossener Lauf derselben Instanz (InstanceRuns.lua).
+-- (Lib/CreatureModel.lua, nur mit NPC-ID). Vergleich = schnellster abgeschlossener Lauf derselben Instanz und Route;
+-- Zeiten ab der ersten Bewegung (InstanceRuns.lua).
 -- Position und Größe über Lib/Frames.lua (Id "dungeonRun", im Edit-Modus mit Beispiel-Lauf). Aktualisiert einmal je
 -- Sekunde, solange die Einstellung an ist.
 -- shortcut: die Bossliste ist ein Text ohne Spalten; bei Bedarf eigene Zeilen wie in der Split-Liste.
@@ -57,7 +58,8 @@ local function currentAndBest()
   local records = ns.History.GetInstanceLog(ns.characterKey)
   local record = records[1]
   if not (record and record.isCurrent) then return nil end
-  local key = record.time .. "#" .. ns.Journal.Revision("instanceLog")
+  -- Bosse im Schlüssel: der erste Kill legt den Flügel fest und damit den Vergleichslauf
+  local key = record.time .. "#" .. (record.bosses or "") .. "#" .. ns.Journal.Revision("instanceLog")
   if cachedBest.key ~= key then
     cachedBest.key, cachedBest.record = key, InstanceRuns.Reference(records, 1, InstanceRuns.BEST)
   end
@@ -131,7 +133,7 @@ function InstanceRunTracker.Refresh()
   local lines, delta, nextID = bossLines(record, best)
   local npcID = nextID and InstanceBosses.NpcID(nextID)
   lines[#lines + 1] = footer(record)
-  local timeText = Format.Duration(record.seconds)
+  local timeText = Format.Duration(InstanceRuns.Seconds(record))
   if delta then timeText = timeText .. "  " .. string.format(L.DUNGEON_RUN_VS_BEST, Format.SplitDelta(delta)) end
   card.Set({ color = { Theme.RGB("accent") }, title = record.name or "?", body = table.concat(lines, "\n"),
     time = true, timeText = timeText, icon = npcID and CreatureModel.FALLBACK_ICON or nil })  -- Platzhalter, das Porträt liegt deckend darüber
