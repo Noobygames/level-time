@@ -1,5 +1,5 @@
 -- Dauerhaftes Debug-Log von Level Time (im Data Extractor, nur lokal): sammelt über Sitzungen hinweg Daten für die
--- Fehlersuche und für geplante Funktionen; immer an ("/lt debug log off" nur bis /reload). Dazu das Chat-Logging (/lt debug ohne Befehl, bis /reload).
+-- Fehlersuche und für geplante Funktionen; Standard an; aus nur per /lt debug log off (bleibt aus, Hinweis bei jedem Login). Dazu das Chat-Logging (/lt debug ohne Befehl, bis /reload).
 -- Diese Datei ist Speicher, JSON und Befehle; was gesammelt wird (Ereignis-Proben, Zustand, Schnappschüsse,
 -- API-Proben, Prüfungen), steht in DebugProbes.lua.
 -- Jeder Eintrag ist eine JSON-Zeile (JSON Lines) mit Zeit ("t" Uhrzeit, "gt" GetTime) und Bereich ("area"):
@@ -256,12 +256,9 @@ end
 ns.SetDebugRecorder(recordDebugLine)
 
 ns.OnLogin(function()
-  LevelTimerDebugLog = LevelTimerDebugLog or {}
+  LevelTimerDebugLog = LevelTimerDebugLog or { enabled = true }  -- lokal installiert = immer mitschreiben
   local firstLogin = store == nil
   store = LevelTimerDebugLog
-  -- Lokal installiert = immer mitschreiben: "/lt debug log off" gilt nur bis /reload, damit kein vergessenes Aus Daten
-  -- kostet (der Chat bleibt davon unberührt, Chat-Logging ist /lt debug)
-  if firstLogin then store.enabled = true end
   store.lines = store.lines or {}
   if firstLogin and DebugLog.IsEnabled() then
     for _, line in ipairs(pending) do store.lines[#store.lines + 1] = line end
@@ -269,7 +266,11 @@ ns.OnLogin(function()
   end
   pending = {}
   attach()
-  if DebugLog.IsEnabled() then writeHeader("login") end
+  if DebugLog.IsEnabled() then
+    writeHeader("login")
+  elseif firstLogin then
+    ns.Print(L.DEBUG_LOG_OFF_REMINDER)  -- ausgeschaltet bleibt aus, aber nie unbemerkt
+  end
 end)
 
 ns.OnLogout(function()
