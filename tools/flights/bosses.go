@@ -11,6 +11,8 @@ import (
 // Boss-Listen je Instanz aus den Spieldaten (DB2-Tabelle DungeonEncounter: Name_lang, ID, MapID, DifficultyID,
 // OrderIndex), Namen in allen Sprachen aus NameLocales (wago.tools, Parameter locale). ID = encounterID von
 // ENCOUNTER_END; DifficultyID 0 = alle Schwierigkeiten. Reihenfolge je Karte nach OrderIndex, der letzte gilt als Endboss.
+// Manche Karten teilen einen Dungeon auf Zeilen mit DifficultyID 0 und 1 auf (Forever: Tiefschwarze Grotte, Gnomeregan);
+// die 0-Zeilen gehören dann mit in die Liste der Schwierigkeit (siehe mergeAllDifficulties).
 
 // BossFlavors bekommen die Boss-Datei. shortcut: Retail fehlt (tausende Encounter aller Erweiterungen, dort zählt
 // Instances nur die Kills ohne Liste); bei Bedarf über das Encounter-Journal (EJ_*) des Clients nachrüsten.
@@ -24,7 +26,10 @@ type Bosses struct {
 	Names map[int][]string
 }
 
-type bossRow struct{ id, order int }
+type bossRow struct {
+	id, order int
+	name      string // englischer Name, nur zum Erkennen eigener Boss-Versionen einer Schwierigkeit
+}
 
 // ParseBosses liest DungeonEncounter je Sprache (tables[i] gehört zu NameLocales[i], die erste bestimmt die Listen).
 func ParseBosses(build string, tables []io.Reader) (*Bosses, error) {
@@ -45,13 +50,16 @@ func ParseBosses(build string, tables []io.Reader) (*Bosses, error) {
 				if rows[mapID] == nil {
 					rows[mapID] = map[int][]bossRow{}
 				}
-				rows[mapID][difficulty] = append(rows[mapID][difficulty], bossRow{id, integer(record["OrderIndex"])})
+				rows[mapID][difficulty] = append(rows[mapID][difficulty], bossRow{id, integer(record["OrderIndex"]), record["Name_lang"]})
 				bosses.Names[id] = make([]string, len(tables))
 			}
 			if names, ok := bosses.Names[id]; ok {
 				names[index] = record["Name_lang"]
 			}
 		}
+	}
+	for _, byDifficulty := range rows {
+		mergeAllDifficulties(byDifficulty)
 	}
 	for mapID, byDifficulty := range rows {
 		bosses.Maps[mapID] = map[int][]int{}
@@ -70,6 +78,31 @@ func ParseBosses(build string, tables []io.Reader) (*Bosses, error) {
 		}
 	}
 	return bosses, nil
+}
+
+// mergeAllDifficulties hängt die Bosse "alle Schwierigkeiten" (0) an jede Schwierigkeit an, die keinen gleichnamigen
+// Boss hat; Schwierigkeiten mit eigenen Versionen derselben Bosse (Season of Discovery 198/201) bleiben unverändert.
+func mergeAllDifficulties(byDifficulty map[int][]bossRow) {
+	all := byDifficulty[0]
+	for difficulty, list := range byDifficulty {
+		if difficulty == 0 || sharesName(list, all) {
+			continue
+		}
+		byDifficulty[difficulty] = append(list, all...)
+	}
+}
+
+func sharesName(a, b []bossRow) bool {
+	names := map[string]bool{}
+	for _, row := range a {
+		names[row.name] = true
+	}
+	for _, row := range b {
+		if names[row.name] {
+			return true
+		}
+	}
+	return false
 }
 
 // bossNameLua: ein String, wenn alle Sprachen gleich heißen, sonst eine Liste je Sprache (leer = Englisch)

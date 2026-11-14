@@ -1,7 +1,8 @@
 -- Live-Tracker für Dungeon- und Raid-Runs (Roadmap 493, Einstellung showRunTracker, Standard an): eine Karte
 -- (Lib/Card.lua), nur solange die Uhr des Instanz-Laufs läuft. Titel = Instanz, große Zeile = Laufzeit und Abstand
 -- zur Bestzeit beim letzten Boss (Format.SplitDelta: Theme good = schneller, bad = langsamer), Text = Bossliste
--- (Haken, Split und Abstand zum Split der Bestzeit; ">" = nächster Boss) und Kills, Tode, XP/h; Balken = besiegte
+-- (Haken, Split und Abstand zum Split der Bestzeit; ">" = nächster Boss; Rar-Bosse und besiegte Rare mit "Rar", nie
+-- im Balken) und Kills, Tode, XP/h; Balken = besiegte
 -- Bosse. Vergleich = schnellster abgeschlossener Lauf derselben Instanz (InstanceRuns.lua).
 -- Position und Größe über Lib/Frames.lua (Id "dungeonRun", im Edit-Modus mit Beispiel-Lauf). Aktualisiert einmal je
 -- Sekunde, solange die Einstellung an ist.
@@ -61,6 +62,11 @@ local function currentAndBest()
   return record, cachedBest.record
 end
 
+-- Name mit "Rar"-Markierung
+local function rareName(name)
+  return name .. " " .. Theme.Hex("accent") .. L.DUNGEON_RUNS_RARE_TAG .. "|r"
+end
+
 -- Zeilen der Bossliste und Abstand zur Bestzeit beim zuletzt besiegten Boss (nil ohne Vergleich)
 local function bossLines(record, best)
   local list = InstanceBosses.List(record.mapID, record.difficultyID)
@@ -70,6 +76,7 @@ local function bossLines(record, best)
   local lines, nextShown, lastDelta, lastSplit = {}, false, nil, -1
   for _, id in ipairs(list) do
     local name = InstanceBosses.Name(id) or "?"
+    if InstanceBosses.IsRare(id) then name = rareName(name) end
     if killed[id] then
       local split, line = splits[id], CHECK_MARK .. " " .. name
       if split then
@@ -86,6 +93,11 @@ local function bossLines(record, best)
     else
       lines[#lines + 1] = Theme.Hex("muted") .. "   " .. name .. "|r"
     end
+  end
+  -- Rare ohne Encounter: nur besiegte, unter der Bossliste
+  for _, rare in ipairs(InstanceBosses.Rares(record)) do
+    lines[#lines + 1] = CHECK_MARK .. " " .. rareName(rare.name or tostring(rare.npcID)) .. "  "
+      .. Format.Duration(rare.seconds)
   end
   return lines, lastDelta
 end

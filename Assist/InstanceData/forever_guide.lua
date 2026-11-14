@@ -6,13 +6,15 @@
 --   entrances  = { [Karten-ID] = { { uiMapID, x, y }, ... } }       (x, y 0-1 auf der Zonenkarte),
 --   bossLevels = { [encounterID] = Level },
 --   rareBosses = { [encounterID] = true }   optionale Rar-Bosse der Bosslisten (nicht nötig für "abgeschlossen"),
+--   wings      = { [Karten-ID] = { { encounterID, ... }, ... } }   Flügel einer Karte, letzter Boss = Endboss des Flügels,
 --   encounterAliases = { [encounterID] = encounterID }   weitere IDs desselben Bosses -> eine gemeinsame ID der Gruppe,
 --   bossNames  = { [encounterID] = Name (enUS) }   Namen, die in ns.BossData fehlen,
 --   rareNpcs   = { [Karten-ID] = { [NPC-ID] = Name (enUS, nur Rückfall) } }   Rare ohne Encounter (Erkennung per Kampflog),
 --   quests    = { [Karten-ID] = { { questID, Questlevel, Mindestlevel, Fraktion ("A"/"H", nil = beide), Klasse (Token)
 --                  oder nil, Name (enUS, nur Rückfall), Start-uiMapID, x, y (fehlen, wenn unbekannt) }, ... } },
 -- }
--- encounterAliases, bossNames, rareNpcs und die Rar-Bosse außer 3511 sind einmalig aus dem Addon ForeverDungeonJournal
+-- wings (Bosszuordnung je Flügel aus Data/Dungeons.lua: FDJ.DB["Stratholme: Living"] usw.), encounterAliases, bossNames,
+-- rareNpcs und die Rar-Bosse außer 3511 sind einmalig aus dem Addon ForeverDungeonJournal
 -- 2.0.5 übernommen (WTFPL; Data/RunLogEncounters.lua, Data/Dungeons.lua; Stand 2026-11-14), siehe sources.md.
 -- Lesen: Tracking/InstanceInfo.lua (Level), History/InstanceBosses.lua (Boss-Level, Rar-Bosse, Aliase, Namen, Rare),
 -- Assist/DungeonEntrances.lua.
@@ -316,6 +318,28 @@ ns.InstanceGuide = {
     [3408] = true,  -- Lordaeron Captain (Ruinen von Lordaeron)
     [3511] = true,
     [3676] = true,  -- Miner Johnson (Todesminen)
+  },
+  -- Flügel mit gemeinsamer Karten-ID: IDs wie in ns.BossData; Event-Bosse ohne Flügel (Stratholme 2795-2797) fehlen
+  wings = {
+    [189] = {  -- Scharlachrotes Kloster
+      { 444, 2779 },        -- Friedhof: Thalnos
+      { 446, 447 },         -- Bibliothek: Arkanist Doan
+      { 448 },              -- Waffenkammer: Herod
+      { 449, 450 },         -- Kathedrale: Weißsträhne
+    },
+    [229] = {  -- Schwarzfelsspitze
+      { 267, 268, 269, 270, 271, 272, 274, 273, 275 },  -- Untere: Wyrmthalak
+      { 3062, 3063, 3068, 3070, 3069 },                 -- Obere: Drakkisath
+    },
+    [329] = {  -- Stratholme
+      { 2799, 473, 472, 474, 476, 2798, 475, 477, 478 },  -- Lebend: Balnazzar
+      { 2800, 480, 479, 481, 482, 483, 484 },             -- Untot: Baron Totenschwur
+    },
+    [429] = {  -- Düsterbruch
+      { 2792, 343, 344, 345, 346 },                 -- Ost: Alzzin
+      { 350, 2794, 348, 347, 349, 2793, 361 },      -- West: Prinz Tortheldrin
+      { 362, 363, 364, 365, 366, 367, 368 },        -- Nord: König Gordok
+    },
   },
   -- Ältere und neuere Encounter-IDs desselben Bosses (z.B. Todesminen 161-167 und 2741-2747; Abgleich über Dungeon
   -- und englischen Namen) -> eine gemeinsame ID der Gruppe; InstanceBosses gleicht eingehende IDs damit ab.

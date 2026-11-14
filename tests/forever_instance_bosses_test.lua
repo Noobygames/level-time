@@ -58,4 +58,25 @@ local parts = addon.InstanceRunWindow.Parts()
 expectTrue("Kachel Bosse: +2 Rar", parts.tiles[5].note:GetText():find(string.format(addon.L.DUNGEON_RUNS_RARES, 2), 1, true) ~= nil)
 expectTrue("Bosstabelle zeigt den Rare", parts.bossRows[7].cells[1]:GetText():find("Kiemling", 1, true) ~= nil)
 expectTrue("Bosstabelle markiert den Rar-Boss", parts.bossRows[5].cells[1]:GetText():find(addon.L.DUNGEON_RUNS_RARE_TAG, 1, true) ~= nil)
+addon.InstanceRunTracker.Refresh()
+local trackerBody = addon.InstanceRunTracker.Card().frame.body:GetText()
+expectTrue("Tracker zeigt den Rare", trackerBody:find("Kiemling", 1, true) ~= nil)
+expectTrue("Tracker markiert Rare", select(2, trackerBody:gsub(addon.L.DUNGEON_RUNS_RARE_TAG, "")) >= 2)
+
+-- Bosse "alle Schwierigkeiten" (DifficultyID 0) gehören mit in die Liste der Schwierigkeit
+expect("Tiefschwarze Grotte: 7 Bosse", #Bosses.List(48, 1), 7)
+expect("Tiefschwarze Grotte: Endboss Aku'mai", Bosses.EndBoss(Bosses.List(48, 1)), 2910)
+expect("Gnomeregan: 5 Bosse", #Bosses.List(90, 1), 5)
+
+-- Flügel: Stratholme Lebend endet mit Balnazzar, Fortschritt über den Flügel; Postmaster Malown schließt nichts ab
+wow.state.instance = { name = "Stratholme", type = "party", difficulty = 1, mapID = 329, maxPlayers = 5 }
+wow.fire("PLAYER_ENTERING_WORLD")
+run = addon.Instances.GetCurrentRun()
+expect("vor dem ersten Kill: ganze Liste", Bosses.ProgressText(run), "0/16")
+wow.fire("ENCOUNTER_END", 2798, "Postmaster Malown", 1, 5, 1)
+expectTrue("Malown ist kein Endboss", not addon.InstanceRuns.IsCompleted(run))
+expect("Fortschritt im Flügel", Bosses.ProgressText(run), "1/7")
+wow.fire("ENCOUNTER_END", 478, "Balnazzar", 1, 5, 1)
+expectTrue("Balnazzar schließt Lebend ab", addon.InstanceRuns.IsCompleted(run))
+expectTrue("Baron Totenschwur ist Endboss", Bosses.IsEndBoss(run, 484))
 expect("keine Lua-Fehler", #wow.errors, 0)

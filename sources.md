@@ -46,6 +46,7 @@ is maintained by hand. It is being checked against, and will be replaced by, dat
 ## 4. ForeverDungeonJournal (WoW Forever bosses)
 
 The boss encounter aliases (older and newer encounter IDs of the same boss), the missing boss name, the rare bosses and
-the rare NPC IDs per dungeon in `Assist/InstanceData/forever_guide.lua` (`encounterAliases`, `bossNames`, `rareBosses`,
-`rareNpcs`) were imported once on 2026-11-14 from the addon ForeverDungeonJournal 2.0.5 (`Data/RunLogEncounters.lua`,
+the rare NPC IDs per dungeon and the boss-to-wing assignment of Stratholme, Dire Maul, Scarlet Monastery and Blackrock
+Spire in `Assist/InstanceData/forever_guide.lua` (`encounterAliases`, `bossNames`, `rareBosses`, `rareNpcs`, `wings`)
+were imported once on 2026-11-14 from the addon ForeverDungeonJournal 2.0.5 (`Data/RunLogEncounters.lua`,
 `Data/Dungeons.lua`), licensed under the WTFPL. Thanks to its authors.

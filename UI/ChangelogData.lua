@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-14",
     entries = {
+      { kind = "fix",
+        deDE = "Dungeon-Runs: Flügel wie Stratholme oder Düsterbruch enden beim richtigen Endboss, Tiefschwarze Grotte und Gnomeregan zeigen alle Bosse, der Live-Tracker zeigt besiegte Rare.",
+        enUS = "Dungeon runs: wings such as Stratholme or Dire Maul end at the right final boss, Blackfathom Deeps and Gnomeregan show all bosses, the live tracker shows killed rares.",
+        frFR = "Donjons : les ailes comme Stratholme ou Hache-Tripes se terminent au bon boss final, Profondeurs de Brassenoire et Gnomeregan affichent tous les boss, le suivi en direct montre les rares tués.",
+        esES = "Mazmorras: las alas como Stratholme o La Masacre terminan en el jefe final correcto, Cavernas de Brazanegra y Gnomeregan muestran todos los jefes, el seguimiento en vivo muestra los raros derrotados." },
       { kind = "new",
         deDE = "Im Kacheln-Layout des Hauptfensters kannst du jetzt wie in der Tabelle zwischen Level, Session und Instanz wechseln.",
         enUS = "The main window's tiles layout can now switch between Level, Session and Instance, just like the table.",

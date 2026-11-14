@@ -33,3 +33,22 @@ func TestParseBossesOrdersAndLocalizes(t *testing.T) {
 		}
 	}
 }
+
+func TestParseBossesMergesAllDifficulties(t *testing.T) {
+	header := "Name_lang,ID,MapID,DifficultyID,OrderIndex\n"
+	rows := "Grubbis,2768,90,1,0\nThermaplugg,2772,90,0,4000\nViscous,2769,90,0,1000\nThermaplugg,2899,90,198,5000\n"
+	tables := make([]io.Reader, len(NameLocales))
+	for i := range NameLocales {
+		tables[i] = strings.NewReader(header + rows)
+	}
+	bosses, err := ParseBosses("1.0", tables)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := bosses.Maps[90][1]; len(got) != 3 || got[0] != 2768 || got[1] != 2769 || got[2] != 2772 {
+		t.Fatalf("Schwierigkeit 1 mit den 0-Bossen: %v", got)
+	}
+	if got := bosses.Maps[90][198]; len(got) != 1 {
+		t.Fatalf("eigene Boss-Version bleibt allein: %v", got)
+	}
+}

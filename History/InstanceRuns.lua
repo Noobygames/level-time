@@ -34,9 +34,10 @@ function InstanceRuns.Splits(record)
 end
 
 function InstanceRuns.IsCompleted(record)
-  local list = InstanceBosses.List(record.mapID, record.difficultyID)
-  local endBoss = InstanceBosses.EndBoss(list)
-  return endBoss ~= nil and InstanceBosses.Killed(record)[endBoss] == true
+  for id in pairs(InstanceBosses.Killed(record)) do
+    if InstanceBosses.IsEndBoss(record, id) then return true end
+  end
+  return false
 end
 
 function InstanceRuns.SameInstance(a, b)
