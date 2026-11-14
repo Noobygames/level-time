@@ -18,7 +18,7 @@ local HistoryWindow = {
   CONTENT_HEIGHT = 290,
   -- Hauptreiter (UX W13): wenige Gruppen statt einer Reihe gleichrangiger Einzeltabellen
   TAB_ORDER = { "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_SESSIONS", "HISTORY_GROUP_JOURNAL", "HISTORY_GROUP_ANALYSIS",
-    "HISTORY_TAB_CHARTS", "HISTORY_GROUP_SPEEDRUN", "HISTORY_TAB_COMPARE" },
+    "HISTORY_TAB_CHARTS", "HISTORY_GROUP_SPEEDRUN", "HISTORY_TAB_ALTS", "HISTORY_TAB_COMPARE" },
 }
 ns.HistoryWindow = HistoryWindow
 

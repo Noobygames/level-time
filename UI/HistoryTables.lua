@@ -396,6 +396,33 @@ local COMPARE_COLUMNS = {
     sort = function(r) return ns.RestedEstimate.Get(r.key) end },
 }
 
+-- Twink-Übersicht (Alts.lua): Reihenfolge „Wer ist dran?“ kommt aus Alts.GetRecords
+local function lastSeenText(r)
+  if r.key == ns.characterKey then return L.ALTS_ONLINE end
+  local days = ns.Alts.DaysAway(r)
+  if not days then return "-" end
+  local text = days == 0 and L.ALTS_TODAY or string.format(L.DAYS_AGO, days)
+  return ns.Alts.IsLongAway(r) and string.format(L.ALTS_LONG_AWAY_MARK, text) or text
+end
+
+local ALTS_COLUMNS = {
+  { header = "HISTORY_CHARACTER_NAME", width = 150, value = function(r) return History.DisplayName(r.key) end },
+  levelColumn(40),
+  { header = "HISTORY_RESTED", width = 70, value = function(r) return ns.RestedEstimate.Text(r.key) end,
+    sort = function(r) return r.rested end },
+  { header = "HISTORY_GOLD", width = 80, value = function(r) return r.money and Format.Gold(r.money) or "-" end,
+    sort = function(r) return r.money end },
+  { header = "HISTORY_TOTAL_PLAYED", tip = "HISTORY_ALTS_PLAYED_TIP", width = 80,
+    value = function(r) return r.played and Format.Duration(r.played) or "-" end, sort = function(r) return r.played end },
+  { header = "HISTORY_LAST_SEEN", width = 90, value = lastSeenText, sort = function(r) return r.lastSeen end },
+}
+
+local function altsHint()
+  local away = ns.Alts.LongAwayCount(ns.Alts.GetRecords())
+  if away == 0 then return L.ALTS_HINT end
+  return L.ALTS_HINT .. " " .. string.format(L.ALTS_LONG_AWAY_HINT, away, ns.Alts.LONG_AWAY_DAYS)
+end
+
 -- Geld nach Zeitraum (Money.lua): Einnahmen, Ausgaben, Saldo, Gold/h
 local function signedGold(copper)
   return (copper >= 0 and "+" or "-") .. Format.Gold(math.abs(copper))
@@ -555,6 +582,17 @@ end
 addTable("HISTORY_TAB_ZONES", ANALYSIS, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
 addTable("HISTORY_TAB_REPUTATION", ANALYSIS, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
 addTable("HISTORY_TAB_MONEY", ANALYSIS, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, "MONEY_HINT")
+
+-- Twink-Übersicht gilt wie der Vergleich für alle Charaktere
+ns.HistoryWindow.AddView(TableView.Create({
+  tab = "HISTORY_TAB_ALTS",
+  allCharacters = true,
+  columns = ALTS_COLUMNS,
+  records = ns.Alts.GetRecords,
+  footer = countCells,
+  hint = altsHint,
+  rowColor = classColor,
+}))
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({
