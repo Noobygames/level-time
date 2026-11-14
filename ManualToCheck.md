@@ -3480,3 +3480,15 @@ Einstellungen > Komfort > Quests > Chat und Einblendungen: „Quest-Check beim B
 - Live-Tracker: Porträt des nächsten Bosses im Symbolfeld, wechselt nach dem Kill; kein Flackern bei der Sekundenaktualisierung
 - Bosse ohne Daten (Retail, Raids ohne Eintrag): Totenkopf-Symbol, keine Lua-Fehler
 - Große Kreaturen (Drachen, Elementare) und Classic Era vs. Forever: Framing notieren; falls nötig Zoom oder Kameraabstand je Client anpassen
+
+### 505. Data Extractor: Dungeon-/Raid-Datenbank (LT-30)
+
+- [ ] geprüft
+
+Nur mit `LevelTimer_DataExtractor`. In Retail, Classic Era und Forever je einen Dungeon laufen (Bosse töten, blaue/lila Beute plündern, eine Quest mit Ziel im Dungeon voranbringen), vorher bei einem Questgeber mit mehreren Quests das Begrüßungs- bzw. Gossipfenster öffnen; dann `/reload` und `make extract`.
+
+- `dist/extractor/<flavor>_instance_npcs.json`: NPCs des Dungeons unter seiner Karten-ID mit Level-Spanne und Einstufung; Retail: Bosse mit `boss: true` (Bossrahmen); Classic Era hat keine Bossrahmen (dort `boss` nur bei `worldboss`)
+- `<flavor>_instance_loot.json`: seltene+ Beute je Boss/Truhe mit `looted` und `chance`; graue/weiße/grüne Beute fehlt dort
+- `<flavor>_quest_givers.json`: Questgeber mit `offers` (Quest-IDs); Classic Era/Forever: liefert `GetAvailableQuestInfo` im Begrüßungsfenster die questID (5. Wert)? Falls nicht, fehlen dort nur Angebote aus der Begrüßung
+- `<flavor>_quest_instances.json`: die Quest unter der Karten-ID des Dungeons
+- Keine Lua-Fehler beim Plündern, Begrüßungs-/Gossipfenster und Bosskampf

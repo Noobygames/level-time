@@ -79,6 +79,44 @@ wow.fire("QUEST_ACCEPTED", 2, 7)
 expect("Vorquest-Hinweis", db.quests[7].after[783], 1)
 expect("Questlog-XP je Level", db.quests[7].xpAt[6], 120)
 
+-- Questgeber: angebotene Quests aus Questfenster, Begrüßung und Gossip am NPC
+expect("Angebot aus dem Questfenster", db.npcs[823].offers[783], 1)
+wow.state.greeting.available = { { title = "A", questID = 54 }, { title = "Ohne ID" } }
+wow.fire("QUEST_GREETING")
+expect("Angebot aus der Begrüßung", db.npcs[823].offers[54], 1)
+wow.state.gossip.available = { { title = "B", questID = 60 } }
+wow.fire("GOSSIP_SHOW")
+expect("Angebot aus Gossip", db.npcs[823].offers[60], 1)
+expect("Questgeber mit Ort", db.npcs[823].spots[1429][CELL], 3)
+
+-- Instanz (Karte 36): Bossrahmen, seltene Beute je Quelle, Questfortschritt in der Instanz
+wow.state.instance = { name = "Die Todesminen", type = "party", mapID = 36 }
+local BOSS_GUID = "Creature-0-1-2-3-639-0000000002"
+wow.state.units.boss1 = { guid = BOSS_GUID, name = "Edwin", level = 21, classification = "elite" }
+wow.fire("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+local boss = db.npcs[639]
+expectTrue("Boss markiert", boss.boss)
+expect("Boss-Einstufung", boss.classification, "elite")
+expectTrue("Boss in Instanz", boss.instances[36])
+function GetLootSourceInfo() return BOSS_GUID, 1 end
+function GetLootSlotLink() return "|cff0070dd|Hitem:5193::::::::20:::::|h[Umhang]|h|r" end
+function GetLootSlotInfo() return 134000, "Umhang", 1, nil, 3 end
+wow.fire("LOOT_READY")
+local drop = db.instances[36].drops["npc:639"]
+expect("Instanz-Leiche gezählt", drop.looted, 1)
+expect("seltene Beute je Instanz", drop.items[5193], 1)
+function GetLootSourceInfo() return "Creature-0-1-2-3-299-0000ABCDF0", 1 end
+function GetLootSlotInfo() return 134000, "Zähes Wolfsfleisch", 1, nil, 0 end
+function GetLootSlotLink() return WOLF_LINK end
+wow.fire("LOOT_READY")
+expect("zweiter Wolf in der Instanz gezählt", db.instances[36].drops["npc:299"].looted, 1)
+expect("graue Beute nicht je Instanz", db.instances[36].drops["npc:299"].items, nil)
+wow.state.questLog[1].objectives[1].numFulfilled = 3
+wow.fire("QUEST_LOG_UPDATE")
+wow.runTimers()
+expect("Fortschritt in Instanz", db.quests[50].progress[1].instances[36], 1)
+wow.state.instance = nil
+
 -- Status-Befehl
 SlashCmdList.LEVELTIMEREXTRACTOR("")
 expectTrue("Status im Chat", wow.printed[#wow.printed]:find("Data Extractor", 1, true) ~= nil)

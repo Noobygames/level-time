@@ -60,3 +60,38 @@ func TestLoadRealGuide(t *testing.T) {
 		}
 	}
 }
+
+// Abgeleitete Dateien: NPCs und seltene Beute je Instanz, Questgeber, Quests mit Fortschritt in Instanzen
+func TestDerivedExports(t *testing.T) {
+	db := map[string]any{
+		"npcs": map[string]any{
+			"639": map[string]any{"levels": map[string]any{"20": 1.0, "21": 2.0}, "classification": "elite", "boss": true,
+				"kills": 4.0, "instances": map[string]any{"36": true}},
+			"823": map[string]any{"offers": map[string]any{"783": 2.0}, "names": map[string]any{"deDE": "Marschall"}},
+		},
+		"items": map[string]any{"5193": map[string]any{"quality": 3.0}},
+		"instances": map[string]any{"36": map[string]any{"drops": map[string]any{
+			"npc:639": map[string]any{"looted": 4.0, "items": map[string]any{"5193": 1.0}},
+		}}},
+		"quests": map[string]any{"50": map[string]any{"progress": map[string]any{
+			"1": map[string]any{"instances": map[string]any{"36": 2.0}},
+			"2": map[string]any{"instances": map[string]any{"36": 1.0}},
+		}}},
+	}
+	out := DerivedExports(db)
+	boss := table(table(out["instance_npcs"].(map[string]any), "36"), "639")
+	if boss["minLevel"] != 20.0 || boss["maxLevel"] != 21.0 || boss["boss"] != true || boss["kills"] != 4.0 {
+		t.Errorf("instance_npcs: %v", boss)
+	}
+	drop := table(table(out["instance_loot"].(map[string]any), "36"), "npc:639")
+	item := table(table(drop, "items"), "5193")
+	if drop["kills"] != 4.0 || item["chance"] != 0.25 || item["quality"] != 3.0 {
+		t.Errorf("instance_loot: %v", drop)
+	}
+	if offers := table(table(out["quest_givers"].(map[string]any), "npc:823"), "offers"); offers["783"] != 2.0 {
+		t.Errorf("quest_givers: %v", out["quest_givers"])
+	}
+	if n := table(out["quest_instances"].(map[string]any), "50")["36"]; n != 3.0 {
+		t.Errorf("quest_instances: %v", n)
+	}
+}

@@ -1,6 +1,6 @@
 // Command extractor liest die Spieldaten des lokalen Addons LevelTimer_DataExtractor (SavedVariable
 // LevelTimerExtractorDB) aus allen Flavors einer WoW-Installation, schreibt sie je Flavor als JSON nach -out und gibt
-// eine kurze Übersicht aus. Mit -guide vergleicht es die Forever-Daten mit dem Dungeonführer (nur Bericht, ändert
+// eine kurze Übersicht aus; dazu je Flavor abgeleitete Dateien für die Dungeon-Datenbank (instances.go). Mit -guide vergleicht es die Forever-Daten mit dem Dungeonführer (nur Bericht, ändert
 // nichts). Aufruf über make extract / make extract-check.
 package main
 
@@ -72,6 +72,11 @@ func run(wowDir, outDir, flavors, guidePath string, out io.Writer) error {
 			}
 			if err := writeJSON(filepath.Join(outDir, name+".json"), e.DB); err != nil {
 				return err
+			}
+			for file, data := range DerivedExports(e.DB) {
+				if err := writeJSON(filepath.Join(outDir, name+"_"+file+".json"), data); err != nil {
+					return err
+				}
 			}
 		}
 		if guidePath != "" && e.Flavor == guideFlavor {

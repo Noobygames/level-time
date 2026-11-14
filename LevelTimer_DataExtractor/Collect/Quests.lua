@@ -5,8 +5,13 @@
 --   xpAt / moneyAt[Spielerlevel] = Belohnung laut Questfenster bzw. Questlog (GetRewardXP, GetQuestLogRewardXP)
 --   turnIns[Spielerlevel] = { xp, money } tatsächlich erhalten (QUEST_TURNED_IN)
 --   objectives[i] = { type, text (Sprache), required }; progress[i] = { npcs[id], items[id], spots, maps } = Anzahl,
---   wobei der Fortschritt dem Kill oder der Beute der letzten PROGRESS_SECONDS zugeordnet wird
+--   wobei der Fortschritt dem Kill oder der Beute der letzten PROGRESS_SECONDS zugeordnet wird; progress[i].instances
+--   [Karten-ID] = Anzahl, wenn der Fortschritt in einer Instanz passiert
 --   after[questID] = wie oft diese Quest kurz nach jener abgegeben wurde angenommen (Hinweis auf Vorquests)
+-- Questgeber (X.db.npcs bzw. X.db.objects): offers[questID] = Anzahl (angebotene Quests aus Questfenster,
+--   QUEST_GREETING: GetAvailableQuestInfo(i) -> isTrivial, frequency, isRepeatable, isLegendary, questID (Retail; ob
+--   Classic die questID liefert, prüft LT30 im Spiel), GOSSIP_SHOW: C_GossipInfo.GetAvailableQuests() -> { questID })
+--   und spots/maps (Ort des Spielers dabei).
 -- QUEST_ACCEPTED liefert in Retail/Forever (questID), in Classic (questLogIndex, questID): letzter Wert = questID.
 -- Log: C_QuestLog.GetInfo (Retail/Forever) bzw. GetQuestLogTitle (Classic: title, level, suggestedGroup, isHeader,
 -- isCollapsed, isComplete, frequency, questID); Ziele: C_QuestLog.GetQuestObjectives, sonst GetQuestLogLeaderBoard.
@@ -35,6 +40,23 @@ local function questGiverKey()
   if kind == "Creature" or kind == "Vehicle" then return "npc:" .. id end
   if kind == "GameObject" then return "object:" .. id end
   if kind == "Player" then return "item" end
+end
+
+-- Datensatz der Questfigur in npcs/objects oder nil (Gegenstand, keine Figur)
+local function giverRecord()
+  local kind, id = X.ParseGuid(X.Readable(UnitGUID("questnpc")) or X.Readable(UnitGUID("npc")))
+  if not id then return nil end
+  return X.Record(kind == "GameObject" and "objects" or "npcs", id)
+end
+
+-- Angebotene Quests an der Questfigur merken (questIDs ohne Zahl werden übersprungen)
+local function noteOffers(questIDs)
+  if not X.db then return end
+  local record = giverRecord()
+  if not record or #questIDs == 0 then return end
+  record.offers = record.offers or {}
+  for _, questID in ipairs(questIDs) do X.Increment(record.offers, questID) end
+  X.AddSpot(record)
 end
 
 local function noteGiver(record, field, spotField)
@@ -82,8 +104,9 @@ local function frameQuest()
 end
 
 X.On("QUEST_DETAIL", function()
-  local record = frameQuest()
+  local record, questID = frameQuest()
   if not record then return end
+  noteOffers({ questID })
   local objective = X.Call("GetObjectiveText")
   if type(objective) == "string" and objective ~= "" then
     record.objective = record.objective or {}
@@ -91,6 +114,26 @@ X.On("QUEST_DETAIL", function()
   end
   noteGiver(record, "starts", "startSpots")
   noteRewards(record)
+end)
+
+X.On("QUEST_GREETING", function()
+  local list, questInfo = {}, X.Api("GetAvailableQuestInfo")
+  if not questInfo then return end
+  for index = 1, X.Call("GetNumAvailableQuests") or 0 do
+    local questID = X.Readable(select(5, questInfo(index)))
+    if type(questID) == "number" and questID > 0 then list[#list + 1] = questID end
+  end
+  noteOffers(list)
+end)
+
+X.On("GOSSIP_SHOW", function()
+  local list = {}
+  local available = X.Api("C_GossipInfo.GetAvailableQuests")
+  for _, info in ipairs(available and available() or {}) do
+    local questID = X.Readable(info.questID)
+    if type(questID) == "number" and questID > 0 then list[#list + 1] = questID end
+  end
+  noteOffers(list)
 end)
 
 X.On("QUEST_COMPLETE", function()
@@ -178,6 +221,11 @@ local function noteProgress(record, index)
     X.Increment(progress.items, itemID)
   end
   X.AddSpot(progress)
+  local mapID = X.InstanceMap()
+  if mapID then
+    progress.instances = progress.instances or {}
+    X.Increment(progress.instances, mapID)
+  end
 end
 
 local function scan()

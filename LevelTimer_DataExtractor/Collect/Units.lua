@@ -3,7 +3,8 @@
 -- 40 Meter weit). Kill-XP aus der Chatzeile COMBATLOG_XPGAIN_FIRSTPERSON (Name -> zuletzt gesehener NPC dieses
 -- Namens); gespeichert wird nur Grund-XP ohne Erholungs- oder Gruppenbonus, je "Spielerlevel:Gegnerlevel".
 -- Felder: names, levels[level], classification, creatureType, family, faction, reaction, health[level],
--- power[level], powerType, spots/maps (X.AddSpot), seen, kills, xp["spieler:gegner"], instances[mapID].
+-- power[level], powerType, spots/maps (X.AddSpot), seen, kills, xp["spieler:gegner"], instances[mapID], boss (war auf
+-- einem Bossrahmen, INSTANCE_ENCOUNTER_ENGAGE_UNIT).
 local _, X = ...
 
 local Units = {}
@@ -11,6 +12,7 @@ X.Units = Units
 
 local OBSERVE_SECONDS = 10  -- dieselbe Einheit (GUID) höchstens so oft auswerten
 local RECENT_SECONDS = 120  -- so lange gilt ein gesehener Name für Kill-XP
+local DEFAULT_BOSS_FRAMES = 5  -- Bossrahmen, wenn der Client MAX_BOSS_FRAMES nicht setzt
 local SPOT_UNITS = { target = true, mouseover = true, softinteract = true, softenemy = true }
 
 local observedAt = {}       -- GUID -> GetTime(); geleert bei jedem Ladebildschirm
@@ -21,11 +23,6 @@ local function readUnit(fn, unit)
   if type(fn) ~= "function" then return nil end
   local ok, value = pcall(fn, unit)
   return ok and X.Readable(value) or nil
-end
-
-local function instanceMap()
-  local _, kind, _, _, _, _, _, mapID = GetInstanceInfo()
-  if X.Readable(kind) and kind ~= "none" then return X.Readable(mapID) end
 end
 
 -- Einheit auswerten; Rückgabe npcID oder nil (Spieler, Begleiter, geheime GUID)
@@ -64,7 +61,7 @@ function Units.Observe(unit)
   if type(reaction) == "number" then record.reaction = reaction end
   X.Increment(record, "seen")
   if SPOT_UNITS[unit] then X.AddSpot(record) end
-  local mapID = instanceMap()
+  local mapID = X.InstanceMap()
   if mapID then
     record.instances = record.instances or {}
     record.instances[mapID] = true
@@ -80,6 +77,14 @@ for _, event in ipairs({ "PLAYER_TARGET_CHANGED", "UPDATE_MOUSEOVER_UNIT", "PLAY
   end)
 end
 X.On("NAME_PLATE_UNIT_ADDED", Units.Observe)
+
+-- Bossrahmen (boss1..bossN) beim Kampfbeginn: diese NPCs sind Bosse (Event fehlt in Classic Era, dort ohne Flagge)
+X.On("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+  for index = 1, MAX_BOSS_FRAMES or DEFAULT_BOSS_FRAMES do
+    local id = Units.Observe("boss" .. index)
+    if id then X.Record("npcs", id).boss = true end
+  end
+end)
 X.On("PLAYER_ENTERING_WORLD", function() observedAt = {} end)
 
 ---------------------------------------------------------------------------

@@ -117,6 +117,20 @@ function X.Position()
   return mapID, math.min(GRID - 1, math.floor(x * GRID)) * GRID + math.min(GRID - 1, math.floor(y * GRID))
 end
 
+-- Karten-ID der Instanz (Dungeon, Schlachtzug, Schlachtfeld), in der der Spieler ist; nil draußen
+function X.InstanceMap()
+  local _, kind, _, _, _, _, _, mapID = GetInstanceInfo()
+  kind, mapID = X.Readable(kind), X.Readable(mapID)
+  if kind and kind ~= "none" and type(mapID) == "number" then return mapID end
+end
+
+-- "npc:123" bzw. "object:45" für eine NPC- oder Objekt-GUID (Schlüssel wie bei Questgebern und Beutequellen)
+function X.SourceKey(guid)
+  local kind, id = X.ParseGuid(guid)
+  if not id then return nil end
+  return (kind == "GameObject" and "object:" or "npc:") .. id
+end
+
 -- Zellnummer zurück in Kartenanteile (Mitte der Zelle)
 function X.CellToXY(cell)
   return (math.floor(cell / GRID) + 0.5) / GRID, (cell % GRID + 0.5) / GRID
