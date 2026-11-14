@@ -2086,4 +2086,10 @@ ns.locales.deDE = {
   HISTORY_LAST_SEEN_TIP = "Wann der Charakter zuletzt eingeloggt war. (!) = lange nicht gespielt.",
   HISTORY_TAB_ALTS = "Twinks",
   HISTORY_TAB_ALTS_TIP = "Wer ist dran? Alle Charaktere mit geschätztem Erholt-Bonus, Gold, /played und wann du sie zuletzt gespielt hast.",
+  CLASS_QUEST_HINT = "Klassenquest ab Level %d: %s",
+  LEVEL_UP_AUTO_CLOSE = "Automatisch schließen",
+  LEVEL_UP_AUTO_CLOSE_TIP = "Blendet das Level-Up-Fenster nach der Anzeigedauer aus. Aus: Es bleibt stehen, bis du es anklickst.",
+  NOTICE_CLASS_QUEST = "Klassenquest",
+  REMIND_CLASS_QUEST_TOGGLE = "Klassenquests",
+  REMIND_CLASS_QUEST_TOGGLE_TIP = "Nennt beim Level-Up die neue Klassenquest mit Fähigkeit oder Belohnung (z. B. Bärengestalt, Feuertotem). Ohne Level-Up-Fenster zusätzlich als Einblendung.",
 }

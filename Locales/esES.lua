@@ -2086,4 +2086,10 @@ ns.locales.esES = {
   HISTORY_LAST_SEEN_TIP = "Cuándo se conectó el personaje por última vez. (!) = sin jugar desde hace mucho.",
   HISTORY_TAB_ALTS = "Alters",
   HISTORY_TAB_ALTS_TIP = "¿A quién le toca? Todos los personajes con la XP de descanso estimada, oro, /played y cuándo los jugaste por última vez.",
+  CLASS_QUEST_HINT = "Misión de clase desde el nivel %d: %s",
+  LEVEL_UP_AUTO_CLOSE = "Cerrar automáticamente",
+  LEVEL_UP_AUTO_CLOSE_TIP = "Oculta la ventana de subida de nivel tras el tiempo de visualización. Desactivado: permanece hasta que hagas clic en ella.",
+  NOTICE_CLASS_QUEST = "Misión de clase",
+  REMIND_CLASS_QUEST_TOGGLE = "Misiones de clase",
+  REMIND_CLASS_QUEST_TOGGLE_TIP = "Al subir de nivel, indica la nueva misión de clase con su habilidad o recompensa (p. ej. Forma de oso, Tótem de fuego). Sin la ventana de subida de nivel, también como aviso.",
 }

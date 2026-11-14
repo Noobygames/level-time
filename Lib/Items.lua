@@ -21,6 +21,11 @@ function Items.GetName(item)
   return (itemInfo(item))
 end
 
+-- Chat-Link (2. Wert); nil, solange das Item nicht geladen ist
+function Items.GetLink(item)
+  return (select(2, itemInfo(item)))
+end
+
 function Items.GetQuality(item)
   return (select(QUALITY_INDEX, itemInfo(item)))
 end

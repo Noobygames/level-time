@@ -2086,4 +2086,10 @@ ns.locales.frFR = {
   HISTORY_LAST_SEEN_TIP = "Dernière connexion du personnage. (!) = pas joué depuis longtemps.",
   HISTORY_TAB_ALTS = "Rerolls",
   HISTORY_TAB_ALTS_TIP = "À qui le tour ? Tous les personnages avec l'XP de repos estimée, l'or, le /played et leur dernière connexion.",
+  CLASS_QUEST_HINT = "Quête de classe dès le niveau %d : %s",
+  LEVEL_UP_AUTO_CLOSE = "Fermer automatiquement",
+  LEVEL_UP_AUTO_CLOSE_TIP = "Masque la fenêtre de niveau supérieur après la durée d'affichage. Désactivé : elle reste jusqu'à ce que vous cliquiez dessus.",
+  NOTICE_CLASS_QUEST = "Quête de classe",
+  REMIND_CLASS_QUEST_TOGGLE = "Quêtes de classe",
+  REMIND_CLASS_QUEST_TOGGLE_TIP = "Lors d'une montée de niveau, indique la nouvelle quête de classe avec sa technique ou sa récompense (p. ex. Forme d'ours, Totem de feu). Sans la fenêtre de niveau, aussi en notification.",
 }

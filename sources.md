@@ -43,6 +43,10 @@ The world records shown by the speedrun features come from the public API of <ht
 `Assist/InstanceData/forever_guide.lua` (WoW Forever dungeon level ranges, entrances, boss levels and dungeon quests)
 is maintained by hand. It is being checked against, and will be replaced by, data from our own extractor.
 
+`Tracking/ClassQuests.lua` (Classic Era / WoW Forever class quests: level, learned spell IDs, reward item IDs) is
+maintained by hand from the class quest pages on warcraft.wiki.gg (Druid, Hunter, Paladin, Rogue, Shaman, Warlock,
+Warrior quests); spell and item IDs checked on wowhead classic. Stand 2026-11-14; WoW Forever not checked separately.
+
 ## 4. ForeverDungeonJournal (WoW Forever bosses)
 
 The boss encounter aliases (older and newer encounter IDs of the same boss), the missing boss name, the rare bosses and

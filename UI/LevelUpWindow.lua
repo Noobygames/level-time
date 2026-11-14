@@ -2,7 +2,8 @@
 --   Titel, Werten vorher -> nachher (Leben, Mana, Stärke, ... aus LevelGains), neuen Talentpunkten und den Fähigkeiten,
 --   die der Klassenlehrer ab diesem Level anbietet (TrainerCache; Symbole mit Tooltip).
 -- Aussehen: levelUpTheme (modern, alliance, horde), levelUpCompact (eine Zeile statt Tabelle), levelUpDuration,
--- levelUpSound; Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
+-- levelUpSound; levelUpAutoClose (Standard aus: Fenster bleibt bis zum Klick; Checkbox im Fenster = dieselbe Einstellung),
+-- Hinweis auf eine Klassenquest des neuen Levels (Tracking/ClassQuests.lua); Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
 -- Im Kampf wartet das Fenster bis zum Ende des Kampfes.
 local _, ns = ...
 
@@ -14,6 +15,7 @@ ns.RegisterDefaults({
     levelUpCompact = false,
     levelUpSound = true,
     levelUpDuration = 8,
+    levelUpAutoClose = false,
   },
   ranges = {
     levelUpDuration = { 3, 20 },
@@ -106,6 +108,16 @@ abilitiesLabel:SetJustifyH("LEFT")
 
 local trainerHintText = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 trainerHintText:SetJustifyH("LEFT")
+
+local classQuestText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+classQuestText:SetJustifyH("LEFT")
+
+-- Checkbox unten: automatisches Schließen (gleich mit der Einstellung levelUpAutoClose)
+local autoCloseCheck = Widgets.CreateCheckbox(frame, function(checked) ns.Set("levelUpAutoClose", checked) end)
+autoCloseCheck:SetPoint("BOTTOMLEFT", PADDING - 4, PADDING - 4)
+local AUTO_CLOSE_HEIGHT = 24
+Widgets.AttachTooltip(autoCloseCheck, function() return L.LEVEL_UP_AUTO_CLOSE end,
+  function() return L.LEVEL_UP_AUTO_CLOSE_TIP end)
 
 local rows = {}  -- { label, value, delta } je Zeile, werden wiederverwendet
 
@@ -257,6 +269,16 @@ local function layoutTable(gainRows, top, width)
   return width, top + LINE_GAP / 2
 end
 
+-- Hinweiszeile unter dem Inhalt; Rückgabe: Höhe darunter
+local function layoutHint(fontString, text, top, width)
+  fontString:SetText(text)
+  fontString:SetWidth(width - 2 * PADDING)
+  fontString:ClearAllPoints()
+  fontString:SetPoint("TOPLEFT", PADDING, -top)
+  fontString:Show()
+  return top + (fontString:GetStringHeight() or ROW_HEIGHT) + LINE_GAP
+end
+
 -- Inhalt aufbauen: level = neues Level, gains aus LevelGains (oder nil), abilities = Liste aus TrainerCache
 local function layout(level, gains, abilities)
   applyTheme()
@@ -270,6 +292,7 @@ local function layout(level, gains, abilities)
   compactText:Hide()
   talentsText:Hide()
   trainerHintText:Hide()
+  classQuestText:Hide()
   hideRows()
   divider:SetShown(not compact and #gainRows > 0)
 
@@ -289,15 +312,14 @@ local function layout(level, gains, abilities)
   top = layoutAbilities(abilities, top)
   -- Lehrerliste noch nie gelesen: erklären, warum keine Fähigkeiten erscheinen
   if #abilities == 0 and ns.TrainerCache.IsAvailable() and ns.TrainerCache.Count() == 0 then
-    trainerHintText:SetText(L.LEVEL_UP_TRAINER_UNKNOWN)
-    trainerHintText:SetWidth(width - 2 * PADDING)
-    trainerHintText:ClearAllPoints()
-    trainerHintText:SetPoint("TOPLEFT", PADDING, -top)
-    trainerHintText:Show()
-    top = top + (trainerHintText:GetStringHeight() or ROW_HEIGHT) + LINE_GAP
+    top = layoutHint(trainerHintText, L.LEVEL_UP_TRAINER_UNKNOWN, top, width)
   end
+  local classQuest = ns.ClassQuests.Text(level)
+  if classQuest then top = layoutHint(classQuestText, classQuest, top, width) end
+  autoCloseCheck.label:SetText(L.LEVEL_UP_AUTO_CLOSE)
+  autoCloseCheck:SetChecked(ns.db.levelUpAutoClose)
   width = math.max(width, 2 * PADDING + math.min(#abilities, ABILITIES_PER_ROW) * (ABILITY_SIZE + ABILITY_GAP))
-  frame:SetSize(width, top + PADDING - LINE_GAP)
+  frame:SetSize(width, top + AUTO_CLOSE_HEIGHT + PADDING)
 end
 
 ---------------------------------------------------------------------------
@@ -329,6 +351,10 @@ ns.SetUpdateScript(frame, "LevelUpWindow", function(self)
   if override then
     self:SetAlpha(math.min(1, age / FADE_IN))
     if override ~= MOVING and age >= SAMPLE_DURATION then hide() end
+    return
+  end
+  if not ns.db.levelUpAutoClose then  -- bleibt stehen, bis man es wegklickt
+    self:SetAlpha(math.min(1, age / FADE_IN))
     return
   end
   local hold = duration()
@@ -488,6 +514,7 @@ ns.OnLogin(hookBlizzardToast)
 
 ns.RegisterApply(function(db)
   updateBlizzardBanner()
+  autoCloseCheck:SetChecked(db.levelUpAutoClose)
   if frame:IsShown() and override then  -- Theme, Kompaktmodus oder Sprache haben sich geändert
     local level, gains, abilities = sampleData()
     layout(level, gains, abilities)

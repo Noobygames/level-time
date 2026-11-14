@@ -34,7 +34,16 @@ wow.state.inCombat = false
 wow.fire("PLAYER_REGEN_ENABLED")
 expect("nach dem Kampf: Fenster", LevelTimerLevelUp:IsShown(), true)
 
--- blendet nach der Anzeigedauer aus
+-- Standard: bleibt stehen, bis man es anklickt
+expect("Auto-Schließen standardmäßig aus", addon.db.levelUpAutoClose, false)
+wow.advance(30)
+wow.update(0.1)
+expect("bleibt ohne Auto-Schließen", LevelTimerLevelUp:IsShown(), true)
+
+-- Mit Auto-Schließen: blendet nach der Anzeigedauer aus
+addon.Set("levelUpAutoClose", true)
+wow.levelUp(14, nil, gains)
+wow.runTimers()
 addon.Set("levelUpDuration", 3)
 wow.advance(3.1)
 wow.update(0.1)

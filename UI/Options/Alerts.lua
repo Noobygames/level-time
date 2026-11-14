@@ -56,6 +56,7 @@ addToggles({
   requires(toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"), "levelUpWindow"),
   requires(toggle("LEVEL_UP_COMPACT", "levelUpCompact"), "levelUpWindow"),
   requires(toggle("LEVEL_UP_SOUND", "levelUpSound"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_AUTO_CLOSE", "levelUpAutoClose"), "levelUpWindow"),
 })
 local function levelUpWindowOn(db) return db.levelUpWindow end
 addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = levelUpWindowOn, choices = {
@@ -64,7 +65,7 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = level
   { value = "horde", name = localized("THEME_HORDE") },
 } })
 addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp", levelUpWindowOn)
-addSlider(requires({
+addSlider({
   label = "LEVEL_UP_DURATION",
   advanced = true,
   setting = "levelUpDuration",
@@ -74,7 +75,8 @@ addSlider(requires({
   get = function(db) return db.levelUpDuration end,
   set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-}, "levelUpWindow"))
+  enabled = function(db) return db.levelUpWindow and db.levelUpAutoClose end,
+})
 addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 

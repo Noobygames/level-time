@@ -30,6 +30,7 @@ addToggles({
   toggle("REMIND_SLEEPING_BAG_TOGGLE", "remindSleepingBag", ns.BuffReminder.HasSleepingBagSystem),
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
+  toggle("REMIND_CLASS_QUEST_TOGGLE", "remindClassQuest", ns.ClassQuests.IsAvailable),
 })
 -- Wiederholung gilt für alle Buff-Erinnerungen (auch die Klassen-Buffs darunter)
 addSlider({

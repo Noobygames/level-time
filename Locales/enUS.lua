@@ -2086,4 +2086,10 @@ ns.locales.enUS = {
   HISTORY_LAST_SEEN_TIP = "When the character was last logged in. (!) = not played for a long time.",
   HISTORY_TAB_ALTS = "Alts",
   HISTORY_TAB_ALTS_TIP = "Who's next? All characters with estimated rested XP, gold, /played and when you last played them.",
+  CLASS_QUEST_HINT = "Class quest from level %d: %s",
+  LEVEL_UP_AUTO_CLOSE = "Close automatically",
+  LEVEL_UP_AUTO_CLOSE_TIP = "Fades out the level-up window after the display time. Off: it stays until you click it.",
+  NOTICE_CLASS_QUEST = "Class quest",
+  REMIND_CLASS_QUEST_TOGGLE = "Class quests",
+  REMIND_CLASS_QUEST_TOGGLE_TIP = "On level-up, names the new class quest with its ability or reward (e.g. Bear Form, Fire Totem). Without the level-up window also as a popup.",
 }
