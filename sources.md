@@ -50,3 +50,10 @@ the rare NPC IDs per dungeon and the boss-to-wing assignment of Stratholme, Dire
 Spire in `Assist/InstanceData/forever_guide.lua` (`encounterAliases`, `bossNames`, `rareBosses`, `rareNpcs`, `wings`)
 were imported once on 2026-11-14 from the addon ForeverDungeonJournal 2.0.5 (`Data/RunLogEncounters.lua`,
 `Data/Dungeons.lua`), licensed under the WTFPL. Thanks to its authors.
+
+## 5. QuestieDB (WoW Forever dungeon quests)
+
+The quest prerequisites and exclusions (`pre`, `preAny`, `excl`) and a few missing quests in the `quests` block of
+`Assist/InstanceData/forever_guide.lua` were imported once on 2026-11-14 from the addon QuestieDB 1.1.0 (Forever build,
+`QuestieDB_Forever.toc` metadata), licensed under the WTFPL; its data originates from Questie. Thanks to the Questie and
+QuestieDB authors. Since then the data is maintained by hand.

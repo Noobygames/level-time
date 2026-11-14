@@ -3457,3 +3457,13 @@ Einstellungen > Speedrun > Dungeon-Runs: „Live-Tracker in Instanzen“ an, ein
 - `/lt runs`, Knopf und Zeilenklick in Verlauf > Instanzen öffnen das Fenster; Filter, Vergleich Bestzeit/Letzter Run, Kacheln (Geld, Quests, Gruppe), XP je Boss, Beute und Würfe stimmen; Texte passen in allen vier Sprachen
 - Retail: Raid ohne Bossliste zeigt die besiegten Bosse in Kill-Reihenfolge; Zonenname = Instanzname (sonst fehlt eigene Beute)
 - WoW Forever Versunkene Stadt: Urtümlicher Elementar zählt nicht zum Fortschritt („5/5“, Kachel „+1 Rar“); ID des zweiten Rar-Bosses notieren und in `rareBosses` nachtragen
+
+### 503. WoW Forever: Quest-Check beim Betreten einer Instanz (Roadmap 492)
+
+- [ ] geprüft
+
+Einstellungen > Komfort > Quests > Chat und Einblendungen: „Quest-Check beim Betreten einer Instanz“ an (Standard). Einen Dungeon betreten, für den passende Quests fehlen.
+
+- Eine Chatzeile „Fehlende Dungeonquests (N): [Level] Titel (Zone (x, y)), …“; nur Quests, die der Charakter jetzt annehmen kann (Level, Fraktion, Klasse, Vorquests); angenommene und abgegebene fehlen
+- Nach Tod und Wiedereintritt als Geist keine zweite gleiche Zeile; nach dem Annehmen einer fehlenden Quest und Wiedereintritt die kürzere Liste
+- Titel in der Spielsprache, Zeile passt in allen vier Sprachen

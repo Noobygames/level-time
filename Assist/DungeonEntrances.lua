@@ -71,7 +71,8 @@ local function questTitle(quest)
 end
 
 -- Offene Dungeonquests des Charakters, nach Questlevel:
--- { { questID, title, level, minLevel, inLog, uiMapID, x, y }, ... } (Ort fehlt, wenn unbekannt)
+-- { { questID, title, level, minLevel, inLog, uiMapID, x, y, pre, preAny, excl }, ... } (Ort fehlt, wenn unbekannt;
+-- pre/preAny/excl = Vorquests alle/eine davon und sich ausschließende Quests aus dem Führer, ungeprüft)
 function DungeonEntrances.OpenQuests(mapID)
   local list = {}
   local quests = ns.InstanceGuide and ns.InstanceGuide.quests[mapID]
@@ -84,14 +85,15 @@ function DungeonEntrances.OpenQuests(mapID)
     if fits and not ns.QuestItemTooltip.IsQuestDone(quest[QUEST_ID]) then
       table.insert(list, { questID = quest[QUEST_ID], title = questTitle(quest), level = quest[QUEST_LEVEL],
         minLevel = quest[QUEST_MIN_LEVEL], inLog = ns.QuestLog.Find(quest[QUEST_ID]) ~= nil,
-        uiMapID = quest[QUEST_MAP], x = quest[QUEST_X], y = quest[QUEST_Y] })
+        uiMapID = quest[QUEST_MAP], x = quest[QUEST_X], y = quest[QUEST_Y],
+        pre = quest.pre, preAny = quest.preAny, excl = quest.excl })
     end
   end
   return list
 end
 
--- Wo die Quest beginnt: "Zone (74, 36)" oder nil
-local function startText(quest)
+-- Wo eine Quest aus OpenQuests beginnt: "Zone (74, 36)" oder nil
+function DungeonEntrances.StartText(quest)
   if not quest.uiMapID then return nil end
   local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(quest.uiMapID)
   local zone = info and readable(info.name)
@@ -103,7 +105,7 @@ end
 local function questStatus(quest, playerLevel)
   if quest.inLog then return L.DUNGEON_QUEST_IN_LOG, IN_LOG_COLOR end
   if playerLevel < quest.minLevel then return string.format(L.DUNGEON_QUEST_MIN_LEVEL, quest.minLevel), LOW_LEVEL_COLOR end
-  return startText(quest) or "", TEXT_COLOR
+  return DungeonEntrances.StartText(quest) or "", TEXT_COLOR
 end
 
 local function addQuestLines(tooltip, mapID)

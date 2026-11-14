@@ -31,6 +31,7 @@ addToggles({
   toggle("WARN_QUEST_LOG_FULL_TOGGLE", "warnQuestLogFull"),
   toggle("ALERT_TOGGLE_QUEST_COMPLETE", "alertQuestComplete"),
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
+  toggle("INSTANCE_QUEST_CHECK_TOGGLE", "instanceQuestCheck", ns.InstanceQuestCheck.IsAvailable),
 })
 addSection("SECTION_QUEST_LEARNING", { collapsible = true })
 addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })

@@ -2066,4 +2066,8 @@ ns.locales.enUS = {
   DUNGEON_RUN_VS_LAST = "%s vs. last run",
   EDIT_FRAME_DUNGEON_RUN = "Dungeon run",
   OPTIONS_PAGE_DUNGEON_RUNS = "Dungeon runs",
+  INSTANCE_QUEST_CHECK_MISSING = "Missing dungeon quests (%d): %s",
+  INSTANCE_QUEST_CHECK_START = "%s (%s)",
+  INSTANCE_QUEST_CHECK_TOGGLE = "Quest check when entering an instance",
+  INSTANCE_QUEST_CHECK_TOGGLE_TIP = "When you enter a dungeon, lists in chat the dungeon quests you could pick up now (level, faction, class and prerequisites met) but don't have in your log.",
 }

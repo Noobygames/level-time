@@ -2066,4 +2066,8 @@ ns.locales.frFR = {
   DUNGEON_RUN_VS_LAST = "%s vs dernier run",
   EDIT_FRAME_DUNGEON_RUN = "Run de donjon",
   OPTIONS_PAGE_DUNGEON_RUNS = "Runs de donjon",
+  INSTANCE_QUEST_CHECK_MISSING = "Quêtes de donjon manquantes (%d) : %s",
+  INSTANCE_QUEST_CHECK_START = "%s (%s)",
+  INSTANCE_QUEST_CHECK_TOGGLE = "Vérifier les quêtes en entrant dans une instance",
+  INSTANCE_QUEST_CHECK_TOGGLE_TIP = "En entrant dans un donjon, liste dans le chat les quêtes de donjon que vous pourriez prendre maintenant (niveau, faction, classe et quêtes préalables remplis) mais qui ne sont pas dans votre journal.",
 }

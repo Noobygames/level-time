@@ -2066,4 +2066,8 @@ ns.locales.esES = {
   DUNGEON_RUN_VS_LAST = "%s vs. última",
   EDIT_FRAME_DUNGEON_RUN = "Mazmorra",
   OPTIONS_PAGE_DUNGEON_RUNS = "Mazmorras",
+  INSTANCE_QUEST_CHECK_MISSING = "Misiones de mazmorra pendientes (%d): %s",
+  INSTANCE_QUEST_CHECK_START = "%s (%s)",
+  INSTANCE_QUEST_CHECK_TOGGLE = "Comprobar misiones al entrar en una instancia",
+  INSTANCE_QUEST_CHECK_TOGGLE_TIP = "Al entrar en una mazmorra, muestra en el chat las misiones de mazmorra que podrías aceptar ahora (nivel, facción, clase y misiones previas cumplidos) pero no tienes en tu registro.",
 }

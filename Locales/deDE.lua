@@ -2066,4 +2066,8 @@ ns.locales.deDE = {
   DUNGEON_RUN_VS_LAST = "%s zum letzten Run",
   EDIT_FRAME_DUNGEON_RUN = "Dungeon-Run",
   OPTIONS_PAGE_DUNGEON_RUNS = "Dungeon-Runs",
+  INSTANCE_QUEST_CHECK_MISSING = "Fehlende Dungeonquests (%d): %s",
+  INSTANCE_QUEST_CHECK_START = "%s (%s)",
+  INSTANCE_QUEST_CHECK_TOGGLE = "Quest-Check beim Betreten einer Instanz",
+  INSTANCE_QUEST_CHECK_TOGGLE_TIP = "Nennt beim Betreten eines Dungeons im Chat die Dungeonquests, die du jetzt annehmen könntest (Level, Fraktion, Klasse und Vorquests passen), aber nicht im Log hast.",
 }

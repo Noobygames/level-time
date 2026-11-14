@@ -1,6 +1,6 @@
 # Roadmap
 
-Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **503**.
+Aufwand: **S** = klein, **M** = mittel, **L** = groß. Erledigtes wird gelöscht (Spur steht im Commit und im Changelog). Nummern laufen über alle Versionen weiter; nächste freie Nummer: **504**.
 
 ## Funde aus dem Spieltest (November 2026)
 
@@ -21,7 +21,6 @@ Ideensammlung für Level Time und Level Time Goals. Gegner- und Questdaten werde
 
 - [ ] 490. **Boss-Mechaniken im Tooltip** (L): Bei Bossen in Dungeons und Raids im Tooltip die 1–2 wichtigsten Kernmechaniken zeigen (Ausweichen/Laufen, z. B. rotierende Strahlen; Unterbrechbares; Überlebensmechaniken). Raid-Bosse mit komplexeren Encountern ebenso. Boss-Daten aus 483.
 - [ ] 491. **Trash-Fähigkeiten im Tooltip** (L): Wichtige Fähigkeiten normaler Gegner in Instanzen und Raids hervorheben: Schadensspitzen/AoE (rausgehen, Schildwall), Heiler, Zauber, die unterbrochen werden müssen; gefährlicher Raid-Trash eingeschlossen. Teilt Datenformat und Tooltip-Code mit 490.
-- [ ] 492. **Quest-Check beim Betreten einer Instanz** (M): Beim Betreten prüfen, ob alle verfügbaren Quests der Instanz angenommen sind; Level berücksichtigen (freigeschaltet?), abgeschlossene Quests erkennen, bei fehlenden eine kompakte Warnung zeigen.
 - [ ] 494. **Feature-Parität mit Questie und RestedXP** (M): Funktionen beider Addons systematisch gegen Level Time abgleichen (Vorgaben vom Spieler), Lücken als Roadmap-Punkte anlegen und eigene Alleinstellungsmerkmale festhalten.
 - [ ] 495. **Klassenquests und Level-Up-Fenster** (M–L): Datenbasis der Klassenquests (Stufe 10, 20, 30 …, auch WoW Forever) mit Belohnungen (Item-IDs für Chat-Links) und Fähigkeiten. Im Level-Up-Fenster Hinweis auf Klassenlehrer/Klassenquests; eigene Einblendung für Spieler, die das Fenster abgeschaltet haben. Fenster schließt sich standardmäßig nicht mehr selbst; Checkbox im Fenster (gleich mit der Einstellung) schaltet das automatische Schließen wieder ein.
 - [ ] 498. **Glitzern nur an einer Leiche** (S, Forever): Das Glitzern hängt am Soft-Interact-Ziel, das Spiel liefert davon genau eins (das nächste); weitere Leichen in der Nähe glitzern nicht (Spieltest Schlingendorntal, Raptoren). Prüfen per `lootSparkles.target` (`cvars.SoftTargetInteractRange` = wirklich 60?, `inRange`), ob das Spiel die Reichweite kappt. Mehrere Leichen gleichzeitig gingen nur mit einer anderen Quelle (tote Einheiten haben keine Namensplakette); Quelle suchen oder als Grenze dokumentieren.

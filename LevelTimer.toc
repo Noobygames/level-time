@@ -246,6 +246,7 @@ Assist\MapCoordinates.lua
 Assist\DeathMap.lua
 Assist\QuestMap.lua
 Assist\DungeonEntrances.lua
+Assist\InstanceQuestCheck.lua
 Assist\CorpseArrow.lua
 Assist\ScreenEffects.lua
 Assist\ForeverGraphics.lua
