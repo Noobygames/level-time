@@ -17,7 +17,7 @@ Reihenfolge = Priorität: Korrektheit zuerst, dann Funktionen. Bestätigt: Nachr
 
 ## Geplant: Instanzen, Quests, Klassen (November 2026)
 
-Ideensammlung für Level Time und Level Time Goals. Gegner- und Questdaten müssen selbst gepflegt werden (keine fremden Datenbanken, siehe „Bewusst nicht“ unten); API-Annahmen vor dem Bau je Client prüfen.
+Ideensammlung für Level Time und Level Time Goals. Gegnerdaten werden selbst gepflegt; Instanz-Quests für WoW Forever kommen aus QuestieDB (WTFPL, nur der Ausschnitt je Instanz, siehe „Bewusst nicht“ unten); API-Annahmen vor dem Bau je Client prüfen.
 
 - [ ] 490. **Boss-Mechaniken im Tooltip** (L): Bei Bossen in Dungeons und Raids im Tooltip die 1–2 wichtigsten Kernmechaniken zeigen (Ausweichen/Laufen, z. B. rotierende Strahlen; Unterbrechbares; Überlebensmechaniken). Raid-Bosse mit komplexeren Encountern ebenso. Boss-Daten aus 483.
 - [ ] 491. **Trash-Fähigkeiten im Tooltip** (L): Wichtige Fähigkeiten normaler Gegner in Instanzen und Raids hervorheben: Schadensspitzen/AoE (rausgehen, Schildwall), Heiler, Zauber, die unterbrochen werden müssen; gefährlicher Raid-Trash eingeschlossen. Teilt Datenformat und Tooltip-Code mit 490.
@@ -32,7 +32,7 @@ Quelle: Quellcode von rund 30 Addons gelesen (nur Ansätze übernommen, kein Cod
 
 Reihenfolge = Priorität: Korrektheit, Komfort, Statistik, Speedrun, Level Time Goals, Stream-Funktionen von Level Time, neue Addons.
 
-Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Regeln), LiveSplit-Autosplitter per Speicherlesen (Warden/AGB), Questdatenbanken und fremde Flugzeiten-Datenbanken (Pflegeaufwand, Lizenzen; mitgeliefert werden nur eigene Flugmessungen, 364), komplette Leveling-Guides (RXP/Questie decken das ab).
+Bewusst nicht: „Twitch Plays“ (Eingaben von außen verstoßen gegen die Regeln), LiveSplit-Autosplitter per Speicherlesen (Warden/AGB), komplette Questdatenbanken und fremde Flugzeiten-Datenbanken (Pflegeaufwand, Lizenzen; mitgeliefert werden nur eigene Flugmessungen, 364, und die Instanz-Quests aus QuestieDB für WoW Forever, 492), komplette Leveling-Guides (RXP/Questie decken das ab).
 
 ### v2.32: „1 Addon, das viele ablöst“ (Konkurrenzanalyse, Threat & Lueur-Sparkles)
 
