@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level Time Charts</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1f; --muted: #6b6b70; --line: #dcdcd8; --grid: #ececea;
+    --accent: #2563eb; --error: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151517; --panel: #1f1f22; --text: #ececee; --muted: #9b9ba3; --line: #34343a; --grid: #2a2a2f;
+      --accent: #60a5fa; --error: #f87171;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  p { margin: 0 0 12px; color: var(--muted); }
+  textarea { width: 100%; min-height: 120px; padding: 8px; font: 12px/1.4 ui-monospace, monospace;
+    background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 16px; }
+  button, label.file { padding: 6px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+    color: var(--text); font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  label.file input { display: none; }
+  #status { color: var(--muted); }
+  #status.error { color: var(--error); }
+  section.chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+    margin-bottom: 16px; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { fill: var(--muted); font-size: 11px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; font-size: 13px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    margin-right: 6px; background: var(--swatch); }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title"></h1>
+  <p id="intro"></p>
+  <textarea id="input" spellcheck="false"></textarea>
+  <div class="row">
+    <button class="primary" id="show"></button>
+    <label class="file"><span id="fileLabel"></span><input type="file" id="file" accept=".txt,.csv,text/plain"></label>
+    <span id="status" role="status"></span>
+  </div>
+  <div id="charts"></div>
+</main>
+<script>
+"use strict";
+// Auswertungs-Seite für Level Time: liest den Export-Text des Addons ("LT1:run:" / "LT1:runs:" aus Speedrun > Läufe
+// oder CSV aus den Tabellen der Historie) und zeichnet Graphen als SVG. Alles läuft im Browser, nichts wird gesendet.
+// Der LT1-Decoder bildet Lib/Serializer.lua (Serializer.Decode) genau nach; Test: docs/site/site.test.js.
+
+// ---------------------------------------------------------------------------
+// LT1-Text lesen (wie Serializer.Decode): jeder Fehler ergibt null, nichts wird ausgeführt
+// ---------------------------------------------------------------------------
+const LT1_VERSION = "LT1";
+const LT1_MAX_DEPTH = 20;  // wie MAX_DEPTH in Lua: tiefer verschachtelt ist kein gültiger Text
+const LT1_STRING = /[A-Za-z0-9_.\-%]*/y;
+const LT1_NUMBER = /[0-9.\-+eE]+/y;
+const LUA_WHITESPACE = /[ \t\n\v\f\r]/g;  // Lua "%s"
+
+// Prozentkodierte Bytes (UTF-8 wie im Spiel) zurück in Text; wie gsub("%%(%x%x)") bleibt ein einzelnes "%" stehen
+function lt1DecodeString(raw) {
+  const bytes = [];
+  for (let i = 0; i < raw.length; i++) {
+    const hex = raw.substr(i + 1, 2);
+    if (raw[i] === "%" && /^[0-9A-Fa-f]{2}$/.test(hex)) { bytes.push(parseInt(hex, 16)); i += 2; }
+    else bytes.push(raw.charCodeAt(i));
+  }
+  return new TextDecoder("utf-8").decode(new Uint8Array(bytes));
+}
+
+// Tabelle als Objekt ohne Prototyp (Schlüssel wie "__proto__" bleiben harmlose Daten).
+// shortcut: Schlüssel werden zu Text (1 und "1" fallen zusammen), reicht für Läufe; Map nehmen, falls das stört.
+function lt1DecodeTable(text, position, depth) {
+  if (depth > LT1_MAX_DEPTH) return null;
+  const result = Object.create(null);
+  position += 1;  // "{"
+  if (text[position] === "}") return [result, position + 1];
+  for (;;) {
+    const key = lt1DecodeValue(text, position, depth);
+    if (key === null || text[key[1]] !== "=") return null;
+    const value = lt1DecodeValue(text, key[1] + 1, depth);
+    if (value === null) return null;
+    result[String(key[0])] = value[0];
+    position = value[1];
+    const separator = text[position];
+    if (separator === "}") return [result, position + 1];
+    if (separator !== ",") return null;
+    position += 1;
+  }
+}
+
+// Rückgabe [wert, nächste Position] oder null
+function lt1DecodeValue(text, position, depth) {
+  const tag = text[position];
+  if (tag === "{") return lt1DecodeTable(text, position, depth + 1);
+  if (tag === "s") {
+    LT1_STRING.lastIndex = position + 1;
+    const raw = LT1_STRING.exec(text)[0];
+    return [lt1DecodeString(raw), position + 1 + raw.length];
+  }
+  if (tag === "n") {
+    LT1_NUMBER.lastIndex = position + 1;
+    const match = LT1_NUMBER.exec(text);
+    const number = match ? Number(match[0]) : NaN;  // Number() lehnt dieselben Texte ab wie Luas tonumber
+    if (Number.isNaN(number)) return null;
+    return [number, position + 1 + match[0].length];
+  }
+  if (tag === "b") {
+    if (text[position + 1] === "1") return [true, position + 2];
+    if (text[position + 1] === "0") return [false, position + 2];
+  }
+  return null;
+}
+
+// Wert aus dem Text oder null, wenn der Text kaputt ist oder eine andere Datenart (kind) enthält
+function lt1Decode(kind, text) {
+  text = String(text || "").replace(LUA_WHITESPACE, "");  // Umbrüche aus dem Kopieren ignorieren
+  const prefix = LT1_VERSION + ":" + kind + ":";
+  if (!text.startsWith(prefix)) return null;
+  const decoded = lt1DecodeValue(text, prefix.length, 0);
+  if (decoded === null || decoded[1] !== text.length) return null;
+  return decoded[0];
+}
+
+// ---------------------------------------------------------------------------
+// Läufe (wie Runs.Import): ein Lauf oder eine Liste; ungültige Läufe machen den ganzen Text ungültig
+// ---------------------------------------------------------------------------
+const MAX_LEVEL = 100;                      // Runs.MAX_LEVEL
+const MAX_LEVEL_SECONDS = 365 * 24 * 3600;  // Runs.MAX_LEVEL_SECONDS
+
+// Lua-Liste (Schlüssel 1..n wie ipairs) als Array
+function luaList(table) {
+  const list = [];
+  for (let i = 1; table[i] !== undefined; i++) list.push(table[i]);
+  return list;
+}
+
+// Rückgabe [{ name, realm, times: [[level, sekunden], ...] nach Level sortiert }] oder null
+function parseRuns(text) {
+  const single = lt1Decode("run", text);
+  const list = single ? [single] : lt1Decode("runs", text);
+  if (!list || typeof list !== "object") return null;
+  const runs = [];
+  for (const run of Array.isArray(list) ? list : luaList(list)) {
+    if (!run || typeof run !== "object" || typeof run.name !== "string" || !run.times || typeof run.times !== "object") {
+      return null;
+    }
+    const times = [];
+    for (const key of Object.keys(run.times)) {
+      const level = Number(key), seconds = run.times[key];
+      if (!Number.isInteger(level) || level < 1 || level > MAX_LEVEL) return null;
+      if (typeof seconds !== "number" || !(seconds > 0 && seconds <= MAX_LEVEL_SECONDS)) return null;
+      times.push([level, seconds]);
+    }
+    times.sort((a, b) => a[0] - b[0]);
+    runs.push({ name: run.name, realm: typeof run.realm === "string" ? run.realm : null, times });
+  }
+  return runs;
+}
+
+// Gesamtspielzeit beim Erreichen von Level+1, nur solange die Level lückenlos sind (sonst wäre die Summe falsch)
+function cumulativeTimes(times) {
+  const points = [];
+  let sum = 0;
+  for (let i = 0; i < times.length; i++) {
+    if (i > 0 && times[i][0] !== times[i - 1][0] + 1) break;
+    sum += times[i][1];
+    points.push([times[i][0] + 1, sum]);
+  }
+  return points;
+}
+
+// ---------------------------------------------------------------------------
+// CSV (wie Export.ToCsv): Trennzeichen je Sprache ";" oder ",", Felder mit Trennzeichen/Anführungszeichen in "..."
+// ---------------------------------------------------------------------------
+function parseCsv(text) {
+  text = String(text || "").replace(/\r\n?/g, "\n").trim();
+  const firstLine = text.split("\n", 1)[0];
+  const separator = firstLine.includes(";") ? ";" : ",";
+  const rows = [[]];
+  let field = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (quoted) {
+      if (char === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"' && field === "") quoted = true;
+    else if (char === separator) { rows[rows.length - 1].push(field); field = ""; }
+    else if (char === "\n") { rows[rows.length - 1].push(field); field = ""; rows.push([]); }
+    else field += char;
+  }
+  rows[rows.length - 1].push(field);
+  return rows;
+}
+
+// Zelle aus Format.lua als Zahl: { value, duration } oder null
+// Dauer: "45s", "1m 35s", "1h 02m", "2T 3h" (Tag: T/d/j je Sprache); Zahl: "850", "12.3k", "2.5M", "45%", "12g"/"po"/"o"
+const DURATION_UNITS = { T: 86400, d: 86400, j: 86400, h: 3600, m: 60, s: 1 };
+const NUMBER_SUFFIXES = { "": 1, k: 1e3, M: 1e6, "%": 1, g: 1, po: 1, o: 1 };
+function parseCell(cell) {
+  cell = cell.trim().replace(/\*$/, "");  // "*" = Teil-Level
+  let match = /^(\d+)([A-Za-z]) (\d+)([A-Za-z])$/.exec(cell);
+  if (match && DURATION_UNITS[match[2]] && DURATION_UNITS[match[4]]) {
+    return { value: match[1] * DURATION_UNITS[match[2]] + match[3] * DURATION_UNITS[match[4]], duration: true };
+  }
+  if ((match = /^(\d+)s$/.exec(cell))) return { value: Number(match[1]), duration: true };
+  // Ganzzahl mit Tausender-Trennzeichen (Format.Integer, "12.345"); Format.Number hat nie drei Nachkommastellen
+  if (/^\d{1,3}([.,  ]\d{3})+$/.test(cell)) return { value: Number(cell.replace(/\D/g, "")), duration: false };
+  match = /^(-?\d+(?:\.\d+)?)(k|M|%|g|po|o)?$/.exec(cell);
+  if (match) return { value: Number(match[1]) * NUMBER_SUFFIXES[match[2] || ""], duration: false };
+  return null;
+}
+
+const EMPTY_CELLS = new Set(["", "-", "?"]);
+
+// Tabelle zu Graphen: erste Spalte = x-Achse (Level), jede Spalte mit nur Zahlen/Dauern ergibt einen Graphen
+function csvCharts(rows) {
+  const headers = rows[0] || [];
+  const body = rows.slice(1).filter(row => row.length > 1 || row[0] !== "");
+  const xs = body.map((row, index) => {
+    const cell = parseCell(row[0] || "");
+    return cell ? cell.value : index + 1;
+  });
+  const charts = [];
+  for (let column = 1; column < headers.length; column++) {
+    const points = [];
+    let duration = false, valid = true;
+    body.forEach((row, index) => {
+      const raw = (row[column] || "").trim();
+      if (EMPTY_CELLS.has(raw)) return;
+      const cell = parseCell(raw);
+      if (!cell) { valid = false; return; }
+      duration = duration || cell.duration;
+      points.push([xs[index], cell.value]);
+    });
+    if (valid && points.length >= 2) {
+      points.sort((a, b) => a[0] - b[0]);
+      charts.push({ title: headers[column], xLabel: headers[0], duration, series: [{ name: headers[column], points }] });
+    }
+  }
+  return charts;
+}
+
+// ---------------------------------------------------------------------------
+// Anzeige (nur im Browser; der Test lädt dieses Skript ohne document)
+// ---------------------------------------------------------------------------
+const TEXTS = {
+  de: {
+    title: "Level Time – Graphen", show: "Anzeigen", file: "Datei öffnen…",
+    intro: "Export-Text aus Level Time einfügen: „Alle sichern“ oder Shift-Klick auf einen Lauf in Speedrun › Läufe (LT1:…) oder „Export“ (CSV) in einer Tabelle der Historie. Alles bleibt in deinem Browser.",
+    levelTime: "Zeit je Level", total: "Gesamtzeit bis Level", level: "Level",
+    loadedRuns: n => n + (n === 1 ? " Lauf" : " Läufe"), loadedCsv: n => n + (n === 1 ? " Graph" : " Graphen"),
+    invalid: "Text nicht erkannt: weder gültiger LT1-Lauf-Export noch CSV mit Zahlenspalten.",
+    day: "T", hour: "h", minute: "m", second: "s",
+  },
+  en: {
+    title: "Level Time – Charts", show: "Show", file: "Open file…",
+    intro: "Paste an export from Level Time: “Back up all” or Shift-click a run in Speedrun › Runs (LT1:…), or “Export” (CSV) in a history table. Everything stays in your browser.",
+    levelTime: "Time per level", total: "Total time to level", level: "Level",
+    loadedRuns: n => n + (n === 1 ? " run" : " runs"), loadedCsv: n => n + (n === 1 ? " chart" : " charts"),
+    invalid: "Text not recognized: neither a valid LT1 run export nor CSV with numeric columns.",
+    day: "d", hour: "h", minute: "m", second: "s",
+  },
+};
+const T = (typeof navigator !== "undefined" && /^de\b/i.test(navigator.language || "")) ? TEXTS.de : TEXTS.en;
+
+const SERIES_COLORS = ["#2563eb", "#d97706", "#059669", "#db2777", "#7c3aed", "#0891b2", "#65a30d", "#dc2626"];
+
+function formatDuration(seconds) {
+  seconds = Math.round(seconds);
+  const d = Math.floor(seconds / 86400), h = Math.floor(seconds % 86400 / 3600);
+  const m = Math.floor(seconds % 3600 / 60), s = seconds % 60;
+  if (d > 0) return d + T.day + " " + h + T.hour;
+  if (h > 0) return h + T.hour + " " + String(m).padStart(2, "0") + T.minute;
+  if (m > 0) return m + T.minute + " " + String(s).padStart(2, "0") + T.second;
+  return s + T.second;
+}
+
+function formatNumber(value) {
+  return value.toLocaleString(T === TEXTS.de ? "de-DE" : "en-US", { maximumFractionDigits: 1 });
+}
+
+// Runde Achsenschritte (1, 2, 5 × 10^n); Dauern in sinnvollen Zeiteinheiten
+const DURATION_STEPS = [1, 5, 10, 30, 60, 300, 600, 1800, 3600, 7200, 4 * 3600, 6 * 3600, 12 * 3600, 86400];
+function niceStep(max, ticks, duration) {
+  const raw = max / ticks;
+  if (duration) {
+    const step = DURATION_STEPS.find(s => s >= raw);
+    if (step) return step;
+  }
+  const power = Math.pow(10, Math.floor(Math.log10(raw)));
+  return [1, 2, 5, 10].map(f => f * power).find(s => s >= raw);
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function svgElement(name, attributes, text) {
+  const element = document.createElementNS(SVG_NS, name);
+  for (const key in attributes) element.setAttribute(key, attributes[key]);
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+// Liniendiagramm: chart = { title, xLabel, duration, series: [{ name, points: [[x, y], ...] }] }
+const WIDTH = 720, HEIGHT = 300, MARGIN = { left: 64, right: 16, top: 12, bottom: 34 };
+const Y_TICKS = 5, MAX_X_LABELS = 12;
+function renderChart(chart) {
+  const all = chart.series.flatMap(s => s.points);
+  const xMin = Math.min(...all.map(p => p[0])), xMax = Math.max(...all.map(p => p[0]));
+  const yStep = niceStep(Math.max(...all.map(p => p[1]), 1), Y_TICKS, chart.duration);
+  const yMax = Math.ceil(Math.max(...all.map(p => p[1]), 1) / yStep) * yStep;
+  const plotWidth = WIDTH - MARGIN.left - MARGIN.right, plotHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+  const x = v => MARGIN.left + (xMax === xMin ? plotWidth / 2 : (v - xMin) / (xMax - xMin) * plotWidth);
+  const y = v => MARGIN.top + plotHeight - v / yMax * plotHeight;
+  const format = chart.duration ? formatDuration : formatNumber;
+
+  const svg = svgElement("svg", { viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": chart.title });
+  for (let v = 0; v <= yMax + 1e-9; v += yStep) {
+    svg.append(svgElement("line", { x1: MARGIN.left, x2: WIDTH - MARGIN.right, y1: y(v), y2: y(v), stroke: "var(--grid)" }));
+    svg.append(svgElement("text", { x: MARGIN.left - 6, y: y(v) + 4, "text-anchor": "end" }, format(v)));
+  }
+  const xStep = Math.max(1, Math.ceil((xMax - xMin) / MAX_X_LABELS));
+  for (let v = Math.ceil(xMin); v <= xMax; v += xStep) {
+    svg.append(svgElement("text", { x: x(v), y: HEIGHT - MARGIN.bottom + 16, "text-anchor": "middle" }, formatNumber(v)));
+  }
+  svg.append(svgElement("text", { x: MARGIN.left + plotWidth / 2, y: HEIGHT - 4, "text-anchor": "middle" }, chart.xLabel));
+
+  chart.series.forEach((series, index) => {
+    const color = SERIES_COLORS[index % SERIES_COLORS.length];
+    const path = series.points.map((p, i) => (i ? "L" : "M") + x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1)).join("");
+    svg.append(svgElement("path", { d: path, fill: "none", stroke: color, "stroke-width": 2 }));
+    for (const p of series.points) {
+      const dot = svgElement("circle", { cx: x(p[0]), cy: y(p[1]), r: 3, fill: color });
+      dot.append(svgElement("title", {}, `${series.name}: ${chart.xLabel} ${formatNumber(p[0])} – ${format(p[1])}`));
+      svg.append(dot);
+    }
+  });
+
+  const section = document.createElement("section");
+  section.className = "chart";
+  const heading = document.createElement("h2");
+  heading.textContent = chart.title;
+  section.append(heading, svg);
+  if (chart.series.length > 1) {
+    const legend = document.createElement("div");
+    legend.className = "legend";
+    chart.series.forEach((series, index) => {
+      const item = document.createElement("span");
+      item.style.setProperty("--swatch", SERIES_COLORS[index % SERIES_COLORS.length]);
+      item.textContent = series.name;
+      legend.append(item);
+    });
+    section.append(legend);
+  }
+  return section;
+}
+
+function runCharts(runs) {
+  const label = run => run.realm ? run.name + " (" + run.realm + ")" : run.name;
+  const perLevel = runs.map(run => ({ name: label(run), points: run.times }));
+  const total = runs.map(run => ({ name: label(run), points: cumulativeTimes(run.times) }));
+  return [
+    { title: T.levelTime, xLabel: T.level, duration: true, series: perLevel.filter(s => s.points.length) },
+    { title: T.total, xLabel: T.level, duration: true, series: total.filter(s => s.points.length) },
+  ].filter(chart => chart.series.length);
+}
+
+function show(text) {
+  const status = document.getElementById("status"), target = document.getElementById("charts");
+  target.replaceChildren();
+  status.className = "";
+  const runs = parseRuns(text);
+  const charts = runs ? runCharts(runs) : csvCharts(parseCsv(text));
+  if (!charts.length) {
+    status.textContent = text.trim() ? T.invalid : "";
+    status.className = text.trim() ? "error" : "";
+    return;
+  }
+  status.textContent = runs ? T.loadedRuns(runs.length) : T.loadedCsv(charts.length);
+  for (const chart of charts) target.append(renderChart(chart));
+}
+
+if (typeof document !== "undefined") {
+  document.documentElement.lang = T === TEXTS.de ? "de" : "en";
+  document.getElementById("title").textContent = T.title;
+  document.getElementById("intro").textContent = T.intro;
+  document.getElementById("show").textContent = T.show;
+  document.getElementById("fileLabel").textContent = T.file;
+  const input = document.getElementById("input");
+  document.getElementById("show").addEventListener("click", () => show(input.value));
+  input.addEventListener("paste", () => setTimeout(() => show(input.value)));
+  document.getElementById("file").addEventListener("change", async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+    input.value = await file.text();
+    show(input.value);
+  });
+}
+</script>
+</body>
+</html>

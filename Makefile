@@ -11,7 +11,7 @@ RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run debuglog extract extract-check package artwork records flights locale test test-addon test-installer test-artwork test-records test-flights test-locale test-extractor vet
+.PHONY: install update dry-run debuglog extract extract-check package artwork records flights locale test test-addon test-installer test-artwork test-records test-flights test-locale test-extractor test-site vet
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -61,7 +61,7 @@ flights:
 locale:
 	go -C $(LOCALE) run . -dir "$(CURDIR)/Locales" $(ARGS)
 
-test: test-addon test-installer test-artwork test-records test-flights test-locale test-extractor
+test: test-addon test-installer test-artwork test-records test-flights test-locale test-extractor test-site
 
 # Lua-Szenarien aus tests/ gegen eine nachgebaute WoW-API.
 # -count=1: Go kennt die Lua-Dateien nicht und würde sonst veraltete Ergebnisse aus dem Cache zeigen.
@@ -85,6 +85,10 @@ test-locale:
 
 test-extractor:
 	go -C $(EXTRACTOR) test ./...
+
+# Auswertungs-Seite (docs/site): LT1-Decoder und CSV-Lesen gegen die Testdaten aus tests/site_fixtures_test.lua
+test-site:
+	node docs/site/site.test.js
 
 vet:
 	go -C $(INSTALLER) vet ./...
