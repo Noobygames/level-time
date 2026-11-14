@@ -15,7 +15,15 @@
 -- Ebenso nach /reload (Logout in der Instanz, Wiedereintritt innerhalb RELOAD_SECONDS): dieselbe Kopie.
 -- Reset: INSTANCE_RESET_SUCCESS oder INSTANCE_RESET_FAILED im Systemchat. Beide bekommt nur der
 -- Gruppenleiter; FAILED ("noch Spieler drin") setzt die Instanz für alle draußen trotzdem zurück.
--- Je Charakter gemerkt: character.instanceVisits[Schlüssel] = { zoneUID, leftAt, pending }. Schlüssel =
+-- Ohne Reset-Meldung und ohne zoneUID (Gruppenmitglied, WoW Forever) zwei billige Hinweise auf eine neue Kopie:
+--   abgeschlossen  der Endboss ist gefallen (MarkCompleted aus InstanceBosses.lua): wer danach rausgeht und wieder
+--                  reinkommt (nicht als Geist, nicht nach /reload), ist in einer neuen Kopie. shortcut: kurz raus und
+--                  zurück zur Beute gibt dann ohne zoneUID einen leeren neuen Lauf; bei Klagen Beute-Fenster abwarten.
+--   Boss lebt      ein Boss, der vor dem letzten Betreten schon fiel, stirbt noch einmal (ReportNewCopy aus
+--                  InstanceBosses.lua): Korrektur wie bei einer abweichenden zoneUID, geteilt wird beim letzten Betreten.
+-- Flügel (Scharlachrotes Kloster: Name und Karten-ID gleich) sind beim Betreten nicht unterscheidbar; offen im
+-- Debug-Log (Prüfung 493.instances.wing: uiMapID, Zonentexte, lesbare Trash-Namen je Flügel?).
+-- Je Charakter gemerkt: character.instanceVisits[Schlüssel] = { zoneUID, leftAt, pending, completed }. Schlüssel =
 -- Name und Schwierigkeit ("Name#difficultyID"): Normal und Heroisch sind verschiedene Kopien gleichen
 -- Namens. Abonnenten bekommen den Namen; ob es eine neue Kopie ist, sagt ihnen isNew.
 -- Ändert sich drinnen nur die Schwierigkeit (der Client meldet direkt nach dem Betreten kurz 0), bleibt es
@@ -125,7 +133,7 @@ local function visitOf(key, name, difficultyID)
 end
 
 local function isNewCopy(visit, now)
-  return not visit or (visit.leftAt ~= nil and now - visit.leftAt > REUSE_SECONDS)
+  return not visit or visit.completed or (visit.leftAt ~= nil and now - visit.leftAt > REUSE_SECONDS)
 end
 
 local function stay(key, name, instanceType, enteredAt, guessNew, expectedZoneUID)
@@ -187,6 +195,7 @@ local function enter(key, name, instanceType, difficultyID)
   -- Bis zur Bestätigung gilt die gemerkte zoneUID nur, wenn es dieselbe Kopie sein dürfte
   visits()[key] = {
     zoneUID = not guessNew and visit and visit.zoneUID or nil,
+    completed = not guessNew and visit and visit.completed or nil,  -- als Geist oder nach /reload zurück
     pending = { guessNew = guessNew, expected = expected, enteredAt = now },
   }
   ns.Debug("instances", "enter %s, new copy guessed: %s", name, guessNew)
@@ -221,6 +230,22 @@ local function confirm(zoneUID)
     end
   end
   notify("confirmed", inside.name, zoneUID)
+end
+
+-- Endboss der Kopie, in der man steht, ist gefallen: nach Verlassen und Wiederkommen ist es eine neue Kopie
+function InstanceCopy.MarkCompleted()
+  local visit = inside and visits()[inside.key]
+  if visit then visit.completed = true end
+end
+
+-- Ein schon besiegter Boss lebte wieder: die Kopie, in der man steht, ist neu (unbemerkter Reset). Wie eine
+-- abweichende zoneUID; eine spätere zoneUID-Bestätigung korrigiert nicht mehr zurück.
+function InstanceCopy.ReportNewCopy()
+  if not inside then return end
+  ns.Debug("instances", "boss alive again in %s: new copy", inside.key)
+  inside.guessNew, inside.expectedZoneUID = true, nil
+  visits()[inside.key] = { pending = { guessNew = true, enteredAt = inside.enteredAt } }
+  notify("corrected", inside.name, inside.instanceType, true, inside.enteredAt)
 end
 
 -- Gegner gesehen: zoneUID zählt erst, wenn CONFIRM_SIGHTINGS verschiedene Gegner sie zeigen

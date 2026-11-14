@@ -17,6 +17,10 @@
 -- Eintrag der Bossliste abgebildet, damit jeder Kill zum Fortschritt und zu den Splits zählt.
 -- Rare ohne Encounter (ns.InstanceGuide.rareNpcs): Kampflog UNIT_DIED mit passender NPC-ID in der destGUID; run.rares =
 -- "NPC-ID:Sekunden:Name;..." (Name = Einheitenname beim Kill in der Client-Sprache); zählen nur in RaresKilled.
+-- Neue Kopie ohne Reset-Meldung (InstanceCopy.lua): der Endboss meldet InstanceCopy.MarkCompleted; stirbt ein Boss, der
+-- schon vor dem letzten Betreten fiel (run.unconfirmed.bosses), meldet das InstanceCopy.ReportNewCopy (Lauf wird dort
+-- geteilt) und der Kill zählt im neuen Lauf. Ein Boss aus diesem Aufenthalt zählt nie doppelt (ENCOUNTER_END und UNIT_DIED
+-- kommen beide).
 -- shortcut: Retail hat keine Bossliste (nur die Zahl der Kills), bei Bedarf über das Encounter-Journal nachrüsten.
 local _, ns = ...
 local L = ns.L
@@ -236,6 +240,10 @@ end
 local function recordKill(id, source)
   local run = ns.Instances.GetCurrentRun()
   if not run or not ns.Instances.IsRunning() then return false end
+  if run.unconfirmed and InstanceBosses.Killed(run.unconfirmed)[id] then
+    ns.InstanceCopy.ReportNewCopy()
+    run = ns.Instances.GetCurrentRun()
+  end
   if InstanceBosses.Killed(run)[id] then return false end
   run.bosses = run.bosses and (run.bosses .. SEPARATOR .. id) or tostring(id)
   local split = tostring(math.floor(ns.Instances.GetRunSeconds(run)))
@@ -243,6 +251,7 @@ local function recordKill(id, source)
   ns.Instances.NoteGroupSize(run)
   ns.Debug("instances", "boss killed (%s): %s, bosses %s", source, id, run.bosses)
   if InstanceBosses.IsEndBoss(run, id) then
+    ns.InstanceCopy.MarkCompleted()
     ns.Debug("instances", "dungeon completed: %s, bosses %s", run.name, InstanceBosses.ProgressText(run))
     local text = string.format(L.INSTANCE_COMPLETED, run.name or "?",
       ns.Format.Duration(ns.Instances.GetRunSeconds(run)), InstanceBosses.ProgressText(run))

@@ -1292,6 +1292,29 @@ check("479.lootSparkles.skinning", function()
   return info
 end)
 
+-- 493: Woran erkennt man beim Betreten den Flügel (Scharlachrotes Kloster, Düsterbruch: gleicher Name, gleiche Karten-ID)?
+-- uiMapID und Zonentexte je Flügel; Rückfall wären Trash-Namen je Flügel: sind Namen von Namensplaketten und Ziel in
+-- Forever-Instanzen lesbar (secret = nein)? Je Flügel direkt nach dem Betreten mit Gegnern in Sicht prüfen
+check("493.instances.wing", function()
+  local function readable(value) return ns.IsSecret(value) and "secret" or value end
+  local function call(fn, ...) return fn and readable(fn(...)) end
+  local function nameOf(unit)
+    local exists = UnitExists(unit)
+    if ns.IsSecret(exists) or not exists then return nil end
+    return readable(UnitName(unit))
+  end
+  local plates = {}
+  for unit in pairs(ns.NamePlates.Active()) do plates[#plates + 1] = nameOf(unit) end
+  local _, _, difficultyID, _, _, _, _, mapID = GetInstanceInfo()
+  return {
+    plates = plates, target = nameOf("target"), mouseover = nameOf("mouseover"),
+    instance = ns.InstanceCopy.GetInsideName(), mapID = readable(mapID),
+    difficultyID = readable(difficultyID),
+    uiMapID = C_Map and call(C_Map.GetBestMapForUnit, "player"),
+    zone = call(GetRealZoneText), subZone = call(GetSubZoneText), minimapZone = call(GetMinimapZoneText),
+  }
+end)
+
 -- Offene Frage: kommen ENCOUNTER_END bzw. UNIT_DIED bei Dungeon-Bossen je Client, passen Liste und Namen?
 check("483.bosses", function()
   local InstanceBosses = ns.InstanceBosses

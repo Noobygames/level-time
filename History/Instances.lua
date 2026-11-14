@@ -6,10 +6,10 @@
 -- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses, splits, groupSize,
 -- rares }. bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill, rares = besiegte Rare (InstanceBosses.lua),
 -- groupSize = größte gesehene Gruppe
--- (Betreten und Boss-Kills); shortcut: beim Teilen (OnCorrected, neue Kopie) bleiben sie beim alten
--- Lauf, auch wenn einer nach dem Wiedereintritt fiel (Zeitfenster bis zur Bestätigung ist kurz).
--- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
--- eine andere Kopie, wird dort geteilt.
+-- (Betreten und Boss-Kills).
+-- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist (mit bosses, splits, rares);
+-- zeigt sich eine andere Kopie (zoneUID oder ein Boss, der vor dem Wiedereintritt schon fiel, siehe InstanceCopy.lua),
+-- wird dort geteilt, Kills danach ziehen in den neuen Lauf. Ohne zoneUID (WoW Forever) gilt das letzte Betreten.
 -- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation, money, quests }
 -- (reputation, money und quests fehlen bei älteren Läufen); mapID/difficultyID (für InstanceInfo) fehlen bei Läufen vor Roadmap 460.
 -- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt. Den offenen Lauf
@@ -171,7 +171,15 @@ end
 
 -- Stand vor einem Wiedereintritt, dessen Kopie noch nicht feststeht
 local function snapshot(run)
-  return { seconds = run.seconds, stats = ns.Database.CopyCounters(run.stats), at = time(), level = ns.level }
+  return { seconds = run.seconds, stats = ns.Database.CopyCounters(run.stats), at = time(), level = ns.level,
+    bosses = run.bosses, splits = run.splits, rares = run.rares }
+end
+
+-- Was an einen Text (bosses, splits, rares) seit dem Stand head angehängt wurde; nil, wenn nichts
+local function appended(text, head)
+  if not head then return text end
+  if not text or #text <= #head then return nil end
+  return text:sub(#head + 2)
 end
 
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
@@ -179,9 +187,10 @@ InstanceCopy.OnEnter(function(name, instanceType, isNew)
   if run and run.name == name and not isNew then
     ns.Debug("instances", "run continues: %s, clock was running %s, ghost %s", name, runningSince ~= nil,
       UnitIsDeadOrGhost("player"))
-    -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie
-    if not runningSince and run.zoneUID then
-      run.unconfirmed = run.unconfirmed or snapshot(run)
+    -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie. Ohne zoneUID bestätigt nichts, dann
+    -- zählt der Stand beim letzten Betreten
+    if not runningSince then
+      run.unconfirmed = (run.zoneUID and run.unconfirmed) or snapshot(run)
     end
   else
     ns.Debug("instances", "new run: %s (open run %s, guessed new %s, ghost %s)", name, run and run.name, isNew,
@@ -226,7 +235,12 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     for counter, value in pairs(run.stats) do
       fresh.stats[counter] = value - (before.stats[counter] or 0)
     end
+    fresh.bosses = appended(run.bosses, before.bosses)
+    fresh.splits = shiftedSplits(appended(run.splits, before.splits), -before.seconds)
+    fresh.rares = ns.InstanceBosses.ShiftRares(appended(run.rares, before.rares), -before.seconds)
+    Instances.NoteGroupSize(fresh)
     run.seconds, run.stats = before.seconds, before.stats
+    run.bosses, run.splits, run.rares = before.bosses, before.splits, before.rares
     run.unconfirmed = nil
     finish()
     ns.character.currentRun = fresh
