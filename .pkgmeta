@@ -14,7 +14,6 @@ ignore:
   - curseforge
   - Makefile
   - README.md
-  - ROADMAP.md
   - ManualToCheck.md
   - ManualToCheck-done.md
   - docs
