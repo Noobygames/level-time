@@ -130,6 +130,10 @@ local function updateTarget()
 end
 
 local function refreshAll()
+  -- Plaketten, die schon vor dem Laden standen (/reload, Login in der Stadt), melden kein NAME_PLATE_UNIT_ADDED
+  for unit in pairs(ns.NamePlates.Active()) do
+    if not units[unit] then units[unit] = plateOf(unit) end
+  end
   for unit in pairs(units) do updatePlate(unit) end
   updateTarget()
 end
