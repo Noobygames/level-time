@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-16",
     entries = {
+      { kind = "fix",
+        deDE = "Questmarkierungen, Beutetaschen-Hinweise und Bedrohungsanzeige erscheinen jetzt auch an Namensplaketten, die schon vor dem Laden oder Einschalten sichtbar waren.",
+        enUS = "Quest marks, bag hints and the threat display now also appear on nameplates that were already visible before loading or switching the feature on.",
+        frFR = "Les marques de quête, indices de sacs et l'affichage de menace apparaissent désormais aussi sur les barres de nom déjà visibles avant le chargement ou l'activation.",
+        esES = "Las marcas de misión, las pistas de bolsas y la indicación de amenaza ahora aparecen también en las placas de nombre que ya estaban visibles antes de cargar o activar la función." },
       { kind = "change",
         deDE = "Dungeonquest-Fenster bleiben stehen, bis du sie schließt (Automatik optional); mit /lt dq, per Knopf in den Optionen oder Rechtsklick auf einen Dungeon-Eingang auf der Karte öffnest du sie erneut.",
         enUS = "Dungeon quest windows now stay until you close them (auto-close is optional); reopen them with /lt dq, a button in the options or a right-click on a dungeon entrance on the map.",

@@ -163,6 +163,10 @@ end
 
 local function refreshAll()
   if not (ns.db and ns.db.questMarks) or not QuestMarks.IsAvailable() then return end
+  -- Plaketten, die schon vor dem Laden standen (/reload, Einschalten), melden kein NAME_PLATE_UNIT_ADDED
+  for unit in pairs(ns.NamePlates.Active()) do
+    if not units[unit] then units[unit] = plateOf(unit) end
+  end
   for unit in pairs(units) do update(unit) end
 end
 

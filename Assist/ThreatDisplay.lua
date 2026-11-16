@@ -222,6 +222,13 @@ function ThreatDisplay.UpdateAllNameplates()
     restoreAllPlates()
     return
   end
+  -- Plaketten, die schon vor dem Laden standen, melden kein NAME_PLATE_UNIT_ADDED
+  for unit in pairs(ns.NamePlates.Active()) do
+    if not activePlates[unit] and C_NamePlate and C_NamePlate.GetNamePlateForUnit then
+      local ok, plate = pcall(C_NamePlate.GetNamePlateForUnit, unit)
+      if ok and not ns.IsSecret(plate) and plate then activePlates[unit] = plate end
+    end
+  end
   for unit in pairs(activePlates) do
     ThreatDisplay.UpdateNameplate(unit)
   end

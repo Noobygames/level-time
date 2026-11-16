@@ -81,3 +81,12 @@ expect("Größe", mark:GetScale(), 2)
 addon.Set("questMarks", false)
 expect("aus: Markierung weg", mark:IsShown(), false)
 expect("Fehler?", #wow.errors, 0)
+
+-- Plakette stand schon vor dem Laden (kein NAME_PLATE_UNIT_ADDED): wird trotzdem markiert
+addon.Set("questMarks", true)
+wow.state.units.nameplate2 = { name = "Vorher" }
+wow.fire("PLAYER_ENTERING_WORLD")
+related.nameplate2 = true
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1.1)
+expectTrue("Plakette ohne ADDED-Ereignis markiert", created[plates.nameplate2] ~= nil and created[plates.nameplate2]:IsShown())

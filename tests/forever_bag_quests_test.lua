@@ -9,7 +9,7 @@ local completed = {}
 C_QuestLog = C_QuestLog or {}
 C_QuestLog.IsQuestFlaggedCompleted = function(questID) return completed[questID] == true end
 
-local plates = { nameplate1 = CreateFrame("Frame") }
+local plates = { nameplate1 = CreateFrame("Frame"), nameplate2 = CreateFrame("Frame") }
 C_NamePlate = { GetNamePlateForUnit = function(unit) return plates[unit] end }
 local created = {}
 local realCreate = CreateFrame
@@ -49,6 +49,14 @@ wow.state.units.nameplate1 = { name = "Kommandantin", guid = GIVER_GUID }
 wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 local mark = created[plates.nameplate1]
 expectTrue("Plakette markiert", mark ~= nil and mark:IsShown())
+
+-- Plakette stand schon vor dem Laden (kein NAME_PLATE_UNIT_ADDED): wird beim Neuaufbau trotzdem markiert
+wow.state.units.nameplate2 = { name = "Kommandantin", guid = GIVER_GUID }
+wow.fire("PLAYER_ENTERING_WORLD")
+addon.Set("bagHints", false)
+addon.Set("bagHints", true)
+local early = created[plates.nameplate2]
+expectTrue("Plakette ohne ADDED-Ereignis markiert", early ~= nil and early:IsShown())
 
 -- Tooltip: Quest-Geber und Gegner mit Beute
 local lines = {}
