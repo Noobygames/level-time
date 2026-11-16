@@ -50,6 +50,15 @@ expect("gesperrt: nichts", CollapsedBuffs.ShownCount(), 0)
 wow.state.aurasSecret = false
 wow.fire("UNIT_AURA", "player")
 
+-- Geheime Stapelzahl: Anzeigetext von Blizzard wird durchgereicht, ohne Vergleich
+local shield = wow.state.buffs[1]
+shield.applications, shield.auraInstanceID = wow.SECRET, 7
+C_UnitAuras.GetAuraApplicationDisplayCount = function(unit, id, min) return unit == "player" and id == 7 and min == 2 and "3" or "" end
+wow.fire("UNIT_AURA", "player")
+tick()
+expect("geheimer Stapel per Blizzard-Text", (CollapsedBuffs.IconTexts(1)), "3")
+shield.applications = 3
+
 addon.Set("collapsedBuffs", false)
 tick()
 expect("aus: nichts", CollapsedBuffs.ShownCount(), 0)

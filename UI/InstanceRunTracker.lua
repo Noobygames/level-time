@@ -157,7 +157,7 @@ end
 
 ns.Frames.Register({
   id = "dungeonRun", frame = card.frame, label = "EDIT_FRAME_DUNGEON_RUN", default = DEFAULT_POS,
-  settingsPage = "COMFORT_PAGE_DUNGEONS", clickable = true,
+  settingsPage = "COMFORT_PAGE_DUNGEONS", clickable = true, dragWhenUnlocked = true,
   preview = function(on)
     previewing = on and true or false
     InstanceRunTracker.Refresh()

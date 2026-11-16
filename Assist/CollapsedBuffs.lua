@@ -47,6 +47,14 @@ local function spellName(spellId)
   return GetSpellInfo and (GetSpellInfo(spellId)) or nil
 end
 
+-- Stapeltext, wenn die Zahl geheim ist: Blizzards Formatierung (leer unter 2), SetText nimmt den geheimen Text an
+function CollapsedBuffs.DisplayCount(aura)
+  local get = C_UnitAuras and C_UnitAuras.GetAuraApplicationDisplayCount
+  if not get or not aura.auraInstanceID then return nil end
+  local ok, text = pcall(get, "player", aura.auraInstanceID, 2)
+  return ok and (ns.IsSecret(text) or type(text) == "string") and text or nil
+end
+
 -- Gewählte Buffs aus der Einstellung: Spell-IDs und Namen (klein); neu gelesen nur, wenn sich der Text ändert
 local parsedText, ids, names
 local function wanted()
@@ -93,9 +101,14 @@ for index = 1, CollapsedBuffs.MAX_ICONS do
 end
 
 -- Ein Symbol füllen: Stapel ab 2 (wie Blizzard), Restzeit nur bei Buffs mit Ablauf
+-- count = Zahl oder fertiger (ggf. geheimer) Anzeigetext von Blizzard
 local function fill(icon, texture, count, remaining)
   icon.texture:SetTexture(texture)
-  ns.Widgets.SetTextIfChanged(icon.count, (count and count > 1) and tostring(count) or "")
+  if type(count) == "string" then
+    icon.count:SetText(count)  -- geheimer Text: nur durchreichen, nie vergleichen
+  else
+    ns.Widgets.SetTextIfChanged(icon.count, (count and count > 1) and tostring(count) or "")
+  end
   local text, r, g, b = "", 1, 1, 1
   if remaining then text, r, g, b = ns.CooldownNumbers.FormatRemaining(remaining) end
   ns.Widgets.SetTextIfChanged(icon.time, text)
@@ -120,7 +133,7 @@ function CollapsedBuffs.Update()
       if not CollapsedBuffs.Matches(aura) then return false end
       shown = shown + 1
       local count = aura.applications
-      if ns.IsSecret(count) or type(count) ~= "number" then count = nil end
+      if ns.IsSecret(count) or type(count) ~= "number" then count = CollapsedBuffs.DisplayCount(aura) end
       fill(icons[shown], aura.icon, count, (Auras.RemainingSeconds(aura)))
       return shown >= CollapsedBuffs.MAX_ICONS
     end)

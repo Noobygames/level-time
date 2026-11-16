@@ -132,6 +132,7 @@ expect("Filter Raids: nichts gewählt", Window.Parts().selected, nil)
 
 -- Edit-Modus-Vorschau ohne Lua-Fehler; draußen verschwindet der Tracker
 addon.Frames.Preview("dungeonRun")
+expectTrue("Lauf-Karte ziehbar ohne Edit-Modus", addon.Frames.Get("dungeonRun").dragWhenUnlocked)
 enter(nil)
 addon.InstanceRunTracker.Refresh()
 expect("keine Lua-Fehler", #wow.errors, 0)
