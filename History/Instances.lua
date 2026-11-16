@@ -3,11 +3,16 @@
 -- dieselbe Kopie (Händler, /reload) setzt den Lauf fort; die Zeit draußen zählt nicht, außer als Geist
 -- auf dem Weg zurück zur Leiche. Wiederbelebt draußen (Geistheiler) hält die Uhr an.
 -- Offener Lauf: ns.character.currentRun = { name, instanceType, startedAt, seconds, level, mapID, difficultyID,
--- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed }.
--- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist; zeigt sich
--- eine andere Kopie, wird dort geteilt.
--- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation }
--- (reputation fehlt bei älteren Läufen); mapID/difficultyID (für InstanceInfo) fehlen bei Läufen vor Roadmap 460.
+-- stats = alle Zähler wie bei Level und Session (Bereich Stats.INSTANCE), zoneUID, unconfirmed, bosses, splits, groupSize,
+-- rares, moveAt }. bosses = besiegte Bosse, splits = Laufzeit je Boss-Kill, rares = besiegte Rare (InstanceBosses.lua),
+-- groupSize = größte gesehene Gruppe, moveAt = Laufzeit bei der ersten Bewegung in der Instanz (Roadmap 322: Splits und
+-- Bestzeiten zählen ab da, InstanceRuns.lua; seconds bleibt die ganze Zeit in der Instanz)
+-- (Betreten und Boss-Kills).
+-- unconfirmed = Stand vor einem Wiedereintritt, dessen Kopie noch nicht bestätigt ist (mit bosses, splits, rares);
+-- zeigt sich eine andere Kopie (zoneUID oder ein Boss, der vor dem Wiedereintritt schon fiel, siehe InstanceCopy.lua),
+-- wird dort geteilt, Kills danach ziehen in den neuen Lauf. Ohne zoneUID (WoW Forever) gilt das letzte Betreten.
+-- Beendete Läufe landen im Journal (instanceLog) mit xp und counters = { kills, deaths, reputation, money, quests }
+-- (reputation, money und quests fehlen bei älteren Läufen); mapID/difficultyID (für InstanceInfo) fehlen bei Läufen vor Roadmap 460.
 -- Läufe aus älteren Versionen haben statt stats die Felder xp und counters; beim Login umgewandelt. Den offenen Lauf
 -- anderer Charaktere wandelt erst deren Login um: Summarize versteht deshalb beide Formen (Historie zeigt ihn).
 local _, ns = ...
@@ -30,6 +35,8 @@ local RECORD_COUNTERS = {
   { field = "kills", counter = Stats.PVE_KILLS },
   { field = "deaths", counter = Stats.DEATHS },
   { field = "reputation", counter = Stats.REPUTATION },
+  { field = "money", counter = Stats.MONEY_EARNED },
+  { field = "quests", counter = Stats.QUESTS },
 }
 
 local runningSince  -- GetTime(), seit dem die Uhr des offenen Laufs läuft (nil = angehalten)
@@ -58,11 +65,29 @@ function Instances.Summarize(run)
     stats[Stats.DEATHS] or 0
 end
 
--- Beendeter Lauf als Journal-Eintrag-Teil { xp, counters = { kills, deaths, reputation } }
+-- Beendeter Lauf als Journal-Eintrag-Teil { xp, counters = { kills, deaths, reputation, money, quests } }
 function Instances.ToRecord(run)
   local xp, kills, deaths = Instances.Summarize(run)
-  local reputation = run.stats and run.stats[Stats.REPUTATION] or 0
-  return { xp = xp, counters = { kills = kills, deaths = deaths, reputation = reputation } }
+  local counters = { kills = kills, deaths = deaths }
+  for _, mapping in ipairs(RECORD_COUNTERS) do
+    counters[mapping.field] = counters[mapping.field] or (run.stats and run.stats[mapping.counter]) or 0
+  end
+  return { xp = xp, counters = counters }
+end
+
+-- Größte gesehene Gruppe des Laufs merken (allein = 1)
+function Instances.NoteGroupSize(run)
+  local members = GetNumGroupMembers and GetNumGroupMembers() or 0
+  if ns.IsSecret(members) then return end
+  run.groupSize = math.max(run.groupSize or 1, members)
+end
+
+-- Splits ("192,305") um offset Sekunden verschieben; nil bleibt nil
+local function shiftedSplits(splits, offset)
+  if not splits then return nil end
+  local shifted = {}
+  for value in string.gmatch(splits, "%d+") do shifted[#shifted + 1] = tonumber(value) + offset end
+  return table.concat(shifted, ",")
 end
 
 function Instances.GetRunSeconds(run)
@@ -138,6 +163,8 @@ function Instances.ResetCurrent()
   run.startedAt = time()
   run.level = ns.level
   run.unconfirmed = nil
+  run.bosses, run.splits, run.rares, run.groupSize, run.moveAt = nil, nil, nil, nil, nil
+  Instances.NoteGroupSize(run)
   if runningSince then runningSince = GetTime() end
   ns.Debug("instances", "run reset: %s", run.name)
   return true
@@ -145,7 +172,15 @@ end
 
 -- Stand vor einem Wiedereintritt, dessen Kopie noch nicht feststeht
 local function snapshot(run)
-  return { seconds = run.seconds, stats = ns.Database.CopyCounters(run.stats), at = time(), level = ns.level }
+  return { seconds = run.seconds, stats = ns.Database.CopyCounters(run.stats), at = time(), level = ns.level,
+    bosses = run.bosses, splits = run.splits, rares = run.rares }
+end
+
+-- Was an einen Text (bosses, splits, rares) seit dem Stand head angehängt wurde; nil, wenn nichts
+local function appended(text, head)
+  if not head then return text end
+  if not text or #text <= #head then return nil end
+  return text:sub(#head + 2)
 end
 
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
@@ -153,9 +188,10 @@ InstanceCopy.OnEnter(function(name, instanceType, isNew)
   if run and run.name == name and not isNew then
     ns.Debug("instances", "run continues: %s, clock was running %s, ghost %s", name, runningSince ~= nil,
       UnitIsDeadOrGhost("player"))
-    -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie
-    if not runningSince and run.zoneUID then
-      run.unconfirmed = run.unconfirmed or snapshot(run)
+    -- Als Geist zurück zur Leiche läuft die Uhr schon: sicher dieselbe Kopie. Ohne zoneUID bestätigt nichts, dann
+    -- zählt der Stand beim letzten Betreten
+    if not runningSince then
+      run.unconfirmed = (run.zoneUID and run.unconfirmed) or snapshot(run)
     end
   else
     ns.Debug("instances", "new run: %s (open run %s, guessed new %s, ghost %s)", name, run and run.name, isNew,
@@ -163,6 +199,7 @@ InstanceCopy.OnEnter(function(name, instanceType, isNew)
     finish()
     ns.character.currentRun = newRun(name, instanceType, time(), ns.level)
     currentRun().mapID, currentRun().difficultyID = currentIds()
+    Instances.NoteGroupSize(currentRun())
   end
   resume()
 end)
@@ -199,7 +236,15 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     for counter, value in pairs(run.stats) do
       fresh.stats[counter] = value - (before.stats[counter] or 0)
     end
+    fresh.bosses = appended(run.bosses, before.bosses)
+    fresh.splits = shiftedSplits(appended(run.splits, before.splits), -before.seconds)
+    fresh.rares = ns.InstanceBosses.ShiftRares(appended(run.rares, before.rares), -before.seconds)
+    -- Erste Bewegung erst nach dem Wiedereintritt gehört zum neuen Lauf, sonst läuft der neue ab seinem Start
+    if run.moveAt then fresh.moveAt = math.max(0, run.moveAt - before.seconds) end
+    if run.moveAt and run.moveAt > before.seconds then run.moveAt = nil end
+    Instances.NoteGroupSize(fresh)
     run.seconds, run.stats = before.seconds, before.stats
+    run.bosses, run.splits, run.rares = before.bosses, before.splits, before.rares
     run.unconfirmed = nil
     finish()
     ns.character.currentRun = fresh
@@ -209,6 +254,19 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     if not previous then return end
     run.startedAt, run.level = previous.time, previous.level
     run.seconds = run.seconds + previous.seconds
+    -- Splits nach dem Wiedereintritt zählen ab dem Start des zusammengeführten Laufs; fehlen sie beim vorigen Teil
+    -- trotz Bossen (ältere Version), passen sie nicht mehr zu den Bossen und fallen weg
+    local ownSplits = shiftedSplits(run.splits, previous.seconds)
+    if previous.bosses then
+      run.bosses = run.bosses and (previous.bosses .. "," .. run.bosses) or previous.bosses
+      run.splits = previous.splits and (ownSplits and (previous.splits .. "," .. ownSplits) or previous.splits) or nil
+    else
+      run.splits = ownSplits
+    end
+    local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
+    run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
+    run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
+    run.moveAt = previous.moveAt or (run.moveAt and run.moveAt + previous.seconds)
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
     for _, mapping in ipairs(RECORD_COUNTERS) do
@@ -258,6 +316,14 @@ ns.OnLogin(function()
 end)
 
 ns.OnLogout(pause)
+
+-- Erste Bewegung bei laufender Uhr merken (PLAYER_STARTED_MOVING gibt es in Retail, Classic und Forever)
+ns.RegisterEvent("PLAYER_STARTED_MOVING", function()
+  local run = currentRun()
+  if not run or run.moveAt or not runningSince then return end
+  run.moveAt = math.floor(Instances.GetRunSeconds(run))
+  ns.Debug("instances", "first move: %s at %s s", run.name, run.moveAt)
+end)
 
 ns.RegisterEvent("PLAYER_ALIVE", onPossiblyAlive)
 ns.RegisterEvent("PLAYER_UNGHOST", onPossiblyAlive)

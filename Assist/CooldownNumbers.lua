@@ -16,10 +16,10 @@ local activeCooldowns = {}
 local hooked = false
 
 CooldownNumbers.COLORS = {
-  red = { 1, 0.2, 0.2 },
-  yellow = { 1, 0.85, 0.2 },
-  white = { 1, 1, 1 },
-  grey = { 0.7, 0.7, 0.7 },
+  red = ns.Theme.COLORS.bad,
+  yellow = ns.Theme.COLORS.neutral,
+  white = ns.Theme.COLORS.text,
+  grey = ns.Theme.COLORS.muted,
 }
 
 function CooldownNumbers.FormatRemaining(seconds)

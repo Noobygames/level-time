@@ -6,7 +6,8 @@
 --              der Start- und Zielanleger als Halte hat. Die Achsen der Weltposition werden in beiden Reihenfolgen
 --              geprüft (ungeprüft, welche der Client liefert; Debug-Check 440.transport.state zeigt den Treffer).
 --   Tempo      liegt beim Server, steht nicht in den Daten: Yards je Sekunde aus jeder Strecke mit gelernter Periode
---              (Rundkurs-Yards / (Periode - Liegezeiten)), Median über alle Strecken des Realms.
+--              (Rundkurs-Yards / (Periode - Liegezeiten)), sonst aus der gemessenen Fahrzeit Anleger zu Anleger
+--              (Yards der Strecke / Fahrzeit), Median über alle Strecken des Realms.
 --   Ergebnis   Periode jeder zugeordneten Strecke, Fahrzeit Start -> Ziel und Liegezeit am Ziel (für die Phase der
 --              Gegenrichtung). Ohne Daten, Zuordnung oder Tempo: nil, dann bleibt es beim Lernen.
 local _, ns = ...
@@ -83,14 +84,19 @@ local function median(values)
   return (values[math.floor(middle)] + values[math.ceil(middle)]) / 2
 end
 
--- Tempo (Yards je Sekunde) aus allen Strecken mit gelernter Periode oder nil
+-- Tempo (Yards je Sekunde) aus allen Strecken mit gelernter Periode (ganzer Rundkurs) oder gemessener Fahrzeit
+-- (Anleger zu Anleger, Roadmap 482) oder nil
 function TransportPaths.Speed()
   local speeds = {}
   for _, route in pairs(ns.Transports.Data().routes) do
-    local match = route.period and TransportPaths.Match(route)
+    local match = (route.period or route.rideTime) and TransportPaths.Match(route)
     if match then
-      local yards, waits = loop(match.stops)
-      if route.period > waits then speeds[#speeds + 1] = yards / (route.period - waits) end
+      local seconds, yards, waits = route.period, loop(match.stops)
+      if not seconds then
+        seconds = route.rideTime
+        yards, waits = between(match.stops, match.from, match.to)
+      end
+      if seconds > waits then speeds[#speeds + 1] = yards / (seconds - waits) end
     end
   end
   return median(speeds)

@@ -13,7 +13,7 @@ local MENU_ROW_HEIGHT = 18
 local MENU_PADDING = 8
 local MENU_ALPHA = 0.98
 local ANCHOR_GAP = 4
-local NAME_COLOR = { 1, 1, 1 }  -- ohne bekannte Klasse
+local NAME_COLOR = ns.Theme.COLORS.text  -- ohne bekannte Klasse
 
 -- options = { name = globaler Rahmenname, anchor = Element, unter dem die Liste aufklappt,
 --             onSelect = function(characterKey) }; parent = Fenster, in dem ein Klick daneben schließt

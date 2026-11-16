@@ -19,7 +19,6 @@ function GetInstanceInfo()
     state.instance.maxPlayers or 0, 0, false, state.instance.mapID
 end
 C_QuestLog = {
-  GetTitleForQuestID = function(questID) return state.questTitles[questID] end,
   IsQuestTrivial = function(questID) return state.trivialQuests[questID] or false end,
   IsRepeatableQuest = function(questID) return (state.repeatableQuests or {})[questID] == true end,
   -- Ziele je Quest: state.questLog[i] = { questID, title, isHeader, objectives = { { text, finished } } }
@@ -29,6 +28,14 @@ C_QuestLog = {
     end
   end,
 }
+-- Questtitel je ID (state.questTitles): Classic Era kennt nur C_QuestLog.GetQuestInfo, die anderen Clients
+-- C_QuestLog.GetTitleForQuestID (Blizzard_APIDocumentationGenerated/QuestLogDocumentation.lua je Client)
+local function questTitle(questID) return state.questTitles[questID] end
+if state.interface == 11509 then
+  C_QuestLog.GetQuestInfo = questTitle
+else
+  C_QuestLog.GetTitleForQuestID = questTitle
+end
 -- Questlog wie in Classic Era/TBC (GetQuestLogTitle: 2. Level, 3. suggestedGroup, 8. questID); C_QuestLog.GetInfo
 -- fehlt im Stub. Beobachtete Quests (Tracker): state.questWatches = { Log-Index, ... }
 function GetNumQuestLogEntries() return #(state.questLog or {}) end
@@ -43,6 +50,13 @@ function GetQuestLogRewardXP(questID)
   end
   return 0, 0
 end
+-- Belohnungsgeld (Kupfer) je Quest-ID: questLog[i].rewardMoney
+function GetQuestLogRewardMoney(questID)
+  for _, quest in ipairs(state.questLog or {}) do
+    if quest.questID == questID then return quest.rewardMoney or 0 end
+  end
+  return 0
+end
 -- Quest-Item je Logeintrag: questLog[i].specialItem = { link, Symbol }
 function GetQuestLogSpecialItemInfo(index)
   local item = ((state.questLog or {})[index] or {}).specialItem
@@ -55,6 +69,7 @@ function GetNumQuestLeaderBoards(index)
   return quest and #(quest.objectives or {}) or 0
 end
 function GetQuestID() return state.questID or 0 end
+function ItemTextGetItem() return state.itemTextName end
 function strtrim(text) return (text:gsub("^%s+", ""):gsub("%s+$", "")) end
 -- Wie im Client: Funktion ersetzen, Original zuerst, dann der Hook
 function hooksecurefunc(target, nameOrHook, maybeHook)
@@ -78,6 +93,12 @@ end
 
 -- Händler; RepairAllItems bucht die Kosten ab (mit PLAYER_MONEY) und merkt sich die Reparatur in wow.repairs
 wow.repairs = {}
+-- Waren des Händlers: state.merchant.items = { Item-ID, ... } (Links wie im Client)
+function GetMerchantNumItems() return #(state.merchant.items or {}) end
+function GetMerchantItemLink(index)
+  local itemID = (state.merchant.items or {})[index]
+  return itemID and string.format("|cffffffff|Hitem:%d::::|h[Item %d]|h|r", itemID, itemID) or nil
+end
 function CanMerchantRepair() return state.merchant.canRepair end
 function GetRepairAllCost() return state.merchant.repairCost, state.merchant.repairCost > 0 end
 -- Gildenreparatur gelingt nur, wenn das, was die Gilde dem Charakter zahlt (merchant.guildFunds:
@@ -130,6 +151,14 @@ function GetBuybackItemLink(index)
   return itemID and ("|cffffffff|Hitem:" .. itemID .. "::::::::|h[Item " .. itemID .. "]|h|r") or nil
 end
 C_MerchantFrame = { GetBuybackItemID = function(index) return (state.buyback or {})[index] end }
+-- Gegenstand am Mauszeiger (PickupContainerItem) wird gelöscht
+function DeleteCursorItem()
+  local cursor = state.cursorItem
+  if cursor then state.bags[cursor.bag][cursor.slot] = nil end
+  state.cursorItem = nil
+end
+-- Modifizierter Klick auf einen Taschenplatz (Classic-ContainerFrame); Tests rufen ihn mit einem Knopf-Frame auf
+function ContainerFrameItemButton_OnModifiedClick() end
 function BuybackItem(index) table.remove(state.buyback or {}, index) end
 -- Quest-Aktionen landen in wow.questActions, z.B. { "accept" } oder { "selectAvailable", 123 }
 wow.questActions = {}
@@ -158,7 +187,8 @@ function GetInboxNumItems() return #(state.inbox or {}) end
 function GetInboxHeaderInfo(index)
   local item = (state.inbox or {})[index]
   if not item then return end
-  return nil, nil, item.sender, item.subject, item.money or 0, item.CODAmount or 0, item.daysLeft, item.hasItem or 0, item.wasRead, item.wasReturned, item.textCreated, item.canReply, item.isGM
+  return nil, nil, item.sender, item.subject, item.money or 0, item.CODAmount or 0, item.daysLeft, item.hasItem or 0, item.wasRead,
+    item.wasReturned, item.textCreated, item.canReply, item.isGM
 end
 function AutoLootMailItem(index)
   local item = (state.inbox or {})[index]
@@ -189,3 +219,5 @@ function ClickSendMailItemButton()
     state.cursorItem = nil
   end
 end
+function CursorHasItem() return state.cursorItem ~= nil end
+function ClearCursor() state.cursorItem = nil end

@@ -2,9 +2,11 @@
 --   Minimap   kleine Beschriftung (Frame LevelTimerTransport, Edit-Modus-ID "transport"), solange der Spieler an einem
 --             gelernten Anleger steht: "Orgrimmar > Tirisfal Glades: Abfahrt in 1:23"
 --   Plakette  über der Namensplakette des Transportmeisters je Strecke "Tirisfal Glades: Abfahrt in 1:23" (NPC-ID in
---             dock.npcIds; bekannte Zeppelinmeister ordnet Transports.DockOfMaster selbst zu, sonst /lt transport master).
+--             dock.npcIds; bekannte Zeppelinmeister und Meister mit Titel ordnet Transports.DockOfMaster selbst zu,
+--             sonst /lt transport master).
 --             Befreundete NPC-Namensplaketten müssen im Spiel eingeschaltet sein; die CVar ändern wir nicht.
---   Tooltip   eine Zeile im Tooltip des Transportmeisters (Post-Call wie Assist/Tooltip.lua, kein Taint)
+--   Tooltip   eine Zeile im Tooltip des Transportmeisters (Post-Call wie Assist/Tooltip.lua, kein Taint); ein Meister
+--             mit Titel ohne gelernte Zeiten bekommt den Hinweis, die Strecke einmal zu fahren
 -- Aktualisierung im Ein-Sekunden-Takt (ns.Every), Texte nur bei Änderung gesetzt.
 local _, ns = ...
 local L = ns.L
@@ -15,16 +17,26 @@ ns.TransportDisplay = TransportDisplay
 
 local UPDATE_SECONDS = 1
 local LABEL_WIDTH = 260
+local PADDING = 6
+local TITLE_GAP = 3
+local PANEL_ALPHA = 0.8
 local PLATE_OFFSET = 6
 local PREVIEW_LINES = { { "Orgrimmar > Tirisfal Glades", "departs", 83 }, { "Stranglethorn Vale > Orgrimmar", "unknown" } }
 
-local frame = CreateFrame("Frame", ns.GlobalName("Transport"), UIParent)
-frame:SetSize(LABEL_WIDTH, 40)
+-- Kleines Fenster im Theme-Stil: Titel (was das ist) über den Zeilen
+local frame = CreateFrame("Frame", ns.GlobalName("Transport"), UIParent, "BackdropTemplate")
+frame:SetSize(LABEL_WIDTH + 2 * PADDING, 40)
 frame:Hide()
-local text = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("small", true))
-text:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+ns.Theme.RegisterPanel(frame, PANEL_ALPHA)
+local title = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("small"))
+title:SetPoint("TOPLEFT", frame, "TOPLEFT", PADDING, -PADDING)
+title:SetTextColor(ns.Theme.RGB("accent"))
+title:SetWidth(LABEL_WIDTH)
+title:SetJustifyH("LEFT")
+local text = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("small"))
+text:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -TITLE_GAP)
 text:SetWidth(LABEL_WIDTH)
-text:SetJustifyH("RIGHT")
+text:SetJustifyH("LEFT")
 
 local previewing = false
 local plates = {}  -- Einheit -> { frame, text }
@@ -78,8 +90,11 @@ local function refreshMinimap()
     frame:Hide()
     return
   end
+  ns.Widgets.SetTextIfChanged(title, L.EDIT_FRAME_TRANSPORT)
   ns.Widgets.SetTextIfChanged(text, table.concat(shown, "\n"))
-  frame:SetHeight(text:GetStringHeight() or 40)
+  -- Fenster umschließt Titel und alle (auch umgebrochenen) Zeilen
+  local height = (title:GetStringHeight() or 0) + TITLE_GAP + (text:GetStringHeight() or 0)
+  frame:SetHeight(height + 2 * PADDING)
   frame:Show()
 end
 
@@ -96,7 +111,7 @@ end
 local function dockOfUnit(unit)
   local guid = UnitGUID(unit)
   local npcId = Transports.NpcId(guid)
-  return npcId and Transports.DockOfMaster(npcId)
+  return npcId and Transports.DockOfMaster(npcId, unit)
 end
 
 local function hidePlate(unit)
@@ -161,9 +176,10 @@ end)
 function TransportDisplay.TooltipLines(unit)
   if not (active() and ns.db.transportTooltip) then return nil end
   local dockName = dockOfUnit(unit)
-  if not dockName then return nil end
-  local texts = TransportDisplay.TextsFor(dockName)
-  return #texts > 0 and texts or nil
+  local texts = dockName and TransportDisplay.TextsFor(dockName) or {}
+  if #texts > 0 then return texts end
+  if Transports.IsMasterTitle(Transports.UnitTitle(unit)) then return { L.TRANSPORT_MASTER_UNLEARNED } end
+  return nil
 end
 
 local function onUnitTooltip(tooltip)

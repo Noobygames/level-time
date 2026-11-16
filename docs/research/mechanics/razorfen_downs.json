@@ -1,0 +1,159 @@
+{
+  "instance": "Razorfen Downs",
+  "instanceMapID": 129,
+  "kind": "dungeon",
+  "levels": [37, 46],
+  "bosses": [
+    {
+      "name": "Tuten'kash",
+      "npcID": 7355,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 12252, "spell": "Web Spray", "type": "survive", "en": "Webs players in place; healer keep range", "de": "Netzt Spieler fest; Heiler auf Abstand", "verified": true},
+        {"spellID": 12251, "spell": "Virulent Poison", "type": "dispel", "en": "Poison DoT; cure poison", "de": "Gift-DoT; Gift entfernen", "verified": true},
+        {"spellID": 12255, "spell": "Curse of Tuten'kash", "type": "dispel", "en": "Curse on players; decurse it", "de": "Fluch auf Spielern; entfluchen", "verified": true}
+      ]
+    },
+    {
+      "name": "Plaguemaw the Rotting",
+      "npcID": 7356,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 11442, "spell": "Withered Touch", "type": "dispel", "en": "Disease weakens players; cure disease", "de": "Krankheit schwaecht Spieler; Krankheit heilen"},
+        {"spellID": 12946, "spell": "Putrid Stench", "type": "survive", "en": "Stench aura hurts the group; burn him fast", "de": "Gestankaura schadet der Gruppe; schnell toeten", "verified": true}
+      ]
+    },
+    {
+      "name": "Mordresh Fire Eye",
+      "npcID": 7357,
+      "level": 39,
+      "mechanics": [
+        {"spellID": 12466, "spell": "Fireball", "type": "interrupt", "en": "Hard-hitting Fireball; interrupt it", "de": "Starker Feuerball; unterbrechen", "verified": true},
+        {"spellID": 12470, "spell": "Fire Nova", "type": "positioning", "en": "Fire burst near him; casters stay back", "de": "Feuerstoss in seiner Naehe; Zauberer bleiben weg", "verified": true}
+      ]
+    },
+    {
+      "name": "Glutton",
+      "npcID": 8567,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 12795, "spell": "Frenzy", "type": "tank", "en": "Frenzies at low health; tank cooldowns ready", "de": "Raserei bei wenig Leben; Tank-Cooldowns bereit", "verified": true},
+        {"spellID": 12627, "spell": "Disease Cloud", "type": "survive", "en": "Disease cloud around him; cure disease", "de": "Krankheitswolke um ihn; Krankheit heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Amnennar the Coldbringer",
+      "npcID": 7358,
+      "level": 41,
+      "mechanics": [
+        {"spellID": 13009, "spell": "Amnennar's Wrath", "type": "survive", "en": "Frost AoE pulse on the group; heal through it", "de": "Frost-Flaechenpuls auf Gruppe; gegenheilen", "verified": true},
+        {"spellID": 12642, "spell": "Summon Frost Spectres", "type": "adds", "en": "Summons frost spectres; AoE or tank them", "de": "Beschwoert Frostgespenster; AoE oder tanken", "verified": true},
+        {"spellID": 15531, "spell": "Frost Nova", "type": "survive", "en": "Roots nearby players; melee stay ready", "de": "Friert Nahkaempfer fest; vorbereitet sein", "verified": true},
+        {"spellID": 15530, "spell": "Frostbolt", "type": "interrupt", "en": "Frostbolt on a player: interrupt when possible", "de": "Frostblitz auf einen Spieler: wenn moeglich unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Death's Head Geomancer",
+      "npcID": 7335,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Caster with Fireball and Slow; interrupt", "de": "Zauberer mit Feuerball und Verlangsamen; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Death's Head Necromancer",
+      "npcID": 7337,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12420, "spell": "Summon Skeletal Servant", "type": "adds", "en": "Summons a skeleton; kill the caster first", "de": "Beschwoert Skelett; Beschwoerer zuerst toeten", "verified": true},
+        {"spellID": 11443, "spell": "Cripple", "type": "dispel", "en": "Curse slows and weakens; decurse", "de": "Fluch verlangsamt und schwaecht; entfluchen", "verified": true}
+      ]
+    },
+    {
+      "name": "Skeletal Summoner",
+      "npcID": 7342,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 0, "spell": "Summon Skeletal Shadowcaster", "type": "interrupt", "en": "Interrupt or it summons shadowcaster adds", "de": "Unterbrechen, sonst kommen Schattenwirker", "unverified": true}
+      ]
+    },
+    {
+      "name": "Frozen Soul",
+      "npcID": 7352,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12528, "spell": "Silence", "type": "survive", "en": "Banshee that silences casters; kill fast", "de": "Banshee verstummt Zauberer; schnell toeten"}
+      ]
+    },
+    {
+      "name": "Withered Reaver",
+      "npcID": 7328,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11427, "spell": "Cleave", "type": "positioning", "en": "Cleaves; only the tank in front", "de": "Spaltet; nur der Tank vorne"}
+      ]
+    },
+    {
+      "name": "Withered Spearhide",
+      "npcID": 7332,
+      "mechanics": [
+        {"spellID": 11397, "spell": "Diseased Shot", "type": "dispel", "en": "Diseased shot on a player: cure the disease", "de": "Krankheitsschuss auf Spieler: Krankheit heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Tomb Reaver",
+      "npcID": 7351,
+      "mechanics": [
+        {"spellID": 745, "spell": "Web", "type": "dispel", "en": "Webs a player in place: dispel or kill quickly", "de": "Fesselt einen Spieler mit Netz: bannen oder schnell toeten", "verified": true}
+      ]
+    },
+    {
+      "name": "Freezing Spirit",
+      "npcID": 7353,
+      "mechanics": [
+        {"spellID": 15532, "spell": "Frost Nova", "type": "avoid", "en": "Frost nova roots nearby players: ranged keep distance", "de": "Frostnova friert Spieler in der Naehe ein: Fernkaempfer auf Abstand", "verified": true}
+      ]
+    },
+    {
+      "name": "Skeletal Frostweaver",
+      "npcID": 7341,
+      "mechanics": [
+        {"spellID": 15043, "spell": "Frostbolt", "type": "interrupt", "en": "Frostbolt on a player: interrupt it", "de": "Frostblitz auf einen Spieler: unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Ragglesnout", "npcID": 7354}
+  ],
+  "rareDetails": [
+    {
+      "name": "Ragglesnout",
+      "npcID": 7354,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 7645, "spell": "Dominate Mind", "type": "dispel", "en": "Mind controls a player; CC or dispel", "de": "Uebernimmt einen Spieler; kontrollieren oder bannen", "verified": true},
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals himself; interrupt", "de": "Heilt sich; unterbrechen", "verified": true},
+        {"spellID": 10892, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden ueber Zeit: Magie auf dem Ziel bannen", "verified": true},
+        {"spellID": 11659, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on a player: interrupt it", "de": "Schattenblitz auf einen Spieler: unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Razorfen_Downs_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Tuten'kash",
+    "https://warcraft.wiki.gg/wiki/Plaguemaw_the_Rotting",
+    "https://warcraft.wiki.gg/wiki/Mordresh_Fire_Eye_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Glutton",
+    "https://warcraft.wiki.gg/wiki/Amnennar_the_Coldbringer_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Ragglesnout",
+    "https://warcraft.wiki.gg/wiki/Death's_Head_Geomancer",
+    "https://warcraft.wiki.gg/wiki/Death's_Head_Necromancer",
+    "https://warcraft.wiki.gg/wiki/Skeletal_Summoner",
+    "https://warcraft.wiki.gg/wiki/Frozen_Soul",
+    "https://warcraft.wiki.gg/wiki/Withered_Reaver",
+    "https://warcraft.wiki.gg/wiki/Coldrage_Dagger",
+    "https://www.wowhead.com/forever/guide/razorfen-downs-dungeon-overview-location-rewards"
+  ]
+}

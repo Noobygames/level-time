@@ -8,7 +8,6 @@ local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
 local Kinds = ns.Kinds
-local L = ns.L
 
 local Honor = {}
 ns.HonorGoals = Honor

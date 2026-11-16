@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// Zusätzlich zu den Dateien aus der .toc ins Paket, falls vorhanden
-var packageExtras = []string{"LICENSE"}
+// Zusätzlich zu den Dateien aus der .toc ins Paket, falls vorhanden (sources.md: woher die Spieldaten stammen)
+var packageExtras = []string{"LICENSE", "sources.md"}
 
 // WritePackage erstellt eine ZIP, wie WoW sie in Interface/AddOns erwartet: je Addon ein Ordner <AddonName>/ mit
 // allen Dateien aus der .toc (Version eingesetzt) und packageExtras. Mehrere Addons = ein Paket, z.B. Level Time mit

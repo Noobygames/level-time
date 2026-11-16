@@ -12,6 +12,20 @@ local Runs = {}
 ns.Runs = Runs
 
 local IMPORT_PREFIX = "import:"
+-- Grenzen für Level-Zeiten von außen (Import, FriendRace): über dem Max-Level aller Clients, damit Läufe anderer
+-- Clients passen; mehr als ein Jahr Spielzeit für ein Level ist kein echter Wert
+Runs.MAX_LEVEL = 100
+Runs.MAX_LEVEL_SECONDS = 365 * 24 * 3600
+
+-- Level von außen: ganze Zahl 1..MAX_LEVEL
+function Runs.IsValidLevel(level)
+  return type(level) == "number" and level >= 1 and level <= Runs.MAX_LEVEL and level == math.floor(level)
+end
+
+-- Level-Zeit von außen: > 0 und unter MAX_LEVEL_SECONDS (schließt auch inf und NaN aus)
+function Runs.IsValidSeconds(seconds)
+  return type(seconds) == "number" and seconds > 0 and seconds <= Runs.MAX_LEVEL_SECONDS
+end
 
 local function store()
   LevelTimerStatsDB.importedRuns = LevelTimerStatsDB.importedRuns or {}
@@ -136,6 +150,20 @@ ns.RegisterApply(Runs.Invalidate)
 ns.Database.OnCharacterDeleted(Runs.Invalidate)
 ns.Database.OnCharacterReplaced(Runs.Invalidate)
 
+-- Schnellste Zeit je Level über alle eigenen Charaktere (bestTimes: ohne Teil-Level), außer excludeKey (nil =
+-- alle). Rückgabe: best[level] = Sekunden, holders[level] = Lauf mit dieser Zeit
+function Runs.BestPerLevel(excludeKey)
+  local best, holders = {}, {}
+  for _, run in ipairs(Runs.GetAll()) do
+    if not run.imported and run.id ~= excludeKey then
+      for level, seconds in pairs(run.bestTimes) do
+        if not best[level] or seconds < best[level] then best[level], holders[level] = seconds, run end
+      end
+    end
+  end
+  return best, holders
+end
+
 -- Summe der Zeiten von Level from bis to; nil, wenn eines davon fehlt
 function Runs.SumOfLevels(times, from, to)
   if from > to then return nil end  -- leere Spanne (z.B. noch kein eigenes Level abgeschlossen)
@@ -204,16 +232,16 @@ local function sanitize(run)
   if type(run) ~= "table" or type(run.name) ~= "string" or type(run.times) ~= "table" then return nil end
   local times = {}
   for level, seconds in pairs(run.times) do
-    -- Zeiten von außen: nur endliche, positive Zahlen (inf oder negativ würde Summen und Vergleiche zerstören)
-    if type(level) ~= "number" or type(seconds) ~= "number" or seconds ~= seconds or seconds <= 0
-      or seconds == math.huge then return nil end
+    -- Zeiten von außen: ganze Level 1..MAX_LEVEL, endliche positive Sekunden (inf oder negativ würde Summen und
+    -- Vergleiche zerstören)
+    if not Runs.IsValidLevel(level) or not Runs.IsValidSeconds(seconds) then return nil end
     times[level] = seconds
   end
   return {
     name = plain(run.name),
     realm = plain(run.realm),
     class = plain(run.class),
-    reachedLevel = type(run.reachedLevel) == "number" and run.reachedLevel or nil,
+    reachedLevel = number(run.reachedLevel),
     times = times,
     coverage = fraction(run.coverage),
     category = ns.RunCategory.IsValid(run.category) and run.category or nil,

@@ -1,7 +1,8 @@
 -- Optionen, Reiter Komfort (1/3): Automatik, Soziales, Chat, Oberfläche, Blizzard ausblenden.
 local _, ns = ...
 local O = ns.OptionsCore
-local builder, addPage, addSection, addSlider, addToggles, addHint, addSubPage, toggle, advanced, requires = O.builder, O.addPage, O.addSection, O.addSlider, O.addToggles, O.addHint, O.addSubPage, O.toggle, O.advanced, O.requires
+local builder, addPage, addSection, addSlider, addToggles = O.builder, O.addPage, O.addSection, O.addSlider, O.addToggles
+local addHint, addSubPage, toggle, advanced, requires = O.addHint, O.addSubPage, O.toggle, O.advanced, O.requires
 
 -- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus
 addPage("OPTIONS_TAB_COMFORT")
@@ -13,6 +14,7 @@ addToggles({
   toggle("AUTO_REPAIR", "autoRepair"),
   requires(toggle("AUTO_REPAIR_GUILD", "autoRepairGuild", ns.Client.HasGuildBank), "autoRepair"),
   toggle("AUTO_SELL_JUNK", "autoSellJunk"),
+  toggle("DELETE_CHEAPEST_JUNK", "deleteCheapestJunk"),
   toggle("TRAIN_ALL_TOGGLE", "trainAllButton", ns.TrainerCache.IsAvailable),
 })
 addSection("SECTION_CHARACTER")

@@ -267,10 +267,10 @@ local function wheel(argument)
     Manager.Toggle("wheel")
     return
   elseif action == "vote" then
-    local sub = rest:lower()
-    if sub == "stop" or sub == "cancel" then
+    local voteAction = rest:lower()
+    if voteAction == "stop" or voteAction == "cancel" then
       ns.Wheel.StopVote()
-    elseif sub == "finish" or sub == "end" then
+    elseif voteAction == "finish" or voteAction == "end" then
       ns.Wheel.FinishVote()
     else
       local seconds = tonumber(rest)

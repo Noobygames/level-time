@@ -1,0 +1,174 @@
+{
+  "instance": "Shadowfang Keep",
+  "instanceMapID": 33,
+  "kind": "dungeon",
+  "levels": [18, 24],
+  "bosses": [
+    {
+      "name": "Rethilgore",
+      "npcID": 3914,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 7295, "spell": "Soul Drain", "type": "survive", "en": "Roots a player for 10 sec and drains health: heal them", "de": "Fesselt einen Spieler 10 Sek. und saugt Leben: gegenheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Razorclaw the Butcher",
+      "npcID": 3886,
+      "level": 22,
+      "mechanics": [
+        {"spellID": 7485, "spell": "Butcher Drain", "type": "survive", "en": "Drains life from a player: heal the target", "de": "Saugt einem Spieler Leben ab: Ziel heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Baron Silverlaine",
+      "npcID": 3887,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 7068, "spell": "Veil of Shadow", "type": "dispel", "en": "Cuts healing taken by 75% for 15 sec: remove the curse", "de": "Senkt erhaltene Heilung 15 Sek. um 75 %: Fluch entfernen", "verified": true}
+      ]
+    },
+    {
+      "name": "Commander Springvale",
+      "npcID": 4278,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 1026, "spell": "Holy Light", "type": "interrupt", "en": "Heals himself with Holy Light: interrupt it", "de": "Heilt sich mit Heiligem Licht: unterbrechen", "verified": true},
+        {"spellID": 5588, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player for 4 sec", "de": "Betäubt einen Spieler 4 Sek.", "verified": true}
+      ]
+    },
+    {
+      "name": "Odo the Blindwatcher",
+      "npcID": 4279,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 7481, "spell": "Howling Rage", "type": "tank", "en": "Damage rises with each howl: burn him down fast", "de": "Schaden steigt mit jedem Heulen: schnell töten", "verified": true}
+      ]
+    },
+    {
+      "name": "Fenrus the Devourer",
+      "npcID": 4274,
+      "level": 21,
+      "mechanics": [
+        {"spellID": 7125, "spell": "Toxic Saliva", "type": "dispel", "en": "Poison drains mana and deals nature damage: cure poison", "de": "Gift entzieht Mana und macht Naturschaden: Gift heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Wolf Master Nandos",
+      "npcID": 3927,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 7487, "spell": "Call Bleak Worg", "type": "adds", "en": "Calls worgs and a Lupine Horror: tank and kill the adds", "de": "Ruft Worgs und einen Wolfsschrecken: Adds tanken und töten", "verified": true},
+        {"spellID": 7489, "spell": "Call Lupine Horror", "type": "adds", "en": "Calls a lupine horror: kill or control the add", "de": "Ruft einen Wolfsschrecken: Begleiter töten oder kontrollieren", "verified": true},
+        {"spellID": 7488, "spell": "Call Slavering Worg", "type": "adds", "en": "Calls a slavering worg: kill or control the add", "de": "Ruft einen geifernden Worg: Begleiter töten oder kontrollieren", "verified": true}
+      ]
+    },
+    {
+      "name": "Archmage Arugal",
+      "npcID": 4275,
+      "level": 26,
+      "mechanics": [
+        {"spellID": 7621, "spell": "Arugal's Curse", "type": "survive", "en": "Turns a player into a worgen for 10 sec: avoid hitting them", "de": "Verwandelt einen Spieler 10 Sek. in einen Worgen: nicht angreifen", "verified": true},
+        {"spellID": 7803, "spell": "Thundershock", "type": "avoid", "en": "Nature burst stuns nearby players: keep distance", "de": "Naturstoß betäubt Nahe: Abstand halten", "verified": true},
+        {"spellID": 22709, "spell": "Void Bolt", "type": "interrupt", "en": "Heavy shadow bolt: interrupt or heal the target", "de": "Starker Schattenblitz: unterbrechen oder Ziel heilen", "verified": true},
+        {"spellID": 7587, "spell": "Shadow Port", "type": "positioning", "en": "Teleports around the room: move to keep him in range", "de": "Teleportiert sich im Raum: nachrücken und in Reichweite bleiben", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Son of Arugal",
+      "npcID": 2529,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7124, "spell": "Arugal's Gift", "type": "survive", "en": "Big shadow hit every minute for 5 min: healers watch it", "de": "Starker Schattentreffer jede Minute für 5 Min.: Heiler aufpassen"}
+      ]
+    },
+    {
+      "name": "Haunted Servitor",
+      "npcID": 3875,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7057, "spell": "Haunting Spirits", "type": "dispel", "en": "Curse that spawns ghosts on the target: remove it fast", "de": "Fluch ruft Geister auf das Ziel: schnell entfernen"}
+      ]
+    },
+    {
+      "name": "Shadowfang Darksoul",
+      "npcID": 3855,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8140, "spell": "Befuddlement", "type": "dispel", "en": "Halves casting speed for 15 sec: dispel healers", "de": "Halbiert Zaubertempo 15 Sek.: bei Heilern bannen"},
+        {"spellID": 970, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel or heal through", "de": "Schattenschaden über Zeit: bannen oder gegenheilen"}
+      ]
+    },
+    {
+      "name": "Shadowfang Moonwalker",
+      "npcID": 3853,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 24021, "spell": "Anti-Magic Shield", "type": "tank", "en": "Immune to magic for a while: use physical damage", "de": "Zeitweise immun gegen Magie: physischen Schaden nutzen", "verified": true}
+      ]
+    },
+    {
+      "name": "Tormented Officer",
+      "npcID": 3873,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7054, "spell": "Forsaken Skills", "type": "dispel", "en": "Curse keeps lowering a skill: remove the curse", "de": "Fluch senkt immer wieder eine Fertigkeit: Fluch entfernen"}
+      ]
+    },
+    {
+      "name": "Wailing Guardsman",
+      "npcID": 3877,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7074, "spell": "Screams of the Past", "type": "survive", "en": "Area silence for a few seconds: casters stay out of range", "de": "Flächenstille für einige Sek.: Zauberer halten Abstand", "verified": true}
+      ]
+    },
+    {
+      "name": "Fel Steed",
+      "npcID": 3864,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7139, "spell": "Fel Stomp", "type": "avoid", "en": "Stomp stuns nearby players for 3 sec: ranged stay back", "de": "Stampfen betäubt Nahe 3 Sek.: Fernkämpfer bleiben hinten", "verified": true}
+      ]
+    }
+  ],
+  "rares": [
+    {
+      "name": "Deathsworn Captain",
+      "npcID": 3872,
+      "mechanics": [
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true}
+      ]
+    }
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Shadowfang_Keep_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Rethilgore_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Razorclaw_the_Butcher_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Baron_Silverlaine_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Commander_Springvale_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Odo_the_Blindwatcher_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Fenrus_the_Devourer",
+    "https://warcraft.wiki.gg/wiki/Wolf_Master_Nandos_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Archmage_Arugal_(tactics)",
+    "https://warcraft.wiki.gg/wiki/Deathsworn_Captain",
+    "https://warcraft.wiki.gg/wiki/Son_of_Arugal",
+    "https://warcraft.wiki.gg/wiki/Haunted_Servitor",
+    "https://warcraft.wiki.gg/wiki/Shadowfang_Darksoul",
+    "https://warcraft.wiki.gg/wiki/Shadowfang_Moonwalker",
+    "https://warcraft.wiki.gg/wiki/Tormented_Officer",
+    "https://warcraft.wiki.gg/wiki/Wailing_Guardsman",
+    "https://warcraft.wiki.gg/wiki/Fel_Steed",
+    "https://warcraft.wiki.gg/wiki/Meteor_Shard",
+    "https://warcraft.wiki.gg/wiki/Robes_of_Arugal",
+    "https://warcraft.wiki.gg/wiki/Belt_of_Arugal",
+    "https://warcraft.wiki.gg/wiki/Odo's_Ley_Staff",
+    "https://warcraft.wiki.gg/wiki/Commander's_Crest",
+    "https://warcraft.wiki.gg/wiki/Silverlaine's_Family_Seal",
+    "https://warcraft.wiki.gg/wiki/Butcher's_Cleaver",
+    "https://warcraft.wiki.gg/wiki/Feline_Mantle",
+    "https://www.wowhead.com/forever/guide/shadowfang-keep-dungeon-overview-location-rewards"
+  ]
+}

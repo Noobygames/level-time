@@ -31,3 +31,15 @@ expect("Konflikt: einmal im Chat", told, 1)
 -- Retail/Classic: die CVar für Quest-Gegenstände gibt es nicht, also auch nichts zu setzen
 expect("ohne Forever-CVar: nicht verfügbar", LootSparkles.HasQuestItemSparkle(), false)
 expect("ohne Forever-CVar: nichts gesetzt", cvars.outlineModeShowLootEffectWhenDisabled, nil)
+
+-- Angeln: auch die Reichweite für den Schwimmer bleibt dem anderen Addon überlassen
+addon.Set("lootSparkleBobber", true)
+local oldUnitChannelInfo = UnitChannelInfo
+UnitChannelInfo = function(unit)
+  if unit == "player" then return "Angeln", "", 136245 end
+end
+wow.fire("UNIT_SPELLCAST_CHANNEL_START", "player")
+expect("Konflikt: Angel-Reichweite unberührt", cvars.SoftTargetInteractRange, "10")
+UnitChannelInfo = oldUnitChannelInfo
+wow.fire("UNIT_SPELLCAST_CHANNEL_STOP", "player")
+expect("Konflikt: keine Lua-Fehler", #wow.errors, 0)

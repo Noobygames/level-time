@@ -116,6 +116,26 @@ wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "U:100:1:7:8", "PARTY", 
 wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "U:100:1:7:8", "PARTY", "Testchar")
 expect("Eigener Charakter nicht im Peer-Cache", peers["Testchar"], nil)
 
+-- Realm mit Bindestrich: der Client meldet ihn normalisiert ("AzjolNerub")
+wow.state.realm = "Azjol-Nerub"
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "U:100:1:7:8", "PARTY", "Testchar-AzjolNerub")
+expect("Eigener Charakter mit Bindestrich-Realm nicht im Peer-Cache", peers["Testchar"], nil)
+wow.state.realm = "Testrealm"
+
+-- Nur Gruppenkanäle: Geflüstertes wird ignoriert
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "U:100:1:7:8", "WHISPER", "Fremder-Realm")
+expect("Flüstern nicht im Peer-Cache", peers["Fremder"], nil)
+local beforeWhisperQ = PartyQuestSync.GetQueueLength()
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "Q", "WHISPER", "Fremder-Realm")
+expect("Flüster-Anfrage löst keinen Snapshot aus", PartyQuestSync.GetQueueLength(), beforeWhisperQ)
+
+-- Antwort auf "Q" gedrosselt: zweite Anfrage im Cooldown sendet keinen weiteren Snapshot
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "Q", "PARTY", "Thrall-Realm")
+local afterFirstQ = PartyQuestSync.GetQueueLength()
+expectTrue("Erste Anfrage beantwortet", afterFirstQ > beforeWhisperQ)
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "Q", "PARTY", "Jaina-Realm")
+expect("Zweite Anfrage gedrosselt", PartyQuestSync.GetQueueLength(), afterFirstQ)
+
 -- Geheime Werte (wow.SECRET) sauber ignorieren
 wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, wow.SECRET, "PARTY", "Thrall-Realm")
 wow.fire("CHAT_MSG_ADDON", wow.SECRET, "U:100:1:7:8", "PARTY", "Thrall-Realm")

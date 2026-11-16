@@ -42,4 +42,25 @@ frame:Render(addon.characterKey, false, true)
 cells = headerCells()
 expect("kurzer Kopf: Ausgangsbreite", cells[1]:GetWidth(), math.max(40, #"Short" * 6 + 6 + 10) - 6)
 
+-- LT-296: Spaltenwahl (nur die ersten 6 Spalten standardmäßig), Wahl wird gespeichert, erste Spalte immer sichtbar
+local wideColumns = {}
+for i = 1, 8 do
+  wideColumns[i] = { header = "TEST_NUMBER", width = 40, value = function() return tostring(i) end }
+end
+wideColumns[2].header = "TEST_WIDE"
+local wideView = addon.TableView.Create({
+  tab = "TEST_NUMBER", columns = wideColumns,
+  records = function() return { {} } end,
+  footer = function() return {} end,
+})
+local wideFrame = wideView.Create(UIParent, 600, 300)
+wideFrame:Render(addon.characterKey, true, true)
+expectTrue("erste Spalte sichtbar", wideFrame:IsColumnShown(1))
+expectTrue("6. Spalte sichtbar", wideFrame:IsColumnShown(6))
+expect("7. Spalte standardmäßig verborgen", wideFrame:IsColumnShown(7), false)
+addon.db.tableColumns.TEST_NUMBER = { TEST_NUMBER = false }
+wideFrame:Render(addon.characterKey, false, true)
+expect("gespeicherte Wahl gilt", wideFrame:IsColumnShown(3), false)
+expect("keine Fehler (Spaltenwahl)", #wow.errors, 0)
+
 expect("keine Fehler", #wow.errors, 0)

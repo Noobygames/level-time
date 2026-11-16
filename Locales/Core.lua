@@ -18,11 +18,15 @@ function ns.DefaultLanguage()
   return CLIENT_LANGUAGES[GetLocale()] or "enUS"
 end
 
+-- Eingestellte Sprache des Addons (Einstellung language), sonst die des Clients
+function ns.Language()
+  return (ns.db and ns.db.language) or ns.DefaultLanguage()
+end
+
 -- L.KEY liefert den Text in der eingestellten Sprache, Fallback Englisch
 ns.L = setmetatable({}, {
   __index = function(_, key)
-    local lang = (ns.db and ns.db.language) or ns.DefaultLanguage()
-    local strings = ns.locales[lang] or ns.locales.enUS
+    local strings = ns.locales[ns.Language()] or ns.locales.enUS
     return strings[key] or ns.locales.enUS[key] or key
   end,
 })

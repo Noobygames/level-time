@@ -67,7 +67,8 @@ for _ = 1, 20 do wow.update(0.5) end
 expect("Karte unverändert: nicht neu gezeichnet", lookups.count, 0)
 shownMap = 1411
 WorldMapFrame:OnMapChanged()
-expect("Kartenwechsel: sofort neu gezeichnet", lookups.count, 1)
+-- je einmal für die gezeigte Karte und für die Karte mit Toden (Nachbarzonen, LT-39)
+expect("Kartenwechsel: sofort neu gezeichnet", lookups.count, 2)
 DeathMap.DeathsOn = deathsOn
 DeathMap.Refresh(true)
 expect("andere Karte: keine Tode", #DeathMap.DeathsOn(1411), 0)

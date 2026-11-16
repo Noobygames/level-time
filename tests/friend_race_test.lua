@@ -79,3 +79,30 @@ expectTrue("Level-Up gesendet", #sent >= 2)
 wow.fire("CHAT_MSG_ADDON", "Andere", "Q", "WHISPER", "X")
 wow.fire("CHAT_MSG_ADDON", "LevelTimer", "T:abc", "WHISPER", "X")
 expect("kein Fehler", #wow.errors, 0)
+
+-- Antwort je Absender gedrosselt: zweites "Q" innerhalb von REQUEST_PAUSE bleibt unbeantwortet
+wow.update(5)
+local beforeQ = #wow.addonMessages
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "Q", "WHISPER", "Freund-Testrealm")
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "Q", "WHISPER", "Freund-Testrealm")
+wow.update(1); wow.update(1); wow.update(1); wow.update(1)
+local answers = 0
+for i = beforeQ + 1, #wow.addonMessages do
+  if wow.addonMessages[i].message:find("^I:") then answers = answers + 1 end
+end
+expect("Antwort gedrosselt", answers, 1)
+
+-- Ungültige Werte: Level 0, zu hohe Level, riesige oder Null-Zeiten werden verworfen
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "I:0:MAGE", "WHISPER", "Freund-Testrealm")
+expect("Level 0 verworfen", select(2, FriendRace.Current()).level, 10)
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "L:1:500", "WHISPER", "Freund-Testrealm")
+expect("Level-Up auf 1 verworfen", select(2, FriendRace.Current()).times[0], nil)
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "L:999999:500", "WHISPER", "Freund-Testrealm")
+expect("riesiges Level verworfen", select(2, FriendRace.Current()).level, 10)
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "L:11:" .. string.rep("9", 250), "WHISPER", "Freund-Testrealm")
+expect("riesige Zeit verworfen", select(2, FriendRace.Current()).times[10], nil)
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "T:99:5,0,7", "WHISPER", "Freund-Testrealm")
+local friendTimes = select(2, FriendRace.Current()).times
+expect("Zeit bis Max-Level", friendTimes[99], 5)
+expect("Null-Zeit verworfen", friendTimes[100], nil)
+expect("über Max-Level verworfen", friendTimes[101], nil)

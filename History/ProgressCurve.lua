@@ -14,8 +14,8 @@ local ProgressCurve = {}
 ns.ProgressCurve = ProgressCurve
 
 ProgressCurve.OTHER_CHARACTERS = 3
-local REFERENCE_COLOR = { 1, 1, 1 }
-local FALLBACK_COLOR = { 0.6, 0.8, 1 }
+local REFERENCE_COLOR = ns.Theme.COLORS.text
+local FALLBACK_COLOR = ns.Theme.COLORS.info
 
 local function classColor(class)
   return ns.Theme.ClassColor(class, FALLBACK_COLOR)

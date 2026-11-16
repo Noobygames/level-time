@@ -1,0 +1,100 @@
+{
+ "instance": "Scarlet Monastery: Armory",
+ "instanceMapID": 189,
+ "kind": "dungeon",
+ "levels": [
+  32,
+  42
+ ],
+ "bosses": [
+  {
+   "name": "Herod",
+   "npcID": 3975,
+   "level": 40,
+   "mechanics": [
+    {
+     "spellID": 8989,
+     "spell": "Whirlwind",
+     "type": "avoid",
+     "en": "Spins with magic immunity; everyone but tank runs away",
+     "de": "Wirbelt magieimmun; alle ausser Tank weglaufen",
+     "verified": true
+    },
+    {
+     "spellID": 8269,
+     "spell": "Frenzy",
+     "type": "tank",
+     "en": "Attack speed jumps at low health; save tank cooldowns",
+     "de": "Bei wenig Leben schnellere Angriffe; Tank-Cooldowns sparen",
+     "verified": true
+    },
+    {
+     "spellID": 0,
+     "spell": "Scarlet Trainee",
+     "type": "adds",
+     "en": "Twenty weak trainees spawn on death; use AoE",
+     "de": "Nach dem Tod 20 schwache Rekruten; AoE nutzen",
+     "unverified": true
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Scarlet Conjuror",
+   "npcID": 4297,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 8985,
+     "spell": "Summon Fire Elemental",
+     "type": "adds",
+     "en": "Summons a fire elemental pet; kill the caster first",
+     "de": "Beschwoert Feuerelementar; Beschwoerer zuerst toeten"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Protector",
+   "npcID": 4292,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 31713,
+     "spell": "Holy Light",
+     "type": "interrupt",
+     "en": "Heals allies; interrupt Holy Light",
+     "de": "Heilt Verbuendete; Heiliges Licht unterbrechen",
+     "unverified": true,
+     "version": "classic"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Myrmidon",
+   "npcID": 4295,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 8269,
+     "spell": "Enrage",
+     "type": "tank",
+     "en": "Enrages at low health; burst it down",
+     "de": "Wird bei wenig Leben wuetend; schnell toeten"
+    }
+   ]
+  }
+ ],
+ "rares": [],
+ "sources": [
+  "https://warcraft.wiki.gg/wiki/Scarlet_Monastery_Armory",
+  "https://warcraft.wiki.gg/wiki/Herod",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Conjuror",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Protector",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Myrmidon",
+  "https://warcraft.wiki.gg/wiki/Herod's_Shoulder",
+  "https://warcraft.wiki.gg/wiki/Raging_Berserker's_Helm",
+  "https://warcraft.wiki.gg/wiki/Ravager_(axe)",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Leggings"
+ ]
+}

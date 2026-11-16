@@ -1,5 +1,4 @@
 -- Level-Up: Zusammenfassung im Chat, Timeline und Prognose bis Max-Level.
-local Stats = addon.Stats
 
 wow.login({ level = 57, xp = 0, xpMax = 1000, maxLevel = 60, playedSeconds = 0 })
 wow.fire("TIME_PLAYED_MSG", 50000, 0)  -- gesamt 50000 s, Level gerade begonnen

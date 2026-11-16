@@ -62,20 +62,12 @@ local function showTooltip(tooltip)
     end
   end
   tooltip:AddLine(" ")
-  tooltip:AddLine(L.TOOLTIP_LEFT, 0.7, 0.7, 0.7)
-  tooltip:AddLine(L.TOOLTIP_SHIFT_LEFT, 0.7, 0.7, 0.7)
-  tooltip:AddLine(L.TOOLTIP_RIGHT, 0.7, 0.7, 0.7)
+  ns.LauncherClicks.AddTooltipLines(tooltip, 0.7, 0.7, 0.7)
 end
 
--- Klicks wie beim Minimap-Button
+-- Klicks wie beim Minimap-Button (UI/MinimapButton.lua)
 local function onClick(_, mouseButton)
-  if mouseButton == "RightButton" then
-    ns.Set("showTimer", not ns.db.showTimer)
-  elseif IsShiftKeyDown() then
-    ns.ToggleHistory()
-  else
-    ns.ToggleOptions()
-  end
+  ns.LauncherClicks.Handle(mouseButton)
 end
 
 -- Text nur setzen, wenn er sich geändert hat (jede Zuweisung löst bei LibDataBroker Callbacks aus)

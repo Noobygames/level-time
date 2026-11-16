@@ -1,5 +1,4 @@
 -- Instanz-Bericht an die Gruppe (Roadmap 282) und Tageslimit 30 Instanzen in 24 Stunden (Classic).
-local Stats = addon.Stats
 local L = addon.L
 local InstanceLimit = addon.InstanceLimit
 
@@ -49,9 +48,11 @@ wow.fire("LOOT_CLOSED")
 wow.advance(600)
 enter(nil)
 expect("ein Bericht", #sent(), 1)
+local runSeconds = addon.Instances.GetRunSeconds(addon.Instances.GetCurrentRun())
 local expected = string.format(L.INSTANCE_REPORT, "Die Todesminen", table.concat({
-  addon.Format.Duration(addon.Instances.GetRunSeconds(addon.Instances.GetCurrentRun())),
+  addon.Format.Duration(runSeconds),
   string.format(L.INSTANCE_REPORT_XP, "600"),
+  string.format(L.INSTANCE_REPORT_XP_RATE, addon.Format.Number(math.floor(600 / runSeconds * 3600))),
   string.format(L.INSTANCE_REPORT_KILLS, 2) .. string.format(L.INSTANCE_REPORT_PER_KILL, "300"),
   addon.Format.PlainMoney(23005) }, ", "))
 expect("Text", sent()[1] and sent()[1].message, "Level Time: " .. expected)

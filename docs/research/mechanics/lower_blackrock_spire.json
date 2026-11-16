@@ -1,0 +1,284 @@
+{
+  "instance": "Lower Blackrock Spire",
+  "instanceMapID": 229,
+  "kind": "dungeon",
+  "levels": [55, 60],
+  "bosses": [
+    {
+      "name": "Spirestone Butcher",
+      "npcID": 9219,
+      "level": 58,
+      "mechanics": [],
+      "rare": true
+    },
+    {
+      "name": "Spirestone Battle Lord",
+      "npcID": 9218,
+      "level": 58,
+      "mechanics": [],
+      "rare": true
+    },
+    {
+      "name": "Spirestone Lord Magus",
+      "npcID": 9217,
+      "level": 58,
+      "mechanics": [
+        {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Sheeps a player; dispel the polymorph", "de": "Verwandelt Spieler in Schaf; Verwandlung bannen"},
+        {"spellID": 16170, "spell": "Bloodlust", "type": "dispel", "en": "Hastes an ally ogre; purge or kill him first", "de": "Beschleunigt einen Oger; reinigen oder Magus zuerst töten"}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Burning Felguard",
+      "npcID": 10263,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16046, "spell": "Blast Wave", "type": "avoid", "en": "Fire blast around him slows; casters keep distance", "de": "Feuerwelle um ihn verlangsamt; Zauberer auf Abstand"},
+        {"spellID": 15548, "spell": "Thunderclap", "type": "tank", "en": "AoE slows attack and movement of melee nearby", "de": "Flächenschlag verlangsamt Angriff und Tempo im Nahkampf"}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Highlord Omokk",
+      "npcID": 9196,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 18945, "spell": "Knock Away", "type": "positioning", "en": "Tank with back to a wall to avoid being knocked into adds", "de": "Tank mit Rücken zur Wand, sonst in Adds geschleudert", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Hits much harder when enraged; save cooldowns", "de": "Wütend schlägt er viel härter; Abklingzeiten aufheben", "verified": true},
+        {"spellID": 5532, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true}
+      ]
+    },
+    {
+      "name": "Shadow Hunter Vosh'gajin",
+      "npcID": 9236,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16097, "spell": "Hex", "type": "dispel", "en": "Turns nearby players into frogs; dispel or wait it out", "de": "Verwandelt Spieler in der Nähe in Frösche; bannen"},
+        {"spellID": 16098, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; decurse the tank", "de": "Fluch erhöht erlittenen Schaden; Tank entfluchen"}
+      ]
+    },
+    {
+      "name": "War Master Voone",
+      "npcID": 9237,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 5532, "spell": "Cleave", "type": "positioning", "en": "Frontal cleave; only the tank in front of him", "de": "Frontaler Spalter; nur der Tank steht vor ihm", "verified": true},
+        {"spellID": 0, "spell": "Throw Axe", "type": "survive", "en": "Throws an axe at a random player and stuns briefly", "de": "Wirft Axt auf zufälligen Spieler, kurze Betäubung", "unverified": true}
+      ]
+    },
+    {
+      "name": "Mor Grayhoof",
+      "npcID": 16080,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 27527, "spell": "Healing Touch", "type": "interrupt", "en": "Big self heal; always interrupt it", "de": "Große Selbstheilung; immer unterbrechen"},
+        {"spellID": 27532, "spell": "Rejuvenation", "type": "dispel", "en": "Purge his heal-over-time buff", "de": "Seine Heilung über Zeit reinigen"},
+        {"spellID": 27530, "spell": "Hurricane", "type": "avoid", "en": "Channeled storm around him; move out of it", "de": "Kanalisierter Sturm um ihn; herauslaufen"}
+      ]
+    },
+    {
+      "name": "Bannok Grimaxe",
+      "npcID": 9596,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 13737, "spell": "Mortal Strike", "type": "tank", "en": "Cuts healing on the tank; heal through the debuff", "de": "Senkt Heilung am Tank; gegen den Debuff anheilen"},
+        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks a target to take more fire damage", "de": "Markiert ein Ziel, es erleidet mehr Feuerschaden"}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Mother Smolderweb",
+      "npcID": 10596,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16468, "spell": "Mother's Milk", "type": "dispel", "en": "Poison roots players; cure poison quickly", "de": "Gift fesselt Spieler; Gift schnell entfernen", "verified": true},
+        {"spellID": 16104, "spell": "Crystallize", "type": "survive", "en": "Stuns players for a few seconds", "de": "Betäubt Spieler für einige Sekunden", "verified": true},
+        {"spellID": 16103, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Releases spiderlings on death; AoE them down", "de": "Setzt beim Tod Spinnchen frei; per Fläche töten"}
+      ]
+    },
+    {
+      "name": "Crystal Fang",
+      "npcID": 10376,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16416, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Calls spiderlings; kill them before they swarm healers", "de": "Ruft Spinnchen; töten, bevor sie Heiler angreifen"}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Urok Doomhowl",
+      "npcID": 10584,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16508, "spell": "Intimidating Roar", "type": "survive", "en": "Fears nearby players for 8 sec; use fear wards", "de": "Fürchtet Spieler 8 Sek.; Furchtschutz nutzen", "verified": true},
+        {"spellID": 0, "spell": "Ogre waves", "type": "adds", "en": "Ogre waves come before Urok; crowd control and kill", "de": "Oger-Wellen vor Urok; kontrollieren und töten", "unverified": true},
+        {"spellID": 13443, "spell": "Rend", "type": "tank", "en": "Rend bleeds the tank: keep healing steady", "de": "Verwunden lässt den Tank bluten: gleichmäßig heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Quartermaster Zigris",
+      "npcID": 9736,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 16497, "spell": "Stun Bomb", "type": "avoid", "en": "Fire bomb stuns players in a small area; spread out", "de": "Bombe betäubt im kleinen Bereich; verteilen"},
+        {"spellID": 15504, "spell": "Drink Healing Potion", "type": "interrupt", "en": "Drinks a healing potion; burst or stun him", "de": "Trinkt Heiltrank; schnell Schaden oder betäuben"},
+        {"spellID": 15609, "spell": "Hooked Net", "type": "survive", "en": "Nets a random player in place for 3 sec", "de": "Fesselt zufälligen Spieler 3 Sek. mit Netz"}
+      ]
+    },
+    {
+      "name": "Halycon",
+      "npcID": 10220,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 13443, "spell": "Rend", "type": "tank", "en": "Bleed on the tank; heal through it", "de": "Blutung am Tank; durchheilen", "verified": true},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Gains extra attacks; damage spikes on the tank", "de": "Extra-Angriffe; Schadensspitzen am Tank", "verified": true}
+      ]
+    },
+    {
+      "name": "Gizrul the Slavener",
+      "npcID": 10268,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 20539, "spell": "Fatal Bite", "type": "tank", "en": "Drains health and heals himself", "de": "Saugt Leben ab und heilt sich selbst", "verified": true},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzies for faster attacks; soothe or cooldown", "de": "Raserei, schnellere Angriffe; besänftigen oder Abklingzeit", "verified": true},
+        {"spellID": 16128, "spell": "Infected Bite", "type": "dispel", "en": "Disease raises physical damage taken; cure it", "de": "Krankheit erhöht erlittenen Schaden; heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Ghok Bashguud",
+      "npcID": 9718,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 11972, "spell": "Shield Bash", "type": "survive", "en": "Interrupts casters; healers stay out of melee", "de": "Unterbricht Zauber; Heiler nicht in Nahkampfreichweite"},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Attack speed boost; save tank cooldowns", "de": "Angriffstempo steigt; Tank-Abklingzeiten aufheben"}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Overlord Wyrmthalak",
+      "npcID": 9568,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 25322, "spell": "Sweeping Slam", "type": "positioning", "en": "Cone knockback; melee stand behind him", "de": "Kegel mit Rückstoß; Nahkampf hinter ihm", "verified": true},
+        {"spellID": 19983, "spell": "Cleave", "type": "positioning", "en": "Frontal cleave hits up to two others", "de": "Frontaler Spalter trifft bis zu zwei weitere", "verified": true},
+        {"spellID": 0, "spell": "The Overlord's Defense", "type": "adds", "en": "At 50% two guards join; off-tank or control them", "de": "Bei 50 % kommen zwei Wachen; abtanken oder kontrollieren", "unverified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Scarshield Warlock",
+      "npcID": 9257,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15125, "spell": "Scarshield Portal", "type": "interrupt", "en": "Opens a portal that spawns demons; kill or stop him", "de": "Öffnet Portal mit Dämonen; schnell töten"}
+      ]
+    },
+    {
+      "name": "Scarshield Spellbinder",
+      "npcID": 9098,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Burns mana of casters; interrupt", "de": "Verbrennt Mana; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Scarshield Raider",
+      "npcID": 9258,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 14030, "spell": "Hooked Net", "type": "survive", "en": "Roots a player in a net for 3 sec", "de": "Fesselt Spieler 3 Sek. im Netz"}
+      ]
+    },
+    {
+      "name": "Smolderthorn Shadow Priest",
+      "npcID": 9240,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Turns a player into a frog; dispel", "de": "Verwandelt Spieler in Frosch; bannen"},
+        {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Drains caster mana; interrupt", "de": "Entzieht Mana; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Smolderthorn Witch Doctor",
+      "npcID": 9266,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15869, "spell": "Superior Healing Ward", "type": "adds", "en": "Drops a healing ward; destroy the totem", "de": "Stellt Heilzauberschutz auf; Totem zerstören"}
+      ]
+    },
+    {
+      "name": "Firebrand Dreadweaver",
+      "npcID": 9263,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 16071, "spell": "Curse of the Firebrand", "type": "dispel", "en": "Fire damage curse; decurse", "de": "Feuerschaden-Fluch; entfluchen"}
+      ]
+    },
+    {
+      "name": "Firebrand Pyromancer",
+      "npcID": 9264,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 0, "spell": "Mark of Flames", "type": "survive", "en": "Marks targets to take more fire damage", "de": "Markiert Ziele für mehr Feuerschaden", "unverified": true}
+      ]
+    },
+    {
+      "name": "Bloodaxe Evoker",
+      "npcID": 9693,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15743, "spell": "Flamecrack", "type": "avoid", "en": "Fire knockback around the caster; stay at range", "de": "Feuer-Rückstoß um den Zauberer; Abstand halten"}
+      ]
+    },
+    {
+      "name": "Bloodaxe Summoner",
+      "npcID": 9717,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15734, "spell": "Summon", "type": "positioning", "en": "Pulls a player to the caster; fight away from packs", "de": "Zieht Spieler zu sich; abseits anderer Gruppen kämpfen"}
+      ]
+    },
+    {
+      "name": "Spirestone Mystic",
+      "npcID": 9198,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15982, "spell": "Healing Wave", "type": "interrupt", "en": "Heals other ogres; interrupt or kill first", "de": "Heilt andere Oger; unterbrechen oder zuerst töten"}
+      ]
+    },
+    {
+      "name": "Spirestone Ogre Magus",
+      "npcID": 9201,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15979, "spell": "Arcane Bolt Volley", "type": "interrupt", "en": "Arcane volley hits the group; interrupt", "de": "Arkansalve trifft die Gruppe; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Spire Spider",
+      "npcID": 10374,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 16104, "spell": "Crystallize", "type": "positioning", "en": "Cone stun; face it away from the group", "de": "Kegel betäubt; von der Gruppe wegdrehen"}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Spirestone Butcher", "npcID": 9219},
+    {"name": "Spirestone Battle Lord", "npcID": 9218},
+    {"name": "Spirestone Lord Magus", "npcID": 9217},
+    {"name": "Burning Felguard", "npcID": 10263},
+    {"name": "Bannok Grimaxe", "npcID": 9596},
+    {"name": "Crystal Fang", "npcID": 10376},
+    {"name": "Ghok Bashguud", "npcID": 9718}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Lower_Blackrock_Spire",
+    "https://warcraft.wiki.gg/wiki/Overlord_Wyrmthalak",
+    "https://www.warcrafttavern.com/forever/guides/lower-blackrock-spire/",
+    "https://wowtbc.gg/warcraftforever/loot-tables/dungeons/blackrock-spire-lower/",
+    "https://warcraft.wiki.gg/api.php (item, NPC and trash pages, wikitext)",
+    "https://www.wowhead.com/forever/guide/lower-blackrock-spire-dungeon-overview-location-rewards"
+  ]
+}

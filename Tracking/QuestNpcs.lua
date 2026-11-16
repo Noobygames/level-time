@@ -1,7 +1,8 @@
 -- Quest-NPCs und Orte lernen (Roadmap 350, mit Einstellung questLearning): wer eine Quest vergibt und wer sie annimmt,
 -- mit Ort, und wo ihre Ziele vorankamen. Accountweit, damit Twinks eine eigene, wachsende Questkarte bekommen.
--- LevelTimerStatsDB.questNpcs[questID] = { giver = Ort, turnIn = Ort, spots = { Ort, ... } },
--- Ort = { name, npcId, mapID, x, y } (name/npcId nur bei NPCs).
+-- LevelTimerStatsDB.questNpcs[questID] = { giver = Ort, turnIn = Ort, spots = { Ort, ... }, title, level, by, faction },
+-- Ort = { name, npcId, mapID, x, y } (name/npcId nur bei NPCs). title/level (aus dem Questlog-Eintrag), by
+-- (Charakter-Schlüssel) und faction (UnitFactionGroup) beim Annehmen (QuestWatch onAccepted): Twink-Questgeber.
 -- Quellen: QUEST_DETAIL (Annahme-Dialog) und QUEST_COMPLETE (Abgabe-Dialog) mit GetQuestID(), UnitName("npc"),
 -- UnitGUID("npc") (6. Feld = NPC-ID; in Forever-Instanzen geheim = nur Name), Position über DeathPlace.Position
 -- (C_Map.GetBestMapForUnit, C_Map.GetPlayerMapPosition; in Instanzen nil). Zielorte bei jedem Anstieg eines Ziels
@@ -35,6 +36,11 @@ end
 
 function QuestNpcs.Get(questID)
   return LevelTimerStatsDB and LevelTimerStatsDB.questNpcs and LevelTimerStatsDB.questNpcs[questID]
+end
+
+-- Alle gelernten Quests [questID] = Eintrag (nicht verändern)
+function QuestNpcs.All()
+  return LevelTimerStatsDB and LevelTimerStatsDB.questNpcs or {}
 end
 
 -- Stand der Daten (Karte zeichnet nur bei Änderung neu)
@@ -97,6 +103,12 @@ ns.QuestWatch.Subscribe({
     if nearSpot(spots, spot) then return end
     table.insert(spots, spot)
     if #spots > QuestNpcs.MAX_SPOTS then table.remove(spots, 1) end
+    revision = revision + 1
+  end,
+  onAccepted = function(quest)
+    local record = questRecord(quest.questID)
+    record.title, record.level = quest.title, quest.level
+    record.by, record.faction = ns.characterKey, readable(UnitFactionGroup("player"))
     revision = revision + 1
   end,
 })

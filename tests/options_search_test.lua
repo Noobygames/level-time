@@ -84,7 +84,7 @@ for _, entry in ipairs(options.Search(L.OPTIONS_PAGE_SSF)) do
   if entry.isPage then pageHit = entry end
 end
 options.Reveal(pageHit)
-tab, sub = options.CurrentPage()
+_, sub = options.CurrentPage()
 expect("Seiten-Treffer", sub, "OPTIONS_PAGE_SSF")
 
 -- Sprache wechseln: die Suche nimmt die neuen Texte

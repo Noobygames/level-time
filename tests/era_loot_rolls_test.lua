@@ -173,3 +173,10 @@ end
 addon.ApplySettings()
 expect("aus: keine Würfe", #LootRolls.All(), 0)
 expect("keine Lua-Fehler", #wow.errors, 0)
+
+-- Würfelkarte: Symbol im Link-Text (Drüberfahren am Symbol zeigt den Tooltip), ohne Link Symbol + Name
+local Display2 = addon.LootRollDisplay
+expect("Symbol im Link", Display2.ItemText({ texture = 133001, link = "|cff1eff00|Hitem:5:0|h[Helm]|h|r" }),
+  "|cff1eff00|Hitem:5:0|h|T133001:0|t[Helm]|h|r")
+expect("ohne Link Symbol vor dem Namen", Display2.ItemText({ texture = 133001, name = "Helm" }), "|T133001:0|tHelm")
+expect("ohne Symbol unverändert", Display2.ItemText({ link = "|Hitem:5|h[Helm]|h" }), "|Hitem:5|h[Helm]|h")

@@ -107,3 +107,18 @@ expect("Gold/h-Zeile", type(stat.rows[8].value(Stats.SESSION)), "string")
 SlashCmdList.LEVELTIMER("history")
 expectTrue("Reiter Geld", wow.click("Geld"))
 expectTrue("Geld-Tabelle", wow.shownTable() ~= nil)
+
+-- Level-Up während der Wartezeit: Summe und Art landen im selben Level
+wow.advance(10)
+earn(30)
+wow.levelUp(addon.level + 1)
+wow.runTimers()
+expect("Summe im neuen Level", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 30)
+expect("Art im neuen Level", Stats.Get(Stats.LEVEL, Stats.INCOME_OTHER), 30)
+
+-- Logout während der Wartezeit: die Einnahme geht nicht verloren
+earn(20)
+wow.logout()
+expect("Summe beim Logout gebucht", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 50)
+wow.runTimers()
+expect("nicht doppelt gebucht", Stats.Get(Stats.LEVEL, Stats.MONEY_EARNED), 50)

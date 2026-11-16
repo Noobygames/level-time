@@ -26,7 +26,7 @@ ns.QuestMarks = QuestMarks
 QuestMarks.MIN_SCALE = 0.5  -- Grenzen des Reglers in den Einstellungen
 QuestMarks.MAX_SCALE = 2
 
-local ICON = "Interface\\GossipFrame\\AvailableQuestIcon"
+local OWN = "own"  -- Art der eigenen aktiven Quest (sonst "take"/"party")
 local FALLBACK_SIZE = 16  -- ohne erkennbaren Lebensbalken (andere Plakettenaddons)
 local GAP = 5               -- Abstand zum Lebensbalken
 local BAR_HEIGHT_FACTOR = 1.5  -- das Bild hat Rand, daher etwas höher als der Balken, damit es so hoch wirkt
@@ -113,7 +113,6 @@ local function markFor(plate)
   local mark = CreateFrame("Frame", nil, plate)
   mark.icon = mark:CreateTexture(nil, "OVERLAY")
   mark.icon:SetAllPoints()
-  mark.icon:SetTexture(ICON)
   mark.progress = mark:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
   mark.progress:SetPoint("RIGHT", mark, "LEFT", -PROGRESS_GAP, 0)
   mark:SetScale(QuestMarks.CurrentScale())
@@ -127,22 +126,38 @@ local function plateOf(unit)
   return plate
 end
 
+-- Art der Markierung: "own" (aktive Quest, hat Vorrang), "take"/"party" (Dungeonquest-Ziele, Assist/QuestTargets.lua) oder nil
+local function kindOf(unit)
+  if isQuestUnit(unit) then return OWN end
+  return ns.QuestTargets and ns.QuestTargets.KindOf(unit) or nil
+end
+
+-- Symbol unterscheidet sich je Art (Farbe allein trägt keine Information)
+local ICONS = {
+  [OWN] = "Interface\\GossipFrame\\AvailableQuestIcon",
+  take = "Interface\\GossipFrame\\DailyQuestIcon",
+  party = "Interface\\GossipFrame\\ActiveQuestIcon",
+}
+
 local function update(unit)
   local plate = plateOf(unit)
   if not plate then return end
-  local show = ns.db and ns.db.questMarks and isQuestUnit(unit)
+  local kind = ns.db and ns.db.questMarks and kindOf(unit)
+  local show = kind and true or false
   local wasShown = marks[plate] ~= nil and marks[plate]:IsShown()
   if show then
     local mark = markFor(plate)
     layout(mark, plate)
-    local progress = ns.db.questMarkProgress and progressText(unit) or ""
+    mark.icon:SetTexture(ICONS[kind])
+    local progress = ns.db.questMarkProgress and kind == OWN and progressText(unit) or ""
     ns.Widgets.SetTextIfChanged(mark.progress, progress)
     mark:Show()
   elseif marks[plate] then
     marks[plate]:Hide()
   end
   if (show and true or false) ~= (wasShown and true or false) then
-    ns.Debug("questmarks", "%s %s (health bar %s)", show and "mark" or "unmark", UnitName(unit), healthBarOf(plate) ~= nil)
+    ns.Debug("questmarks", "%s %s (%s, health bar %s)", show and "mark" or "unmark", UnitName(unit), tostring(kind),
+      healthBarOf(plate) ~= nil)
   end
 end
 

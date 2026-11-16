@@ -3,7 +3,11 @@ local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local TimerWindow = ns.TimerWindow
-local builder, addPage, finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, toPercent, addVisibilityDropdown, addFrameScaleSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.toPercent, O.addVisibilityDropdown, O.addFrameScaleSlider
+local builder, addPage, finishPage, addSection, addSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider
+local addToggles, addButton, addChooser, addHint, addSubPage = O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage
+local finishSubPages, toggle, localized, advanced, requires = O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires
+local percent, toPercent, addVisibilityDropdown = O.percent, O.toPercent, O.addVisibilityDropdown
+local addFrameScaleSlider = O.addFrameScaleSlider
 
 -- Sprachnamen stehen immer in der eigenen Sprache
 local function addLanguageChooser()
@@ -237,6 +241,10 @@ addToggles({
     set = function(checked) ns.SetMinimapHidden(not checked) end, reset = minimapReset },
 })
 addVisibilitySection()
+-- Changelog (UI/Changelog.lua): nach Updates automatisch, jederzeit die letzten 14 Tage
+addToggles({ toggle("CHANGELOG_AUTO_SHOW", "changelogAutoShow") })
+addButton("CHANGELOG_SHOW", function() ns.Changelog.ShowRecent() end)
+addButton("SETUP_OPEN", function() ns.SetupWizard.Show() end)
 addHint("OPTIONS_HINT")
 addSubPage("OPTIONS_PAGE_LAYOUT")
 addDisplaySection()

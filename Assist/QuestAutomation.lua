@@ -6,7 +6,8 @@
 --                         angenommen hat (QuestGetAutoAccept), AcknowledgeAutoAcceptQuest.
 --                         PvP-Quests (QuestFlagsPVP) fragen im Spiel nach, die bleiben manuell.
 --                         Von einem Spieler geteilt (die Einheit "questnpc" ist ein Spieler): nur mit
---                         autoAcceptShared und nur, wenn declineSharedQuests (Social.lua) sie nicht ablehnt. Grau: C_QuestLog.IsQuestTrivial(GetQuestID()), das gibt es
+--                         autoAcceptShared und nur, wenn declineSharedQuests (Social.lua) sie nicht ablehnt. Grau:
+--                         C_QuestLog.IsQuestTrivial(GetQuestID()), das gibt es
 --                         nur in Retail und WoW Forever; Classic Era/TBC filtern graue Quests nur in
 --                         den Quest-Listen (Gespräch, QUEST_GREETING).
 --   QUEST_ACCEPT_CONFIRM  Quest eines anderen Spielers (Eskorte): ConfirmAcceptQuest, Dialog schließen; nicht, wenn

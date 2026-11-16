@@ -39,6 +39,77 @@ C_Club = {
     return club and club.members[memberId]
   end,
 }
+-- Gruppensuche: state.lfgResults[resultID] = { { name = ..., areaName = ... }, ... } (Mitglieder)
+-- Weitere Felder: state.lfgInfo[resultID] (Felder von GetSearchResultInfo), state.lfgActivities[activityID] = { mapID,
+-- maxNumPlayers }, state.lfgEncounters[resultID] = { Bossnamen }, state.lfgMemberCounts[resultID] = { TANK, HEALER, DAMAGER },
+-- state.lfgLanguages = { filter = { enUS = true }, available = { "enUS", "deDE" }, defaults = {}, saved = Aufrufe }
+C_LFGList = {
+  GetSearchResultInfo = function(resultID)
+    local members = (state.lfgResults or {})[resultID]
+    if not members then return nil end
+    local info = { searchResultID = resultID, numMembers = #members, numBNetFriends = 0, numCharFriends = 0, numGuildMates = 0,
+      isDelisted = false }
+    for key, value in pairs((state.lfgInfo or {})[resultID] or {}) do info[key] = value end
+    return info
+  end,
+  GetActivityInfoTable = function(activityID) return (state.lfgActivities or {})[activityID] end,
+  GetSearchResultEncounterInfo = function(resultID) return (state.lfgEncounters or {})[resultID] end,
+  GetSearchResultMemberCounts = function(resultID) return (state.lfgMemberCounts or {})[resultID] end,
+  GetLanguageSearchFilter = function()
+    if not state.lfgLanguages then return nil end
+    local copy = {}
+    for language, enabled in pairs(state.lfgLanguages.filter) do copy[language] = enabled end
+    return copy
+  end,
+  GetAvailableLanguageSearchFilter = function() return state.lfgLanguages and state.lfgLanguages.available end,
+  SaveLanguageSearchFilter = function(filter)
+    state.lfgLanguages.filter = filter
+    state.lfgLanguages.saved = (state.lfgLanguages.saved or 0) + 1
+  end,
+  GetSearchResultPlayerInfo = function(resultID, index) return ((state.lfgResults or {})[resultID] or {})[index] end,
+  -- Gruppensuche-Fenster: state.lfgWindow = { categories = { [id] = name }, activities = { [categoryID] = { activityIDs } },
+  -- filtered = { resultIDs }, entry = aktiver Eintrag oder nil }; Suche, Eintrag und Rollen landen in wow.lfgCalls
+  GetAvailableCategories = function()
+    local ids = {}
+    for id in pairs((state.lfgWindow or {}).categories or {}) do table.insert(ids, id) end
+    table.sort(ids)
+    return ids
+  end,
+  GetLfgCategoryInfo = function(id) return { name = state.lfgWindow.categories[id] } end,
+  GetAvailableActivities = function(categoryID) return state.lfgWindow.activities[categoryID] or {} end,
+  GetFilteredSearchResults = function() return #state.lfgWindow.filtered, state.lfgWindow.filtered end,
+  GetDefaultLanguageSearchFilter = function() return { enUS = true } end,
+  Search = function(...) table.insert(wow.lfgCalls, { "Search", ... }) end,
+  HasActiveEntryInfo = function() return state.lfgWindow ~= nil and state.lfgWindow.entry ~= nil end,
+  GetActiveEntryInfo = function() return state.lfgWindow.entry end,
+  CreateListing = function(data) table.insert(wow.lfgCalls, { "CreateListing", data }) end,
+  UpdateListing = function(data) table.insert(wow.lfgCalls, { "UpdateListing", data }) end,
+  RemoveListing = function() table.insert(wow.lfgCalls, { "RemoveListing" }) end,
+  GetSearchResults = function()
+    local ids = {}
+    for resultID in pairs(state.lfgResults or {}) do table.insert(ids, resultID) end
+    table.sort(ids)
+    return #ids, ids
+  end,
+}
+wow.lfgCalls = {}
+C_LFGListRoles = { GetRoles = function() return state.lfgRoles or {} end,
+  SetRoles = function(roles) table.insert(wow.lfgCalls, { "SetRoles", roles }) state.lfgRoles = roles end }
+function UnitIsGroupAssistant() return false end
+-- Blizzards Gruppensuche im Vanilla-Stil: LFGVanilla_ShowFrame zeigt LFGParentFrame (wird ersetzt, siehe LFGWindow)
+LFGParentFrame = CreateFrame("Frame")
+function LFGVanilla_ShowFrame() LFGParentFrame:Show() end
+function HideUIPanel(frame) frame:Hide() end
+ChatFrameUtil = ChatFrameUtil or {}
+ChatFrameUtil.SendTell = function(name) socialAction("tell", name) end
+-- Blizzards Tooltip-Aufbau: Retail (GameTooltip) und Classic Era (eigener Rahmen), damit Hooks darauf greifen
+function LFGListUtil_SetSearchEntryTooltip(tooltip, resultID)
+  tooltip:SetOwner(UIParent, "ANCHOR_RIGHT")
+  tooltip:AddLine("Gruppe " .. resultID)
+end
+function LFGBrowseSearchEntry_Update() end
+LFGBrowseSearchEntryTooltip = CreateFrame("Frame")
+function LFGBrowseSearchEntryTooltip_UpdateAndShow(self) self:Show() end
 C_PartyInfo = { InviteUnit = function(name) socialAction("invite", name) end }
 function BNGetNumFriendInvites() return #state.friendInvites end
 function BNDeclineFriendInvite(inviteID)
@@ -68,7 +139,7 @@ C_GossipInfo = {
 function GetNumAvailableQuests() return #state.greeting.available end
 function GetAvailableQuestInfo(index)
   local quest = state.greeting.available[index]
-  return quest.isTrivial, quest.frequency, quest.isRepeatable
+  return quest.isTrivial, quest.frequency, quest.isRepeatable, quest.isLegendary, quest.questID
 end
 function SelectAvailableQuest(index) questAction("greetingAvailable", index) end
 function GetNumActiveQuests() return #state.greeting.active end
@@ -92,11 +163,25 @@ end
 function GetInventoryItemLink(_, slot) return (state.equipped or {})[slot] end
 function GetQuestReward(choice) questAction("reward", choice) end
 
+-- Item-Mixin (Blizzard_ObjectAPI): state.unknownItems[itemID] = true = der Client kennt das Item nicht (IsItemEmpty);
+-- ContinueOnItemLoad merkt den Rückruf in state.itemLoads[itemID], der Test ruft ihn nach dem Setzen des Links
+Item = {
+  CreateFromItemID = function(_, itemID)
+    return {
+      IsItemEmpty = function() return (state.unknownItems or {})[itemID] == true end,
+      ContinueOnItemLoad = function(_, callback)
+        state.itemLoads = state.itemLoads or {}
+        state.itemLoads[itemID] = callback
+      end,
+    }
+  end,
+}
+
 C_Item = {
   GetItemCount = function(itemID) return (state.itemCounts or {})[itemID] or 0 end,
-  -- itemID oder Link; Verkaufspreis aus state.sellPrices
+  -- itemID oder Link; Link aus state.itemLinks (fehlt = noch nicht geladen), Verkaufspreis aus state.sellPrices
   GetItemInfo = function(itemID)
-    return "Item " .. itemID, nil, nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
+    return "Item " .. itemID, (state.itemLinks or {})[itemID], nil, nil, nil, nil, nil, nil, nil, nil, state.sellPrices[itemID]
   end,
   -- Wie im Client: nichts für unbekannte IDs, sonst itemID, Typ, Untertyp, Platz, Symbol, Klasse, Unterklasse
   GetItemInfoInstant = function(item)

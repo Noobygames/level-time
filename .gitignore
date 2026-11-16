@@ -42,3 +42,8 @@ luac.out
 
 # Gebaute Pakete (make package)
 dist/
+# Added by code-review-graph
+.code-review-graph/
+
+# Lokale Kopie von Blizzards UI-Code und API-Doku (make api-docs)
+.cache/

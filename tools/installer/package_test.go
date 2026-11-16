@@ -13,6 +13,7 @@ func TestWritePackage(t *testing.T) {
 	a, _ := setup(t)
 	writeFile(t, filepath.Join(a.Dir, "LevelTimer.toc"), "## Version: "+VersionToken+"\nLocales.lua\nLevelTimer.lua\n")
 	writeFile(t, filepath.Join(a.Dir, "LICENSE"), "license")
+	writeFile(t, filepath.Join(a.Dir, "sources.md"), "sources")
 	writeFile(t, filepath.Join(a.Dir, "Makefile"), "nicht ins Paket")
 
 	zipPath := filepath.Join(t.TempDir(), "dist", "LevelTimer-v2.zip")
@@ -40,7 +41,8 @@ func TestWritePackage(t *testing.T) {
 	}
 	sort.Strings(names)
 
-	want := []string{"LevelTimer/LICENSE", "LevelTimer/LevelTimer.lua", "LevelTimer/LevelTimer.toc", "LevelTimer/Locales.lua"}
+	want := []string{"LevelTimer/LICENSE", "LevelTimer/LevelTimer.lua", "LevelTimer/LevelTimer.toc", "LevelTimer/Locales.lua",
+		"LevelTimer/sources.md"}
 	if strings.Join(names, ",") != strings.Join(want, ",") {
 		t.Errorf("Dateien = %v, want %v", names, want)
 	}

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Dungeonquest-Hinweise</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1450px; height: 760px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+
+  <!-- Zonen-Hinweis (Assist/DungeonQuestHints.lua, Fenster UI/DungeonQuestHint.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Beim Betreten einer Zone (einmal je Zone und Session, schließt nach 20 s)</span>
+    <sc-if value="{{zoneOpen}}" hint-placeholder-val="true">
+      <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+          <span style="font-weight: 700; color: #ffd100">Dungeonquests in Westfall</span>
+          <button type="button" onclick="{{closeZone}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+        </div>
+        <sc-for list="{{zoneRows}}" as="r" hint-placeholder-count="3">
+          <button type="button" onclick="{{r.pick}}" style="text-align: left; background: none; border: 0; padding: 2px 0; color: #f2f2f2; cursor: pointer; font-size: 13px; display: flex; flex-direction: column">
+            <span>{{r.title}} <span style="color: #9fd0ff">({{r.instance}})</span></span>
+            <span style="color: #bbb; font-size: 12px">{{r.giver}} – {{r.place}}</span>
+          </button>
+        </sc-for>
+        <span style="color: #888; font-size: 11px">Klick: Kartenpunkt setzen und Karte öffnen</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{!zoneOpen}}" hint-placeholder-val="false">
+      <button type="button" onclick="{{openZone}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Zone erneut betreten</button>
+    </sc-if>
+  </section>
+
+  <!-- Nach der Annahme (Assist/DungeonQuestHints.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Nach Annahme einer Dungeonquest oder eines Kettenschritts</span>
+    <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+        <span style="font-weight: 700; color: #ffd100">Weitere Quests für Die Todesminen</span>
+        <span style="width: 22px; height: 22px; border: 1px solid #555; border-radius: 3px; text-align: center">×</span>
+      </div>
+      <sc-for list="{{acceptRows}}" as="r" hint-placeholder-count="4">
+        <button type="button" onclick="{{r.pick}}" style="text-align: left; background: none; border: 0; padding: 2px 0; color: {{r.color}}; cursor: pointer; font-size: 13px; display: flex; flex-direction: column">
+          <span>{{r.title}}</span>
+          <span style="color: #bbb; font-size: 12px">{{r.giver}} – {{r.place}}</span>
+        </button>
+      </sc-for>
+      <span style="color: #888; font-size: 11px">Grau = später verfügbar (Level oder Vorquest fehlt)</span>
+    </div>
+    <span style="font-size: 12px; color: #ffd100">{{picked}}</span>
+  </section>
+
+  <!-- Tooltip am Dungeon-Eingang der Weltkarte mit Schlüssel- und Einstimmungsreihen (Assist/Attunements.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Tooltip am Dungeon-Eingang (Weltkarte, Schwarzfels), WoW Forever</span>
+    <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; max-width: 420px; font-size: 13px">
+      <span style="color: #ffd100">Schwarzfelstiefen</span>
+      <span>5 Spieler · Level 52–60</span>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #ffd100">Schlüssel für Schwarzfelstiefen (1/2) <span style="color: #9d9d9d">*</span></span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span>Dunkeleisernes Vermächtnis</span><span style="color: #40ff40">Im Log</span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #ffd100">Einstimmung für Geschmolzener Kern (1/1) <span style="color: #9d9d9d">*</span></span><span style="color: #40ff40">Erledigt</span></div>
+      <span style="color: #ffd100; margin-top: 6px">Schwarzfelsspitze</span>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #ffd100">Einstimmung für Onyxias Hort (1/16) <span style="color: #9d9d9d">*</span></span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span>Die wahren Meister</span><span>Questgeber – Brennende Steppe (86, 69)</span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px"><span>Die wahren Meister</span><span style="color: #9d9d9d">Offen</span></div>
+      <span style="color: #9d9d9d">+12 weitere</span>
+      <span style="color: #9d9d9d">* aus Classic übernommen, für Forever unbestätigt</span>
+    </div>
+  </section>
+
+  <!-- Namensplaketten (Assist/QuestMarks.lua + Assist/QuestTargets.lua): drei Arten, Farbe nie allein (anderes Symbol) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Namensplaketten: Symbol links vom Lebensbalken, in der Instanz und draußen</span>
+    <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; max-width: 420px">
+      <div style="display: flex; align-items: center; gap: 6px">
+        <span style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #ffd100">!</span>
+        <div style="width: 150px; height: 14px; background: #3a1a1a; border: 1px solid #000; position: relative"><div style="width: 100%; height: 100%; background: #c43b3b"></div></div>
+        <span style="font-size: 12px; color: #f2f2f2">Sumpfwolf</span>
+        <span style="font-size: 11px; color: #9fb3a8">Ziel einer aktiven Quest</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px">
+        <span style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #4aa3ff">!</span>
+        <div style="width: 150px; height: 14px; background: #3a1a1a; border: 1px solid #000; position: relative"><div style="width: 100%; height: 100%; background: #c43b3b"></div></div>
+        <span style="font-size: 12px; color: #f2f2f2">Edwin van Cleef</span>
+        <span style="font-size: 11px; color: #9fb3a8">Ziel einer annehmbaren Dungeonquest</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px">
+        <span style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #ffd100">?</span>
+        <div style="width: 150px; height: 14px; background: #3a1a1a; border: 1px solid #000; position: relative"><div style="width: 100%; height: 100%; background: #c43b3b"></div></div>
+        <span style="font-size: 12px; color: #f2f2f2">Kobold-Geomant</span>
+        <span style="font-size: 11px; color: #9fb3a8">Ziel einer Quest eines Gruppenmitglieds</span>
+      </div>
+      <span style="color: #888; font-size: 11px">Aktive eigene Quest hat Vorrang. Einstellungen: "Ziele annehmbarer Dungeonquests", "Ziele von Gruppenquests"</span>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1450,"height":760}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { zoneOpen: true, picked: '' };
+  }
+  renderVals() {
+    const s = this.state;
+    const pick = (place) => () => this.setState({ picked: 'Kartenpunkt gesetzt: ' + place });
+    const ZONE = [
+      ['Die Bruderschaft', 'Die Todesminen', 'Wilder Klippenschmied', 'Westfall (56, 47)'],
+      ['Rote Seidenkopftücher', 'Die Todesminen', 'Späher Riell', 'Westfall (56, 47)'],
+      ['Die Verteidigung des Königreichs – Schritt 6/7', 'Die Todesminen', 'Gryan Starkmantel', 'Westfall (56, 47)']
+    ];
+    const ACCEPT = [
+      ['Gesammelte Erinnerungen', 'Wilder Klippenschmied', 'Sturmwind (70, 41)', '#f2f2f2'],
+      ['Die Verteidigung des Königreichs – Schritt 7/7', 'Gryan Starkmantel', 'Westfall (56, 47)', '#f2f2f2'],
+      ['Ein Mittel gegen die Verwesung (ab Level 18)', 'Gegenstand', 'Rotkammgebirge (26, 44)', '#9d9d9d'],
+      ['Oh Bruder…', 'Questgeber', 'Sturmwind (65, 21)', '#9d9d9d']
+    ];
+    return {
+      zoneOpen: s.zoneOpen, picked: s.picked,
+      closeZone: () => this.setState({ zoneOpen: false }),
+      openZone: () => this.setState({ zoneOpen: true }),
+      zoneRows: ZONE.map(([title, instance, giver, place]) => ({ title, instance, giver, place, pick: pick(place) })),
+      acceptRows: ACCEPT.map(([title, giver, place, color]) => ({ title, giver, place, color, pick: pick(place) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

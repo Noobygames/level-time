@@ -2,7 +2,10 @@
 --   Titel, Werten vorher -> nachher (Leben, Mana, Stärke, ... aus LevelGains), neuen Talentpunkten und den Fähigkeiten,
 --   die der Klassenlehrer ab diesem Level anbietet (TrainerCache; Symbole mit Tooltip).
 -- Aussehen: levelUpTheme (modern, alliance, horde), levelUpCompact (eine Zeile statt Tabelle), levelUpDuration,
--- levelUpSound; Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau). levelUpHideBlizzard schaltet das Standardbanner ab.
+-- levelUpSound; levelUpAutoClose (Standard aus: Fenster bleibt bis zum Klick; Checkbox im Fenster = dieselbe Einstellung),
+-- Hinweis auf eine Klassenquest des neuen Levels (Tracking/ClassQuests.lua) und auf Dungeons, deren Level-Bereich
+-- mit dem neuen Level beginnt (mit annehmbaren Dungeonquests); Position und Größe über Lib/Frames.lua (Edit-Modus, Vorschau).
+-- levelUpHideBlizzard schaltet das Standardbanner ab.
 -- Im Kampf wartet das Fenster bis zum Ende des Kampfes.
 local _, ns = ...
 
@@ -14,6 +17,7 @@ ns.RegisterDefaults({
     levelUpCompact = false,
     levelUpSound = true,
     levelUpDuration = 8,
+    levelUpAutoClose = false,
   },
   ranges = {
     levelUpDuration = { 3, 20 },
@@ -47,10 +51,10 @@ local SAMPLE_DURATION = 8
 local QUESTION_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local BACKGROUND_ALPHA = 0.94
 local MOVING = "moving"  -- Wert von override im Edit-Modus
-
+-- Farben je Theme: Grund, Akzent (Leiste und Rahmen), Titel; alliance/horde sind bewusst feste Fraktionsfarben
 -- Farben je Theme: Grund, Akzent (Leiste und Rahmen), Titel
 local THEME_COLORS = {
-  modern = { background = ns.Theme.COLORS.surface, accent = ns.Theme.COLORS.gold, title = { 1, 0.9, 0.45 } },
+  modern = { background = ns.Theme.COLORS.surface, accent = ns.Theme.COLORS.gold, title = ns.Theme.COLORS.accent },
   alliance = { background = { 0.03, 0.06, 0.16 }, accent = { 0.3, 0.55, 1 }, title = { 0.75, 0.88, 1 } },
   horde = { background = { 0.15, 0.03, 0.03 }, accent = { 0.9, 0.2, 0.15 }, title = { 1, 0.8, 0.7 } },
 }
@@ -106,6 +110,19 @@ abilitiesLabel:SetJustifyH("LEFT")
 
 local trainerHintText = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 trainerHintText:SetJustifyH("LEFT")
+
+local classQuestText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+classQuestText:SetJustifyH("LEFT")
+
+local dungeonText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+dungeonText:SetJustifyH("LEFT")
+
+-- Checkbox unten: automatisches Schließen (gleich mit der Einstellung levelUpAutoClose)
+local autoCloseCheck = Widgets.CreateCheckbox(frame, function(checked) ns.Set("levelUpAutoClose", checked) end)
+autoCloseCheck:SetPoint("BOTTOMLEFT", PADDING - 4, PADDING - 4)
+local AUTO_CLOSE_HEIGHT = 24
+Widgets.AttachTooltip(autoCloseCheck, function() return L.LEVEL_UP_AUTO_CLOSE end,
+  function() return L.LEVEL_UP_AUTO_CLOSE_TIP end)
 
 local rows = {}  -- { label, value, delta } je Zeile, werden wiederverwendet
 
@@ -257,6 +274,33 @@ local function layoutTable(gainRows, top, width)
   return width, top + LINE_GAP / 2
 end
 
+-- Hinweiszeile unter dem Inhalt; Rückgabe: Höhe darunter
+local function layoutHint(fontString, text, top, width)
+  fontString:SetText(text)
+  fontString:SetWidth(width - 2 * PADDING)
+  fontString:ClearAllPoints()
+  fontString:SetPoint("TOPLEFT", PADDING, -top)
+  fontString:Show()
+  return top + (fontString:GetStringHeight() or ROW_HEIGHT) + LINE_GAP
+end
+
+-- Zeile "Neue Dungeons: Wehklagen (3 Quests), ..." für Dungeons, deren Level-Bereich mit diesem Level beginnt; nil ohne
+local function dungeonsText(level)
+  local parts = {}
+  for _, entry in ipairs(ns.InstanceInfo.StartingAt(level)) do
+    local name = ns.InstanceInfo.MapName(entry.mapID)
+    local quests = 0
+    if ns.DungeonQuests then
+      for _, quest in ipairs(ns.DungeonQuests.OwnQuests(entry.mapID)) do
+        if ns.DungeonQuests.CanTake(quest.questID) then quests = quests + 1 end
+      end
+    end
+    table.insert(parts, quests > 0 and string.format(L.LEVEL_UP_DUNGEON_QUESTS, name, quests) or name)
+  end
+  if #parts == 0 then return nil end
+  return string.format(L.LEVEL_UP_NEW_DUNGEONS, table.concat(parts, ", "))
+end
+
 -- Inhalt aufbauen: level = neues Level, gains aus LevelGains (oder nil), abilities = Liste aus TrainerCache
 local function layout(level, gains, abilities)
   applyTheme()
@@ -270,6 +314,8 @@ local function layout(level, gains, abilities)
   compactText:Hide()
   talentsText:Hide()
   trainerHintText:Hide()
+  classQuestText:Hide()
+  dungeonText:Hide()
   hideRows()
   divider:SetShown(not compact and #gainRows > 0)
 
@@ -289,15 +335,16 @@ local function layout(level, gains, abilities)
   top = layoutAbilities(abilities, top)
   -- Lehrerliste noch nie gelesen: erklären, warum keine Fähigkeiten erscheinen
   if #abilities == 0 and ns.TrainerCache.IsAvailable() and ns.TrainerCache.Count() == 0 then
-    trainerHintText:SetText(L.LEVEL_UP_TRAINER_UNKNOWN)
-    trainerHintText:SetWidth(width - 2 * PADDING)
-    trainerHintText:ClearAllPoints()
-    trainerHintText:SetPoint("TOPLEFT", PADDING, -top)
-    trainerHintText:Show()
-    top = top + (trainerHintText:GetStringHeight() or ROW_HEIGHT) + LINE_GAP
+    top = layoutHint(trainerHintText, L.LEVEL_UP_TRAINER_UNKNOWN, top, width)
   end
+  local classQuest = ns.ClassQuests.Text(level)
+  if classQuest then top = layoutHint(classQuestText, classQuest, top, width) end
+  local dungeons = dungeonsText(level)
+  if dungeons then top = layoutHint(dungeonText, dungeons, top, width) end
+  autoCloseCheck.label:SetText(L.LEVEL_UP_AUTO_CLOSE)
+  autoCloseCheck:SetChecked(ns.db.levelUpAutoClose)
   width = math.max(width, 2 * PADDING + math.min(#abilities, ABILITIES_PER_ROW) * (ABILITY_SIZE + ABILITY_GAP))
-  frame:SetSize(width, top + PADDING - LINE_GAP)
+  frame:SetSize(width, top + AUTO_CLOSE_HEIGHT + PADDING)
 end
 
 ---------------------------------------------------------------------------
@@ -329,6 +376,10 @@ ns.SetUpdateScript(frame, "LevelUpWindow", function(self)
   if override then
     self:SetAlpha(math.min(1, age / FADE_IN))
     if override ~= MOVING and age >= SAMPLE_DURATION then hide() end
+    return
+  end
+  if not ns.db.levelUpAutoClose then  -- bleibt stehen, bis man es wegklickt
+    self:SetAlpha(math.min(1, age / FADE_IN))
     return
   end
   local hold = duration()
@@ -455,11 +506,11 @@ end
 -- erscheint und die neue Stufe im Titel trägt. Geschlossen wird mit Blizzards eigener Funktion (wie der Rechtsklick
 -- auf den Toast); Alpha und Sichtbarkeit des Frames bleiben unangetastet.
 ---------------------------------------------------------------------------
-local TOAST_MAX_AGE = 5  -- Sekunden nach PLAYER_LEVEL_UP, in denen ein Toast als Level-Up-Banner gilt
+local TOAST_MAX_AGE = 5  -- Sekunden nach dem Level-Up, in denen ein Toast als Level-Up-Banner gilt
 local lastLevelUp        -- { level, time }
 local toastHooked = false
 
-ns.RegisterEvent("PLAYER_LEVEL_UP", function(level)
+ns.OnLevelStarted(function(level)
   lastLevelUp = { level = level, time = GetTime() }
 end)
 
@@ -488,6 +539,7 @@ ns.OnLogin(hookBlizzardToast)
 
 ns.RegisterApply(function(db)
   updateBlizzardBanner()
+  autoCloseCheck:SetChecked(db.levelUpAutoClose)
   if frame:IsShown() and override then  -- Theme, Kompaktmodus oder Sprache haben sich geändert
     local level, gains, abilities = sampleData()
     layout(level, gains, abilities)

@@ -24,17 +24,17 @@ expect("Reputation Counter", counters.reputation, 0)
 expect("Money Earned Counter", counters.moneyEarned, 0)
 
 -- Doppelte Anmeldungen werfen einen Fehler
-local ok, err = pcall(Database.RegisterDefaults, {
+local ok = pcall(Database.RegisterDefaults, {
   settings = { theme = "flat" },
 })
 expectTrue("doppelter Setting-Schlüssel wirft Fehler", not ok)
 
-local okRange, errRange = pcall(Database.RegisterDefaults, {
+local okRange = pcall(Database.RegisterDefaults, {
   ranges = { themeFontSize = { -2, 4 } },
 })
 expectTrue("doppelter Range-Schlüssel wirft Fehler", not okRange)
 
-local okCounter, errCounter = pcall(Database.RegisterDefaults, {
+local okCounter = pcall(Database.RegisterDefaults, {
   counters = { pveKills = 10 },
 })
 expectTrue("doppelter Counter-Schlüssel wirft Fehler", not okCounter)

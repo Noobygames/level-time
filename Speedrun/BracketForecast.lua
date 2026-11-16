@@ -61,16 +61,8 @@ end
 
 -- Summe der schnellsten Zeiten je Level 1..level-1 über alle eigenen Charaktere (bestTimes: ohne Teil-Level);
 -- nil, wenn eines fehlt
-local function sumOfBest(runs, level)
-  local best = {}
-  for _, run in ipairs(runs) do
-    if not run.imported then
-      for completed, seconds in pairs(run.bestTimes) do
-        if not best[completed] or seconds < best[completed] then best[completed] = seconds end
-      end
-    end
-  end
-  return Runs.SumOfLevels(best, FIRST_LEVEL, level - 1)
+local function sumOfBest(_, level)
+  return Runs.SumOfLevels(Runs.BestPerLevel(), FIRST_LEVEL, level - 1)
 end
 
 function BracketForecast.SumOfBest(level)

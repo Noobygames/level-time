@@ -1,13 +1,14 @@
 -- Optionen, Reiter Komfort (2/3): Quests und Quest-Anzeige.
 local _, ns = ...
 local O = ns.OptionsCore
-local builder, addSection, addSlider, addToggles, addSubPage, toggle, advanced, requires, percent, toPercent = O.builder, O.addSection, O.addSlider, O.addToggles, O.addSubPage, O.toggle, O.advanced, O.requires, O.percent, O.toPercent
+local builder, addSection, addSlider, addToggles, addSubPage = O.builder, O.addSection, O.addSlider, O.addToggles, O.addSubPage
+local toggle, advanced, requires, percent, toPercent = O.toggle, O.advanced, O.requires, O.percent, O.toPercent
 
 local QUEST_EXCLUDE_WIDTH = 200  -- Eingabefeld für die eigene Sperrliste der Quest-Automatik
 
--- Quests: Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (alles zu Quests an einem Ort)
+-- Quests: Quest-Automatik, Hinweise, Markierungen, Anzeigen und Helfer rund um den Questlog (Dungeonquests: Dungeons.lua)
 addSubPage("COMFORT_PAGE_QUESTS")
-addSection("COMFORT_PAGE_AUTOMATION", { collapsible = true })
+addSection("SECTION_QUEST_AUTOMATION", { collapsible = true })
 addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
   toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
@@ -33,7 +34,15 @@ addToggles({
   toggle("ALERT_TOGGLE_QUEST_OBJECTIVE", "alertQuestObjective"),
 })
 addSection("SECTION_QUEST_LEARNING", { collapsible = true })
-addToggles({ toggle("QUEST_LEARNING_TOGGLE", "questLearning"), toggle("QUEST_MAP_TOGGLE", "questMap") })
+addToggles({
+  toggle("QUEST_LEARNING_TOGGLE", "questLearning"),
+  toggle("LIBRARY_BOOKS_TOGGLE", "libraryBooks"),
+  toggle("QUEST_MAP_TOGGLE", "questMap"),
+  requires(toggle("QUEST_MINIMAP_TOGGLE", "questMinimap"), "questMap"),
+  toggle("QUEST_ARROW_TOGGLE", "questArrow"),
+  toggle("ALT_QUEST_GIVERS_TOGGLE", "altQuestGivers"),
+  toggle("BAG_HINTS_TOGGLE", "bagHints", ns.BagQuestMarks.IsAvailable),
+})
 addSection("SECTION_QUEST_LOG", { collapsible = true })
 addToggles({ toggle("QUEST_CLEANUP_TOGGLE", "questCleanupButton"), toggle("QUEST_LEFTOVERS_TOGGLE", "questLeftovers") })
 -- Quest-Anzeige: Questlevel, Quest-Buttons, Tooltips und Markierungen an Gegnern und NPCs
@@ -41,10 +50,12 @@ addSubPage("COMFORT_PAGE_QUEST_DISPLAY")
 addSection("SECTION_QUEST_DISPLAY")
 addToggles({
   toggle("QUEST_LEVELS_TOGGLE", "questLevels"),
+  toggle("QUEST_LOG_REWARDS_TOGGLE", "questLogRewards"),
   toggle("QUEST_ITEM_TOGGLE", "questItemButton"),
   toggle("QUEST_TARGET_TOGGLE", "questTargetButton"),
   advanced(requires(toggle("QUEST_TARGET_MARKER_TOGGLE", "questTargetMarker"), "questTargetButton")),
   advanced(requires(toggle("QUEST_ZONE_ONLY_TOGGLE", "questButtonsZoneOnly"), "questItemButton", "questTargetButton")),
+  toggle("QUEST_TRACKER_TOGGLE", "questTracker", ns.QuestTracker.IsAvailable),
   toggle("REWARD_HINT_TOGGLE", "rewardHint"),
   toggle("QUEST_EFFICIENCY_TOGGLE", "questEfficiencyTooltip"),
   toggle("QUEST_ITEM_TOOLTIP_TOGGLE", "questItemTooltip"),
@@ -67,7 +78,9 @@ end
 if ns.QuestMarks.IsAvailable() then
   addSection("SECTION_QUEST_MARKS")
   addToggles({ toggle("QUEST_MARKS_TOGGLE", "questMarks"),
-    requires(toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress"), "questMarks") })
+    requires(toggle("QUEST_MARK_PROGRESS_TOGGLE", "questMarkProgress"), "questMarks"),
+    requires(toggle("QUEST_TARGETS_TAKE_TOGGLE", "questTargetsTake", ns.QuestTargets.IsAvailable), "questMarks"),
+    requires(toggle("QUEST_TARGETS_PARTY_TOGGLE", "questTargetsParty", ns.QuestTargets.IsAvailable), "questMarks") })
   addSlider(requires({
     label = "QUEST_MARK_SCALE",
     advanced = true,

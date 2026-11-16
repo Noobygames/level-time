@@ -172,10 +172,7 @@ panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("Recap"))  -- mit ESC schließen
-Widgets.CreateCloseButton(panel)
-
-local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-title:SetPoint("TOP", 0, -14)
+local title = Widgets.CreateWindowHeader(panel, "").title
 
 local copyButton = Widgets.CreateButton(panel, 80, BUTTON_HEIGHT, function()
   local content = RecapWindow.BuildRows(currentMode)
@@ -188,7 +185,7 @@ local copyButton = Widgets.CreateButton(panel, 80, BUTTON_HEIGHT, function()
 end)
 copyButton:SetPoint("BOTTOM", panel, "BOTTOM", 0, MARGIN)
 Widgets.SetButtonText(copyButton, L.RECAP_COPY, 80)
-Widgets.AttachTooltip(copyButton, L.RECAP_COPY_TIP, L.RECAP_COPY)
+Widgets.AttachTooltip(copyButton, function() return L.RECAP_COPY end, function() return L.RECAP_COPY_TIP end)
 
 local rows = {}  -- { label, value } Schriftzeilen, bei Bedarf angelegt
 
@@ -262,7 +259,7 @@ end
 
 -- Offen zählt die Karte mit, statt beim Öffnen stehen zu bleiben (nur solange sichtbar)
 local sinceUpdate = 0
-panel:SetScript("OnUpdate", function(_, elapsed)
+ns.SetUpdateScript(panel, "RecapWindow", function(_, elapsed)
   sinceUpdate = sinceUpdate + elapsed
   if sinceUpdate < UPDATE_INTERVAL then return end
   sinceUpdate = 0

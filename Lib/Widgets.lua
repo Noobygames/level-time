@@ -7,6 +7,24 @@ ns.Widgets = Widgets
 -- Eigenes Addon-Icon (Media/Icon.tga, erzeugt mit "make artwork"); auch als IconTexture in der .toc
 Widgets.ICON = "Interface\\AddOns\\" .. addonName .. "\\Media\\Icon"
 
+-- Symbol eines Zaubers (C_Spell.GetSpellTexture, ältere Clients GetSpellTexture); nil ohne Treffer oder bei geheimer ID
+function Widgets.SpellTexture(spellID)
+  if not spellID or ns.IsSecret(spellID) then return nil end
+  local texture = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(spellID)
+  if not texture and GetSpellTexture then texture = GetSpellTexture(spellID) end
+  return texture
+end
+
+-- Rangzahl eines Zaubers als Text aus C_Spell.GetSpellSubtext (Era, Retail, Forever laut SpellDocumentation; ältere
+-- Clients GetSpellSubtext), in Classic "Rang 3". Retail-Untertexte ("Volksfähigkeit", "Passiv") haben keine Zahl: nil.
+function Widgets.SpellRank(spellID)
+  local getSubtext = C_Spell and C_Spell.GetSpellSubtext or GetSpellSubtext
+  if type(getSubtext) ~= "function" then return nil end
+  local ok, subtext = pcall(getSubtext, spellID)
+  if not ok or ns.IsSecret(subtext) or type(subtext) ~= "string" then return nil end
+  return (subtext:match("%d+"))
+end
+
 -- Kurznamen für Farben aus Theme.lua (dieselben Tabellen, folgen also dem gewählten Preset)
 local Theme = ns.Theme
 Widgets.COLORS = {
@@ -93,6 +111,23 @@ function Widgets.AttachTooltip(frame, title, text)
     GameTooltip:Show()
   end)
   frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
+end
+
+-- Item-Links in den Texten eines Frames: Tooltip beim Überfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled,
+-- SimpleFrameAPI in allen Zweigen). onLeave(frame) optional statt Tooltip ausblenden.
+function Widgets.EnableItemLinks(frame, onLeave)
+  if not frame.SetHyperlinksEnabled then return end
+  frame:SetHyperlinksEnabled(true)
+  frame:SetScript("OnHyperlinkEnter", function(self, link)
+    GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+    GameTooltip:SetHyperlink(link)
+    GameTooltip:Show()
+  end)
+  frame:SetScript("OnHyperlinkLeave", onLeave or function() GameTooltip:Hide() end)
+  frame:SetScript("OnHyperlinkClick", function(_, link, text, button)
+    if HandleModifiedItemClick and HandleModifiedItemClick(text) then return end
+    if SetItemRef then SetItemRef(link, text, button) end
+  end)
 end
 
 -- Checkbox mit eigenem Label, da die Template-Textfelder je nach Client anders heißen
@@ -217,6 +252,7 @@ function Widgets.CreateButton(parent, width, height, onClick)
       colors = BUTTON_COLORS.hover
     end
     local face, border = colors.background, colors.border
+    if button.primary and colors == BUTTON_COLORS.normal then border = C.gold end
     button:SetBackdropColor(face[1], face[2], face[3], colors.alpha)
     button:SetBackdropBorderColor(border[1], border[2], border[3], 1)
     button.label:SetTextColor(unpack(colors.text))
@@ -229,6 +265,11 @@ function Widgets.CreateButton(parent, width, height, onClick)
   button:HookScript("OnDisable", paint)
   paint()
 
+  -- Primärvariante: goldener Rand im Ruhezustand (ein Primärbutton je Fenster, rechts unten)
+  function button:SetPrimary(on)
+    self.primary = on and true or false
+    paint()
+  end
   function button:SetText(text) self.label:SetText(text) end
   function button:GetText() return self.label:GetText() end
   function button:GetTextWidth() return self.label:GetStringWidth() end
@@ -343,6 +384,187 @@ function Widgets.CreateCloseButton(panel)
   button:SetSize(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE)
   button:SetPoint("TOPRIGHT", -4, -4)
   return button
+end
+
+---------------------------------------------------------------------------
+-- Bausteine nach docs/clickdummy/DESIGN.md; alle Farben aus Theme.COLORS (per Name), keine eigenen Werte
+---------------------------------------------------------------------------
+local HEADER_HEIGHT = 40
+local HEADER_PADDING = 16
+local CHIP_HEIGHT = 28
+local ROW_HEIGHT = 32
+local STATUS_DOT_SIZE = 8
+local BAR_HEIGHTS = { small = 6, medium = 12, large = 24 }
+Widgets.BAR_HEIGHTS = BAR_HEIGHTS
+
+local function setTextureColor(texture, colorName, alpha)
+  local r, g, b = Theme.RGB(colorName)
+  texture:SetColorTexture(r, g, b, alpha or 1)
+end
+
+-- Fensterkopf (Höhe 40): Titel links in Gold (header.title), rechts der Schließen-Knopf (header.close, 24 x 24),
+-- links davon der Platz für Aktionen (header.actions, Frame; der Aufrufer hängt Buttons mit SetPoint("RIGHT") an),
+-- unten der Trenner. opts.onClose ersetzt das Verstecken von parent beim Schließen.
+function Widgets.CreateWindowHeader(parent, title, opts)
+  opts = opts or {}
+  local header = CreateFrame("Frame", nil, parent)
+  header:SetHeight(HEADER_HEIGHT)
+  header:SetPoint("TOPLEFT")
+  header:SetPoint("TOPRIGHT")
+  header.title = header:CreateFontString(nil, "OVERLAY", Theme.Font("title"))
+  header.title:SetPoint("LEFT", HEADER_PADDING, 0)
+  header.title:SetText(title or "")
+  header.close = Widgets.CreateCloseButton(header)
+  header.close:ClearAllPoints()
+  header.close:SetPoint("RIGHT", -8, 0)
+  header.close:SetScript("OnClick", opts.onClose or function() parent:Hide() end)
+  header.actions = CreateFrame("Frame", nil, header)
+  header.actions:SetPoint("TOPRIGHT", header.close, "TOPLEFT", -8, 0)
+  header.actions:SetPoint("BOTTOMRIGHT", header.close, "BOTTOMLEFT", -8, 0)
+  header.actions:SetWidth(1)
+  header.divider = header:CreateTexture(nil, "ARTWORK")
+  header.divider:SetHeight(1)
+  header.divider:SetPoint("BOTTOMLEFT")
+  header.divider:SetPoint("BOTTOMRIGHT")
+  setTextureColor(header.divider, "divider")
+  function header:SetTitle(text) self.title:SetText(text) end
+  return header
+end
+
+-- Chip (Filter an / aus): chip:SetOn(bool), chip:IsOn(); Klick kippt den Zustand und ruft onToggle(on).
+-- Die Breite folgt dem Text (chip:SetText).
+function Widgets.CreateChip(parent, label, onToggle)
+  local chip = CreateFrame("Button", nil, parent, "BackdropTemplate")
+  chip:SetHeight(CHIP_HEIGHT)
+  chip:SetBackdrop(BUTTON_BACKDROP)
+  chip.label = chip:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
+  chip.label:SetPoint("CENTER")
+  chip.on, chip.hovered = false, false
+  local function paint()
+    local face = chip.on and C.rowSelected or (chip.hovered and C.buttonFaceHover or C.buttonFace)
+    local border = chip.on and C.gold or C.buttonBorder
+    chip:SetBackdropColor(face[1], face[2], face[3], 0.95)
+    chip:SetBackdropBorderColor(border[1], border[2], border[3], 1)
+    chip.label:SetTextColor(unpack(chip.on and C.gold or C.text))
+  end
+  function chip:SetOn(on)
+    self.on = on and true or false
+    paint()
+  end
+  function chip:IsOn() return self.on end
+  function chip:SetText(text)
+    self.label:SetText(text)
+    self:SetWidth(math.ceil(self.label:GetStringWidth()) + BUTTON_TEXT_PADDING)
+  end
+  chip:HookScript("OnEnter", function() chip.hovered = true; paint() end)
+  chip:HookScript("OnLeave", function() chip.hovered = false; paint() end)
+  chip:SetScript("OnClick", function()
+    chip:SetOn(not chip.on)
+    if onToggle then onToggle(chip.on) end
+  end)
+  chip:SetText(label or "")
+  paint()
+  return chip
+end
+
+-- Listenzeile (Höhe 32 oder height) mit Hover- und Auswahlgrund; row.text links; row:SetSelected(bool),
+-- row:IsSelected(). Den Klick setzt der Aufrufer (SetScript("OnClick")).
+function Widgets.CreateListRow(parent, height)
+  local row = CreateFrame("Button", nil, parent)
+  row:SetHeight(height or ROW_HEIGHT)
+  row.background = row:CreateTexture(nil, "BACKGROUND")
+  row.background:SetAllPoints()
+  row.text = row:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+  row.text:SetPoint("LEFT", 8, 0)
+  row.text:SetPoint("RIGHT", -8, 0)
+  row.text:SetJustifyH("LEFT")
+  row.selected, row.hovered = false, false
+  local function paint()
+    if row.selected then
+      setTextureColor(row.background, "rowSelected")
+    elseif row.hovered then
+      setTextureColor(row.background, "buttonFaceHover", 0.6)
+    else
+      row.background:SetColorTexture(0, 0, 0, 0)
+    end
+  end
+  function row:SetSelected(selected)
+    self.selected = selected and true or false
+    paint()
+  end
+  function row:IsSelected() return self.selected end
+  row:HookScript("OnEnter", function() row.hovered = true; paint() end)
+  row:HookScript("OnLeave", function() row.hovered = false; paint() end)
+  paint()
+  return row
+end
+
+-- Label-Wert-Zeile: Label links (Farbe labelText), Wert rechts hell; line:SetValues(label, value[, colorName])
+function Widgets.CreateLabelValue(parent)
+  local line = CreateFrame("Frame", nil, parent)
+  line:SetHeight(ROW_HEIGHT)
+  line.label = line:CreateFontString(nil, "OVERLAY", Theme.Font("label"))
+  line.label:SetPoint("LEFT")
+  line.label:SetTextColor(Theme.RGB("labelText"))
+  line.value = line:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
+  line.value:SetPoint("RIGHT")
+  line.value:SetJustifyH("RIGHT")
+  line.value:SetTextColor(Theme.RGB("text"))
+  function line:SetValues(label, value, colorName)
+    self.label:SetText(label)
+    self.value:SetText(value)
+    self.value:SetTextColor(Theme.RGB(colorName or "text"))
+  end
+  return line
+end
+
+-- Statuspunkt (8 px) in einer Statusfarbe (good/bad/warning/info/muted ...); dot:SetStatus(colorName).
+-- Farbe nie allein: neben Text verwenden (CreateBadge)
+function Widgets.CreateStatusDot(parent, colorName)
+  local dot = parent:CreateTexture(nil, "OVERLAY")
+  dot:SetSize(STATUS_DOT_SIZE, STATUS_DOT_SIZE)
+  function dot:SetStatus(name) setTextureColor(self, name) end
+  dot:SetStatus(colorName or "muted")
+  return dot
+end
+
+-- Badge: Statuspunkt plus Text; badge:SetStatus(colorName, text)
+function Widgets.CreateBadge(parent, text, colorName)
+  local badge = CreateFrame("Frame", nil, parent)
+  badge:SetHeight(CHIP_HEIGHT)
+  badge.dot = Widgets.CreateStatusDot(badge, colorName)
+  badge.dot:SetPoint("LEFT")
+  badge.text = badge:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
+  badge.text:SetPoint("LEFT", badge.dot, "RIGHT", 4, 0)
+  function badge:SetStatus(name, newText)
+    self.dot:SetStatus(name)
+    if newText then self.text:SetText(newText) end
+    self:SetWidth(STATUS_DOT_SIZE + 4 + math.ceil(self.text:GetStringWidth()))
+  end
+  badge:SetStatus(colorName or "muted", text or "")
+  return badge
+end
+
+-- Fortschrittsbalken in drei Höhen (size "small" 6, "medium" 12, "large" 24; Standard medium);
+-- bar:SetProgress(0..1, colorName), bar:GetProgress()
+function Widgets.CreateProgressBar(parent, size)
+  local bar = CreateFrame("StatusBar", nil, parent)
+  bar:SetHeight(BAR_HEIGHTS[size or "medium"] or BAR_HEIGHTS.medium)
+  bar:SetMinMaxValues(0, 1)
+  bar.background = bar:CreateTexture(nil, "BACKGROUND")
+  bar.background:SetAllPoints()
+  setTextureColor(bar.background, "buttonFace")
+  bar.fill = bar:CreateTexture(nil, "ARTWORK")
+  bar:SetStatusBarTexture(bar.fill)
+  bar.progress = 0
+  function bar:SetProgress(fraction, colorName)
+    self.progress = math.max(0, math.min(1, fraction or 0))
+    self:SetValue(self.progress)
+    Theme.SetBarTexture(self.fill, Theme.RGB(colorName or "accent"))
+  end
+  function bar:GetProgress() return self.progress end
+  bar:SetProgress(0)
+  return bar
 end
 
 -- Schmale senkrechte Bildlaufleiste im Addon-Stil (die Vorlage sieht je nach Client anders aus).

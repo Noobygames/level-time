@@ -1,9 +1,12 @@
--- Optionen, Reiter Komfort (3/3): Fenster, Tooltip & Karten, Beute, Beute-Glitzer, Timer, Reisen, System, Grafik
+-- Optionen, Reiter Komfort (3/3): Fenster, Tooltip & Karten, Beute (mit Beute-Glitzer), Timer, Reisen, System, Grafik (mit Beyond Ultra)
 -- (lange Seiten in Unterseiten geteilt, Roadmap 465) und Ton; schließt den Reiter ab.
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
-local finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, toPercent, addFrameScaleSlider = O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.toPercent, O.addFrameScaleSlider
+local finishPage, addSection, addSlider, addToggles, addButton = O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton
+local addChooser, addHint, addSubPage, finishSubPages, toggle = O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle
+local localized, advanced, requires, percent, toPercent = O.localized, O.advanced, O.requires, O.percent, O.toPercent
+local addFrameScaleSlider = O.addFrameScaleSlider
 
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
@@ -18,8 +21,61 @@ addToggles({
   toggle("CLASS_COLOR_PLAYER_FRAME", "classColorPlayerFrame", ns.ClassColors.CanColorPlayerFrame),
   toggle("DRUID_MANA_BAR", "druidManaBar", ns.DruidManaBar.IsAvailable),
   toggle("COMFORT_TARGET_RANGE", "showTargetRange"),
+  toggle("SWING_TIMER", "swingTimer", ns.SwingTimer.IsAvailable),
 })
 O.addFramePreview("TARGET_RANGE_PREVIEW", "targetRange")
+-- Gewählte Buffs bei eingeklappter Buffleiste (Roadmap 500)
+addToggles({ toggle("COLLAPSED_BUFFS", "collapsedBuffs") })
+O.builder.AddTextInput({
+  label = "COLLAPSED_BUFFS_LIST",
+  setting = "collapsedBuffsList",
+  get = function(db) return db.collapsedBuffsList end,
+  set = function(text) ns.Set("collapsedBuffsList", strtrim(text)) end,
+})
+O.addFramePreview("COLLAPSED_BUFFS_PREVIEW", "collapsedBuffs")
+-- Schwungbalken anpassen (Roadmap 489): ausgegraut, solange die Balken aus sind
+local function addSwingTimerOptions()
+  local SwingTimer = ns.SwingTimer
+  O.addFramePreview("SWING_TIMER_PREVIEW", "swingTimer")
+  addToggles({
+    requires(toggle("SWING_TIMER_MAIN", "swingTimerMain"), "swingTimer"),
+    requires(toggle("SWING_TIMER_OFF", "swingTimerOff"), "swingTimer"),
+    requires(toggle("SWING_TIMER_RANGED", "swingTimerRanged"), "swingTimer"),
+    requires(toggle("SWING_TIMER_COMBAT_ONLY", "swingTimerCombatOnly"), "swingTimer"),
+    requires(toggle("SWING_TIMER_HIDE_BLIZZARD", "swingTimerHideBlizzard", function()
+      return ns.CVars.Exists(SwingTimer.BLIZZARD_CVAR)
+    end), "swingTimer"),
+  })
+  local function sizeSlider(label, setting, min, max)
+    addSlider(requires({
+      label = label, setting = setting, min = min, max = max, step = 2,
+      get = function(db) return db[setting] end,
+      set = function(value) ns.SetDeferred(setting, value) end,
+      format = tostring,
+    }, "swingTimer"))
+  end
+  sizeSlider("SWING_TIMER_WIDTH", "swingTimerWidth", SwingTimer.MIN_WIDTH, SwingTimer.MAX_WIDTH)
+  sizeSlider("SWING_TIMER_HEIGHT", "swingTimerHeight", SwingTimer.MIN_HEIGHT, SwingTimer.MAX_HEIGHT)
+  local function choicesOf(values, prefix)
+    local choices = {}
+    for i, value in ipairs(values) do choices[i] = { value = value, name = localized(prefix .. value:upper()) } end
+    return choices
+  end
+  addChooser(requires({ label = "SWING_TIMER_TEXT", setting = "swingTimerText",
+    choices = choicesOf(SwingTimer.TEXT_MODES, "SWING_TIMER_TEXT_") }, "swingTimer"))
+  addChooser(requires({ label = "SWING_TIMER_LAYOUT", setting = "swingTimerLayout",
+    choices = choicesOf(SwingTimer.LAYOUTS, "SWING_TIMER_LAYOUT_") }, "swingTimer"))
+  -- Farben: Akzentfarben des Themes, "" = Standardfarbe der Hand
+  local colors = {}
+  for i, key in ipairs(SwingTimer.COLOR_ORDER) do
+    colors[i] = { value = key, name = localized(key == "" and "SWING_TIMER_COLOR_DEFAULT" or "ACCENT_" .. key:upper()) }
+  end
+  for _, hand in ipairs({ SwingTimer.MAIN, SwingTimer.OFF, SwingTimer.RANGED }) do
+    addChooser(requires({ label = "SWING_TIMER_COLOR_" .. hand:upper(), setting = SwingTimer.COLOR_SETTING[hand],
+      choices = colors, advanced = true }, "swingTimer"))
+  end
+end
+if ns.SwingTimer.IsAvailable() then addSwingTimerOptions() end
 if ns.PlayerChain.IsAvailable() then
   local chains = {}
   for _, value in ipairs(ns.PlayerChain.ORDER) do
@@ -34,6 +90,7 @@ addToggles({
   toggle("TOOLTIP_TARGET_TOGGLE", "tooltipTarget"),
   toggle("TOOLTIP_HIDE_IN_COMBAT", "tooltipHideInCombat"),
   toggle("TOOLTIP_KILLS_TO_LEVEL_TOGGLE", "tooltipKillsToLevel"),
+  toggle("TOOLTIP_KILL_COUNT_TOGGLE", "tooltipKillCount"),
   advanced(toggle("TOOLTIP_GUILD_RANK_TOGGLE", "tooltipGuildRank")),
   toggle("INFO_CARDS", "infoCards"),
 })
@@ -89,7 +146,6 @@ O.addFramePreview("LOOT_ROLL_PREVIEW", "lootRolls")
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
 local LootSparkles = ns.LootSparkles
 if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
-  addSubPage("COMFORT_PAGE_SPARKLES")
   addSection("SECTION_LOOT_SPARKLES")
   addToggles({
     toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
@@ -103,7 +159,6 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
   if LootSparkles.CanSoftTarget() then
     addToggles({
       toggle("LOOT_SPARKLE_CATEGORY_COLORS", "lootSparkleCategoryColors"),
-      advanced(toggle("LOOT_SPARKLE_SILHOUETTE", "lootSparkleSilhouette")),
       advanced(toggle("LOOT_SPARKLE_HIDE_UNTRAINED", "lootSparkleHideUntrained", LootSparkles.CanSoftTarget)),
     })
     -- Auswahlliste statt Reiter: viele Stile passen nicht in eine Reiterzeile; Überschriften je Gruppe (Formen, Klassisch)
@@ -257,7 +312,6 @@ addToggles(muteToggles)
 -- Grafikdetails (nur WoW Forever): Hauptschalter, Regler je CVar, Nachschärfen, empfohlene Werte
 local ForeverGraphics = ns.ForeverGraphics
 if ForeverGraphics.IsAvailable() then
-  addSubPage("COMFORT_PAGE_GRAPHICS_DETAIL")
   addHint("FOREVER_GRAPHICS_HINT")
   addToggles({ toggle("FOREVER_GRAPHICS", "foreverGraphics") })
   addSection("SECTION_GRAPHICS_DISTANCE")

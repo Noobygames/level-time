@@ -2,7 +2,7 @@
 -- Höchstzahl mit "+N", nur ein Lauf, alle gepasst fehlt, aus = nur die Zusammenfassung, Überlauf in Folgenachrichten
 -- (höchstens 255 Bytes samt Präfix, eine je Sekunde).
 local L = addon.L
-local Journal, LootRolls, InstanceReport = addon.Journal, addon.LootRolls, addon.InstanceReport
+local Journal = addon.Journal
 
 local function link(id, quality, name)
   return string.format("|cnIQ%d:|Hitem:%d::::::::70:::::|h[%s]|h|r", quality, id, name)

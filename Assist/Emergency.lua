@@ -20,9 +20,9 @@ ns.Emergency = Emergency
 
 local EXIT_HEALTH = 0.15   -- Abstand zur Schwelle, damit schwankendes Leben nicht flackert
 local EDGE_SIZE = 48       -- Breite des roten Rands in Pixeln
-local EDGE_COLOR = { 0.9, 0, 0, 0.35 }
+local EDGE_ALPHA = 0.35
 local GLOW_SIZE = 3        -- Rahmenstärke um markierte Knöpfe
-local GLOW_COLOR = { 0.2, 1, 0.2, 0.9 }
+local GLOW_ALPHA = 0.9
 
 -- Eigene Liste: Heiltränke und Gesundheitssteine (Classic Era, TBC), Item-IDs
 Emergency.ITEMS = {
@@ -98,7 +98,8 @@ local function glowFor(button)
   }
   for _, side in ipairs(sides) do
     local line = glow:CreateTexture(nil, "OVERLAY")
-    line:SetColorTexture(unpack(GLOW_COLOR))
+    local glowColor = ns.Theme.COLORS.good
+    line:SetColorTexture(glowColor[1], glowColor[2], glowColor[3], GLOW_ALPHA)
     line:SetPoint(side[1])
     line:SetPoint(side[2])
     if side[3] > 0 then line:SetWidth(side[3]) else line:SetHeight(side[4]) end
@@ -119,7 +120,8 @@ local function edgeFrame()
   }
   for _, side in ipairs(sides) do
     local bar = edge:CreateTexture(nil, "BACKGROUND")
-    bar:SetColorTexture(unpack(EDGE_COLOR))
+    local edgeColor = ns.Theme.COLORS.bad
+    bar:SetColorTexture(edgeColor[1], edgeColor[2], edgeColor[3], EDGE_ALPHA)
     bar:SetPoint(side[1])
     bar:SetPoint(side[2])
     if side[3] then bar:SetWidth(side[3]) else bar:SetHeight(side[4]) end
@@ -211,16 +213,4 @@ end
 ns.RegisterApply(function(db)
   healthEvents.SetActive(db.emergencyHighlight and Emergency.IsAvailable())
   update()
-end)
-
--- /lt debug check: welche Items und Zauber der Liste der Client kennt (Namen in der Client-Sprache)
-ns.DebugLog.AddCheck("emergency.actions", function()
-  local items, spells = {}, {}
-  for _, itemId in ipairs(Emergency.ITEMS) do
-    items[#items + 1] = { id = itemId, name = C_Item and C_Item.GetItemInfo and (C_Item.GetItemInfo(itemId)) or nil }
-  end
-  for _, spellId in ipairs(Emergency.SPELLS) do
-    spells[#spells + 1] = { id = spellId, name = spellName(spellId) }
-  end
-  return { items = items, spells = spells }
 end)

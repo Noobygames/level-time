@@ -11,7 +11,7 @@
 ## Notes-esMX: Estadísticas por nivel y por sesión (tiempo de juego, PX/h, abatidos, muertes y más) con historial para todos los personajes
 ## IconTexture: Interface\AddOns\LevelTimer\Media\Icon
 ## AddonCompartmentFunc: LevelTimer_OnAddonCompartmentClick
-## SavedVariables: LevelTimerDB, LevelTimerStatsDB, LevelTimerDebugLog
+## SavedVariables: LevelTimerDB, LevelTimerStatsDB
 # LevelTimerCharDB: veraltet, nur noch geladen, um alte Daten in LevelTimerStatsDB zu übernehmen
 ## SavedVariablesPerCharacter: LevelTimerCharDB
 
@@ -26,10 +26,8 @@ Core\Database.lua
 Lib\Lifecycle.lua
 Core\LevelTimer.lua
 Core\Client.lua
-Core\DebugLog.lua
-Core\DebugProbes.lua
-Core\Profiler.lua
 Lib\Theme.lua
+Lib\UnverifiedHint.lua
 Lib\Format.lua
 Lib\TickCache.lua
 Lib\RecentCounter.lua
@@ -46,17 +44,23 @@ Lib\Bags.lua
 Lib\Items.lua
 Lib\QuestLog.lua
 Lib\QuestTooltip.lua
+Lib\NpcNames.lua
 Lib\QuestRewards.lua
+Lib\MapCompat.lua
 Lib\MapPins.lua
+Lib\QuestListHooks.lua
 Lib\Overrides.lua
 Lib\CVars.lua
 Lib\MapCoords.lua
+Lib\MinimapPins.lua
+Lib\MapDirection.lua
 Lib\Widgets.lua
 Lib\Dropdown.lua
 Lib\TabStrip.lua
 Lib\Frames.lua
 Lib\Auras.lua
 Lib\Card.lua
+Lib\CreatureModel.lua
 Lib\TimerDisplay.lua
 
 # Erfassung: Zähler und Ereignisse (Tracking)
@@ -69,8 +73,18 @@ Assist\MapCoordsData\anniversary.lua
 Assist\InstanceData\classic_era.lua
 Assist\MapCoordsData\classic_era.lua
 Assist\InstanceData\forever.lua
+Assist\InstanceData\forever_guide.lua
+Assist\InstanceData\dungeon_db.lua
+Assist\InstanceData\bags.lua
+Assist\InstanceData\dungeon_object_names.lua
+Assist\InstanceData\attunements.lua
+Assist\InstanceData\mechanics.lua
 Assist\MapCoordsData\forever.lua
 Assist\InstanceData\retail.lua
+Assist\BossData\anniversary.lua
+Assist\BossData\classic_era.lua
+Assist\BossData\forever.lua
+Assist\InstanceData\boss_npcs.lua
 Assist\MapCoordsData\retail.lua
 Tracking\InstanceInfo.lua
 Tracking\InstanceCopy.lua
@@ -80,8 +94,10 @@ Tracking\Coverage.lua
 Tracking\Experience.lua
 Tracking\LevelGains.lua
 Tracking\TrainerCache.lua
+Tracking\ClassQuests.lua
 Tracking\KillCounter.lua
 Tracking\MobXp.lua
+Tracking\MobKills.lua
 Tracking\DeathRecap.lua
 Tracking\DeathCounter.lua
 Tracking\DeathPlace.lua
@@ -98,20 +114,25 @@ Tracking\ItemsLooted.lua
 Tracking\LootRolls.lua
 Tracking\QuestMobs.lua
 Tracking\QuestNpcs.lua
+Tracking\LibraryBooks.lua
 Tracking\MoneyCounter.lua
 Tracking\Reputation.lua
 
 # Historie, Auswertung, Prognose
 History\History.lua
 History\RestedEstimate.lua
+History\Alts.lua
 History\Zones.lua
 History\Daily.lua
 History\Money.lua
 History\PlayHours.lua
 History\Instances.lua
+History\InstanceBosses.lua
+History\InstanceRuns.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
 History\QuestEfficiency.lua
+History\QuestZones.lua
 History\Analysis.lua
 History\ProgressCurve.lua
 History\XpTable.lua
@@ -151,6 +172,7 @@ UI\LootSparkleSceneAnimations.lua
 UI\LootSparkle.lua
 Assist\BuffReminder.lua
 Assist\ClassBuffs.lua
+Assist\Reagents.lua
 Assist\CampFire.lua
 Assist\FoodTimer.lua
 Assist\SleepTimer.lua
@@ -185,6 +207,7 @@ Assist\QuestCompleteAlert.lua
 Assist\RareAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
+Assist\OldSpellRanks.lua
 Assist\BreakReminder.lua
 Assist\TrainAll.lua
 Assist\Comfort.lua
@@ -192,6 +215,7 @@ Assist\Friends.lua
 Assist\Social.lua
 Assist\InviteInfo.lua
 Assist\Merchant.lua
+Assist\CheapestJunk.lua
 Assist\QuestBlocklist.lua
 Assist\QuestAutomation.lua
 Assist\RewardHint.lua
@@ -216,7 +240,26 @@ Assist\LootSparkles.lua
 Assist\LootRollReport.lua
 Tracking\RollLog.lua
 UI\LootRollDisplay.lua
+UI\InstanceRunTracker.lua
+UI\QuestTracker.lua
+Assist\DungeonQuests.lua
+Assist\LFGData.lua
+Assist\LFGLanguages.lua
+Assist\LFGTooltip.lua
+Assist\LFGSearch.lua
+Assist\QuestTargets.lua
+Assist\DungeonQuestGivers.lua
+Assist\MechanicTips.lua
+Assist\DungeonQuestMinimap.lua
+Assist\DungeonQuestStarters.lua
 Assist\QuestLevels.lua
+Assist\DungeonQuestTags.lua
+UI\DungeonQuestHint.lua
+Assist\DungeonQuestHints.lua
+Assist\BagQuests.lua
+Assist\BagQuestMarks.lua
+Assist\Attunements.lua
+Assist\QuestLogRewards.lua
 Assist\QuestTextSize.lua
 Assist\QuestBagItems.lua
 Assist\QuestItemButton.lua
@@ -237,7 +280,14 @@ Assist\MinimapBar.lua
 Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
 Assist\DeathMap.lua
+Assist\QuestFocus.lua
 Assist\QuestMap.lua
+Assist\AltQuestGivers.lua
+Assist\QuestMinimap.lua
+Assist\QuestArrow.lua
+Assist\BossLoot.lua
+Assist\DungeonEntrances.lua
+Assist\InstanceQuestCheck.lua
 Assist\CorpseArrow.lua
 Assist\ScreenEffects.lua
 Assist\ForeverGraphics.lua
@@ -253,6 +303,8 @@ Assist\ThreatDisplay.lua
 Assist\CooldownNumbers.lua
 Assist\DialogKey.lua
 Assist\TargetRange.lua
+Assist\CollapsedBuffs.lua
+Assist\SwingTimer.lua
 Assist\InstanceResetAnnounce.lua
 Assist\HardcoreSafeguard.lua
 UI\WindowModel.lua
@@ -267,6 +319,8 @@ UI\DisplayVisibility.lua
 UI\TimerWindow.lua
 UI\InstanceReset.lua
 Speedrun\SplitList.lua
+Speedrun\RouteReplay.lua
+UI\RouteReplayWindow.lua
 Lib\Charts.lua
 Lib\Export.lua
 Lib\TableOrder.lua
@@ -274,6 +328,11 @@ Lib\TableView.lua
 Lib\OptionsBuilder.lua
 UI\CharacterMenu.lua
 UI\HistoryWindow.lua
+UI\InstanceRunWindow.lua
+UI\LFGWindow.lua
+UI\LFGSearchTab.lua
+UI\LFGOwnGroupTab.lua
+Assist\LFGWindowHook.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
@@ -292,16 +351,18 @@ UI\Options\Notifications.lua
 UI\Options\Alerts.lua
 UI\Options\Comfort.lua
 UI\Options\ComfortQuests.lua
+UI\Options\Dungeons.lua
 UI\Options\ComfortWorld.lua
 UI\Options\Speedrun.lua
+UI\Options\LFG.lua
 UI\Options\Profiles.lua
 UI\Options\Window.lua
 UI\ExternalOptions.lua
 UI\BlizzardSettings.lua
 UI\EditMode.lua
 UI\BlizzardOverlays.lua
-Core\DebugChecks.lua
-Core\DebugTools.lua
-UI\WelcomeCard.lua
+UI\SetupWizard.lua
+UI\ChangelogData.lua
+UI\Changelog.lua
 Lib\SlashCommands.lua
 Core\Commands.lua

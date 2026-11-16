@@ -265,7 +265,6 @@ end
 -- actionsTip = true (nur der Bedienhinweis) oder function() -> Erklärung davor (nil = nur der Hinweis); Titel aus
 -- actionsTitle() oder dem Namen der Anzeige. Im Edit-Modus kein Tooltip, dort erklärt die Leiste die Gesten
 local function attachActionsTip(reg)
-  local Widgets = ns.Widgets
   local title = reg.actionsTitle or function() return ns.L[reg.label] end
   Widgets.AttachTooltip(reg.frame, title, function()
     if ns.EditMode and ns.EditMode.IsActive() then return nil end

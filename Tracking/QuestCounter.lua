@@ -1,5 +1,5 @@
 -- Zählt abgegebene Quests und die XP daraus und schreibt jede Quest ins Journal.
--- Name: C_QuestLog.GetTitleForQuestID, wo vorhanden; sonst der Titel aus dem Quest-Fenster,
+-- Name: Questtitel aus dem Client (QuestLog.Title), wo vorhanden; sonst der Titel aus dem Quest-Fenster,
 -- der bei QUEST_COMPLETE (Abgabe-Dialog offen) gemerkt wird.
 local _, ns = ...
 
@@ -24,9 +24,8 @@ local function readable(value)
 end
 
 local function questName(questID)
-  local title = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID)
   local fresh = pendingTitleAt and GetTime() - pendingTitleAt <= PENDING_TITLE_MAX_AGE
-  return readable(title) or (fresh and pendingTitle or nil)
+  return ns.QuestLog.Title(questID) or (fresh and pendingTitle or nil)
 end
 
 ns.RegisterEvent("QUEST_COMPLETE", function()

@@ -7,7 +7,8 @@ wow.advance(700)
 wow.levelUp(7, 4500)
 wow.logout()
 
-wow.login({ name = "Speedy", realm = "Realm", level = 1, xp = 0, xpMax = 400, playedSeconds = 0 })
+-- Neu erstellter Charakter = neue GUID
+wow.login({ name = "Speedy", realm = "Realm", level = 1, xp = 0, xpMax = 400, playedSeconds = 0, guid = "Player-1-0002" })
 local character = LevelTimerStatsDB.characters["Speedy-Realm"]
 expect("neuer Charakter ohne alte Level", next(character.levelHistory), nil)
 expect("neues Level", character.currentLevel.level, 1)

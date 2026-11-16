@@ -13,7 +13,7 @@ local Stats = ns.Stats
 local History = ns.History
 local Journal = ns.Journal
 
-local WHITE = { 1, 1, 1 }
+local WHITE = ns.Theme.COLORS.text
 local LEFT = "LEFT"
 
 ---------------------------------------------------------------------------
@@ -56,10 +56,14 @@ local function perHourColumn(header, name, width)
   end, sort = function(r) return recordCountRate(r, name) end }
 end
 
+local function moneyColumn(header, name, width)
+  return { header = header, width = width, value = function(r)
+    return Format.Gold(counter(r, name))
+  end, sort = function(r) return counter(r, name) end }
+end
+
 local function goldColumn(width)
-  return { header = "HISTORY_GOLD", width = width, value = function(r)
-    return Format.Gold(counter(r, Stats.MONEY_EARNED))
-  end, sort = function(r) return counter(r, Stats.MONEY_EARNED) end }
+  return moneyColumn("HISTORY_GOLD", Stats.MONEY_EARNED, width)
 end
 
 -- Teil-Level (nur teilweise erfasst, Coverage.lua) mit Kennzeichen; Hinweis LEVELS_PARTIAL_HINT
@@ -134,7 +138,11 @@ local TIME_COLUMNS = {
     local rest = restSeconds(r)
     return rest and Format.Duration(rest) or "?"
   end, sort = restSeconds },
+  timePartColumn("HISTORY_WELL_FED", Stats.WELL_FED_SECONDS, 62),   -- Roadmap 485: aktive Zeit mit Buff
 }
+if ns.Client.IsForever() then
+  table.insert(TIME_COLUMNS, timePartColumn("HISTORY_WELL_RESTED", Stats.WELL_RESTED_SECONDS, 62))
+end
 
 -- XP-Quellen und Ort je Level (XpSources.lua): Anteile an der XP des Levels
 local function xpPartColumn(header, name, width)
@@ -188,6 +196,7 @@ local SESSION_KILL_COLUMNS = {
   perHourColumn("HISTORY_KILL_RATE", Stats.PVE_KILLS, 60),
   counterColumn("HISTORY_ITEMS_LOOTED", Stats.ITEMS_LOOTED, 60),
   perHourColumn("HISTORY_ITEM_RATE", Stats.ITEMS_LOOTED, 60),
+  moneyColumn("HISTORY_LOOT_VALUE", Stats.LOOT_VALUE, 64),
   counterColumn("HISTORY_PVP", Stats.PVP_KILLS, 60),
 }
 
@@ -274,6 +283,9 @@ local INSTANCE_COLUMNS = {
   counterColumn("HISTORY_KILLS", "kills", 50),
   counterColumn("HISTORY_DEATHS", "deaths", 40),
   counterColumn("HISTORY_REPUTATION", "reputation", 40),
+  -- Bosse "x/y" (InstanceBosses.lua); Symbole und Zeit bis zum Kill je Boss im Tooltip der Zeile (InstanceRuns.lua)
+  { header = "HISTORY_BOSSES", width = 45, value = function(r) return ns.InstanceBosses.ProgressText(r) or "-" end,
+    sort = function(r) return select(2, ns.InstanceBosses.Killed(r)) end },
   levelColumn(40),
 }
 
@@ -384,6 +396,33 @@ local COMPARE_COLUMNS = {
     sort = function(r) return ns.RestedEstimate.Get(r.key) end },
 }
 
+-- Twink-Übersicht (Alts.lua): Reihenfolge „Wer ist dran?“ kommt aus Alts.GetRecords
+local function lastSeenText(r)
+  if r.key == ns.characterKey then return L.ALTS_ONLINE end
+  local days = ns.Alts.DaysAway(r)
+  if not days then return "-" end
+  local text = days == 0 and L.ALTS_TODAY or string.format(L.DAYS_AGO, days)
+  return ns.Alts.IsLongAway(r) and string.format(L.ALTS_LONG_AWAY_MARK, text) or text
+end
+
+local ALTS_COLUMNS = {
+  { header = "HISTORY_CHARACTER_NAME", width = 150, value = function(r) return History.DisplayName(r.key) end },
+  levelColumn(40),
+  { header = "HISTORY_RESTED", width = 70, value = function(r) return ns.RestedEstimate.Text(r.key) end,
+    sort = function(r) return r.rested end },
+  { header = "HISTORY_GOLD", width = 80, value = function(r) return r.money and Format.Gold(r.money) or "-" end,
+    sort = function(r) return r.money end },
+  { header = "HISTORY_TOTAL_PLAYED", tip = "HISTORY_ALTS_PLAYED_TIP", width = 80,
+    value = function(r) return r.played and Format.Duration(r.played) or "-" end, sort = function(r) return r.played end },
+  { header = "HISTORY_LAST_SEEN", width = 90, value = lastSeenText, sort = function(r) return r.lastSeen end },
+}
+
+local function altsHint()
+  local away = ns.Alts.LongAwayCount(ns.Alts.GetRecords())
+  if away == 0 then return L.ALTS_HINT end
+  return L.ALTS_HINT .. " " .. string.format(L.ALTS_LONG_AWAY_HINT, away, ns.Alts.LONG_AWAY_DAYS)
+end
+
 -- Geld nach Zeitraum (Money.lua): Einnahmen, Ausgaben, Saldo, Gold/h
 local function signedGold(copper)
   return (copper >= 0 and "+" or "-") .. Format.Gold(math.abs(copper))
@@ -473,9 +512,10 @@ HistoryTables.ANALYSIS = "HISTORY_GROUP_ANALYSIS"
 local LEVELS, SESSIONS, JOURNAL, ANALYSIS = HistoryTables.LEVELS, HistoryTables.SESSIONS, HistoryTables.JOURNAL,
   HistoryTables.ANALYSIS
 
-local function addTable(tab, group, columns, records, footer, hint, rowLink)
+local function addTable(tab, group, columns, records, footer, hint, rowLink, rowTooltip)
   ns.HistoryWindow.AddView(TableView.Create({
     tab = tab, group = group, columns = columns, records = records, footer = footer, hint = hint, rowLink = rowLink,
+    rowTooltip = rowTooltip,
   }))
 end
 
@@ -504,12 +544,12 @@ local function questLink(record)
 end
 
 
--- Hinweis zu Teil-Level ("*") nur, wenn der Charakter welche hat; sonst der Sortier-Hinweis
+-- Hinweis zu Teil-Level ("*") nur, wenn der Charakter welche hat; sonst keiner
 local function partialHint(characterKey)
   for _, record in ipairs(History.GetLevelRecords(characterKey)) do
     if record.partial then return L.LEVELS_PARTIAL_HINT end
   end
-  return L.TABLE_SORT_HINT
+  return nil
 end
 
 addTable("HISTORY_TAB_LEVELS", LEVELS, LEVEL_COLUMNS, History.GetLevelRecords, summaryCells, partialHint)
@@ -524,7 +564,17 @@ addJournalTable("HISTORY_TAB_DEATHS", DEATH_COLUMNS, "deathLog")
 addJournalTable("HISTORY_TAB_QUESTS", QUEST_COLUMNS, "questLog", questLink)
 addJournalTable("HISTORY_TAB_LOOT", LOOT_COLUMNS, "lootLog", itemLink)
 addJournalTable("HISTORY_TAB_ROLLS", ROLL_COLUMNS, "rollLog", itemLink, "HISTORY_ROLLS_EMPTY")
-addTable("HISTORY_TAB_INSTANCES", JOURNAL, INSTANCE_COLUMNS, History.GetInstanceLog, summaryCells)
+-- Instanzen: Zeilenklick und Knopf öffnen das Fenster Dungeon- und Raid-Runs (UI/InstanceRunWindow.lua)
+ns.HistoryWindow.AddView(TableView.Create({
+  tab = "HISTORY_TAB_INSTANCES", group = JOURNAL, columns = INSTANCE_COLUMNS, records = History.GetInstanceLog,
+  footer = summaryCells, rowTooltip = ns.InstanceRuns.TooltipLines,
+  onRowClick = function(record)
+    ns.InstanceRunWindow.Show(ns.HistoryWindow.SelectedCharacter(), record.time)
+  end,
+  buttons = { { label = "DUNGEON_RUNS_OPEN", onClick = function()
+    ns.InstanceRunWindow.Show(ns.HistoryWindow.SelectedCharacter())
+  end } },
+}))
 -- Beinahe-Tode nur, wo der Client das Leben lesbar macht (Retail/Forever: geheim, die Liste bliebe immer leer)
 if ns.NearDeath.IsAvailable() then
   addJournalTable("HISTORY_TAB_NEAR_DEATHS", NEAR_DEATH_COLUMNS, "nearDeathLog")
@@ -532,6 +582,17 @@ end
 addTable("HISTORY_TAB_ZONES", ANALYSIS, ZONE_COLUMNS, ns.Zones.GetRecords, summaryCells)
 addTable("HISTORY_TAB_REPUTATION", ANALYSIS, REPUTATION_COLUMNS, ns.Reputation.GetRecords, countCells)
 addTable("HISTORY_TAB_MONEY", ANALYSIS, MONEY_COLUMNS, ns.Money.GetPeriodRecords, moneyFooter, "MONEY_HINT")
+
+-- Twink-Übersicht gilt wie der Vergleich für alle Charaktere
+ns.HistoryWindow.AddView(TableView.Create({
+  tab = "HISTORY_TAB_ALTS",
+  allCharacters = true,
+  columns = ALTS_COLUMNS,
+  records = ns.Alts.GetRecords,
+  footer = countCells,
+  hint = altsHint,
+  rowColor = classColor,
+}))
 
 -- Vergleich gilt für alle Charaktere, die Charakter-Auswahl spielt hier keine Rolle
 ns.HistoryWindow.AddView(TableView.Create({

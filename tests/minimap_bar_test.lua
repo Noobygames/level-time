@@ -21,9 +21,19 @@ GameTimeFrame:SetSize(40, 40)
 LevelTimerMinimapButton = CreateFrame("Button", "LevelTimerMinimapButton", Minimap)
 LevelTimerMinimapButton:SetSize(31, 31)
 
+-- Vom Addon versteckter LibDBIcon-Knopf: wird nicht eingesammelt und nicht gezeigt
+local hiddenIcon = CreateFrame("Button", "LibDBIcon10_Hidden", Minimap)
+hiddenIcon:SetSize(31, 31)
+hiddenIcon:Hide()
+
 -- LibDBIcon-Knopf mit ausgeblendeter Deckkraft (showOnMouseover) und Unterframe auf niedriger Ebene
 details:SetAlpha(0)
 details:SetFrameLevel(8)
+details:SetFixedFrameLevel(true)   -- wie LibDBIcon createButton (Roadmap 481)
+-- LibDBIcon updatePosition (Ziehen, Refresh, Show): Zusatzanker an der Minimap, ohne ClearAllPoints
+local function libDBIconUpdatePosition(button, x, y)
+  button:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
 local hitArea = CreateFrame("Frame", nil, details)
 hitArea:SetFrameLevel(3)
 local stopped = 0
@@ -46,6 +56,8 @@ expect("LevelTimerMinimapButton ignoriert", MinimapBar.IsMinimapButton(LevelTime
 -- Einschalten
 addon.Set("minimapButtonBar", true)
 expect("2 Buttons gesammelt", #MinimapBar.Collected(), 2)
+expect("Versteckter Knopf bleibt an der Minimap", hiddenIcon:GetParent(), Minimap)
+expect("Versteckter Knopf bleibt versteckt", hiddenIcon:IsShown(), false)
 
 local bar = MinimapBar.BarFrame()
 expect("Details in Bar", details:GetParent(), bar)
@@ -58,6 +70,14 @@ expectTrue("Unterframe über der Leiste", hitArea:GetFrameLevel() > bar:GetFrame
 expectTrue("Knopf über der Leiste", details:GetFrameLevel() > bar:GetFrameLevel())
 details:SetAlpha(0.2)
 expect("späteres SetAlpha(0.2) wird auf 1 gehalten", details:GetAlpha(), 1)
+expect("feste Ebene bleibt fest", details:HasFixedFrameLevel(), true)
+
+-- Ziehen/Refresh hängt den Knopf an die Minimap: sofort zurück in die Leiste, nur ein Anker
+libDBIconUpdatePosition(details, 30, 40)
+expect("nach updatePosition ein Anker", details:GetNumPoints(), 1)
+local _, anchor = details:GetPoint(1)
+expect("nach updatePosition an der Leiste", anchor, bar)
+expect("nach updatePosition Eltern Leiste", details:GetParent(), bar)
 
 -- Auf- und Zuklappen
 expect("initial eingeklappt", MinimapBar.IsExpanded(), false)
@@ -72,6 +92,19 @@ MinimapBar.Toggle()
 expect("zugeklappt", MinimapBar.IsExpanded(), false)
 expect("BarFrame wieder versteckt", bar:IsShown(), false)
 
+-- Im Kampf kein Neuanordnen beim Aufklappen; danach nur sichtbare Knöpfe anordnen
+local twoWide = bar:GetWidth()
+myAddon:Hide()
+wow.state.combatLockdown = true
+MinimapBar.Toggle()
+expect("Im Kampf Leiste unverändert", bar:GetWidth(), twoWide)
+MinimapBar.Toggle()
+wow.state.combatLockdown = false
+MinimapBar.Toggle()
+expectTrue("Versteckter Knopf belegt keinen Platz", bar:GetWidth() < twoWide)
+MinimapBar.Toggle()
+myAddon:Show()
+
 -- Ausschalten: alles zurücksetzen
 addon.Set("minimapButtonBar", false)
 expect("keine Buttons mehr in der Bar", #MinimapBar.Collected(), 0)
@@ -79,6 +112,11 @@ expect("Details wieder an Minimap", details:GetParent(), Minimap)
 expect("MyAddon wieder an Minimap", myAddon:GetParent(), Minimap)
 
 expect("Unterframe Ebene wiederhergestellt", hitArea:GetFrameLevel(), 3)
+expect("LibDBIcon-Ebene wiederhergestellt", details:GetFrameLevel(), 8)
+expect("LibDBIcon-Ebene wieder fest", details:HasFixedFrameLevel(), true)
+expect("nach Restore ein Anker", details:GetNumPoints(), 1)
+libDBIconUpdatePosition(details, 30, 40)
+expect("nach Restore bleibt updatePosition unberührt", details:GetNumPoints(), 2)
 details:SetAlpha(0.2)
 expect("nach Restore wird Alpha nicht mehr erzwungen", details:GetAlpha(), 0.2)
 

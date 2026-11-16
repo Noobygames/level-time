@@ -1,0 +1,153 @@
+{
+  "instance": "The Deadmines",
+  "instanceMapID": 36,
+  "kind": "dungeon",
+  "levels": [15, 23],
+  "bosses": [
+    {
+      "name": "Rhahk'Zor",
+      "npcID": 644,
+      "level": 19,
+      "mechanics": [
+        {"spellID": 6304, "spell": "Rhahk'Zor Slam", "type": "tank", "en": "Slam stuns the tank for 3 sec: keep the tank topped up", "de": "Hieb betäubt den Tank 3 Sek.: Tank voll geheilt halten", "verified": true}
+      ]
+    },
+    {
+      "name": "Sneed's Shredder",
+      "npcID": 642,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 7399, "spell": "Terrify", "type": "survive", "en": "Fears a player for 4 sec: avoid running into extra mobs", "de": "Furcht 4 Sek.: nicht in weitere Gegner laufen", "verified": true},
+        {"spellID": 3603, "spell": "Distracting Pain", "type": "survive", "en": "Slows a caster's casting by 35%: plan longer casts", "de": "Verlangsamt Zauber um 35 %: mit längeren Zaubern rechnen", "verified": true},
+        {"spellID": 5141, "spell": "Eject Sneed", "type": "adds", "en": "Sneed jumps out when the shredder dies: kill him next", "de": "Sneed springt beim Tod des Schredders heraus: als Nächstes töten"}
+      ]
+    },
+    {
+      "name": "Sneed",
+      "npcID": 643,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 6713, "spell": "Disarm", "type": "tank", "en": "Disarms the tank: expect lower threat for a few seconds", "de": "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "verified": true}
+      ]
+    },
+    {
+      "name": "Gilnid",
+      "npcID": 1763,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 5213, "spell": "Molten Metal", "type": "dispel", "en": "Burns and slows a player: heal through it", "de": "Verbrennt und verlangsamt einen Spieler: gegenheilen", "verified": true},
+        {"spellID": 5159, "spell": "Melt Ore", "type": "avoid", "en": "Molten ore on nearby players stacks: ranged stay back", "de": "Geschmolzenes Erz auf Nahen stapelt: Fernkämpfer bleiben hinten"}
+      ]
+    },
+    {
+      "name": "Mr. Smite",
+      "npcID": 646,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 6432, "spell": "Smite Stomp", "type": "survive", "en": "Stuns the whole group at 75% and 50%: heal up before", "de": "Betäubt bei 75 % und 50 % die Gruppe: vorher hochheilen", "verified": true},
+        {"spellID": 0, "spell": "Defias Blackguard", "type": "adds", "en": "Clear the stealthed guards at the ramp before the pull", "de": "Getarnte Wachen an der Rampe vor dem Pull beseitigen", "unverified": true},
+        {"spellID": 6435, "spell": "Smite Slam", "type": "tank", "en": "Slam stuns the tank: keep the tank topped up", "de": "Hieb betäubt den Tank: Tank voll geheilt halten", "verified": true}
+      ]
+    },
+    {
+      "name": "Captain Greenskin",
+      "npcID": 647,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 5208, "spell": "Poisoned Harpoon", "type": "dispel", "en": "Poisons a player with his harpoon: cure poison", "de": "Vergiftet einen Spieler per Harpune: Gift heilen", "verified": true},
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front: only the tank faces him", "de": "Spaltet nach vorne: nur der Tank steht vor ihm", "verified": true}
+      ]
+    },
+    {
+      "name": "Edwin VanCleef",
+      "npcID": 639,
+      "level": 22,
+      "mechanics": [
+        {"spellID": 5200, "spell": "VanCleef's Allies", "type": "adds", "en": "Calls two Blackguards at low health: control or kill them", "de": "Ruft bei wenig Leben zwei Schwarzwachen: kontrollieren oder töten", "verified": true},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Gains extra attacks: burst damage on the tank", "de": "Erhält Extraangriffe: Schadensspitzen auf dem Tank", "verified": true}
+      ]
+    },
+    {
+      "name": "Cookie",
+      "npcID": 645,
+      "level": 20,
+      "mechanics": [
+        {"spellID": 6306, "spell": "Acid Splash", "type": "avoid", "en": "Nature damage around him for 30 sec: ranged keep away", "de": "Naturschaden um ihn 30 Sek. lang: Fernkämpfer halten Abstand", "verified": true},
+        {"spellID": 5174, "spell": "Cookie's Cooking", "type": "interrupt", "en": "Heals himself: interrupt the cooking", "de": "Heilt sich selbst: Kochen unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Defias Evoker",
+      "npcID": 1729,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11829, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar on the ground: step out, kill evokers first", "de": "Flammensäule am Boden: herausgehen, Beschwörer zuerst töten"},
+        {"spellID": 12544, "spell": "Frost Armor", "type": "tank", "en": "Frost armor slows melee attackers", "de": "Frostrüstung verlangsamt Nahkämpfer"}
+      ]
+    },
+    {
+      "name": "Defias Wizard",
+      "npcID": 4418,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Fireballs hit hard: interrupt or line of sight", "de": "Feuerbälle treffen hart: unterbrechen oder Sichtlinie brechen"},
+        {"spellID": 4979, "spell": "Quick Flame Ward", "type": "dispel", "en": "Makes an ally immune to fire: switch spells or purge", "de": "Macht Verbündete feuerimmun: Zauber wechseln oder reinigen"}
+      ]
+    },
+    {
+      "name": "Goblin Engineer",
+      "npcID": 622,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 3605, "spell": "Summon Remote-Controlled Golem", "type": "adds", "en": "Summons a golem helper: kill the engineer quickly", "de": "Beschwört einen Golem: Ingenieur schnell töten", "verified": true},
+        {"spellID": 853, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player: watch the healer", "de": "Betäubt einen Spieler: auf den Heiler achten", "verified": true}
+      ]
+    },
+    {
+      "name": "Defias Blackguard",
+      "npcID": 636,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 6408, "spell": "Faded", "type": "adds", "en": "Stealthed elites: watch for hidden pulls near bosses", "de": "Getarnte Elite: auf versteckte Gegner bei Bossen achten"}
+      ]
+    }
+  ],
+  "rares": [
+    {
+      "name": "Miner Johnson",
+      "npcID": 3586,
+      "mechanics": [
+        {"spellID": 12097, "spell": "Pierce Armor", "type": "tank", "en": "Pierce armor lowers the tank's armor: heal more", "de": "Rüstung durchstechen senkt Tankrüstung: stärker heilen", "verified": true}
+      ]
+    }
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Deadmines_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Rhahk'Zor",
+    "https://warcraft.wiki.gg/wiki/Sneed's_Shredder",
+    "https://warcraft.wiki.gg/wiki/Sneed",
+    "https://warcraft.wiki.gg/wiki/Gilnid",
+    "https://warcraft.wiki.gg/wiki/Mr._Smite",
+    "https://warcraft.wiki.gg/wiki/Captain_Greenskin",
+    "https://warcraft.wiki.gg/wiki/Edwin_VanCleef",
+    "https://warcraft.wiki.gg/wiki/Edwin_VanCleef_(tactics)",
+    "https://warcraft.wiki.gg/wiki/Cookie",
+    "https://warcraft.wiki.gg/wiki/Defias_Evoker",
+    "https://warcraft.wiki.gg/wiki/Defias_Wizard",
+    "https://warcraft.wiki.gg/wiki/Goblin_Engineer",
+    "https://warcraft.wiki.gg/wiki/Defias_Blackguard",
+    "https://warcraft.wiki.gg/wiki/Miner_Johnson",
+    "https://warcraft.wiki.gg/wiki/Cruel_Barb",
+    "https://warcraft.wiki.gg/wiki/Taskmaster_Axe",
+    "https://warcraft.wiki.gg/wiki/Lavishly_Jeweled_Ring",
+    "https://warcraft.wiki.gg/wiki/Smite's_Mighty_Hammer",
+    "https://warcraft.wiki.gg/wiki/Emberstone_Staff",
+    "https://warcraft.wiki.gg/wiki/Cookie's_Stirring_Rod",
+    "https://warcraft.wiki.gg/wiki/Cape_of_the_Brotherhood",
+    "https://warcraft.wiki.gg/wiki/Blackened_Defias_Armor",
+    "https://warcraft.wiki.gg/wiki/Corsair's_Overshirt",
+    "https://www.wowhead.com/forever/guide/the-deadmines-dungeon-overview-location-rewards"
+  ]
+}

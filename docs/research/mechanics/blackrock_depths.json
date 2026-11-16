@@ -1,0 +1,399 @@
+{
+  "instance": "Blackrock Depths",
+  "instanceMapID": 230,
+  "kind": "dungeon",
+  "levels": [52, 60],
+  "bosses": [
+    {
+      "name": "Lord Roccor",
+      "npcID": 9025,
+      "level": 0,
+      "wing": "Halls of the Law",
+      "mechanics": [
+        {"spellID": 6524, "spell": "Ground Tremor", "type": "positioning", "en": "Stuns everyone within 20 yards for 2 sec; ranged stay at distance", "de": "Betäubt alle im 20-m-Umkreis für 2 Sek.; Fernkämpfer auf Abstand", "verified": true},
+        {"spellID": 13729, "spell": "Flame Shock", "type": "dispel", "en": "Fire hit plus a burn over 12 sec on one player", "de": "Feuertreffer plus 12 Sek. Brennschaden auf einem Spieler", "verified": true},
+        {"spellID": 13728, "spell": "Earth Shock", "type": "interrupt", "en": "Nature shock on a player: interrupt when you can", "de": "Naturschock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "High Interrogator Gerstahn",
+      "npcID": 9018,
+      "level": 0,
+      "wing": "Detention Block",
+      "mechanics": [
+        {"spellID": 13704, "spell": "Psychic Scream", "type": "survive", "en": "Fears up to 5 nearby players for 6 sec; watch for extra pulls", "de": "Fürchtet bis zu 5 Spieler in der Nähe 6 Sek.; Zusatzgruppen meiden", "verified": true},
+        {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Burns a lot of mana from one caster; interrupt it", "de": "Verbrennt viel Mana eines Zauberers; unterbrechen", "verified": true},
+        {"spellID": 12040, "spell": "Shadow Shield", "type": "dispel", "en": "Self shield that absorbs damage; purge or burn it down", "de": "Schild absorbiert Schaden; reinigen oder wegschlagen", "verified": true}
+      ]
+    },
+    {
+      "name": "Houndmaster Grebmar",
+      "npcID": 9319,
+      "level": 0,
+      "wing": "Halls of the Law",
+      "mechanics": [
+        {"spellID": 13730, "spell": "Demoralizing Shout", "type": "tank", "en": "Lowers melee attack power nearby; comes with two hounds", "de": "Senkt Angriffskraft in der Nähe; kommt mit zwei Hunden", "verified": true},
+        {"spellID": 0, "spell": "Run Away! Run Away!", "type": "positioning", "en": "Flees at 15% health; stop him before he pulls more mobs", "de": "Flieht bei 15 % Leben; aufhalten, bevor er Gegner holt"},
+        {"spellID": 21049, "spell": "Bloodlust", "type": "dispel", "en": "Bloodlust speeds him up: purge it or slow the tank damage", "de": "Kampfrausch beschleunigt ihn: reinigen oder Tank stärker heilen", "verified": true},
+        {"spellID": 15615, "spell": "Pummel", "type": "tank", "en": "Pummel interrupts casters in melee: healers stay at range", "de": "Zuschlagen unterbricht Zauberer im Nahkampf: Heiler auf Abstand", "verified": true}
+      ]
+    },
+    {
+      "name": "Gorosh the Dervish",
+      "npcID": 9027,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 13736, "spell": "Whirlwind", "type": "avoid", "en": "Spins and hits all within 8 yards; melee step out", "de": "Wirbelt und trifft alle in 8 m; Nahkämpfer raus"},
+        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "Harter Schlag, halbiert die Heilung am Tank 5 Sek."}
+      ]
+    },
+    {
+      "name": "Grizzle",
+      "npcID": 9028,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 6524, "spell": "Ground Tremor", "type": "positioning", "en": "Short AoE stun within 20 yards", "de": "Kurze Flächenbetäubung im 20-m-Umkreis"},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Attacks much faster below 50% health", "de": "Greift unter 50 % Leben viel schneller an", "verified": true}
+      ]
+    },
+    {
+      "name": "Eviscerator",
+      "npcID": 9029,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 7121, "spell": "Anti-Magic Shield", "type": "positioning", "en": "Immune to magic for 6 sec; casters pause, melee keep going", "de": "6 Sek. immun gegen Magie; Zauberer warten, Nahkampf weiter", "verified": true},
+        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow damage on everyone within 30 yards", "de": "Schattenschaden auf alle im 30-m-Umkreis"}
+      ]
+    },
+    {
+      "name": "Ok'thor the Breaker",
+      "npcID": 9030,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Turns a player into a sheep for 6 sec", "de": "Verwandelt einen Spieler 6 Sek. in ein Schaf"},
+        {"spellID": 13747, "spell": "Slow", "type": "dispel", "en": "Slows attacks, casts and movement within 20 yards", "de": "Verlangsamt Angriff, Zauber und Laufen im 20-m-Umkreis", "verified": true},
+        {"spellID": 15453, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone within 30 yards", "de": "Arkanstoß auf alle im 30-m-Umkreis"}
+      ]
+    },
+    {
+      "name": "Anub'shiah",
+      "npcID": 9031,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 15470, "spell": "Curse of Tongues", "type": "dispel", "en": "Casters in 30 yards cast 50% slower; decurse", "de": "Zauberer im 30-m-Umkreis wirken 50 % langsamer; entfluchen", "verified": true},
+        {"spellID": 15471, "spell": "Enveloping Web", "type": "survive", "en": "Roots and silences one player for 4 sec", "de": "Wurzelt und bringt einen Spieler 4 Sek. zum Schweigen", "verified": true},
+        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for a while", "de": "Nimmt einen Spieler eine Weile aus dem Kampf"}
+      ]
+    },
+    {
+      "name": "Hedrum the Creeper",
+      "npcID": 9032,
+      "level": 0,
+      "wing": "Ring of Law",
+      "mechanics": [
+        {"spellID": 3609, "spell": "Paralyzing Poison", "type": "dispel", "en": "Poison that stuns one player; cure poison", "de": "Gift betäubt einen Spieler; Gift entfernen", "verified": true},
+        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone within 30 yards for 5 sec", "de": "Fesselt alle im 30-m-Umkreis für 5 Sek.", "verified": true}
+      ]
+    },
+    {
+      "name": "Pyromancer Loregrain",
+      "npcID": 9024,
+      "level": 0,
+      "wing": "Shrine of Thaurissan",
+      "mechanics": [
+        {"spellID": 15038, "spell": "Scorching Totem", "type": "adds", "en": "Drops a fire totem that attacks; kill it quickly", "de": "Setzt ein Feuertotem, das angreift; schnell zerstören", "verified": true},
+        {"spellID": 15095, "spell": "Molten Blast", "type": "interrupt", "en": "Fire nuke on one player; interrupt it", "de": "Feuerzauber auf einen Spieler; unterbrechen", "verified": true},
+        {"spellID": 15616, "spell": "Flame Shock", "type": "dispel", "en": "Fire shock plus burn on a player: dispel or heal through", "de": "Feuerschock mit Brand auf einem Spieler: bannen oder gegenheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Warder Stilgiss",
+      "npcID": 9041,
+      "level": 0,
+      "wing": "Black Vault",
+      "mechanics": [
+        {"spellID": 12674, "spell": "Frost Nova", "type": "positioning", "en": "Frost damage and roots nearby players up to 8 sec", "de": "Frostschaden, fesselt nahe Spieler bis zu 8 Sek.", "verified": true},
+        {"spellID": 12675, "spell": "Frostbolt", "type": "interrupt", "en": "Frost bolt that slows; interrupt", "de": "Frostblitz mit Verlangsamung; unterbrechen", "verified": true},
+        {"spellID": 15042, "spell": "Curse of Blood", "type": "dispel", "en": "His dog Verek curses targets to take more physical damage", "de": "Sein Hund Verek verflucht: mehr erlittener körperlicher Schaden"}
+      ]
+    },
+    {
+      "name": "Watchman Doomgrip",
+      "npcID": 9476,
+      "level": 0,
+      "wing": "Black Vault",
+      "mechanics": [
+        {"spellID": 11971, "spell": "Sunder Armor", "type": "tank", "en": "Stacks armor reduction on the tank", "de": "Stapelt Rüstungsverringerung auf dem Tank"},
+        {"spellID": 15504, "spell": "Drink Healing Potion", "type": "survive", "en": "Drinks a potion to heal himself; burst him", "de": "Trinkt einen Heiltrank; Schaden bündeln"}
+      ]
+    },
+    {
+      "name": "Fineous Darkvire",
+      "npcID": 9056,
+      "level": 0,
+      "wing": "Hall of Crafting",
+      "mechanics": [
+        {"spellID": 15493, "spell": "Holy Light", "type": "interrupt", "en": "Heals himself or allies; interrupt the cast", "de": "Heilt sich oder Verbündete; Zauber unterbrechen", "verified": true},
+        {"spellID": 0, "spell": "", "type": "adds", "en": "Low damage, lots of health; kill his helpers first", "de": "Wenig Schaden, viel Leben; zuerst seine Helfer töten"},
+        {"spellID": 13953, "spell": "Holy Strike", "type": "tank", "en": "Holy strike hits the tank hard: keep healing steady", "de": "Heiliger Stoß trifft den Tank hart: gleichmäßig heilen", "verified": true},
+        {"spellID": 11978, "spell": "Kick", "type": "tank", "en": "Kicks casters next to him: healers keep their distance", "de": "Tritt Zauberer neben ihm: Heiler halten Abstand", "verified": true}
+      ]
+    },
+    {
+      "name": "Lord Incendius",
+      "npcID": 9017,
+      "level": 0,
+      "wing": "Black Anvil",
+      "mechanics": [
+        {"spellID": 13899, "spell": "Fire Storm", "type": "avoid", "en": "Flame pillar leaves burning ground for 30 sec; move out", "de": "Flammensäule hinterlässt 30 Sek. Feuerboden; rausgehen", "verified": true},
+        {"spellID": 14099, "spell": "Mighty Blow", "type": "positioning", "en": "Knocks the tank back; keep his back away from lava", "de": "Stößt den Tank zurück; Rücken nicht zur Lava", "verified": true},
+        {"spellID": 26977, "spell": "Curse of the Elemental Lord", "type": "dispel", "en": "Cuts fire resistance by 100 for 1 min; decurse", "de": "Senkt Feuerwiderstand 1 Min. um 100; entfluchen", "verified": true}
+      ]
+    },
+    {
+      "name": "Bael'Gar",
+      "npcID": 9016,
+      "level": 0,
+      "wing": "Dark Iron Highway",
+      "mechanics": [
+        {"spellID": 13895, "spell": "Summon Spawn of Bael'gar", "type": "adds", "en": "Summons fire spawns with a burst of fire damage", "de": "Ruft Feuerbrut mit Feuerstoß herbei", "verified": true},
+        {"spellID": 13880, "spell": "Magma Splash", "type": "tank", "en": "Fire hit plus a burn over 24 sec on the target", "de": "Feuertreffer plus 24 Sek. Brennschaden am Ziel", "verified": true}
+      ]
+    },
+    {
+      "name": "General Angerforge",
+      "npcID": 9033,
+      "level": 0,
+      "wing": "West Garrison",
+      "mechanics": [
+        {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "en": "Calls a wave of guards and medics at about 40% health", "de": "Ruft bei ca. 40 % Leben Wachen und Sanitäter"},
+        {"spellID": 15572, "spell": "Sunder Armor", "type": "tank", "en": "Stacks armor reduction on the tank", "de": "Stapelt Rüstungsverringerung auf dem Tank", "verified": true}
+      ]
+    },
+    {
+      "name": "Golem Lord Argelmach",
+      "npcID": 8983,
+      "level": 0,
+      "wing": "Manufactory",
+      "mechanics": [
+        {"spellID": 15305, "spell": "Chain Lightning", "type": "interrupt", "en": "Lightning jumps up to 5 players; spread and interrupt", "de": "Blitz springt auf bis zu 5 Spieler; verteilen, unterbrechen", "verified": true},
+        {"spellID": 0, "spell": "", "type": "adds", "en": "Two golem guards join; he runs and pulls uncleared mobs", "de": "Zwei Golemwachen helfen; er läuft und zieht Gegner mit"},
+        {"spellID": 15507, "spell": "Lightning Shield", "type": "positioning", "en": "Lightning shield hurts melee attackers: melee watch their health", "de": "Blitzschlagschild schadet Nahkämpfern: Nahkämpfer auf ihr Leben achten", "verified": true},
+        {"spellID": 15605, "spell": "Shock", "type": "interrupt", "en": "Shock on a player: interrupt when possible", "de": "Schock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Hurley Blackbreath",
+      "npcID": 9537,
+      "level": 0,
+      "wing": "Grim Guzzler",
+      "mechanics": [
+        {"spellID": 14872, "spell": "Drunken Rage", "type": "tank", "en": "Enrages: much faster and harder melee for 15 sec", "de": "Raserei: 15 Sek. schnellere, härtere Nahkampfschläge"},
+        {"spellID": 9573, "spell": "Flame Breath", "type": "positioning", "en": "Fire breath in a frontal cone; face him away", "de": "Feueratem im Frontkegel; vom Trupp wegdrehen"}
+      ]
+    },
+    {
+      "name": "Phalanx",
+      "npcID": 9502,
+      "level": 0,
+      "wing": "Grim Guzzler",
+      "mechanics": [
+        {"spellID": 0, "spell": "", "type": "positioning", "en": "Knocks players back; fight with walls behind you", "de": "Stößt Spieler zurück; mit Wand im Rücken kämpfen", "unverified": true}
+      ]
+    },
+    {
+      "name": "Plugger Spazzring",
+      "npcID": 9499,
+      "level": 0,
+      "wing": "Grim Guzzler",
+      "mechanics": [
+        {"spellID": 0, "spell": "Banish", "type": "survive", "en": "Warlock: banishes and curses; angering him pulls the bar", "de": "Hexer: verbannt, verflucht; Ärger zieht die ganze Bar", "unverified": true}
+      ]
+    },
+    {
+      "name": "Ribbly Screwspigot",
+      "npcID": 9543,
+      "level": 0,
+      "wing": "Grim Guzzler",
+      "mechanics": []
+    },
+    {
+      "name": "Ambassador Flamelash",
+      "npcID": 9156,
+      "level": 0,
+      "wing": "Chamber of Enchantment",
+      "mechanics": [
+        {"spellID": 13489, "spell": "Burning Spirit", "type": "adds", "en": "Spirits run to him from the runes; each one buffs him, kill them", "de": "Geister laufen von den Runen zu ihm, stärken ihn; töten", "verified": true}
+      ]
+    },
+    {
+      "name": "Panzor the Invincible",
+      "npcID": 8923,
+      "level": 0,
+      "wing": "Mold Foundry",
+      "mechanics": [
+        {"spellID": 9941, "spell": "Obsidian Reflection", "type": "positioning", "en": "Shield that can reflect spells; casters be careful", "de": "Schild kann Zauber zurückwerfen; Zauberer vorsichtig", "verified": true}
+      ]
+    },
+    {
+      "name": "The Seven",
+      "npcID": 9039,
+      "level": 0,
+      "wing": "Summoners' Tomb",
+      "mechanics": [
+        {"spellID": 0, "spell": "", "type": "adds", "en": "Seven dwarves attack one after another; last one is Doom'rel", "de": "Sieben Zwerge greifen nacheinander an; zuletzt Doom'rel"},
+        {"spellID": 0, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Doom'rel casts a shadow volley and summons voidwalkers", "de": "Doom'rel wirkt Schattensalve und ruft Leerwandler", "unverified": true}
+      ]
+    },
+    {
+      "name": "Magmus",
+      "npcID": 9938,
+      "level": 0,
+      "wing": "Iron Hall",
+      "mechanics": [
+        {"spellID": 24375, "spell": "War Stomp", "type": "positioning", "en": "Knockback and long stun on players near him", "de": "Rückstoß und lange Betäubung für nahe Spieler", "verified": true},
+        {"spellID": 13900, "spell": "Fiery Burst", "type": "avoid", "en": "Fire burst on an area; wall statues also shoot flames", "de": "Feuerstoß auf ein Gebiet; Wandstatuen speien Flammen", "verified": true}
+      ]
+    },
+    {
+      "name": "Princess Moira Bronzebeard",
+      "npcID": 8929,
+      "level": 0,
+      "wing": "Imperial Seat",
+      "mechanics": [
+        {"spellID": 15586, "spell": "Heal", "type": "interrupt", "en": "Heals the emperor; interrupt or crowd control her", "de": "Heilt den Imperator; unterbrechen oder kontrollieren", "verified": true},
+        {"spellID": 15587, "spell": "Mind Blast", "type": "survive", "en": "Shadow nuke on one player", "de": "Schattenzauber auf einen Spieler", "verified": true}
+      ]
+    },
+    {
+      "name": "Emperor Dagran Thaurissan",
+      "npcID": 9019,
+      "level": 0,
+      "wing": "Imperial Seat",
+      "mechanics": [
+        {"spellID": 15636, "spell": "Avatar of Flame", "type": "survive", "en": "Immune to magic for 10 sec, melee hits add fire", "de": "10 Sek. immun gegen Magie, Treffer mit Feuerschaden", "verified": true},
+        {"spellID": 17492, "spell": "Hand of Thaurissan", "type": "dispel", "en": "Fire hit that stuns a player for 5 sec", "de": "Feuertreffer betäubt einen Spieler 5 Sek.", "verified": true},
+        {"spellID": 0, "spell": "", "type": "positioning", "en": "Keep Moira alive (or not) - killing her changes rewards", "de": "Moira verschonen oder nicht - ändert die Belohnung", "unverified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Anvilrage Medic",
+      "npcID": 8894,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 0, "spell": "Prayer of Healing", "type": "interrupt", "en": "Heals single targets and groups; interrupt and kill first", "de": "Heilt Einzelne und Gruppen; unterbrechen, zuerst töten", "unverified": true}
+      ]
+    },
+    {
+      "name": "Doomforge Arcanasmith",
+      "npcID": 8900,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 13745, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone in melee range", "de": "Arkanstoß auf alle in Nahkampfreichweite"}
+      ]
+    },
+    {
+      "name": "Fireguard Destroyer",
+      "npcID": 8911,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 0, "spell": "Fireball Volley", "type": "survive", "en": "Fire volley hits everyone nearby; fire resist helps", "de": "Feuersalve trifft alle in der Nähe; Feuerwiderstand hilft", "unverified": true}
+      ]
+    },
+    {
+      "name": "Twilight Emissary",
+      "npcID": 8913,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15063, "spell": "Frost Nova", "type": "positioning", "en": "Roots nearby players in place", "de": "Fesselt Spieler in der Nähe"},
+        {"spellID": 15288, "spell": "Fury of Ragnaros", "type": "interrupt", "en": "Strong fire spell; interrupt it", "de": "Starker Feuerzauber; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Twilight's Hammer Torturer",
+      "npcID": 8912,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 13619, "spell": "Wracking Pains", "type": "dispel", "en": "Painful damage over time; remove it", "de": "Schmerzhafter Schaden über Zeit; entfernen"},
+        {"spellID": 14032, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over 18 sec; dispel magic", "de": "18 Sek. Schattenschaden; Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Bloodhound Mastiff",
+      "npcID": 8922,
+      "elite": false,
+      "mechanics": [
+        {"spellID": 15608, "spell": "Ravenous Claw", "type": "adds", "en": "Hounds come in packs and patrol; pull carefully", "de": "Hunde kommen im Rudel und patrouillieren; vorsichtig ziehen"},
+        {"spellID": 7140, "spell": "Expose Weakness", "type": "tank", "en": "Lowers the target's armor", "de": "Senkt die Rüstung des Ziels"}
+      ]
+    },
+    {
+      "name": "Molten War Golem",
+      "npcID": 8908,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15570, "spell": "Immolate", "type": "dispel", "en": "Fire damage over time; dispel magic", "de": "Feuerschaden über Zeit; Magie bannen"}
+      ]
+    },
+    {
+      "name": "Ragereaver Golem",
+      "npcID": 8906,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12795, "spell": "Frenzy", "type": "tank", "en": "Frenzies for more damage and attack speed", "de": "Raserei: mehr Schaden und Angriffstempo"}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Panzor the Invincible", "npcID": 8923}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Blackrock_Depths",
+    "https://www.wowisclassic.com/en/dungeon-guide/blackrock-depths/",
+    "https://almarsguides.com/wow/instances/classic/blackrockdepths/",
+    "https://warcraft.wiki.gg/wiki/Emperor_Dagran_Thaurissan",
+    "https://warcraft.wiki.gg/wiki/Lord_Roccor",
+    "https://warcraft.wiki.gg/wiki/High_Interrogator_Gerstahn",
+    "https://warcraft.wiki.gg/wiki/Bael%27Gar",
+    "https://warcraft.wiki.gg/wiki/Lord_Incendius",
+    "https://warcraft.wiki.gg/wiki/General_Angerforge",
+    "https://warcraft.wiki.gg/wiki/Golem_Lord_Argelmach",
+    "https://warcraft.wiki.gg/wiki/Magmus",
+    "https://warcraft.wiki.gg/wiki/Ambassador_Flamelash",
+    "https://warcraft.wiki.gg/wiki/Pyromancer_Loregrain",
+    "https://warcraft.wiki.gg/wiki/Warder_Stilgiss",
+    "https://warcraft.wiki.gg/wiki/Hurley_Blackbreath",
+    "https://warcraft.wiki.gg/wiki/Panzor_the_Invincible",
+    "https://warcraft.wiki.gg/wiki/Anub%27shiah",
+    "https://warcraft.wiki.gg/wiki/Ok%27thor_the_Breaker",
+    "https://warcraft.wiki.gg/wiki/Eviscerator",
+    "https://warcraft.wiki.gg/wiki/Hedrum_the_Creeper",
+    "https://warcraft.wiki.gg/wiki/Gorosh_the_Dervish",
+    "https://warcraft.wiki.gg/wiki/Grizzle",
+    "https://warcraft.wiki.gg/wiki/Doom%27rel",
+    "https://warcraft.wiki.gg/wiki/Watchman_Doomgrip",
+    "https://warcraft.wiki.gg/wiki/Fineous_Darkvire",
+    "https://warcraft.wiki.gg/wiki/Plugger_Spazzring",
+    "https://warcraft.wiki.gg/wiki/Houndmaster_Grebmar",
+    "https://warcraft.wiki.gg/wiki/Anvilrage_Medic",
+    "https://warcraft.wiki.gg/wiki/Doomforge_Arcanasmith",
+    "https://warcraft.wiki.gg/wiki/Fireguard_Destroyer",
+    "https://warcraft.wiki.gg/wiki/Twilight_Emissary",
+    "https://warcraft.wiki.gg/wiki/Bloodhound_Mastiff",
+    "https://warcraft.wiki.gg/wiki/Molten_War_Golem",
+    "https://warcraft.wiki.gg/wiki/Twilight%27s_Hammer_Torturer",
+    "https://warcraft.wiki.gg/wiki/Ragereaver_Golem",
+    "https://www.wowhead.com/classic/spell=17492",
+    "https://www.wowhead.com/classic/spell=15636",
+    "https://www.wowhead.com/classic/spell=15586",
+    "https://www.wowhead.com/classic/spell=15587",
+    "https://www.wowhead.com/forever/guide/blackrock-depths-dungeon-overview-location-rewards"
+  ]
+}

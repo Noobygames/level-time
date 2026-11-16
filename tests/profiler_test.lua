@@ -49,7 +49,7 @@ expect("nächster Handler läuft", after, true)
 wow.errors = {}
 
 -- Bericht: Chat und Debug-Log
-SlashCmdList.LEVELTIMER("debug log")
+addon.DebugLog.SetEnabled(true)
 local before = #wow.printed
 SlashCmdList.LEVELTIMER("debug perf report 3")
 local reportLines = 0
@@ -62,7 +62,7 @@ for _, line in ipairs(addon.DebugLog.Lines()) do
   if line:find('"area":"perf"', 1, true) then logged = logged + 1 end
 end
 expectTrue("ins Debug-Log geschrieben", logged > 3)
-SlashCmdList.LEVELTIMER("debug log")
+addon.DebugLog.SetEnabled(false)
 
 SlashCmdList.LEVELTIMER("debug perf reset")
 expect("zurückgesetzt", #Profiler.Results(), 0)

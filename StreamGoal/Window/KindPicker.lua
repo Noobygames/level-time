@@ -13,7 +13,6 @@ local _, ns = ...
 local LT = ns.LT
 local Goals = ns.Goals
 local Manager = ns.Manager
-local L = ns.L
 local Theme = LT.Theme
 
 local KindPicker = {}

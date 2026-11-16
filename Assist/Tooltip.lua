@@ -6,12 +6,19 @@
 --   tooltipKillsToLevel  Zeile "Kills bis Level-Up: 12" an angreifbaren Gegnern (MobXp.lua, Roadmap 274), gefärbt nach
 --                        Stufenabstand wie Blizzards Gegnerfarben (GetCreatureDifficultyColor, alle Clients), "~" =
 --                        nach der Formel geschätzt.
+--   tooltipKillCount     Zeile "12-mal getötet" an Gegnern (keine Spieler), die dieser Charakter schon getötet hat
+--                        (MobKills.lua, gleicher Name; Roadmap 499).
 --   tooltipAnchor        Welt-Tooltips (Standardanker mit UIParent als Besitzer: Einheiten und Objekte der Spielwelt)
 --                        am Mauszeiger statt in der Ecke: "cursor", "cursorLeft", "cursorRight"; "default" = Blizzard.
 --                        Post-Hook auf GameTooltip_SetDefaultAnchor (SharedTooltipTemplates.lua in allen Clients,
 --                        Classic zusätzlich GameTooltip.lua) setzt danach nur SetOwner neu; Blizzards Funktion bleibt.
 --   tooltipGuildRank     Gildenrang hinter dem Gildennamen in der Zeile, die Blizzard für die Gilde schreibt
 --                        (GetGuildInfo(unit) -> Name, Rang; alle Clients). Geheime Werte werden übergangen.
+--   dungeonQuestGivers   Zeilen "Dungeonquest: Titel (Instanz)" an NPCs, die eine Dungeonquest anbieten
+--                        (Assist/DungeonQuestGivers.lua).
+--   bagHints             Zeilen "Tasche: Name (N Plätze)" an Gebern von Taschen-Quests und Gegnern mit Taschen-Beute
+--                        (Assist/BagQuestMarks.lua).
+--   tooltipMechanics     Boss- und Trash-Mechaniken an Gegnern aus den Guide-Daten (Assist/MechanicTips.lua).
 --   tooltipScale         Größe der Spiel-Tooltips (GameTooltip, ItemRefTooltip und ihre Vergleichs-Tooltips), 1 = Blizzard;
 --                        umkehrbar über Overrides (SetScale, Tooltips sind nicht geschützt).
 -- Anschluss: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit) in allen Clients mit dem Tooltip-
@@ -26,6 +33,7 @@ ns.RegisterDefaults({
     tooltipTarget = false,
     tooltipHideInCombat = false,
     tooltipKillsToLevel = false,
+    tooltipKillCount = false,
     tooltipGuildRank = false,
     tooltipScale = 1,
     tooltipAnchor = "default",
@@ -37,8 +45,8 @@ local Tooltip = {}
 ns.Tooltip = Tooltip
 
 local TARGET_SUFFIX = "target"
-local NEUTRAL_COLOR = { 1, 1, 1 }
-local QUEST_COLOR = { 1, 0.82, 0 }
+local NEUTRAL_COLOR = ns.Theme.COLORS.text
+local QUEST_COLOR = ns.Theme.COLORS.gold
 
 local function readable(...)
   for index = 1, select("#", ...) do
@@ -85,6 +93,17 @@ function Tooltip.KillsLine(unit)
   return string.format(L.TOOLTIP_KILLS_TO_LEVEL, value), color
 end
 
+-- Text der Zeile "12-mal getötet", nil ohne Kill, bei geheimem Namen oder freundlichen Einheiten
+function Tooltip.KillCountLine(unit)
+  local canAttack = UnitCanAttack("player", unit)
+  if not readable(canAttack) or not canAttack then return nil end
+  local name = UnitName(unit)
+  if not readable(name) then return nil end
+  local count = ns.MobKills.Count(name)
+  if count == 0 then return nil end
+  return string.format(L.TOOLTIP_KILL_COUNT, ns.Format.Number(count))
+end
+
 local function onUnitTooltip(tooltip)
   if tooltip ~= GameTooltip or not ns.db then return end
   local unit = unitOf(tooltip)
@@ -103,15 +122,22 @@ local function onUnitTooltip(tooltip)
   if ns.db.tooltipKillsToLevel and not (readable(isPlayer) and isPlayer) then
     local text, color = Tooltip.KillsLine(unit)
     if text then tooltip:AddLine(text, unpack(color)) end
-    if ns.IsDebugging() then
+    if ns.DebugActive() then
       local name = UnitName(unit)
       ns.Debug("tooltip", "kills line for %s (level %s): %s", name, UnitLevel(unit), text)
     end
+  end
+  if ns.db.tooltipKillCount and readable(isPlayer) and not isPlayer then
+    local text = Tooltip.KillCountLine(unit)
+    if text then tooltip:AddLine(text, unpack(NEUTRAL_COLOR)) end
   end
   if ns.db.questLearning then
     local text = Tooltip.LearnedQuestLine(unit)
     if text then tooltip:AddLine(text, unpack(QUEST_COLOR)) end
   end
+  if ns.db.dungeonQuestGivers then ns.DungeonQuestGivers.AddUnitLines(tooltip, unit) end
+  if ns.db.bagHints then ns.BagQuestMarks.AddUnitLines(tooltip, unit) end
+  if ns.db.tooltipMechanics and ns.MechanicTips.IsAvailable() then ns.MechanicTips.AddUnitLines(tooltip, unit) end
 end
 
 -- Zeile mit dem Gildennamen (Blizzard schreibt sie ab Zeile 2) um den Rang ergänzen; true, wenn ergänzt
@@ -214,5 +240,9 @@ ns.RegisterApply(function(db)
   if Tooltip.ANCHORS[db.tooltipAnchor] then hookAnchor() end
   Tooltip.ApplyScale(db.tooltipScale)
   if db.tooltipClassColors or db.tooltipTarget or db.tooltipGuildRank or db.tooltipHideInCombat or db.tooltipKillsToLevel
-    or db.questLearning then hook() end
+    or db.tooltipKillCount or db.questLearning or (db.dungeonQuestGivers and ns.DungeonQuestGivers.IsAvailable())
+    or (db.bagHints and ns.BagQuestMarks.IsAvailable())
+    or (db.tooltipMechanics and ns.MechanicTips.IsAvailable()) then
+    hook()
+  end
 end)

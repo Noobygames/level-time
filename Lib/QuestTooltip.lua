@@ -105,28 +105,28 @@ function QuestTooltip.ProgressText(unit)
   return nil
 end
 
+-- Belohnungszeile (Roadmap 486) "Belohnung: 1.250 XP, 1g 20s"; nil ohne XP und Geld
+function QuestTooltip.RewardText(questID)
+  local parts = {}
+  local xp, money = ns.QuestLog.RewardXp(questID), ns.QuestLog.RewardMoney(questID)
+  if xp and xp > 0 then table.insert(parts, string.format(ns.L.INSTANCE_REPORT_XP, ns.Format.Integer(xp))) end
+  if money and money > 0 then table.insert(parts, ns.Format.Money(money)) end
+  if #parts == 0 then return nil end
+  return string.format(ns.L.QUEST_REWARD_LINE, table.concat(parts, ", "))
+end
+
+-- Belohnungszeile an einen offenen Tooltip hängen; true, wenn eine Zeile dazukam
+function QuestTooltip.AddRewardLine(tooltip, questID)
+  local text = QuestTooltip.RewardText(questID)
+  if not text then return false end
+  tooltip:AddLine(text, 1, 1, 1)
+  ns.Debug("quests", "reward line for %s: %s", questID, text)
+  return true
+end
+
 function QuestTooltip.Forget()
   cache = {}
 end
 
 ns.RegisterEvent("QUEST_LOG_UPDATE", QuestTooltip.Forget)
 ns.RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player", QuestTooltip.Forget)
-
--- /lt debug check (vor einem Questgegner mit Ziel): rohe Tooltipzeilen (Typ, Text, completed) und die Deutung
-ns.DebugLog.AddCheck("quests.unitTooltip", function()
-  local unit = "target"
-  local info = { hasTooltipInfo = QuestTooltip.HasTooltipInfo(), name = readable(UnitName(unit)), lines = {} }
-  if info.hasTooltipInfo then
-    local ok, data = pcall(C_TooltipInfo.GetUnit, unit)
-    if ok and type(data) == "table" and type(data.lines) == "table" then
-      for _, line in ipairs(data.lines) do
-        table.insert(info.lines, { type = readable(line.type), text = readable(line.leftText),
-          completed = readable(line.completed) })
-      end
-    end
-  end
-  QuestTooltip.Forget()
-  info.parsed = QuestTooltip.Objectives(unit)
-  info.progress = QuestTooltip.ProgressText(unit)
-  return info
-end)

@@ -87,6 +87,14 @@ function QuestLog.RewardXp(questID)
   return type(xp) == "number" and xp or nil
 end
 
+-- Geld (Kupfer), das die Abgabe bringt: GetQuestLogRewardMoney([questID]) laut warcraft.wiki.gg in allen Clients
+-- (ohne ID die zuletzt angesehene Quest); nil, wenn unbekannt. Ob Era die ID beachtet: check 486.questRewards
+function QuestLog.RewardMoney(questID)
+  if not GetQuestLogRewardMoney or type(questID) ~= "number" then return nil end
+  local money = readable((GetQuestLogRewardMoney(questID)))
+  return type(money) == "number" and money or nil
+end
+
 -- Titel einer Überschrift (Zone, Kategorie) an Position index; nil für Quests und Unlesbares
 local function headerTitle(index)
   if useInfoApi() then
@@ -182,6 +190,30 @@ function QuestLog.Find(questID)
   for _, entry in ipairs(QuestLog.Entries()) do
     if entry.questID == questID then return entry end
   end
+end
+
+local function clientTitle(questID, functionName)
+  local fn = C_QuestLog and C_QuestLog[functionName]
+  local title = fn and readable(fn(questID))
+  if type(title) == "string" and title ~= "" then return title end
+  return nil
+end
+
+-- Questtitel aus dem Client (C_QuestLog.GetTitleForQuestID in Retail/Forever, C_QuestLog.GetQuestInfo in Classic Era;
+-- beide ohne Gewähr, wenn der Client die Quest noch nicht kennt), sonst aus dem Questlog, sonst nil
+function QuestLog.Title(questID)
+  if type(questID) ~= "number" then return nil end
+  local title = clientTitle(questID, "GetTitleForQuestID") or clientTitle(questID, "GetQuestInfo")
+  if title then return title end
+  local entry = QuestLog.Find(questID)
+  return entry and entry.title or nil
+end
+
+-- Hat der eingeloggte Charakter die Quest abgegeben? C_QuestLog.IsQuestFlaggedCompleted (Doku: Retail, Forever,
+-- Classic Era), sonst das globale IsQuestFlaggedCompleted; nicht lesbar = false
+function QuestLog.IsFlaggedCompleted(questID)
+  local check = (C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted) or IsQuestFlaggedCompleted
+  return check ~= nil and readable(check(questID)) == true
 end
 
 -- Zone einer Quest gegenüber dem Aufenthaltsort des Spielers (Quest-Knöpfe nur in der richtigen Zone):

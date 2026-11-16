@@ -131,3 +131,11 @@ func TestCollectAndWriteLua(t *testing.T) {
 		t.Error("Datei muss LF haben")
 	}
 }
+
+func TestLuaStringKeepsUTF8ForLua51(t *testing.T) {
+	got := luaString("Électrocuteur 6000 \"x\" \\")
+	want := "\"Électrocuteur 6000 \\\"x\\\" \\\\\""
+	if got != want {
+		t.Fatalf("luaString = %s, want %s", got, want)
+	}
+}

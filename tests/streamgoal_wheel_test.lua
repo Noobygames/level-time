@@ -210,7 +210,6 @@ local won = Goals.Active()[1]
 expect("Gewinner entspricht Option 2", Goals.Title(won), streamGoal.Pool.Title(vote.options[2]))
 
 -- Button "Abstimmung" im Reiter Glücksrad
-local WheelView = streamGoal.WheelView
 expect("Abstimmungs-Button existiert", WheelView.voteButton ~= nil, true)
 streamGoal.Manager.Toggle("wheel")
 expect("Button beschriftet mit Abstimmung", WheelView.voteButton.label._text, L.SG_WHEEL_VOTE)

@@ -1,0 +1,410 @@
+{
+ "instance": "Blackwing Lair",
+ "instanceMapID": 469,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "Razorgore the Untamed",
+   "npcID": 12435,
+   "mechanics": [
+    {
+     "spellID": 19873,
+     "spell": "Destroy Egg",
+     "type": "adds",
+     "en": "Phase 1: mind-controlled boss breaks eggs while raid holds adds",
+     "de": "Phase 1: gesteuerter Boss zerstört Eier, Raid hält die Adds"
+    },
+    {
+     "spellID": 22425,
+     "spell": "Fireball Volley",
+     "type": "avoid",
+     "en": "Phase 2 fireball volley; hide behind pillars",
+     "de": "Phase 2 Feuerballsalve; hinter Säulen verstecken"
+    },
+    {
+     "spellID": 23023,
+     "spell": "Conflagration",
+     "type": "tank",
+     "en": "Disorients the tank with fire; another tank takes over",
+     "de": "Desorientiert den Tank mit Feuer; anderer Tank übernimmt"
+    }
+   ]
+  },
+  {
+   "name": "Vaelastrasz the Corrupt",
+   "npcID": 13020,
+   "mechanics": [
+    {
+     "spellID": 18173,
+     "spell": "Burning Adrenaline",
+     "type": "positioning",
+     "en": "Target dies after a while; leave the raid before exploding",
+     "de": "Ziel stirbt nach kurzer Zeit; vor der Explosion raus"
+    },
+    {
+     "spellID": 23461,
+     "spell": "Flame Breath",
+     "type": "positioning",
+     "en": "Frontal breath; only the tank stands in front",
+     "de": "Atem nach vorn; nur der Tank steht davor"
+    },
+    {
+     "spellID": 15847,
+     "spell": "Tail Sweep",
+     "type": "positioning",
+     "en": "Tail hits players behind him; stand at the sides",
+     "de": "Schwanz trifft Spieler hinter ihm; seitlich stehen"
+    },
+    {
+     "spellID": 23513,
+     "spell": "Essence of the Red",
+     "type": "survive",
+     "en": "Raid gets free mana and energy; burn him fast",
+     "de": "Raid erhält Mana und Energie; schnell töten"
+    }
+   ]
+  },
+  {
+   "name": "Broodlord Lashlayer",
+   "npcID": 12017,
+   "mechanics": [
+    {
+     "spellID": 24573,
+     "spell": "Mortal Strike",
+     "type": "tank",
+     "en": "Big hit that cuts healing on the tank",
+     "de": "Harter Schlag senkt Heilung am Tank"
+    },
+    {
+     "spellID": 23331,
+     "spell": "Blast Wave",
+     "type": "positioning",
+     "en": "Fire AoE around him; casters keep range",
+     "de": "Feuer-AoE um ihn; Zauberer auf Abstand"
+    },
+    {
+     "spellID": 18670,
+     "spell": "Knock Away",
+     "type": "tank",
+     "en": "Knocks the tank back and cuts threat; keep a backup tank",
+     "de": "Stößt Tank zurück, senkt Bedrohung; Ersatztank bereit"
+    }
+   ]
+  },
+  {
+   "name": "Firemaw",
+   "npcID": 11983,
+   "mechanics": [
+    {
+     "spellID": 23341,
+     "spell": "Flame Buffet",
+     "type": "positioning",
+     "en": "Stacking fire debuff on the raid; break line of sight",
+     "de": "Stapelnder Feuer-Debuff; Sichtlinie brechen"
+    },
+    {
+     "spellID": 23339,
+     "spell": "Wing Buffet",
+     "type": "tank",
+     "en": "Knocks back and drops threat; tanks swap",
+     "de": "Rückstoß senkt Bedrohung; Tanks wechseln"
+    },
+    {
+     "spellID": 22539,
+     "spell": "Shadow Flame",
+     "type": "tank",
+     "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
+     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+    }
+   ]
+  },
+  {
+   "name": "Ebonroc",
+   "npcID": 14601,
+   "mechanics": [
+    {
+     "spellID": 23340,
+     "spell": "Shadow of Ebonroc",
+     "type": "tank",
+     "en": "Heals him when he hits the cursed tank; swap tanks",
+     "de": "Heilt ihn bei Treffern auf verfluchten Tank; Tanks wechseln"
+    },
+    {
+     "spellID": 22539,
+     "spell": "Shadow Flame",
+     "type": "tank",
+     "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
+     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+    },
+    {
+     "spellID": 23339,
+     "spell": "Wing Buffet",
+     "type": "tank",
+     "en": "Knocks back and drops threat",
+     "de": "Rückstoß senkt Bedrohung"
+    }
+   ]
+  },
+  {
+   "name": "Flamegor",
+   "npcID": 11981,
+   "mechanics": [
+    {
+     "spellID": 23342,
+     "spell": "Frenzy",
+     "type": "tank",
+     "en": "Frenzy; hunters remove it with Tranquilizing Shot",
+     "de": "Raserei; Jäger entfernen sie per Einlullender Schuss"
+    },
+    {
+     "spellID": 22539,
+     "spell": "Shadow Flame",
+     "type": "tank",
+     "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
+     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+    },
+    {
+     "spellID": 23339,
+     "spell": "Wing Buffet",
+     "type": "tank",
+     "en": "Knocks back and drops threat",
+     "de": "Rückstoß senkt Bedrohung"
+    }
+   ]
+  },
+  {
+   "name": "Chromaggus",
+   "npcID": 14020,
+   "mechanics": [
+    {
+     "spellID": 23310,
+     "spell": "Time Lapse",
+     "type": "avoid",
+     "en": "One of two random breaths; hide behind the gate walls",
+     "de": "Einer von zwei Zufallsatems; hinter Torwänden verstecken"
+    },
+    {
+     "spellID": 23170,
+     "spell": "Brood Affliction: Bronze",
+     "type": "dispel",
+     "en": "Stuns randomly; only Hourglass Sand removes it",
+     "de": "Betäubt zufällig; nur Stundenglassand entfernt es"
+    },
+    {
+     "spellID": 23174,
+     "spell": "Chromatic Mutation",
+     "type": "dispel",
+     "en": "Five afflictions turn a player hostile; cleanse early",
+     "de": "Fünf Gebrechen machen Spieler feindlich; früh reinigen"
+    },
+    {
+     "spellID": 23128,
+     "spell": "Frenzy",
+     "type": "tank",
+     "en": "Frenzy; remove with Tranquilizing Shot",
+     "de": "Raserei; per Einlullender Schuss entfernen"
+    }
+   ]
+  },
+  {
+   "name": "Nefarian",
+   "npcID": 11583,
+   "mechanics": [
+    {
+     "spellID": 22539,
+     "spell": "Shadow Flame",
+     "type": "tank",
+     "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
+     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+    },
+    {
+     "spellID": 22686,
+     "spell": "Bellowing Roar",
+     "type": "survive",
+     "en": "Raid fear; Fear Ward or Tremor Totem",
+     "de": "Raidfurcht; Furchtzauberschutz oder Erdstoßtotem"
+    },
+    {
+     "spellID": 22687,
+     "spell": "Veil of Shadow",
+     "type": "dispel",
+     "en": "Curse cuts healing on the tank; decurse",
+     "de": "Fluch senkt Heilung am Tank; entfluchen"
+    },
+    {
+     "spellID": 23401,
+     "spell": "Corrupted Healing",
+     "type": "survive",
+     "en": "Priest class call: their heals hurt; priests stop healing",
+     "de": "Priester-Ruf: Heilungen schaden; Priester pausieren"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Death Talon Wyrmguard",
+   "npcID": 12460,
+   "mechanics": [
+    {
+     "spellID": 22277,
+     "spell": "Elemental Shield",
+     "type": "survive",
+     "en": "Immune to most schools; find the one it is weak to",
+     "de": "Gegen die meisten Schulen immun; Schwäche finden"
+    },
+    {
+     "spellID": 24375,
+     "spell": "War Stomp",
+     "type": "survive",
+     "en": "Stuns players close to it",
+     "de": "Betäubt Spieler in seiner Nähe"
+    }
+   ]
+  },
+  {
+   "name": "Death Talon Overseer",
+   "npcID": 12461,
+   "mechanics": [
+    {
+     "spellID": 22277,
+     "spell": "Elemental Shield",
+     "type": "survive",
+     "en": "Immune to most schools; find its weak school",
+     "de": "Gegen die meisten Schulen immun; Schwachstelle finden"
+    },
+    {
+     "spellID": 15754,
+     "spell": "Cleave",
+     "type": "positioning",
+     "en": "Cleaves in front; only the tank faces it",
+     "de": "Spaltet nach vorn; nur der Tank steht davor"
+    }
+   ]
+  },
+  {
+   "name": "Death Talon Captain",
+   "npcID": 12467,
+   "mechanics": [
+    {
+     "spellID": 22438,
+     "spell": "Mark of Detonation",
+     "type": "positioning",
+     "en": "Marked players explode when hit; spread out",
+     "de": "Markierte Spieler explodieren bei Treffern; verteilen"
+    },
+    {
+     "spellID": 22436,
+     "spell": "Aura of Flames",
+     "type": "survive",
+     "en": "Fire aura buffs the pack; kill the captain first",
+     "de": "Feueraura stärkt die Gruppe; Hauptmann zuerst"
+    },
+    {
+     "spellID": 22440,
+     "spell": "Commanding Shout",
+     "type": "survive",
+     "en": "Shout that boosts nearby allies",
+     "de": "Ruf stärkt nahe Verbündete"
+    }
+   ]
+  },
+  {
+   "name": "Blackwing Technician",
+   "npcID": 13996,
+   "mechanics": [
+    {
+     "spellID": 22334,
+     "spell": "Bomb",
+     "type": "avoid",
+     "en": "Throws bombs at the raid; step out of the blast",
+     "de": "Wirft Bomben auf den Raid; aus der Explosion gehen"
+    }
+   ]
+  },
+  {
+   "name": "Blackwing Spellbinder",
+   "npcID": 12457,
+   "mechanics": [
+    {
+     "spellID": 22274,
+     "spell": "Greater Polymorph",
+     "type": "dispel",
+     "en": "Polymorphs a player; dispel magic",
+     "de": "Verwandelt einen Spieler; Magie bannen"
+    },
+    {
+     "spellID": 22275,
+     "spell": "Flamestrike",
+     "type": "avoid",
+     "en": "Flamestrike on the ground; step out",
+     "de": "Flammenstoß am Boden; heraustreten"
+    }
+   ]
+  },
+  {
+   "name": "Blackwing Warlock",
+   "npcID": 12459,
+   "mechanics": [
+    {
+     "spellID": 22372,
+     "spell": "Demon Portal",
+     "type": "adds",
+     "en": "Opens a portal that summons felguards; kill or banish them",
+     "de": "Öffnet Portal mit Teufelswachen; töten oder verbannen"
+    }
+   ]
+  },
+  {
+   "name": "Blackwing Taskmaster",
+   "npcID": 12458,
+   "mechanics": [
+    {
+     "spellID": 22458,
+     "spell": "Healing Circle",
+     "type": "interrupt",
+     "en": "Heals nearby goblins; interrupt the cast",
+     "de": "Heilt nahe Goblins; Zauber unterbrechen"
+    }
+   ]
+  },
+  {
+   "name": "Death Talon Seether",
+   "npcID": 12464,
+   "mechanics": [
+    {
+     "spellID": 22428,
+     "spell": "Frenzy",
+     "type": "tank",
+     "en": "Frenzy; remove with Tranquilizing Shot",
+     "de": "Raserei; per Einlullender Schuss entfernen"
+    },
+    {
+     "spellID": 22433,
+     "spell": "Flame Buffet",
+     "type": "survive",
+     "en": "Stacking fire debuff on the raid",
+     "de": "Stapelnder Feuer-Debuff auf dem Raid"
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://www.wowhead.com/classic/npc=11583",
+  "https://www.wowhead.com/classic/npc=11981",
+  "https://www.wowhead.com/classic/npc=11983",
+  "https://www.wowhead.com/classic/npc=12017",
+  "https://www.wowhead.com/classic/npc=12435",
+  "https://www.wowhead.com/classic/npc=12457",
+  "https://www.wowhead.com/classic/npc=12458",
+  "https://www.wowhead.com/classic/npc=12459",
+  "https://www.wowhead.com/classic/npc=12460",
+  "https://www.wowhead.com/classic/npc=12461",
+  "https://www.wowhead.com/classic/npc=12464",
+  "https://www.wowhead.com/classic/npc=12467",
+  "https://www.wowhead.com/classic/npc=13020",
+  "https://www.wowhead.com/classic/npc=13996",
+  "https://www.wowhead.com/classic/npc=14020",
+  "https://www.wowhead.com/classic/npc=14601"
+ ]
+}

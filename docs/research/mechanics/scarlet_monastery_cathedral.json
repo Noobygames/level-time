@@ -1,0 +1,93 @@
+{
+  "instance": "Scarlet Monastery: Cathedral",
+  "instanceMapID": 189,
+  "kind": "dungeon",
+  "levels": [35, 45],
+  "bosses": [
+    {
+      "name": "High Inquisitor Fairbanks",
+      "npcID": 4542,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 22678, "spell": "Fear", "type": "survive", "en": "Fears a player; avoid running into extra pulls", "de": "Furcht auf Spieler; nicht in weitere Gruppen laufen"},
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals himself; interrupt his Heal", "de": "Heilt sich selbst; Heilung unterbrechen", "verified": true},
+        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse adds physical damage taken; decurse", "de": "Fluch erhoeht erlittenen Schaden; entfluchen", "verified": true},
+        {"spellID": 11647, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields himself: dispel the shield", "de": "Schildet sich selbst: Schild bannen", "verified": true},
+        {"spellID": 8399, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schlaefert einen Spieler ein: Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Scarlet Commander Mograine",
+      "npcID": 3976,
+      "level": 42,
+      "mechanics": [
+        {"spellID": 853, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player; healer must not be locked out long", "de": "Betaeubt Spieler; Heiler nicht lange ausfallen lassen", "verified": true},
+        {"spellID": 642, "spell": "Divine Shield", "type": "tank", "en": "Bubbles at low health; keep tanking, swap to Whitemane", "de": "Gottesschild bei wenig Leben; weitertanken", "verified": true},
+        {"spellID": 9257, "spell": "Lay on Hands", "type": "survive", "en": "After Whitemane revives him he fully heals her", "de": "Nach Wiederbelebung heilt er Weisskraehe voll", "verified": true},
+        {"spellID": 14518, "spell": "Crusader Strike", "type": "tank", "en": "Crusader strike hits the tank hard: heal steadily", "de": "Kreuzfahrerstoss trifft den Tank hart: gleichmaessig heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "High Inquisitor Whitemane",
+      "npcID": 3977,
+      "level": 42,
+      "mechanics": [
+        {"spellID": 9256, "spell": "Deep Sleep", "type": "survive", "en": "At half health she sleeps the whole party for 8 sec", "de": "Bei halbem Leben schlaeft die ganze Gruppe 8 Sek.", "verified": true},
+        {"spellID": 9232, "spell": "Scarlet Resurrection", "type": "survive", "en": "Revives Mograine while you sleep; both return full", "de": "Belebt Mograine im Schlaf; beide kommen voll zurueck", "verified": true},
+        {"spellID": 0, "spell": "Mind Control", "type": "dispel", "en": "Can mind control a player; dispel or CC them", "de": "Kann Spieler uebernehmen; bannen oder kontrollieren", "unverified": true},
+        {"spellID": 9481, "spell": "Holy Smite", "type": "interrupt", "en": "Holy smite on a player: interrupt it", "de": "Heiliges Feuer auf Spieler: unterbrechen", "verified": true},
+        {"spellID": 22187, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields herself: dispel the shield", "de": "Schildet sich selbst: Schild bannen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Scarlet Abbot",
+      "npcID": 4303,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 2054, "spell": "Heal", "type": "interrupt", "en": "Heals others and enrages low; kill and interrupt first", "de": "Heilt andere, wird wuetend; zuerst toeten, unterbrechen", "verified": true},
+        {"spellID": 139, "spell": "Renew", "type": "dispel", "en": "Renew heals over time: purge it or interrupt the next cast", "de": "Erneuerung heilt ueber Zeit: reinigen oder naechsten Zauber unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Scarlet Sorcerer",
+      "npcID": 4294,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8364, "spell": "Blizzard", "type": "avoid", "en": "Frost AoE on the ground; step out", "de": "Frost-Flaechenschaden am Boden; heraustreten"}
+      ]
+    },
+    {
+      "name": "Scarlet Wizard",
+      "npcID": 4300,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 1449, "spell": "Arcane Explosion", "type": "positioning", "en": "Spams AoE when players stack; fight it spread", "de": "Spammt AoE bei Gruppen; verteilt bekaempfen", "verified": true}
+      ]
+    },
+    {
+      "name": "Scarlet Champion",
+      "npcID": 4302,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17284, "spell": "Holy Strike", "type": "tank", "en": "Hard holy hits on the tank; worse with an Abbot", "de": "Harte Heiligschlaege auf Tank; schlimmer mit Abt", "verified": true}
+      ]
+    }
+  ],
+  "rares": [],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Scarlet_Monastery_Cathedral",
+    "https://warcraft.wiki.gg/wiki/High_Inquisitor_Fairbanks",
+    "https://warcraft.wiki.gg/wiki/Scarlet_Commander_Mograine",
+    "https://warcraft.wiki.gg/wiki/High_Inquisitor_Whitemane_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Scarlet_Abbot",
+    "https://warcraft.wiki.gg/wiki/Scarlet_Sorcerer",
+    "https://warcraft.wiki.gg/wiki/Scarlet_Wizard",
+    "https://warcraft.wiki.gg/wiki/Scarlet_Champion",
+    "https://warcraft.wiki.gg/wiki/Aegis_of_the_Scarlet_Commander",
+    "https://warcraft.wiki.gg/wiki/Hand_of_Righteousness",
+    "https://warcraft.wiki.gg/wiki/Inquisitor's_Shawl",
+    "https://www.wowhead.com/forever/guide/scarlet-monastery-cathedral-dungeon-overview-location-rewards"
+  ]
+}

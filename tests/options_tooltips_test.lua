@@ -21,7 +21,7 @@ local title, body = hover(clickable(L.AUTO_INSTANCE_TAB))
 expect("Schalter: Titel", title, L.AUTO_INSTANCE_TAB)
 expect("Schalter: Text", body, L.AUTO_INSTANCE_TAB_TIP)
 
-title, body = hover(clickable(L.HISTORY))
+_, body = hover(clickable(L.HISTORY))
 expect("Button: Text", body, L.HISTORY_TIP)
 
 title, body = hover(clickable("Deutsch"))
@@ -33,7 +33,7 @@ local sizeSlider = wow.findFrame(function(frame)
   local label = rawget(frame, "label")
   return label and label._text == L.WINDOW_SIZE and rawget(frame, "slider") ~= nil
 end)
-title, body = hover(sizeSlider.slider)
+_, body = hover(sizeSlider.slider)
 expect("Regler: Text", body, L.WINDOW_SIZE_TIP)
 
 -- Jede Statistik hat einen Tooltip-Text in jeder Sprache

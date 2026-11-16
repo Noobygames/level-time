@@ -1,0 +1,132 @@
+{
+  "instance": "Gnomeregan",
+  "instanceMapID": 90,
+  "kind": "dungeon",
+  "levels": [29, 38],
+  "bosses": [
+    {
+      "name": "Viscous Fallout",
+      "npcID": 7079,
+      "level": 30,
+      "mechanics": [
+        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Toxic Volley poisons the whole group; cure poison", "de": "Toxische Salve vergiftet die Gruppe; Gift entfernen"}
+      ]
+    },
+    {
+      "name": "Grubbis",
+      "npcID": 7361,
+      "level": 32,
+      "mechanics": [
+        {"spellID": 12057, "spell": "Strike", "type": "tank", "en": "Strike adds burst damage on the tank; Chomper fights beside him", "de": "Stoß verursacht Tankschaden; Chomper kämpft an seiner Seite"}
+      ]
+    },
+    {
+      "name": "Electrocutioner 6000",
+      "npcID": 6235,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 11085, "spell": "Chain Bolt", "type": "positioning", "en": "Chain Bolt jumps between players; spread out", "de": "Kettenblitz springt zwischen Spielern; verteilt stehen", "verified": true},
+        {"spellID": 11082, "spell": "Megavolt", "type": "survive", "en": "Megavolt deals heavy nature damage; keep health high", "de": "Megavolt macht hohen Naturschaden; Leben hoch halten", "verified": true},
+        {"spellID": 11084, "spell": "Shock", "type": "interrupt", "en": "Shock on a player: interrupt when possible", "de": "Schock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Crowd Pummeler 9-60",
+      "npcID": 6229,
+      "level": 32,
+      "mechanics": [
+        {"spellID": 8374, "spell": "Arcing Smash", "type": "positioning", "en": "Arcing Smash cleaves in front; only the tank faces him", "de": "Bogenschmettern trifft vorne; nur der Tank steht davor", "verified": true},
+        {"spellID": 10887, "spell": "Crowd Pummel", "type": "avoid", "en": "Crowd Pummel hits all nearby players; ranged stay out", "de": "Massenprügel trifft alle in der Nähe; Fernkämpfer bleiben weg", "verified": true},
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Dark Iron Ambassador",
+      "npcID": 6228,
+      "level": 33,
+      "mechanics": [
+        {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Interrupt Fireball", "de": "Feuerball unterbrechen", "verified": true},
+        {"spellID": 10870, "spell": "Summon Burning Servant", "type": "adds", "en": "Summons fire servants; pick them up or kill them", "de": "Ruft brennende Diener; abfangen oder töten", "verified": true}
+      ],
+      "rare": true
+    },
+    {
+      "name": "Mekgineer Thermaplugg",
+      "npcID": 7800,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 0, "spell": "Walking Bomb", "type": "adds", "en": "Bomb machines send homing bombs; press their buttons to stop them", "de": "Bombenmaschinen schicken Laufbomben; Knöpfe drücken stoppt sie", "unverified": true},
+        {"spellID": 11130, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Arcane Nullifier X-21",
+      "npcID": 6232,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 10831, "spell": "Reflection Field", "type": "avoid", "en": "Reflection Field bounces spells back; stop casting until it fades", "de": "Reflexionsfeld wirft Zauber zurück; nicht zaubern bis es weg ist"}
+      ]
+    },
+    {
+      "name": "Dark Iron Agent",
+      "npcID": 6212,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11802, "spell": "Dark Iron Land Mine", "type": "avoid", "en": "Drops land mines for ~450 damage; kill it at once, avoid mines", "de": "Legt Landminen (~450 Schaden); sofort töten, Minen meiden"}
+      ]
+    },
+    {
+      "name": "Mobile Alert System",
+      "npcID": 7849,
+      "elite": false,
+      "mechanics": [
+        {"spellID": 0, "spell": "Alarm", "type": "adds", "en": "Calls elite Mechanized Guardians if not destroyed fast", "de": "Ruft Elite-Wächter, wenn es nicht schnell zerstört wird", "unverified": true}
+      ]
+    },
+    {
+      "name": "Leprous Machinesmith",
+      "npcID": 6224,
+      "elite": false,
+      "mechanics": [
+        {"spellID": 10732, "spell": "Supercharge", "type": "adds", "en": "Supercharge speeds up nearby bots; kill the smith first", "de": "Überladung beschleunigt nahe Bots; Schmied zuerst töten"}
+      ]
+    },
+    {
+      "name": "Irradiated Pillager",
+      "npcID": 6329,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 9798, "spell": "Radiation", "type": "survive", "en": "Radiation damages players near it; heal through or kite", "de": "Strahlung schadet Spielern in der Nähe; gegenheilen oder wegziehen"},
+        {"spellID": 9771, "spell": "Radiation Bolt", "type": "interrupt", "en": "Radiation bolt on a player: interrupt it", "de": "Strahlungsblitz auf einen Spieler: unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Caverndeep Ambusher",
+      "npcID": 6207,
+      "mechanics": [
+        {"spellID": 7159, "spell": "Backstab", "type": "positioning", "en": "Backstabs players behind it: face it toward the tank", "de": "Meucheln von hinten: Gegner zum Tank drehen", "verified": true}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Dark Iron Ambassador", "npcID": 6228}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Gnomeregan_(instance)",
+    "https://warcraft.wiki.gg/wiki/Viscous_Fallout",
+    "https://warcraft.wiki.gg/wiki/Grubbis",
+    "https://warcraft.wiki.gg/wiki/Electrocutioner_6000",
+    "https://warcraft.wiki.gg/wiki/Crowd_Pummeler_9-60",
+    "https://warcraft.wiki.gg/wiki/Dark_Iron_Ambassador",
+    "https://warcraft.wiki.gg/wiki/Mekgineer_Thermaplugg_(tactics)",
+    "https://warcraft.wiki.gg/wiki/Arcane_Nullifier_X-21",
+    "https://warcraft.wiki.gg/wiki/Dark_Iron_Agent",
+    "https://warcraft.wiki.gg/wiki/Mobile_Alert_System",
+    "https://warcraft.wiki.gg/wiki/Leprous_Machinesmith",
+    "https://warcraft.wiki.gg/wiki/Irradiated_Pillager",
+    "https://warcraft.wiki.gg/api.php (item page Itemtip #Classic/#Forever blocks)",
+    "https://www.wowhead.com/forever/guide/gnomeregan-dungeon-overview-location-rewards"
+  ]
+}

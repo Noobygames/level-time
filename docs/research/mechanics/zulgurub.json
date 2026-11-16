@@ -1,0 +1,445 @@
+{
+ "instance": "Zul'Gurub",
+ "instanceMapID": 309,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "High Priestess Jeklik",
+   "npcID": 14517,
+   "mechanics": [
+    {
+     "spellID": 23954,
+     "spell": "Great Heal",
+     "type": "interrupt",
+     "en": "Heals herself; interrupt every cast",
+     "de": "Heilt sich selbst; jeden Zauber unterbrechen"
+    },
+    {
+     "spellID": 23918,
+     "spell": "Sonic Burst",
+     "type": "survive",
+     "en": "AoE silence around her",
+     "de": "Flächenstille um sie herum"
+    },
+    {
+     "spellID": 22884,
+     "spell": "Psychic Scream",
+     "type": "survive",
+     "en": "Fears players close to her",
+     "de": "Fürchtet Spieler in ihrer Nähe"
+    }
+   ]
+  },
+  {
+   "name": "High Priest Venoxis",
+   "npcID": 14507,
+   "mechanics": [
+    {
+     "spellID": 23860,
+     "spell": "Holy Fire",
+     "type": "interrupt",
+     "en": "Holy Fire on a player; interrupt or dispel",
+     "de": "Heiliges Feuer auf Spieler; unterbrechen oder bannen"
+    },
+    {
+     "spellID": 23861,
+     "spell": "Poison Cloud",
+     "type": "avoid",
+     "en": "Snake phase poison clouds; move out",
+     "de": "Schlangenphase Giftwolken; herausgehen"
+    },
+    {
+     "spellID": 23865,
+     "spell": "Parasitic Serpent",
+     "type": "adds",
+     "en": "Small snakes attack players; AoE them down",
+     "de": "Kleine Schlangen greifen an; per AoE töten"
+    }
+   ]
+  },
+  {
+   "name": "High Priestess Mar'li",
+   "npcID": 14510,
+   "mechanics": [
+    {
+     "spellID": 24083,
+     "spell": "Hatch Eggs",
+     "type": "adds",
+     "en": "Hatches spider eggs; kill spiders before they grow",
+     "de": "Brütet Spinneneier aus; Spinnen vor dem Wachsen töten"
+    },
+    {
+     "spellID": 24111,
+     "spell": "Corrosive Poison",
+     "type": "dispel",
+     "en": "Poison on players; cure poison",
+     "de": "Gift auf Spielern; Gift heilen"
+    },
+    {
+     "spellID": 24300,
+     "spell": "Drain Life",
+     "type": "interrupt",
+     "en": "Drains life from a player; interrupt",
+     "de": "Saugt Leben von Spieler; unterbrechen"
+    }
+   ]
+  },
+  {
+   "name": "High Priest Thekal",
+   "npcID": 14509,
+   "mechanics": [
+    {
+     "spellID": 24208,
+     "spell": "Great Heal",
+     "type": "interrupt",
+     "en": "Heals; interrupt; kill all three priests near together",
+     "de": "Heilt; unterbrechen; alle drei Priester fast gleichzeitig töten"
+    },
+    {
+     "spellID": 24183,
+     "spell": "Summon Zulian Guardians",
+     "type": "adds",
+     "en": "Tiger phase calls guardians; tank them away",
+     "de": "Tigerphase ruft Wächter; weg tanken"
+    },
+    {
+     "spellID": 21060,
+     "spell": "Blind",
+     "type": "survive",
+     "en": "Blinds a player for a while",
+     "de": "Blendet einen Spieler eine Zeit lang"
+    }
+   ]
+  },
+  {
+   "name": "High Priestess Arlokk",
+   "npcID": 14515,
+   "mechanics": [
+    {
+     "spellID": 24210,
+     "spell": "Mark of Arlokk",
+     "type": "adds",
+     "en": "Panthers hunt the marked player; protect or kite",
+     "de": "Panther jagen den Markierten; schützen oder kiten"
+    },
+    {
+     "spellID": 24212,
+     "spell": "Shadow Word: Pain",
+     "type": "dispel",
+     "en": "Shadow DoT; dispel magic",
+     "de": "Schatten-DoT; Magie bannen"
+    }
+   ]
+  },
+  {
+   "name": "Bloodlord Mandokir",
+   "npcID": 11382,
+   "mechanics": [
+    {
+     "spellID": 24314,
+     "spell": "Threatening Gaze",
+     "type": "avoid",
+     "en": "Gaze target must not act or move until it ends",
+     "de": "Ziel des Blicks darf nichts tun, bis er endet"
+    },
+    {
+     "spellID": 24318,
+     "spell": "Enrage",
+     "type": "tank",
+     "en": "Grows stronger after kills; avoid deaths",
+     "de": "Wird mit Toden stärker; Tode vermeiden"
+    },
+    {
+     "spellID": 16856,
+     "spell": "Mortal Strike",
+     "type": "tank",
+     "en": "Big hit that cuts healing on the tank",
+     "de": "Harter Schlag senkt Heilung am Tank"
+    }
+   ]
+  },
+  {
+   "name": "Jin'do the Hexxer",
+   "npcID": 11380,
+   "mechanics": [
+    {
+     "spellID": 24262,
+     "spell": "Summon Brain Wash Totem",
+     "type": "adds",
+     "en": "Totem mind-controls a player; destroy it fast",
+     "de": "Totem übernimmt einen Spieler; schnell zerstören"
+    },
+    {
+     "spellID": 24309,
+     "spell": "Powerful Healing Ward",
+     "type": "adds",
+     "en": "Ward heals Jin'do; kill it at once",
+     "de": "Schutz heilt Jin'do; sofort töten"
+    },
+    {
+     "spellID": 24306,
+     "spell": "Delusions of Jin'do",
+     "type": "dispel",
+     "en": "Curse lets you see shades; kill shades, then decurse",
+     "de": "Fluch zeigt Schemen; Schemen töten, dann entfluchen"
+    },
+    {
+     "spellID": 17172,
+     "spell": "Hex",
+     "type": "dispel",
+     "en": "Hexes the tank; dispel magic",
+     "de": "Verhext den Tank; Magie bannen"
+    }
+   ]
+  },
+  {
+   "name": "Hakkar",
+   "npcID": 14834,
+   "mechanics": [
+    {
+     "spellID": 24324,
+     "spell": "Blood Siphon",
+     "type": "survive",
+     "en": "Drains the raid; carry Poisonous Blood to avoid it healing",
+     "de": "Saugt den Raid aus; Giftblut verhindert seine Heilung"
+    },
+    {
+     "spellID": 24328,
+     "spell": "Corrupted Blood",
+     "type": "positioning",
+     "en": "Spreading blood DoT; stay spread out",
+     "de": "Sich ausbreitender Blut-DoT; verteilt stehen"
+    },
+    {
+     "spellID": 24327,
+     "spell": "Cause Insanity",
+     "type": "dispel",
+     "en": "Mind-controls a player; crowd-control or dispel",
+     "de": "Übernimmt einen Spieler; kontrollieren oder bannen"
+    }
+   ]
+  },
+  {
+   "name": "Gahz'ranka",
+   "npcID": 15114,
+   "mechanics": [
+    {
+     "spellID": 22421,
+     "spell": "Massive Geyser",
+     "type": "survive",
+     "en": "Throws players into the air; fall damage hurts",
+     "de": "Schleudert Spieler hoch; Fallschaden"
+    },
+    {
+     "spellID": 16099,
+     "spell": "Frost Breath",
+     "type": "positioning",
+     "en": "Frontal frost breath; stand at his sides",
+     "de": "Frostatem nach vorn; seitlich stehen"
+    }
+   ]
+  },
+  {
+   "name": "Gri'lek",
+   "npcID": 15082,
+   "mechanics": [
+    {
+     "spellID": 24646,
+     "spell": "Avatar",
+     "type": "positioning",
+     "en": "Grows and chases a random player; that player kites",
+     "de": "Wächst und jagt zufälligen Spieler; dieser kitet"
+    },
+    {
+     "spellID": 24648,
+     "spell": "Entangling Roots",
+     "type": "dispel",
+     "en": "Roots players; dispel magic",
+     "de": "Wurzelt Spieler fest; Magie bannen"
+    }
+   ]
+  },
+  {
+   "name": "Hazza'rah",
+   "npcID": 15083,
+   "mechanics": [
+    {
+     "spellID": 24728,
+     "spell": "Summon Nightmare Illusions",
+     "type": "adds",
+     "en": "Illusions spawn; kill them quickly",
+     "de": "Illusionen erscheinen; schnell töten"
+    },
+    {
+     "spellID": 24664,
+     "spell": "Sleep",
+     "type": "dispel",
+     "en": "Puts players to sleep; dispel magic",
+     "de": "Schläfert Spieler ein; Magie bannen"
+    },
+    {
+     "spellID": 24684,
+     "spell": "Chain Burn",
+     "type": "survive",
+     "en": "Chained mana burn on casters",
+     "de": "Kettenmanabrand auf Zauberer"
+    }
+   ]
+  },
+  {
+   "name": "Renataki",
+   "npcID": 15084,
+   "mechanics": [
+    {
+     "spellID": 24699,
+     "spell": "Vanish",
+     "type": "tank",
+     "en": "Vanishes and reappears on someone; tank re-picks him",
+     "de": "Verschwindet, taucht bei jemandem auf; Tank holt ihn"
+    },
+    {
+     "spellID": 24649,
+     "spell": "Thousand Blades",
+     "type": "survive",
+     "en": "Blade flurry on nearby players",
+     "de": "Klingenwirbel auf nahe Spieler"
+    }
+   ]
+  },
+  {
+   "name": "Wushoolay",
+   "npcID": 15085,
+   "mechanics": [
+    {
+     "spellID": 24683,
+     "spell": "Lightning Cloud",
+     "type": "avoid",
+     "en": "Lightning cloud on the ground; step out",
+     "de": "Blitzwolke am Boden; heraustreten"
+    },
+    {
+     "spellID": 24680,
+     "spell": "Chain Lightning",
+     "type": "positioning",
+     "en": "Chain lightning jumps; spread out",
+     "de": "Kettenblitz springt; verteilen"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Gurubashi Berserker",
+   "npcID": 11352,
+   "mechanics": [
+    {
+     "spellID": 11130,
+     "spell": "Knock Away",
+     "type": "tank",
+     "en": "Knocks the tank away and drops threat",
+     "de": "Schlägt den Tank weg, Bedrohung sinkt"
+    },
+    {
+     "spellID": 15588,
+     "spell": "Thunderclap",
+     "type": "positioning",
+     "en": "AoE slow and damage around it",
+     "de": "Flächenschaden und Verlangsamung um ihn"
+    },
+    {
+     "spellID": 8269,
+     "spell": "Enrage",
+     "type": "survive",
+     "en": "Enrages at low health; burn it down",
+     "de": "Wütet bei wenig Leben; schnell töten"
+    }
+   ]
+  },
+  {
+   "name": "Gurubashi Axe Thrower",
+   "npcID": 11350,
+   "mechanics": [
+    {
+     "spellID": 24018,
+     "spell": "Axe Flurry",
+     "type": "survive",
+     "en": "Throws axes around; heavy group damage",
+     "de": "Wirft Äxte um sich; viel Gruppenschaden"
+    }
+   ]
+  },
+  {
+   "name": "Hakkari Shadowcaster",
+   "npcID": 11338,
+   "mechanics": [
+    {
+     "spellID": 20741,
+     "spell": "Shadow Bolt Volley",
+     "type": "interrupt",
+     "en": "Shadow bolt volley on the group; interrupt",
+     "de": "Schattenblitzsalve auf Gruppe; unterbrechen"
+    },
+    {
+     "spellID": 22947,
+     "spell": "Mana Burn",
+     "type": "survive",
+     "en": "Burns a caster's mana",
+     "de": "Verbrennt das Mana eines Zauberers"
+    }
+   ]
+  },
+  {
+   "name": "Gurubashi Blood Drinker",
+   "npcID": 11353,
+   "mechanics": [
+    {
+     "spellID": 24435,
+     "spell": "Drain Life",
+     "type": "interrupt",
+     "en": "Drains life; interrupt",
+     "de": "Saugt Leben; unterbrechen"
+    }
+   ]
+  },
+  {
+   "name": "Hakkari Witch Doctor",
+   "npcID": 11831,
+   "mechanics": [
+    {
+     "spellID": 24053,
+     "spell": "Hex",
+     "type": "dispel",
+     "en": "Hexes a player; dispel",
+     "de": "Verhext einen Spieler; bannen"
+    },
+    {
+     "spellID": 24054,
+     "spell": "Shrink",
+     "type": "dispel",
+     "en": "Shrinks a player and lowers damage; dispel",
+     "de": "Schrumpft Spieler, senkt Schaden; bannen"
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://www.wowhead.com/classic/npc=11338",
+  "https://www.wowhead.com/classic/npc=11350",
+  "https://www.wowhead.com/classic/npc=11352",
+  "https://www.wowhead.com/classic/npc=11353",
+  "https://www.wowhead.com/classic/npc=11380",
+  "https://www.wowhead.com/classic/npc=11382",
+  "https://www.wowhead.com/classic/npc=11831",
+  "https://www.wowhead.com/classic/npc=14507",
+  "https://www.wowhead.com/classic/npc=14509",
+  "https://www.wowhead.com/classic/npc=14510",
+  "https://www.wowhead.com/classic/npc=14515",
+  "https://www.wowhead.com/classic/npc=14517",
+  "https://www.wowhead.com/classic/npc=14834",
+  "https://www.wowhead.com/classic/npc=15082",
+  "https://www.wowhead.com/classic/npc=15083",
+  "https://www.wowhead.com/classic/npc=15084",
+  "https://www.wowhead.com/classic/npc=15085",
+  "https://www.wowhead.com/classic/npc=15114"
+ ]
+}

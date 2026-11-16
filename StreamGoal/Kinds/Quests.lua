@@ -50,9 +50,7 @@ end
 local function questName(goal, questID)
   local name = goal.params.names[questID]
   if name then return name end
-  local title = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID)
-  if title and not LT.IsSecret(title) then return title end
-  return string.format(L.SG_QUEST_UNKNOWN, questID)
+  return LT.QuestLog.Title(questID) or string.format(L.SG_QUEST_UNKNOWN, questID)
 end
 
 -- Erledigt von vorn: so viele Quests der Kette sind ohne Lücke abgegeben

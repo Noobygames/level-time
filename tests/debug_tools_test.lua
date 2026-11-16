@@ -49,7 +49,8 @@ SlashCmdList.LEVELTIMER("debug alert levelUp")
 expect("Einblendung Level-Up per Befehl", LevelTimerAlert.text:GetText(), string.format(L.ALERT_LEVEL_UP, addon.level + 1))
 before = #wow.printed
 SlashCmdList.LEVELTIMER("debug alert quatsch")
-expectTrue("unbekannte Art: Liste", printedSince(before, "kinds: elite, levelUp, loot, nearDeath, questComplete, questObjective, rare, rareSpotted"))
+expectTrue("unbekannte Art: Liste", printedSince(before,
+  "kinds: elite, eliteSpotted, levelUp, loot, nearDeath, questComplete, questObjective, rare, rareSpotted"))
 
 for _, command in ipairs({ "remind", "death", "splits" }) do
   before = #wow.printed
@@ -59,7 +60,7 @@ end
 
 before = #wow.printed
 SlashCmdList.LEVELTIMER("debug unbekannt")
-expectTrue("Hilfe bei unbekanntem Befehl", printedSince(before, L.DEBUG_HELP))
+expectTrue("Hilfe bei unbekanntem Befehl", printedSince(before, extractor.L.DEBUG_HELP))
 
 expect("Kills unverändert", addon.Stats.Get(addon.Stats.LEVEL, addon.Stats.PVE_KILLS), kills)
 expect("Journal unverändert", #addon.character.killLog, journalSize)

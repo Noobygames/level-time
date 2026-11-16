@@ -1,7 +1,6 @@
 -- Level Time Goals, Roadmap 311: Gruppenziele (PartySync), Ziele teilen und gemeinsamen Fortschritt austauschen.
 local Goals = streamGoal.Goals
 local PartySync = streamGoal.PartySync
-local L = streamGoal.L
 
 wow.login({ level = 20, name = "Held", inGroup = true })
 expectTrue("StreamGoal Addon-Präfix registriert", wow.addonPrefixes["StreamGoal"] == true)

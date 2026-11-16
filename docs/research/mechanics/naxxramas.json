@@ -1,0 +1,673 @@
+{
+ "instance": "Naxxramas",
+ "instanceMapID": 533,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "Anub'Rekhan",
+   "npcID": 15956,
+   "mechanics": [
+    {
+     "spellID": 28785,
+     "spell": "Locust Swarm",
+     "type": "avoid",
+     "en": "Locust Swarm silences and hurts nearby players; kite him away",
+     "de": "Heuschreckenschwarm schweigt und verletzt Nahe; Boss wegziehen (kiten)"
+    },
+    {
+     "spellID": 28783,
+     "spell": "Impale",
+     "type": "positioning",
+     "en": "Impale hits a line and knocks players up; spread out",
+     "de": "Aufspießen trifft eine Linie und schleudert hoch; verteilen"
+    },
+    {
+     "spellID": 28969,
+     "spell": "Acid Spit",
+     "type": "adds",
+     "en": "Crypt Guards spit acid and spawn scarabs on death; off-tank them",
+     "de": "Gruftwächter spucken Säure, hinterlassen Skarabäen; separat tanken"
+    }
+   ]
+  },
+  {
+   "name": "Grand Widow Faerlina",
+   "npcID": 15953,
+   "mechanics": [
+    {
+     "spellID": 28796,
+     "spell": "Poison Bolt Volley",
+     "type": "dispel",
+     "en": "Poison volley on several players; cure poison quickly",
+     "de": "Giftblitzsalve auf mehrere Spieler; Gift schnell entfernen"
+    },
+    {
+     "spellID": 28794,
+     "spell": "Rain of Fire",
+     "type": "avoid",
+     "en": "Leave Rain of Fire areas at once",
+     "de": "Feuerregen-Flächen sofort verlassen"
+    },
+    {
+     "spellID": 28798,
+     "spell": "Enrage",
+     "type": "tank",
+     "en": "Enrage boosts her damage; sacrifice a Worshipper to remove it",
+     "de": "Wutanfall erhöht ihren Schaden; Anbeter opfern, um ihn zu entfernen"
+    }
+   ]
+  },
+  {
+   "name": "Maexxna",
+   "npcID": 15952,
+   "mechanics": [
+    {
+     "spellID": 28622,
+     "spell": "Web Wrap",
+     "type": "adds",
+     "en": "Web Wrap cocoons players on the wall; ranged break them free",
+     "de": "Netzwickel spinnt Spieler an der Wand ein; Fernkämpfer befreien sie"
+    },
+    {
+     "spellID": 29484,
+     "spell": "Web Spray",
+     "type": "survive",
+     "en": "Web Spray stuns the raid every 40 sec; top up health before",
+     "de": "Netzspray betäubt den Raid alle 40 Sek.; vorher hochheilen"
+    },
+    {
+     "spellID": 28776,
+     "spell": "Necrotic Poison",
+     "type": "dispel",
+     "en": "Necrotic Poison cuts healing on the tank; cure it",
+     "de": "Nekrotisches Gift senkt Heilung am Tank; entgiften"
+    },
+    {
+     "spellID": 28747,
+     "spell": "Enrage",
+     "type": "tank",
+     "en": "Enrages at 30% health; save cooldowns for the end",
+     "de": "Wutanfall bei 30 % Leben; Cooldowns fürs Ende aufheben"
+    }
+   ]
+  },
+  {
+   "name": "Noth the Plaguebringer",
+   "npcID": 15954,
+   "mechanics": [
+    {
+     "spellID": 29213,
+     "spell": "Curse of the Plaguebringer",
+     "type": "dispel",
+     "en": "Curse spreads damage to allies if it expires; decurse fast",
+     "de": "Fluch verbreitet Schaden, wenn er ausläuft; schnell entfluchen"
+    },
+    {
+     "spellID": 29211,
+     "spell": "Blink",
+     "type": "tank",
+     "en": "Blink resets his threat; tanks pick him up again",
+     "de": "Blinzeln setzt Bedrohung zurück; Tanks ihn neu aufnehmen"
+    },
+    {
+     "spellID": 29212,
+     "spell": "Cripple",
+     "type": "survive",
+     "en": "Cripple slows nearby players and their attacks",
+     "de": "Verkrüppeln verlangsamt Spieler in der Nähe und ihre Angriffe"
+    },
+    {
+     "spellID": 0,
+     "spell": "Summon Plagued Warriors",
+     "type": "adds",
+     "en": "Waves of skeletons spawn, more on his balcony phase; AoE them",
+     "de": "Skelettwellen erscheinen, mehr in der Balkonphase; flächig töten",
+     "unverified": true
+    }
+   ]
+  },
+  {
+   "name": "Heigan the Unclean",
+   "npcID": 15936,
+   "mechanics": [
+    {
+     "spellID": 29371,
+     "spell": "Eruption",
+     "type": "avoid",
+     "en": "Floor sections erupt in turns; dance to the safe zone",
+     "de": "Bodenzonen brechen nacheinander aus; in die sichere Zone tanzen"
+    },
+    {
+     "spellID": 29998,
+     "spell": "Decrepit Fever",
+     "type": "dispel",
+     "en": "Disease lowers max health; cure disease",
+     "de": "Krankheit senkt maximales Leben; Krankheit heilen"
+    },
+    {
+     "spellID": 29310,
+     "spell": "Mana Burn",
+     "type": "positioning",
+     "en": "Burns mana nearby; casters stay out of range",
+     "de": "Manabrand in der Nähe; Zauberer halten Abstand"
+    }
+   ]
+  },
+  {
+   "name": "Loatheb",
+   "npcID": 16011,
+   "mechanics": [
+    {
+     "spellID": 29185,
+     "spell": "Corrupted Mind",
+     "type": "survive",
+     "en": "Each healer can heal only once per minute; rotate healers",
+     "de": "Jeder Heiler darf nur einmal pro Minute heilen; Heiler rotieren"
+    },
+    {
+     "spellID": 29204,
+     "spell": "Inevitable Doom",
+     "type": "survive",
+     "en": "Huge shadow damage that speeds up; use shadow protection",
+     "de": "Großer Schattenschaden in immer kürzeren Abständen; Schattenschutz nutzen"
+    },
+    {
+     "spellID": 29234,
+     "spell": "Summon Spore",
+     "type": "adds",
+     "en": "Kill spores near your group for a crit buff",
+     "de": "Sporen bei der eigenen Gruppe töten für Kritbonus"
+    }
+   ]
+  },
+  {
+   "name": "Instructor Razuvious",
+   "npcID": 16061,
+   "mechanics": [
+    {
+     "spellID": 26613,
+     "spell": "Unbalancing Strike",
+     "type": "tank",
+     "en": "Hits players far too hard; tank him with mind-controlled students",
+     "de": "Trifft Spieler viel zu hart; mit übernommenen Schülern tanken"
+    },
+    {
+     "spellID": 29107,
+     "spell": "Disrupting Shout",
+     "type": "positioning",
+     "en": "Burns mana of everyone in range; casters keep distance",
+     "de": "Verbrennt Mana aller in Reichweite; Zauberer halten Abstand"
+    },
+    {
+     "spellID": 29061,
+     "spell": "Shield Wall",
+     "type": "tank",
+     "en": "Students use Shield Wall and Taunt to swap tanking",
+     "de": "Schüler nutzen Schildwall und Spott zum Tankwechsel"
+    }
+   ]
+  },
+  {
+   "name": "Gothik the Harvester",
+   "npcID": 16060,
+   "mechanics": [
+    {
+     "spellID": 0,
+     "spell": "Unrelenting adds",
+     "type": "adds",
+     "en": "Living adds arrive on one side, become spirits on the other side",
+     "de": "Lebende Gegner kommen auf einer Seite, werden auf der anderen zu Geistern",
+     "unverified": true
+    },
+    {
+     "spellID": 28679,
+     "spell": "Harvest Soul",
+     "type": "survive",
+     "en": "Stacking stat loss once he joins; kill him fast",
+     "de": "Stapelnder Werteverlust, sobald er eingreift; schnell töten"
+    },
+    {
+     "spellID": 29317,
+     "spell": "Shadow Bolt",
+     "type": "survive",
+     "en": "Shadow Bolts on random players after he comes down",
+     "de": "Schattenblitze auf zufällige Spieler, wenn er herabkommt"
+    }
+   ]
+  },
+  {
+   "name": "The Four Horsemen",
+   "npcID": 16062,
+   "mechanics": [
+    {
+     "spellID": 28834,
+     "spell": "Mark of Mograine",
+     "type": "tank",
+     "en": "Each Horseman marks; stacking marks hurt, tanks rotate",
+     "de": "Jeder Reiter markiert; Stapel schmerzen, Tanks rotieren"
+    },
+    {
+     "spellID": 28863,
+     "spell": "Void Zone",
+     "type": "avoid",
+     "en": "Lady Blaumeux places void zones; step out",
+     "de": "Lady Blaumeux setzt Leerenzonen; heraustreten"
+    },
+    {
+     "spellID": 28884,
+     "spell": "Meteor",
+     "type": "positioning",
+     "en": "Korth'azz's Meteor is split among nearby players; stack",
+     "de": "Meteor von Korth'azz wird aufgeteilt; zusammenstehen"
+    },
+    {
+     "spellID": 28883,
+     "spell": "Holy Wrath",
+     "type": "positioning",
+     "en": "Zeliek's Holy Wrath chains; spread out around him",
+     "de": "Heiliger Zorn von Zeliek springt; um ihn verteilen"
+    }
+   ]
+  },
+  {
+   "name": "Patchwerk",
+   "npcID": 16028,
+   "mechanics": [
+    {
+     "spellID": 28308,
+     "spell": "Hateful Strike",
+     "type": "tank",
+     "en": "Hits the healthiest melee near him; extra tanks soak it",
+     "de": "Trifft den gesündesten Nahkämpfer; weitere Tanks fangen ihn ab"
+    },
+    {
+     "spellID": 0,
+     "spell": "Enrage",
+     "type": "survive",
+     "en": "Enrages at 5% health; burn him down",
+     "de": "Wutanfall bei 5 % Leben; schnell töten",
+     "unverified": true
+    }
+   ]
+  },
+  {
+   "name": "Grobbulus",
+   "npcID": 15931,
+   "mechanics": [
+    {
+     "spellID": 28169,
+     "spell": "Mutating Injection",
+     "type": "positioning",
+     "en": "Injected players run out of the raid before it bursts",
+     "de": "Injizierte laufen vor dem Platzen aus dem Raid"
+    },
+    {
+     "spellID": 28240,
+     "spell": "Poison Cloud",
+     "type": "avoid",
+     "en": "Leaves growing poison clouds; tank moves him along the edge",
+     "de": "Hinterlässt wachsende Giftwolken; Tank zieht ihn am Rand entlang"
+    },
+    {
+     "spellID": 28157,
+     "spell": "Slime Spray",
+     "type": "positioning",
+     "en": "Frontal spray spawns slimes; face him away from the raid",
+     "de": "Frontales Spray erzeugt Schleime; vom Raid wegdrehen"
+    }
+   ]
+  },
+  {
+   "name": "Gluth",
+   "npcID": 15932,
+   "mechanics": [
+    {
+     "spellID": 28374,
+     "spell": "Decimate",
+     "type": "adds",
+     "en": "Drops everyone to 5%; kite and kill zombies before he eats them",
+     "de": "Senkt alle auf 5 %; Zombies kiten und töten, bevor er sie frisst"
+    },
+    {
+     "spellID": 25646,
+     "spell": "Mortal Wound",
+     "type": "tank",
+     "en": "Stacking healing cut on the tank; swap tanks",
+     "de": "Stapelnde Heilungsminderung am Tank; Tanks wechseln"
+    },
+    {
+     "spellID": 29685,
+     "spell": "Terrifying Roar",
+     "type": "survive",
+     "en": "Area fear; use fear ward or tremor",
+     "de": "Flächenfurcht; Furchtzauberschutz oder Erdstoß nutzen"
+    }
+   ]
+  },
+  {
+   "name": "Thaddius",
+   "npcID": 15928,
+   "mechanics": [
+    {
+     "spellID": 28089,
+     "spell": "Polarity Shift",
+     "type": "positioning",
+     "en": "Players get plus or minus charge; stand with the same charge",
+     "de": "Spieler erhalten Plus- oder Minusladung; zur gleichen Ladung stellen"
+    },
+    {
+     "spellID": 28167,
+     "spell": "Chain Lightning",
+     "type": "survive",
+     "en": "Chain Lightning jumps through the raid; spread and heal",
+     "de": "Kettenblitz springt durch den Raid; verteilen und heilen"
+    },
+    {
+     "spellID": 22839,
+     "spell": "Magnetic Pull",
+     "type": "tank",
+     "en": "Stalagg and Feugen swap tanks; kill both close together",
+     "de": "Stalagg und Feugen tauschen Tanks; beide nah zusammen töten",
+     "version": "classic"
+    },
+    {
+     "spellID": 27680,
+     "spell": "Berserk",
+     "type": "survive",
+     "en": "Berserk after a few minutes; kill him quickly",
+     "de": "Berserker nach einigen Minuten; schnell töten"
+    }
+   ]
+  },
+  {
+   "name": "Sapphiron",
+   "npcID": 15989,
+   "mechanics": [
+    {
+     "spellID": 28531,
+     "spell": "Frost Aura",
+     "type": "survive",
+     "en": "Constant raid frost damage; frost resistance gear needed",
+     "de": "Ständiger Frostschaden am Raid; Frostresistenz nötig"
+    },
+    {
+     "spellID": 28522,
+     "spell": "Icebolt",
+     "type": "positioning",
+     "en": "Air phase: players turn to ice; hide behind the ice blocks",
+     "de": "Flugphase: Spieler werden zu Eis; hinter Eisblöcken verstecken"
+    },
+    {
+     "spellID": 28524,
+     "spell": "Frost Breath",
+     "type": "avoid",
+     "en": "Frost Breath kills anyone not behind an ice block",
+     "de": "Frostatem tötet jeden ohne Deckung hinter einem Eisblock"
+    },
+    {
+     "spellID": 28542,
+     "spell": "Life Drain",
+     "type": "dispel",
+     "en": "Life Drain curse heals him; decurse fast",
+     "de": "Lebensentzug-Fluch heilt ihn; schnell entfluchen"
+    }
+   ]
+  },
+  {
+   "name": "Kel'Thuzad",
+   "npcID": 15990,
+   "mechanics": [
+    {
+     "spellID": 28410,
+     "spell": "Chains of Kel'Thuzad",
+     "type": "dispel",
+     "en": "Mind-controls players; crowd-control or break the charm",
+     "de": "Übernimmt Spieler; kontrollieren oder Bezauberung brechen"
+    },
+    {
+     "spellID": 27808,
+     "spell": "Frost Blast",
+     "type": "survive",
+     "en": "Frost Blast freezes and chains to nearby players; heal fast",
+     "de": "Frostschlag friert ein und springt auf Nahe; schnell heilen"
+    },
+    {
+     "spellID": 27810,
+     "spell": "Shadow Fissure",
+     "type": "avoid",
+     "en": "Move out of a Shadow Fissure immediately",
+     "de": "Schattenspalt sofort verlassen"
+    },
+    {
+     "spellID": 28478,
+     "spell": "Frostbolt",
+     "type": "interrupt",
+     "en": "Interrupt his single-target Frostbolt on the tank",
+     "de": "Seinen Frostblitz auf den Tank unterbrechen"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Stoneskin Gargoyle",
+   "npcID": 16168,
+   "mechanics": [
+    {
+     "spellID": 28995,
+     "spell": "Stoneskin",
+     "type": "interrupt",
+     "en": "Turns to stone to heal at low health; stun or interrupt",
+     "de": "Wird bei wenig Leben zu Stein und heilt; betäuben oder unterbrechen"
+    },
+    {
+     "spellID": 29325,
+     "spell": "Acid Volley",
+     "type": "survive",
+     "en": "Acid bolts with damage over time; heal through",
+     "de": "Säurebolzen mit Schaden über Zeit; durchheilen"
+    }
+   ]
+  },
+  {
+   "name": "Plagued Gargoyle",
+   "npcID": 16446,
+   "mechanics": [
+    {
+     "spellID": 29325,
+     "spell": "Acid Volley",
+     "type": "survive",
+     "en": "Acid volley hits several players with damage over time",
+     "de": "Säuresalve trifft mehrere Spieler mit Schaden über Zeit"
+    }
+   ]
+  },
+  {
+   "name": "Living Monstrosity",
+   "npcID": 16021,
+   "mechanics": [
+    {
+     "spellID": 28293,
+     "spell": "Chain Lightning",
+     "type": "interrupt",
+     "en": "Interrupt its Chain Lightning",
+     "de": "Kettenblitz unterbrechen"
+    },
+    {
+     "spellID": 28294,
+     "spell": "Lightning Totem",
+     "type": "adds",
+     "en": "Kill its Lightning Totem at once",
+     "de": "Blitzschlagtotem sofort zerstören"
+    }
+   ]
+  },
+  {
+   "name": "Death Knight Captain",
+   "npcID": 16145,
+   "mechanics": [
+    {
+     "spellID": 28335,
+     "spell": "Whirlwind",
+     "type": "positioning",
+     "en": "Whirlwind hits all melee; casters keep distance",
+     "de": "Wirbelwind trifft alle Nahkämpfer; Zauberer Abstand halten"
+    }
+   ]
+  },
+  {
+   "name": "Necro Knight",
+   "npcID": 16165,
+   "mechanics": [
+    {
+     "spellID": 30094,
+     "spell": "Frost Nova",
+     "type": "positioning",
+     "en": "Frost Nova roots players nearby",
+     "de": "Frostnova wurzelt Spieler in der Nähe fest"
+    },
+    {
+     "spellID": 30091,
+     "spell": "Flamestrike",
+     "type": "avoid",
+     "en": "Leave Flamestrike and Blizzard areas",
+     "de": "Flammenstoß- und Blizzard-Flächen verlassen"
+    },
+    {
+     "spellID": 30095,
+     "spell": "Cone of Cold",
+     "type": "positioning",
+     "en": "Cone of Cold in front; only the tank faces it",
+     "de": "Kältekegel nach vorn; nur der Tank steht davor"
+    }
+   ]
+  },
+  {
+   "name": "Venom Stalker",
+   "npcID": 15976,
+   "mechanics": [
+    {
+     "spellID": 28431,
+     "spell": "Poison Charge",
+     "type": "dispel",
+     "en": "Charge poisons all within 10 yards; cure poison",
+     "de": "Ansturm vergiftet alle im Umkreis von 10 Metern; entgiften"
+    }
+   ]
+  },
+  {
+   "name": "Patchwork Golem",
+   "npcID": 16017,
+   "mechanics": [
+    {
+     "spellID": 27793,
+     "spell": "Disease Cloud",
+     "type": "positioning",
+     "en": "Disease aura around it; ranged stay away",
+     "de": "Krankheitsaura um ihn; Fernkämpfer bleiben weg"
+    },
+    {
+     "spellID": 27794,
+     "spell": "Cleave",
+     "type": "positioning",
+     "en": "Cleave hits players beside the tank",
+     "de": "Spalten trifft Spieler neben dem Tank"
+    }
+   ]
+  },
+  {
+   "name": "Bile Retcher",
+   "npcID": 16018,
+   "mechanics": [
+    {
+     "spellID": 27807,
+     "spell": "Bile Vomit",
+     "type": "positioning",
+     "en": "Frontal nature cone; face it away from the raid",
+     "de": "Frontaler Naturkegel; vom Raid wegdrehen"
+    }
+   ]
+  },
+  {
+   "name": "Shade of Naxxramas",
+   "npcID": 16164,
+   "mechanics": [
+    {
+     "spellID": 28383,
+     "spell": "Portal of Shadows",
+     "type": "adds",
+     "en": "Summons demons until killed; burn it fast",
+     "de": "Beschwört Dämonen bis zum Tod; schnell töten"
+    },
+    {
+     "spellID": 28407,
+     "spell": "Shadow Bolt Volley",
+     "type": "survive",
+     "en": "Shadow volley on the raid; shadow protection helps",
+     "de": "Schattensalve auf den Raid; Schattenschutz hilft"
+    }
+   ]
+  },
+  {
+   "name": "Death Knight Cavalier",
+   "npcID": 16163,
+   "mechanics": [
+    {
+     "spellID": 28413,
+     "spell": "Aura of Agony",
+     "type": "dispel",
+     "en": "Shadow curse over time; decurse",
+     "de": "Schattenfluch über Zeit; entfluchen"
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://warcraft.wiki.gg/wiki/Naxxramas_loot_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Anub%27Rekhan_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Grand_Widow_Faerlina_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Maexxna_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Noth_the_Plaguebringer_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Heigan_the_Unclean_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Loatheb_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Instructor_Razuvious_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Gothik_the_Harvester_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Four_Horsemen_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Patchwerk_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Grobbulus_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Gluth_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Thaddius_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Sapphiron_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Kel%27Thuzad_(Classic)",
+  "https://warcraft.wiki.gg/wiki/Stoneskin_Gargoyle",
+  "https://warcraft.wiki.gg/wiki/Plagued_Gargoyle",
+  "https://warcraft.wiki.gg/wiki/Living_Monstrosity",
+  "https://warcraft.wiki.gg/wiki/Death_Knight_Captain",
+  "https://warcraft.wiki.gg/wiki/Necro_Knight",
+  "https://warcraft.wiki.gg/wiki/Venom_Stalker",
+  "https://warcraft.wiki.gg/wiki/Patchwork_Golem",
+  "https://warcraft.wiki.gg/wiki/Bile_Retcher",
+  "https://warcraft.wiki.gg/wiki/Shade_of_Naxxramas",
+  "https://warcraft.wiki.gg/wiki/Death_Knight_Cavalier",
+  "https://www.wowhead.com/classic/spell=28796",
+  "https://nether.wowhead.com/classic/tooltip/spell/28167",
+  "https://nether.wowhead.com/classic/tooltip/spell/28169",
+  "https://nether.wowhead.com/classic/tooltip/spell/28374",
+  "https://nether.wowhead.com/classic/tooltip/spell/29685",
+  "https://nether.wowhead.com/classic/tooltip/spell/28240",
+  "https://nether.wowhead.com/classic/tooltip/spell/28157",
+  "https://nether.wowhead.com/classic/tooltip/spell/28308",
+  "https://nether.wowhead.com/classic/tooltip/spell/29185",
+  "https://nether.wowhead.com/classic/tooltip/spell/29204",
+  "https://nether.wowhead.com/classic/tooltip/spell/29234",
+  "https://nether.wowhead.com/classic/tooltip/spell/29310",
+  "https://nether.wowhead.com/classic/tooltip/spell/28478",
+  "https://nether.wowhead.com/classic/tooltip/spell/28995",
+  "https://nether.wowhead.com/classic/tooltip/spell/28431",
+  "https://nether.wowhead.com/classic/tooltip/spell/28293",
+  "https://nether.wowhead.com/classic/tooltip/spell/28294",
+  "https://nether.wowhead.com/classic/tooltip/spell/28335",
+  "https://nether.wowhead.com/classic/tooltip/spell/29325",
+  "https://nether.wowhead.com/classic/tooltip/spell/27793"
+ ]
+}

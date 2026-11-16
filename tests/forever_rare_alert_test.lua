@@ -41,3 +41,27 @@ wow.login({ level = 30 })
 wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 expect("neue Session", LevelTimerNotice.title:GetText(), string.format(L.ALERT_RARE_SPOTTED, "Mor'Ladim"))
 expect("Fehler?", #wow.errors, 0)
+
+-- Gefährliche Elite (LT-16): solo, draußen, Stufe >= eigene, je Name einmal
+Alerts.Clear()
+wow.login({ level = 30 })
+wow.state.units.nameplate2 = { name = "Eliteoger", classification = "elite", level = 30 }
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
+expect("Elite aus: nichts", LevelTimerNotice:IsShown(), false)
+addon.Set("alertEliteSpotted", true)
+wow.state.inGroup = true
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
+expect("Gruppe: nichts", LevelTimerNotice:IsShown(), false)
+wow.state.inGroup = false
+wow.state.units.nameplate3 = { name = "Schwacher", classification = "elite", level = 25 }
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
+expect("niedrige Stufe: nichts", LevelTimerNotice:IsShown(), false)
+wow.state.units.nameplate4 = { name = "Geheim", classification = wow.SECRET, level = 30 }
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate4")
+expect("geheim: nichts", LevelTimerNotice:IsShown(), false)
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
+expect("Elite gemeldet", LevelTimerNotice.title:GetText(), string.format(L.ALERT_ELITE_SPOTTED, "Eliteoger"))
+Alerts.Clear()
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
+expect("Elite nur einmal", LevelTimerNotice:IsShown(), false)
+expect("Fehler (Elite)?", #wow.errors, 0)

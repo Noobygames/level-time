@@ -11,7 +11,6 @@ local LT = ns.LT
 local Goals = ns.Goals
 local L = ns.L
 local Card = LT.Card
-local Widgets = LT.Widgets
 local Alerts = LT.Alerts
 local Theme = LT.Theme
 

@@ -1,4 +1,5 @@
--- Animationen der Glitzer-Schichten (Roadmap 456, 466, 467, 468, 475, 476): je Name eine Funktion(Textur, Schichtdefinition) -> AnimationGroup.
+-- Animationen der Glitzer-Schichten (Roadmap 456, 466, 467, 468, 475, 476): je Name eine Funktion(Textur, Schichtdefinition) ->
+-- AnimationGroup.
 -- Nur Blizzard-AnimationGroups (Alpha, Scale, Rotation, Translation), kein OnUpdate. Die Namen stehen in
 -- LootSparkleStyles.LAYERS (animation = Schleife, readyAnimation = einmalig beim Wechsel auf "ready").
 local _, ns = ...

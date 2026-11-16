@@ -1,0 +1,275 @@
+{
+  "instance": "Sunken Temple",
+  "instanceMapID": 109,
+  "kind": "dungeon",
+  "levels": [49, 56],
+  "bosses": [
+    {
+      "name": "Atal'alarion",
+      "npcID": 8580,
+      "level": 50,
+      "mechanics": [
+        {"spellID": 12887, "spell": "Sweeping Slam", "type": "positioning", "en": "Sweeping Slam knocks back players in front; melee behind", "de": "Fegender Schlag stößt vorn zurück; Nahkampf hinter ihn", "verified": true},
+        {"spellID": 6524, "spell": "Ground Tremor", "type": "survive", "en": "Ground Tremor stuns players close to him", "de": "Erdbeben betäubt Spieler in seiner Nähe"}
+      ]
+    },
+    {
+      "name": "Zolo",
+      "npcID": 5712,
+      "level": 51,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 12058, "spell": "Chain Lightning", "type": "interrupt", "en": "Chain Lightning jumps between players; interrupt it", "de": "Kettenblitz springt zwischen Spielern; unterbrechen"},
+        {"spellID": 12506, "spell": "Atal'ai Skeleton Totem", "type": "adds", "en": "Drops a skeleton totem; destroy it", "de": "Stellt ein Skeletttotem; zerstören"}
+      ]
+    },
+    {
+      "name": "Gasher",
+      "npcID": 5713,
+      "level": 51,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 15580, "spell": "Strike", "type": "tank", "en": "Heavy melee strikes on the tank", "de": "Harte Nahkampfschläge auf den Tank"}
+      ]
+    },
+    {
+      "name": "Loro",
+      "npcID": 5714,
+      "level": 51,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 9205, "spell": "Hate to Zero", "type": "tank", "en": "Wipes his threat list; tank must taunt back fast", "de": "Setzt seine Bedrohung zurück; Tank schnell zurückspotten"},
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Shield Slam hits the tank hard", "de": "Schildschlag trifft den Tank hart"}
+      ]
+    },
+    {
+      "name": "Hukku",
+      "npcID": 5715,
+      "level": 52,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 12790, "spell": "Hukku's Guardians", "type": "adds", "en": "Summons demon pets; kill the pets", "de": "Beschwört Dämonen; Begleiter töten"},
+        {"spellID": 9081, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Shadow Bolt Volley hits the group; interrupt", "de": "Schattenblitzsalve trifft die Gruppe; unterbrechen"},
+        {"spellID": 12279, "spell": "Curse of Blood", "type": "dispel", "en": "Curse of Blood raises damage taken; decurse", "de": "Fluch des Blutes erhöht erlittenen Schaden; entfluchen"}
+      ]
+    },
+    {
+      "name": "Zul'Lor",
+      "npcID": 5716,
+      "level": 52,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 15584, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm"},
+        {"spellID": 12530, "spell": "Frailty", "type": "dispel", "en": "Frailty curse weakens players; decurse", "de": "Gebrechlichkeit schwächt Spieler; entfluchen"}
+      ]
+    },
+    {
+      "name": "Mijan",
+      "npcID": 5717,
+      "level": 52,
+      "wing": "Troll balcony",
+      "mechanics": [
+        {"spellID": 11899, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it right away", "de": "Stellt einen Heilungszauberschutz; sofort zerstören"},
+        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with Healing Wave; interrupt", "de": "Heilt mit Welle der Heilung; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Jammal'an the Prophet",
+      "npcID": 5710,
+      "level": 54,
+      "mechanics": [
+        {"spellID": 12480, "spell": "Hex of Jammal'an", "type": "dispel", "en": "Hex turns a player against the group; dispel or CC", "de": "Verhexung wendet einen Spieler gegen die Gruppe; bannen oder CC"},
+        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with Healing Wave; interrupt", "de": "Heilt mit Welle der Heilung; unterbrechen"},
+        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "adds", "en": "Earthgrab Totem roots players; destroy it", "de": "Totem des Erdgriffs wurzelt fest; zerstören"}
+      ]
+    },
+    {
+      "name": "Ogom the Wretched",
+      "npcID": 5711,
+      "level": 53,
+      "mechanics": [
+        {"spellID": 11660, "spell": "Shadow Bolt", "type": "interrupt", "en": "Casts Shadow Bolts; interrupt", "de": "Wirkt Schattenblitze; unterbrechen", "verified": true},
+        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse of Weakness on melee; decurse", "de": "Fluch der Schwäche auf Nahkämpfern; entfluchen", "verified": true},
+        {"spellID": 23952, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden über Zeit: Magie auf dem Ziel bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Dreamscythe",
+      "npcID": 5721,
+      "level": 53,
+      "mechanics": [
+        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg", "verified": true},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand", "verified": true}
+      ]
+    },
+    {
+      "name": "Weaver",
+      "npcID": 5720,
+      "level": 51,
+      "mechanics": [
+        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg", "verified": true},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand", "verified": true}
+      ]
+    },
+    {
+      "name": "Morphaz",
+      "npcID": 5719,
+      "level": 52,
+      "mechanics": [
+        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg"},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand"}
+      ]
+    },
+    {
+      "name": "Hazzas",
+      "npcID": 5722,
+      "level": 53,
+      "mechanics": [
+        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg"},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand"}
+      ]
+    },
+    {
+      "name": "Avatar of Hakkar",
+      "npcID": 8443,
+      "level": 50,
+      "mechanics": [
+        {"spellID": 12888, "spell": "Cause Insanity", "type": "survive", "en": "Cause Insanity takes control of a player; CC them", "de": "Wahnsinn verursachen übernimmt einen Spieler; per CC sichern", "verified": true},
+        {"spellID": 12889, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse of Tongues slows casting; decurse", "de": "Fluch der Sprachen verlangsamt Zauber; entfluchen", "verified": true},
+        {"spellID": 25852, "spell": "Lash", "type": "positioning", "en": "Lash knocks players back: tank against a wall", "de": "Peitschen schleudert zurück: an der Wand tanken", "verified": true}
+      ]
+    },
+    {
+      "name": "Shade of Eranikus",
+      "npcID": 5709,
+      "level": 55,
+      "mechanics": [
+        {"spellID": 12890, "spell": "Deep Slumber", "type": "survive", "en": "Deep Slumber puts players to sleep; keep healers spread", "de": "Tiefer Schlummer schläfert Spieler ein; Heiler verteilen", "verified": true},
+        {"spellID": 12891, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns him away", "de": "Säureatem im Kegel; Tank dreht ihn weg"},
+        {"spellID": 16740, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close", "de": "Kriegsdonner betäubt alle in der Nähe", "verified": true},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Extra swings: heavy hits on the tank", "de": "Extraschläge: schwere Treffer auf dem Tank", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Atal'ai Deathwalker",
+      "npcID": 5271,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12095, "spell": "Summon Atal'ai Deathwalker's Spirit", "type": "avoid", "en": "On death leaves an immune spirit; run until it fades", "de": "Hinterlässt beim Tod einen immunen Geist; weglaufen bis er vergeht"},
+        {"spellID": 12096, "spell": "Fear", "type": "survive", "en": "Fears a player", "de": "Lässt einen Spieler fliehen"}
+      ]
+    },
+    {
+      "name": "Atal'ai High Priest",
+      "npcID": 5273,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals allies; interrupt", "de": "Heilt Verbündete; unterbrechen"},
+        {"spellID": 12151, "spell": "Summon Atal'ai Skeleton", "type": "adds", "en": "Raises skeleton adds", "de": "Erweckt Skelette"}
+      ]
+    },
+    {
+      "name": "Atal'ai Witch Doctor",
+      "npcID": 5259,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Hex disables a player; dispel", "de": "Verhexung schaltet einen Spieler aus; bannen"},
+        {"spellID": 11986, "spell": "Healing Wave", "type": "interrupt", "en": "Heals allies; interrupt", "de": "Heilt Verbündete; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Atal'ai Priest",
+      "npcID": 5269,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals allies; interrupt", "de": "Heilt Verbündete; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Atal'ai Corpse Eater",
+      "npcID": 5270,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12134, "spell": "Atal'ai Corpse Eat", "type": "survive", "en": "Feeds on corpses to recover; burst it down", "de": "Frisst Leichen zur Erholung; schnell töten"}
+      ]
+    },
+    {
+      "name": "Nightmare Suppressor",
+      "npcID": 8497,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11672, "spell": "Corruption", "type": "dispel", "en": "Corruption damage over time; dispel", "de": "Verderbnis als Schaden über Zeit; bannen"}
+      ]
+    },
+    {
+      "name": "Nightmare Wyrmkin",
+      "npcID": 5280,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12098, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep; dispel magic", "de": "Schläfert einen Spieler ein; Magie bannen"}
+      ]
+    },
+    {
+      "name": "Hakkari Sapper",
+      "npcID": 8336,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11981, "spell": "Mana Burn", "type": "interrupt", "en": "Mana Burn drains casters; interrupt", "de": "Manabrand entzieht Zauberern Mana; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Hakkari Frostwing",
+      "npcID": 5291,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Frostbolt Volley hits the group; interrupt", "de": "Frostblitzsalve trifft die Gruppe; unterbrechen"},
+        {"spellID": 9915, "spell": "Frost Nova", "type": "survive", "en": "Frost Nova freezes players nearby", "de": "Frostnova friert Spieler in der Nähe ein"}
+      ]
+    },
+    {
+      "name": "Spawn of Hakkar",
+      "npcID": 5708,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12280, "spell": "Acid of Hakkar", "type": "survive", "en": "Spits Acid of Hakkar on players; heal through", "de": "Spuckt Säure Hakkars auf Spieler; durchheilen"}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Veyzhak the Cannibal", "npcID": 5399},
+    {"name": "Zekkis", "npcID": 5400}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Temple_of_Atal%27Hakkar",
+    "https://classic.warcraftdb.com/data/npc/8580",
+    "https://classic.warcraftdb.com/data/npc/5712",
+    "https://classic.warcraftdb.com/data/npc/5713",
+    "https://classic.warcraftdb.com/data/npc/5714",
+    "https://classic.warcraftdb.com/data/npc/5715",
+    "https://classic.warcraftdb.com/data/npc/5716",
+    "https://classic.warcraftdb.com/data/npc/5717",
+    "https://classic.warcraftdb.com/data/npc/5710",
+    "https://classic.warcraftdb.com/data/npc/5711",
+    "https://classic.warcraftdb.com/data/npc/5721",
+    "https://classic.warcraftdb.com/data/npc/5720",
+    "https://classic.warcraftdb.com/data/npc/5719",
+    "https://classic.warcraftdb.com/data/npc/5722",
+    "https://classic.warcraftdb.com/data/npc/8443",
+    "https://classic.warcraftdb.com/data/npc/5709",
+    "https://classic.warcraftdb.com/data/npc/5271",
+    "https://classic.warcraftdb.com/data/npc/5273",
+    "https://classic.warcraftdb.com/data/npc/5259",
+    "https://classic.warcraftdb.com/data/npc/5269",
+    "https://classic.warcraftdb.com/data/npc/5270",
+    "https://classic.warcraftdb.com/data/npc/8497",
+    "https://classic.warcraftdb.com/data/npc/5280",
+    "https://classic.warcraftdb.com/data/npc/8336",
+    "https://classic.warcraftdb.com/data/npc/5291",
+    "https://classic.warcraftdb.com/data/npc/5708",
+    "https://classic.warcraftdb.com/data/npc/5399",
+    "https://classic.warcraftdb.com/data/npc/5400",
+    "https://www.wowhead.com/forever/guide/the-temple-of-atalhakkar-dungeon-overview-location-rewards"
+  ]
+}

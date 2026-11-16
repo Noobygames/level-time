@@ -1,0 +1,92 @@
+{
+  "instance": "The Stockade",
+  "instanceMapID": 34,
+  "kind": "dungeon",
+  "levels": [22, 30],
+  "bosses": [
+    {
+      "name": "Targorr the Dread",
+      "npcID": 1696,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Thrash grants extra attacks; spiky tank damage", "de": "Dreschen gibt Extraangriffe; Tankschaden kommt in Spitzen", "verified": true},
+        {"spellID": 8599, "spell": "Enrage", "type": "tank", "en": "Enrage raises his damage and attack speed; heal the tank harder", "de": "Wutanfall erhöht Schaden und Tempo; Tank stärker heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Kam Deepfury",
+      "npcID": 1666,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Shield Slam stuns the tank for 2 sec", "de": "Schildschlag betäubt den Tank 2 Sek", "verified": true},
+        {"spellID": 871, "spell": "Shield Wall", "type": "survive", "en": "Shield Wall cuts his damage taken by 60% for 12 sec; hold burst", "de": "Schildwall senkt erlittenen Schaden 12 Sek um 60 %; Burst aufheben"}
+      ]
+    },
+    {
+      "name": "Hamhock",
+      "npcID": 1717,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 421, "spell": "Chain Lightning", "type": "interrupt", "en": "Interrupt Chain Lightning, it jumps to three players", "de": "Kettenblitz unterbrechen, springt auf drei Spieler", "verified": true},
+        {"spellID": 6742, "spell": "Bloodlust", "type": "dispel", "en": "Purge Bloodlust from him or his allies", "de": "Kampfrausch von ihm oder Verbündeten reinigen", "verified": true}
+      ]
+    },
+    {
+      "name": "Bazil Thredd",
+      "npcID": 1716,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 7964, "spell": "Smoke Bomb", "type": "avoid", "en": "Smoke Bomb stuns everyone near him for 4 sec", "de": "Rauchbombe betäubt alle in seiner Nähe 4 Sek", "verified": true},
+        {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout boosts nearby allies' attack power", "de": "Schlachtruf erhöht die Angriffskraft naher Verbündeter", "verified": true}
+      ]
+    },
+    {
+      "name": "Dextren Ward",
+      "npcID": 1663,
+      "level": 26,
+      "mechanics": [
+        {"spellID": 19134, "spell": "Frightening Shout", "type": "survive", "en": "Frightening Shout fears nearby players for 6 sec; avoid extra pulls", "de": "Furchterregender Ruf: 6 Sek Furcht für Nahe; Zusatzpulls vermeiden"},
+        {"spellID": 5246, "spell": "Intimidating Shout", "type": "survive", "en": "Shout fears nearby players: use fear protection", "de": "Schrei lässt Spieler fliehen: Furchtschutz nutzen", "verified": true}
+      ]
+    },
+    {
+      "name": "Bruegal Ironknuckle",
+      "npcID": 1720,
+      "level": 26,
+      "mechanics": [],
+      "rare": true
+    }
+  ],
+  "trash": [
+    {
+      "name": "Defias Insurgent",
+      "npcID": 1715,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 13730, "spell": "Demoralizing Shout", "type": "tank", "en": "Shouts buff allies and weaken you; kill insurgents early", "de": "Rufe stärken Verbündete und schwächen euch; Aufständische früh töten"}
+      ]
+    },
+    {
+      "name": "Defias Prisoner",
+      "npcID": 1706,
+      "mechanics": [
+        {"spellID": 6713, "spell": "Disarm", "type": "tank", "en": "Disarms the tank: expect less threat for a few seconds", "de": "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "verified": true}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Bruegal Ironknuckle", "npcID": 1720}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Stormwind_Stockade_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Targorr_the_Dread",
+    "https://warcraft.wiki.gg/wiki/Kam_Deepfury",
+    "https://warcraft.wiki.gg/wiki/Hamhock",
+    "https://warcraft.wiki.gg/wiki/Bazil_Thredd",
+    "https://warcraft.wiki.gg/wiki/Dextren_Ward",
+    "https://warcraft.wiki.gg/wiki/Bruegal_Ironknuckle",
+    "https://warcraft.wiki.gg/wiki/Defias_Insurgent",
+    "https://warcraft.wiki.gg/api.php (item page Itemtip #Classic/#Forever blocks)",
+    "https://www.wowhead.com/forever/guide/the-stockade-dungeon-overview-location-rewards"
+  ]
+}

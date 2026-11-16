@@ -13,7 +13,7 @@ builder.AddDropdown({
   label = "LANGUAGE",
   choices = function()
     local list = {}
-    for i, name in ipairs(NAMES) do list[i] = { key = i, group = i <= 6 and "Erste" or "Zweite" } end
+    for i in ipairs(NAMES) do list[i] = { key = i, group = i <= 6 and "Erste" or "Zweite" } end
     return list
   end,
   get = function() return picked or 1 end,

@@ -3,7 +3,9 @@ local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local addButton, addPreviewCycle = O.addButton, O.addPreviewCycle
-local addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, requires, percent = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.requires, O.percent
+local addPage, finishPage, addSection, addSlider = O.addPage, O.finishPage, O.addSection, O.addSlider
+local addToggles, addHint, addSubPage, finishSubPages = O.addToggles, O.addHint, O.addSubPage, O.finishSubPages
+local toggle, requires, percent = O.toggle, O.requires, O.percent
 
 -- Chat & Erinnerungen: Login und Rekorde, Erinnerungen, Warnungen, Gruppe und Heiler (Quest-Hinweise stehen unter
 -- Komfort > Quests, alles zum Level-Up unter Einblendungen > Level-Up)
@@ -30,6 +32,8 @@ addToggles({
   toggle("REMIND_SLEEPING_BAG_TOGGLE", "remindSleepingBag", ns.BuffReminder.HasSleepingBagSystem),
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
+  toggle("WARN_OLD_SPELL_RANKS_TOGGLE", "warnOldSpellRanks", ns.OldSpellRanks.IsAvailable),
+  toggle("REMIND_CLASS_QUEST_TOGGLE", "remindClassQuest", ns.ClassQuests.IsAvailable),
 })
 -- Wiederholung gilt für alle Buff-Erinnerungen (auch die Klassen-Buffs darunter)
 addSlider({
@@ -84,6 +88,7 @@ addToggles({
   toggle("WARN_BAGS_FULL_TOGGLE", "warnBagsFull"),
   toggle("WARN_DURABILITY_TOGGLE", "warnDurability"),
   toggle("WARN_AMMO_TOGGLE", "warnAmmo", ns.GearWarnings.ShowsAmmoOptions),
+  toggle("WARN_REAGENTS_TOGGLE", "warnReagents", ns.Reagents.IsAvailable),
   toggle("WARN_INSTANCE_LIMIT_TOGGLE", "warnInstanceLimit"),
   toggle("WARN_AGGRO_TOGGLE", "warnAggro"),
   toggle("WARN_BREATH_TOGGLE", "warnBreath"),
@@ -138,6 +143,20 @@ if ns.GearWarnings.ShowsAmmoOptions() then
   }, "warnAmmo"))
 end
 
+-- Reagenzien: nur Klassen mit Reagenzien außerhalb von Retail (Roadmap 488)
+if ns.Reagents.IsAvailable() then
+  addSlider(requires({
+    label = "WARN_REAGENTS_BELOW",
+    setting = "reagentLow",
+    min = ns.Reagents.MIN_LOW,
+    max = ns.Reagents.MAX_LOW,
+    step = 1,
+    get = function(db) return db.reagentLow end,
+    set = function(value) ns.SetDeferred("reagentLow", value) end,
+    format = function(value) return tostring(value) end,
+  }, "warnReagents"))
+end
+
 -- Testen: eine Warnung je Klick (Atem, Taschen, Haltbarkeit, Munition, Instanzlimit, Aggro, Hardcore, Notfall), wie echt
 addPreviewCycle("NOTIFICATION_TEST_WARNINGS", function()
   local steps = { ns.BreathWarning.Preview }
@@ -157,30 +176,7 @@ addToggles({
   toggle("CC_ANNOUNCE_TOGGLE", "announceControlLoss"),
   toggle("CC_OVER_TOGGLE", "announceControlOver"),
   toggle("HEALER_AGGRO_TOGGLE", "announceHealerAggro"),
-  toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
-  toggle("INSTANCE_REPORT_LOOT_TOGGLE", "instanceReportLoot"),
-  toggle("ANNOUNCE_INSTANCE_RESET", "announceInstanceReset"),
 })
-addChooser(requires({
-  label = "INSTANCE_REPORT_LOOT_QUALITY",
-  advanced = true,
-  setting = "instanceReportLootQuality",
-  choices = {
-    { value = 3, name = localized("INSTANCE_REPORT_LOOT_RARE") },
-    { value = 4, name = localized("INSTANCE_REPORT_LOOT_EPIC") },
-  },
-}, "instanceReportLoot"))
-addSlider(requires({
-  label = "INSTANCE_REPORT_LOOT_MAX",
-  advanced = true,
-  setting = "instanceReportLootMax",
-  min = 1,
-  max = 10,
-  step = 1,
-  get = function(db) return db.instanceReportLootMax end,
-  set = function(value) ns.SetDeferred("instanceReportLootMax", value) end,
-  format = function(value) return tostring(value) end,
-}, "instanceReportLoot"))
 addSlider(requires({
   label = "LOW_MANA_BELOW",
   advanced = true,
@@ -192,14 +188,12 @@ addSlider(requires({
   set = function(value) ns.SetDeferred("lowManaPercent", value) end,
   format = percent,
 }, "announceLowMana"))
--- Testen: alle Ansagen und der Instanzbericht nur im eigenen Chat mit "Vorschau", nie an Gruppe oder Chat gesendet
+-- Testen: alle Ansagen nur im eigenen Chat (Instanzbericht: Komfort > Dungeons) mit "Vorschau", nie an Gruppe oder Chat gesendet
 addButton("NOTIFICATION_TEST_GROUP", function()
   ns.GroupJoinStats.Preview()
   ns.ManaCallout.Preview()
   ns.ControlCallout.Preview()
   ns.AggroWarning.PreviewHealer()
-  ns.InstanceReport.Preview()
-  ns.InstanceResetAnnounce.Preview()
 end)
 finishSubPages()
 finishPage()

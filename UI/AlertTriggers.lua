@@ -13,7 +13,8 @@ local EPIC_QUALITY = 4
 local GROUP_INSTANCES = { party = true, raid = true }  -- Instanzarten von IsInInstance mit Elite-Gegnern
 local COLORS = Alerts.COLORS
 
--- Arten: Einstellung, inCombat ("hold" = im Kampf zurückhalten und danach zeigen), Farbe, Symbol (Alerts.ICONS), Text aus einem Wert (Level, Name, Link, Prozent) und Beispielwert
+-- Arten: Einstellung, inCombat ("hold" = im Kampf zurückhalten und danach zeigen), Farbe, Symbol (Alerts.ICONS), Text aus einem Wert
+-- (Level, Name, Link, Prozent) und Beispielwert
 -- für /lt debug alert
 Alerts.KINDS = {
   levelUp = { setting = "alertLevelUp", color = COLORS.levelUp, format = "ALERT_LEVEL_UP", inCombat = "hold",
@@ -31,6 +32,8 @@ Alerts.KINDS = {
     sample = function() return "Hogger" end },
   rareSpotted = { setting = "alertRareSpotted", color = COLORS.rare, format = "ALERT_RARE_SPOTTED",
     sample = function() return "Mor'Ladim" end },
+  eliteSpotted = { setting = "alertEliteSpotted", color = COLORS.elite, format = "ALERT_ELITE_SPOTTED",
+    sample = function() return "Hogger" end },
   questObjective = { setting = "alertQuestObjective", color = COLORS.quest, format = "ALERT_QUEST_OBJECTIVE", inCombat = "hold",
     sample = function() return "Hogger: 1/1" end },
 }

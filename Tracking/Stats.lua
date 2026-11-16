@@ -44,6 +44,8 @@ Stats.COMBAT_SECONDS = "combatSeconds"  -- Zeitaufteilung (TimeBreakdown.lua)
 Stats.TAXI_SECONDS = "taxiSeconds"
 Stats.AFK_SECONDS = "afkSeconds"
 Stats.IDLE_SECONDS = "idleSeconds"        -- Leerlauf ohne AFK-Flag (Einstellung idleMinutes)
+Stats.WELL_FED_SECONDS = "wellFedSeconds"        -- aktive Zeit mit Buff "Satt" (TimeBreakdown.lua, Roadmap 485)
+Stats.WELL_RESTED_SECONDS = "wellRestedSeconds"  -- aktive Zeit mit "Gut erholt" vom Schlafsack (Forever)
 Stats.MONEY_JUNK = "moneyJunk"            -- Erlös aus verkauftem Schrott (Merchant.lua), Teil der Einnahmen
 Stats.SPENT_REPAIR = "spentRepair"        -- Ausgaben nach Art (MoneyCounter.lua)
 Stats.SPENT_MERCHANT = "spentMerchant"
@@ -59,6 +61,7 @@ Stats.INCOME_TRADE = "incomeTrade"
 Stats.INCOME_OTHER = "incomeOther"
 Stats.REPUTATION = "reputation"          -- Rufgewinne aller Fraktionen (Reputation.lua)
 Stats.ITEMS_LOOTED = "itemsLooted"       -- erbeutete Gegenstände nach Anzahl (ItemsLooted.lua)
+Stats.LOOT_VALUE = "lootValue"           -- Wert der erbeuteten Gegenstände in Kupfer (ItemsLooted.lua)
 -- Alle Ausgaben-Zähler (Summe = Ausgaben gesamt)
 Stats.SPENDING = { Stats.SPENT_REPAIR, Stats.SPENT_MERCHANT, Stats.SPENT_TAXI, Stats.SPENT_TRAINER, Stats.SPENT_OTHER }
 

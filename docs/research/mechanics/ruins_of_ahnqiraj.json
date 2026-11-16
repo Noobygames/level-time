@@ -1,0 +1,104 @@
+{
+ "instance": "Ruins of Ahn'Qiraj",
+ "instanceMapID": 509,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "Kurinnaxx",
+   "npcID": 15348,
+   "mechanics": [
+    {"spellID": 25646, "spell": "Mortal Wound", "type": "tank", "en": "Stacking healing reduction on the tank; swap tanks at high stacks", "de": "Stapelnde Heilungsminderung auf dem Tank; bei vielen Stapeln Tank wechseln"},
+    {"spellID": 25656, "spell": "Sand Trap", "type": "avoid", "en": "Sand trap blinds and silences players nearby; step out quickly", "de": "Sandfalle senkt Trefferchance und bringt zum Schweigen; schnell raus"},
+    {"spellID": 25814, "spell": "Wide Slash", "type": "positioning", "en": "Frontal cone slash; only the tank stands in front", "de": "Kegelhieb nach vorne; nur der Tank steht vor ihm"},
+    {"spellID": 26527, "spell": "Frenzy", "type": "survive", "en": "Frenzies at low health; burn him down fast", "de": "Raserei bei wenig Leben; schnell niederbrennen"}
+   ]
+  },
+  {
+   "name": "General Rajaxx",
+   "npcID": 15341,
+   "mechanics": [
+    {"spellID": 0, "spell": "Army of Rajaxx", "type": "adds", "en": "Waves of Qiraji led by named officers; keep Andorov alive", "de": "Wellen von Qiraji mit Anführern; Andorov am Leben halten", "unverified": true},
+    {"spellID": 25599, "spell": "Thundercrash", "type": "survive", "en": "Halves everyone's health and knocks back; heal up before the next", "de": "Halbiert das Leben aller und stößt zurück; vor dem nächsten hochheilen"}
+   ]
+  },
+  {
+   "name": "Moam",
+   "npcID": 15340,
+   "mechanics": [
+    {"spellID": 25671, "spell": "Drain Mana", "type": "dispel", "en": "Drains mana from players to fill his own; hunters drain him back", "de": "Entzieht Spielern Mana für sich; Jäger entziehen ihm Mana zurück"},
+    {"spellID": 25672, "spell": "Arcane Eruption", "type": "survive", "en": "At full mana he blasts the raid; keep his mana low", "de": "Bei vollem Mana trifft er den ganzen Raid; sein Mana niedrig halten"},
+    {"spellID": 25684, "spell": "Summon Mana Fiends", "type": "adds", "en": "Turns to stone and summons three Mana Fiends; kill or banish them", "de": "Versteinert sich und ruft drei Manateufel; töten oder verbannen"},
+    {"spellID": 25685, "spell": "Energize", "type": "survive", "en": "Gains mana fast while petrified; end the stone phase quickly", "de": "Gewinnt versteinert schnell Mana; Steinphase rasch beenden"}
+   ]
+  },
+  {
+   "name": "Buru the Gorger",
+   "npcID": 15370,
+   "mechanics": [
+    {"spellID": 0, "spell": "Eggs", "type": "positioning", "en": "Kite him over eggs and break them to damage him and slow him", "de": "Ihn über Eier ziehen und diese zerstören, um ihn zu schädigen", "unverified": true},
+    {"spellID": 96, "spell": "Dismember", "type": "avoid", "en": "Stacking bleed on his chase target; keep kiting away", "de": "Stapelnde Blutung auf seinem Ziel; weiter weglaufen"},
+    {"spellID": 25640, "spell": "Thorns", "type": "survive", "en": "Thorns aura hurts melee attackers", "de": "Dornenaura schädigt Nahkämpfer"},
+    {"spellID": 20512, "spell": "Creeping Plague", "type": "survive", "en": "Below 20% the raid takes rising nature damage; burn fast", "de": "Unter 20 % steigender Naturschaden am Raid; schnell töten"}
+   ]
+  },
+  {
+   "name": "Ayamiss the Hunter",
+   "npcID": 15369,
+   "mechanics": [
+    {"spellID": 25748, "spell": "Poison Stinger", "type": "tank", "en": "Stacking poison on top threat while she flies; ranged only", "de": "Stapelndes Gift auf dem Bedrohungsersten im Flug; nur Fernkampf"},
+    {"spellID": 25749, "spell": "Stinger Spray", "type": "survive", "en": "Nature damage on the whole raid; nature resistance helps", "de": "Naturschaden am ganzen Raid; Naturwiderstand hilft"},
+    {"spellID": 25725, "spell": "Paralyze", "type": "adds", "en": "Victim on the altar; kill the larva before it arrives", "de": "Opfer am Altar; Larve töten, bevor sie ankommt"}
+   ]
+  },
+  {
+   "name": "Ossirian the Unscarred",
+   "npcID": 15339,
+   "mechanics": [
+    {"spellID": 25176, "spell": "Strength of Ossirian", "type": "positioning", "en": "Huge damage buff; pull him onto a crystal to remove it", "de": "Riesiger Schadensbuff; ihn zu einem Kristall ziehen, um ihn zu entfernen"},
+    {"spellID": 25189, "spell": "Enveloping Winds", "type": "tank", "en": "Stuns the tank in a cyclone; a second tank must take over", "de": "Hüllt den Tank in Wirbelwind; zweiter Tank muss übernehmen"},
+    {"spellID": 25160, "spell": "Sand Storm", "type": "avoid", "en": "Roaming tornadoes deal heavy damage; stay out of them", "de": "Wandernde Tornados machen hohen Schaden; ausweichen"},
+    {"spellID": 25195, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse slows casting heavily; decurse casters fast", "de": "Fluch verlangsamt Zauber stark; Zauberwirker schnell entfluchen"}
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Anubisath Guardian",
+   "npcID": 15355,
+   "mechanics": [
+    {"spellID": 24340, "spell": "Meteor", "type": "positioning", "en": "Meteor damage is split among players hit; stack to share it", "de": "Meteorschaden wird auf Getroffene verteilt; zusammenstehen"},
+    {"spellID": 22997, "spell": "Plague", "type": "positioning", "en": "Undispellable plague hurts nearby allies; victim runs out", "de": "Nicht bannbare Seuche trifft Umstehende; Opfer läuft raus"},
+    {"spellID": 26546, "spell": "Shadow Storm", "type": "positioning", "en": "Shadow bolts hit players 25-45 yards away; stand close", "de": "Schattenblitze treffen Spieler auf 25-45 m; nah dran stehen"},
+    {"spellID": 25698, "spell": "Explode", "type": "avoid", "en": "Explodes near 10% health; move away from it", "de": "Explodiert bei etwa 10 % Leben; Abstand nehmen"}
+   ]
+  },
+  {
+   "name": "Obsidian Destroyer",
+   "npcID": 15338,
+   "mechanics": [
+    {"spellID": 0, "spell": "Drain Mana", "type": "survive", "en": "Drains raid mana and explodes when full; keep mana users away", "de": "Entzieht Mana und explodiert, wenn voll; Manaklassen fernhalten", "unverified": true}
+   ]
+  },
+  {
+   "name": "Flesh Hunter",
+   "npcID": 15335,
+   "mechanics": [
+    {"spellID": 25371, "spell": "Consume", "type": "survive", "en": "Swallows a player, dealing nature damage and healing itself", "de": "Verschlingt einen Spieler, macht Naturschaden und heilt sich"},
+    {"spellID": 25424, "spell": "Poison Bolt", "type": "dispel", "en": "Nature bolt with a poison over time; cure poison", "de": "Naturgeschoss mit Gift über Zeit; Gift entfernen"}
+   ]
+  }
+ ],
+ "sources": [
+  "https://warcraft.wiki.gg/wiki/Kurinnaxx",
+  "https://warcraft.wiki.gg/wiki/General_Rajaxx",
+  "https://warcraft.wiki.gg/wiki/Moam",
+  "https://warcraft.wiki.gg/wiki/Buru_the_Gorger",
+  "https://warcraft.wiki.gg/wiki/Ayamiss_the_Hunter",
+  "https://warcraft.wiki.gg/wiki/Ossirian_the_Unscarred",
+  "https://warcraft.wiki.gg/wiki/Anubisath_Guardian",
+  "https://warcraft.wiki.gg/wiki/Obsidian_Destroyer",
+  "https://warcraft.wiki.gg/wiki/Flesh_Hunter",
+  "https://warcraft.wiki.gg/api.php (item pages, Itemtip itemid)",
+  "https://nether.wowhead.com/classic/tooltip/spell/ (spell ID checks)"
+ ]
+}

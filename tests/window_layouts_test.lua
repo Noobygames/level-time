@@ -123,6 +123,12 @@ local twoColumns = window:GetWidth()
 addon.Set("tileColumns", 4)
 expectTrue("mehr Spalten = breiter", window:GetWidth() > twoColumns)
 expect("erste Kachel = Zeit mit Bereich", elements.tiles[1].label:GetText(), string.format(L.TAB_LEVEL, 20))
+expectTrue("Kacheln: Reiter sichtbar", elements.tabs[2]:IsShown())
+elements.tabs[2]._scripts.OnClick(elements.tabs[2], "LeftButton")
+expect("Kacheln: Reiter wählt Session", addon.db.windowScope, "session")
+wow.advance(1)
+expect("Kacheln: erste Kachel zeigt Session", elements.tiles[1].label:GetText(), L.TAB_SESSION)
+addon.Set("windowScope", "level")
 
 -- XP-Balken-Layout: Texte immer / bei Mauskontakt / nie
 addon.Set("windowLayout", "xpbar")

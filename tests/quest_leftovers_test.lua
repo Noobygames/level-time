@@ -45,6 +45,39 @@ expect("verkauft: ein Rest", #QuestLeftovers.InBags(), 1)
 expect("vergessen", addon.character.questLeftovers[6000], nil)
 expect("Taschen-Zusatz", QuestLeftovers.BagsHint(), string.format(L.QUEST_LEFTOVERS_SHORT, "Item 5000"))
 
+-- Eigene Müll-Markierung: Alt+Rechtsklick auf den Taschenplatz
+wow.state.bags[0][4] = { itemID = 8000, stackCount = 1 }
+wow.state.sellPrices[8000] = 25
+local slotButton = CreateFrame("Button")
+slotButton.GetBagID = function() return 0 end
+slotButton.GetID = function() return 4 end
+ContainerFrameItemButton_OnModifiedClick(slotButton, "RightButton")
+expect("ohne Alt: keine Markierung", QuestLeftovers.IsMarked(8000), false)
+wow.state.altDown = true
+ContainerFrameItemButton_OnModifiedClick(slotButton, "LeftButton")
+expect("Linksklick: keine Markierung", QuestLeftovers.IsMarked(8000), false)
+ContainerFrameItemButton_OnModifiedClick(slotButton, "RightButton")
+wow.state.altDown = false
+expectTrue("Alt+Rechtsklick markiert", QuestLeftovers.IsMarked(8000))
+expect("markiert zählt als Rest", #QuestLeftovers.InBags(), 2)
+
+-- Löschen: nur Reste ohne Verkaufswert, erst nach Bestätigung
+local deletable = QuestLeftovers.Deletable()
+expect("nur ohne Verkaufswert löschbar", #deletable, 1)
+expect("das ist die Fackel", deletable[1].itemID, 5000)
+QuestLeftovers.ConfirmDelete()
+expect("Rückfrage", wow.popup and wow.popup.name, "LEVELTIMER_DELETE_LEFTOVERS")
+expect("noch da vor der Bestätigung", wow.state.bags[0][1] ~= nil, true)
+StaticPopupDialogs[wow.popup.name].OnAccept(nil, wow.popup.data)
+expect("Fackel gelöscht", wow.state.bags[0][1], nil)
+expect("markierter Gegenstand bleibt", wow.state.bags[0][4].itemID, 8000)
+
+-- Schrottverkauf nimmt markierte Gegenstände mit
+addon.Set("autoSellJunk", true)
+wow.fire("MERCHANT_SHOW")
+expect("markiert verkauft", wow.state.bags[0][4], nil)
+addon.Set("autoSellJunk", false)
+
 addon.Set("questLeftovers", false)
 expect("aus: kein Zusatz", QuestLeftovers.BagsHint(), nil)
 expect("Fehler?", #wow.errors, 0)

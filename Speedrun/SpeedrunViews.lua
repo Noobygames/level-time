@@ -2,7 +2,8 @@
 -- (schnellste Zeit je Level über die eigenen Charaktere, importierte Läufe zählen nicht) sowie die
 -- Speedrun-Rekorde von speedrun.com je Abschnitt (WorldRecords.lua).
 -- Läufe: Klick wählt den Lauf als festen Vergleich der Splits, Rechtsklick markiert ihn als Favorit,
--- Shift+Klick zeigt ihn als Text zum Teilen; Favoriten stehen oben. Buttons: alle Läufe sichern, importieren. Suchfeld filtert nach Name und Klasse (wie jede Tabelle über alle Zellen).
+-- Shift+Klick zeigt ihn als Text zum Teilen; Favoriten stehen oben. Buttons: alle Läufe sichern, importieren. Suchfeld filtert nach Name
+-- und Klasse (wie jede Tabelle über alle Zellen).
 -- Namen in Läufen und Rekorden ohne Realm (der steht im Tooltip der Zeile); nur wenn sich mehrere Läufe einen Namen
 -- teilen und auf verschiedenen Realms stehen, kommt der unterscheidende Teil des Realms dazu ("Nerzal (Realm 3 PvE)").
 local _, ns = ...
@@ -191,23 +192,13 @@ end
 
 -- { level, seconds, run, ownSeconds }, höchstes Level zuerst
 local function recordRows()
-  local best = {}
   assignShortNames(Runs.GetAll())
-  for _, run in ipairs(Runs.GetAll()) do
-    if not run.imported then
-      for level, seconds in pairs(run.bestTimes) do  -- ohne Teil-Level (Coverage.lua)
-        if not best[level] or seconds < best[level].seconds then
-          best[level] = { level = level, seconds = seconds, run = run }
-        end
-      end
-    end
-  end
+  local best, holders = Runs.BestPerLevel()
   local rows = {}
-  for level, entry in pairs(best) do
+  for level, seconds in pairs(best) do
     local own = ns.character.levelHistory[level]
-    entry.ownSeconds = own and own.seconds
-    entry.isCurrent = entry.run.id == ns.characterKey  -- Rekord vom eingeloggten Charakter hervorheben
-    table.insert(rows, entry)
+    table.insert(rows, { level = level, seconds = seconds, run = holders[level], ownSeconds = own and own.seconds,
+      isCurrent = holders[level].id == ns.characterKey })  -- Rekord vom eingeloggten Charakter hervorheben
   end
   table.sort(rows, function(a, b) return a.level > b.level end)
   return rows

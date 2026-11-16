@@ -46,7 +46,7 @@ expect("Original Nachschärfen", cvars.ResampleAlwaysSharpen, "0")
 expect("nichts mehr gemerkt", LevelTimerDB.cvarOriginals, nil)
 
 -- Unterseite in den Einstellungen mit Reglern und Button
-addon.OptionsWindow.ShowPage("COMFORT_PAGE_GRAPHICS_DETAIL")
+addon.OptionsWindow.ShowPage("COMFORT_PAGE_GRAPHICS")
 wow.clickOption("GRAPHICS_RECOMMENDED")
 expect("Button setzt empfohlene Werte", cvars.groundEffectDist, "500")
 

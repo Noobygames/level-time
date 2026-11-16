@@ -4,9 +4,10 @@ wow.login({ level = 20 })
 expect("nicht verfügbar", addon.ForeverGraphics.IsAvailable(), false)
 addon.Set("foreverGraphics", true)
 expect("CVar unberührt", wow.state.cvars.groundEffectDist, "100")
+-- Beyond Ultra (Schalter FOREVER_GRAPHICS) wird in Retail nicht gebaut
 local found = false
-for _, key in ipairs(addon.OptionsWindow.PageKeys()) do
-  if key == "COMFORT_PAGE_GRAPHICS_DETAIL" then found = true end
+for _, entry in ipairs(addon.OptionsWindow.Search(addon.L.FOREVER_GRAPHICS)) do
+  if entry.tipKey == "FOREVER_GRAPHICS_TIP" then found = true end
 end
-expect("keine Unterseite", found, false)
+expect("kein Beyond-Ultra-Schalter", found, false)
 expect("keine Fehler", #wow.errors, 0)

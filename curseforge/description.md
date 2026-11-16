@@ -166,7 +166,7 @@ Use `/lt` or `/leveltimer`[cite: 1]. _(Tip: Every UI window can also be configur
 | `/lt sync`                                         | Force a manual `/played` sync with the server[cite: 1]                                |
 | `/lt minimap`                                      | Toggle the minimap button[cite: 1]                                                    |
 | `/lt reset` / `/lt welcome`                        | Reset all display positions or reopen the welcome guide[cite: 1]                      |
-| `/lt help` / `/lt debug`                           | Show command help or run diagnostics (`check`, `perf`, `log`)[cite: 1]                |
+| `/lt help`                                         | Show command help                                                                     |
 
 </details>
 

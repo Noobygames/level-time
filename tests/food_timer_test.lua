@@ -2,7 +2,7 @@
 local L = addon.L
 local FoodTimer = addon.FoodTimer
 local Display = addon.FoodDisplay
-local EATING, WELL_FED = 433, 19705
+local EATING = 433
 
 local played = {}
 function PlaySound(id) table.insert(played, id) end

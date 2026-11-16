@@ -2,6 +2,13 @@
 -- Zählt außerdem gewonnene XP (für Sessions) und verbrauchte Erholungs-XP.
 local _, ns = ...
 
+local Experience = {}
+ns.Experience = Experience
+
+-- Grenzen der Einstellung toLevelSamples (Kills/Quests bis Level-Up)
+Experience.MIN_TO_LEVEL_SAMPLES = 0   -- 0 = Schnitt des ganzen Levels
+Experience.MAX_TO_LEVEL_SAMPLES = 50
+
 ns.RegisterDefaults({
   settings = {
     showKillsToLevel = false,
@@ -11,7 +18,7 @@ ns.RegisterDefaults({
     showRestedLeft = false,
   },
   ranges = {
-    toLevelSamples = { 0, 50 },
+    toLevelSamples = { Experience.MIN_TO_LEVEL_SAMPLES, Experience.MAX_TO_LEVEL_SAMPLES },
   },
   counters = {
     xpGained = 0,
@@ -21,9 +28,6 @@ ns.RegisterDefaults({
   },
 })
 local Stats = ns.Stats
-
-local Experience = {}
-ns.Experience = Experience
 
 local SECONDS_PER_HOUR = 3600
 local MIN_SECONDS_FOR_RATE = 60  -- darunter schwankt die Rate zu stark
@@ -108,8 +112,6 @@ end
 -- (GetXPExhaustion = XP-Spanne, die doppelt zählt) geben das Doppelte; Quests verbrauchen keine Erholung.
 ---------------------------------------------------------------------------
 local KILL_LOG, QUEST_LOG = "killLog", "questLog"
-Experience.MIN_TO_LEVEL_SAMPLES = 0   -- 0 = Schnitt des ganzen Levels
-Experience.MAX_TO_LEVEL_SAMPLES = 50
 
 local function isPveKill(entry) return entry.kind == ns.Journal.PVE end
 local function anyEntry() return true end

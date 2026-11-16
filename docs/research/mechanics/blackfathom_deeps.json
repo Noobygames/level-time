@@ -1,0 +1,138 @@
+{
+  "instance": "Blackfathom Deeps",
+  "instanceMapID": 48,
+  "kind": "dungeon",
+  "levels": [24, 32],
+  "bosses": [
+    {
+      "name": "Ghamoo-ra",
+      "npcID": 4887,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample also hits players next to the tank; melee spread a bit", "de": "Trampeln trifft auch Spieler neben dem Tank; Nahkämpfer verteilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lady Sarevess",
+      "npcID": 4831,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 865, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots everyone close; ranged and healers keep range", "de": "Frostnova friert Nahe ein; Fernkämpfer und Heiler halten Abstand", "verified": true},
+        {"spellID": 8435, "spell": "Forked Lightning", "type": "avoid", "en": "Forked lightning hits several players in front: stand behind or spread", "de": "Gabelblitz trifft mehrere Spieler vor ihr: dahinter stehen oder verteilen", "verified": true},
+        {"spellID": 246, "spell": "Slow", "type": "dispel", "en": "Slows a player's movement: dispel magic if needed", "de": "Verlangsamt einen Spieler: Magie bannen, falls nötig", "verified": true}
+      ]
+    },
+    {
+      "name": "Gelihast",
+      "npcID": 6243,
+      "level": 25,
+      "mechanics": [
+        {"spellID": 6533, "spell": "Net", "type": "tank", "en": "Nets a player for 2 sec; fleeing murlocs run to him, snare them", "de": "Netz hält 2 Sek fest; fliehende Murlocs laufen zu ihm, verlangsamen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lorgus Jett",
+      "npcID": 12902,
+      "level": 26,
+      "mechanics": [
+        {"spellID": 12550, "spell": "Lightning Shield", "type": "dispel", "en": "Purge his Lightning Shield or melee get zapped on every hit", "de": "Blitzschlagschild reinigen, sonst werden Nahkämpfer beim Treffen geschockt", "verified": true},
+        {"spellID": 12167, "spell": "Lightning Bolt", "type": "interrupt", "en": "Interrupt Lightning Bolt", "de": "Blitzschlag unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Baron Aquanis",
+      "npcID": 12876,
+      "level": 24,
+      "mechanics": [
+        {"spellID": 15043, "spell": "Frostbolt", "type": "interrupt", "en": "Interrupt Frostbolt, it hits hard and slows", "de": "Frostblitz unterbrechen, trifft hart und verlangsamt", "verified": true},
+        {"spellID": 15531, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots players nearby; ranged stay back", "de": "Frostnova friert Nahe ein; Fernkämpfer bleiben zurück", "verified": true}
+      ]
+    },
+    {
+      "name": "Old Serra'kis",
+      "npcID": 4830,
+      "level": 26,
+      "mechanics": [
+        {"spellID": 8433, "spell": "Leech Pulse", "type": "survive", "en": "Underwater fight: Leech Pulse drains everyone near him; watch breath", "de": "Unterwasserkampf: Blutegelpuls entzieht allen Nahen Leben; Atem beachten"}
+      ]
+    },
+    {
+      "name": "Twilight Lord Kelris",
+      "npcID": 4832,
+      "level": 27,
+      "mechanics": [
+        {"spellID": 8399, "spell": "Sleep", "type": "positioning", "en": "Sleep hits players within 5 yd; healer and ranged stand farther", "de": "Schlaf trifft Spieler im 5-m-Radius; Heiler und Fernkämpfer weiter weg", "verified": true},
+        {"spellID": 15587, "spell": "Mind Blast", "type": "interrupt", "en": "Interrupt Mind Blast", "de": "Gedankenschlag unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Aku'mai",
+      "npcID": 4829,
+      "level": 28,
+      "mechanics": [
+        {"spellID": 3815, "spell": "Poison Cloud", "type": "avoid", "en": "Poison Cloud ticks nature damage around her; cure poison", "de": "Giftwolke macht Naturschaden um sie herum; Gift entfernen", "verified": true},
+        {"spellID": 3490, "spell": "Frenzied Rage", "type": "tank", "en": "Frenzied Rage speeds her attacks a lot; tank uses cooldowns", "de": "Rasende Wut erhöht ihr Angriffstempo stark; Tank nutzt Cooldowns", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Blackfathom Tide Priestess",
+      "npcID": 4802,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11642, "spell": "Heal", "type": "interrupt", "en": "Heals other naga; interrupt Heal", "de": "Heilt andere Naga; Heilen unterbrechen"}
+      ]
+    },
+    {
+      "name": "Blackfathom Oracle",
+      "npcID": 4803,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 0, "spell": "Healing Wave", "type": "interrupt", "en": "Heals allies with Healing Wave; interrupt it", "de": "Heilt Verbündete mit Welle der Heilung; unterbrechen", "unverified": true}
+      ]
+    },
+    {
+      "name": "Twilight Shadowmage",
+      "npcID": 4813,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7645, "spell": "Dominate Mind", "type": "dispel", "en": "Mind controls a player; dispel or crowd-control", "de": "Übernimmt einen Spieler; bannen oder kontrollieren"},
+        {"spellID": 12746, "spell": "Summon Voidwalker", "type": "adds", "en": "Summons a voidwalker; pull casters out of sight first", "de": "Ruft Leerwandler; Zauberer zuerst um die Ecke ziehen"}
+      ]
+    },
+    {
+      "name": "Twilight Aquamancer",
+      "npcID": 4811,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8372, "spell": "Summon Aqua Guardian", "type": "adds", "en": "Summons an Aqua Guardian; kill the caster first", "de": "Ruft einen Wasserwächter; Beschwörer zuerst töten"}
+      ]
+    },
+    {
+      "name": "Fallenroot Hellcaller",
+      "npcID": 4799,
+      "mechanics": [
+        {"spellID": 20817, "spell": "Mana Burn", "type": "interrupt", "en": "Burns mana from casters: interrupt or kill it early", "de": "Verbrennt Mana von Zauberern: unterbrechen oder früh töten", "verified": true}
+      ]
+    }
+  ],
+  "rares": [],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Blackfathom_Deeps_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Ghamoo-ra",
+    "https://warcraft.wiki.gg/wiki/Lady_Sarevess",
+    "https://warcraft.wiki.gg/wiki/Gelihast",
+    "https://warcraft.wiki.gg/wiki/Lorgus_Jett",
+    "https://warcraft.wiki.gg/wiki/Baron_Aquanis",
+    "https://warcraft.wiki.gg/wiki/Old_Serra%27kis",
+    "https://warcraft.wiki.gg/wiki/Twilight_Lord_Kelris",
+    "https://warcraft.wiki.gg/wiki/Aku%27mai_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Blackfathom_Tide_Priestess",
+    "https://warcraft.wiki.gg/wiki/Blackfathom_Oracle",
+    "https://warcraft.wiki.gg/wiki/Twilight_Shadowmage",
+    "https://warcraft.wiki.gg/wiki/Twilight_Aquamancer",
+    "https://warcraft.wiki.gg/api.php (item page Itemtip #Classic/#Forever blocks)",
+    "https://www.wowhead.com/forever/guide/blackfathom-deeps-dungeon-overview-location-rewards"
+  ]
+}

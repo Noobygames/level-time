@@ -30,7 +30,7 @@ CreateFrame = function(kind, name, parent)
   if name then _G[name] = frame end
   return frame
 end
-function CooldownFrame_Set(self, start, duration, enable, forceShowDrawEdge, modRate)
+function CooldownFrame_Set(self, start, duration, enable)
   if self then
     self._cdStart = start
     self._cdDuration = duration
@@ -42,7 +42,7 @@ UIParent, Minimap, GameTooltip, GameFontNormalLarge = newFrame(), newFrame(), ne
 -- übernimmt sie (Blizzards Objekte haben im Stub FRIZQT__ in 12)
 local function newFont()
   local font = newFrame()
-  font._font = { "Fonts\FRIZQT__.TTF", 12, "" }
+  font._font = { "Fonts\\FRIZQT__.TTF", 12, "" }
   font.SetFont = function(self, face, size, flags) self._font = { face, size, flags } end
   font.GetFont = function(self) return unpack(self._font) end
   font.CopyFontObject = function(self, source) self._font = { source:GetFont() } end
@@ -96,12 +96,13 @@ else
   }
 end
 -- Dialog nicht anzeigen, sondern merken; Tests bestätigen mit StaticPopupDialogs[name].OnAccept
-function StaticPopup_Show(name, textArg1, textArg2, data)
+function StaticPopup_Show(name, textArg1, _, data)
   wow.popup = { name = name, text = textArg1, data = data }
 end
 COMBATLOG_XPGAIN_FIRSTPERSON = "%s stirbt, Ihr bekommt %d Erfahrung."
 COMBATLOG_XPGAIN_EXHAUSTION1 = "%s stirbt, Ihr bekommt %d Erfahrung. (%s EP-Bonus durch %s)"
 ERR_ZONE_EXPLORED_XP = "%1$s entdeckt: %2$d Erfahrung erhalten."
+OPEN_LOCK_SELF = "Ihr führt %s auf %s aus."
 COMBATLOG_HONORGAIN = "%s stirbt, ehrenhafter Sieg Rang: %s (Geschätzte Ehrenpunkte: %d)"
 -- Texte wie im deutschen Client (WoW Forever, per /dump geprüft)
 INSTANCE_RESET_SUCCESS = "'%s' wurde zurückgesetzt."
@@ -141,7 +142,7 @@ FACTION_STANDING_INCREASED_GENERIC = "Euer Ruf bei der Fraktion '%s' hat sich ve
 function GetCurrentKeyBoardFocus() return wow.focus end
 
 wow.overrideBindings = {}
-function SetOverrideBindingClick(owner, isPriority, key, buttonName, mouseClick)
+function SetOverrideBindingClick(owner, _, key, buttonName, mouseClick)
   wow.overrideBindings[owner] = wow.overrideBindings[owner] or {}
   wow.overrideBindings[owner][key] = { buttonName = buttonName, mouseClick = mouseClick or "LeftButton" }
 end

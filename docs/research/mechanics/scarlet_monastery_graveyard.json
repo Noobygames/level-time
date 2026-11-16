@@ -1,0 +1,199 @@
+{
+ "instance": "Scarlet Monastery: Graveyard",
+ "instanceMapID": 189,
+ "kind": "dungeon",
+ "levels": [
+  26,
+  36
+ ],
+ "bosses": [
+  {
+   "name": "Interrogator Vishas",
+   "npcID": 3983,
+   "level": 32,
+   "mechanics": [
+    {
+     "spellID": 9034,
+     "spell": "Immolate",
+     "type": "dispel",
+     "en": "Fire DoT on a player; dispel or heal through it",
+     "de": "Feuer-DoT auf Spieler; bannen oder gegenheilen"
+    },
+    {
+     "spellID": 14032,
+     "spell": "Shadow Word: Pain",
+     "type": "dispel",
+     "en": "Shadow DoT; magic dispel removes it",
+     "de": "Schatten-DoT; Magiebannung entfernt ihn"
+    }
+   ]
+  },
+  {
+   "name": "Bloodmage Thalnos",
+   "npcID": 4543,
+   "level": 34,
+   "mechanics": [
+    {
+     "spellID": 12470,
+     "spell": "Fire Nova",
+     "type": "positioning",
+     "en": "Fire burst around him; ranged and healer keep distance",
+     "de": "Feuerstoss um ihn; Fernkampf und Heiler halten Abstand",
+     "verified": true
+    },
+    {
+     "spellID": 23038,
+     "spell": "Flame Shock",
+     "type": "survive",
+     "en": "Instant fire hit plus burn on his target",
+     "de": "Sofortiger Feuertreffer mit Brand auf sein Ziel"
+    },
+    {
+     "spellID": 20825,
+     "spell": "Shadow Bolt",
+     "type": "interrupt",
+     "en": "Casts Shadow Bolt; kick it to cut damage",
+     "de": "Wirkt Schattenblitz; unterbrechen spart Schaden"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Haunting Phantasm",
+   "npcID": 6427,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 8986,
+     "spell": "Summon Illusionary Phantasm",
+     "type": "adds",
+     "en": "Spawns phantasm copies; kill the caster fast",
+     "de": "Beschwoert Phantasmen; den Beschwoerer schnell toeten"
+    }
+   ]
+  },
+  {
+   "name": "Anguished Dead",
+   "npcID": 6426,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 7068,
+     "spell": "Veil of Shadow",
+     "type": "dispel",
+     "en": "Curse that cuts healing taken; decurse the tank",
+     "de": "Fluch senkt erhaltene Heilung; Tank entfluchen"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Torturer",
+   "npcID": 4306,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 9275,
+     "spell": "Immolate",
+     "type": "dispel",
+     "en": "Fire DoT on players; dispel when possible",
+     "de": "Feuer-DoT auf Spieler; wenn moeglich bannen"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Scryer",
+   "npcID": 4293,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 9613,
+     "spell": "Shadow Bolt",
+     "type": "interrupt",
+     "en": "Caster; interrupt Shadow Bolt",
+     "de": "Zauberer; Schattenblitz unterbrechen"
+    },
+    {
+     "spellID": 77773,
+     "spell": "Sleep",
+     "type": "dispel",
+     "en": "Puts a player to sleep; dispel the victim",
+     "de": "Schlaefert einen Spieler ein; Opfer bannen",
+     "unverified": true,
+     "version": "classic"
+    }
+   ]
+  }
+ ],
+ "rares": [
+  {
+   "name": "Azshir the Sleepless",
+   "npcID": 6490
+  },
+  {
+   "name": "Fallen Champion",
+   "npcID": 6488
+  },
+  {
+   "name": "Ironspine",
+   "npcID": 6489
+  }
+ ],
+ "rareDetails": [
+  {
+   "name": "Azshir the Sleepless",
+   "npcID": 6490,
+   "level": 33,
+   "mechanics": [
+    {
+     "spellID": 7399,
+     "spell": "Terrify",
+     "type": "survive",
+     "en": "Fears a player; pull carefully near other mobs",
+     "de": "Furcht auf Spieler; nahe anderer Gegner vorsichtig ziehen"
+    },
+    {
+     "spellID": 9373,
+     "spell": "Soul Siphon",
+     "type": "survive",
+     "en": "Drains health from a player to heal himself",
+     "de": "Entzieht einem Spieler Leben und heilt sich"
+    }
+   ]
+  },
+  {
+   "name": "Fallen Champion",
+   "npcID": 6488,
+   "level": 33,
+   "mechanics": [
+    {
+     "spellID": 15496,
+     "spell": "Cleave",
+     "type": "positioning",
+     "en": "Cleaves the tank and a neighbor; only tank in front",
+     "de": "Spaltet Tank und Nachbarn; nur Tank vorne"
+    }
+   ]
+  },
+  {
+   "name": "Ironspine",
+   "npcID": 6489,
+   "level": 31,
+   "mechanics": []
+  }
+ ],
+ "sources": [
+  "https://warcraft.wiki.gg/wiki/Scarlet_Monastery_Graveyard",
+  "https://warcraft.wiki.gg/wiki/Interrogator_Vishas",
+  "https://warcraft.wiki.gg/wiki/Bloodmage_Thalnos",
+  "https://warcraft.wiki.gg/wiki/Azshir_the_Sleepless",
+  "https://warcraft.wiki.gg/wiki/Fallen_Champion",
+  "https://warcraft.wiki.gg/wiki/Ironspine",
+  "https://warcraft.wiki.gg/wiki/Haunting_Phantasm",
+  "https://warcraft.wiki.gg/wiki/Anguished_Dead",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Torturer",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Scryer",
+  "https://warcraft.wiki.gg/wiki/Torturing_Poker",
+  "https://warcraft.wiki.gg/wiki/Orb_of_the_Forgotten_Seer"
+ ]
+}

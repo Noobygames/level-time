@@ -48,10 +48,6 @@ function WindowModel.AllRows()
   return allRows
 end
 
-function WindowModel.RowByKey(key)
-  return rowsByKey[key]
-end
-
 local function isAvailable(stat)
   return not stat.available or stat.available()
 end

@@ -8,11 +8,15 @@
 -- Eintrag ändern (nur für appendOnly wichtig, siehe TableOrder.lua). Reihenfolge, Filter: TableOrder.lua.
 -- tip = Locale-Key optional: erklärt die Spalte im Tooltip des Kopfes; ohne tip gilt <header>_TIP, wenn es den Text
 -- gibt (eine Erklärung je Spaltenkopf, in allen Tabellen gleich), sonst zeigt er den Sortier-Hinweis.
+-- Spaltenwahl: hat die Ansicht mehr als DEFAULT_VISIBLE_COLUMNS Spalten, zeigt sie zunächst nur die ersten; der Knopf
+-- "Spalten" schaltet die übrigen zu (gespeichert je Tab in ns.db.tableColumns[tab][header]). Die erste Spalte
+-- (Name, Level) bleibt immer sichtbar. Es gibt kein waagerechtes Scrollen: die sichtbaren Spalten füllen die Breite.
 -- Werkzeugzeile: Export und weitere Buttons links (so breit wie ihr Text), Suchfeld rechts; reicht der Platz nicht
 -- (lange Sprachen, viele Buttons), wird das Suchfeld schmaler und rutscht notfalls in eine zweite Zeile.
 local _, ns = ...
 local Widgets = ns.Widgets
 local Format = ns.Format
+local Theme = ns.Theme
 
 local TableView = {}
 ns.TableView = TableView
@@ -22,7 +26,7 @@ local CELL_GAP = 6
 local SCROLLBAR_GAP = 6
 local REFRESH_SECONDS = 5  -- so oft werden Zeilen ohne erkennbare Änderung spätestens neu aufgebaut
 local WHEEL_STEP = 3  -- Zeilen pro Mausrad-Raste
-local WHITE = { 1, 1, 1 }
+local WHITE = ns.Theme.COLORS.text
 local LEFT, RIGHT = "LEFT", "RIGHT"
 local TOOLBAR_HEIGHT = 22     -- Zeile mit dem Suchfeld über der Tabelle
 local HINT_LINE_HEIGHT = 12  -- je Zeile des Hinweises unter der Summenzeile (sonst überdeckt er die Summen)
@@ -33,6 +37,8 @@ local FILTER_HEIGHT = 18
 local FILTER_LABEL_GAP = 8     -- Abstand "Filter" zum Feld (InputBoxTemplate zeichnet seinen Rand links außerhalb)
 local TOOLBAR_GAP = 6          -- Abstand zwischen den Buttons und zwischen Buttons und "Filter"
 local EXPORT_BUTTON_WIDTH = 70
+local COLUMNS_BUTTON_WIDTH = 70
+local DEFAULT_VISIBLE_COLUMNS = 6
 local EXTRA_BUTTON_WIDTH = 90   -- weitere Buttons der Ansicht (definition.buttons), Mindestbreite
 -- Vor dem Text: bei schmalen Spalten wird das Ende abgeschnitten, die Richtung bleibt so sichtbar
 local SORT_DESCENDING = "v "
@@ -124,7 +130,8 @@ local function placeCells(row, widths)
   for i, cell in ipairs(row.cells) do
     cell:ClearAllPoints()
     cell:SetPoint("LEFT", x, 0)
-    cell:SetWidth(widths[i] - CELL_GAP)
+    cell:SetWidth(math.max(1, widths[i] - CELL_GAP))
+    cell:SetShown(widths[i] > 0)  -- Breite 0 = Spalte abgewählt
     x = x + widths[i]
   end
   row:SetWidth(x)
@@ -220,8 +227,8 @@ function TableView.Create(definition)
     local function rowsFor(toolbarCount, hintLines)
       return math.floor((height - toolbarCount * TOOLBAR_HEIGHT - hintLines * HINT_LINE_HEIGHT) / ROW_HEIGHT) - 2
     end
-    local rowCapacity = rowsFor(1, 1)
-    local hintLines = 1
+    local rowCapacity = rowsFor(1, 0)
+    local hintLines = 0
     local visibleRows = rowCapacity
     local allRecords, records = {}, {}  -- alle Einträge bzw. gefiltert und sortiert (ohne appendOnly)
     local view = definition.appendOnly and TableOrder.NewAppendOnly(columns)  -- angezeigte Einträge mit appendOnly
@@ -249,10 +256,22 @@ function TableView.Create(definition)
     local footerRow = createRow(frame, columns, "GameFontNormalSmall")
 
     local rows = {}
-    local apply  -- unten definiert
+    local apply, isShown  -- unten definiert
     for i = 1, rowCapacity do
       rows[i] = createRow(frame, columns, "GameFontHighlightSmall")
       rows[i]:SetPoint("TOPLEFT", 0, -TOOLBAR_HEIGHT - i * ROW_HEIGHT)
+    end
+
+    -- Hover: Zeile unter der Maus hinterlegen (HookScript, damit Tooltip und Klick der Ansicht bleiben)
+    local hoverR, hoverG, hoverB = Theme.RGB("buttonFaceHover")
+    for _, row in ipairs(rows) do
+      row.hover = row:CreateTexture(nil, "BACKGROUND")
+      row.hover:SetAllPoints()
+      row.hover:SetColorTexture(hoverR, hoverG, hoverB, 0.6)
+      row.hover:Hide()
+      row:EnableMouse(true)
+      row:HookScript("OnEnter", function() row.hover:Show() end)
+      row:HookScript("OnLeave", function() row.hover:Hide() end)
     end
 
     -- Klick auf eine Zeile (nur, wenn die Ansicht etwas damit macht); danach neu zeichnen
@@ -366,6 +385,18 @@ function TableView.Create(definition)
       scrollTo(frame.offset - delta * WHEEL_STEP)
     end)
 
+    local function savedColumns()
+      return ns.db and ns.db.tableColumns and ns.db.tableColumns[definition.tab]
+    end
+    function isShown(i)
+      if i == 1 then return true end
+      local saved = savedColumns()
+      local flag = saved and saved[columns[i].header]
+      if flag ~= nil then return flag end
+      return i <= DEFAULT_VISIBLE_COLUMNS
+    end
+    function frame:IsColumnShown(i) return isShown(i) end
+
     local headerButtons = {}  -- unten angelegt: Klick sortiert
     local fittedLanguage      -- Sprache, für die die Spaltenbreiten gelten
 
@@ -375,7 +406,18 @@ function TableView.Create(definition)
       if fittedLanguage == current then return end
       fittedLanguage = current
       for i, column in ipairs(columns) do headerRow.cells[i]:SetText(L[column.header]) end
-      local widths = fittedWidths(columns, headerRow.cells, width - SCROLLBAR_GAP - scrollBar:GetWidth())
+      -- nur die sichtbaren Spalten teilen sich die Breite, abgewählte bekommen 0
+      local shownColumns, shownCells, shownIndex = {}, {}, {}
+      for i, column in ipairs(columns) do
+        if isShown(i) then
+          shownColumns[#shownColumns + 1], shownCells[#shownCells + 1], shownIndex[#shownIndex + 1] =
+            column, headerRow.cells[i], i
+        end
+      end
+      local fitted = fittedWidths(shownColumns, shownCells, width - SCROLLBAR_GAP - scrollBar:GetWidth())
+      local widths = {}
+      for i in ipairs(columns) do widths[i] = 0 end
+      for position, i in ipairs(shownIndex) do widths[i] = fitted[position] end
       for _, row in ipairs(rows) do placeCells(row, widths) end
       placeCells(headerRow, widths)
       placeCells(footerRow, widths)
@@ -385,7 +427,8 @@ function TableView.Create(definition)
       for i, button in ipairs(headerButtons) do
         button:ClearAllPoints()
         button:SetPoint("TOPLEFT", x, 0)
-        button:SetSize(widths[i], ROW_HEIGHT)
+        button:SetSize(math.max(1, widths[i]), ROW_HEIGHT)
+        button:SetShown(widths[i] > 0)
         x = x + widths[i]
       end
     end
@@ -398,6 +441,7 @@ function TableView.Create(definition)
           marker = sort.descending and SORT_DESCENDING or SORT_ASCENDING
         end
         headerRow.cells[i]:SetText(marker .. L[column.header])
+        headerRow.cells[i]:SetTextColor(unpack(sort and sort.index == i and WHITE or Widgets.COLORS.highlight))
       end
     end
 
@@ -461,7 +505,9 @@ function TableView.Create(definition)
       headerButton:SetScript("OnClick", function() frame:SortBy(i) end)
       -- Voller Kopftext (falls er trotz allem abgeschnitten ist), darunter was die Spalte zeigt oder wie man sortiert
       Widgets.AttachTooltip(headerButton, function() return L[column.header] end, function()
-        return headerTip(L, column)
+        local tip = headerTip(L, column)
+        if tip == L.TABLE_SORT_HINT then return tip end
+        return tip .. "\n" .. L.TABLE_SORT_HINT
       end)
       headerButtons[i] = headerButton
       x = x + column.width
@@ -506,6 +552,27 @@ function TableView.Create(definition)
     exportButton:SetPoint("TOPLEFT", 0, -1)
     attachButtonTip(L, exportButton, "EXPORT")
 
+    -- Spaltenwahl (nur bei mehr als DEFAULT_VISIBLE_COLUMNS Spalten): Liste mit Häkchen, bleibt nach jedem Klick offen
+    local columnsButton
+    local function openColumnChooser()
+      local entries = {}
+      for i = 2, #columns do
+        entries[#entries + 1] = { key = i, text = (isShown(i) and "[x] " or "[   ] ") .. L[columns[i].header] }
+      end
+      ns.Dropdown.Open(columnsButton, { entries = entries, onPick = function(i)
+        ns.db.tableColumns[definition.tab] = ns.db.tableColumns[definition.tab] or {}
+        ns.db.tableColumns[definition.tab][columns[i].header] = not isShown(i)
+        if sort and not isShown(sort.index) then sort = nil end
+        fittedLanguage = nil
+        apply()
+        openColumnChooser()
+      end })
+    end
+    if #columns > DEFAULT_VISIBLE_COLUMNS then
+      columnsButton = Widgets.CreateButton(frame, COLUMNS_BUTTON_WIDTH, FILTER_HEIGHT + 2, openColumnChooser)
+      attachButtonTip(L, columnsButton, "TABLE_COLUMNS")
+    end
+
     -- Werkzeugzeile in der gewählten Sprache: Buttons so breit wie ihr Text nebeneinander, rechts "Filter" und das
     -- Suchfeld. Passt das Feld nicht mehr in voller Breite daneben, wird es schmaler (bis FILTER_MIN_WIDTH), sonst
     -- bekommt es eine eigene zweite Zeile und die Tabelle rückt nach unten. Nur bei Sprachwechsel, nicht je Render.
@@ -521,6 +588,12 @@ function TableView.Create(definition)
         button.widget:ClearAllPoints()
         button.widget:SetPoint("TOPLEFT", right + TOOLBAR_GAP, -1)
         right = right + TOOLBAR_GAP + button.widget:GetWidth()
+      end
+      if columnsButton then
+        Widgets.SetButtonText(columnsButton, L.TABLE_COLUMNS, COLUMNS_BUTTON_WIDTH)
+        columnsButton:ClearAllPoints()
+        columnsButton:SetPoint("TOPLEFT", right + TOOLBAR_GAP, -1)
+        right = right + TOOLBAR_GAP + columnsButton:GetWidth()
       end
       filterLabel:SetText(L.FILTER)
       local labelWidth = math.ceil(filterLabel:GetStringWidth() or 0)
@@ -562,14 +635,14 @@ function TableView.Create(definition)
     local function showHint()
       local text = definition.hint
       if type(text) == "function" then text = text(frame.characterKey) elseif text then text = L[text] end
-      text = text or L.TABLE_SORT_HINT
+      text = text or ""  -- "Klick auf den Kopf sortiert" steht im Tooltip der Spaltenköpfe
       if text == shownHint then return false end
       shownHint = text
       hint:SetText(text)
       -- GetUnboundedStringWidth: volle Breite auch bei Umbruch (alle Clients, auch Blizzards Classic-Era-UI nutzt sie);
       -- ohne sie (Test-Stub) GetStringWidth
       local full = hint.GetUnboundedStringWidth and hint:GetUnboundedStringWidth() or hint:GetStringWidth() or 0
-      local lines = math.max(1, math.min(MAX_HINT_LINES, math.ceil(full / hintWidth)))
+      local lines = text == "" and 0 or math.max(1, math.min(MAX_HINT_LINES, math.ceil(full / hintWidth)))
       if lines == hintLines then return false end
       hintLines = lines
       placeTable()

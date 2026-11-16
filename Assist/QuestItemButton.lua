@@ -15,7 +15,8 @@
 --   Ziel        Namensplaketten, die C_QuestLog.UnitIsRelatedToActiveQuest als Questgegner meldet (wie QuestMarks.lua,
 --               nur wo es das gibt) oder deren Tooltip ein offenes Questziel nennt (Lib/QuestTooltip.lua; Forever
 --               meldet Gegner, von denen man nur etwas looten muss, nicht als quest-related, Debug-Log 2026-11-08:
---               Elementarsklave mit "Armschienen der Erdbindung: 0/4" im Tooltip, questRelated false), dazu gelernte Gegner offener Ziele (QuestMobs.lua, Roadmap 342; erfüllte Ziele
+--               Elementarsklave mit "Armschienen der Erdbindung: 0/4" im Tooltip, questRelated false), dazu gelernte Gegner offener Ziele
+--               (QuestMobs.lua, Roadmap 342; erfüllte Ziele
 --               fallen heraus). Knopf type "macro": "/cleartarget", je Name "/targetexact <Name>" (sichtbare Plaketten
 --               zuletzt, sie gewinnen), höchstens MAX_MACRO Zeichen. Optional (questTargetMarker) danach
 --               "/tm [exists,nodead] !8": Totenkopf, ohne ihn wieder abzunehmen (Präfix "!" in SlashCommands.lua aller

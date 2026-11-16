@@ -60,11 +60,11 @@ expect("alle Optionen: Ränder-Regler da", options.IsEntryShown(entryOf("SCREEN_
 LevelTimerOptions:Hide()
 
 ---------------------------------------------------------------------------
--- S23/S24: Willkommenskarte
+-- S23/S24: Einrichtungsassistent (LT-301): Tooltips, Stream-Schalter
 ---------------------------------------------------------------------------
-SlashCmdList.LEVELTIMER("welcome")
-local card = addon.WelcomeCard.Widgets()
-local minimal = card.presets[1]
+SlashCmdList.LEVELTIMER("setup")
+local wizard = addon.SetupWizard.State()
+local minimal = wizard.chips[1]
 expect("erste Voreinstellung", minimal.item.label, "PRESET_MINIMAL")
 minimal._scripts.OnEnter(minimal)
 expect("Tooltip Titel", GameTooltip._text, L.PRESET_MINIMAL)
@@ -72,31 +72,29 @@ expect("Tooltip sagt, was sie tut", GameTooltip._lines[1], L.PRESET_MINIMAL_TIP)
 minimal._scripts.OnLeave(minimal)
 minimal._scripts.OnClick(minimal)
 expect("Voreinstellung angewendet", addon.ActiveStatPreset(addon.db), addon.STAT_PRESETS[1])
-expect("aktiv hervorgehoben", minimal.underline:IsShown(), true)
-expect("andere nicht", card.presets[2].underline:IsShown(), false)
+expect("aktiv hervorgehoben", minimal:IsOn(), true)
+expect("andere nicht", wizard.chips[2]:IsOn(), false)
 addon.Set("showDeaths", true)
 expect("eigene Auswahl: keine aktiv", addon.ActiveStatPreset(addon.db), nil)
-expect("Hervorhebung weg", minimal.underline:IsShown(), false)
-
-for _, tab in ipairs(card.layouts) do
-  local labelKey = addon.WindowLayouts.Get(tab.item).label
-  tab._scripts.OnEnter(tab)
-  expect("Layout-Tooltip " .. labelKey, GameTooltip._lines[1], L[labelKey .. "_TIP"])
-  tab._scripts.OnLeave(tab)
+wow.click(L.SETUP_NEXT)
+for _, chip in ipairs(addon.SetupWizard.State().chips) do
+  chip._scripts.OnEnter(chip)
+  expect("Layout-Tooltip " .. chip.item.label, GameTooltip._lines[1], L[chip.item.label .. "_TIP"])
+  chip._scripts.OnLeave(chip)
 end
-
-expect("Stream aus", card.stream:GetChecked(), false)
-card.stream:SetChecked(true)
-card.stream._scripts.OnClick(card.stream)
+for _ = 1, 3 do wow.click(L.SETUP_NEXT) end
+local finish = addon.SetupWizard.State().stream
+expect("Stream aus", finish:GetChecked(), false)
+finish:SetChecked(true)
+finish._scripts.OnClick(finish)
 expect("Stream-Modus an", addon.StreamMode.IsEnabled(), true)
-card.stream:SetChecked(false)
-card.stream._scripts.OnClick(card.stream)
+finish:SetChecked(false)
+finish._scripts.OnClick(finish)
 expect("Stream-Modus aus", addon.StreamMode.IsEnabled(), false)
-expect("Fuß nennt /lt welcome", card.footer:GetText(), L.WELCOME_FOOTER)
-expectTrue("Fußtext mit /lt welcome", L.WELCOME_FOOTER:find("/lt welcome", 1, true) ~= nil)
-wow.click(L.WELCOME_DONE, true)
+expectTrue("Hinweis nennt /lt setup", L.SETUP_STEP_FINISH_NOTE:find("/lt setup", 1, true) ~= nil)
+wow.click(L.SETUP_SKIP)
 
----------------------------------------------------------------------------
+---
 -- S28: Profil-Reiter
 ---------------------------------------------------------------------------
 SlashCmdList.LEVELTIMER("config")

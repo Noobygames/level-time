@@ -1,6 +1,7 @@
 -- Kills und erbeutete Gegenstände der letzten WINDOW Sekunden und das daraus hochgerechnete Tempo je Stunde, damit
 -- man beim Farmen sieht, ob das Tempo gerade hält (Wunsch auf CurseForge, Roadmap 382). Wie RecentXpRate unabhängig
--- vom Bereich und nur seit Login bzw. /reload: die Zeitpunkte liegen im Speicher (Ringpuffer je Zähler, Lib/RecentCounter.lua), gefüllt über
+-- vom Bereich und nur seit Login bzw. /reload: die Zeitpunkte liegen im Speicher (Ringpuffer je Zähler, Lib/RecentCounter.lua), gefüllt
+-- über
 -- Stats.OnIncrement. Abfragen kosten je Anzeige-Takt einen Vergleich, solange nichts aus dem Fenster fällt.
 local _, ns = ...
 

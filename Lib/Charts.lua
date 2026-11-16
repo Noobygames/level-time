@@ -7,8 +7,8 @@ local Charts = {}
 ns.Charts = Charts
 
 local BAR_COLOR = Widgets.COLORS.highlight
-local BAR_HOVER_COLOR = { 1, 0.93, 0.62 }
-local HIGHLIGHT_COLOR = { 0.45, 0.75, 1 }  -- laufendes Level, heutiger Tag
+local BAR_HOVER_COLOR = ns.Theme.COLORS.goldHover
+local HIGHLIGHT_COLOR = ns.Theme.COLORS.info  -- laufendes Level, heutiger Tag
 local GRID_COLOR = { 1, 1, 1, 0.08 }
 local BASELINE_COLOR = { 1, 1, 1, 0.3 }
 

@@ -142,7 +142,7 @@ local function groupUnits()
 end
 
 local function unitFullName(unit)
-  local name, realm = UnitName(unit)
+  local name, realm = ns.Client.UnitNameAndRealm(unit)
   name, realm = readable(name), readable(realm)
   if type(name) ~= "string" then return nil end
   if type(realm) == "string" and realm ~= "" then return LootRolls.ShortName(name .. "-" .. realm) end
@@ -524,8 +524,8 @@ end
 -- Classic: altes C_LootHistory
 ---------------------------------------------------------------------------
 local function readLegacyItem(itemIndex)
-  local rollID, link, numPlayers, isDone, winnerIndex = legacyHistory.GetItem(itemIndex)
-  rollID, link, numPlayers = readable(rollID), readable(link), readable(numPlayers)
+  local rollID, _, numPlayers, isDone, winnerIndex = legacyHistory.GetItem(itemIndex)
+  rollID, numPlayers = readable(rollID), readable(numPlayers)
   isDone, winnerIndex = readable(isDone), readable(winnerIndex)
   local roll = type(rollID) == "number" and byId[rollID]
   if not roll or type(numPlayers) ~= "number" then return end

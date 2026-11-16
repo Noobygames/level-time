@@ -86,7 +86,7 @@ ns.Frames.Register({
   labelKey = "COMFORT_TARGET_RANGE",
   default = { "CENTER", "CENTER", 0, -120 },
   defaultScale = 1,
-  settingsPage = "comfort",
+  settingsPage = "COMFORT_PAGE_FRAMES",
   clickable = true,
   dragWhenUnlocked = true,
   actionsTip = true,

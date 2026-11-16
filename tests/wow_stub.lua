@@ -55,6 +55,7 @@ wow = {
     resting = false,
     buffs = {},              -- aktive Buffs: Name oder { name, spellId } (C_UnitAuras.GetAuraDataByIndex)
     spellNames = { [433] = "Essen", [19705] = "Satt", [1229741] = "Lagervorteile" },  -- C_Spell.GetSpellName
+    spellSubtexts = {},      -- C_Spell.GetSpellSubtext je Spell-ID (z.B. "Rang 2")
     -- Interface-Version (GetBuildInfo): Szenarien forever_* laden als WoW Forever (16001), era_* als Classic Era
     -- (11509), alle anderen als Retail
     interface = (SCENARIO or ""):match("^forever_") and 16001 or (SCENARIO or ""):match("^era_") and 11509 or 120105,
@@ -137,7 +138,13 @@ local frameMethods = {
   GetHeight = function(self) return self._height end,
   SetHeight = function(self, height) self._height = height end,
   GetFrameLevel = function(self) return rawget(self, "_level") or 1 end,
-  SetFrameLevel = function(self, level) self._level = level end,
+  -- Feste Ebene (LibDBIcon SetFixedFrameLevel(true)): SetFrameLevel wirkt nicht (Blizzard löst sie dafür kurz)
+  SetFrameLevel = function(self, level)
+    if rawget(self, "_fixedLevel") then return end
+    self._level = level
+  end,
+  SetFixedFrameLevel = function(self, fixed) self._fixedLevel = fixed and true or false end,
+  HasFixedFrameLevel = function(self) return rawget(self, "_fixedLevel") == true end,
   -- Scrollbereiche: Position wird gemerkt; Bereich = frame._scrollRange (Standard groß genug für jede Seite)
   SetVerticalScroll = function(self, offset) self._verticalScroll = offset end,
   GetVerticalScroll = function(self) return rawget(self, "_verticalScroll") or 0 end,
@@ -244,8 +251,10 @@ local frameMethods = {
     self._scripts[name] = previous and function(...) previous(...); handler(...) end or handler
   end,
   AddLine = function(self, text) self._lines = rawget(self, "_lines") or {}; table.insert(self._lines, text) end,
+  AddDoubleLine = function(self, left, right) self:AddLine(left .. " = " .. right) end,
   ClearLines = function(self) self._lines = {} end,
-  SetOwner = function(self) self._lines = {} end,
+  SetOwner = function(self, owner) self._lines = {}; self._owner = owner end,
+  IsOwned = function(self, frame) return rawget(self, "_owner") == frame end,
   SetHyperlink = function(self, link) self._hyperlink = link end,
   RegisterEvent = function(self, event)
     if event == UNKNOWN_EVENT then error("Attempt to register unknown event") end
@@ -273,6 +282,8 @@ local function noop() end
 frameMethods.SetTexture = function(self, texture) self._texture = texture end
 frameMethods.GetTexture = function(self) return rawget(self, "_texture") end
 frameMethods.GetAtlas = function(self) return rawget(self, "_atlas") end
+-- Modellrahmen (PlayerModel) merken die Kreatur
+frameMethods.SetCreature = function(self, creatureID) self._creature = creatureID end
 frameMethods.SetBlendMode = function(self, mode) self._blendMode = mode end
 frameMethods.GetBlendMode = function(self) return rawget(self, "_blendMode") or "BLEND" end
 frameMethods.AddMaskTexture = function(self, mask)
@@ -488,8 +499,31 @@ for line in io.lines(ADDON_DIR .. "/LevelTimer.toc") do
   end
 end
 
--- Schwester-Addon StreamGoal (Szenarien streamgoal_*): eigener Namespace, hängt wie im Client von LevelTimer ab
-if (SCENARIO or ""):match("^streamgoal_") then
+-- Lokales Entwickler-Addon LevelTimer_DataExtractor (Datensammler und Debug-Werkzeug von Level Time): eigener Namespace
+-- (global `extractor`), hängt sich über LevelTimerAPI an. Szenarien mit "debug", "profiler" oder "extractor" im Namen
+-- laden es automatisch (vor StreamGoal, wie im Client über OptionalDeps), andere rufen wow.loadExtractor() vor dem Login.
+function wow.loadExtractor()
+  if extractor then return extractor end
+  extractor = {}
+  for line in io.lines(ADDON_DIR .. "/LevelTimer_DataExtractor/LevelTimer_DataExtractor.toc") do
+    line = line:gsub("\r", ""):gsub("\\", "/")
+    if line ~= "" and not line:match("^#") then
+      local chunk, err = loadfile(ADDON_DIR .. "/LevelTimer_DataExtractor/" .. line)
+      if not chunk then error(err, 0) end
+      chunk("LevelTimer_DataExtractor", extractor)
+    end
+  end
+  return extractor
+end
+local scenarioName = SCENARIO or ""
+if scenarioName:find("debug", 1, true) or scenarioName:find("profiler", 1, true)
+  or scenarioName:find("extractor", 1, true) then
+  wow.loadExtractor()
+end
+
+-- Schwester-Addon StreamGoal (Szenarien streamgoal_*, in Classic Era era_streamgoal_*): eigener Namespace, hängt wie
+-- im Client von LevelTimer ab
+if (SCENARIO or ""):match("^streamgoal_") or (SCENARIO or ""):match("^era_streamgoal_") then
   streamGoal = {}
   for line in io.lines(ADDON_DIR .. "/StreamGoal/StreamGoal.toc") do
     line = line:gsub("\r", ""):gsub("\\", "/")

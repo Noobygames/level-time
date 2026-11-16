@@ -71,9 +71,8 @@ end
 
 -- Feldreihenfolge von CombatLogGetCurrentEventInfo: 2 = Event, 5 = Verursacher, 8 = Ziel-GUID,
 -- ab 12 je nach Event (Zauber: 12 = ID, 13 = Name; Umgebung: 12 = Art)
--- C_CombatLog.GetCurrentEventInfo in allen Clients; das globale CombatLogGetCurrentEventInfo gibt es nur
--- als Kompatibilitäts-Alias (Blizzard_DeprecatedCombatLog, nur mit CVar loadDeprecationFallbacks)
-local getCombatLogEventInfo = (C_CombatLog and C_CombatLog.GetCurrentEventInfo) or CombatLogGetCurrentEventInfo
+-- Ohne Abruf (WoW Forever, siehe Client.CombatLogEventInfo) bleibt die Ursache leer und der Death Recap springt ein
+local getCombatLogEventInfo = ns.Client.CombatLogEventInfo
 
 -- Ein Treffer-Speicher, wiederverwendet: das Kampflog feuert im Raid oder Schlachtfeld hunderte Male pro Sekunde,
 -- davon trifft nur ein kleiner Teil den Spieler. PeekLastHit gibt eine Kopie heraus.

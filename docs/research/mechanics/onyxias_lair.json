@@ -1,0 +1,75 @@
+{
+ "instance": "Onyxia's Lair",
+ "instanceMapID": 249,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "Onyxia",
+   "npcID": 10184,
+   "mechanics": [
+    {
+     "spellID": 18435,
+     "spell": "Flame Breath",
+     "type": "positioning",
+     "en": "Frontal fire breath; only the tank stands at her head",
+     "de": "Feueratem nach vorn; nur der Tank steht am Kopf"
+    },
+    {
+     "spellID": 15847,
+     "spell": "Tail Sweep",
+     "type": "positioning",
+     "en": "Tail knocks back players behind her; attack from the sides",
+     "de": "Schwanz schleudert Spieler hinter ihr; von der Seite angreifen"
+    },
+    {
+     "spellID": 17086,
+     "spell": "Breath",
+     "type": "avoid",
+     "en": "Phase 2 Deep Breath across the room; leave its path",
+     "de": "Phase 2: Tiefer Atem quer durch den Raum; Bahn verlassen"
+    },
+    {
+     "spellID": 18431,
+     "spell": "Bellowing Roar",
+     "type": "survive",
+     "en": "Phase 3 raid fear; Fear Ward or Tremor Totem help",
+     "de": "Phase 3: Raidfurcht; Furchtzauberschutz oder Erdstoßtotem",
+     "version": "classic"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Onyxian Warder",
+   "npcID": 12129,
+   "mechanics": [
+    {
+     "spellID": 20203,
+     "spell": "Fire Nova",
+     "type": "positioning",
+     "en": "Fire nova around it; casters and healers keep range",
+     "de": "Feuernova um ihn; Zauberer und Heiler auf Abstand"
+    },
+    {
+     "spellID": 18958,
+     "spell": "Flame Lash",
+     "type": "tank",
+     "en": "Fire lash on its target",
+     "de": "Flammenpeitsche auf sein Ziel"
+    },
+    {
+     "spellID": 12097,
+     "spell": "Pierce Armor",
+     "type": "tank",
+     "en": "Lowers the tank's armor",
+     "de": "Senkt die Rüstung des Tanks"
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://www.wowhead.com/classic/npc=10184",
+  "https://www.wowhead.com/classic/npc=12129"
+ ]
+}

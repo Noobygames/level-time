@@ -22,15 +22,13 @@ local LINE_GAP = 2
 local BAR_HEIGHT = 5
 local BAR_GAP = 6
 local BAR_BACK_COLOR = { 1, 1, 1, 0.12 }
-local BODY_COLOR = { 1, 1, 1 }
+local BODY_COLOR = ns.Theme.COLORS.text
 local FALLBACK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
 -- Pfad bleibt, eine Zahl ist eine Spell-ID (Textur aus dem Client); fehlt sie, das Fragezeichen
 local function iconTexture(icon)
   if type(icon) == "number" then
-    local texture = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(icon)
-    if not texture and GetSpellTexture then texture = GetSpellTexture(icon) end  -- ältere Clients
-    return texture or FALLBACK_ICON
+    return ns.Widgets.SpellTexture(icon) or FALLBACK_ICON
   end
   return icon
 end
@@ -135,7 +133,7 @@ function Card.Create(name)
       local texture = spec.texture or iconTexture(spec.icon)
       icon:SetTexture(texture)
       -- Fehlt die Textur im Client, zeigt er ein grünes Quadrat; das Log zeigt, was aufgelöst wurde (Roadmap 237, 244)
-      if ns.IsDebugging() then
+      if ns.DebugActive() then
         ns.Debug("card", "icon %s -> %s, file %s", spec.texture or spec.icon, texture,
           icon.GetTextureFileID and icon:GetTextureFileID())
       end

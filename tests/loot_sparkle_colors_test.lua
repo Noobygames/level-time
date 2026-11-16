@@ -1,4 +1,4 @@
--- Roadmap 457 & 444: Kategoriefarben, Bodenschatten, Silhouettenmaske, Effekt-Vorschau & Lueur-Erkennung
+-- Roadmap 457 & 444: Kategoriefarben, Bodenschatten, Effekt-Vorschau & Lueur-Erkennung
 local LootSparkles, LootSparkle, LootTarget = addon.LootSparkles, addon.LootSparkle, addon.LootTarget
 local expect, expectTrue, expectNear = expect, expectTrue, expectNear
 
@@ -64,20 +64,12 @@ expectNear("shade width at scale 1", shade._width, 96, 0.1)
 expectNear("shade height at scale 1", shade._height, 54, 0.1)
 
 addon.Set("lootSparkleScale", 1.5)
-expectNear("shade width at scale 1.5", shade._width, 144, 0.1)
-expectNear("shade height at scale 1.5", shade._height, 81, 0.1)
+-- frame:SetScale skaliert den Schatten mit, die eigene Größe bleibt fest (sonst wüchse er quadratisch)
+expectNear("shade width at scale 1.5", shade._width, 96, 0.1)
+expectNear("shade height at scale 1.5", shade._height, 54, 0.1)
 addon.Set("lootSparkleScale", 1)
 
--- 3. Silhouette Mask Tests
-expect("silhouette inactive by default", LootSparkle.IsSilhouetteActive(), false)
-addon.Set("lootSparkleSilhouette", true)
-expect("silhouette active when enabled", LootSparkle.IsSilhouetteActive(), true)
-local mask = LootSparkle.SilhouetteMask()
-expectTrue("mask created", mask ~= nil)
-addon.Set("lootSparkleSilhouette", false)
-expect("silhouette inactive when disabled", LootSparkle.IsSilhouetteActive(), false)
-
--- 4. Preview Tests
+-- 3. Preview Tests
 LootSparkle.Release()
 expect("not previewing before call", LootSparkle.IsPreviewing(), false)
 LootSparkle.Preview("ore")
@@ -105,7 +97,7 @@ LootSparkle.Preview()
 expect("second cycle kind is herb", LootSparkle.CurrentKind(), "herb")
 LootSparkle.Release()
 
--- 5. Soft-Targeting: Weitergabe von kind an LootSparkle
+-- 4. Soft-Targeting: Weitergabe von kind an LootSparkle
 local SOFT = LootTarget.UNIT
 local plate = CreateFrame("Frame")
 plates[SOFT] = plate
@@ -135,8 +127,8 @@ expectColor("glint vertex color updated to herb", { gr, gg, gb }, { 0.40, 1.00, 
 addon.Set("lootSparkleOre", false)
 addon.Set("lootSparkleHerbs", false)
 
--- 6. Roadmap 444: Truhen-, Schwimmer- und Berufe-Erkennung
--- 6.1 Truhen-Erkennung
+-- 5. Roadmap 444: Truhen-, Schwimmer- und Berufe-Erkennung
+-- 5.1 Truhen-Erkennung
 objects[SOFT] = true
 
 -- Via PickLock Cursor
@@ -159,7 +151,7 @@ expect("noch nicht gelernt: nil", (LootTarget.Classify(SOFT)), nil)
 LootTarget.LearnContainerFromGUID(chestGuid)
 expect("nach Lernen: chest", (LootTarget.Classify(SOFT)), LootTarget.CHEST)
 
--- 6.2 Schwimmer-Erkennung
+-- 5.2 Schwimmer-Erkennung
 -- Via Fishing Cursor
 cursors[SOFT] = "Interface\\Cursor\\Fishing"
 wow.state.units[SOFT] = { name = "Schwimmer" }
@@ -171,7 +163,7 @@ local bobberGuid = "GameObject-0-4240-0-117-35591-00002A5469"
 wow.state.units[SOFT] = { name = "Schwimmer", guid = bobberGuid }
 expect("Objekt-ID 35591 ergibt bobber", (LootTarget.Classify(SOFT)), LootTarget.BOBBER)
 
--- 6.3 NPC- und Service-Ausschlüsse (Speak, Mail, Trainer -> nil)
+-- 5.3 NPC- und Service-Ausschlüsse (Speak, Mail, Trainer -> nil)
 cursors[SOFT] = "Interface\\Cursor\\Speak"
 wow.state.units[SOFT] = { name = "Wache" }
 expect("Speak Cursor ausgeschlossen", (LootTarget.Classify(SOFT)), nil)
@@ -184,7 +176,7 @@ cursors[SOFT] = "Interface\\Cursor\\Trainer"
 wow.state.units[SOFT] = { name = "Klassenlehrer" }
 expect("Trainer Cursor ausgeschlossen", (LootTarget.Classify(SOFT)), nil)
 
--- 6.4 lootSparkleHideUntrained Filterung
+-- 5.4 lootSparkleHideUntrained Filterung
 local oldIsPlayerSpell = IsPlayerSpell
 local knownSpells = {}
 IsPlayerSpell = function(spellId) return knownSpells[spellId] == true end
@@ -224,7 +216,7 @@ addon.Set("lootSparkleHerbs", false)
 addon.Set("lootSparkleHideUntrained", false)
 IsPlayerSpell = oldIsPlayerSpell
 
--- 6.5 IsFishing
+-- 5.5 IsFishing
 local oldUnitChannelInfo = UnitChannelInfo
 UnitChannelInfo = function(unit)
   if unit == "player" then return "Angeln", "", 136245 end
@@ -236,10 +228,12 @@ end
 expectTrue("IsFishing mit Trade_Fishing", LootSparkles.IsFishing())
 UnitChannelInfo = function() return nil end
 expect("IsFishing ohne Kanalisieren", LootSparkles.IsFishing(), false)
+UnitChannelInfo = function() return wow.SECRET, "", wow.SECRET end
+expect("IsFishing mit geheimen Werten", LootSparkles.IsFishing(), false)
 UnitChannelInfo = oldUnitChannelInfo
 
--- 7. Roadmap 456: Multi-Layer-2D-Effekt-Engine & Stile
--- 7.1 Stile und Umschalten
+-- 6. Roadmap 456: Multi-Layer-2D-Effekt-Engine & Stile
+-- 6.1 Stile und Umschalten
 expect("standard style is finder", LootSparkle.CurrentStyle(), "finder")
 expect("17 sparkle styles exist", #LootSparkle.STYLES, 17)
 
@@ -295,7 +289,8 @@ expectTrue("flash layer exists", layers.flash ~= nil)
 
 local expectedActive = {
   -- bracketLocked gehört zum Zielsucher, ist aber nur im Zustand "locked" sichtbar
-  finder = { shadow = true, groundRing = true, bracketOutline = true, bracketGlow = true, bracketBloom = true, bracket = true, bracketCore = true },
+  finder = { shadow = true, groundRing = true, bracketOutline = true, bracketGlow = true, bracketBloom = true, bracket = true,
+    bracketCore = true },
   arrow = { shadowArrow = true, groundArrow = true, trail = true, arrowOutline = true, arrowGlow = true, arrow = true },
   glitter = { shadow = true, groundRing = true },
   symbol = { shadowSymbol = true, groundSymbol = true, badge = true, symbolBloom = true, symbolOutline = true, symbol = true },
@@ -350,7 +345,7 @@ for _, style in ipairs(LootSparkle.STYLES) do
   end
 end
 
--- 7.2 Dynamische Zustandswechsel (FAR -> READY -> LOCKED)
+-- 6.2 Dynamische Zustandswechsel (FAR -> READY -> LOCKED)
 addon.Set("lootSparkleStyle", "aura")
 LootSparkle.SetState("far", "ore")
 expect("switched to far", LootSparkle.State(), "far")
@@ -376,11 +371,11 @@ expectColor("locked halo color is gray", { r, g, b }, { 0.6, 0.6, 0.6 })
 r, g, b = layers.arcs:GetVertexColor()
 expectColor("locked arcs color is gray", { r, g, b }, { 0.6, 0.6, 0.6 })
 
--- 7.3 Eigene Stile (Roadmap 466, 471, 474, 475): Zustände, Schichten, Funken, Bodenschatten
+-- 6.3 Eigene Stile (Roadmap 466, 471, 474, 475): Zustände, Schichten, Funken, Bodenschatten
 local function shown(name) return layers[name]:IsShown() end
 local function glintsShown()
-  for _, g in ipairs(LootSparkle.Glints()) do
-    if g.texture:IsShown() then return true end
+  for _, glintFrame in ipairs(LootSparkle.Glints()) do
+    if glintFrame.texture:IsShown() then return true end
   end
   return false
 end
@@ -507,11 +502,11 @@ expect("clock locked: hand stands", countShown("clockHand"), 1)
 expect("clock locked: ring does not tick", anyPlaying(layers.clockFace), false)
 local lr, lg, lb = layers.clockFace:GetVertexColor()
 expectColor("clock locked: grey", { lr, lg, lb }, LootSparkle.Whiten({ 0.6, 0.6, 0.6 }, 0.2))
-local l, r, t, b = Styles.CellCoords(5)
-expectNear("cell 5 left", l, 0.25, 0.001)
-expectNear("cell 5 right", r, 0.5, 0.001)
-expectNear("cell 5 top", t, 0.25, 0.001)
-expectNear("cell 5 bottom", b, 0.5, 0.001)
+local l5, r5, t5, b5 = Styles.CellCoords(5)
+expectNear("cell 5 left", l5, 0.25, 0.001)
+expectNear("cell 5 right", r5, 0.5, 0.001)
+expectNear("cell 5 top", t5, 0.25, 0.001)
+expectNear("cell 5 bottom", b5, 0.5, 0.001)
 
 -- Fortschrittsring: weit = erste zehn Segmente laufen, bereit = alle 16 voll und poppen
 addon.Set("lootSparkleStyle", "progress")
@@ -622,8 +617,47 @@ expect("constellation ready: reveal stopped", anyPlaying(layers.skyLine1), false
 LootSparkle.SetState("locked", "herb")
 expectNear("constellation locked: star dimmed", alphaOf("skyStar1"), 0.75, 0.001)
 expect("constellation locked: still", anyPlaying(layers.skyLine1), false)
-local l1, r1 = Styles.CellCoords(8)
-expectNear("shade cell 8 left", l1, 0, 0.001)
-expectNear("shade cell 8 right", r1, 0.25, 0.001)
+local l8, r8 = Styles.CellCoords(8)
+expectNear("shade cell 8 left", l8, 0, 0.001)
+expectNear("shade cell 8 right", r8, 0.25, 0.001)
 LootSparkle.Release()
 addon.Set("lootSparkleStyle", "aura")
+
+-- 7. Maßstab und vertikaler Versatz (Roadmap 456 / Feedback)
+expectNear("base scale factor", LootSparkle.BASE_SCALE, 1.3, 0.001)
+addon.Set("lootSparkleScale", 1.0)
+expectNear("effective scale at 1.0", LootSparkle.EffectiveScale(), 1.3, 0.001)
+addon.Set("lootSparkleScale", 1.5)
+expectNear("effective scale at 1.5", LootSparkle.EffectiveScale(), 1.95, 0.001)
+addon.Set("lootSparkleScale", 1.0)
+
+local dummyPlate = CreateFrame("Frame")
+expect("preview offset", LootSparkle.OffsetY(UIParent, "ore"), 0)
+expect("object offset", LootSparkle.OffsetY(dummyPlate, "ore"), -80)
+expect("herb offset", LootSparkle.OffsetY(dummyPlate, "herb"), -80)
+expect("chest offset", LootSparkle.OffsetY(dummyPlate, "chest"), -180)
+expect("corpse offset", LootSparkle.OffsetY(dummyPlate, "corpse"), -140)
+
+LootSparkle.Attach(dummyPlate, "ready", "ore")
+local frame = LootSparkle.Frame()
+local pt = frame._points[#frame._points]
+expect("attached object point anchor", pt[1], "CENTER")
+expect("attached object point target", pt[2], dummyPlate)
+expect("attached object point relAnchor", pt[3], "CENTER")
+expect("attached object point x", pt[4], 0)
+expectNear("attached object point y", pt[5], -80 / 1.3, 0.001)
+expectNear("attached frame effective scale", frame:GetScale(), 1.3, 0.001)
+
+LootSparkle.SetState("ready", "chest")
+pt = frame._points[#frame._points]
+expectNear("switched to chest point y", pt[5], -180 / 1.3, 0.001)
+
+LootSparkle.SetState("ready", "corpse")
+pt = frame._points[#frame._points]
+expectNear("switched to corpse point y", pt[5], -140 / 1.3, 0.001)
+addon.Set("lootSparkleScale", 2.0)
+LootSparkle.Attach(dummyPlate, "ready", "corpse")
+pt = frame._points[#frame._points]
+expectNear("offset stays fixed at scale 2", pt[5] * frame:GetScale(), -140, 0.001)
+addon.Set("lootSparkleScale", 1.0)
+LootSparkle.Release()

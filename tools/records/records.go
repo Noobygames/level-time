@@ -198,9 +198,11 @@ func luaString(text string) string {
 	return b.String()
 }
 
-func luaRecord(record *Record) string {
-	return fmt.Sprintf("{ seconds = %d, runner = %s, class = %s, date = %s, link = %s }",
-		record.Seconds, luaString(record.Runner), luaString(record.Class), luaString(record.Date), luaString(record.Link))
+// luaRecord: der Link steht in einer eigenen Zeile (indent = Einrückung der Zeile mit dem Eintrag), damit keine Zeile
+// länger als 140 Zeichen wird (luacheck)
+func luaRecord(record *Record, indent string) string {
+	return fmt.Sprintf("{ seconds = %d, runner = %s, class = %s, date = %s,\n%s  link = %s }",
+		record.Seconds, luaString(record.Runner), luaString(record.Class), luaString(record.Date), indent, luaString(record.Link))
 }
 
 // WriteLua schreibt die Daten als Lua-Datei für das Addon (ns.SpeedrunRecordsData).
@@ -218,7 +220,7 @@ func WriteLua(w io.Writer, all []BracketRecords, fetched string) error {
 			continue
 		}
 		fmt.Fprintf(&b, "    {\n      label = %s,\n      level = %d,\n", luaString(records.Bracket.Label), records.Bracket.Level)
-		fmt.Fprintf(&b, "      best = %s,\n", luaRecord(records.Best))
+		fmt.Fprintf(&b, "      best = %s,\n", luaRecord(records.Best, "      "))
 		b.WriteString("      classes = {\n")
 		classes := make([]string, 0, len(records.Classes))
 		for class := range records.Classes {
@@ -226,7 +228,7 @@ func WriteLua(w io.Writer, all []BracketRecords, fetched string) error {
 		}
 		sort.Strings(classes)
 		for _, class := range classes {
-			fmt.Fprintf(&b, "        %s = %s,\n", class, luaRecord(records.Classes[class]))
+			fmt.Fprintf(&b, "        %s = %s,\n", class, luaRecord(records.Classes[class], "        "))
 		}
 		b.WriteString("      },\n    },\n")
 	}

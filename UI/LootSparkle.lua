@@ -27,6 +27,7 @@ LootSparkle.STYLES = Styles.ORDER
 LootSparkle.TEXTURE = Styles.TEXTURE.glint
 LootSparkle.TEXTURE_FLARE = Styles.TEXTURE.flare
 LootSparkle.MIN_SCALE, LootSparkle.MAX_SCALE = 0.5, 2
+LootSparkle.BASE_SCALE = 1.3
 
 
 LootSparkle.CATEGORY_COLORS = {
@@ -51,7 +52,23 @@ local GLINT_EXTRAS = {
 }
 local GLINT_SIZE = 30      -- Pixel bei Größe 1
 local SPREAD_X, SPREAD_Y = 40, 28  -- Halbachsen der Fläche, in der Funken erscheinen
-local OFFSET_Y = -40       -- von der Plakette nach unten zum Objekt
+local OFFSET_OBJECT_Y = -80       -- von der Plakette nach unten zum Boden-Objekt (Erz, Kraut)
+local OFFSET_CHEST_Y = -180       -- von der Plakette (über der Truhe) nach unten zum Fuß der Kiste
+local OFFSET_CORPSE_Y = -140      -- von der Plakette (Kopfhöhe) nach unten zur Leiche
+
+function LootSparkle.OffsetY(target, targetKind)
+  if target == UIParent then return 0 end
+  local LT = ns.LootTarget
+  local corpseKind = LT and LT.CORPSE or "corpse"
+  local chestKind = LT and LT.CHEST or "chest"
+  if targetKind == corpseKind then return OFFSET_CORPSE_Y end
+  if targetKind == chestKind then return OFFSET_CHEST_Y end
+  return OFFSET_OBJECT_Y
+end
+
+function LootSparkle.EffectiveScale()
+  return LootSparkle.CurrentScale() * LootSparkle.BASE_SCALE
+end
 local FADE_IN_SECONDS = 0.35
 local MIN_SHINE, MAX_SHINE = 0.7, 1.3  -- Dauer eines Aufleuchtens (Sekunden)
 local MAX_PAUSE = 0.6      -- dunkle Pause vor einem Aufleuchten
@@ -71,8 +88,6 @@ local LOOKS = {
 
 local frame       -- Träger der Funken, wird an die Plakette gehängt
 local shade       -- Dunkler Bodenschatten für Kontrast
-local silhouetteMask  -- Maske für Spieler-Silhouette
-local silhouetteActive = false
 local fadeIn      -- Einblenden des ganzen Schwarms
 local glints = {} -- { texture, animation, extras = { { texture, animation, factor } } }
 local layers = {}     -- Textur je Schichtname (LootSparkleStyles.LAYERS) plus ring = ring1
@@ -128,64 +143,10 @@ local function createAnimation(texture, timing)
   return group
 end
 
-local function updateShadeSize()
-  if not shade then return end
-  local scale = LootSparkle.CurrentScale()
-  shade:SetSize(SHADE_BASE_WIDTH * scale, SHADE_BASE_HEIGHT * scale)
-end
-
-local function applySilhouette()
-  if not frame then return end
-  local enabled = ns.db and ns.db.lootSparkleSilhouette == true
-  if enabled and type(frame.CreateMaskTexture) == "function" then
-    if not silhouetteMask then
-      local mask = frame:CreateMaskTexture()
-      if mask then
-        mask:SetSize(128, 128)
-        mask:ClearAllPoints()
-        mask:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-        if mask.SetTexture then
-          mask:SetTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-        end
-        silhouetteMask = mask
-      end
-    end
-    if silhouetteMask then
-      for _, glint in ipairs(glints) do
-        if glint.texture and glint.texture.AddMaskTexture then
-          glint.texture:AddMaskTexture(silhouetteMask)
-        end
-      end
-      if shade and shade.AddMaskTexture then
-        shade:AddMaskTexture(silhouetteMask)
-      end
-      for _, name in ipairs(LAYER_ORDER) do
-        local layer = layers[name]
-        if layer and layer.AddMaskTexture then
-          layer:AddMaskTexture(silhouetteMask)
-        end
-      end
-    end
-    silhouetteActive = true
-  else
-    if silhouetteMask then
-      for _, glint in ipairs(glints) do
-        if glint.texture and glint.texture.RemoveMaskTexture then
-          glint.texture:RemoveMaskTexture(silhouetteMask)
-        end
-      end
-      if shade and shade.RemoveMaskTexture then
-        shade:RemoveMaskTexture(silhouetteMask)
-      end
-      for _, name in ipairs(LAYER_ORDER) do
-        local layer = layers[name]
-        if layer and layer.RemoveMaskTexture then
-          layer:RemoveMaskTexture(silhouetteMask)
-        end
-      end
-    end
-    silhouetteActive = false
-  end
+-- SetPoint-Versatz zählt im eigenen Maßstab des Frames: zurückrechnen, damit der Abstand zum Objekt bei jeder Größe gleich bleibt
+local function anchorToPlate()
+  frame:ClearAllPoints()
+  frame:SetPoint("CENTER", plate, "CENTER", 0, LootSparkle.OffsetY(plate, kind) / frame:GetScale())
 end
 
 function LootSparkle.CurrentStyle()
@@ -345,7 +306,8 @@ local function create()
   shade:SetAlpha(0.30)
   shade:ClearAllPoints()
   shade:SetPoint("CENTER", frame, "CENTER", 0, 0)
-  updateShadeSize()
+  -- feste Grundgröße: frame:SetScale skaliert den Schatten bereits mit
+  shade:SetSize(SHADE_BASE_WIDTH, SHADE_BASE_HEIGHT)
 
   fadeIn = frame:CreateAnimationGroup()
   local alpha = fadeIn:CreateAnimation("Alpha")
@@ -452,6 +414,11 @@ function LootSparkle.HasShade()
   return shade ~= nil
 end
 
+function LootSparkle.Frame()
+  if not frame then create() end
+  return frame
+end
+
 function LootSparkle.Shade()
   if not frame then create() end
   return shade
@@ -465,14 +432,6 @@ end
 function LootSparkle.Glints()
   if not frame then create() end
   return glints
-end
-
-function LootSparkle.IsSilhouetteActive()
-  return silhouetteActive == true
-end
-
-function LootSparkle.SilhouetteMask()
-  return silhouetteMask
 end
 
 function LootSparkle.IsPreviewing()
@@ -491,14 +450,10 @@ function LootSparkle.Attach(target, newState, newKind)
   if type(level) == "number" and not ns.IsSecret(level) then
     frame:SetFrameLevel(target == UIParent and math.max(level, 10) or math.max(level - 1, 0))
   end
-  frame:ClearAllPoints()
-  frame:SetPoint("CENTER", target, "CENTER", 0, OFFSET_Y)
   -- gedimmte Plaketten (nicht anvisiert) sollen das Glitzern nicht mit abdunkeln
   frame:SetIgnoreParentAlpha(true)
-  local scale = LootSparkle.CurrentScale()
-  frame:SetScale(scale)
-  updateShadeSize()
-  applySilhouette()
+  frame:SetScale(LootSparkle.EffectiveScale())
+  anchorToPlate()
   applyStyle()
   applyLook()
   frame:Show()
@@ -523,6 +478,7 @@ function LootSparkle.SetState(newState, newKind)
   if newKind and newKind ~= kind then
     kind = newKind
     changed = true
+    anchorToPlate()
   end
   if not changed then return end
   applyLook()
@@ -569,11 +525,11 @@ end
 
 ns.RegisterApply(function()
   if frame then
-    local scale = LootSparkle.CurrentScale()
-    frame:SetScale(scale)
-    updateShadeSize()
-    applySilhouette()
+    frame:SetScale(LootSparkle.EffectiveScale())
     applyStyle()
-    if plate then applyLook() end
+    if plate then
+      anchorToPlate()
+      applyLook()
+    end
   end
 end)

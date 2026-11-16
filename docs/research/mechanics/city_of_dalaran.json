@@ -1,0 +1,102 @@
+{
+  "instance": "City of Dalaran",
+  "kind": "dungeon",
+  "bosses": [
+    {
+      "name": "Atrexis the Grave Knight",
+      "npcID": 247126,
+      "mechanics": [
+        {"spellID": 1303264, "spell": "Unholy Frenzy", "type": "dispel", "en": "Unholy Frenzy: +75% attack speed for 20 sec, purge it", "de": "Unheilige Raserei: +75 % Angriffstempo für 20 Sek., reinigen", "version": "forever"},
+        {"spellID": 1303266, "spell": "Raise Dead", "type": "adds", "en": "Skeletons keep rising: kill them as they come", "de": "Skelette erheben sich laufend: sofort töten", "version": "forever"},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Extra swings: heavy hits on the tank", "de": "Extraschläge: schwere Treffer auf dem Tank", "version": "forever"},
+        {"spellID": 6713, "spell": "Disarm", "type": "tank", "en": "Disarms the tank: expect less threat for a few seconds", "de": "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Arcane Anomaly",
+      "npcID": 245999,
+      "mechanics": [
+        {"spellID": 1241501, "spell": "Focal Blast", "type": "avoid", "en": "Focal Blast: 3 sec cast, then a beam in front; leave its path", "de": "Fokussierter Schlag: 3 Sek. Wirken, dann Strahl nach vorne; aus der Bahn gehen", "version": "forever"},
+        {"spellID": 15230, "spell": "Arcane Bolt", "type": "interrupt", "en": "Arcane bolt on a player: interrupt it", "de": "Arkanblitz auf einen Spieler: unterbrechen", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Arcanic Enigma",
+      "npcID": 246016,
+      "mechanics": [
+        {"spellID": 1240869, "spell": "Manamorph", "type": "dispel", "en": "Manamorph turns a player into an animal for 8 sec: dispel", "de": "Manamorpher verwandelt 8 Sek. in ein Tier: bannen", "version": "forever"},
+        {"spellID": 1224125, "spell": "Silence", "type": "positioning", "en": "Silences for 10 sec: healers keep their distance", "de": "Stille für 10 Sek.: Heiler halten Abstand", "version": "forever"},
+        {"spellID": 0, "spell": "Arcane Manalings", "type": "adds", "en": "Calls Arcane Manalings: use area damage", "de": "Ruft Arkane Manalinge: Flächenschaden nutzen", "version": "forever"},
+        {"spellID": 1304455, "spell": "Summon Manaling", "type": "adds", "en": "Summons manalings: kill them before they reach casters", "de": "Beschwört Manalinge: töten, bevor sie Zauberer erreichen", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Unstable Sentinel",
+      "npcID": 246017,
+      "mechanics": [
+        {"spellID": 1241329, "spell": "Malfunction", "type": "avoid", "en": "Malfunction: after a 2 sec cast, arcane pulses within 25 yd; get out", "de": "Fehlfunktion: nach 2 Sek. Wirken Arkanpulse im 25-Meter-Umkreis; rausgehen", "version": "forever"},
+        {"spellID": 0, "spell": "Angry Tomes", "type": "adds", "en": "Angry Tomes on the way: kill them before the pull", "de": "Wütende Folianten auf dem Weg: vor dem Pull töten", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Mana Devourer",
+      "npcID": 246008,
+      "mechanics": [
+        {"spellID": 1240738, "spell": "Drain Vitality", "type": "dispel", "en": "Drain Vitality on the tank: dispel the magic", "de": "Vitalität entziehen auf dem Tank: Magie bannen", "version": "forever"},
+        {"spellID": 1240750, "spell": "Debilitate", "type": "survive", "en": "Debilitate drains mana within 45 yd: casters watch their mana", "de": "Entkräften entzieht Mana im 45-Meter-Umkreis: Zauberer aufs Mana achten", "version": "forever"},
+        {"spellID": 0, "spell": "His room", "type": "adds", "en": "Creatures left in his room join in: clear it first", "de": "Übrige Gegner im Raum helfen mit: vorher räumen", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Fel Ancient",
+      "npcID": 246003,
+      "mechanics": [
+        {"spellID": 1240706, "spell": "Fel Timbers", "type": "avoid", "en": "Fel Timbers leaves poison fumes: move out", "de": "Teufelsholz hinterlässt Giftschwaden: rausgehen", "version": "forever"},
+        {"spellID": 22994, "spell": "Entangle", "type": "dispel", "en": "Entangle roots up to two players: dispel", "de": "Umschlingen wurzelt bis zu zwei Spieler fest: bannen", "version": "forever"},
+        {"spellID": 1240687, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to him: only the tank stays close", "de": "Trampeln trifft Spieler neben ihm: nur der Tank steht nah", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Shade of the Archmage",
+      "npcID": 246020,
+      "mechanics": [
+        {"spellID": 0, "spell": "Stay in the room", "type": "survive", "en": "Leaving the room resets him to full health", "de": "Verlässt jemand den Raum, hat er wieder volles Leben", "version": "forever"},
+        {"spellID": 1241515, "spell": "Bounding Mana", "type": "positioning", "en": "Bounding Mana flies to a player and back: don't stand in between", "de": "Begrenzendes Mana fliegt zu einem Spieler und zurück: nicht dazwischen stehen", "version": "forever"},
+        {"spellID": 1303598, "spell": "Mass Polymorph", "type": "survive", "en": "Out of mana: polymorphs the group for 8 sec, then refills", "de": "Ohne Mana: verwandelt die Gruppe 8 Sek., dann füllt er auf", "version": "forever"},
+        {"spellID": 1303599, "spell": "Evocation", "type": "interrupt", "en": "Evocation refills his mana: interrupt or burst him down", "de": "Hervorrufung füllt sein Mana: unterbrechen oder schnell Schaden machen", "version": "forever"},
+        {"spellID": 15230, "spell": "Arcane Bolt", "type": "interrupt", "en": "Arcane bolt on a player: interrupt it", "de": "Arkanblitz auf einen Spieler: unterbrechen", "version": "forever"},
+        {"spellID": 28450, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst around him: ranged keep their distance", "de": "Arkanexplosion um ihn: Fernkämpfer halten Abstand", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Lyn the Ignored",
+      "npcID": 247032,
+      "mechanics": [
+        {"spellID": 1304473, "spell": "Curse of Thorns", "type": "dispel", "en": "Curse of Thorns: remove the curse", "de": "Dornenfluch: Fluch entfernen", "version": "forever"},
+        {"spellID": 17228, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow Bolt Volley hits everyone within 30 yd", "de": "Schattenblitzsalve trifft alle im 30-Meter-Umkreis", "version": "forever"},
+        {"spellID": 0, "spell": "Skeletons", "type": "adds", "en": "Skeletons fight beside her: kill them", "de": "Skelette kämpfen mit: töten", "version": "forever"}
+      ]
+    }
+  ],
+  "sources": [
+    "https://foreverchanges.pro/dungeons/city-of-dalaran",
+    "https://www.wowhead.com/forever/guide/city-of-dalaran-dungeon-overview-location-rewards"
+  ],
+  "trash": [
+    {
+      "name": "Mana Phantom",
+      "npcID": 269475,
+      "mechanics": [
+        {"spellID": 20817, "spell": "Mana Burn", "type": "interrupt", "en": "Burns mana from casters: interrupt or kill it first", "de": "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "version": "forever"}
+      ]
+    },
+    {
+      "name": "Saturated Remnant",
+      "npcID": 247001,
+      "mechanics": [
+        {"spellID": 1449, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst around it: ranged stay out of melee range", "de": "Arkanexplosion um ihn: Fernkämpfer bleiben aus dem Nahkampf", "version": "forever"},
+        {"spellID": 2139, "spell": "Counterspell", "type": "positioning", "en": "Counterspells casters: break line of sight to pull it in", "de": "Gegenzauber auf Zauberer: Sichtlinie brechen und heranziehen", "version": "forever"}
+      ]
+    }
+  ]
+}

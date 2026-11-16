@@ -65,7 +65,7 @@ local function ensureBadge()
   badgeGlow = badgeFrame:CreateTexture(nil, "BACKGROUND")
   badgeGlow:SetPoint("TOPLEFT", badgeFrame, "TOPLEFT", -3, 3)
   badgeGlow:SetPoint("BOTTOMRIGHT", badgeFrame, "BOTTOMRIGHT", 3, -3)
-  badgeGlow:SetColorTexture(1.0, 0.6, 0.0, 0.85)
+  badgeGlow:SetColorTexture(ns.Theme.COLORS.warning[1], ns.Theme.COLORS.warning[2], ns.Theme.COLORS.warning[3], 0.85)
   badgeGlow:Hide()
 
   badgeBorder = badgeFrame:CreateTexture(nil, "BORDER")
@@ -79,7 +79,7 @@ local function ensureBadge()
 
   badgeText = badgeFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
   badgeText:SetPoint("CENTER", badgeFrame, "CENTER", 0, 0)
-  badgeText:SetTextColor(1, 1, 1, 1)
+  badgeText:SetTextColor(ns.Theme.RGB("text"))
   badgeText:SetText("")
 
   badgeFrame:Hide()

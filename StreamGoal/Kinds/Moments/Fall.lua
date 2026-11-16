@@ -26,16 +26,23 @@ local function gliding()
   return info ~= nil and readable((info())) == true
 end
 
+-- Ab dieser Falldauer schreibt das Debug-Log auch nicht gezählte Stürze (kürzer = normaler Sprung)
+local LOG_SHORT_FALL_SECONDS = 1
+
 function Fall.Check()
-  local falling = readable(IsFalling()) == true and readable(UnitOnTaxi("player")) ~= true and not gliding()
+  local isGliding = gliding()
+  local falling = readable(IsFalling()) == true and readable(UnitOnTaxi("player")) ~= true and not isGliding
   local now = GetTime()
   if falling then
     fallingSince = fallingSince or now
     return
   end
-  if fallingSince and now - fallingSince >= Fall.FALL_SECONDS then
-    ns.Debug("moment", "fell %s s", now - fallingSince)
+  local duration = fallingSince and now - fallingSince
+  if duration and duration >= Fall.FALL_SECONDS then
+    ns.Debug("moment", "fell %s s", duration)
     Moments.Count(MODE, 1)
+  elseif duration and (duration >= LOG_SHORT_FALL_SECONDS or isGliding) then
+    ns.Debug("moment", "fall not counted: %s s, gliding %s", duration, isGliding)
   end
   fallingSince = nil
 end

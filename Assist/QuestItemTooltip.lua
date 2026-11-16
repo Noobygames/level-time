@@ -22,8 +22,8 @@ ns.QuestItemTooltip = QuestItemTooltip
 
 local MIN_NAME_LENGTH = 4
 local MONSTER_KIND = "monster"
-local OPEN_COLOR = { 1, 0.82, 0 }
-local DONE_COLOR = { 0.6, 0.6, 0.6 }
+local OPEN_COLOR = ns.Theme.COLORS.gold
+local DONE_COLOR = ns.Theme.COLORS.muted
 
 local turnedIn = {}       -- [questID] = true, in dieser Session abgegeben
 local objectiveTexts      -- offene Sammelziele { name, title, objective }; nil = neu lesen
@@ -64,8 +64,7 @@ end
 
 function QuestItemTooltip.IsQuestDone(questID)
   if turnedIn[questID] then return true end
-  local check = (C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted) or IsQuestFlaggedCompleted
-  return check ~= nil and readable(check(questID)) == true
+  return ns.QuestLog.IsFlaggedCompleted(questID)
 end
 
 -- Zeile und Farbe für einen Gegenstand; nil ohne Questbezug

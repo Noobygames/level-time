@@ -1,0 +1,156 @@
+{
+  "instance": "Uldaman",
+  "instanceMapID": 70,
+  "kind": "dungeon",
+  "levels": [38, 53],
+  "bosses": [
+    {
+      "name": "Revelosh",
+      "npcID": 6910,
+      "level": 40,
+      "mechanics": [
+        {"spellID": 16033, "spell": "Chain Lightning", "type": "interrupt", "en": "Kick his Chain Lightning, it jumps between grouped players", "de": "Kettenblitz unterbrechen, er springt zwischen nahen Spielern", "verified": true},
+        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Interrupt Lightning Bolt to cut his damage", "de": "Blitzschlag unterbrechen, um den Schaden zu senken", "verified": true}
+      ]
+    },
+    {
+      "name": "The Lost Dwarves",
+      "npcID": 6906,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 6268, "spell": "Rushing Charge", "type": "tank", "en": "Eric charges a player and his next hit lands harder", "de": "Eric stürmt auf einen Spieler, sein nächster Schlag trifft härter"},
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Olaf stuns his target for 2 sec with Shield Slam", "de": "Olaf betäubt sein Ziel 2 Sek. mit Schildschlag"},
+        {"spellID": 15620, "spell": "Shoot", "type": "adds", "en": "Three dwarves at once; Baelog also shoots casters at range", "de": "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer"}
+      ]
+    },
+    {
+      "name": "Ironaya",
+      "npcID": 7228,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 45, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close to her", "de": "Kriegsdonner betäubt alle in ihrer Nähe", "verified": true},
+        {"spellID": 8374, "spell": "Arcing Smash", "type": "positioning", "en": "Arcing Smash hits in front of her; only the tank faces her", "de": "Bogenschlag trifft vorne; nur der Tank steht vor ihr", "verified": true},
+        {"spellID": 18670, "spell": "Knock Away", "type": "tank", "en": "Knock Away throws the tank back and lowers threat", "de": "Wegschlagen wirft den Tank zurück und senkt Bedrohung", "verified": true}
+      ]
+    },
+    {
+      "name": "Obsidian Sentinel",
+      "npcID": 7023,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 9941, "spell": "Obsidian Reflection", "type": "avoid", "en": "Can reflect spells; casters watch their damage", "de": "Kann Zauber zurückwerfen; Zauberer achten auf Schaden"},
+        {"spellID": 10072, "spell": "Splintered Obsidian", "type": "adds", "en": "Splits off Obsidian Shards; kill them, each one weakens him", "de": "Spaltet Obsidiansplitter ab; töten, jeder schwächt ihn", "verified": true},
+        {"spellID": 10061, "spell": "Summon Obsidian Shard", "type": "adds", "en": "Summons obsidian shards: kill the adds quickly", "de": "Beschwört Obsidiansplitter: Begleiter schnell töten", "verified": true}
+      ]
+    },
+    {
+      "name": "Ancient Stone Keeper",
+      "npcID": 7206,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 10094, "spell": "Sand Storms", "type": "adds", "en": "Summons Sand Storms that fight for 30 sec; move away", "de": "Beschwört Sandstürme für 30 Sek.; aus dem Weg gehen", "verified": true}
+      ]
+    },
+    {
+      "name": "Galgann Firehammer",
+      "npcID": 7291,
+      "level": 45,
+      "mechanics": [
+        {"spellID": 11970, "spell": "Fire Nova", "type": "survive", "en": "Fire Nova burns everyone around him; melee needs heals", "de": "Feuernova trifft alle um ihn; Nahkämpfer brauchen Heilung", "verified": true},
+        {"spellID": 3356, "spell": "Flame Lash", "type": "dispel", "en": "Flame Lash stacks fire damage taken; tank swap or heal", "de": "Flammenpeitsche stapelt erhöhten Feuerschaden; heilen", "verified": true},
+        {"spellID": 0, "spell": "Flame Spike", "type": "interrupt", "en": "Interrupt his Geologist guards' Flame Spike", "de": "Flammenstachel der Geologen-Wachen unterbrechen", "unverified": true},
+        {"spellID": 15039, "spell": "Flame Shock", "type": "dispel", "en": "Flame shock burns a player: dispel or heal through", "de": "Flammenschock brennt einen Spieler: bannen oder gegenheilen", "verified": true},
+        {"spellID": 9482, "spell": "Amplify Flames", "type": "dispel", "en": "Amplify flames raises fire damage taken: dispel magic", "de": "Flammen verstärken erhöht Feuerschaden: Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Grimlok",
+      "npcID": 4854,
+      "level": 0,
+      "mechanics": [
+        {"spellID": 7289, "spell": "Shrink", "type": "dispel", "en": "Shrink is a curse that weakens a player; decurse it", "de": "Schrumpfen ist ein Fluch, der schwächt; entfluchen", "verified": true},
+        {"spellID": 8292, "spell": "Chain Bolt", "type": "interrupt", "en": "Interrupt his Chain Bolt and Lightning Bolt casts", "de": "Kettenblitz und Blitzschlag unterbrechen", "verified": true},
+        {"spellID": 6742, "spell": "Bloodlust", "type": "dispel", "en": "Purge Bloodlust from him or his basilisk", "de": "Kampfrausch von ihm oder seinem Basilisken bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Archaedas",
+      "npcID": 2748,
+      "level": 47,
+      "mechanics": [
+        {"spellID": 0, "spell": "Awaken Earthen Dwarf", "type": "adds", "en": "Wakes an Earthen Custodian every 10 sec; AoE or off-tank", "de": "Weckt alle 10 Sek. einen Irdenen; flächig töten oder abtanken", "unverified": true},
+        {"spellID": 0, "spell": "Awaken Earthen Guardian", "type": "adds", "en": "At 66% six Guardians wake and whirlwind; burn the boss", "de": "Bei 66 % erwachen sechs Wächter mit Wirbelwind; Boss fokussieren", "unverified": true},
+        {"spellID": 6524, "spell": "Ground Tremor", "type": "survive", "en": "Ground Tremor stuns all nearby players", "de": "Erdbeben betäubt alle Spieler in der Nähe", "verified": true},
+        {"spellID": 10252, "spell": "Awaken Earthen Guardians", "type": "adds", "en": "Awakens earthen guardians: tank and kill the adds", "de": "Erweckt irdene Wächter: Begleiter tanken und töten", "verified": true},
+        {"spellID": 10258, "spell": "Awaken Vault Warder", "type": "adds", "en": "Awakens vault warders: tank them away from casters", "de": "Erweckt Gewölbewächter: weg von Zauberern tanken", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Stonevault Oracle",
+      "npcID": 4852,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 5605, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it or pull mobs away", "de": "Stellt Heilungszauberschutz auf; zerstören oder wegziehen"},
+        {"spellID": 8005, "spell": "Healing Wave", "type": "interrupt", "en": "Interrupt Healing Wave", "de": "Welle der Heilung unterbrechen"}
+      ]
+    },
+    {
+      "name": "Shadowforge Darkcaster",
+      "npcID": 4848,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11981, "spell": "Mana Burn", "type": "interrupt", "en": "Interrupt Mana Burn before it drains healers", "de": "Manabrand unterbrechen, bevor Heiler leer sind"},
+        {"spellID": 9081, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Shadow Bolt Volley hits the whole group; kick it", "de": "Schattenblitzsalve trifft alle; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Stonevault Geomancer",
+      "npcID": 4853,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 10452, "spell": "Flame Buffet", "type": "interrupt", "en": "Flame Buffet raises fire damage taken; interrupt", "de": "Flammenpuffer erhöht Feuerschaden; unterbrechen"}
+      ]
+    },
+    {
+      "name": "Jadespine Basilisk",
+      "npcID": 4863,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 3636, "spell": "Crystalline Slumber", "type": "interrupt", "en": "Crystalline Slumber stuns 3 sec; interrupt it", "de": "Kristallschlummer betäubt 3 Sek.; unterbrechen"},
+        {"spellID": 9906, "spell": "Reflection", "type": "avoid", "en": "Stop casting while Reflection is up", "de": "Nicht zaubern, solange Reflexion aktiv ist"}
+      ]
+    },
+    {
+      "name": "Venomlash Scorpid",
+      "npcID": 7022,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8257, "spell": "Venom Sting", "type": "dispel", "en": "Venom Sting is a poison over 15 sec; cure poison", "de": "Giftstachel wirkt 15 Sek.; Gift entfernen"}
+      ]
+    }
+  ],
+  "rares": [],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Uldaman",
+    "https://warcraft.wiki.gg/wiki/Revelosh",
+    "https://warcraft.wiki.gg/wiki/The_Lost_Dwarves_(tactics)",
+    "https://warcraft.wiki.gg/wiki/Ironaya",
+    "https://warcraft.wiki.gg/wiki/Obsidian_Sentinel",
+    "https://warcraft.wiki.gg/wiki/Ancient_Stone_Keeper",
+    "https://warcraft.wiki.gg/wiki/Galgann_Firehammer",
+    "https://warcraft.wiki.gg/wiki/Grimlok",
+    "https://warcraft.wiki.gg/wiki/Archaedas_(tactics)",
+    "https://warcraft.wiki.gg/wiki/Stonevault_Oracle",
+    "https://warcraft.wiki.gg/wiki/Shadowforge_Darkcaster",
+    "https://warcraft.wiki.gg/wiki/Stonevault_Geomancer",
+    "https://warcraft.wiki.gg/wiki/Jadespine_Basilisk",
+    "https://warcraft.wiki.gg/wiki/Venomlash_Scorpid",
+    "https://warcraft.wiki.gg/wiki/Nordic_Longshank",
+    "https://www.wowhead.com/classic/item=9408",
+    "https://www.wowhead.com/classic/item=9418",
+    "https://www.wowhead.com/classic/item=11118",
+    "https://www.wowhead.com/forever/guide/uldaman-dungeon-overview-location-rewards"
+  ]
+}

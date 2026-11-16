@@ -4,7 +4,7 @@ local Theme, Frames, Format = addon.Theme, addon.Frames, addon.Format
 
 -- Fremdes Addon hat LibSharedMedia geladen (wir bündeln es nicht)
 local media = { statusbar = { "Fremd-Balken" } }
-LibStub = function(name, silent)
+LibStub = function(name)
   if name ~= "LibSharedMedia-3.0" then return nil end
   return {
     List = function(_, kind) return media[kind] or {} end,

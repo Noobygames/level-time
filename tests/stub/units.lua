@@ -44,26 +44,47 @@ function UnitGUID(unit)
   return state.guid
 end
 function GetZoneText() return state.zone end
+-- Einheit zur GUID aus state.units (Ziel, Namensplaketten ...), sonst nil
+function UnitTokenFromGUID(guid)
+  for unit, info in pairs(state.units) do
+    if info.guid == guid then return unit end
+  end
+end
+-- Angriffstempo: state.attackSpeed = { Haupthand, Nebenhand }, state.rangedSpeed = Sekunden
+function UnitAttackSpeed() local speed = state.attackSpeed or { 2 } return speed[1], speed[2] end
+function UnitRangedDamage() return state.rangedSpeed or 0, 0, 0, 0, 0, 100 end
 -- Nur die C_CombatLog-Variante: das globale CombatLogGetCurrentEventInfo ist im Client ein
--- Kompatibilitäts-Alias, der ohne CVar loadDeprecationFallbacks fehlt
-C_CombatLog = { GetCurrentEventInfo = function() return unpack(state.combatLog) end }
+-- Kompatibilitäts-Alias, der ohne CVar loadDeprecationFallbacks fehlt. WoW Forever 1.60.1 hat kein
+-- GetCurrentEventInfo (forever CombatLogDocumentation.lua), dafür C_SwingTimer mit dem Event PLAYER_SWING.
+C_CombatLog = { IsCombatLogRestricted = function() return state.combatLogRestricted == true end }
+if state.interface == 16001 then
+  C_SwingTimer = {}
+else
+  C_CombatLog.GetCurrentEventInfo = function() return unpack(state.combatLog) end
+end
 function time(dateTable)
   if dateTable then return os.time(dateTable) end
   return state.clock
 end
 function UnitName(unit)
-  if unit == nil or unit == "player" then return state.name end
+  -- surname: Nachname wie in WoW Forever (zweiter Rückgabewert)
+  if unit == nil or unit == "player" then return state.name, state.surname end
   return state.units[unit] and state.units[unit].name
 end
 function UnitExists(unit) return unit == "player" or state.units[unit] ~= nil end
 function UnitIsPlayer(unit) return unit == "player" or (state.units[unit] and state.units[unit].isPlayer) or false end
 function UnitClassification(unit) return state.units[unit] and state.units[unit].classification or "normal" end
 function GetRealmName() return state.realm end
+-- Wie der Client: Realm ohne Leerzeichen und Bindestriche ("Azjol-Nerub" -> "AzjolNerub")
+function GetNormalizedRealmName() return state.realm and (state.realm:gsub("[%s%-]", "")) end
+-- classID (3. Rückgabe) wie im Client
+CLASS_IDS = { WARRIOR = 1, PALADIN = 2, HUNTER = 3, ROGUE = 4, PRIEST = 5, DEATHKNIGHT = 6, SHAMAN = 7, MAGE = 8,
+  WARLOCK = 9, MONK = 10, DRUID = 11 }
 -- Andere Einheiten: units[unit].class, sonst die Klasse des Spielers
 function UnitClass(unit)
   local other = unit and unit ~= "player" and state.units[unit]
   local class = other and other.class or state.class
-  return class, class
+  return class, class, CLASS_IDS[class]
 end
 function UnitIsUnit(a, b) return a == b or (state.units[a] ~= nil and state.units[a] == state.units[b]) end
 -- Reaktionsfarbe (UnitSelectionColor): units[unit].selection oder gelb
@@ -132,7 +153,7 @@ function UnitIsAFK() return state.afk end
 function IsResting() return state.resting end
 C_Spell = {
   GetSpellName = function(spellID) return state.spellNames[spellID] end,
-  GetSpellTexture = function(spellID) return "Interface\Icons\Spell_" .. spellID end,
+  GetSpellTexture = function(spellID) return "Interface\\Icons\\Spell_" .. spellID end,
   -- Hilfreiche Zauber: state.helpfulSpells[spellID] = true
   IsSpellHelpful = function(spellID) return (state.helpfulSpells or {})[spellID] == true end,
 }
@@ -164,10 +185,10 @@ function IsInGroup() return state.inGroup end
 function GetNumGroupMembers() return state.groupSize or (state.inGroup and 2 or 0) end
 function IsInRaid() return state.inRaid == true end
 -- Bedrohung des Spielers (UnitThreatSituation): state.threat = 0..3 oder nil (oder units[otherUnit].threatStatus); Rolle: state.role
-function UnitThreatSituation(unit, otherUnit)
+function UnitThreatSituation(unit, mobUnit)
   if unit == "player" then
-    if otherUnit and state.units[otherUnit] and state.units[otherUnit].threatStatus ~= nil then
-      return state.units[otherUnit].threatStatus
+    if mobUnit and state.units[mobUnit] and state.units[mobUnit].threatStatus ~= nil then
+      return state.units[mobUnit].threatStatus
     end
     return state.threat
   end

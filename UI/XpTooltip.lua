@@ -8,7 +8,7 @@ local Format = ns.Format
 local XpTooltip = {}
 ns.XpTooltip = XpTooltip
 
-local MUTED = { 0.8, 0.8, 0.8 }
+local MUTED = ns.Theme.COLORS.muted
 
 local function readable(...)
   for index = 1, select("#", ...) do

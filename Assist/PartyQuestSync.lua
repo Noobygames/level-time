@@ -29,6 +29,9 @@ ns.PartyQuestSync = PartyQuestSync
 local queue = {}
 local peers = {}         -- [playerName][questID] = { ready = bool, objectives = { [idx] = { have = n, need = m } }, updated = GetTime() }
 local lastRequest = 0
+local lastAnswer = 0     -- Antwort auf "Q" (voller Snapshot) höchstens einmal je REQUEST_COOLDOWN
+-- Nur Gruppenkanäle; Flüstern o.ä. von Fremden würde sonst Snapshots an die Gruppe auslösen
+local GROUP_CHANNELS = { PARTY = true, RAID = true, INSTANCE_CHAT = true }
 
 local function enabled()
   return ns.db and ns.db.partyQuestSync == true
@@ -40,14 +43,6 @@ end
 
 local function readable(value)
   return type(value) == "string" and not ns.IsSecret(value) and value or nil
-end
-
-local function isOwn(sender)
-  if not sender or type(sender) ~= "string" then return false end
-  local name, realm = sender:match("^([^-]+)-?(.*)$")
-  if name ~= UnitName("player") then return false end
-  local ownRealm = (GetRealmName and GetRealmName() or ""):gsub("%s", "")
-  return realm == "" or realm == ownRealm
 end
 
 local function shortName(sender)
@@ -182,7 +177,10 @@ local function handleSnapshot(sender, body)
 end
 
 local HANDLERS = {
-  Q = function(sender)
+  Q = function()
+    local now = GetTime()
+    if now - lastAnswer < PartyQuestSync.REQUEST_COOLDOWN then return end
+    lastAnswer = now
     PartyQuestSync.BroadcastSnapshot()
   end,
   S = function(sender, body)
@@ -220,8 +218,9 @@ local HANDLERS = {
 }
 
 function PartyQuestSync.HandleMessage(prefix, text, channel, sender)
-  prefix, text, sender = readable(prefix), readable(text), readable(sender)
-  if prefix ~= PartyQuestSync.PREFIX or not text or not sender or not enabled() or isOwn(sender) then
+  prefix, text, channel, sender = readable(prefix), readable(text), readable(channel), readable(sender)
+  if prefix ~= PartyQuestSync.PREFIX or not text or not sender or not GROUP_CHANNELS[channel] or not enabled()
+    or ns.GroupChat.IsOwnSender(sender) then
     return false
   end
   local kind, body = text:match("^(%u):?(.*)$")
@@ -369,13 +368,14 @@ ns.RegisterEvent("QUEST_TURNED_IN", onQuestRemoved)
 
 ns.QuestWatch.Subscribe({
   enabled = function(db) return db and db.partyQuestSync == true end,
-  onObjective = function(quest, objective, old)
+  onObjective = function(quest, objective)
     if not enabled() or not partyChannel() then return end
     local qid = quest.questID
     local idx = objective.index
     local have = objective.have
     local need = objective.need
-    if qid and idx and have and need and not ns.IsSecret(qid) and not ns.IsSecret(idx) and not ns.IsSecret(have) and not ns.IsSecret(need) then
+    if qid and idx and have and need and not ns.IsSecret(qid) and not ns.IsSecret(idx) and not ns.IsSecret(have)
+      and not ns.IsSecret(need) then
       enqueue(string.format("U:%d:%d:%d:%d", qid, idx, have, need))
     end
   end,

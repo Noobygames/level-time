@@ -1,5 +1,6 @@
 -- Zielart Erfolg (Roadmap 309): einen Erfolg erreichen. Nur in Clients mit Erfolgen (GetAchievementInfo; nicht in
--- Classic Era und TBC), sonst ist die Art nicht verfügbar (kein Reiter, kein Befehl). Fertig bei ACHIEVEMENT_EARNED(achievementID); Fortschritt aus den
+-- Classic Era und TBC), sonst ist die Art nicht verfügbar (kein Reiter, kein Befehl). Fertig bei ACHIEVEMENT_EARNED(achievementID);
+-- Fortschritt aus den
 -- Kriterien (GetAchievementNumCriteria, GetAchievementCriteriaInfo: criteriaString, criteriaType, completed, quantity,
 -- reqQuantity): ein Kriterium mit Menge zählt die Menge (z.B. 37 / 50), sonst erledigte Kriterien. Neu bei
 -- CRITERIA_UPDATE (kommt oft; nur solange ein Erfolgsziel läuft, je Ziel ein paar Aufrufe).

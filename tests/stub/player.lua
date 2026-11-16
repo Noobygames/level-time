@@ -60,6 +60,33 @@ function GetActionInfo(slot)
   local action = (state.actions or {})[slot]
   if action then return action[1], action[2] end
 end
+-- Zauberbuch: state.spellBook = { { id, lowRank } } (Name aus state.spellNames, Rang aus state.spellSubtexts).
+-- Classic Era/TBC: alte Globals mit einem Reiter; WoW Forever: C_SpellBook mit IsSpellBookItemLowRank (nur dort).
+function GetNumSpellTabs() return 1 end
+function GetSpellTabInfo() return "Allgemein", nil, 0, #(state.spellBook or {}) end
+function GetSpellBookItemName(slot)
+  local entry = (state.spellBook or {})[slot]
+  if entry then return state.spellNames[entry[1]], state.spellSubtexts[entry[1]] or "", entry[1] end
+end
+C_Spell.GetSpellSubtext = function(spellID) return state.spellSubtexts[spellID] end
+C_Spell.GetSpellName = function(spellID) return state.spellNames[spellID] end
+if state.interface == 16001 then
+  Enum = Enum or {}
+  Enum.SpellBookSpellBank = { Player = 0, Pet = 1 }
+  C_SpellBook = C_SpellBook or {}
+  C_SpellBook.GetNumSpellBookSkillLines = function() return 1 end
+  C_SpellBook.GetSpellBookSkillLineInfo = function()
+    return { itemIndexOffset = 0, numSpellBookItems = #(state.spellBook or {}) }
+  end
+  C_SpellBook.GetSpellBookItemInfo = function(slot)
+    local entry = (state.spellBook or {})[slot]
+    return entry and { spellID = entry[1] } or nil
+  end
+  C_SpellBook.IsSpellBookItemLowRank = function(slot)
+    local entry = (state.spellBook or {})[slot]
+    return entry ~= nil and entry[2] == true
+  end
+end
 function IsModifiedClick() return state.modifiedClick == true end
 -- CVars: state.cvars[name] (Text); GetCVarBool wie im Client "1" = true
 function GetCVar(name) return (state.cvars or {})[name] end

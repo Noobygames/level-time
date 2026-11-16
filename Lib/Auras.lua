@@ -147,15 +147,6 @@ function Auras.FindBySpellId(spellId)
   return buffs.bySpellId[spellId] or false
 end
 
--- { [spellId] = aura } der aktiven Buffs unter den gesuchten Spell-IDs; nil, wenn der Client Auren verbirgt
-function Auras.FindBySpellIds(spellIds)
-  local buffs = Auras.Snapshot()
-  if not buffs then return nil end
-  local found = {}
-  for _, spellId in ipairs(spellIds) do found[spellId] = buffs.bySpellId[spellId] end
-  return found
-end
-
 -- Einzelne Buffs per Spell-ID, auch wenn die Buff-Liste gesperrt ist (Retail/WoW Forever im Kampf): Blizzard gibt
 -- manche Auren trotzdem frei, C_Secrets.ShouldSpellAuraBeSecret(spellId) sagt welche; dann liefert
 -- C_UnitAuras.GetPlayerAuraBySpellID die Aura oder nil. Rückgabe: true = einer aktiv, false = sicher keiner,

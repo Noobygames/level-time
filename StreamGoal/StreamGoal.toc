@@ -6,6 +6,8 @@
 ## X-Wago-ID: v63QzDGb
 ## IconTexture: Interface\AddOns\StreamGoal\Media\Icon
 ## Dependencies: LevelTimer
+# Lädt nach dem lokalen Data Extractor, damit die Debug-Prüfungen (DebugChecks.lua) das Debug-Log vorfinden
+## OptionalDeps: LevelTimer_DataExtractor
 ## Notes: Set goals for your stream (reach a level, loot an item, kill enemies, win battlegrounds) with live tracker cards and a history
 ## Notes-deDE: Setze dir Ziele für deinen Stream (Level erreichen, Item looten, Gegner besiegen, Schlachtfelder gewinnen) mit Live-Karten und Historie
 ## Notes-frFR: Fixez des objectifs pour votre stream (niveau, objet, victimes, champs de bataille) avec cartes en direct et historique

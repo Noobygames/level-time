@@ -200,9 +200,9 @@ local function missingNow(reminder)
   if not reminder.auraOnly then return reminder.isMissing() end
   local version = ns.Auras.Snapshot() and ns.Auras.Version() or nil
   if version and reminder.missingVersion == version then return reminder.missing end
-  local missing = reminder.isMissing()
-  reminder.missing, reminder.missingVersion = missing, version
-  return missing
+  local isMissing = reminder.isMissing()
+  reminder.missing, reminder.missingVersion = isMissing, version
+  return isMissing
 end
 
 -- Fällig: fehlt und die Pause ist um, oder (remindOnLoss) war bei der letzten Prüfung noch da. Ohne remindOnLoss
@@ -210,10 +210,10 @@ end
 local function isDue(reminder)
   if not ns.db[reminder.setting] or not allowedNow(reminder) then return false end
   if not reminder.remindOnLoss and not pauseOver(reminder) then return false end
-  local missing = missingNow(reminder)
+  local isMissing = missingNow(reminder)
   local wasPresent = reminder.present
-  if missing ~= nil then reminder.present = not missing end
-  if missing ~= true then return false end
+  if isMissing ~= nil then reminder.present = not isMissing end
+  if isMissing ~= true then return false end
   if reminder.remindOnLoss and wasPresent then return true end
   return pauseOver(reminder)
 end

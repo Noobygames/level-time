@@ -35,25 +35,50 @@ local Transports, Paths, Display = addon.Transports, addon.TransportPaths, addon
 local function tick() wow.update(1) end
 local function placeAt(map, x, y) here.map, here.x, here.y = map, x, y end
 
--- Eine Fahrt Orgrimmar -> Tirisfal: legt beide Anleger und die Gegenrichtung an
-wow.state.moving = false
-placeAt(1454, 0.45, 0.60)
-tick()
-wow.advance(5)
-placeAt(1454, 0.46, 0.60)
-tick()
-wow.advance(50)
-wow.fire("PLAYER_LEAVING_WORLD")
-placeAt(1420, 0.60, 0.50)
-tick()
+-- Eine Fahrt Orgrimmar -> Tirisfal (Abfahrt bei departAt, Ankunft am Anleger rideSeconds später): legt beide
+-- Anleger und die Gegenrichtung an
+local function ride(departAt, rideSeconds)
+  wow.state.moving = false
+  placeAt(1454, 0.45, 0.60)
+  tick()
+  wow.advance(math.max(Transports.STAND_MIN_SECONDS, departAt + 1 - Transports.Now()))
+  placeAt(1454, 0.46, 0.60)
+  tick()
+  wow.advance(rideSeconds - 1)
+  wow.fire("PLAYER_LEAVING_WORLD")
+  placeAt(1420, 0.60, 0.50)
+  tick()
+  wow.advance(Transports.STAND_MIN_SECONDS)
+  tick()
+end
+
+-- Roadmap 482: Tempo im Spiel 5689 Yards / (300 s - 120 s Liegezeit); Fahrt 3300 Yards = 104 s
+local SPEED = 5689 / 180
+local first = Transports.Now() + 10
+ride(first, 104)
 local data = Transports.Data()
 local route, reverse = data.routes["Orgrimmar>Tirisfal Glades"], data.routes["Tirisfal Glades>Orgrimmar"]
-expectTrue("Strecke gelernt", route ~= nil and route.syncAt ~= nil)
+expectTrue("Strecke gelernt", route ~= nil and route.syncAt == first)
+expect("Fahrzeit gemessen", route.rideTime, 104)
 expectTrue("Gegenrichtung angelegt", reverse ~= nil and #reverse.samples == 0)
 
 local match = Paths.Match(route)
 expectTrue("Rundkurs zugeordnet", match ~= nil and match.id == 302 and match.from == 1 and match.to == 2)
-expect("ohne Periode kein Tempo", Paths.Speed(), nil)
+expectNear("Tempo aus der Fahrzeit", Paths.Speed(), 3300 / 104, 0.001)
+local estimate = Paths.Period(route)
+expectNear("Periode nach einer Fahrt geschätzt", estimate, 120 + 5689 * 104 / 3300, 0.001)
+expectTrue("Vorhersage nach einer Fahrt", Transports.SecondsToDeparture(route) ~= nil
+  and Transports.SecondsToDeparture(reverse) ~= nil)
+
+-- Zweite Fahrt eine Stunde (12 Zyklen) später: die Schätzung zählt die Zyklen, die Periode wird genau
+ride(first + 12 * 300, 104)
+expect("Periode aus weit auseinanderliegenden Fahrten", route.period, 300)
+-- Zu viele Zyklen für eine geschätzte Periode: mehrdeutig, keine Periode
+expect("Schätzung zählt keine 40 Zyklen", Transports.EstimatePeriod({ 0, 40 * 300 }, estimate,
+  Transports.MAX_ESTIMATE_CYCLES), nil)
+expectNear("Tempo aus der Periode", Paths.Speed(), SPEED, 0.001)
+route.period, route.rideTime = nil, nil
+expect("ohne Periode und Fahrzeit kein Tempo", Paths.Speed(), nil)
 expect("ohne Tempo keine Gegenrichtung", Transports.SecondsToDeparture(reverse), nil)
 
 -- Periode bekannt (z.B. geteilt): Tempo = 5689 Yards / (300 - 120) s

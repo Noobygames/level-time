@@ -43,8 +43,9 @@ function LootRollReport.CountsText(counts)
   return table.concat(parts, L.LOOT_ROLL_COUNT_SEPARATOR)
 end
 
-function LootRollReport.SummaryText(roll)
-  local item = roll.link or roll.name or "?"
+-- itemText: Gegenstand schon aufbereitet (z. B. mit Symbol für die Würfelkarte), sonst Link oder Name
+function LootRollReport.SummaryText(roll, itemText)
+  local item = itemText or roll.link or roll.name or "?"
   if roll.allPassed then return string.format(L.LOOT_ROLL_SUMMARY_ALL_PASSED, item) end
   if not roll.winner then return string.format(L.LOOT_ROLL_SUMMARY_UNKNOWN, item) end
   local kind = LootRolls.WinnerKind(roll)

@@ -1,0 +1,224 @@
+{
+  "instance": "Maraudon",
+  "instanceMapID": 349,
+  "kind": "dungeon",
+  "levels": [45, 52],
+  "bosses": [
+    {
+      "name": "Noxxion",
+      "npcID": 13282,
+      "level": 48,
+      "wing": "Orange",
+      "mechanics": [
+        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Poison volley hits the whole group; cure poisons", "de": "Giftsalve trifft die Gruppe; Gifte entfernen", "verified": true},
+        {"spellID": 21707, "spell": "Summon Noxxion's Spawns", "type": "adds", "en": "Splits into small spawns while untouchable; AoE them", "de": "Teilt sich in kleine Brut auf und ist unangreifbar; Brut per AoE töten"},
+        {"spellID": 18072, "spell": "Uppercut", "type": "tank", "en": "Uppercut knocks the tank back: tank against a wall", "de": "Aufwärtshaken schleudert den Tank zurück: an der Wand tanken", "verified": true}
+      ]
+    },
+    {
+      "name": "Razorlash",
+      "npcID": 12258,
+      "level": 48,
+      "wing": "Orange",
+      "mechanics": [
+        {"spellID": 15284, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm", "verified": true},
+        {"spellID": 15976, "spell": "Puncture", "type": "tank", "en": "Puncture shreds tank armor; heal the tank up", "de": "Durchbohren senkt die Tank-Rüstung; Tank gut heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lord Vyletongue",
+      "npcID": 12236,
+      "level": 47,
+      "wing": "Purple",
+      "mechanics": [
+        {"spellID": 1953, "spell": "Blink", "type": "positioning", "en": "Blinks away and shoots; tank and melee chase him", "de": "Teleportiert sich weg und schießt; Tank und Nahkampf folgen", "verified": true},
+        {"spellID": 7964, "spell": "Smoke Bomb", "type": "survive", "en": "Smoke Bomb stuns players near him", "de": "Rauchbombe betäubt Spieler in seiner Nähe", "verified": true},
+        {"spellID": 14443, "spell": "Multi-Shot", "type": "avoid", "en": "Multi-shot hits several players: spread out", "de": "Mehrfachschuss trifft mehrere Spieler: verteilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Meshlok the Harvester",
+      "npcID": 12237,
+      "level": 48,
+      "wing": "Purple",
+      "mechanics": [
+        {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close; casters stay at range", "de": "Kriegsdonner betäubt alle in der Nähe; Zauberer Abstand halten", "verified": true},
+        {"spellID": 15501, "spell": "Earth Shock", "type": "interrupt", "en": "Earth shock on a player: interrupt when you can", "de": "Erdschock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Celebras the Cursed",
+      "npcID": 12225,
+      "level": 49,
+      "wing": "Purple",
+      "mechanics": [
+        {"spellID": 21793, "spell": "Twisted Tranquility", "type": "interrupt", "en": "Channels Twisted Tranquility; interrupt the channel", "de": "Kanalisiert Verderbte Gelassenheit; Kanalisierung unterbrechen", "verified": true},
+        {"spellID": 12747, "spell": "Entangling Roots", "type": "dispel", "en": "Roots players in place; dispel magic", "de": "Wurzelt Spieler fest; Magie bannen", "verified": true},
+        {"spellID": 21968, "spell": "Corrupt Forces of Nature", "type": "adds", "en": "Summons corrupted plant adds; tank and kill them", "de": "Ruft verderbte Pflanzen herbei; aufnehmen und töten"},
+        {"spellID": 9739, "spell": "Wrath", "type": "interrupt", "en": "Wrath on a player: interrupt it", "de": "Zorn auf einen Spieler: unterbrechen", "verified": true},
+        {"spellID": 6913, "spell": "Force of Nature", "type": "adds", "en": "Summons treants: tank and kill the adds", "de": "Beschwört Treants: Begleiter tanken und töten", "verified": true}
+      ]
+    },
+    {
+      "name": "Landslide",
+      "npcID": 12203,
+      "level": 50,
+      "wing": "Inner",
+      "mechanics": [
+        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank back and drops threat; second tank ready", "de": "Schlägt den Tank weg und senkt Bedrohung; Ersatztank bereit", "verified": true},
+        {"spellID": 21808, "spell": "Summon Shardlings", "type": "adds", "en": "Calls rock shardlings; they die with him, AoE if needed", "de": "Ruft Felssplitter; sie sterben mit ihm, notfalls AoE"},
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Tinkerer Gizlock",
+      "npcID": 13601,
+      "level": 50,
+      "wing": "Inner",
+      "mechanics": [
+        {"spellID": 13183, "spell": "Goblin Dragon Gun", "type": "avoid", "en": "Fire cone in front of him; step out of it", "de": "Feuerkegel vor ihm; aus dem Kegel gehen", "verified": true},
+        {"spellID": 8858, "spell": "Bomb", "type": "survive", "en": "Throws bombs that hit players in an area", "de": "Wirft Bomben mit Flächenschaden", "verified": true}
+      ]
+    },
+    {
+      "name": "Rotgrip",
+      "npcID": 13596,
+      "level": 50,
+      "wing": "Inner",
+      "mechanics": [
+        {"spellID": 16495, "spell": "Fatal Bite", "type": "tank", "en": "Fatal Bite hits the tank very hard; heal through it", "de": "Tödlicher Biss trifft den Tank sehr hart; durchheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Princess Theradras",
+      "npcID": 12201,
+      "level": 51,
+      "wing": "Inner",
+      "mechanics": [
+        {"spellID": 21869, "spell": "Repulsive Gaze", "type": "survive", "en": "Repulsive Gaze fears nearby players; Fear Ward or Tremor", "de": "Abstoßender Blick lässt Spieler fliehen; Furchtschutz oder Erdstoß", "verified": true},
+        {"spellID": 21868, "spell": "Dust Field", "type": "avoid", "en": "Dust Field hurts players close to her; melee step out", "de": "Staubfeld schadet in ihrer Nähe; Nahkampf kurz raus", "verified": true},
+        {"spellID": 9483, "spell": "Boulder", "type": "survive", "en": "Throws boulders at players at range", "de": "Wirft Felsbrocken auf Spieler auf Distanz", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Putridus Satyr",
+      "npcID": 11790,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12540, "spell": "Gouge", "type": "tank", "en": "Gouges the tank; a second player with threat picks it up", "de": "Solarplexus trifft den Tank; zweiter Spieler mit Bedrohung hilft"}
+      ]
+    },
+    {
+      "name": "Putridus Trickster",
+      "npcID": 11791,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15657, "spell": "Backstab", "type": "positioning", "en": "Backstabs from behind; keep it facing the tank", "de": "Meucheln von hinten; zum Tank gedreht halten"}
+      ]
+    },
+    {
+      "name": "Putridus Shadowstalker",
+      "npcID": 11792,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 22766, "spell": "Sneak", "type": "positioning", "en": "Stealthed around Vyletongue; move carefully", "de": "Getarnt um Vyletongue; vorsichtig vorrücken"}
+      ]
+    },
+    {
+      "name": "Primordial Behemoth",
+      "npcID": 12206,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 21071, "spell": "Boulder", "type": "survive", "en": "Hurls boulders at range; pull it around a corner", "de": "Wirft Felsbrocken auf Distanz; um die Ecke ziehen"}
+      ]
+    },
+    {
+      "name": "Celebrian Dryad",
+      "npcID": 11793,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7992, "spell": "Slowing Poison", "type": "dispel", "en": "Slowing Poison on players; cure poison", "de": "Verlangsamendes Gift auf Spielern; Gift entfernen"},
+        {"spellID": 17201, "spell": "Dispel Magic", "type": "survive", "en": "Strips buffs from the group", "de": "Entfernt Stärkungszauber der Gruppe"}
+      ]
+    },
+    {
+      "name": "Deeprot Stomper",
+      "npcID": 13141,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 45, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close", "de": "Kriegsdonner betäubt alle in der Nähe", "verified": true}
+      ]
+    },
+    {
+      "name": "Deeprot Tangler",
+      "npcID": 13142,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12747, "spell": "Entangling Roots", "type": "dispel", "en": "Roots players in place; dispel magic", "de": "Wurzelt Spieler fest; Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Subterranean Diemetradon",
+      "npcID": 13323,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8281, "spell": "Sonic Burst", "type": "survive", "en": "Sonic Burst silences players nearby", "de": "Schallexplosion bringt Spieler in der Nähe zum Schweigen"}
+      ]
+    },
+    {
+      "name": "Ambereye Basilisk",
+      "npcID": 11785,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11020, "spell": "Petrify", "type": "survive", "en": "Petrify turns a player to stone for a short time", "de": "Versteinern macht einen Spieler kurz handlungsunfähig"}
+      ]
+    },
+    {
+      "name": "Theradrim Guardian",
+      "npcID": 11784,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 21057, "spell": "Summon Theradrim Shardling", "type": "adds", "en": "Spawns shardling adds; AoE them down", "de": "Ruft Theradrimsplitter herbei; per AoE töten"}
+      ]
+    },
+    {
+      "name": "Spewed Larva",
+      "npcID": 13533,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 21862, "spell": "Radiation", "type": "avoid", "en": "Radiation aura hurts nearby players; kill from range", "de": "Strahlungsaura schadet in der Nähe; auf Distanz töten"}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Meshlok the Harvester", "npcID": 12237}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Maraudon",
+    "https://www.wowisclassic.com/en/dungeon-guide/maraudon/",
+    "https://www.warcrafttavern.com/forever/guides/maraudon/",
+    "https://classic.warcraftdb.com/data/npc/13282",
+    "https://classic.warcraftdb.com/data/npc/12258",
+    "https://classic.warcraftdb.com/data/npc/12236",
+    "https://classic.warcraftdb.com/data/npc/12237",
+    "https://classic.warcraftdb.com/data/npc/12225",
+    "https://classic.warcraftdb.com/data/npc/12203",
+    "https://classic.warcraftdb.com/data/npc/13601",
+    "https://classic.warcraftdb.com/data/npc/13596",
+    "https://classic.warcraftdb.com/data/npc/12201",
+    "https://classic.warcraftdb.com/data/npc/11790",
+    "https://classic.warcraftdb.com/data/npc/11791",
+    "https://classic.warcraftdb.com/data/npc/11792",
+    "https://classic.warcraftdb.com/data/npc/12206",
+    "https://classic.warcraftdb.com/data/npc/11793",
+    "https://classic.warcraftdb.com/data/npc/13141",
+    "https://classic.warcraftdb.com/data/npc/13142",
+    "https://classic.warcraftdb.com/data/npc/13323",
+    "https://classic.warcraftdb.com/data/npc/11785",
+    "https://classic.warcraftdb.com/data/npc/11784",
+    "https://classic.warcraftdb.com/data/npc/13533",
+    "https://www.wowhead.com/forever/guide/maraudon-dungeon-overview-location-rewards"
+  ]
+}

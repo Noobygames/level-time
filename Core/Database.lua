@@ -14,6 +14,8 @@ local SETTINGS_DEFAULTS = {
   -- einfach (UX S1); wer den Schlüssel noch nicht gespeichert hat, aber schon Einstellungen hat, behält "alle"
   -- (keepAllOptionsForExisting)
   optionsAdvanced = false,
+  -- Spaltenwahl der Tabellen (TableView): [Tab][Spaltenkopf-Key] = sichtbar
+  tableColumns = {},
 }
 
 -- Zähler für Level und Session gleichermaßen. Schlüssel siehe Stats.lua; Module melden ihre Zähler selbst an
@@ -101,7 +103,7 @@ local characterMigrations = {
 }
 
 -- Migrationen für die Einstellungen, Schlüssel = Zielversion
-local SETTINGS_SCHEMA_VERSION = 8
+local SETTINGS_SCHEMA_VERSION = 9
 local OLD_DEFAULT_FONT_SIZE = 16
 
 -- Wendet fn auf die Einstellungen und alle darin gespeicherten Kopien an (Profile, Stream-Sicherung)
@@ -174,6 +176,11 @@ local settingsMigrations = {
     forEachSettingsCopy(settings, function(values)
       if values.lootSparkleStyle == "aura" then values.lootSparkleStyle = "finder" end
     end)
+  end,
+  -- Schiffs- und Zeppelinzeiten teilen ist jetzt Standard: einmalig für alle eingeschaltet, auch in Profilen
+  -- (der alte Standard "aus" war von einer bewussten Wahl nicht zu unterscheiden)
+  [9] = function(settings)
+    forEachSettingsCopy(settings, function(values) values.transportShare = true end)
   end,
 }
 
@@ -437,43 +444,77 @@ function Database.CharacterKey(name, realm)
   return name .. "-" .. realm
 end
 
--- Neu erstellter Charakter mit dem Namen eines gelöschten: gespeichertes Level höher als das aktuelle
--- (Level sinken nie). Zuhörer (Runs.lua, JournalArchive.lua) bekommen Daten und Schlüssel: sichern den alten
--- Versuch bzw. löschen sein Archiv, dann beginnen die Daten neu.
+-- Neu erstellter Charakter mit dem Namen eines gelöschten: andere GUID als gespeichert; ältere Daten ohne GUID:
+-- gespeichertes Level höher als das aktuelle (unsicher bei einem Level-Squish, daher die GUID). Zuhörer
+-- (Runs.lua, JournalArchive.lua) bekommen Daten und Schlüssel: sichern den alten Versuch bzw. löschen sein Archiv,
+-- dann beginnen die Daten neu.
 local replacedListeners = {}
 
 function Database.OnCharacterReplaced(listener)
   table.insert(replacedListeners, listener)
 end
 
-local function isReplacedCharacter(data)
+-- GUID des Spielers; nil, wenn unbekannt oder geheim
+local function playerGuid()
+  local guid = UnitGUID("player")
+  if ns.IsSecret(guid) then return nil end
+  return guid
+end
+
+local function isReplacedCharacter(data, guid)
+  if data.guid and guid then return data.guid ~= guid end
   local savedLevel = data.currentLevel and data.currentLevel.level
   return savedLevel ~= nil and savedLevel > UnitLevel("player")
+end
+
+-- Neue Daten erben die gemerkten CVar-Originale (Lib/CVars.lua), sonst bleiben unsere Werte für immer gesetzt
+local function freshCharacterData(old)
+  local originals = old and old.cvarOriginals
+  return { cvarOriginals = type(originals) == "table" and originals or nil }
+end
+
+-- Migration und Defaults eines Eintrags; false, wenn er defekt ist (Fehler geht an den Fehler-Handler)
+local function upgradeCharacter(data)
+  return xpcall(function()
+    migrate(data, characterMigrations, Database.CHARACTER_SCHEMA_VERSION)
+    applyDefaults(data, CHARACTER_DEFAULTS)
+  end, geterrorhandler())
 end
 
 -- Daten des eingeloggten Charakters holen oder anlegen. Alte Daten aus
 -- LevelTimerCharDB werden dabei einmalig übernommen und durchlaufen dieselben Migrationen.
 local function loadCharacter(stats)
   local name, realm = UnitName("player"), GetRealmName()
+  -- WoW Forever: zweiter Rückgabewert von UnitName ist der Nachname (Blizzard NameUtil, Camelot)
+  local surname = ns.Client.IsForever() and select(2, UnitName("player")) or nil
   local key = Database.CharacterKey(name, realm)
 
+  local guid = playerGuid()
   local data = stats.characters[key]
-  if data and isReplacedCharacter(data) then
+  local inherited
+  if data and isReplacedCharacter(data, guid) then
     for _, listener in ipairs(replacedListeners) do
       ns.SafeCall(listener, data, key)
     end
+    inherited = freshCharacterData(data)
     data = nil
   end
   if not data then
-    data = LevelTimerCharDB or {}
+    data = LevelTimerCharDB or inherited or {}
     stats.characters[key] = data
   end
   LevelTimerCharDB = nil
 
-  migrate(data, characterMigrations, Database.CHARACTER_SCHEMA_VERSION)
-  applyDefaults(data, CHARACTER_DEFAULTS)
+  -- Defekter Eintrag darf den Login nicht abbrechen: der Charakter beginnt neu
+  if not upgradeCharacter(data) then
+    data = freshCharacterData(data)
+    stats.characters[key] = data
+    upgradeCharacter(data)
+  end
 
+  data.guid = guid or data.guid
   data.name, data.realm = name, realm
+  data.surname = surname ~= "" and surname or nil
   data.class = select(2, UnitClass("player"))
   return key, data
 end
@@ -504,10 +545,7 @@ function Database.Load()
   -- älteren Versionen haben sonst Lücken (z.B. fehlende Journale)
   -- Ein defekter Eintrag darf nicht alle Module lahmlegen: Fehler melden, Charakter überspringen
   for _, data in pairs(LevelTimerStatsDB.characters) do
-    xpcall(function()
-      migrate(data, characterMigrations, Database.CHARACTER_SCHEMA_VERSION)
-      applyDefaults(data, CHARACTER_DEFAULTS)
-    end, geterrorhandler())
+    upgradeCharacter(data)
   end
   local characterKey, character = loadCharacter(LevelTimerStatsDB)
   return LevelTimerDB, characterKey, character
@@ -526,7 +564,9 @@ function Database.OnCharacterDeleted(listener)
 end
 
 function Database.DeleteCharacter(characterKey)
-  LevelTimerStatsDB.characters[characterKey] = nil
+  local characters = LevelTimerStatsDB.characters
+  -- Eingeloggter Charakter beginnt sofort neu (ns.DeleteCharacter) und behält seine CVar-Originale
+  characters[characterKey] = characterKey == ns.characterKey and freshCharacterData(characters[characterKey]) or nil
   for _, listener in ipairs(deletedListeners) do
     ns.SafeCall(listener, characterKey)
   end

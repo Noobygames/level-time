@@ -48,8 +48,10 @@ local CLASSIC_COLORS = {
   goodLosing = { 0.6, 0.9, 0.6 },    -- vorn, das laufende Level verliert aber Zeit (LiveSplit "ahead, losing")
   badGaining = { 1, 0.62, 0.55 },    -- hinten, das laufende Level holt aber auf (LiveSplit "behind, gaining")
   success = { 0.35, 1, 0.45 },       -- fertig/erreicht (Karten)
-  info = { 0.55, 0.8, 1 },           -- Hinweise, Flüge
-  warning = { 1, 0.6, 0.2 },
+  info = { 95 / 255, 168 / 255, 1 },   -- Hinweise, Flüge (DESIGN.md blau #5fa8ff)
+  warning = { 1, 154 / 255, 60 / 255 },  -- DESIGN.md orange #ff9a3c
+  goldHover = { 1, 241 / 255, 168 / 255 },  -- Hover auf Gold-Elementen #fff1a8
+  textSecondary = { 200 / 255, 200 / 255, 200 / 255 },  -- sekundärer Text #c8c8c8
   chromaGreen = { 0, 1, 0 },
   -- Buttons (Widgets.CreateButton): Grund je Zustand, Rand, Text deaktiviert
   buttonFace = { 0.11, 0.12, 0.2 },
@@ -60,6 +62,11 @@ local CLASSIC_COLORS = {
   buttonBorderDisabled = { 0.3, 0.3, 0.3 },
   buttonTextDisabled = { 0.5, 0.5, 0.5 },
   chromaMagenta = { 1, 0, 1 },
+  -- Bausteine (docs/clickdummy/DESIGN.md): Label #9fb3a8, Notiz #8a8a8a, Trenner #333, Auswahl #3a2e0c
+  labelText = { 159 / 255, 179 / 255, 168 / 255 },
+  note = { 138 / 255, 138 / 255, 138 / 255 },
+  divider = { 0.2, 0.2, 0.2 },
+  rowSelected = { 58 / 255, 46 / 255, 12 / 255 },
 }
 
 -- Rahmenstile: tooltip = Blizzards Tooltip-Grund mit goldenem Rand, flat = einfarbig mit 1-px-Rand (nur
@@ -120,6 +127,7 @@ local FONT_ROLES = {
   small = "GameFontHighlightSmall",  -- Zeilenwerte (weiß)
   number = "GameFontNormalLarge",    -- Zeit im Hauptfenster
   huge = "GameFontNormalHuge",       -- große Zahl auf Karten, Einblendungen
+  note = "GameFontHighlightSmall",   -- graue Notizen, eine Zeile (Farbe Theme.COLORS.note setzt der Aufrufer)
 }
 
 Theme.COLORS = {}

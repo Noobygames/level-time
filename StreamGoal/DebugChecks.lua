@@ -1,4 +1,5 @@
--- Debug-Checks von Level Time Goals für offene Fragen im Spiel (/lt debug check, Ergebnis im Debug-Log von Level Time).
+-- Debug-Checks von Level Time Goals für offene Fragen im Spiel (/lt debug check, Ergebnis im Debug-Log, das im lokalen
+-- LevelTimer_DataExtractor liegt; ohne ihn gibt es LT.DebugLog nicht und die Datei tut nichts).
 -- Namen <Roadmap>.goals.<was>; ManualToCheck nennt sie bei den Punkten 173-183.
 local _, ns = ...
 local LT = ns.LT
@@ -112,4 +113,100 @@ DebugLog.AddCheck("439.goals.moments", function()
     buyback = BuybackItem ~= nil,
     questRewards = rewardCount,
   }
+end)
+
+local Goals = ns.Goals
+
+local function frameStrata(frame)
+  if not frame then return false end
+  return { strata = frame:GetFrameStrata(), level = frame:GetFrameLevel(), shown = frame:IsShown() and true or false }
+end
+
+-- LT-114, LT-121, LT-97, LT-191: laufende Ziele mit Art, Stand, Frist (Restzeit, Modus, Spielzeit-Basis), Belohnung
+-- und Erfolgs-Kriterien; vor und nach Login/Ausloggen laufen lassen und die Zeilen vergleichen
+DebugLog.AddCheck("LT114.goals.active", function()
+  local list = {}
+  for _, goal in ipairs(Goals.Active()) do
+    local deadline = goal.deadline
+    table.insert(list, {
+      id = goal.id, kind = goal.kind, progress = safe(goal.progress), target = goal.target,
+      deadlineMode = deadline and deadline.mode or false,
+      deadlineRemaining = deadline and ns.Deadlines.Remaining(goal) or false,
+      deadlineText = deadline and ns.Deadlines.Text(goal) or false,
+      reward = ns.Rewards.Line(goal) or false,
+      achievementId = goal.params and goal.params.achievementId or nil,
+    })
+  end
+  local played = LT.PlayedTime and LT.PlayedTime.GetTotalSeconds and LT.PlayedTime.GetTotalSeconds()
+  return { goals = list, playedSeconds = played or false, now = time(), points = ns.Rewards.TotalPoints(LT.characterKey) }
+end)
+
+-- LT-97: API-Rückgaben des Erfolgssystems für den ersten laufenden Erfolgs-Zielwert (sonst Erfolg 6)
+DebugLog.AddCheck("LT97.goals.achievement", function()
+  local id = 6
+  for _, goal in ipairs(Goals.Active()) do
+    if goal.kind == "achievement" and goal.params then id = goal.params.achievementId or id end
+  end
+  local criteria = {}
+  local count = GetAchievementNumCriteria and GetAchievementNumCriteria(id) or 0
+  for index = 1, math.min(count, 5) do
+    local name, _, completed, quantity, required = GetAchievementCriteriaInfo(id, index)
+    table.insert(criteria, string.format("%s completed=%s %s/%s", tostring(safe(name)), tostring(safe(completed)),
+      tostring(safe(quantity)), tostring(safe(required))))
+  end
+  return { id = id, info = GetAchievementInfo ~= nil and safe((GetAchievementInfo(id))) or false, criteria = criteria }
+end)
+
+-- LT-117: Pakete und Teilen: Liste, Titel, Roundtrip Encode/Decode, Import-Art
+DebugLog.AddCheck("LT117.goals.packs", function()
+  local packs = {}
+  for _, entry in ipairs(ns.Packs.List()) do
+    table.insert(packs, string.format("%s builtin=%s titles=%s", entry.key, tostring(entry.builtin),
+      table.concat(ns.Packs.Titles(entry.key), "|")))
+  end
+  local key = ns.Packs.List()[1]
+  local exported = key and ns.Packs.Export(key.key)
+  local entries = exported and ns.Packs.Decode(exported)
+  local roundtrip = entries and ns.Packs.Decode(ns.Packs.Encode("Test", entries))
+  return { packs = packs, exportLength = exported and #exported or false, decoded = entries and #entries or false,
+    roundtrip = roundtrip and #roundtrip or false }
+end)
+
+-- LT-158 (Minimap-Button): Einstellung, Winkel, Tooltip-Zeilen und Rahmen
+DebugLog.AddCheck("LT158.goals.minimapButton", function()
+  local lines = {}
+  local tooltip = { AddLine = function(_, text) table.insert(lines, tostring(text)) end }
+  ns.MinimapButton.FillTooltip(tooltip)
+  return { shown = ns.db.settings.minimapButton, angle = ns.db.settings.minimapAngle,
+    running = #ns.MinimapButton.ListedGoals(), tooltip = lines }
+end)
+
+-- LT-166: Glücksrad: Neuwürfe, Anzeigedauer, Ebenen von Rad und Ergebnis-Karte gegen das Fenster
+DebugLog.AddCheck("LT166.goals.wheelState", function()
+  return { rerollsLeft = ns.Wheel.RerollsLeft(), spinning = ns.Wheel.IsSpinning() and true or false,
+    resultSeconds = ns.db.settings.wheelResultSeconds, spinStrata = ns.WheelDisplay.SPIN_STRATA,
+    wheel = frameStrata(_G.StreamGoalWheel), card = frameStrata(ns.Wheel.card and ns.Wheel.card.frame),
+    window = frameStrata(_G.StreamGoalWindow) }
+end)
+
+-- LT-169, LT-167: Einstieg: Zahl der Ziele und Datenbank-Schlüssel (kein Willkommen-Flag im Code vorhanden)
+DebugLog.AddCheck("LT169.goals.firstRun", function()
+  local keys = {}
+  for key in pairs(StreamGoalDB or {}) do table.insert(keys, key) end
+  table.sort(keys)
+  return { dbKeys = table.concat(keys, ","), active = #Goals.Active(), history = #Goals.History() }
+end)
+
+-- LT-148: Zusammenfassungskarte im Stream: Modus, Zeilen (zweimal im Abstand aufrufen: Werte zählen live?),
+-- Rahmen und Stream-Modus
+DebugLog.AddCheck("LT148.recap.state", function()
+  local rows = {}
+  local recap = ns.RecapWindow
+  if recap and recap.GetMode then
+    for _, row in ipairs(recap.BuildRows(recap.GetMode()) or {}) do
+      table.insert(rows, type(row) == "table" and table.concat({ tostring(row[1]), tostring(row[2]) }, "=") or tostring(row))
+    end
+  end
+  return { mode = recap and recap.GetMode and recap.GetMode() or false, rows = rows,
+    streamMode = ns.StreamMode and ns.StreamMode.IsEnabled() or false }
 end)

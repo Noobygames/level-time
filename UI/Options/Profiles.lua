@@ -4,7 +4,8 @@ local O = ns.OptionsCore
 local L = ns.L
 local Widgets = ns.Widgets
 local Builder = ns.OptionsBuilder
-local builder, addPage, finishPage, addSection, addButton, addHint, localized = O.builder, O.addPage, O.finishPage, O.addSection, O.addButton, O.addHint, O.localized
+local builder, addPage, finishPage, addSection, addButton = O.builder, O.addPage, O.finishPage, O.addSection, O.addButton
+local addHint, localized = O.addHint, O.localized
 
 local MAX_PROFILE_ROWS = 6     -- so viele Profile listet der Reiter "Profile"
 local ROW_PROFILE = 20

@@ -54,3 +54,17 @@ function Client.Flavor()
   if Client.IsClassicEra() then return "classic_era" end
   return "other"
 end
+
+-- Abruf der Kampflog-Felder (COMBAT_LOG_EVENT_UNFILTERED) oder nil. WoW Forever 1.60.1 hat in C_CombatLog kein
+-- GetCurrentEventInfo (forever CombatLogDocumentation.lua; nur C_CombatLogSecure, SecureOnly), der globale Alias
+-- CombatLogGetCurrentEventInfo zeigt dort auf die fehlende Funktion. Classic Era hat beides. Ohne Abruf nutzen
+-- Todesursache (Death Recap), Boss-Kills (UNIT_DIED) und Schwungbalken (PLAYER_SWING) Ersatzquellen (LT-267).
+Client.CombatLogEventInfo = (C_CombatLog and C_CombatLog.GetCurrentEventInfo) or CombatLogGetCurrentEventInfo
+
+-- Name und Realm einer Einheit. In WoW Forever liefert UnitName als zweiten Wert den Nachnamen statt des Realms
+-- (Blizzard Camelot/NameUtil.lua), dort gibt es daher keinen Realm.
+function Client.UnitNameAndRealm(unit)
+  local name, second = UnitName(unit)
+  if Client.IsForever() then return name, nil end
+  return name, second
+end

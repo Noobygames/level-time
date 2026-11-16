@@ -4,6 +4,8 @@
 --   MapCoords.MapToWorld(uiMapID, x, y)   -> instanceID, worldX, worldY oder nil
 --   MapCoords.WorldToMap(uiMapID, worldX, worldY) -> x, y oder nil (nicht begrenzt: außerhalb der Karte < 0 oder > 1)
 --   MapCoords.Size(uiMapID)               -> Breite (West-Ost), Höhe (Nord-Süd) in Yards oder nil
+--   MapCoords.Translate(fromMapID, x, y, toMapID) -> x, y auf der anderen Karte (nicht begrenzt) oder nil, wenn die
+--                                         Karten auf verschiedenen Kontinenten liegen oder eine Umrechnung fehlt
 -- Zuerst die Client-API (C_Map.GetWorldPosFromMapPos / GetMapPosFromWorldPos), sonst die erzeugten Bereiche
 -- ns.MapCoordsData (tools/flights, Assist/MapCoordsData/<flavor>.lua: Kontinent- und Zonenkarten).
 local _, ns = ...
@@ -77,4 +79,11 @@ function MapCoords.Size(uiMapID)
   local a = area(uiMapID)
   if not a then return nil end
   return a[AREA_MAX_WEST] - a[AREA_MIN_WEST], a[AREA_MAX_NORTH] - a[AREA_MIN_NORTH]
+end
+
+function MapCoords.Translate(fromMapID, x, y, toMapID)
+  if fromMapID == toMapID then return x, y end
+  local instanceID, worldX, worldY = MapCoords.MapToWorld(fromMapID, x, y)
+  if not instanceID or MapCoords.MapToWorld(toMapID, 0, 0) ~= instanceID then return nil end
+  return MapCoords.WorldToMap(toMapID, worldX, worldY)
 end

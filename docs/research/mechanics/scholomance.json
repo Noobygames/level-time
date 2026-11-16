@@ -1,0 +1,287 @@
+{
+  "instance": "Scholomance",
+  "instanceMapID": 289,
+  "kind": "dungeon",
+  "levels": [58, 60],
+  "bosses": [
+    {
+      "name": "Blood Steward of Kirtonos",
+      "npcID": 14861,
+      "level": 61,
+      "mechanics": [
+        {"spellID": 22371, "spell": "Curse of Impotence", "type": "dispel", "en": "Remove his curses; he drops the Blood of Innocents", "de": "Flüche entfernen; er lässt das Blut der Unschuldigen fallen", "verified": true}
+      ]
+    },
+    {
+      "name": "Kirtonos the Herald",
+      "npcID": 10506,
+      "level": 60,
+      "mechanics": [
+        {"spellID": 18144, "spell": "Swoop", "type": "positioning", "en": "Gargoyle form: stay out of the frontal stun cone", "de": "Gargoylegestalt: nicht vor ihm stehen, Kegel betäubt"},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Tank against a wall so the knockback does not throw him", "de": "Tank an die Wand, damit der Rückstoß nicht wegschleudert"},
+        {"spellID": 12889, "spell": "Curse of Tongues", "type": "dispel", "en": "Human form casts curses; decurse casters fast", "de": "Menschengestalt verflucht; Zauberer schnell entfluchen"},
+        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse lowers melee damage: remove the curse", "de": "Fluch senkt Nahkampfschaden: Fluch entfernen", "verified": true}
+      ]
+    },
+    {
+      "name": "Jandice Barov",
+      "npcID": 10503,
+      "level": 61,
+      "mechanics": [
+        {"spellID": 17773, "spell": "Summon Illusions", "type": "adds", "en": "Spawns many illusions; mark and focus the real Jandice", "de": "Beschwört viele Trugbilder; echte Jandice markieren und angreifen"},
+        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; remove it", "de": "Fluch erhöht erlittenen körperlichen Schaden; entfernen", "verified": true}
+      ]
+    },
+    {
+      "name": "Rattlegore",
+      "npcID": 11622,
+      "level": 61,
+      "mechanics": [
+        {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "AoE stun around him; melee need heals ready", "de": "Flächenbetäubung um ihn; Nahkämpfer brauchen Heilung", "verified": true},
+        {"spellID": 18945, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank back; drops the Viewing Room Key", "de": "Schlägt den Tank weg; lässt den Schlüssel zum Sichtraum fallen", "verified": true}
+      ]
+    },
+    {
+      "name": "Death Knight Darkreaver",
+      "npcID": 14516,
+      "level": 62,
+      "mechanics": [
+        {"spellID": 0, "spell": "Spirit waves", "type": "adds", "en": "Summoning event: kill the spirit waves before he appears", "de": "Beschwörung: Geisterwellen töten, bevor er erscheint", "unverified": true},
+        {"spellID": 7645, "spell": "Dominate Mind", "type": "interrupt", "en": "Can mind-control a player; interrupt or crowd-control", "de": "Kann Spieler übernehmen; unterbrechen oder kontrollieren"}
+      ],
+      "summoned": true
+    },
+    {
+      "name": "Marduk Blackpool",
+      "npcID": 10433,
+      "level": 58,
+      "mechanics": [
+        {"spellID": 12040, "spell": "Shadow Shield", "type": "positioning", "en": "Shadow shield hurts melee; let ranged do the work", "de": "Schattenschild schadet Nahkämpfern; Fernkämpfer übernehmen", "verified": true},
+        {"spellID": 17695, "spell": "Defiling Aura", "type": "positioning", "en": "Aura damages nearby players; ranged keep distance", "de": "Aura schadet in der Nähe; Fernkämpfer auf Abstand", "verified": true},
+        {"spellID": 11609, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm", "verified": true}
+      ]
+    },
+    {
+      "name": "Vectus",
+      "npcID": 10432,
+      "level": 60,
+      "mechanics": [
+        {"spellID": 10216, "spell": "Flamestrike", "type": "avoid", "en": "Leave the Flamestrike area at once", "de": "Flammenstoß-Fläche sofort verlassen", "verified": true},
+        {"spellID": 13021, "spell": "Blast Wave", "type": "positioning", "en": "Point-blank fire burst; spread out and stay at range", "de": "Feuerwelle im Nahbereich; verteilen und Abstand halten", "verified": true}
+      ]
+    },
+    {
+      "name": "Ras Frostwhisper",
+      "npcID": 10508,
+      "level": 62,
+      "mechanics": [
+        {"spellID": 6215, "spell": "Fear", "type": "survive", "en": "Fears players; clear his adds first so no extra pulls", "de": "Furcht auf Spieler; vorher Adds töten, sonst Zusatzpulls", "verified": true},
+        {"spellID": 18099, "spell": "Chill Nova", "type": "positioning", "en": "Frost nova roots melee; ranged stay at max range", "de": "Frostnova wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "verified": true},
+        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Interrupt the frostbolt volleys", "de": "Frostblitzsalven unterbrechen", "verified": true},
+        {"spellID": 16350, "spell": "Freeze", "type": "dispel", "en": "Freezes a player in place: dispel magic", "de": "Friert einen Spieler ein: Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Kormok",
+      "npcID": 16118,
+      "level": 60,
+      "mechanics": [
+        {"spellID": 27688, "spell": "Bone Shield", "type": "positioning", "en": "Bone shield reflects damage to melee; melee pause", "de": "Knochenschild wirft Schaden auf Nahkämpfer zurück; pausieren"},
+        {"spellID": 27687, "spell": "Summon Bone Minions", "type": "adds", "en": "Summons skeleton minions and mages; kill them", "de": "Beschwört Skelettdiener und -magier; töten"}
+      ],
+      "summoned": true
+    },
+    {
+      "name": "Instructor Malicia",
+      "npcID": 10505,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 17843, "spell": "Flash Heal", "type": "interrupt", "en": "Heals herself; interrupt her heals", "de": "Heilt sich selbst; Heilungen unterbrechen"},
+        {"spellID": 6146, "spell": "Slow", "type": "dispel", "en": "Slow cuts attack and move speed; dispel it", "de": "Verlangsamung senkt Angriffs- und Lauftempo; bannen", "verified": true},
+        {"spellID": 5137, "spell": "Call of the Grave", "type": "adds", "en": "Calls undead helpers: kill the adds", "de": "Ruft untote Helfer: Begleiter töten", "verified": true},
+        {"spellID": 25311, "spell": "Corruption", "type": "dispel", "en": "Corruption on a player: dispel magic", "de": "Verderbnis auf einem Spieler: Magie bannen", "verified": true},
+        {"spellID": 6064, "spell": "Heal", "type": "interrupt", "en": "Heals herself: interrupt the cast", "de": "Heilt sich selbst: Zauber unterbrechen", "verified": true},
+        {"spellID": 25315, "spell": "Renew", "type": "dispel", "en": "Renew heals her over time: purge it", "de": "Erneuerung heilt sie über Zeit: reinigen", "verified": true}
+      ]
+    },
+    {
+      "name": "Doctor Theolen Krastinov",
+      "npcID": 11261,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrages at 50 percent; burn fast, tank uses cooldowns", "de": "Raserei bei 50 Prozent; schnell töten, Tank nutzt Cooldowns"},
+        {"spellID": 11574, "spell": "Rend", "type": "survive", "en": "Bleed on the tank; low-armor players keep away", "de": "Blutung auf dem Tank; Spieler mit wenig Rüstung Abstand halten", "verified": true},
+        {"spellID": 11130, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true}
+      ]
+    },
+    {
+      "name": "Lorekeeper Polkelt",
+      "npcID": 10901,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 3586, "spell": "Volatile Infection", "type": "positioning", "en": "Infected player hurts nearby allies; move away", "de": "Infizierter schadet Verbündeten in der Nähe; weggehen", "verified": true},
+        {"spellID": 8245, "spell": "Corrosive Acid", "type": "tank", "en": "Acid lowers armor; zombie adds explode on death", "de": "Säure senkt Rüstung; Zombie-Adds explodieren beim Tod", "verified": true}
+      ]
+    },
+    {
+      "name": "The Ravenian",
+      "npcID": 10507,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 11130, "spell": "Knock Away", "type": "positioning", "en": "Knockback can throw players into uncleared trash", "de": "Rückstoß kann Spieler in nicht geräumte Gegner werfen", "verified": true},
+        {"spellID": 25174, "spell": "Sundering Cleave", "type": "positioning", "en": "Frontal cleave; stand behind him", "de": "Spaltangriff nach vorn; hinter ihm stehen", "verified": true},
+        {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true},
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lord Alexei Barov",
+      "npcID": 10504,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 28340, "spell": "Unholy Aura", "type": "survive", "en": "Group-wide shadow aura; healers need mana for it", "de": "Schattenaura trifft die Gruppe; Heiler brauchen Mana", "verified": true},
+        {"spellID": 17820, "spell": "Veil of Shadow", "type": "dispel", "en": "Curse cuts healing taken; decurse it first", "de": "Fluch senkt erhaltene Heilung; zuerst entfluchen", "verified": true},
+        {"spellID": 0, "spell": "Linked adds", "type": "adds", "en": "Two adds join; shackle one and kill Alexei first", "de": "Zwei Adds kommen mit; eins fesseln, Alexei zuerst", "unverified": true},
+        {"spellID": 25309, "spell": "Immolate", "type": "dispel", "en": "Fire damage over time on a player: dispel or heal through", "de": "Feuerschaden über Zeit auf Spieler: bannen oder gegenheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lady Illucia Barov",
+      "npcID": 10502,
+      "level": 60,
+      "wing": "Barov vault",
+      "mechanics": [
+        {"spellID": 14515, "spell": "Dominate Mind", "type": "interrupt", "en": "Mind control on a player; interrupt or crowd-control", "de": "Gedankenkontrolle auf Spieler; unterbrechen oder kontrollieren", "verified": true},
+        {"spellID": 6215, "spell": "Fear", "type": "survive", "en": "Fears a player; shadow resistance helps", "de": "Furcht auf einen Spieler; Schattenwiderstand hilft", "verified": true},
+        {"spellID": 12528, "spell": "Silence", "type": "positioning", "en": "AoE silence; casters spread out", "de": "Flächenstille; Zauberer verteilen sich", "verified": true},
+        {"spellID": 11713, "spell": "Bane of Agony", "type": "dispel", "en": "Bane of agony grows over time: remove the curse", "de": "Fluch der Pein wächst an: Fluch entfernen", "verified": true},
+        {"spellID": 17289, "spell": "Shadow Shock", "type": "interrupt", "en": "Shadow shock on a player: interrupt when possible", "de": "Schattenschock auf Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Darkmaster Gandling",
+      "npcID": 1853,
+      "level": 61,
+      "mechanics": [
+        {"spellID": 17950, "spell": "Shadow Portal", "type": "adds", "en": "Ports players into side rooms with adds; fight out", "de": "Teleportiert Spieler in Nebenräume mit Adds; freikämpfen"},
+        {"spellID": 18702, "spell": "Curse of the Darkmaster", "type": "dispel", "en": "Remove his curse", "de": "Seinen Fluch entfernen", "verified": true},
+        {"spellID": 12040, "spell": "Shadow Shield", "type": "tank", "en": "Shields himself; melee keep threat, ranged on stairs", "de": "Schirmt sich ab; Nahkämpfer halten Aggro, Fernkämpfer auf Treppe", "verified": true},
+        {"spellID": 25346, "spell": "Arcane Missiles", "type": "interrupt", "en": "Arcane missiles on a player: interrupt the channel", "de": "Arkane Geschosse auf Spieler: Kanalisierung unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Scholomance Necromancer",
+      "npcID": 10477,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17616, "spell": "Corpse Explosion", "type": "avoid", "en": "Blows up corpses; move away from bodies", "de": "Lässt Leichen explodieren; weg von Leichen"},
+        {"spellID": 14887, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt the shadow bolt volley", "de": "Schattenblitzsalve unterbrechen"}
+      ]
+    },
+    {
+      "name": "Scholomance Occultist",
+      "npcID": 10472,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17228, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt volleys; turns into a shade immune to physical", "de": "Salven unterbrechen; wird zum Schatten, immun gegen Physisch"}
+      ]
+    },
+    {
+      "name": "Scholomance Dark Summoner",
+      "npcID": 11582,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17618, "spell": "Summon Risen Lackey", "type": "interrupt", "en": "Summons skeletons; interrupt and kill first", "de": "Beschwört Skelette; unterbrechen und zuerst töten"},
+        {"spellID": 12279, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; decurse", "de": "Fluch erhöht körperlichen Schaden; entfluchen"}
+      ]
+    },
+    {
+      "name": "Scholomance Adept",
+      "npcID": 10469,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15244, "spell": "Cone of Cold", "type": "positioning", "en": "Frost cone slows; do not stand in front", "de": "Kältekegel verlangsamt; nicht davor stehen"}
+      ]
+    },
+    {
+      "name": "Spectral Tutor",
+      "npcID": 10498,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17651, "spell": "Image Projection", "type": "adds", "en": "Goes untouchable and spawns images that heal it; kill fast", "de": "Wird unangreifbar, Abbilder heilen ihn; schnell töten"},
+        {"spellID": 17630, "spell": "Mana Burn", "type": "interrupt", "en": "Burns mana; interrupt or keep casters away", "de": "Verbrennt Mana; unterbrechen oder Zauberer fernhalten"}
+      ]
+    },
+    {
+      "name": "Risen Aberration",
+      "npcID": 10485,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12021, "spell": "Fixate", "type": "adds", "en": "Fixates a player; only holy magic hurts them", "de": "Fixiert einen Spieler; nur Heiligmagie schadet ihnen"}
+      ]
+    },
+    {
+      "name": "Diseased Ghoul",
+      "npcID": 10495,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 3436, "spell": "Wandering Plague", "type": "dispel", "en": "Spreading disease; cure it and stand apart", "de": "Ansteckende Krankheit; heilen und Abstand halten"},
+        {"spellID": 17742, "spell": "Cloud of Disease", "type": "avoid", "en": "Corpse leaves a disease cloud; step out", "de": "Leiche hinterlässt Seuchenwolke; heraustreten"}
+      ]
+    },
+    {
+      "name": "Necrofiend",
+      "npcID": 11551,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone nearby; poison needs curing", "de": "Wurzelt alle in der Nähe; Gift entgiften"}
+      ]
+    },
+    {
+      "name": "Plagued Hatchling",
+      "npcID": 10678,
+      "elite": false,
+      "mechanics": [
+        {"spellID": 17745, "spell": "Diseased Spit", "type": "adds", "en": "Big swarm in the ossuary; use AoE", "de": "Großer Schwarm im Beinhaus; Flächenschaden nutzen"}
+      ]
+    }
+  ],
+  "rares": [],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Scholomance_(original)",
+    "https://warcrafttavern.com/wow-classic/guides/scholomance",
+    "https://warcraft.wiki.gg/wiki/Ras_Frostwhisper",
+    "https://warcraft.wiki.gg/wiki/Kirtonos_the_Herald",
+    "https://warcraft.wiki.gg/wiki/Jandice_Barov_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Rattlegore_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Lord_Alexei_Barov",
+    "https://warcraft.wiki.gg/wiki/Doctor_Theolen_Krastinov_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Instructor_Malicia_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Lady_Illucia_Barov",
+    "https://warcraft.wiki.gg/wiki/Lorekeeper_Polkelt",
+    "https://warcraft.wiki.gg/wiki/The_Ravenian_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Marduk_Blackpool",
+    "https://warcraft.wiki.gg/wiki/Vectus",
+    "https://warcraft.wiki.gg/wiki/Kormok",
+    "https://warcraft.wiki.gg/wiki/Death_Knight_Darkreaver",
+    "https://warcraft.wiki.gg/wiki/Blood_Steward_of_Kirtonos",
+    "https://warcraft.wiki.gg/wiki/Darkmaster_Gandling_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Scholomance_Necromancer",
+    "https://warcraft.wiki.gg/wiki/Scholomance_Occultist",
+    "https://warcraft.wiki.gg/wiki/Scholomance_Dark_Summoner",
+    "https://warcraft.wiki.gg/wiki/Scholomance_Adept",
+    "https://warcraft.wiki.gg/wiki/Spectral_Tutor",
+    "https://warcraft.wiki.gg/wiki/Risen_Aberration",
+    "https://warcraft.wiki.gg/wiki/Diseased_Ghoul",
+    "https://warcraft.wiki.gg/wiki/Necrofiend_(Scholomance)",
+    "https://warcraft.wiki.gg/wiki/Plagued_Hatchling",
+    "https://www.wowhead.com/forever/guide/scholomance-dungeon-overview-location-rewards"
+  ]
+}

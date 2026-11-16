@@ -45,7 +45,8 @@ local commands = {
   end,
   reset = function() ns.EditMode.ConfirmResetAll() end,  -- Position und Größe aller Anzeigen, nach Rückfrage
   edit = function() ns.EditMode.Toggle() end,
-  welcome = function() ns.WelcomeCard.Show() end,  -- Willkommenskarte erneut (UI/WelcomeCard.lua)
+  setup = function() ns.SetupWizard.Show() end,  -- Einrichtungsassistent erneut (UI/SetupWizard.lua)
+  changelog = function() ns.Changelog.ShowRecent() end,  -- Änderungen der letzten 14 Tage (UI/Changelog.lua)
   compact = function() toggleLayout("compact", "CMD_COMPACT_ON", "CMD_COMPACT_OFF") end,
   bar = function() toggleLayout("bar", "CMD_BAR_ON", "CMD_BAR_OFF") end,
   newsession = function() ns.StartNewSession() end,
@@ -68,6 +69,7 @@ local commands = {
   copy = function() ns.ChatCopy.ShowCurrent() end,
   stream = function() ns.StreamMode.Toggle() end,
   splits = function() toggleSetting("showSplitList", "CMD_SPLITS_ON", "CMD_SPLITS_OFF") end,
+  route = function() toggleSetting("routeReplay", "CMD_ROUTE_ON", "CMD_ROUTE_OFF") end,
   -- /lt split [Name] | undo | template: eigene Splits (CustomSplits.lua)
   split = function(argument) ns.CustomSplits.Command(argument) end,
   -- /lt profile: Liste | <Name> wechseln | save <Name> | delete <Name> | export | import
@@ -92,10 +94,12 @@ local commands = {
       ns.Print(L.PROFILE_UNKNOWN)
     end
   end,
-  -- /lt runs import | backup | verify | lss: Läufe einfügen, alle als Text sichern, Prüfcodes nachrechnen,
-  -- Level-Splits als LiveSplit-Datei
+  -- /lt runs: Fenster Dungeon- und Raid-Runs; import | backup | verify | lss: Läufe einfügen, alle als Text sichern,
+  -- Prüfcodes nachrechnen, Level-Splits als LiveSplit-Datei
   runs = function(argument)
-    if argument == "import" then
+    if argument == "" then
+      ns.InstanceRunWindow.Toggle()
+    elseif argument == "import" then
       ns.ShowRunImport()
     elseif argument == "backup" then
       ns.Export.Show(L.RUNS_BACKUP, ns.Runs.ExportAll())
@@ -145,15 +149,6 @@ local commands = {
       ns.Print(result == "no-dock" and L.TRANSPORT_MASTER_NO_DOCK or L.TRANSPORT_MASTER_NO_NPC)
     end
   end,
-  -- /lt debug schaltet das erweiterte Logging, /lt debug <befehl> löst Testfunktionen aus (DebugTools.lua)
-  debug = function(argument)
-    if argument ~= "" then
-      ns.DebugTools.Run(argument)
-      return
-    end
-    ns.debug = not ns.debug  -- bewusst nicht gespeichert, gilt bis /reload
-    ns.Print(ns.debug and L.DEBUG_ON or L.DEBUG_OFF)
-  end,
   sync = function()
     ns.Print(L.CMD_SYNC)
     ns.PlayedTime.Sync(function(total, thisLevel)
@@ -175,6 +170,11 @@ local commands = {
   end,
 }
 
+-- Weitere Befehle aus Schwester-Addons (z.B. /lt debug aus dem lokalen LevelTimer_DataExtractor)
+function ns.AddCommand(name, handler)
+  commands[name:lower()] = handler
+end
+
 -- Erstes Wort = Befehl, der Rest wird als Argument übergeben (z.B. "goal 30"; Lib/SlashCommands.lua)
 ns.SlashCommands.Register({
   id = ns.ADDON_ID:upper(), names = { "/leveltimer", "/lt" }, commands = commands,
@@ -183,7 +183,5 @@ ns.SlashCommands.Register({
   end,
 })
 
--- Einmaliger Hinweis beim ersten Start (account-weit), damit man die Bedienung findet
-ns.OnLogin(function()
-  if ns.Database.TakeFirstStart() then ns.Print(L.INTRO) end
-end)
+-- Erster Start (account-weit) merken (der Changelog zeigt sich Neulingen nicht); der Assistent hat ein eigenes Merkzeichen
+ns.OnLogin(function() ns.Database.TakeFirstStart() end)

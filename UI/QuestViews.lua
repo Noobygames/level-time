@@ -5,6 +5,8 @@
 --                         nur der eigene Questlog lesbar ist. Spalte NPC: gelernter Abgabe-NPC (QuestNpcs.lua).
 --   Effizienz (Roadmap 347) je Quest über alle Charaktere: Abgaben, Ø Dauer, Ø XP, XP/min
 --                         (History/QuestEfficiency.lua); sortierbar, zeigt Twinks, welche Quests sich lohnen.
+--   Quests je Zone (LT-261) je Quest des Charakters: Zone, erledigt/offen, andere eigene Charaktere mit Abgabe
+--                         (History/QuestZones.lua); nur bisher gesehene Quests.
 local _, ns = ...
 local L = ns.L
 local Format = ns.Format
@@ -249,7 +251,38 @@ ns.HistoryWindow.AddView(ns.TableView.Create({
   columns = EFFICIENCY_COLUMNS,
   records = function() return ns.QuestEfficiency.GetRecords() end,
   footer = HistoryTables.CountCells,
-  revision = ns.Journal.Revision,
+  revision = ns.Journal.RevisionOf("questLog"),
   rowLink = function(r) return "quest:" .. r.questID end,
   hint = "QUEST_EFFICIENCY_HINT",
+}))
+
+local QUEST_ZONE_COLUMNS = {
+  { header = "HISTORY_ZONE", width = 110, align = LEFT, value = function(r) return r.zone or "" end },
+  { header = "HISTORY_QUEST", width = 170, align = LEFT, value = function(r) return r.name or L.UNKNOWN_NAME end },
+  { header = "HISTORY_QUEST_STATUS", width = 64, value = function(r)
+      return r.done and L.QUEST_ZONES_DONE or L.QUEST_ZONES_OPEN
+    end },
+  { header = "HISTORY_KNOWN_BY", width = 150, align = LEFT, value = function(r) return r.othersText end },
+}
+
+-- Fußzeile: Anzahl, erledigt/offen
+local function questZoneFooter(columns, records)
+  local cells = HistoryTables.CountCells(columns, records)
+  local done = 0
+  for _, record in ipairs(records) do
+    if record.done then done = done + 1 end
+  end
+  cells[3] = string.format(L.QUEST_ZONES_COUNTS, done, #records - done)
+  return cells
+end
+
+ns.HistoryWindow.AddView(ns.TableView.Create({
+  tab = "HISTORY_TAB_QUEST_ZONES",
+  group = GROUP,
+  columns = QUEST_ZONE_COLUMNS,
+  records = ns.QuestZones.GetRecords,
+  footer = questZoneFooter,
+  revision = ns.Journal.RevisionOf("questLog"),
+  rowLink = function(r) return "quest:" .. r.questID end,
+  hint = "QUEST_ZONES_HINT",
 }))

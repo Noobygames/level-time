@@ -38,7 +38,7 @@ local DEFAULT_HOST = {
   print = function(message) ns.Print(message) end,
 }
 OptionsBuilder.DEFAULT_HOST = DEFAULT_HOST
-local L = DEFAULT_HOST.L  -- statische Helfer (Localized); im Fenster gilt host.L
+local staticL = DEFAULT_HOST.L  -- statische Helfer (Localized); im Fenster gilt host.L
 
 local MIN_WIDTH = 320
 local MARGIN = 16
@@ -138,7 +138,7 @@ end
 
 -- Text aus den Locales zum Zeitpunkt der Anzeige (Sprachwechsel live)
 function OptionsBuilder.Localized(key)
-  return function() return L[key] end
+  return function() return staticL[key] end
 end
 
 -- Neues Fenster: options = { name (globaler Frame-Name), alpha, title() -> Text, host (optional, siehe DEFAULT_HOST),
@@ -321,9 +321,9 @@ function OptionsBuilder.New(options)
   local searchEntries = {}
   local localized = OptionsBuilder.Localized
 
-  local function index(title, tipKey, left, right, y, cell)
+  local function index(textOf, tipKey, left, right, y, cell)
     table.insert(searchEntries, {
-      title = title, tipKey = tipKey, left = left, right = right or left, parent = page, y = y or nextRowY,
+      title = textOf, tipKey = tipKey, left = left, right = right or left, parent = page, y = y or nextRowY,
       tab = currentTab, sub = currentSub, item = currentItem, cell = cell,
     })
   end
@@ -428,20 +428,20 @@ function OptionsBuilder.New(options)
   end
 
   -- Klick auf eine Zeile: Feld leeren, Treffer zeigen (Zeilen ohne Treffer tun nichts)
-  local function openResult(index)
-    local entry = rowEntries[index]
+  local function openResult(rowIndex)
+    local entry = rowEntries[rowIndex]
     if not entry then return end
     clearSearch()
     builder.Reveal(entry)
   end
 
-  local function resultRow(index)
-    local row = resultRows[index]
+  local function resultRow(rowIndex)
+    local row = resultRows[rowIndex]
     if row then return row end
     row = CreateFrame("Button", nil, results)
     row:SetHeight(SEARCH_ROW)
-    row:SetPoint("TOPLEFT", SEARCH_PADDING, -SEARCH_PADDING - (index - 1) * SEARCH_ROW)
-    row:SetPoint("TOPRIGHT", -SEARCH_PADDING, -SEARCH_PADDING - (index - 1) * SEARCH_ROW)
+    row:SetPoint("TOPLEFT", SEARCH_PADDING, -SEARCH_PADDING - (rowIndex - 1) * SEARCH_ROW)
+    row:SetPoint("TOPRIGHT", -SEARCH_PADDING, -SEARCH_PADDING - (rowIndex - 1) * SEARCH_ROW)
     row.where = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     row.where:SetPoint("RIGHT")
     row.where:SetTextColor(unpack(Widgets.COLORS.muted))
@@ -453,8 +453,8 @@ function OptionsBuilder.New(options)
     hover:SetAllPoints(row)
     local r, g, b = unpack(Widgets.COLORS.highlight)
     hover:SetColorTexture(r, g, b, HIGHLIGHT_ALPHA / 2)
-    row:SetScript("OnClick", function() openResult(index) end)
-    resultRows[index] = row
+    row:SetScript("OnClick", function() openResult(rowIndex) end)
+    resultRows[rowIndex] = row
     return row
   end
 
@@ -616,13 +616,13 @@ function OptionsBuilder.New(options)
   local addRow = builder.AddRow
 
   -- Abschnitt; options = { collapsible = true (Klick klappt ein/aus), advanced = true } optional
-  function builder.AddSection(labelKey, options)
-    local item = beginItem(options, true)
+  function builder.AddSection(labelKey, itemOptions)
+    local item = beginItem(itemOptions, true)
     if nextRowY ~= CONTENT_TOP then nextRowY = nextRowY - SECTION_GAP end
     local header = Widgets.CreateSectionHeader(page)
     index(localized(labelKey), nil, header)
     addRow(header, ROW_SECTION, true)
-    local collapsible = options and options.collapsible
+    local collapsible = itemOptions and itemOptions.collapsible
     local function text()
       if not collapsible then return L[labelKey] end
       return (collapsed[item] and COLLAPSED_MARK or EXPANDED_MARK) .. " " .. L[labelKey]
@@ -675,9 +675,9 @@ function OptionsBuilder.New(options)
       table.insert(item.cells, cell)
       for _, reset in ipairs(resetsOf(toggle, host)) do table.insert(item.resets, reset) end
       local tipKey = toggle.tip or (toggle.label .. "_TIP")
-      local function title() return checkbox.label:GetText() end
-      addTooltip(checkbox, tipKey, title)
-      index(title, tipKey, checkbox, checkbox.label, y, cell)
+      local function labelText() return checkbox.label:GetText() end
+      addTooltip(checkbox, tipKey, labelText)
+      index(labelText, tipKey, checkbox, checkbox.label, y, cell)
       onRefresh(function(db)
         checkbox:SetChecked(toggle.get(db))
         applyEnabled(toggle.enabled, db, checkbox)
@@ -694,8 +694,8 @@ function OptionsBuilder.New(options)
   -- Eine Zeile gleich breiter Buttons: buttons = { { label = Locale-Key, onClick }, ... }; Tooltip aus <label>_TIP;
   -- options = { advanced } optional
   local buttonRows = {}
-  function builder.AddButtonRow(buttons, options)
-    beginItem(options)
+  function builder.AddButtonRow(buttons, itemOptions)
+    beginItem(itemOptions)
     local row = CreateFrame("Frame", nil, page)
     row:SetHeight(BUTTON_HEIGHT)
     addRow(row, ROW_BUTTON, true)
@@ -722,8 +722,8 @@ function OptionsBuilder.New(options)
   end
 
   -- options = { advanced } optional
-  function builder.AddButton(labelKey, onClick, options)
-    beginItem(options)
+  function builder.AddButton(labelKey, onClick, itemOptions)
+    beginItem(itemOptions)
     local button = Widgets.CreateButton(page, MIN_WIDTH - 2 * MARGIN, BUTTON_HEIGHT, onClick)
     index(localized(labelKey), labelKey .. "_TIP", button)
     addRow(button, ROW_BUTTON, true)
@@ -739,9 +739,9 @@ function OptionsBuilder.New(options)
   end
   function builder.AddFooterButton(labelKey, onClick)
     local button = Widgets.CreateButton(panel, MIN_WIDTH / 2, BUTTON_HEIGHT, onClick)
-    local index = #footerButtons
-    local y = MARGIN + math.floor(index / 2) * ROW_BUTTON
-    if index % 2 == 0 then
+    local slot = #footerButtons
+    local y = MARGIN + math.floor(slot / 2) * ROW_BUTTON
+    if slot % 2 == 0 then
       button:SetPoint("BOTTOMLEFT", MARGIN, y)
       button:SetPoint("BOTTOMRIGHT", panel, "BOTTOM", -FOOTER_COLUMN_GAP / 2, y)
     else
@@ -876,8 +876,8 @@ function OptionsBuilder.New(options)
   end
 
   -- options = { advanced } optional
-  function builder.AddHint(labelKey, options)
-    beginItem(options)
+  function builder.AddHint(labelKey, itemOptions)
+    beginItem(itemOptions)
     local hint = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
     hint:SetJustifyH("LEFT")

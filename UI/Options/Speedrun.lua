@@ -2,7 +2,10 @@
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
-local addPage, finishPage, addSection, addSlider, addToggles, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, advanced, requires, percent, addVisibilityDropdown, addFrameScaleSlider = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires, O.percent, O.addVisibilityDropdown, O.addFrameScaleSlider
+local addPage, finishPage, addSection, addSlider, addToggles = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles
+local addChooser, addHint, addSubPage, finishSubPages, toggle = O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle
+local localized, advanced, requires, percent = O.localized, O.advanced, O.requires, O.percent
+local addVisibilityDropdown, addFrameScaleSlider = O.addVisibilityDropdown, O.addFrameScaleSlider
 
 -- Vergleich der Splits; ein fester Charakter wird per /lt compare Name gewählt
 local function addSplitComparisonChooser()
@@ -57,6 +60,10 @@ addSlider(requires({
   set = function(value) ns.SetDeferred("splitListRows", value) end,
   format = tostring,
 }, "showSplitList"))
+-- Route: Checkliste des besten eigenen Laufs (/lt route)
+addSubPage("OPTIONS_PAGE_ROUTE_REPLAY")
+addToggles({ toggle("SHOW_ROUTE_REPLAY", "routeReplay") })
+O.addFramePreview("ROUTE_REPLAY_PREVIEW", "routeReplay")
 -- Vergleich: wogegen die Splits laufen, Toleranz, Hinweise bei Bestzeiten, Rennen gegen Freunde
 addSubPage("OPTIONS_PAGE_COMPARE")
 addSplitComparisonChooser()

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: weitere Anzeigen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1060px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+
+  <!-- Einrichtungsassistent (UI/SetupWizard.lua), Größe Mittel 640 x 520, 6 Schritte -->
+  <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Einrichtungsassistent (einmal für alle Spieler, danach /lt setup und Einstellungen &gt; Allgemein)</span>
+    <div style="width: 640px; height: 520px; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; display: flex; flex-direction: column">
+      <div style="height: 40px; flex: none; display: flex; align-items: center; padding: 0 8px 0 16px; border-bottom: 1px solid #333">
+        <span style="font-size: 16px; font-weight: 700; color: #ffd100; flex: 1">{{wizardTitle}}</span>
+        <span style="font-size: 12px; color: #8a8a8a; margin-right: 8px">{{stepCount}}</span>
+        <button type="button" onClick="{{skip}}" title="Schließen" style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; cursor: pointer">x</button>
+      </div>
+      <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+        <span style="font-size: 16px; font-weight: 700; color: #ffd100">{{stepTitle}}</span>
+        <span style="font-size: 13px; color: #c8c8c8; line-height: 1.45">{{stepText}}</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+            <button type="button" onClick="{{c.pick}}" title="{{c.tip}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <sc-for list="{{toggles}}" as="t" hint-placeholder-count="4">
+          <label title="{{t.tip}}" style="display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; cursor: pointer">
+            <input type="checkbox" checked="{{t.on}}" onChange="{{t.flip}}" style="width: 18px; height: 18px; accent-color: #ffd100">
+            <span>{{t.label}}</span>
+          </label>
+        </sc-for>
+        <sc-for list="{{summary}}" as="r" hint-placeholder-count="0">
+          <div style="display: flex; justify-content: space-between; height: 32px; align-items: center; border-bottom: 1px solid #333; font-size: 13px">
+            <span style="color: #9fb3a8">{{r.label}}</span><span>{{r.value}}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 12px; color: #8a8a8a">{{stepNote}}</span>
+      </div>
+      <div style="height: 56px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-top: 1px solid #333">
+        <button type="button" onClick="{{skip}}" style="height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #c8c8c8; cursor: pointer">Überspringen</button>
+        <span style="flex: 1; display: flex; gap: 8px; justify-content: center">
+          <sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span style="{{d.style}}"></span></sc-for>
+        </span>
+        <button type="button" onClick="{{back}}" style="{{backStyle}}">Zurück</button>
+        <button type="button" onClick="{{next}}" style="height: 32px; padding: 0 16px; background: #1d1d1d; border: 1px solid #ffd100; border-radius: 4px; color: #ffd100; font-weight: 600; cursor: pointer">{{nextLabel}}</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Changelog (UI/Changelog.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Changelog nach Update (/lt changelog)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Neu in Level Time</span>
+      <span style="font-size: 13px; font-weight: 600; color: #ddd">13.11.2026</span>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4">
+        <span><span style="color: #5fa8ff; font-weight: 600">Neu</span> WoW Forever: Dungeon-Eingänge auf der Karte, im Tooltip mit Level-Bereich und den Dungeonquests, die dir noch fehlen.</span>
+        <span><span style="color: #5fa8ff; font-weight: 600">Neu</span> WoW Forever: Level-Bereiche der Dungeons, die Zeile „Dungeons für dein Level“ und Boss-Level im Instanz-Tooltip.</span>
+        <span><span style="color: #ff9a3c; font-weight: 600">Geändert</span> Die Befehle zur Fehlersuche (/lt debug) sind entfernt; Level Time lädt dadurch weniger Code.</span>
+        <span><span style="color: #ff9a3c; font-weight: 600">Geändert</span> Schiffs- und Zeppelinzeiten werden jetzt standardmäßig mit Gruppe und Gilde geteilt.</span>
+      </div>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 6px; cursor: pointer">
+        <input type="checkbox" style="width: 18px; height: 18px; accent-color: #ffd100">
+        <span>Nicht mehr automatisch anzeigen</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Level-Up-Fenster (UI/LevelUpWindow.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Level-Up-Fenster (statt Blizzard-Banner)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #5a4a12; border-top: 4px solid #ffd100; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 26px; font-weight: 700; color: #ffd100; text-align: center">Level 24</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, auto)); column-gap: 16px; row-gap: 3px; font-size: 13px; justify-content: center">
+        <span style="color: #bbb">Leben</span><span>812</span><span style="color: #5fa8ff">→ 856</span>
+        <span style="color: #bbb">Stärke</span><span>48</span><span style="color: #5fa8ff">→ 50</span>
+        <span style="color: #bbb">Ausdauer</span><span>44</span><span style="color: #5fa8ff">→ 46</span>
+        <span style="color: #bbb">Talentpunkte</span><span>14</span><span style="color: #5fa8ff">→ 15</span>
+      </div>
+      <span style="font-size: 13px; color: #ddd">Neu beim Klassenlehrer:</span>
+      <div style="display: flex; gap: 8px; justify-content: center">
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #3a2f22"></span>
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #2f3a22"></span>
+        <span title="Fähigkeit (Tooltip)" style="width: 36px; height: 36px; border: 1px solid #777; border-radius: 4px; background: #22303a"></span>
+      </div>
+      <span style="font-size: 12px; color: #ffd100">Neue Dungeons: Burg Schattenfang (4 Quests), Die Tiefschwarze Grotte</span>
+    </div>
+  </section>
+
+  <!-- Session-Zusammenfassung (UI/RecapWindow.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Session-Zusammenfassung (/lt recap)</span>
+    <div style="background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 18px; font-weight: 700; color: #ffd100">Session-Zusammenfassung</span>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, auto)); column-gap: 20px; row-gap: 3px; font-size: 13px">
+        <span style="color: #bbb">Charakter</span><span>Beispiel-Krieger</span>
+        <span style="color: #bbb">Spielzeit</span><span>2:41:05</span>
+        <span style="color: #bbb">Level</span><span>21 bis 23</span>
+        <span style="color: #bbb">Erfahrung</span><span>37.210</span>
+        <span style="color: #bbb">Kills</span><span>301</span>
+        <span style="color: #bbb">Beinahe-Tode</span><span>1</span>
+        <span style="color: #bbb">Beste Beute</span><span style="color: #3d8bff">[Schwert des Kriegers]</span>
+        <span style="color: #bbb">Gefährlichster Gegner</span><span>Defias-Schläger</span>
+      </div>
+      <button type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee; font-size: 13px">Kopieren</button>
+    </div>
+  </section>
+
+  <!-- Split-Liste (Speedrun/SplitList.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Split-Liste (/lt splits)</span>
+    <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-variant-numeric: tabular-nums">
+      <span style="font-weight: 600; color: #ffd100">Splits</span>
+      <sc-for list="{{splits}}" as="s" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 70px; gap: 8px; {{s.rowStyle}}">
+          <span style="color: #bbb">{{s.level}}</span><span>{{s.time}}</span><span style="text-align: right; color: {{s.color}}">{{s.diff}}</span>
+        </div>
+      </sc-for>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 8px; border-top: 1px solid #333; padding-top: 3px">
+        <span>Split gesamt</span><span style="text-align: right; color: #5fa8ff">-2:41</span>
+        <span style="color: #bbb">/played</span><span style="text-align: right">1T 2:14:09</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- XP-Tooltip (UI/XpTooltip.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Tooltip des XP-Balkens</span>
+    <div style="background: rgba(8,8,16,0.95); border: 1px solid #666; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px">
+      <span style="font-weight: 600">Erfahrung (Level 23)</span>
+      <span style="color: #ddd">XP: 18.450 / 25.300 (73 %)</span>
+      <span style="color: #ddd">Bis zum Level-Up: 6.850</span>
+      <span style="color: #5fa8ff">Erholt übrig: 3.200 (13 % des Levels)</span>
+      <span style="color: #5fa8ff">Erholt reicht für 47 % des Wegs zum Level-Up</span>
+      <span style="color: #ffd100">XP abgabebereiter Quests: 2.900 (11 % des Levels)</span>
+    </div>
+  </section>
+
+  <!-- Boss- und Gegnerfähigkeiten im Einheiten-Tooltip (Assist/MechanicTips.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Einheiten-Tooltip: Boss- und Gegnerfähigkeiten (max. 3 Zeilen)</span>
+    <div style="background: rgba(8,8,16,0.95); border: 1px solid #666; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px; max-width: 320px">
+      <span style="font-weight: 600; color: #ff2020">Edwin VanCleef</span>
+      <span style="color: #ddd">Stufe 21 Elite Humanoid</span>
+      <span style="color: #f2f2f2"><span style="display: inline-block; width: 12px; height: 12px; background: #554; border: 1px solid #888; vertical-align: middle"></span> <span style="color: #ffd933">Adds:</span> Ruft bei wenig Leben zwei Schwarzwachen: kontrollieren oder töten</span>
+      <span style="color: #f2f2f2"><span style="display: inline-block; width: 12px; height: 12px; background: #554; border: 1px solid #888; vertical-align: middle"></span> <span style="color: #cca673">Tank:</span> Erhält Extraangriffe: Schadensspitzen auf dem Tank</span>
+      <span style="color: #f2f2f2"><span style="display: inline-block; width: 12px; height: 12px; background: #554; border: 1px solid #888; vertical-align: middle"></span> <span style="color: #59bfff">Unterbrechen:</span> Heilt Verbündete: Heilung unterbrechen <span style="color: #c8c8c8">*</span></span>
+      <span style="color: #c8c8c8">* aus Classic übernommen, für Forever unbestätigt</span>
+    </div>
+  </section>
+
+  <!-- Boss-Beute im Einheiten-Tooltip (Assist/BossLoot.lua); Sternchen und Hinweis nur in WoW Forever (Lib/UnverifiedHint.lua) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Einheiten-Tooltip: Boss-Beute (WoW Forever, max. 6 Zeilen)</span>
+    <div style="background: rgba(8,8,16,0.95); border: 1px solid #666; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px; max-width: 320px">
+      <span style="font-weight: 600; color: #ff2020">Rhahk'Zor</span>
+      <span style="color: #ddd">Stufe 19 Elite Humanoid</span>
+      <span style="color: #ffd100">Bekannte Beute</span>
+      <span style="color: #0070dd">[Rhahk'Zors Hammer] <span style="color: #c8c8c8">*</span></span>
+      <span style="color: #1eff00">[Gürtel des Vorarbeiters]</span>
+      <span style="color: #c8c8c8">* aus Classic übernommen, für Forever unbestätigt</span>
+    </div>
+  </section>
+
+  <!-- Routen-Checkliste (Speedrun/RouteReplay.lua, UI/RouteReplayWindow.lua; /lt route, Reiter Speedrun) -->
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Route des besten eigenen Laufs (Fenster 340, Zeile 32, nächste 3 Schritte in Gold)</span>
+    <div style="width: 340px; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px 0 16px; border-bottom: 1px solid #333">
+        <span style="font-size: 16px; font-weight: 700; color: #ffd100">Route: Thrall (Stufe 60)</span>
+        <span style="font-size: 13px; color: #c8c8c8; font-variant-numeric: tabular-nums">2 / 7</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #8a8a8a; font-weight: 400"><span style="color: #c8c8c8; width: 16px">&#10003;</span><span style="flex: 1">Die Spur der Wölfe</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 10</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #8a8a8a; font-weight: 400"><span style="color: #c8c8c8; width: 16px">&#10003;</span><span style="flex: 1">Der Leuchtturm von Westfall</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 11</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #ffd100; font-weight: 600"><span style="color: #ffd100; width: 16px">&#9658;</span><span style="flex: 1">Verschwundene Vorräte</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 12</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #ffd100; font-weight: 600"><span style="color: #ffd100; width: 16px">&#9658;</span><span style="flex: 1">Rache für Marla</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 12</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #ffd100; font-weight: 600"><span style="color: #ffd100; width: 16px">&#9658;</span><span style="flex: 1">Die Defias-Bruderschaft</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 13</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #f2f2f2; font-weight: 400"><span style="color: #c8c8c8; width: 16px">&#9633;</span><span style="flex: 1">Ein Ruf nach Hilfe</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 14</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; color: #f2f2f2; font-weight: 400"><span style="color: #c8c8c8; width: 16px">&#9633;</span><span style="flex: 1">Am Rand des Waldes</span><span style="color: #c8c8c8; font-variant-numeric: tabular-nums">Stufe 14</span></div>
+    </div>
+  </section>
+
+  <!-- Timer-Karten (Lib/TimerDisplay.lua) -->
+  <section style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Timer-Karten (Flug, Essen, Schlafsack, Lagerfeuer) und Schiffszeiten</span>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: start">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+        <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px">
+          <span style="font-size: 13px; font-weight: 600; color: {{c.titleColor}}">{{c.title}}</span>
+          <span style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">{{c.time}}</span>
+          <div style="height: 6px; background: #2a2a2a; border-radius: 2px; overflow: hidden">
+            <div style="height: 6px; width: {{c.percent}}%; background: {{c.barColor}}"></div>
+          </div>
+          <span style="font-size: 11px; color: #8a8a8a">{{c.note}}</span>
+        </div>
+      </sc-for>
+      <div style="background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12px">
+        <span style="font-weight: 600; color: #ffd100">Schiffe &amp; Zeppeline</span>
+        <span>Tirisfal: Abfahrt in 1:23</span>
+        <span style="color: #8a8a8a">Schlingendorntal: unbekannt, einmal mitfahren</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Würfel-Zähler und Zauberleiste -->
+  <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Zähler unter dem Würfelfenster (Tooltip: Namen mit Wurf)</span>
+    <div style="display: flex; gap: 18px; align-items: center; background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 4px; padding: 8px 12px; font-size: 13px; flex-wrap: wrap">
+      <span title="Bedarf: Beispiel-Magier (87)">Bedarf 1</span>
+      <span title="Gier: zwei Spieler">Gier 2</span>
+      <span title="Passen">Passen 1</span>
+      <span title="Noch offen" style="color: #8a8a8a">Wartet 1</span>
+    </div>
+  </section>
+  <section style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Zauberleiste für Zuschauer (Stream)</span>
+    <div style="display: flex; gap: 6px; background: #00b140; padding: 8px; border-radius: 4px">
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #3a2f22; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 10px; padding: 1px; box-sizing: border-box">3</span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #2f3a22"></span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #22303a"></span>
+      <span style="width: 36px; height: 36px; border: 1px solid #222; background: #3a2236"></span>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { preset: 'Leveln', layout: 'Tabelle', stream: false, step: 0, on: {} };
+  }
+  wizard(pill) {
+    const s = this.state, set = (k, v) => this.setState({ [k]: v });
+    const flag = (k, d) => (k in s.on ? s.on[k] : d), flip = (k, d) => () => this.setState({ on: { ...s.on, [k]: !flag(k, d) } });
+    const T = (label, k, d) => ({ label, tip: label, on: flag(k, d), flip: flip(k, d) });
+    const chips = (list, key) => list.map((label) => ({ label, tip: label, style: pill(s[key] === label), pick: () => set(key, label) }));
+    const STEPS = [
+      { title: '1. Welche Werte?', text: 'Wähle, welche Statistiken du im Hauptfenster siehst. Später änderbar.', chips: chips(['Minimal', 'Leveln', 'Dungeon', 'Farmen'], 'preset') },
+      { title: '2. Hauptfenster', text: 'Wie soll das Hauptfenster aussehen? Das Tracking läuft auch ohne Fenster weiter.',
+        chips: chips(['Tabelle', 'Leiste', 'Kompakt', 'Text', 'Uhr', 'XP-Balken', 'Kacheln', 'Kein Fenster'], 'layout'),
+        note: 'Zurückholen: /lt show, Rechtsklick auf den Minimap-Knopf.' },
+      { title: '3. Quest-Helfer', text: 'Hilfen beim Questen.', toggles: [T('Dungeonquests beim Betreten einer Zone und nach Annahme zeigen', 'dq', true), T('Quest-Markierungen', 'qm', true), T('Questziele an Namensplaketten (eigene Quests)', 'qt', true), T('Questziele der Gruppe', 'qp', true), T('Taschen-Hinweise für Questgegenstände', 'bag', true), T('Route nach dem Lauf abspielen', 'route', false)] },
+      { title: '4. Dungeons & Gruppensuche', text: 'Nur mit Dungeondaten (WoW Forever, Classic Era).', toggles: [T('Gruppensuche im Tooltip', 'lfgt', true), T('Eigenes Gruppensuche-Fenster', 'lfgw', false), T('Boss-Beute im Tooltip', 'loot', true), T('Mechanik-Tipps im Tooltip', 'mech', true)] },
+      { title: '5. Komfort & Warnungen', text: 'Warnungen und Abkürzungen, alles optional.', toggles: [T('Warnung bei Elite in der Nähe', 'elite', false), T('Seltene Gegner melden', 'rare', true), T('Billigsten Schrott per Klick löschen', 'junk', false), T('Hardcore: Warnung bei Logout in der Wildnis', 'hc1', false), T('Hardcore: Warnung bei langem Fall', 'hc2', false)] },
+      { title: '6. Stream & Fertig', text: 'Fast geschafft. Position anpassen und alle Einstellungen findest du jederzeit im Fenster Einstellungen.', toggles: [T('Stream-Modus (grüner Hintergrund zum Freistellen)', 'stream', false)],
+        summary: [['Werte', s.preset], ['Hauptfenster', s.layout], ['Stream-Modus', flag('stream', false) ? 'an' : 'aus']], note: 'Wieder öffnen: /lt setup oder Einstellungen > Allgemein.' },
+    ];
+    const cur = STEPS[s.step], last = s.step === STEPS.length - 1;
+    const btn = 'height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; cursor: pointer';
+    return {
+      wizardTitle: 'Level Time einrichten', stepCount: 'Schritt ' + (s.step + 1) + ' von ' + STEPS.length,
+      stepTitle: cur.title, stepText: cur.text, stepNote: cur.note || '', chips: cur.chips || [], toggles: cur.toggles || [],
+      summary: (cur.summary || []).map(([label, value]) => ({ label, value })),
+      dots: STEPS.map((_, i) => ({ style: 'width: 8px; height: 8px; border-radius: 4px; background: ' + (i === s.step ? '#ffd100' : i < s.step ? '#40ff40' : '#555') })),
+      back: () => set('step', Math.max(0, s.step - 1)), backStyle: btn + (s.step === 0 ? '; visibility: hidden' : ''),
+      next: () => set('step', last ? 0 : s.step + 1), skip: () => set('step', 0), nextLabel: last ? 'Fertig' : 'Weiter',
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const pill = (on) => 'height: 32px; padding: 0 10px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid ' +
+      (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
+    const GOOD = '#5fa8ff', BAD = '#ff9a3c';
+    const SPLITS = [['19', '1:04:30', '-0:42', GOOD], ['20', '1:09:47', '+0:18', BAD], ['21', '1:21:05', '+1:02', BAD],
+      ['22', '1:06:58', '-3:19', GOOD], ['23', '1:12:34', '…', '#ddd']];
+    return {
+      ...this.wizard(pill),
+      splits: SPLITS.map(([level, time, diff, color], i) => ({ level, time, diff, color, rowStyle: i === SPLITS.length - 1 ? 'color: #ffd100' : '' })),
+      cards: [
+        { title: 'Burg Sturmwind', time: '1:12', percent: 64, note: 'Flug, gemessene Dauer', titleColor: '#ffd100', barColor: '#5fa8ff' },
+        { title: 'Essen: sitzen bleiben!', time: '0:14', percent: 30, note: 'danach „Satt aktiv!“', titleColor: '#ffd100', barColor: '#5fa8ff' },
+        { title: 'Ausruhen: Gut erholt ×2/3', time: '4:20', percent: 52, note: 'WoW Forever, Schlafsack', titleColor: '#ffd100', barColor: '#7a4fd6' },
+        { title: 'Lagerfeuer: sitzen bleiben!', time: '0:38', percent: 80, note: 'WoW Forever, danach „Lagervorteile aktiv!“', titleColor: '#ffd100', barColor: '#ff9a3c' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

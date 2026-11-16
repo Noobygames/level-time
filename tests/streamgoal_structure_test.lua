@@ -6,7 +6,6 @@ local Manager = streamGoal.Manager
 local BingoEditor = streamGoal.BingoEditor
 local Pool = streamGoal.Pool
 local Deadlines = streamGoal.Deadlines
-local L = streamGoal.L
 
 local WIDTH = Manager.PAGE_WIDTH
 
@@ -57,7 +56,7 @@ for _, language in ipairs({ "deDE", "enUS", "frFR", "esES" }) do
   end
 end
 addon.Set("language", "deDE")
-L = streamGoal.L
+local L = streamGoal.L
 
 ---------------------------------------------------------------------------
 -- G17: Bearbeiten eines laufenden Freitexts (Tippfehler, Zähler nachträglich, Zusätze)
@@ -294,7 +293,7 @@ expect("danach wieder normales Formular", Manager.addButton:IsShown(), true)
 -- Roadmap 439: Kacheln in Zeilen nach Namensbreite, so wenige Zeilen wie möglich, gleichmäßig verteilt
 ---------------------------------------------------------------------------
 local Rows = streamGoal.KindPicker.Rows
-local function joined(list) return "" .. table.concat(list, ",") end
+local function joined(rows) return "" .. table.concat(rows, ",") end
 expect("passt in eine Zeile", joined(Rows({ 30, 30, 30 }, 100)), "1")
 expect("zwei Zeilen ausgeglichen statt 3+1", joined(Rows({ 30, 30, 30, 30 }, 100)), "1,3")
 expect("lange Kachel bekommt ihre Zeile", joined(Rows({ 90, 20, 20, 20 }, 100)), "1,2")

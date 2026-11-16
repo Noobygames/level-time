@@ -33,7 +33,7 @@ ns.Database.RegisterDefaults({
   settings = {
     lootSparkleQuestItems = false, lootSparkleOre = false, lootSparkleHerbs = false, lootSparkleQuestObjects = false,
     lootSparkleCorpses = false, lootSparkleScale = 1,
-    lootSparkleCategoryColors = true, lootSparkleSilhouette = false,
+    lootSparkleCategoryColors = true,
     lootSparkleChests = false, lootSparkleBobber = false, lootSparkleHideUntrained = false,
     lootSparkleStyle = ns.LootSparkleStyles.DEFAULT,
   },
@@ -125,6 +125,7 @@ end
 function LootSparkles.IsFishing()
   if type(UnitChannelInfo) ~= "function" then return false end
   local name, _, texture = UnitChannelInfo("player")
+  if ns.IsSecret(name) or ns.IsSecret(texture) then return false end  -- im Kampf gesperrt (Forever/Retail)
   if not name then return false end
   if texture == 136245 then return true end
   if type(texture) == "string" and texture:lower():find("trade_fishing", 1, true) then return true end
@@ -251,7 +252,7 @@ end
 local fishingOverridden = false
 
 local function applyFishingRange()
-  if not ns.db or ns.db.lootSparkleBobber ~= true or InCombatLockdown() then return end
+  if conflict or not ns.db or ns.db.lootSparkleBobber ~= true or InCombatLockdown() then return end
   if LootSparkles.IsFishing() then
     if not fishingOverridden then
       fishingOverridden = true
@@ -397,13 +398,8 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if fishingOverridden and not LootSparkles.IsFishing() then applyFishingRange() end
 end)
 
-ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", function(unit)
-  if unit == "player" then applyFishingRange() end
-end)
-
-ns.RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", function(unit)
-  if unit == "player" then applyFishingRange() end
-end)
+ns.RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player", applyFishingRange)
+ns.RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player", applyFishingRange)
 
 ns.RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED", function(oldTarget, newTarget)
   if not softTargetWanted() then return end

@@ -21,7 +21,11 @@ local function placeAt(map, x, y) here.map, here.x, here.y = map, x, y end
 local postCalls = {}
 Enum = Enum or {}
 Enum.TooltipDataType = { Unit = 2 }
-TooltipDataProcessor = { AddTooltipPostCall = function(kind, fn) postCalls[kind] = fn end }
+-- Wie im Client: mehrere Post-Calls je Art (auch Assist/Tooltip.lua hängt sich an)
+TooltipDataProcessor = { AddTooltipPostCall = function(kind, fn)
+  postCalls[kind] = postCalls[kind] or {}
+  table.insert(postCalls[kind], fn)
+end }
 local tooltipUnit, tooltipLines = nil, {}
 function GameTooltip:GetUnit() return tooltipUnit and "Name", tooltipUnit end
 function GameTooltip:AddLine(text) table.insert(tooltipLines, text) end
@@ -44,7 +48,7 @@ expect("aus: keine Strecken", next(Transports.Data().routes), nil)
 addon.Set("transportTimers", true)
 expect("Standard Minimap", addon.db.transportMinimap, true)
 
--- Eine Fahrt: stehen, Transport fährt los, Ladebild, Ankunft auf der anderen Karte
+-- Eine Fahrt: stehen, Transport fährt los, Ladebild, nach dem Ladebild noch 10 s Anflug, dann liegt er am Ziel
 local function ride(departureAt, from, to)
   wow.state.moving = false
   placeAt(from[1], from[2], from[3])
@@ -55,7 +59,13 @@ local function ride(departureAt, from, to)
   expectTrue("Fahrt beginnt", Transports.Ride() ~= nil)
   wow.advance(50)
   wow.fire("PLAYER_LEAVING_WORLD")
+  placeAt(to[1], to[2] - 0.05, to[3])
+  tick()
+  wow.advance(10)
   placeAt(to[1], to[2], to[3])
+  tick()
+  expectTrue("Anflug: Fahrt läuft noch", Transports.Ride() ~= nil)
+  wow.advance(Transports.STAND_MIN_SECONDS)
   tick()
   expect("Fahrt beendet", Transports.Ride(), nil)
 end
@@ -69,7 +79,8 @@ expect("Abfahrt", route.syncAt, base - 1)
 expect("Art unbekannt", route.kind, "zeppelin")  -- aus der Streckenliste
 expect("noch keine Periode", route.period, nil)
 expect("Ziel-Anleger", Transports.Data().docks["Tirisfal Glades"].mapID, 1420)
-expect("Fahrzeit", route.travel ~= nil, true)
+expect("Fahrzeit Anleger zu Anleger (nicht bis zum Ladebild)", route.rideTime, 61)
+expect("Ziel-Anleger am Liegeplatz, nicht im Anflug", Transports.Data().docks["Tirisfal Glades"].x, 0.60)
 expect("ohne Periode unbekannt", Transports.SecondsToDeparture(route), nil)
 
 ride(base + 240, ORG, TIRISFAL)
@@ -152,7 +163,7 @@ addon.Set("transportNameplate", true)
 wow.state.units.mouseover = { name = "Frezza", guid = "Creature-0-4379-1-1-3149-00001A2B3C" }
 local function hover(unit)
   tooltipUnit, tooltipLines = unit, {}
-  postCalls[Enum.TooltipDataType.Unit](GameTooltip)
+  for _, fn in ipairs(postCalls[Enum.TooltipDataType.Unit]) do fn(GameTooltip) end
   return tooltipLines
 end
 expectTrue("Tooltip-Zeile", #hover("mouseover") >= 1)
@@ -162,15 +173,43 @@ addon.Set("transportTooltip", true)
 wow.state.units.mouseover = { name = "Wache", guid = "Creature-0-4379-1-1-9999-00001A2B3D" }
 expect("fremder NPC ohne Tooltip", #hover("mouseover"), 0)
 
+-- Meister mit Titel (Forever: Schiffsmeister ohne bekannte NPC-ID) wird dem Anleger zugeordnet, an dem man steht
+local titles = {}
+C_TooltipInfo = { GetUnit = function(unit)
+  local title = titles[unit]
+  return { lines = { { leftText = "Name" }, { leftText = title or "Level 45" } } }
+end }
+expect("Titel gelesen", Transports.UnitTitle("mouseover"), "Level 45")
+expectTrue("Meistertitel erkannt", Transports.IsMasterTitle("<Schiffsmeisterin>"))
+expectTrue("kein Meistertitel", not Transports.IsMasterTitle("Level 45"))
+wow.state.units.nameplate4 = { name = "Grizzlowe", guid = "Creature-0-4379-1-1-77001-00001A2B3E" }
+titles.nameplate4 = "Schiffsmeister"
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate4")
+expectTrue("Schiffsmeister per Titel gemerkt", Transports.DockOfNpc(77001) == "Orgrimmar")
+expectTrue("Schiffsmeister: Plakette", Display.PlateText("nameplate4") ~= nil)
+-- NPC ohne Meistertitel bleibt draußen
+wow.state.units.nameplate5 = { name = "Wache", guid = "Creature-0-4379-1-1-77002-00001A2B3F" }
+wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate5")
+expect("ohne Titel nicht gemerkt", Transports.DockOfNpc(77002), nil)
+-- Meister an einem Anleger ohne gelernte Zeiten: Hinweis im Tooltip
+placeAt(1434, 0.10, 0.10)
+wow.state.units.mouseover = { name = "Grizzlowe", guid = "Creature-0-4379-1-1-77003-00001A2B40" }
+titles.mouseover = "Schiffsmeister"
+local hint = hover("mouseover")
+expect("Hinweis: einmal mitfahren", hint[1], L.TRANSPORT_MASTER_UNLEARNED)
+titles.mouseover = nil
+C_TooltipInfo = nil
+
 -- Teilen: gültige Phase wird übernommen, schlechte Daten werden abgelehnt
 local function receive(body, sender, prefix)
-  local before = Transports.Data().routes
   wow.fire("CHAT_MSG_ADDON", prefix or Transports.PREFIX, body, "GUILD", sender or "Friend-Realm")
 end
 local function routeCount() local n = 0 for _ in pairs(Transports.Data().routes) do n = n + 1 end return n end
 local now = Transports.Now()
 local count = routeCount()
 
+expect("Teilen ist Standard", addon.db.transportShare, true)
+addon.Set("transportShare", false)
 receive(string.format("P:Barrens:Stranglethorn Vale:%d:300", now - 30))
 expect("ohne Teilen-Schalter nichts", routeCount(), count)
 addon.Set("transportShare", true)
@@ -214,6 +253,35 @@ for _, entry in ipairs(wow.addonMessages) do
 end
 expectTrue("Phase gesendet", sent ~= nil and sent.message:find("^P:Orgrimmar:Tirisfal Glades:%d+:240$") ~= nil)
 
+-- Abgleich: wächst die Gruppe, gehen alle frischen Phasen (auch geteilte) an die Gruppe; kleiner werden sendet nicht
+local function drainQueue()
+  for _ = 1, Transports.MAX_QUEUE + 1 do wow.update(Transports.SEND_INTERVAL) end
+end
+local function partyPhases()
+  local found = {}
+  for _, entry in ipairs(wow.addonMessages) do
+    if entry.prefix == Transports.PREFIX and entry.chatType == "PARTY" then
+      found[entry.message:match("^P:([^:]+:[^:]+):")] = true
+    end
+  end
+  return found
+end
+drainQueue()
+wow.addonMessages = {}
+wow.state.inGroup, wow.state.groupSize = true, 2
+wow.fire("GROUP_ROSTER_UPDATE")
+drainQueue()
+local synced = partyPhases()
+expectTrue("Abgleich: eigene Phase an Gruppe", synced["Orgrimmar:Tirisfal Glades"] == true)
+expectTrue("Abgleich: geteilte Phase weitergegeben", synced["Barrens:Stranglethorn Vale"] == true)
+wow.addonMessages = {}
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.groupSize = 1
+wow.fire("GROUP_ROSTER_UPDATE")
+drainQueue()
+expect("gleiche oder kleinere Gruppe: kein Abgleich", next(partyPhases()), nil)
+wow.state.inGroup, wow.state.groupSize = false, nil
+
 -- Hauptschalter aus: alles weg
 addon.Set("transportTimers", false)
 placeAt(1454, 0.45, 0.60)
@@ -239,8 +307,16 @@ tick()
 expectTrue("Kontinentkarte: Fahrt läuft weiter", Transports.Ride() ~= nil)
 placeAt(1420, 0.61, 0.51)
 tick()
-expect("Zone lesbar: Fahrt beendet", Transports.Ride(), nil)
-expectTrue("Ziel ist die Zone", Transports.Data().routes["Stranglethorn Vale>Tirisfal Glades"] ~= nil)
+expectTrue("Zone lesbar, Ruhezeit läuft", Transports.Ride() ~= nil)
+-- Spieler läuft sofort los: der letzte ruhige Punkt gilt als Ankunft
+wow.advance(1)
+wow.state.moving = true
+tick()
+wow.state.moving = false
+expect("Losgelaufen: Fahrt beendet", Transports.Ride(), nil)
+local stvRoute = Transports.Data().routes["Stranglethorn Vale>Tirisfal Glades"]
+expectTrue("Ziel ist die Zone", stvRoute ~= nil)
+expect("Fahrzeit bis zum ruhigen Punkt", stvRoute.rideTime, 51)
 expect("kein Kontinent-Anleger", Transports.Data().docks["Eastern Kingdoms"], nil)
 
 -- Transport legt noch an (Spieler steht, Position wandert): keine Abfahrt vor der Ruhezeit

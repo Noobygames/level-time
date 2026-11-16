@@ -8,7 +8,8 @@
 -- danach an den restlichen Kosten sehen, was die Gilde bezahlt hat; den Rest zahlt der Charakter. Das Abhebelimit
 -- (GetGuildBankWithdrawMoney) wird aus demselben Grund nicht vorab geprüft; ein zu kleines Limit führt nur dazu,
 -- dass der Charakter den Rest zahlt (Roadmap 179).
--- Schrott: Taschen über Bags.ForEachItem (quality, hasNoValue, isLocked); verkauft wird mit C_Container.UseContainerItem bei offenem Händler. Den Erlös zählt
+-- Schrott: Taschen über Bags.ForEachItem (quality, hasNoValue, isLocked); verkauft wird mit C_Container.UseContainerItem bei offenem
+-- Händler. Den Erlös zählt
 -- MoneyCounter wie jede Einnahme, zusätzlich der Zähler moneyJunk (erwarteter Erlös).
 local _, ns = ...
 
@@ -67,8 +68,10 @@ function Merchant.Repair()
   end
 end
 
+-- Grau oder selbst als Müll markiert (QuestLeftovers, Alt+Rechtsklick in der Tasche)
 local function isJunk(info)
-  return info.quality == POOR_QUALITY and not info.hasNoValue and not info.isLocked
+  if info.hasNoValue or info.isLocked then return false end
+  return info.quality == POOR_QUALITY or ns.QuestLeftovers.IsMarked(info.itemID)
 end
 
 local function sellPrice(info)

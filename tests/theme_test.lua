@@ -67,11 +67,12 @@ expectNear("Akzent zurück", Theme.COLORS.accent[1], 0.96)
 
 -- Schrift: Größe, Kontur und Schriftart wirken auf die eigenen Font-Objekte, nicht auf Blizzards
 local label = _G[Theme.Font("label")]
-local face, size, flags = label:GetFont()
+local _, size, flags = label:GetFont()
 expect("Grundgröße aus dem Blizzard-Objekt", size, 12)
 expect("ohne Kontur", flags, "")
 addon.Set("themeFontSize", 3)
 addon.Set("themeOutline", "thick")
+local face
 face, size, flags = label:GetFont()
 expect("Größe + Versatz", size, 15)
 expect("dicke Kontur", flags, "THICKOUTLINE")
@@ -84,7 +85,7 @@ expect("Name bleibt gemerkt", LevelTimerDB.themeFont, "Gibt es nicht")
 
 -- LibSharedMedia nur, wenn ein anderes Addon sie geladen hat
 local choices = #Theme.FontChoices()
-LibStub = function(name, silent)
+LibStub = function(name)
   if name ~= "LibSharedMedia-3.0" then return nil end
   return {
     List = function() return { "Arial Narrow", "Expressway" } end,

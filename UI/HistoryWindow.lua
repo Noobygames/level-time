@@ -18,7 +18,7 @@ local HistoryWindow = {
   CONTENT_HEIGHT = 290,
   -- Hauptreiter (UX W13): wenige Gruppen statt einer Reihe gleichrangiger Einzeltabellen
   TAB_ORDER = { "HISTORY_GROUP_LEVELS", "HISTORY_GROUP_SESSIONS", "HISTORY_GROUP_JOURNAL", "HISTORY_GROUP_ANALYSIS",
-    "HISTORY_TAB_CHARTS", "HISTORY_GROUP_SPEEDRUN", "HISTORY_TAB_COMPARE" },
+    "HISTORY_TAB_CHARTS", "HISTORY_GROUP_SPEEDRUN", "HISTORY_TAB_ALTS", "HISTORY_TAB_COMPARE" },
 }
 ns.HistoryWindow = HistoryWindow
 
@@ -37,7 +37,7 @@ local CLOSE_BUTTON_GAP = 28  -- Platz für den Schließen-Knopf oben rechts
 local TAB_GAP = 12
 local SUBTAB_GAP = 10
 local UPDATE_INTERVAL = 1  -- Sekunden; hält laufende Einträge aktuell
-local NAME_COLOR = { 1, 1, 1 }  -- Charaktername ohne bekannte Klasse
+local NAME_COLOR = ns.Theme.COLORS.text  -- Charaktername ohne bekannte Klasse
 
 local panel = Widgets.CreatePanel(ns.GlobalName("History"), 0.95)
 panel:SetWidth(HistoryWindow.CONTENT_WIDTH + 2 * MARGIN)  -- Höhe hängt von den Unterreiter-Zeilen ab (refresh)
@@ -48,10 +48,7 @@ panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("History"))  -- mit ESC schließen
 
-Widgets.CreateCloseButton(panel)
-
-local header = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-header:SetPoint("TOP", 0, HEADER_TOP)
+local header = Widgets.CreateWindowHeader(panel, "")
 
 local content = CreateFrame("Frame", nil, panel)
 content:SetSize(HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)
@@ -288,7 +285,7 @@ function refresh()
     selectedCharacter = ns.characterKey
   end
 
-  header:SetText(L.HISTORY)
+  header:SetTitle(L.HISTORY)
   Widgets.SetButtonText(deleteButton, L.DELETE_CHARACTER, DELETE_BUTTON_WIDTH)
   local selectedView = selectedEntry.selected
   showCharacterName(selectedCharacter, selectedView.allCharacters)
@@ -349,6 +346,11 @@ function HistoryWindow.ShowView(tabKey)
 end
 
 -- Gilt die gezeigte Ansicht für alle Charaktere (Charakter-Auswahl aus)
+-- Gewählter Charakter (Standard: eingeloggter)
+function HistoryWindow.SelectedCharacter()
+  return selectedCharacter or ns.characterKey
+end
+
 function HistoryWindow.IsAllCharacters()
   return selectedEntry ~= nil and selectedEntry.selected.allCharacters == true
 end

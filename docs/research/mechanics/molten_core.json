@@ -1,0 +1,453 @@
+{
+ "instance": "Molten Core",
+ "instanceMapID": 409,
+ "kind": "raid",
+ "bosses": [
+  {
+   "name": "Lucifron",
+   "npcID": 12118,
+   "mechanics": [
+    {
+     "spellID": 19702,
+     "spell": "Impending Doom",
+     "type": "dispel",
+     "en": "Curse that deals shadow damage when it expires; remove curses fast",
+     "de": "Fluch, der beim Ablauf Schattenschaden macht; Flüche schnell entfernen"
+    },
+    {
+     "spellID": 19703,
+     "spell": "Lucifron's Curse",
+     "type": "dispel",
+     "en": "Curse doubles mana and rage costs; decurse the raid",
+     "de": "Fluch verdoppelt Mana- und Wutkosten; Raid entfluchen"
+    },
+    {
+     "spellID": 20604,
+     "spell": "Dominate Mind",
+     "type": "dispel",
+     "en": "Mind-controls a player; dispel or crowd-control the victim",
+     "de": "Übernimmt einen Spieler; bannen oder kontrollieren"
+    }
+   ]
+  },
+  {
+   "name": "Magmadar",
+   "npcID": 11982,
+   "mechanics": [
+    {
+     "spellID": 19451,
+     "spell": "Frenzy",
+     "type": "tank",
+     "en": "Frenzies often; hunters must remove it with Tranquilizing Shot",
+     "de": "Gerät oft in Raserei; Jäger entfernen sie per Einlullender Schuss"
+    },
+    {
+     "spellID": 19408,
+     "spell": "Panic",
+     "type": "survive",
+     "en": "Raid-wide fear; Fear Ward or Tremor Totem on the tank",
+     "de": "Raidweite Furcht; Furchtzauberschutz oder Totem des Erdstoßes für den Tank"
+    },
+    {
+     "spellID": 19411,
+     "spell": "Lava Bomb",
+     "type": "avoid",
+     "en": "Leaves burning lava patches on the floor; step out",
+     "de": "Hinterlässt brennende Lavapfützen am Boden; heraustreten"
+    }
+   ]
+  },
+  {
+   "name": "Gehennas",
+   "npcID": 12259,
+   "mechanics": [
+    {
+     "spellID": 19716,
+     "spell": "Gehennas' Curse",
+     "type": "dispel",
+     "en": "Curse cuts healing taken by 75%; decurse quickly",
+     "de": "Fluch senkt erhaltene Heilung um 75 %; schnell entfluchen"
+    },
+    {
+     "spellID": 19717,
+     "spell": "Rain of Fire",
+     "type": "avoid",
+     "en": "Fire rain on a group of players; move out at once",
+     "de": "Feuerregen auf Spielergruppe; sofort herauslaufen"
+    }
+   ]
+  },
+  {
+   "name": "Garr",
+   "npcID": 12057,
+   "mechanics": [
+    {
+     "spellID": 19492,
+     "spell": "Antimagic Pulse",
+     "type": "survive",
+     "en": "Pulse strips magic buffs from nearby players; rebuff after",
+     "de": "Puls entfernt Magie-Buffs naher Spieler; danach neu buffen"
+    },
+    {
+     "spellID": 19496,
+     "spell": "Magma Shackles",
+     "type": "positioning",
+     "en": "Slows nearby players; keep ranged and healers spread out",
+     "de": "Verlangsamt nahe Spieler; Fernkämpfer und Heiler verteilen"
+    },
+    {
+     "spellID": 19516,
+     "spell": "Enrage",
+     "type": "adds",
+     "en": "Gains damage per Firesworn killed; tank or banish adds apart",
+     "de": "Wird pro getötetem Feuergeschworenen stärker; Adds getrennt halten"
+    }
+   ]
+  },
+  {
+   "name": "Shazzrah",
+   "npcID": 12264,
+   "mechanics": [
+    {
+     "spellID": 19712,
+     "spell": "Arcane Explosion",
+     "type": "positioning",
+     "en": "Heavy arcane AoE around him; only melee and tank stay close",
+     "de": "Starke Arkan-AoE um ihn; nur Nahkampf und Tank stehen nah"
+    },
+    {
+     "spellID": 23138,
+     "spell": "Gate of Shazzrah",
+     "type": "tank",
+     "en": "Blinks to a random player and wipes threat; tanks re-pick him",
+     "de": "Teleportiert zu zufälligem Spieler, Bedrohung weg; Tanks holen ihn"
+    },
+    {
+     "spellID": 19713,
+     "spell": "Shazzrah's Curse",
+     "type": "dispel",
+     "en": "Curse doubles magic damage taken; decurse",
+     "de": "Fluch verdoppelt erlittenen Magieschaden; entfluchen"
+    },
+    {
+     "spellID": 19714,
+     "spell": "Deaden Magic",
+     "type": "dispel",
+     "en": "Self buff halves magic damage; purge or dispel it",
+     "de": "Selbstbuff halbiert Magieschaden; reinigen oder bannen"
+    }
+   ]
+  },
+  {
+   "name": "Baron Geddon",
+   "npcID": 12056,
+   "mechanics": [
+    {
+     "spellID": 20475,
+     "spell": "Living Bomb",
+     "type": "positioning",
+     "en": "Target explodes after a few seconds; run away from the raid",
+     "de": "Ziel explodiert nach Sekunden; vom Raid weglaufen"
+    },
+    {
+     "spellID": 19659,
+     "spell": "Ignite Mana",
+     "type": "dispel",
+     "en": "Burns mana and deals damage; dispel magic on casters",
+     "de": "Verbrennt Mana mit Schaden; Magie bei Zauberern bannen"
+    },
+    {
+     "spellID": 19695,
+     "spell": "Inferno",
+     "type": "avoid",
+     "en": "Pulsing fire around him; melee back away while it lasts",
+     "de": "Pulsierendes Feuer um ihn; Nahkampf weicht aus"
+    }
+   ]
+  },
+  {
+   "name": "Sulfuron Harbinger",
+   "npcID": 12098,
+   "mechanics": [
+    {
+     "spellID": 19775,
+     "spell": "Dark Mending",
+     "type": "interrupt",
+     "en": "Flamewaker Priests heal allies; interrupt every cast",
+     "de": "Flammenschuppen-Priester heilen; jeden Zauber unterbrechen"
+    },
+    {
+     "spellID": 19780,
+     "spell": "Hand of Ragnaros",
+     "type": "survive",
+     "en": "Stuns and knocks back players near him",
+     "de": "Betäubt und stößt Spieler in seiner Nähe zurück"
+    },
+    {
+     "spellID": 19779,
+     "spell": "Inspire",
+     "type": "tank",
+     "en": "Boosts attack speed of nearby adds; tank adds away from him",
+     "de": "Beschleunigt Angriffe naher Adds; Adds von ihm wegziehen"
+    }
+   ]
+  },
+  {
+   "name": "Golemagg the Incinerator",
+   "npcID": 11988,
+   "mechanics": [
+    {
+     "spellID": 20553,
+     "spell": "Golemagg's Trust",
+     "type": "positioning",
+     "en": "Core Ragers near him get stronger; tank the dogs away",
+     "de": "Kernwüter in seiner Nähe werden stärker; Hunde weg tanken"
+    },
+    {
+     "spellID": 13880,
+     "spell": "Magma Splash",
+     "type": "tank",
+     "en": "Stacking armor and fire debuff on the tank",
+     "de": "Stapelnder Rüstungs- und Feuer-Debuff auf dem Tank"
+    },
+    {
+     "spellID": 19798,
+     "spell": "Earthquake",
+     "type": "survive",
+     "en": "Below 10% health quakes hurt all melee; burn him fast",
+     "de": "Unter 10 % Erdbeben gegen Nahkampf; schnell töten"
+    }
+   ]
+  },
+  {
+   "name": "Majordomo Executus",
+   "npcID": 12018,
+   "mechanics": [
+    {
+     "spellID": 20619,
+     "spell": "Magic Reflection",
+     "type": "avoid",
+     "en": "Adds reflect spells while active; casters stop casting",
+     "de": "Adds reflektieren Zauber; Zauberer pausieren"
+    },
+    {
+     "spellID": 21075,
+     "spell": "Damage Shield",
+     "type": "avoid",
+     "en": "Adds hurt melee attackers while active; melee stop",
+     "de": "Adds schaden Nahkämpfern; Nahkampf pausiert"
+    },
+    {
+     "spellID": 20534,
+     "spell": "Teleport",
+     "type": "tank",
+     "en": "Sends a random player into the lava pit; heal them out",
+     "de": "Schickt zufälligen Spieler in die Lavagrube; heilen"
+    }
+   ]
+  },
+  {
+   "name": "Ragnaros",
+   "npcID": 11502,
+   "mechanics": [
+    {
+     "spellID": 20566,
+     "spell": "Wrath of Ragnaros",
+     "type": "positioning",
+     "en": "Knocks melee back; tank can lose threat, second tank ready",
+     "de": "Stößt Nahkampf zurück; Bedrohung kann wechseln, Zweittank bereit"
+    },
+    {
+     "spellID": 20565,
+     "spell": "Magma Blast",
+     "type": "tank",
+     "en": "Hits ranged hard when nobody is in melee range; keep melee up",
+     "de": "Trifft Fernkämpfer, wenn keiner im Nahkampf ist; Nahkampf halten"
+    },
+    {
+     "spellID": 20564,
+     "spell": "Elemental Fire",
+     "type": "tank",
+     "en": "Fire damage over time on his melee target",
+     "de": "Feuerschaden über Zeit auf sein Nahkampfziel"
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Core Hound",
+   "npcID": 11671,
+   "mechanics": [
+    {
+     "spellID": 19771,
+     "spell": "Serrated Bite",
+     "type": "tank",
+     "en": "Packs of five; bleeding bite, kill all close together",
+     "de": "Fünferrudel; blutender Biss, alle möglichst gleichzeitig töten"
+    }
+   ]
+  },
+  {
+   "name": "Ancient Core Hound",
+   "npcID": 11673,
+   "mechanics": [
+    {
+     "spellID": 19272,
+     "spell": "Lava Breath",
+     "type": "avoid",
+     "en": "Fire breath in front; keep the raid behind or at its side",
+     "de": "Feueratem nach vorn; Raid hinter oder neben ihm"
+    },
+    {
+     "spellID": 19365,
+     "spell": "Ancient Dread",
+     "type": "survive",
+     "en": "Uses one random debuff aura per spawn; check which one",
+     "de": "Nutzt je Spawn eine zufällige Debuff-Aura; prüfen welche"
+    },
+    {
+     "spellID": 19364,
+     "spell": "Ground Stomp",
+     "type": "survive",
+     "en": "Stomp that stuns nearby players",
+     "de": "Stampfer, der nahe Spieler betäubt"
+    }
+   ]
+  },
+  {
+   "name": "Firelord",
+   "npcID": 11668,
+   "mechanics": [
+    {
+     "spellID": 19392,
+     "spell": "Summon Lava Spawn",
+     "type": "adds",
+     "en": "Spawns Lava Spawns that split if left alive; kill fast",
+     "de": "Ruft Lavabrut, die sich teilt; schnell töten"
+    },
+    {
+     "spellID": 19393,
+     "spell": "Soul Burn",
+     "type": "dispel",
+     "en": "Magic debuff that burns mana; dispel it",
+     "de": "Magie-Debuff, der Mana verbrennt; bannen"
+    }
+   ]
+  },
+  {
+   "name": "Molten Giant",
+   "npcID": 11658,
+   "mechanics": [
+    {
+     "spellID": 18944,
+     "spell": "Smash",
+     "type": "positioning",
+     "en": "Heavy AoE hit around it; non-tanks keep distance",
+     "de": "Schwerer Flächenschlag; Nicht-Tanks halten Abstand"
+    },
+    {
+     "spellID": 18945,
+     "spell": "Knock Away",
+     "type": "tank",
+     "en": "Knocks the tank back and lowers threat",
+     "de": "Stößt den Tank zurück und senkt Bedrohung"
+    }
+   ]
+  },
+  {
+   "name": "Molten Destroyer",
+   "npcID": 11659,
+   "mechanics": [
+    {
+     "spellID": 19129,
+     "spell": "Massive Tremor",
+     "type": "positioning",
+     "en": "Strong quake around it; melee step out",
+     "de": "Starkes Beben um ihn; Nahkampf tritt heraus"
+    },
+    {
+     "spellID": 20276,
+     "spell": "Knockdown",
+     "type": "tank",
+     "en": "Knocks the tank down for a short stun",
+     "de": "Wirft den Tank kurz zu Boden"
+    }
+   ]
+  },
+  {
+   "name": "Flameguard",
+   "npcID": 11667,
+   "mechanics": [
+    {
+     "spellID": 19630,
+     "spell": "Cone of Fire",
+     "type": "positioning",
+     "en": "Fire cone in front; only the tank faces it",
+     "de": "Feuerkegel nach vorn; nur der Tank steht davor"
+    },
+    {
+     "spellID": 19631,
+     "spell": "Melt Armor",
+     "type": "tank",
+     "en": "Reduces the tank's armor",
+     "de": "Senkt die Rüstung des Tanks"
+    }
+   ]
+  },
+  {
+   "name": "Firewalker",
+   "npcID": 11666,
+   "mechanics": [
+    {
+     "spellID": 19635,
+     "spell": "Incite Flames",
+     "type": "survive",
+     "en": "Fire AoE that hits the whole area",
+     "de": "Feuer-AoE über den ganzen Bereich"
+    },
+    {
+     "spellID": 19636,
+     "spell": "Fire Blossom",
+     "type": "avoid",
+     "en": "Fire bursts on players; spread out",
+     "de": "Feuerstöße auf Spieler; verteilen"
+    }
+   ]
+  },
+  {
+   "name": "Flamewaker Protector",
+   "npcID": 12119,
+   "mechanics": [
+    {
+     "spellID": 20604,
+     "spell": "Dominate Mind",
+     "type": "dispel",
+     "en": "Mind-controls a player; dispel or crowd-control",
+     "de": "Übernimmt einen Spieler; bannen oder kontrollieren"
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://www.wowhead.com/classic/npc=11502",
+  "https://www.wowhead.com/classic/npc=11658",
+  "https://www.wowhead.com/classic/npc=11659",
+  "https://www.wowhead.com/classic/npc=11666",
+  "https://www.wowhead.com/classic/npc=11667",
+  "https://www.wowhead.com/classic/npc=11668",
+  "https://www.wowhead.com/classic/npc=11671",
+  "https://www.wowhead.com/classic/npc=11673",
+  "https://www.wowhead.com/classic/npc=11982",
+  "https://www.wowhead.com/classic/npc=11988",
+  "https://www.wowhead.com/classic/npc=12018",
+  "https://www.wowhead.com/classic/npc=12056",
+  "https://www.wowhead.com/classic/npc=12057",
+  "https://www.wowhead.com/classic/npc=12098",
+  "https://www.wowhead.com/classic/npc=12118",
+  "https://www.wowhead.com/classic/npc=12119",
+  "https://www.wowhead.com/classic/npc=12259",
+  "https://www.wowhead.com/classic/npc=12264",
+  "https://www.wowhead.com/classic/object=179703"
+ ]
+}

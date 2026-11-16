@@ -117,7 +117,7 @@ expect("sub-3s red g", gSub, 0.2)
 expect("sub-3s red b", bSub, 0.2)
 expect("sub-3s key", keySub, "red")
 
-local textSub2, rSub2, gSub2, bSub2 = CooldownNumbers.FormatRemaining(2.9)
+local textSub2, rSub2 = CooldownNumbers.FormatRemaining(2.9)
 expect("sub-3s text 2.9", textSub2, "2.9")
 expect("sub-3s 2.9 red r", rSub2, 1)
 

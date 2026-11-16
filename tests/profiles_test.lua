@@ -137,7 +137,6 @@ local saveButton = wow.findFrame(function(frame)
   return label and label._text == L.PROFILE_SAVE
 end)
 expectTrue("Speichern-Button", saveButton ~= nil)
-local before = #wow.printed
 saveButton._scripts.OnClick(saveButton)
 expectTrue("leerer Name gemeldet", wow.printed[#wow.printed]:find(L.PROFILE_NAME_EMPTY, 1, true) ~= nil)
 expect("Profil-Exists", Profiles.Exists("Default"), true)

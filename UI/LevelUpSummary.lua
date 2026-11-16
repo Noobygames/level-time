@@ -66,7 +66,7 @@ function LevelUpSummary.Preview()
   local text = summaryText(ns.level)
   ns.Print(text)
   local target = ns.db.levelUpAnnounce
-  ns.DebugPrint("announce", "preview: target %s, channel %s, lockdown %s",
+  ns.Debug("announce", "preview: target %s, channel %s, lockdown %s",
     target, announceChannel(target), chatLocked())
 end
 

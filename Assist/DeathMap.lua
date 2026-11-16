@@ -14,7 +14,7 @@ local DeathMap = {}
 ns.DeathMap = DeathMap
 
 local PIN_SIZE = 8
-local PIN_COLOR = { 0.9, 0.1, 0.1, 0.9 }
+local PIN_COLOR = ns.Theme.COLORS.bad
 
 -- Tode je Karte, aus dem Tod-Journal des eingeloggten Charakters. Das Journal wächst nur hinten (Journal.GetEntries
 -- hängt an dieselbe Liste an): neue Tode kommen dazu, statt bei jedem Kartenwechsel alle zu durchlaufen. Eine andere
@@ -43,10 +43,17 @@ function DeathMap.DeathsOn(mapID)
   return deathsByMap()[mapID] or NO_DEATHS
 end
 
+-- Karten mit Toden (Nachbarzonen und Kontinentkarte zeigen sie mit, Lib/MapPins.lua)
+local function mapIDs()
+  local list = {}
+  for mapID in pairs(deathsByMap()) do table.insert(list, mapID) end
+  return list
+end
+
 local function points(mapID)
   local list = {}
-  for index, entry in ipairs(DeathMap.DeathsOn(mapID)) do
-    list[index] = { x = entry.x, y = entry.y, size = PIN_SIZE, color = PIN_COLOR, entry = entry }
+  for pointIndex, entry in ipairs(DeathMap.DeathsOn(mapID)) do
+    list[pointIndex] = { x = entry.x, y = entry.y, size = PIN_SIZE, color = PIN_COLOR, entry = entry }
   end
   return list
 end
@@ -69,6 +76,7 @@ local layer = ns.MapPins.Create({
   points = points,
   revision = ns.Journal.RevisionOf("deathLog"),
   onEnter = showTooltip,
+  mapIDs = mapIDs,
 })
 
 function DeathMap.Refresh(force)

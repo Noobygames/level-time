@@ -241,6 +241,13 @@ func luaNumber(value float64) string {
 	return strconv.FormatFloat(math.Round(value*1000)/1000, 'f', -1, 64)
 }
 
+// luaString setzt Text in Anführungszeichen für Lua 5.1: strconv.Quote schreibt Zeichen wie das geschützte
+// Leerzeichen als  , das kennt Lua 5.1 nicht (WoW zeigt sonst „u00a0“). UTF-8 bleibt daher roh im String.
+func luaString(text string) string {
+	replacer := strings.NewReplacer(`\`, `\\`, `"`, `\"`, "\n", `\n`, "\r", `\r`)
+	return `"` + replacer.Replace(text) + `"`
+}
+
 // WriteLua schreibt Assist/FlightTimesData.lua (sortiert, damit der Diff nur echte Änderungen zeigt).
 func (s *Snapshot) WriteLua(w io.Writer, date string) error {
 	var b strings.Builder

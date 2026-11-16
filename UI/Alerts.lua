@@ -37,6 +37,7 @@ local QUEUED_HOLD = 1.5      -- Anzeigedauer, solange weitere warten
 local Theme = ns.Theme
 Alerts.COLORS = {
   levelUp = Theme.COLORS.gold,
+  -- feste Qualitäts-/Kategoriefarben (Seltenheit), kein Theme-Gegenstück
   rare = { 0.75, 0.75, 1 },
   elite = { 1, 0.5, 0.1 },
   loot = { 0.64, 0.21, 0.93 },
@@ -81,6 +82,7 @@ Alerts.ICONS = {
   durability = iconPath("INV_Misc_Gear_01"),
   aggro = iconPath("Ability_Warrior_Charge"),
   ammo = iconPath("INV_Ammo_Arrow_02"),
+  reagents = iconPath("Spell_Holy_Resurrection"),
   trainer = iconPath("INV_Misc_Book_09"),
   instanceLimit = iconPath("INV_Misc_PocketWatch_01"),
   levelUp = iconPath("Spell_Holy_HolyBolt"),
@@ -95,6 +97,7 @@ Alerts.ICONS = {
   questObjective = iconPath("INV_Misc_Note_01"),
   questLog = iconPath("INV_Misc_Book_09"),
   rareSpotted = iconPath("INV_Misc_Eye_01"),
+  eliteSpotted = iconPath("INV_Misc_Eye_01"),
 }
 
 local shownAt

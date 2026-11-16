@@ -1,6 +1,7 @@
--- Questfortschritt an die Gruppe (Roadmap 264, Einstellung announceQuestProgress, Standard aus), wie Questie Announce:
+-- Questfortschritt an die Gruppe (Roadmap 264, Einstellung announceQuestProgress, Standard aus):
 -- angenommene Quests, je Ziel einmal, wenn es erfüllt ist ("Wölfe getötet: 8/8"), und die Quest, sobald alle Ziele
--- erfüllt sind. Macht ein Ziel die Quest fertig, kommt nur "Quest fertig" (keine zweite Zeile für das letzte Ziel). Ein Ziel oder eine Quest wird nur gemeldet, wenn vorher ein unvollständiger Stand gesehen wurde:
+-- erfüllt sind. Macht ein Ziel die Quest fertig, kommt nur "Quest fertig" (keine zweite Zeile für das letzte Ziel). Ein Ziel oder eine
+-- Quest wird nur gemeldet, wenn vorher ein unvollständiger Stand gesehen wurde:
 -- nach Login, /reload oder dem Einschalten zählt der erste Durchlauf nur den Stand.
 -- Versand wie die Level-Up-Ansage über GroupChat (Gruppe/Instanz, nur in einer Gruppe); bei gesperrtem Chat
 -- (GroupChat.Locked, z.B. Bosskampf) fällt die Meldung weg.

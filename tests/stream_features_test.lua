@@ -1,7 +1,5 @@
 -- Tests für Stream-Features & Gruppenbeitritt (Roadmap 313, 314, 315, 316, 317)
-local L = addon.L
 local ObsSignal = addon.ObsSignal
-local RecapWindow = addon.RecapWindow
 local StreamLink = addon.StreamLink
 local SpellHistory = addon.SpellHistory
 local GroupJoinStats = addon.GroupJoinStats
@@ -118,7 +116,7 @@ SpellHistory.Clear()
 expect("Historie leer", #SpellHistory.GetSpells(), 0)
 
 -- Zauber wirken (UNIT_SPELLCAST_SUCCEEDED)
-GetSpellTexture = function(spellID)
+GetSpellTexture = function()
   return "Interface\\Icons\\Spell_Fire_Fireball02"
 end
 
@@ -140,6 +138,14 @@ wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-5", 137)
 wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-6", 138)
 expect("Maximal 5 Zauber gehalten", #SpellHistory.GetSpells(), 5)
 expect("Ältester entfernt (jetzt 134)", SpellHistory.GetSpells()[1].spellID, 134)
+
+-- Rang (Roadmap 487): Zahl aus dem Untertext, Retail-Untertexte ohne Zahl zeigen nichts
+C_Spell.GetSpellSubtext = function(spellID) return spellID == 140 and "Rank 3" or "Racial" end
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-7", 139)
+expect("Kein Rang ohne Zahl im Untertext", SpellHistory.GetSpells()[5].rank, nil)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "cast-8", 140)
+expect("Rang aus dem Untertext", SpellHistory.GetSpells()[5].rank, "3")
+C_Spell.GetSpellSubtext = nil
 
 -- Fade: nach 10 Sekunden verblassen/entfernen
 wow.advance(11)

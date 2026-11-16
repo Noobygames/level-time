@@ -96,7 +96,7 @@ func WriteNamesLua(w io.Writer, flavor, build string, index *NameIndex, date str
 	fmt.Fprintf(&b, "if ns.Client.Flavor() ~= %q then return end\n\n", flavor)
 	b.WriteString("ns.FlightNamesData = {\n")
 	for _, name := range sortedKeys(index.IDs) {
-		fmt.Fprintf(&b, "  [%s] = %s,\n", strconv.Quote(name), strconv.Itoa(index.IDs[name]))
+		fmt.Fprintf(&b, "  [%s] = %s,\n", luaString(name), strconv.Itoa(index.IDs[name]))
 	}
 	b.WriteString("}\n")
 	_, err := io.WriteString(w, b.String())

@@ -3,7 +3,9 @@ local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local Alerts = ns.Alerts
-local addPage, finishPage, addSection, addSlider, addToggles, addButton, addChooser, addHint, addSubPage, finishSubPages, toggle, localized, requires, addFrameScaleSlider = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle, O.localized, O.requires, O.addFrameScaleSlider
+local addPage, finishPage, addSection, addSlider, addToggles = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles
+local addButton, addChooser, addHint, addSubPage, finishSubPages = O.addButton, O.addChooser, O.addHint, O.addSubPage, O.finishSubPages
+local toggle, localized, requires, addFrameScaleSlider = O.toggle, O.localized, O.requires, O.addFrameScaleSlider
 
 -- Level-Up-Ansage: aus, Gruppe oder Gilde
 local function addAnnounceChooser()
@@ -27,6 +29,7 @@ addToggles({
   toggle("ALERT_TOGGLE_LOOT", "alertEpicLoot"),
   toggle("ALERT_TOGGLE_NEAR_DEATH", "alertNearDeath", ns.NearDeath.IsAvailable),
   toggle("ALERT_TOGGLE_RARE_SPOTTED", "alertRareSpotted"),
+  toggle("ALERT_TOGGLE_ELITE_SPOTTED", "alertEliteSpotted"),
   requires(toggle("ALERT_TOGGLE_RARE_FLASH", "alertRareFlash"), "alertRareSpotted"),
 })
 addHint("QUEST_ALERTS_HINT")  -- Quest-Einblendungen stehen bei den Quests, die zum Level-Up auf der Seite Level-Up
@@ -56,6 +59,7 @@ addToggles({
   requires(toggle("LEVEL_UP_HIDE_BLIZZARD", "levelUpHideBlizzard"), "levelUpWindow"),
   requires(toggle("LEVEL_UP_COMPACT", "levelUpCompact"), "levelUpWindow"),
   requires(toggle("LEVEL_UP_SOUND", "levelUpSound"), "levelUpWindow"),
+  requires(toggle("LEVEL_UP_AUTO_CLOSE", "levelUpAutoClose"), "levelUpWindow"),
 })
 local function levelUpWindowOn(db) return db.levelUpWindow end
 addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = levelUpWindowOn, choices = {
@@ -64,7 +68,7 @@ addChooser({ label = "LEVEL_UP_THEME", setting = "levelUpTheme", enabled = level
   { value = "horde", name = localized("THEME_HORDE") },
 } })
 addFrameScaleSlider("LEVEL_UP_SCALE", "levelUp", levelUpWindowOn)
-addSlider(requires({
+addSlider({
   label = "LEVEL_UP_DURATION",
   advanced = true,
   setting = "levelUpDuration",
@@ -74,7 +78,8 @@ addSlider(requires({
   get = function(db) return db.levelUpDuration end,
   set = function(value) ns.SetDeferred("levelUpDuration", value) end,
   format = function(value) return string.format(L.SECONDS_SHORT, value) end,
-}, "levelUpWindow"))
+  enabled = function(db) return db.levelUpWindow and db.levelUpAutoClose end,
+})
 addButton("LEVEL_UP_PREVIEW", function() ns.LevelUpWindow.Preview() end)
 if ns.TrainerCache.IsAvailable() then addHint("LEVEL_UP_TRAINER_HINT") end
 

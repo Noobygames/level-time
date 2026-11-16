@@ -1,11 +1,10 @@
 -- Chat kopieren: Zeilen eines Chatfensters als reiner Text im Kopierfenster.
-local L = addon.L
 
 wow.login()
 ChatFrame1._messages = {
   "[2. Handel] |cffff0000Rot|r",
   "Beute: |cffa335ee|Hitem:1234::::|h[Zornklinge]|h|r",
-  "|TInterface\Icons\INV_Misc_Coin_01:0|t 5 Gold",
+  "|TInterface\\Icons\\INV_Misc_Coin_01:0|t 5 Gold",
   wow.SECRET,
 }
 

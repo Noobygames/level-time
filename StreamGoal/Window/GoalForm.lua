@@ -192,11 +192,11 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     for _, row in ipairs(self.rows) do
       local field = row.field
       row.widget:ClearAllPoints()
-      if not self:IsRowShown(row) then
-        -- versteckt: keine Position (row.y gilt nur für gezeigte Zeilen)
-      elseif field and field.type == "check" then
+      -- versteckt: keine Position (row.y gilt nur für gezeigte Zeilen)
+      local shown = self:IsRowShown(row)
+      if shown and field and field.type == "check" then
         row.widget:SetPoint("TOPLEFT", labelWidth + CHECK_INSET, row.y + 2)
-      else
+      elseif shown then
         row.widget:SetPoint("TOPLEFT", labelWidth + (row.box and Manager.BOX_BORDER or 0), row.y + (row.box and 0 or 2))
       end
       if row.fullWidth then row.widget:SetWidth(Manager.PAGE_WIDTH - labelWidth - Manager.BOX_BORDER) end
@@ -208,20 +208,21 @@ function GoalForm.Build(parent, spec, onEnter, onChange)
     local params, target = {}, nil
     for _, row in ipairs(self.rows) do
       local field = row.field
-      if not self:IsRowShown(row) then
-        -- versteckt: weder params noch target
-      elseif not field then
-        target = tonumber(strtrim(row.widget:GetText() or ""))
-      elseif field.type == "check" then
-        params[field.param] = row.widget:GetChecked() and true or nil
-      elseif field.type == "choice" then
-        params[field.param] = self.choices[field.param]
-      else
-        local text = strtrim(row.widget:GetText() or "")
-        if field.numeric then
-          params[field.param] = tonumber(text)
+      -- versteckt: weder params noch target
+      if self:IsRowShown(row) then
+        if not field then
+          target = tonumber(strtrim(row.widget:GetText() or ""))
+        elseif field.type == "check" then
+          params[field.param] = row.widget:GetChecked() and true or nil
+        elseif field.type == "choice" then
+          params[field.param] = self.choices[field.param]
         else
-          params[field.param] = text ~= "" and text or nil
+          local text = strtrim(row.widget:GetText() or "")
+          if field.numeric then
+            params[field.param] = tonumber(text)
+          else
+            params[field.param] = text ~= "" and text or nil
+          end
         end
       end
     end

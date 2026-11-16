@@ -10,18 +10,23 @@
 --      Stehposition gilt als möglicher Anleger.
 --   2. Abfahrt: Steht er weiter still und die Kartenposition ändert sich dauerhaft (> DEPART_DISTANCE), fährt der
 --      Transport los. Dieser Zeitpunkt (Serverzeit) ist ein Punkt im Takt der Strecke.
---   3. Ankunft: Zwischen Kontinenten zeigt PLAYER_LEAVING_WORLD das Ladebild, nach PLAYER_ENTERING_WORLD gibt die Karte
---      den Zielanleger. Auf demselben Kontinent (kein Ladebild) gilt: mind. SAME_MAP_MIN_RIDE Sekunden unterwegs,
---      Spieler läuft wieder und ist >= SAME_MAP_MIN_DISTANCE vom Abfahrtsort entfernt (ungeprüft in Forever).
+--   3. Ankunft: Der Spieler steht und die Position bleibt STAND_MIN_SECONDS ruhig (angelegt) auf einer möglichen
+--      Zielkarte: zwischen Kontinenten (PLAYER_LEAVING_WORLD zeigt das Ladebild) jede andere Karte, auf demselben
+--      Kontinent mind. SAME_MAP_MIN_RIDE Sekunden unterwegs und >= SAME_MAP_MIN_DISTANCE vom Abfahrtsort (ungeprüft in
+--      Forever). Das gibt die Fahrzeit rideTime von Anleger zu Anleger und daraus über die Spieldaten eine geschätzte
+--      Periode, mit der auch Fahrten im Stundenabstand die genaue Periode ergeben (Roadmap 482).
 -- Eine Fahrt wird nur gespeichert, wenn Start- und Zielanleger verschiedene Karten-Namen haben und sie höchstens
 -- MAX_RIDE_SECONDS dauerte.
 --
 -- Speicher: LevelTimerStatsDB.transports[Flavor][Realm] = { docks = { [Name] = { mapID, x, y, npcIds = {...} } },
--- routes = { ["Von>Nach"] = { from, to, kind, syncAt, period, samples = { Abfahrten... }, travel, sharedAt } } }.
+-- routes = { ["Von>Nach"] = { from, to, kind, syncAt, period, samples = { Abfahrten... }, rideTime, sharedAt } } }
+-- (das alte Feld travel maß nur bis zum Ladebild und wird ignoriert).
 -- Namen sind die Kartennamen in der Clientsprache (geteilte Daten passen daher nur zwischen gleichen Sprachen).
 -- Takt: period aus den Abfahrten (Abstände sind Vielfache der Periode, Median je Zyklus), Vorhersage
 -- nächste Abfahrt = syncAt + k * period >= jetzt. Ohne Periode: "unbekannt".
 -- Teilen: Addon-Nachrichten wie Speedrun/FriendRace.lua (eigenes Präfix, Warteschlange, GroupChat.Locked).
+-- Gesendet wird nach jeder eigenen Fahrt sowie ein Abgleich aller frischen Phasen (jünger als SHARE_MAX_AGE, auch
+-- geteilte) beim Einloggen (Gruppe, Gilde) und wenn die Gruppe wächst (neue Mitglieder kennen sie sonst nicht).
 -- Spieldaten (Roadmap 459, Assist/TransportPaths.lua): Sobald eine Strecke des Realms eine Periode hat, liefern die
 -- Rundkurse Periode und Fahrzeit jeder zugeordneten Strecke; eine beobachtete Abfahrt gibt auch der Gegenrichtung
 -- ihre Phase (Abfahrt + Fahrzeit + Liegezeit am Ziel). Gelernte Werte gehen vor.
@@ -39,11 +44,13 @@ local Transports = {
   MIN_PERIOD = 60,              -- Grenzen für eine glaubwürdige Periode (Sekunden)
   MAX_PERIOD = 1800,
   PERIOD_TOLERANCE = 0.03,      -- Abstände dürfen höchstens so weit von einem Vielfachen abweichen (mind. 3 s)
+  MAX_ESTIMATE_CYCLES = 16,     -- geschätzte Periode (aus der Fahrzeit) zählt höchstens so viele Zyklen eindeutig
+                                -- (1 / (2 * PERIOD_TOLERANCE): darüber kann der Fehler einen ganzen Zyklus ausmachen)
   MAX_SAMPLES = 8,
   SHARE_MAX_AGE = 2 * 86400,    -- geteilte Phasen älter als 2 Tage zählen nicht
   SHARE_MAX_FUTURE = 60,
   MAX_NAME = 40,
-  MAX_QUEUE = 20,
+  MAX_QUEUE = 40,              -- reicht für einen Abgleich aller Strecken an Gruppe und Gilde
   SEND_INTERVAL = 1,
 }
 ns.Transports = Transports
@@ -71,10 +78,14 @@ Transports.ROUTES = {
 -- Bekannte Zeppelinmeister (NPC-IDs laut Wowhead Classic, Titel "Zeppelin Master"; Boote haben in Classic keinen
 -- Meister): Durotar 9564 Frezza, 12136 Snurk Bucksquick; Tirisfal 3150 Hin Denburg, 9566 Zapetta; Schlingendorntal
 -- 3149 Nez'raz, 12137 Squibby Overspeck. Sie werden dem nächsten gelernten Anleger zugeordnet, sobald man dort steht.
+-- WoW Forever hat auch an Schiffsanlegern Meister mit Titel (Beutebucht: Grizzlowe <Schiffsmeister>, NPC-ID
+-- unbekannt): sie erkennt der Titel (Teiltexte L.TRANSPORT_MASTER_TITLES; nur deDE im Spiel gesehen, der Rest ist
+-- ungeprüft, Check 440.transport.state > targetTitle zeigt den echten Titel).
 Transports.KNOWN_MASTERS = { [3149] = true, [3150] = true, [9564] = true, [9566] = true, [12136] = true,
   [12137] = true }
 
 local KIND_UNKNOWN = "unknown"
+local notMasters = {}  -- NPC-IDs mit gelesenem Titel, der kein Meistertitel ist (Sitzung; spart Tooltip-Abfragen)
 -- Kartentyp Zone (Enum.UIMapType, Retail und Classic); Kontinent- und Weltkarten taugen nicht als Anleger
 local MAP_TYPE_ZONE = Enum and Enum.UIMapType and Enum.UIMapType.Zone or 3
 
@@ -202,7 +213,8 @@ end
 ---------------------------------------------------------------------------
 -- Periode aus Abfahrtszeiten (aufsteigend): kleinster glaubwürdiger Abstand als Kandidat (oder die Vorgabe), alle
 -- anderen Abstände müssen Vielfache davon sein; Ergebnis = Median von Abstand / Vielfachem. nil = nicht erkennbar.
-function Transports.EstimatePeriod(samples, seed)
+-- maxCycles: bei einer nur geschätzten Vorgabe wird das Vielfache großer Abstände mehrdeutig, dann nil.
+function Transports.EstimatePeriod(samples, seed, maxCycles)
   if #samples < 2 then return nil end
   local gaps = {}
   for index = 2, #samples do table.insert(gaps, samples[index] - samples[index - 1]) end
@@ -218,6 +230,7 @@ function Transports.EstimatePeriod(samples, seed)
     local count = math.floor(gap / base + 0.5)
     local tolerance = math.max(3, base * Transports.PERIOD_TOLERANCE)
     if count < 1 or math.abs(gap - count * base) > tolerance * math.max(1, count) then return nil end
+    if maxCycles and count > maxCycles then return nil end
     table.insert(cycles, gap / count)
   end
   table.sort(cycles)
@@ -245,7 +258,7 @@ end
 
 -- Fahrzeit: aus den Spieldaten (genau, auch über ein Ladebild), sonst die gemessene
 local function travelOf(route)
-  return ns.TransportPaths.Travel(route) or route.travel
+  return ns.TransportPaths.Travel(route) or route.rideTime
 end
 
 local function newRoute(from, to)
@@ -273,7 +286,12 @@ function Transports.Record(fromPosition, toPosition, departedAt, arrivedAt)
   table.insert(route.samples, departedAt)
   table.sort(route.samples)
   while #route.samples > Transports.MAX_SAMPLES do table.remove(route.samples, 1) end
-  local period = Transports.EstimatePeriod(route.samples, route.period or ns.TransportPaths.Period(route))
+  -- Gemessene Fahrzeit zuerst: aus ihr schätzen die Spieldaten die Periode, die dann weit auseinanderliegende
+  -- Abfahrten zählbar macht (ohne Schätzung bräuchte es zwei Fahrten binnen MAX_PERIOD)
+  if arrivedAt and arrivedAt > departedAt then route.rideTime = arrivedAt - departedAt end
+  local estimate = not route.period and ns.TransportPaths.Period(route) or nil
+  local period = Transports.EstimatePeriod(route.samples, route.period or estimate,
+    estimate and Transports.MAX_ESTIMATE_CYCLES or nil)
   if not period and #route.samples > 2 then
     route.samples = { route.samples[#route.samples] }
     route.period = nil
@@ -281,9 +299,8 @@ function Transports.Record(fromPosition, toPosition, departedAt, arrivedAt)
     route.period = period
   end
   route.syncAt, route.sharedAt = departedAt, nil
-  if arrivedAt and arrivedAt > departedAt then route.travel = arrivedAt - departedAt end
-  ns.Debug("transport", "learned %s: departure %s, samples %s, period %s, travel %s", key, departedAt,
-    #route.samples, route.period or "unknown", route.travel or "unknown")
+  ns.Debug("transport", "learned %s: departure %s, samples %s, period %s (estimate %s), ride time %s", key,
+    departedAt, #route.samples, route.period or "unknown", estimate or "none", route.rideTime or "unknown")
   Transports.Share(route)
   return route
 end
@@ -338,12 +355,42 @@ function Transports.DockOfNpc(npcId)
   return nil
 end
 
--- Anleger eines Transportmeisters: gemerkt, sonst bei einem bekannten Meister der Anleger, an dem man steht
-function Transports.DockOfMaster(npcId)
+-- Titelzeile einer Einheit (zweite Tooltip-Zeile) oder nil. Nur mit C_TooltipInfo (Retail/Forever); in Era haben
+-- Schiffe keine Meister und die Zeppelinmeister stehen in KNOWN_MASTERS.
+function Transports.UnitTitle(unit)
+  if type(unit) ~= "string" or not (C_TooltipInfo and C_TooltipInfo.GetUnit) then return nil end
+  local ok, data = pcall(C_TooltipInfo.GetUnit, unit)
+  if not ok or ns.IsSecret(data) or type(data) ~= "table" or type(data.lines) ~= "table" then return nil end
+  local line = data.lines[2]
+  local text = type(line) == "table" and line.leftText or nil
+  if ns.IsSecret(text) or type(text) ~= "string" then return nil end
+  return text
+end
+
+-- Ist das der Titel eines Schiffs- oder Zeppelinmeisters? Teiltexte ohne Groß-/Kleinschreibung (auch "-meisterin")
+function Transports.IsMasterTitle(title)
+  if type(title) ~= "string" then return false end
+  title = title:lower()
+  for part in ns.L.TRANSPORT_MASTER_TITLES:gmatch("[^|]+") do
+    if title:find(part:lower(), 1, true) then return true end
+  end
+  return false
+end
+
+-- Anleger eines Transportmeisters: gemerkt, sonst bei einem bekannten Meister (NPC-ID oder Titel der Einheit) der
+-- Anleger, an dem man steht
+function Transports.DockOfMaster(npcId, unit)
   local dockName = Transports.DockOfNpc(npcId)
-  if dockName or not Transports.KNOWN_MASTERS[npcId] then return dockName end
+  if dockName or notMasters[npcId] then return dockName end
   local name, dock = Transports.NearestDock(Transports.PlayerPosition())
   if not name then return nil end
+  if not Transports.KNOWN_MASTERS[npcId] then
+    local title = Transports.UnitTitle(unit)
+    if not Transports.IsMasterTitle(title) then
+      if title then notMasters[npcId] = true end
+      return nil
+    end
+  end
   table.insert(dock.npcIds, npcId)
   ns.Debug("transport", "known master npc %s assigned to dock %s", npcId, name)
   return name
@@ -394,15 +441,27 @@ local function cannotObserve()
   return taxi == true or dead == true or instance == true
 end
 
-local function finishRide(position)
+-- arrivedAt = Serverzeit des Anlegens am Ziel oder nil (unbekannt, dann keine Fahrzeit)
+local function finishRide(position, arrivedAt)
   local current = ride
   ride = nil
-  if not current or position.name == current.from.name then return end
-  local now = GetTime()
-  if now - current.startedAt > Transports.MAX_RIDE_SECONDS then return end
-  Transports.Record(current.from, position, current.departedAt, Transports.Now())
+  if position.name == current.from.name then
+    ns.Debug("transport", "ride from %s dropped: arrival on the same map", current.from.name)
+    return
+  end
+  ns.Debug("transport", "arrival at %s, docked at server time %s", position.name, arrivedAt or "unknown")
+  Transports.Record(current.from, position, current.departedAt, arrivedAt)
 end
 
+-- Mögliches Ziel? Nach dem Ladebild jede andere Karte, ohne Ladebild genug Fahrzeit und Abstand zum Start
+local function atDestination(position, elapsed)
+  if ride.leftAt then return position.mapID ~= ride.from.mapID end
+  return elapsed >= Transports.SAME_MAP_MIN_RIDE and distance(position, ride.from) >= Transports.SAME_MAP_MIN_DISTANCE
+end
+
+-- Ankunft: Spieler steht, Position bleibt STAND_MIN_SECONDS ruhig (Transport hat angelegt). So zählt die Fahrzeit von
+-- Anleger zu Anleger und nicht bis zum Ladebild (danach fliegt der Zeppelin noch eine Weile). Läuft der Spieler vorher
+-- los, gilt der letzte ruhige Punkt am Ziel, sonst die aktuelle Position ohne Ankunftszeit.
 local function observeRide(position, moving)
   local elapsed = GetTime() - ride.startedAt
   if elapsed > Transports.MAX_RIDE_SECONDS then
@@ -411,15 +470,27 @@ local function observeRide(position, moving)
     return
   end
   if not position then return end
-  if ride.leftAt then
-    -- Ladebild gesehen: sobald die Karte lesbar ist, ist das der Zielanleger
-    if position.mapID ~= ride.from.mapID then finishRide(position) return end
+  if ride.leftAt and position.mapID == ride.from.mapID then
+    ns.Debug("transport", "ride from %s dropped: same map after the loading screen", ride.from.name)
     ride = nil
     return
   end
-  if elapsed >= Transports.SAME_MAP_MIN_RIDE and moving
-    and distance(position, ride.from) >= Transports.SAME_MAP_MIN_DISTANCE then
-    finishRide(position)
+  -- Zeigt im Log, ob IsPlayerMoving auf dem fahrenden Transport true liefert (Check 222)
+  if moving ~= ride.moving then
+    ride.moving = moving
+    ns.Debug("transport", "ride from %s: player moving %s on %s", ride.from.name, moving, position.name)
+  end
+  local still = ride.still
+  if moving then
+    if still and atDestination(still, elapsed) then finishRide(still, still.at)
+    elseif atDestination(position, elapsed) then finishRide(position, nil) end
+    return
+  end
+  if not still or distance(position, still) > Transports.DEPART_DISTANCE then
+    ride.still = { mapID = position.mapID, x = position.x, y = position.y, name = position.name, since = GetTime(),
+      at = Transports.Now() }
+  elseif GetTime() - still.since >= Transports.STAND_MIN_SECONDS and atDestination(still, elapsed) then
+    finishRide(still, still.at)
   end
 end
 
@@ -439,6 +510,8 @@ local function observe()
   local settled = GetTime() - standing.since >= Transports.STAND_MIN_SECONDS
   -- Großer Sprung oder Bewegung vor der Ruhezeit (Transport legt noch an): neue Stehposition statt Abfahrt
   if step > Transports.DEPART_MAX_STEP or (step > Transports.DEPART_DISTANCE and not settled) then
+    ns.Debug("transport", "no departure at %s: moved %s while standing %s s", position.name, step,
+      GetTime() - standing.since)
     standing = { mapID = position.mapID, x = position.x, y = position.y, name = position.name, since = GetTime() }
   elseif step > Transports.DEPART_DISTANCE then
     ride = { from = standing, departedAt = Transports.Now() - 1, startedAt = GetTime() }
@@ -482,8 +555,12 @@ end
 
 function Transports.QueueLength() return #queue end
 
+local function shareEnabled()
+  return ns.db ~= nil and ns.db.transportShare == true and Transports.IsEnabled()
+end
+
 function Transports.Share(route)
-  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) then return false end
+  if not shareEnabled() then return false end
   local message = messageFor(route)
   if not message then return false end
   local party, guild = ns.GroupChat.PartyChannel(), ns.GroupChat.GuildChannel()
@@ -492,17 +569,27 @@ function Transports.Share(route)
   return true
 end
 
+-- Alle frischen Phasen an einen Kanal; gibt die Zahl der Nachrichten zurück
+function Transports.ShareAll(chatType)
+  if not (chatType and shareEnabled()) then return 0 end
+  local oldest, count = Transports.Now() - Transports.SHARE_MAX_AGE, 0
+  for _, route in pairs(Transports.Data().routes) do
+    local message = route.syncAt and route.syncAt >= oldest and messageFor(route)
+    if message then
+      enqueue(message, chatType)
+      count = count + 1
+    end
+  end
+  ns.Debug("transport", "sync %s phases to %s", count, chatType)
+  return count
+end
+
 local function flush()
   local api = chatInfo()
   if not api or #queue == 0 or ns.GroupChat.Locked() then return end
   local entry = table.remove(queue, 1)
   ns.Debug("transport", "send %s to %s", entry.message, entry.chatType)
   api.SendAddonMessage(Transports.PREFIX, entry.message, entry.chatType)
-end
-
-local function isOwn(sender)
-  local name = sender:match("^([^-]+)")
-  return name == UnitName("player")
 end
 
 -- Fremde Phase prüfen und übernehmen. Gibt true zurück, wenn die Strecke geändert wurde.
@@ -531,14 +618,31 @@ end
 ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
   if ns.IsSecret(prefix) or ns.IsSecret(text) or ns.IsSecret(sender) then return end
   if prefix ~= Transports.PREFIX or type(text) ~= "string" or type(sender) ~= "string" then return end
-  if not (ns.db and ns.db.transportShare and Transports.IsEnabled()) or isOwn(sender) then return end
+  if not shareEnabled() or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):(.*)$")
   if kind == "P" then Transports.Receive(body) end
 end)
 
+-- Gruppengröße beim letzten Abgleich: nur wenn sie wächst, wird erneut gesendet
+local groupSize = 0
+local function currentGroupSize()
+  return GetNumGroupMembers and GetNumGroupMembers() or 0
+end
+
 ns.OnLogin(function()
   local api = chatInfo()
   if api and api.RegisterAddonMessagePrefix then api.RegisterAddonMessagePrefix(Transports.PREFIX) end
+  groupSize = currentGroupSize()
+  Transports.ShareAll(ns.GroupChat.PartyChannel())
+  Transports.ShareAll(ns.GroupChat.GuildChannel())
+end)
+
+ns.RegisterEvent("GROUP_ROSTER_UPDATE", function()
+  local size = currentGroupSize()
+  if ns.IsSecret(size) or type(size) ~= "number" then return end
+  local grew = size > groupSize
+  groupSize = size
+  if grew then Transports.ShareAll(ns.GroupChat.PartyChannel()) end
 end)
 ns.Every(Transports.SEND_INTERVAL, flush, function() return ns.db ~= nil and ns.db.transportShare == true end)
 
@@ -551,6 +655,6 @@ ns.Database.RegisterDefaults({
     transportMinimap = true,     -- Beschriftung an der Minimap, solange man an einem Anleger steht
     transportNameplate = true,   -- Text über dem Transportmeister (befreundete NPC-Namensplaketten nötig)
     transportTooltip = true,     -- Zeile im Tooltip des Transportmeisters
-    transportShare = false,      -- Phasen mit Gruppe und Gilde teilen
+    transportShare = true,       -- Phasen mit Gruppe und Gilde teilen
   },
 })

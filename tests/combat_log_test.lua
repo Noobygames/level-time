@@ -1,4 +1,5 @@
 -- Kampflog (Classic): eigener Frame ohne Verteiler; nur Treffer auf den Spieler zählen als letzter Treffer.
+wow.loadExtractor()  -- Debug-Log und Profiler liegen im lokalen Data Extractor
 local DeathCounter = addon.DeathCounter
 local PLAYER = wow.state.guid
 wow.login()

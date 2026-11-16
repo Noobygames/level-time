@@ -2,7 +2,9 @@
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
-local builder, addPage, finishPage, addSection, addSlider, addToggles, addButton, addSubPage, finishSubPages, toggle, advanced = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton, O.addSubPage, O.finishSubPages, O.toggle, O.advanced
+local builder, addPage, finishPage, addSection, addSlider = O.builder, O.addPage, O.finishPage, O.addSection, O.addSlider
+local addToggles, addButton, addSubPage, finishSubPages, toggle = O.addToggles, O.addButton, O.addSubPage, O.finishSubPages, O.toggle
+local advanced = O.advanced
 
 -- Reihenfolge der Stat-Zeilen (rowOrder): Stat wählen (nur eingeschaltete), dann nach oben oder unten
 local function addRowOrderSection()

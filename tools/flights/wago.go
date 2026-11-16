@@ -165,6 +165,19 @@ func (c *wagoClient) MapCoords(build string) (*MapCoords, error) {
 	return ParseMapCoords(build, bytes.NewReader(uiMap), bytes.NewReader(assignment))
 }
 
+// Bosses lädt DungeonEncounter eines Builds in den Sprachen aus NameLocales.
+func (c *wagoClient) Bosses(build string) (*Bosses, error) {
+	tables := make([]io.Reader, len(NameLocales))
+	for i, locale := range NameLocales {
+		data, err := c.tableLocale("DungeonEncounter", build, locale)
+		if err != nil {
+			return nil, err
+		}
+		tables[i] = bytes.NewReader(data)
+	}
+	return ParseBosses(build, tables)
+}
+
 // TaxiNames lädt die Flugpunkt-Namen (TaxiNodes) eines Builds in den angegebenen Sprachen.
 func (c *wagoClient) TaxiNames(build string, locales []string) (NodeNames, error) {
 	names := NodeNames{}

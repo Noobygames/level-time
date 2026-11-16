@@ -33,9 +33,22 @@ local text = table.concat(lines, "\n")
 expectTrue("Tooltip mit XP/h", text:find("XP/h=600", 1, true) ~= nil)
 expectTrue("Tooltip mit PvE-Kills", text:find("Kills (PvE)=0", 1, true) ~= nil)
 
--- Klicks wie beim Minimap-Button
+-- Klicks und Tooltip-Zeilen wie beim Minimap-Button (gemeinsame Belegung, LT-65)
+for _, key in ipairs({ "TOOLTIP_LEFT", "TOOLTIP_SHIFT_LEFT", "TOOLTIP_RIGHT", "TOOLTIP_SHIFT_RIGHT" }) do
+  expectTrue("Tooltip nennt " .. key, text:find(addon.L[key], 1, true) ~= nil)
+end
 dataObject.OnClick(nil, "RightButton")
 expect("Rechtsklick blendet Fenster aus", LevelTimerDB.showTimer, false)
+wow.state.shiftDown = true
+dataObject.OnClick(nil, "RightButton")
+expectTrue("Shift+Rechtsklick startet Layout bearbeiten", addon.EditMode.IsActive())
+expect("Shift+Rechtsklick lässt das Fenster", LevelTimerDB.showTimer, false)
+addon.EditMode.Leave()
+wow.state.shiftDown = false
+
+-- Addon-Compartment: gleiche Belegung, WoW übergibt (addonName, mouseButton)
+LevelTimer_OnAddonCompartmentClick("LevelTimer", "RightButton")
+expect("Compartment-Rechtsklick blendet Fenster ein", LevelTimerDB.showTimer, true)
 
 -- Erneuter Login-Ablauf (z.B. Daten löschen) meldet nicht doppelt an
 registered["LevelTimer"] = nil

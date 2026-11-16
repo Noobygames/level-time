@@ -4,7 +4,8 @@
 -- Classic Era/TBC und WoW Forever; Retail lernt Zauber automatisch und hat keine Lehrerliste für die Klasse.
 --   Gespeichert: LevelTimerStatsDB.trainerCache[Klasse][name .. "|" .. rank] = { name, rank, level, icon }
 -- API je Client (Blizzard_TrainerUI, Zweige classic_era und forever):
---   Era/TBC:  GetTrainerServiceInfo(i) -> name, rank, serviceType, isExpanded; Level GetTrainerServiceLevelReq(i), Symbol GetTrainerServiceIcon(i)
+--   Era/TBC:  GetTrainerServiceInfo(i) -> name, rank, serviceType, isExpanded; Level GetTrainerServiceLevelReq(i), Symbol
+--   GetTrainerServiceIcon(i)
 --   Forever:  GetTrainerServiceInfo(i) -> name, serviceType, texture, reqLevel, rank, category
 local _, ns = ...
 

@@ -1,0 +1,312 @@
+{
+  "instance": "Stratholme",
+  "instanceMapID": 329,
+  "kind": "dungeon",
+  "levels": [58, 60],
+  "bosses": [
+    {
+      "name": "Skul",
+      "npcID": 10393,
+      "level": 58,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 16799, "spell": "Frostbolt", "type": "interrupt", "en": "Rare caster: kick his Frostbolt casts", "de": "Rarer Zauberer: Frostblitz unterbrechen", "verified": true},
+        {"spellID": 15499, "spell": "Frost Shock", "type": "survive", "en": "Instant Frost Shock slows and hurts, heal through it", "de": "Frostschock verlangsamt und trifft hart, gegenheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Hearthsinger Forresten",
+      "npcID": 10558,
+      "level": 57,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 16798, "spell": "Enchanting Lullaby", "type": "dispel", "en": "Lullaby puts players to sleep, dispel the magic effect", "de": "Schlaflied lässt Spieler einschlafen, Magie bannen", "verified": true},
+        {"spellID": 14443, "spell": "Multi-Shot", "type": "positioning", "en": "Multi-Shot hits several targets, do not stack", "de": "Mehrfachschuss trifft mehrere Ziele, nicht stapeln", "verified": true}
+      ]
+    },
+    {
+      "name": "The Unforgiven",
+      "npcID": 10516,
+      "level": 57,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 14907, "spell": "Frost Nova", "type": "positioning", "en": "Frost Nova roots melee in place, ranged keep distance", "de": "Frostnova fesselt Nahkämpfer, Fernkämpfer auf Abstand"}
+      ]
+    },
+    {
+      "name": "Timmy the Cruel",
+      "npcID": 10808,
+      "level": 58,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 17470, "spell": "Ravenous Claw", "type": "tank", "en": "Ravenous Claw hits the tank hard, keep heals on him", "de": "Gieriger Klauenhieb trifft den Tank hart, Heilung halten", "verified": true},
+        {"spellID": 8599, "spell": "Enrage", "type": "survive", "en": "Enrages at low health, burn him down fast", "de": "Wird bei wenig Leben wütend, schnell herunterbrennen", "verified": true}
+      ]
+    },
+    {
+      "name": "Malor the Zealous",
+      "npcID": 11032,
+      "level": 60,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 15493, "spell": "Holy Light", "type": "interrupt", "en": "Interrupt his Holy Light self-heal", "de": "Seine Selbstheilung Heiliges Licht unterbrechen"},
+        {"spellID": 17233, "spell": "Lay on Hands", "type": "survive", "en": "Can fully heal once with Lay on Hands, save burst", "de": "Heilt sich einmal per Handauflegung voll, Burst aufheben"}
+      ]
+    },
+    {
+      "name": "Cannon Master Willey",
+      "npcID": 10997,
+      "level": 60,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 17279, "spell": "Summon Crimson Rifleman", "type": "adds", "en": "Calls Crimson Riflemen, kill or off-tank them", "de": "Ruft Scharlachrote Schützen, töten oder separat tanken"},
+        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knock Away throws the tank back and drops threat", "de": "Wegschlagen schleudert den Tank weg und senkt Bedrohung"}
+      ]
+    },
+    {
+      "name": "Archivist Galford",
+      "npcID": 10811,
+      "level": 60,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "Fire Nova burns everyone close, casters stay back", "de": "Feuernova verbrennt alle in der Nähe, Zauberer Abstand", "verified": true},
+        {"spellID": 17293, "spell": "Burning Winds", "type": "survive", "en": "Burning Winds deals fire damage over time to the group", "de": "Brennende Winde verursachen Feuerschaden über Zeit", "verified": true}
+      ]
+    },
+    {
+      "name": "Balnazzar",
+      "npcID": 10813,
+      "level": 0,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 17405, "spell": "Domination", "type": "survive", "en": "Mind-controls a player, crowd-control them, do not kill", "de": "Übernimmt Spieler per Gedankenkontrolle, kontrollieren", "verified": true},
+        {"spellID": 13704, "spell": "Psychic Scream", "type": "positioning", "en": "Psychic Scream fears nearby players, ranged spread out", "de": "Psychischer Schrei lässt Nahe fliehen, verteilt stehen", "verified": true},
+        {"spellID": 15587, "spell": "Mind Blast", "type": "interrupt", "en": "Interrupt Mind Blast casts on healers", "de": "Gedankenschlag auf Heiler unterbrechen", "verified": true},
+        {"spellID": 17399, "spell": "Shadow Shock", "type": "interrupt", "en": "Shadow shock on a player: interrupt when possible", "de": "Schattenschock auf Spieler: wenn möglich unterbrechen", "verified": true},
+        {"spellID": 15970, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schläfert einen Spieler ein: Magie bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Postmaster Malown",
+      "npcID": 11143,
+      "level": 60,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 12741, "spell": "Curse of Weakness", "type": "dispel", "en": "Remove his Curse of Weakness from melee", "de": "Fluch der Schwäche von Nahkämpfern entfernen", "verified": true},
+        {"spellID": 7713, "spell": "Wailing Dead", "type": "survive", "en": "Wailing fears nearby players: use fear protection", "de": "Klagen lässt Spieler fliehen: Furchtschutz nutzen", "verified": true},
+        {"spellID": 6253, "spell": "Backhand", "type": "tank", "en": "Backhand stuns the tank: keep the tank topped up", "de": "Rückhand betäubt den Tank: Tank voll geheilt halten", "verified": true},
+        {"spellID": 13338, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse slows casting: remove the curse from casters", "de": "Fluch verlangsamt Zauber: Fluch bei Zauberern entfernen", "verified": true},
+        {"spellID": 12542, "spell": "Fear", "type": "survive", "en": "Fears a player: avoid running into other packs", "de": "Furcht auf Spieler: nicht in weitere Gegner laufen", "verified": true}
+      ]
+    },
+    {
+      "name": "Stonespine",
+      "npcID": 10809,
+      "level": 60,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 14331, "spell": "Vicious Rend", "type": "tank", "en": "Vicious Rend bleeds the tank, heal the damage over time", "de": "Bösartiges Zerfleischen lässt den Tank bluten, gegenheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Magistrate Barthilas",
+      "npcID": 10435,
+      "level": 58,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 10887, "spell": "Crowd Pummel", "type": "positioning", "en": "Crowd Pummel knocks back all melee around him", "de": "Massenschlag stößt alle Nahkämpfer um ihn zurück", "verified": true},
+        {"spellID": 14099, "spell": "Mighty Blow", "type": "tank", "en": "Mighty Blow is a heavy tank hit", "de": "Mächtiger Stoß ist ein schwerer Treffer auf den Tank", "verified": true},
+        {"spellID": 16793, "spell": "Draining Blow", "type": "tank", "en": "Draining blow saps the tank: keep healing steady", "de": "Entkräftender Schlag schwächt den Tank: gleichmäßig heilen", "verified": true},
+        {"spellID": 16791, "spell": "Furious Anger", "type": "tank", "en": "Furious anger raises his damage: save cooldowns for the end", "de": "Wütender Zorn erhöht seinen Schaden: Abklingzeiten fürs Ende", "verified": true}
+      ]
+    },
+    {
+      "name": "Baroness Anastari",
+      "npcID": 10436,
+      "level": 59,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 16867, "spell": "Banshee Curse", "type": "dispel", "en": "Banshee Curse makes you miss attacks, decurse it", "de": "Bansheefluch lässt Angriffe verfehlen, Fluch entfernen", "verified": true},
+        {"spellID": 16868, "spell": "Banshee Shriek", "type": "interrupt", "en": "Banshee shriek hits the group: interrupt it", "de": "Bansheekreischen trifft die Gruppe: unterbrechen", "verified": true},
+        {"spellID": 17244, "spell": "Possess", "type": "survive", "en": "Possesses a player: crowd control the possessed player", "de": "Übernimmt einen Spieler: übernommenen Spieler kontrollieren", "verified": true},
+        {"spellID": 18327, "spell": "Silence", "type": "dispel", "en": "Silences a player: dispel magic on healers first", "de": "Bringt einen Spieler zum Schweigen: zuerst bei Heilern bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Nerub'enkan",
+      "npcID": 10437,
+      "level": 60,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 17235, "spell": "Raise Undead Scarab", "type": "adds", "en": "Raises undead scarabs, AoE them down", "de": "Erweckt untote Skarabäen, mit Flächenschaden töten", "verified": true},
+        {"spellID": 4962, "spell": "Encasing Webs", "type": "survive", "en": "Encasing Webs roots players in place", "de": "Umhüllende Netze fesseln Spieler an Ort und Stelle", "verified": true},
+        {"spellID": 6016, "spell": "Pierce Armor", "type": "tank", "en": "Pierce Armor lowers the tank's armor", "de": "Rüstung durchstechen senkt die Rüstung des Tanks", "verified": true},
+        {"spellID": 16418, "spell": "Crypt Scarabs", "type": "adds", "en": "Spawns crypt scarabs: kill them with area damage", "de": "Erzeugt Gruftskarabäen: mit Flächenschaden töten", "verified": true}
+      ]
+    },
+    {
+      "name": "Maleki the Pallid",
+      "npcID": 10438,
+      "level": 61,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 13322, "spell": "Frostbolt", "type": "interrupt", "en": "Interrupt his Frostbolts", "de": "Seine Frostblitze unterbrechen", "verified": true},
+        {"spellID": 16869, "spell": "Ice Tomb", "type": "dispel", "en": "Ice Tomb freezes a player solid, dispel it", "de": "Eisgrab friert einen Spieler ein, bannen", "verified": true},
+        {"spellID": 17243, "spell": "Drain Mana", "type": "survive", "en": "Drains mana from casters, watch healer mana", "de": "Entzieht Zauberern Mana, Heilermana im Blick behalten"},
+        {"spellID": 17620, "spell": "Drain Life", "type": "interrupt", "en": "Drain life heals him: interrupt the channel", "de": "Lebensentzug heilt ihn: Kanalisierung unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Ramstein the Gorger",
+      "npcID": 10439,
+      "level": 61,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits everyone in front, only the tank faces him", "de": "Trampeln trifft alle vor ihm, nur der Tank davor", "verified": true},
+        {"spellID": 17307, "spell": "Knockout", "type": "tank", "en": "Knockout stuns the tank, off-tank may need to pick up", "de": "Niederschlag betäubt den Tank, Ersatz bereithalten", "verified": true}
+      ]
+    },
+    {
+      "name": "Baron Rivendare",
+      "npcID": 10440,
+      "level": 62,
+      "wing": "Undead",
+      "mechanics": [
+        {"spellID": 17467, "spell": "Unholy Aura", "type": "survive", "en": "Unholy Aura deals shadow damage to the group nonstop", "de": "Unheilige Aura macht dauerhaft Schattenschaden an allen", "verified": true},
+        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Mortal Strike cuts healing on the tank", "de": "Tödlicher Stoß senkt die Heilung auf dem Tank", "verified": true},
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleave hits players beside the tank, stand behind", "de": "Spalten trifft Spieler neben dem Tank, hinten stehen", "verified": true},
+        {"spellID": 17393, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on a player: interrupt when possible", "de": "Schattenblitz auf Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Crimson Priest",
+      "npcID": 10423,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15586, "spell": "Heal", "type": "interrupt", "en": "Heals other Scarlets, interrupt or kill first", "de": "Heilt andere Scharlachrote, unterbrechen oder zuerst töten"}
+      ]
+    },
+    {
+      "name": "Crimson Sorcerer",
+      "npcID": 10422,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Polymorphs a player, dispel or interrupt the cast", "de": "Verwandelt Spieler in ein Schaf, bannen oder unterbrechen"}
+      ]
+    },
+    {
+      "name": "Crimson Battle Mage",
+      "npcID": 10425,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 15253, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane Explosion hits all nearby, casters keep away", "de": "Arkane Explosion trifft alle nahe, Zauberer Abstand"},
+        {"spellID": 26740, "spell": "Gnomish Mind Control Cap", "type": "survive", "en": "Can mind-control a player with a gnomish cap", "de": "Kann Spieler per Gnomen-Kappe kontrollieren"}
+      ]
+    },
+    {
+      "name": "Crimson Inquisitor",
+      "npcID": 10426,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17146, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow Word: Pain on players, dispel magic", "de": "Schattenwort: Schmerz auf Spielern, Magie bannen"}
+      ]
+    },
+    {
+      "name": "Crimson Monk",
+      "npcID": 11043,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11978, "spell": "Kick", "type": "survive", "en": "Kicks casters and locks their spell school", "de": "Tritt Zauberer und sperrt ihre Zauberschule"}
+      ]
+    },
+    {
+      "name": "Thuzadin Necromancer",
+      "npcID": 10400,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12420, "spell": "Summon Skeletal Servant", "type": "adds", "en": "Summons skeletons, kill the necromancer first", "de": "Beschwört Skelette, zuerst den Nekromanten töten"},
+        {"spellID": 16431, "spell": "Bone Armor", "type": "interrupt", "en": "Bone Armor absorbs damage, interrupt the cast", "de": "Knochenrüstung absorbiert Schaden, Zauber unterbrechen"}
+      ]
+    },
+    {
+      "name": "Thuzadin Shadowcaster",
+      "npcID": 10398,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 16429, "spell": "Piercing Shadow", "type": "dispel", "en": "Piercing Shadow raises shadow damage taken, dispel", "de": "Durchbohrender Schatten erhöht Schattenschaden, bannen"},
+        {"spellID": 11443, "spell": "Cripple", "type": "dispel", "en": "Cripple slows attacks and movement, dispel", "de": "Verkrüppeln verlangsamt Angriff und Lauf, bannen"}
+      ]
+    },
+    {
+      "name": "Shrieking Banshee",
+      "npcID": 10463,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 3589, "spell": "Deafening Screech", "type": "survive", "en": "Screech silences casters nearby", "de": "Kreischen bringt Zauberer in der Nähe zum Schweigen"}
+      ]
+    },
+    {
+      "name": "Wailing Banshee",
+      "npcID": 10464,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 17105, "spell": "Banshee Curse", "type": "dispel", "en": "Curse makes you miss attacks, decurse", "de": "Fluch lässt Angriffe verfehlen, Fluch entfernen"},
+        {"spellID": 19645, "spell": "Anti-Magic Shield", "type": "survive", "en": "Anti-Magic Shield blocks spells, use melee", "de": "Antimagieschild blockt Zauber, Nahkampf nutzen"}
+      ]
+    },
+    {
+      "name": "Venom Belcher",
+      "npcID": 10417,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7992, "spell": "Slowing Poison", "type": "dispel", "en": "Slowing Poison, cure poison on affected players", "de": "Verlangsamendes Gift, Gift heilen"}
+      ]
+    },
+    {
+      "name": "Rockwing Screecher",
+      "npcID": 10409,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8715, "spell": "Terrifying Howl", "type": "survive", "en": "Howl fears nearby players, may pull more mobs", "de": "Heulen lässt Spieler fliehen, kann weitere Mobs ziehen"}
+      ]
+    },
+    {
+      "name": "Patchwork Horror",
+      "npcID": 10414,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 16345, "spell": "Disease Cloud", "type": "dispel", "en": "Disease Cloud infects melee, cure disease", "de": "Krankheitswolke infiziert Nahkämpfer, Krankheit heilen"}
+      ]
+    }
+  ],
+  "rares": [
+    {"name": "Skul", "npcID": 10393},
+    {"name": "Hearthsinger Forresten", "npcID": 10558},
+    {"name": "Stonespine", "npcID": 10809}
+  ],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Stratholme_(Classic)",
+    "https://www.wowhead.com/classic/zone=2017/stratholme",
+    "https://www.wowhead.com/classic/npc=10440/baron-rivendare",
+    "https://www.wowhead.com/classic/npc=10812",
+    "https://www.wowhead.com/classic/npc=10813",
+    "https://www.wowhead.com/classic/npc=10997",
+    "https://www.wowhead.com/classic/npc=10811",
+    "https://www.wowhead.com/classic/npc=10808",
+    "https://www.wowhead.com/classic/npc=10516",
+    "https://www.wowhead.com/classic/npc=10558",
+    "https://www.wowhead.com/classic/npc=10393",
+    "https://www.wowhead.com/classic/npc=11032",
+    "https://www.wowhead.com/classic/npc=11143",
+    "https://www.wowhead.com/classic/npc=10809",
+    "https://www.wowhead.com/classic/npc=10435",
+    "https://www.wowhead.com/classic/npc=10436",
+    "https://www.wowhead.com/classic/npc=10437",
+    "https://www.wowhead.com/classic/npc=10438",
+    "https://www.wowhead.com/classic/npc=10439",
+    "https://www.wowhead.com/forever/guide/stratholme-live-side-dungeon-overview-location-rewards",
+    "https://www.wowhead.com/forever/guide/stratholme-undead-side-dungeon-overview-location-rewards"
+  ]
+}

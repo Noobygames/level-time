@@ -59,6 +59,7 @@ wow.state.questLog[1].isComplete = 1
 local points = QuestMap.PointsOn(1429)
 expect("fertig: ein Punkt", #points, 1)
 expect("am Abgabe-NPC", points[1].npc, "Gryan")
+expect("Quest-ID für die Belohnungszeile (486)", points[1].questID, 60)
 expect("Abgabe-Übersicht kennt den NPC", QuestNpcs.TurnInName(60), "Gryan")
 
 -- Karte an: Rahmen auf der Leinwand

@@ -66,14 +66,14 @@ function Mail.StepOpenAll()
   while currentIndex >= 1 do
     local index = currentIndex
     currentIndex = currentIndex - 1
-    local _, _, sender, subject, money, CODAmount, _, hasItem = GetInboxHeaderInfo(index)
+    local _, _, _, _, money, CODAmount, _, hasItem = GetInboxHeaderInfo(index)
     if CODAmount and CODAmount > 0 then
       skippedCOD = true
       ns.Debug("mail", "skipping COD mail at %s", index)
     else
       local hasMoney = money and money > 0
       local hasItems = hasItem and hasItem > 0
-      if hasItems and ns.Bags and ns.Bags.FreeSlots and ns.Bags.FreeSlots() <= 0 then
+      if hasItems and ns.Bags and ns.Bags.GetFreeSlots() <= 0 then
         ns.Debug("mail", "bags full at index %s", index)
         Mail.StopOpenAll()
         ns.Print(L.MAIL_STOPPED_BAGS_FULL)
@@ -117,28 +117,23 @@ function Mail.TryAttachBagItem(bag, slot)
   if not (IsAltKeyDown and IsAltKeyDown()) then return false end
   if not bag or not slot then return false end
   ns.Debug("mail", "attaching bag item %s, %s", bag, slot)
-  if C_Container and C_Container.PickupContainerItem then
-    C_Container.PickupContainerItem(bag, slot)
-  elseif PickupContainerItem then
-    PickupContainerItem(bag, slot)
-  end
+  ns.Bags.Pickup(bag, slot)
   if ClickSendMailItemButton then
     ClickSendMailItemButton()
   end
   return true
 end
 
-local function hookBagClicks()
-  if type(hooksecurefunc) == "function" and type(ContainerFrameItemButton_OnModifiedClick) == "function" then
-    hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
-      if not (IsAltKeyDown and IsAltKeyDown()) then return end
-      local bag = (self.GetBagID and self:GetBagID()) or (self.GetParent and self:GetParent():GetID())
-      local slot = self.GetID and self:GetID()
-      if bag and slot then
-        Mail.TryAttachBagItem(bag, slot)
-      end
-    end)
-  end
+
+-- WoW Forever: Empfänger braucht Vor- und Nachname (Trenner wie Blizzard NameUtil.GetFullNameWithoutRealm)
+local SURNAME_SEPARATOR = " "
+
+local function recipientName(data, keyName)
+  local name = data.name or keyName
+  if not data.surname or not name then return name end
+  local consts = Constants and Constants.CharacterNameSeparatorConsts
+  local separator = consts and consts.CHARACTERNAME_SURNAME_SEPARATOR or SURNAME_SEPARATOR
+  return name .. separator .. data.surname
 end
 
 function Mail.GetKnownAlts()
@@ -157,9 +152,8 @@ function Mail.GetKnownAlts()
       local name, realm = key:match("^([^-]+)%-(.+)$")
       local charRealm = data.realm or realm
       if currentRealm and charRealm and charRealm:lower() == currentRealm:lower() then
-        local charName = data.name or name
         table.insert(result, {
-          name = charName,
+          name = recipientName(data, name),
           key = key,
           class = data.class,
         })
@@ -272,5 +266,4 @@ ns.RegisterEvent("MAIL_INBOX_UPDATE", updateButtons)
 ns.RegisterEvent("MAIL_CLOSED", onMailClosed)
 ns.RegisterEvent("UI_ERROR_MESSAGE", onErrorMessage)
 
-hookBagClicks()
-ns.OnLogin(hookBagClicks)
+ns.Bags.OnModifiedClick(function(bag, slot) Mail.TryAttachBagItem(bag, slot) end)

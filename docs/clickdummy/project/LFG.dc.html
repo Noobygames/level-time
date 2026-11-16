@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Gruppensuche</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button,input,textarea,select{font-family:inherit}
+</style>
+</helmet>
+<div style="position: relative; width: 1800px; height: 1000px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 28px; align-items: start">
+
+  <!-- A) Ergänzungen am Blizzard-Gruppensuche-Fenster (nur Post-Hooks / Tooltip-Zeilen) -->
+  <section style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 15px; font-weight: 700; color: #ffd100">A) Blizzard-Gruppensuche ergänzen (Standard)</span>
+    <span style="font-size: 12px; color: #9fb3a8; line-height: 1.5">Blizzards Fenster bleibt unverändert; Level Time hängt nur Zeilen an den Tooltip eines Suchergebnisses und färbt den Eintrag (Post-Hook). Zone der Mitglieder gibt es heute schon.</span>
+
+    <!-- Blizzard-Sucheintrag -->
+    <div style="background: #14110c; border: 1px solid #5a4a2a; border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 11px; color: #a89060">Blizzard: Gruppensuche &gt; Dungeons</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #2a2416; border: 1px solid #ffd100; border-radius: 3px">
+        <span style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 13px; color: #ffd100">Todesminen komplett, LF Heiler <span title="Freund oder Gildenmitglied in der Gruppe (Level Time)" style="color: #40ff40">●</span></span>
+          <span style="font-size: 12px; color: #c8c8c8">Die Todesminen</span>
+        </span>
+        <span style="font-size: 12px; color: #c8c8c8">4 ⚔ <span style="color: #5fa8ff">Lv 20–23</span></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #1b1810; border: 1px solid #333; border-radius: 3px; opacity: 0.55">
+        <span style="font-size: 13px; color: #9d9d9d">RFK Run <span style="color: #ff5050">(aufgelöst)</span></span>
+        <span style="font-size: 12px; color: #9d9d9d">5 ⚔</span>
+      </div>
+      <span style="font-size: 11px; color: #888">Level-Spanne rechts im Eintrag, Punkt = Freund/Gilde, aufgelöst = ausgegraut (Post-Hook auf Blizzards Zeilen-Update)</span>
+    </div>
+
+    <!-- Tooltip mit Blizzard-Zeilen + Level-Time-Block -->
+    <div style="background: rgba(8,8,10,0.94); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px">
+      <span style="color: #ffd100; font-size: 14px">Todesminen komplett, LF Heiler</span>
+      <span>Die Todesminen</span>
+      <span style="color: #c8c8c8">„Alle Bosse, VanCleef-Quest teilen. Kein Rush.“</span>
+      <span>Anführer: <span style="color: #C69B6D">Brakkus</span></span>
+      <span>Mitglieder: 4 (1 <span style="color: #5fa8ff">Tank</span>, 0 <span style="color: #40ff40">Heiler</span>, 3 <span style="color: #ff5050">Schaden</span>)</span>
+      <span style="color: #c8c8c8">Vor 4 Min. erstellt</span>
+      <span style="border-top: 1px solid #444; margin: 6px 0 2px; padding-top: 6px; color: #ffd100">Level Time</span>
+      <div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 2px 6px; font-size: 12px">
+        <span style="color: #ffd100">♛</span><span style="color: #C69B6D">Brakkus</span><span style="color: #5fa8ff">Tank</span><span>23 · Westfall</span>
+        <span></span><span style="color: #FFF468">Schattenklinge <span style="color: #40ff40">(Gilde)</span></span><span style="color: #ff5050">DD</span><span>21 · Westfall</span>
+        <span></span><span style="color: #3FC7EB">Feuerfunke</span><span style="color: #ff5050">DD</span><span>20 · Dämmerwald</span>
+        <span></span><span style="color: #AAD372">Pfeilwind</span><span style="color: #ff5050">DD</span><span>22 · Sturmwind</span>
+      </div>
+      <span style="font-size: 12px">Level 20–23 · <span style="color: #40ff40">passt zu dir (22)</span></span>
+      <span style="font-size: 12px">Offen: <span style="color: #40ff40">1 Heiler</span>, 1 Platz frei</span>
+      <span style="font-size: 12px">Bosse besiegt (ID): <span style="color: #ff9a3c">Rhahk'Zor, Sneed</span></span>
+      <span style="font-size: 12px">In der Gruppe: <span style="color: #40ff40">Schattenklinge (Gilde)</span></span>
+      <span style="font-size: 12px">Deine offenen Dungeonquests hier: <span style="color: #ffd100">3</span></span>
+      <span style="font-size: 11px; color: #9d9d9d">Bei Questgruppen: „Passt zu Quest [Die Bruderschaft], du hast sie im Log“</span>
+    </div>
+
+    <!-- Einstellung Sprachfilter -->
+    <div style="background: rgba(8,8,10,0.85); border: 1px solid #444; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 11px; color: #9fb3a8">Einstellungen &gt; Gruppensuche (eigener Reiter, gilt für A und B)</span>
+      <label style="display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer">
+        <input type="checkbox" checked="{{allLangs}}" onChange="{{toggleAllLangs}}" style="width: 18px; height: 18px; accent-color: #ffd100">
+        Gruppen in allen Sprachen anzeigen
+      </label>
+      <span style="font-size: 12px; color: #c8c8c8; line-height: 1.45; background: #111; border: 1px solid #333; border-radius: 3px; padding: 6px 8px">Tooltip: Stellt Blizzards Sprachfilter der Gruppensuche auf alle verfügbaren Sprachen. Gilt <b>accountweit</b> und auch für Blizzards eigenes Fenster. Ausschalten stellt nur deine Sprache ein.</span>
+      <label style="display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer">
+        <input type="checkbox" checked="{{replace}}" onChange="{{toggleReplace}}" style="width: 18px; height: 18px; accent-color: #ffd100">
+        Eigene Gruppensuche statt Blizzard-Fenster
+      </label>
+      <span style="font-size: 11px; color: #888">Aus (Standard): nur die Ergänzungen links. An: Fenster B öffnet sich statt Blizzards Fenster (Taste I bleibt).</span>
+    </div>
+    <span style="font-size: 11px; color: #8a8a8a; line-height: 1.5">Ungeprüft in Forever: welche Oberfläche lädt (Mainline-LFGList oder Blizzard_GroupFinder_VanillaStyle, beide liegen im Client) und damit, woran die Hooks hängen; ob es auf Forever-Realms Gruppen in anderen Sprachen überhaupt gibt.</span>
+  </section>
+
+  <!-- B) Optionale komplette Ersatz-Gruppensuche (Forever: Vanilla-Stil, kein Bewerben: flüstern oder einladen) -->
+  <section style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+    <span style="font-size: 15px; font-weight: 700; color: #ffd100">B) Eigene Gruppensuche (optional, Groß 1000 x 680, zwei Spalten)</span>
+    <div style="width: 1000px; height: 680px; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; display: flex; flex-direction: column; font-size: 13px">
+      <div style="height: 40px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #333"><span style="font-size: 16px; font-weight: 700; color: #ffd100">Gruppensuche</span><span style="margin-left: auto; width: 24px; height: 24px; border: 1px solid #555; border-radius: 4px; text-align: center; line-height: 24px">x</span></div>
+      <div style="display: flex; gap: 16px; padding: 8px 16px 0"><span style="color: #8a8a8a">Eigene Gruppe</span><span style="color: #ffd100; border-bottom: 2px solid #ffd100">Suchen</span></div>
+      <div style="padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0">
+        <div style="display: flex; gap: 8px; align-items: center">
+          <span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;width:180px">Dungeons</span>
+          <span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;width:220px">Alle</span>
+          <label style="display: flex; gap: 4px; align-items: center"><input type="checkbox" style="accent-color: #ffd100"> Passend für mich <span style="color: #8a8a8a">(?)</span></label>
+          <span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;margin-left:auto">Weitere Filter (2)</span>
+          <span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;padding:0 16px;border-color:#ffd100;background:#3a2e0c;font-weight:700;color:#ffd100">Suchen</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; height: 28px"><span style="color: #9fb3a8; font-weight: 600; font-size: 12px">Sprachen</span><span style="color: #ffd100">[EN]</span><span style="color: #ffd100">[DE]</span><span style="color: #8a8a8a"> FR </span><span style="color: #8a8a8a"> ES </span><span style="margin-left: 16px">Art: Alle</span><label style="margin-left: 8px"><input type="checkbox" checked style="accent-color: #ffd100"> Aufgelöste ausblenden</label></div>
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; flex: 1; min-height: 0">
+          <div style="display: flex; flex-direction: column; min-width: 0">
+            <div style="display: grid; grid-template-columns: minmax(0,1fr) 96px 110px 64px; gap: 8px; padding: 0 8px; height: 20px; align-items: center; font-size: 12px; font-weight: 600; color: #ffd100"><span>Gruppe</span><span>Level</span><span>Rollen</span><span style="text-align:right">Alter</span></div>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 110px 64px;gap:8px;align-items:center;height:32px;padding:0 8px;background:transparent;border-radius:4px"><div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:13px;color:#ffd100;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Die Todesminen - Brakkus</span><span style="font-size:12px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nur Dungeonquests, Discord</span></div><span style="font-size:13px;font-variant-numeric:tabular-nums"><span style="color:#40ff40">&#10003;</span> 20-23</span><span style="font-size:12px">1 Heiler · 1 Schaden</span><span style="font-size:12px;text-align:right;font-variant-numeric:tabular-nums">2m 05s</span></div><div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 110px 64px;gap:8px;align-items:center;height:32px;padding:0 8px;background:#3a2e0c;border-radius:4px"><div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:13px;color:#ffd100;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Die Todesminen - Thalrin</span><span style="font-size:12px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Suche Heiler, Quests</span></div><span style="font-size:13px;font-variant-numeric:tabular-nums"><span style="color:#40ff40">&#10003;</span> 21-24</span><span style="font-size:12px">1 Heiler</span><span style="font-size:12px;text-align:right;font-variant-numeric:tabular-nums">4m 10s</span></div><div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 110px 64px;gap:8px;align-items:center;height:32px;padding:0 8px;background:transparent;border-radius:4px"><div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:13px;color:#ffd100;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Burg Schattenfang - Garrosh</span><span style="font-size:12px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span></div><span style="font-size:13px;font-variant-numeric:tabular-nums"><span style="color:#ff9a3c">!</span> 28-30</span><span style="font-size:12px">Tank · Schaden</span><span style="font-size:12px;text-align:right;font-variant-numeric:tabular-nums">7m 30s</span></div><div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 110px 64px;gap:8px;align-items:center;height:32px;padding:0 8px;background:transparent;border-radius:4px"><div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:13px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Die Todesminen - Zu hoch</span><span style="font-size:12px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Aufgelöst</span></div><span style="font-size:13px;font-variant-numeric:tabular-nums"><span style="color:#ff5050">&#10007;</span> 5-40</span><span style="font-size:12px">–</span><span style="font-size:12px;text-align:right;font-variant-numeric:tabular-nums">12m 00s</span></div>
+          </div>
+          <div style="background: rgba(8,8,10,0.95); border: 1px solid #333; border-radius: 6px; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 13px">
+            <span style="color: #ffd100; font-weight: 700">Die Todesminen - Brakkus</span>
+            <span>Nur Dungeonquests, Discord</span>
+            <span>Level 20-23 <span style="color: #40ff40">&#10003; passt zu dir (22)</span></span>
+            <span>Offen: 1 Heiler</span>
+            <span style="color: #8a8a8a; font-weight: 600; font-size: 12px; margin-top: 8px">Mitglieder (2)</span>
+            <span><span style="color: #C69B6D">Brakkus</span> - Tank <span style="color: #8a8a8a">23 · Westfall</span></span>
+            <span><span style="color: #69CCF0">Jaina</span> - Schaden <span style="color: #8a8a8a">20</span></span>
+            <span style="color: #8a8a8a; font-size: 12px">Bosse besiegt: Edwin van Cleef</span>
+            <span style="color: #5fa8ff; margin-top: 8px">Deine offenen Dungeonquests hier: 2</span>
+            <span><span style="color: #40ff40">&#10003;</span> Die Bruderschaft - <span style="color: #40ff40">machbar</span></span>
+            <span><span style="color: #ff5050">&#10007;</span> Das Ende der Bruderschaft - <span style="color: #ff5050">Boss bereits tot, noch nicht annehmbar</span></span>
+            <span style="color: #ff9a3c; margin-top: 8px">! Keine Erfahrung: 13 oder mehr Level Abstand (nur dann sichtbar)</span>
+            <span style="color: #8a8a8a; font-size: 12px; margin-top: 8px">Einsteigerfreundlich · seit 2m 05s</span>
+            <div style="margin-top: auto; display: flex; gap: 8px"><span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;padding:0 16px">Flüstern</span><span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid #555;background:#1d1d1d;border-radius:4px;line-height:26px;padding:0 16px;color:#8a8a8a">Einladen</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span style="font-size: 11px; color: #8a8a8a; line-height: 1.5; max-width: 1000px">Forever lädt Blizzards Vanilla-Stil: kein Bewerben, keine Bewerberliste. Gruppen flüstert man an, Einzelspieler lädt man ein. Reiter Eigene Gruppe: Kategorie, Aktivität, Rollen (solo), einsteigerfreundlich, Eintragen/Aktualisieren/Austragen. Suche nur auf Klick, Sprachchips gelten nur für dieses Fenster.</span>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'search', cat: 'Dungeons', sel: 0, sort: 'fit', langs: ['deDE', 'enUS'], searched: 1,
+      adv: { needsHealer: true }, local: { hideDelisted: false, fitOnly: false, social: false },
+      allLangs: false, replace: true, applyOpen: false, roles: ['Heiler'], applied: [], toast: '',
+      listed: true, handled: {}
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const ME = 22;
+    const pill = (on) => 'height: 26px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 12px; border: 1px solid ' +
+      (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
+    const CLS = { Krieger: '#C69B6D', Paladin: '#F48CBA', Jäger: '#AAD372', Schurke: '#FFF468', Priester: '#FFFFFF', Schamane: '#0070DD', Magier: '#3FC7EB', Hexenmeister: '#8788EE', Druide: '#FF7C0A' };
+    const ROLE = { Tank: '#5fa8ff', Heiler: '#40ff40', DD: '#ff5050' };
+    const fitOf = (lo, hi) => (ME >= lo && ME <= hi) ? ['passt', '#40ff40', 'passt zu dir (22)', 3] :
+      (ME >= lo - 2 && ME <= hi + 2) ? ['knapp', '#ffd100', 'knapp (du bist 22)', 2] : ['zu hoch', '#ff5050', 'zu hoch für dich (22)', 1];
+    // Mitglied: [Name, Level, Klasse, Rolle, Zone, Anführer, Freund/Gilde, Abwesend]
+    const DATA = {
+      Dungeons: [
+        { name: 'Todesminen komplett, LF Heiler', activity: 'Die Todesminen', full: 'Die Todesminen (Normal), Level 17–26', comment: 'Alle Bosse, VanCleef-Quest teilen. Kein Rush.', ageMin: 4, voice: 'kein', ilvl: 'keine', playstyle: 'Entspannt', flags: 'Automatisch annehmen, neulingsfreundlich', faction: 'Allianz', bosses: "Rhahk'Zor, Sneed", social: 'Gilde: Schattenklinge', quests: 3, delisted: false,
+          members: [['Brakkus', 23, 'Krieger', 'Tank', 'Westfall', 1], ['Schattenklinge', 21, 'Schurke', 'DD', 'Westfall', 0, ' (Gilde)'], ['Feuerfunke', 20, 'Magier', 'DD', 'Dämmerwald'], ['Pfeilwind', 22, 'Jäger', 'DD', 'Sturmwind']] },
+        { name: 'Burg Schattenfang alle Bosse', activity: 'Burg Schattenfang', full: 'Burg Schattenfang (Normal), Level 22–30', comment: 'Brauchen Tank + DD, Heiler da. Arugal-Quest offen.', ageMin: 12, voice: 'Discord', ilvl: 'keine', playstyle: 'Ziel: alle Bosse', flags: 'Bewerbung nötig', faction: 'Allianz', bosses: 'Rethilgore, Klingenklaue', social: '', quests: 1, delisted: false,
+          members: [['Lunalia', 26, 'Priester', 'Heiler', 'Silberwald', 1], ['Grimmzahn', 24, 'Hexenmeister', 'DD', 'Silberwald'], ['Dornblatt', 25, 'Druide', 'DD', 'Silberwald', 0, '', ' (abwesend)']] },
+        { name: 'HdW Quests, alle willkommen', activity: 'Die Höhlen des Wehklagens', full: 'Die Höhlen des Wehklagens (Normal), Level 17–24', comment: 'Erstes Mal hier? Kein Problem, wir erklären alles.', ageMin: 1, voice: 'kein', ilvl: 'keine', playstyle: 'Lernen/Entspannt', flags: 'Neulingsfreundlich', faction: 'Allianz', bosses: 'keine (frische ID)', social: 'Freund: Mirelle', quests: 2, delisted: false,
+          members: [['Mirelle', 19, 'Schamane', 'Heiler', 'Brachland', 1, ' (Freund)'], ['Torvak', 20, 'Krieger', 'Tank', 'Brachland']] },
+        { name: 'SM Bibliothek Speedrun 30+', activity: 'Scharlachrotes Kloster: Bibliothek', full: 'Scharlachrotes Kloster – Bibliothek (Normal), Level 30–40', comment: 'Nur 32+, zügig, Ziel unter 15 Min.', ageMin: 7, voice: 'kein', ilvl: '28', playstyle: 'Schnell', flags: 'Bewerbung nötig', faction: 'Allianz', bosses: 'Houndmaster Loksey', social: '', quests: 0, delisted: false,
+          members: [['Eisenfaust', 34, 'Paladin', 'Tank', 'Tirisfal'], ['Sternenstaub', 33, 'Magier', 'DD', 'Tirisfal', 1], ['Sylvaris', 35, 'Priester', 'Heiler', 'Tirisfal']] },
+        { name: 'RFK Run', activity: 'Kral der Klingenhauer', full: 'Kral der Klingenhauer (Normal), Level 25–35', comment: 'Voll, danke!', ageMin: 26, voice: 'kein', ilvl: 'keine', playstyle: 'Entspannt', flags: '', faction: 'Allianz', bosses: 'Agathelos', social: '', quests: 1, delisted: true,
+          members: [['Kragor', 27, 'Krieger', 'Tank', 'Brachland', 1], ['Liora', 26, 'Druide', 'Heiler', 'Brachland'], ['Nyx', 25, 'Schurke', 'DD', 'Brachland'], ['Feyla', 27, 'Jäger', 'DD', 'Brachland'], ['Zarim', 26, 'Hexenmeister', 'DD', 'Brachland']] }
+      ],
+      Quests: [
+        { name: '[Die Verteidigung des Königreichs]', activity: 'Questgruppe', full: 'Questgruppe für Quest-ID 2360 (Westfall)', comment: 'Brauchen noch zwei für die Defias-Elite.', ageMin: 3, voice: 'kein', ilvl: 'keine', playstyle: 'Entspannt', flags: 'Automatisch annehmen', faction: 'Allianz', bosses: 'nicht zutreffend', social: '', quests: 0, questGroup: 'Quest im Log', delisted: false,
+          members: [['Bärenherz', 21, 'Druide', 'Tank', 'Westfall', 1], ['Glimmer', 22, 'Priester', 'Heiler', 'Westfall']] },
+        { name: 'Elite-Ogre im Rotkammgebirge', activity: 'Questgruppe', full: 'Questgruppe für Quest-ID 20 (Rotkammgebirge)', comment: 'Kopfgeld auf Grok, mein Main hilft. 1 Platz frei.', ageMin: 9, voice: 'kein', ilvl: 'keine', playstyle: 'Entspannt', flags: '', faction: 'Allianz', bosses: 'nicht zutreffend', social: '', quests: 0, questGroup: 'Quest nicht im Log', delisted: false,
+          members: [['Hammerfaust', 38, 'Paladin', 'DD', 'Rotkammgebirge', 1], ['Wiesel', 23, 'Schurke', 'DD', 'Rotkammgebirge'], ['Asche', 24, 'Hexenmeister', 'DD', 'Rotkammgebirge'], ['Kiri', 25, 'Jäger', 'DD', 'Rotkammgebirge']] }
+      ]
+    };
+    // Meine offenen Dungeonquests: [Titel, Farbe, Ziel-Boss | '' = kein Boss nötig | null = noch nicht zugeordnet, Grund falls noch nicht annehmbar]
+    const QUESTS = {
+      'Die Todesminen': [['Die Bruderschaft (im Log)', '#40ff40', 'Edwin VanCleef'], ['Rote Seidenkopftücher (im Log)', '#40ff40', ''], ['Unterirdischer Angriff (im Log)', '#40ff40', 'Sneed'], ['Gesammelte Erinnerungen', '#9d9d9d', null, 'Vorquest fehlt']],
+      'Burg Schattenfang': [['Arugal muss sterben (Questgeber Silberwald)', '#f2f2f2', 'Erzmagier Arugal'], ['Das Buch von Ur (Questgeber Unterstadt)', '#f2f2f2', null]],
+      'Die Höhlen des Wehklagens': [['Ausrottung der Deviatfreaks (Questgeber Brachland)', '#f2f2f2', ''], ['Kristalle der Leere', '#9d9d9d', 'Mutanus der Verschlinger', 'Level 23']],
+      'Kral der Klingenhauer': [['Willix der Importeur', '#9d9d9d', '', 'Level 26']]
+    };
+    const QSTATE = { ok: ['machbar', '#40ff40'], dead: ['Boss bereits tot', '#ff5050'], unknown: ['unklar', '#c8c8c8'] };
+    const questState = (q, killed) => q[2] === null ? 'unknown' : q[2] && killed.includes(q[2]) ? 'dead' : 'ok';
+    // XP-Sperre: ein Mitglied 13+ Level über dem niedrigsten (inkl. mir nach Beitritt) = 0 XP für alle
+    const XP_GAP = 13;
+    const xpOf = (g) => {
+      const lv = g.members.map((m) => [m[0], m[1]]);
+      const hiM = lv.reduce((a, b) => b[1] > a[1] ? b : a), loM = lv.reduce((a, b) => b[1] < a[1] ? b : a);
+      if (hiM[1] - loM[1] >= XP_GAP) return { zero: true, text: 'Keine XP: ' + hiM[0] + ' ist ' + (hiM[1] - loM[1]) + ' Level über ' + loM[0] };
+      if (hiM[1] - ME >= XP_GAP) return { zero: true, text: 'Keine XP, wenn du beitrittst: ' + hiM[0] + ' wäre ' + (hiM[1] - ME) + ' Level über dir (' + ME + ')' };
+      if (ME - loM[1] >= XP_GAP) return { zero: true, text: 'Keine XP, wenn du beitrittst: du wärst ' + (ME - loM[1]) + ' Level über ' + loM[0] };
+      return { zero: false, text: '' };
+    };
+    const rows = DATA[s.cat].map((g, i) => {
+      const lv = g.members.map((m) => m[1]);
+      const lo = Math.min(...lv), hi = Math.max(...lv);
+      const count = (r) => g.members.filter((m) => m[3] === r).length;
+      const killed = g.bosses.split(', ');
+      const quests = (QUESTS[g.activity] || []).map((q) => ({ title: q[0], color: q[1], state: questState(q, killed), later: q[3] || '' }));
+      const doable = quests.filter((q) => q.state === 'ok').length;
+      return { ...g, i, lo, hi, fit: fitOf(lo, hi), t: count('Tank'), h: count('Heiler'), dd: count('DD'), leaderM: g.members.find((m) => m[5]),
+        questList: quests, questBadge: quests.length ? 'Quests ' + doable + '/' + quests.length + ' machbar' + (quests.some((q) => q.later) ? ', ' + quests.filter((q) => q.later).length + ' noch nicht annehmbar' : '') : '', xp: xpOf(g) };
+    });
+    const visible = rows.filter((r) => !(s.local.hideDelisted && r.delisted) && !(s.local.fitOnly && r.fit[3] < 3) && !(s.local.social && !r.social))
+      .sort((a, b) => s.sort === 'age' ? a.ageMin - b.ageMin : s.sort === 'members' ? b.members.length - a.members.length : b.fit[3] - a.fit[3] || a.ageMin - b.ageMin);
+    const sel = rows[s.sel] || rows[0];
+    const openText = (r) => { const free = 5 - r.members.length; if (r.delisted || free <= 0) return 'voll'; const need = [r.t ? '' : 'Tank', r.h ? '' : 'Heiler'].filter(Boolean); return 'Offen: ' + (need.length ? need.join(', ') + ', ' : '') + free + ' Platz' + (free > 1 ? 'e' : ''); };
+    const isApplied = s.applied.includes(sel.name);
+    const LANGS = [['deDE', 'Deutsch'], ['enUS', 'Englisch'], ['frFR', 'Französisch'], ['esES', 'Spanisch'], ['ruRU', 'Russisch'], ['itIT', 'Italienisch'], ['ptBR', 'Portugiesisch']];
+    const ADV = [['needsTank', 'Sucht Tank'], ['needsHealer', 'Sucht Heiler'], ['needsDamage', 'Sucht Schaden'], ['needsMyClass', 'Sucht meine Klasse'], ['hasTank', 'Hat Tank'], ['hasHealer', 'Hat Heiler'], ['difficultyNormal', 'Normal'], ['difficultyHeroic', 'Heroisch (Forever: ungeprüft)'], ['crossFaction', 'Andere Fraktion (Forever: ungeprüft)']];
+    const LOCAL = [['hideDelisted', 'Aufgelöste ausblenden'], ['fitOnly', 'Nur passende Level'], ['social', 'Nur mit Freunden/Gilde'], ['autoAccept', 'Nur „automatisch annehmen“'], ['newbie', 'Nur neulingsfreundlich']];
+    const toggle = (key, k) => () => this.setState({ [key]: { ...s[key], [k]: !s[key][k] } });
+    const say = (t) => this.setState({ toast: t });
+    const APPS = [
+      { name: 'Todesminen komplett, LF Heiler', activity: 'Die Todesminen', roles: 'Heiler', status: 'Eingeladen', statusColor: '#40ff40', time: 'vor 1 Min.', action: 'Annehmen' },
+      { name: 'Burg Schattenfang alle Bosse', activity: 'Burg Schattenfang', roles: 'Tank', status: 'Beworben', statusColor: '#ffd100', time: 'vor 3 Min.', action: 'Zurückziehen' },
+      { name: 'SM Bibliothek Speedrun 30+', activity: 'Scharlachrotes Kloster', roles: 'Heiler', status: 'Abgelehnt', statusColor: '#ff5050', time: 'vor 6 Min.', action: 'Ausblenden' }
+    ].concat(s.applied.filter((n) => !['Todesminen komplett, LF Heiler', 'Burg Schattenfang alle Bosse'].includes(n)).map((n) => ({ name: n, activity: (rows.find((r) => r.name === n) || {}).activity || '', roles: s.roles.join('/'), status: 'Beworben', statusColor: '#ffd100', time: 'gerade eben', action: 'Zurückziehen' })));
+    const APPLICANTS = [
+      { id: 'a1', comment: 'Heiler, habe alle Todesminen-Quests.', members: [['Lichtfeder', 21, 'Priester', 'Heiler', ' (Gilde)']] },
+      { id: 'a2', comment: 'Zu zweit, Tank + DD.', members: [['Steinwall', 20, 'Krieger', 'Tank'], ['Funkelglut', 19, 'Magier', 'DD']] },
+      { id: 'a3', comment: 'Kann auch tanken.', members: [['Zornbart', 31, 'Paladin', 'DD']] }
+    ];
+    const memberVals = (m) => ({ name: m[0], level: m[1], cls: m[2], role: m[3], color: CLS[m[2]], roleColor: ROLE[m[3]], lvlColor: (m[1] >= 17 && m[1] <= 26) ? '#f2f2f2' : '#ff5050', social: m[4] || '' });
+    return {
+      allLangs: s.allLangs, toggleAllLangs: () => this.setState({ allLangs: !s.allLangs }),
+      replace: s.replace, toggleReplace: () => this.setState({ replace: !s.replace }),
+      windowStyle: s.replace ? '' : 'opacity: 0.35; pointer-events: none',
+      tabs: [['search', 'Suchen'], ['apps', 'Meine Bewerbungen (' + APPS.length + ')'], ['own', 'Eigene Gruppe']].map(([id, label]) => ({ label, style: pill(s.tab === id), pick: () => this.setState({ tab: id }) })),
+      tabSearch: s.tab === 'search', tabApps: s.tab === 'apps', tabOwn: s.tab === 'own',
+      cats: ['Dungeons', 'Raids', 'Quests'].map((c) => ({ label: c, style: pill(s.cat === c), pick: () => DATA[c] ? this.setState({ cat: c, sel: 0, toast: '' }) : say('Raids: Beispiel ohne Daten (gleiche Darstellung wie Dungeons)') })),
+      activityLabel: s.cat === 'Quests' ? 'Alle Questgruppen' : 'Passend für mich (14 Aktivitäten)',
+      langChips: LANGS.map(([id, label]) => ({ label, style: pill(s.langs.includes(id)), pick: () => this.setState({ langs: s.langs.includes(id) ? s.langs.filter((x) => x !== id) : s.langs.concat(id) }) })),
+      advFilters: ADV.map(([k, label]) => ({ label, on: !!s.adv[k], toggle: toggle('adv', k) })),
+      localFilters: LOCAL.map(([k, label]) => ({ label, on: !!s.local[k], toggle: toggle('local', k) })),
+      searchLabel: s.searched ? 'Aktualisieren' : 'Suchen',
+      searchInfo: s.searched ? 'Letzte Suche: vor ' + (s.searched === 1 ? '0:42' : '0:01') + ' Min.' : '',
+      doSearch: () => this.setState({ searched: 2, toast: 'Suche gesendet: ' + s.cat + ', Sprachen ' + (s.langs.join('+') || 'keine (Server-Standard)') }),
+      resultCount: visible.length + ' von ' + rows.length + ' Gruppen',
+      sorts: [['fit', 'Level-Passung'], ['age', 'Neueste'], ['members', 'Mitglieder']].map(([id, label]) => ({ label, style: pill(s.sort === id), pick: () => this.setState({ sort: id }) })),
+      results: visible.map((r) => ({
+        name: r.name, delistTag: r.delisted ? ' (aufgelöst)' : '', titleColor: r.delisted ? '#9d9d9d' : '#ffd100',
+        fitText: 'Lv ' + r.lo + '–' + r.hi + ' · ' + r.fit[0], fitColor: r.fit[1], activity: r.activity,
+        leader: r.leaderM[0], leaderColor: CLS[r.leaderM[2]],
+        roles: 'T' + r.t + ' H' + r.h + ' D' + r.dd, age: r.ageMin + ' Min.',
+        tagsText: [r.flags.includes('Automatisch') ? 'Auto-Annahme' : '', r.flags.includes('Neulings') ? 'Neulingsfreundlich' : '', s.applied.includes(r.name) ? 'Beworben' : ''].filter(Boolean).join(' · '),
+        social: r.social, questText: r.questGroup || r.questBadge,
+        xpText: r.xp.text, xpColor: '#ff5050', xpWeight: '700',
+        style: 'text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 7px 9px; border-radius: 4px; font-family: inherit; color: #f2f2f2; ' +
+          (r.i === s.sel ? 'background: #2b2410; border: 1px solid #ffd100;' : 'background: #15151a; border: 1px solid #333;') + (r.delisted ? ' opacity: 0.6;' : ''),
+        pick: () => this.setState({ sel: r.i, toast: '' })
+      })),
+      d: {
+        name: sel.name, fullActivity: sel.full, comment: sel.comment, leader: sel.leaderM[0], leaderColor: CLS[sel.leaderM[2]], faction: sel.faction,
+        age: 'vor ' + sel.ageMin + ' Min.', voice: sel.voice, ilvl: sel.ilvl, playstyle: sel.playstyle, flags: (sel.flags || '–') + (sel.delisted ? ', aufgelöst' : ''),
+        tank: sel.t, heal: sel.h, dd: sel.dd, open: openText(sel),
+        members: sel.members.map((m) => ({ crown: m[5] ? '♛' : '', name: m[0], color: CLS[m[2]], level: m[1], lvlColor: Math.abs(m[1] - ME) <= 3 ? '#f2f2f2' : '#ff9a3c', role: m[3], roleColor: ROLE[m[3]], zone: m[4], social: m[6] || '', leaver: m[7] || '' })),
+        bosses: sel.bosses, bossColor: /^keine|nicht/.test(sel.bosses) ? '#c8c8c8' : '#ff9a3c',
+        range: sel.lo + '–' + sel.hi, fitColor: sel.fit[1], fitLong: sel.fit[2],
+        quests: sel.questList.map((q) => ({ title: q.title, color: q.color, state: QSTATE[q.state][0], stateColor: QSTATE[q.state][1], later: q.later ? 'noch nicht annehmbar (' + q.later + ')' : '' })),
+        questBadge: sel.questBadge,
+        xpText: sel.xp.zero ? sel.xp.text : 'XP möglich: kein Mitglied 13+ Level über dem niedrigsten (inkl. dir)',
+        xpColor: sel.xp.zero ? '#ff5050' : '#40ff40', xpBox: sel.xp.zero ? 'background: #2a1212; border: 1px solid #a03030;' : 'background: #142014; border: 1px solid #2f5a3c;',
+        questHint: sel.questGroup ? 'Questgruppe: ' + sel.questGroup : (QUESTS[sel.activity] ? 'Grün = im Log, weiß = annehmbar, grau = noch nicht annehmbar' : 'Keine offenen Dungeonquests für dich')
+      },
+      applyBtnLabel: sel.delisted ? 'Aufgelöst' : isApplied ? 'Bewerbung zurückziehen' : 'Bewerben …',
+      applyBtnStyle: 'height: 30px; padding: 0 12px; border-radius: 4px; cursor: pointer; font-weight: 700; border: 1px solid #ffd100; background: #3a2e0c; color: #ffd100;' + (sel.delisted ? ' opacity: 0.4; pointer-events: none;' : ''),
+      openApply: () => isApplied ? this.setState({ applied: s.applied.filter((n) => n !== sel.name), toast: 'Bewerbung zurückgezogen' }) : this.setState({ applyOpen: true }),
+      whisper: () => say('Chat: /w ' + sel.leaderM[0] + ' '),
+      report: () => say('Gemeldet als Werbung (Blizzard-Dialog zur Bestätigung)'),
+      toast: s.toast,
+      applyOpen: s.applyOpen,
+      applyRoles: ['Tank', 'Heiler', 'DD'].map((r) => ({ label: r, style: pill(s.roles.includes(r)), pick: () => this.setState({ roles: s.roles.includes(r) ? s.roles.filter((x) => x !== r) : s.roles.concat(r) }) })),
+      closeApply: () => this.setState({ applyOpen: false }),
+      sendApply: () => this.setState({ applyOpen: false, applied: s.applied.concat(sel.name), toast: 'Beworben als ' + (s.roles.join('/') || '?') }),
+      appCount: APPS.filter((a) => a.status !== 'Abgelehnt').length,
+      apps: APPS.map((a) => ({ ...a, cancel: () => this.setState({ applied: s.applied.filter((n) => n !== a.name) }) })),
+      listed: s.listed,
+      ownHeader: s.listed ? 'Eintrag aktiv (seit 6 Min.)' : 'Gruppe eintragen',
+      listingBtn: s.listed ? 'Eintrag aktualisieren' : 'Gruppe eintragen',
+      toggleListing: () => this.setState({ listed: true }),
+      delist: () => this.setState({ listed: false }),
+      applicantCount: s.listed ? APPLICANTS.filter((a) => s.handled[a.id] !== 'declined').length : 0,
+      roleCheck: s.handled.a1 === 'invited' ? 'Lichtfeder: Heiler bestätigt' : 'keine aktiv',
+      roleCheckColor: s.handled.a1 === 'invited' ? '#40ff40' : '#c8c8c8',
+      applicants: APPLICANTS.filter((a) => s.handled[a.id] !== 'declined').map((a) => ({
+        comment: a.comment, members: a.members.map(memberVals),
+        border: a.members.some((m) => m[4]) ? '#2f6a3c' : '#333',
+        status: s.handled[a.id] === 'invited' ? 'Eingeladen, wartet auf Antwort' : 'Neu',
+        statusColor: s.handled[a.id] === 'invited' ? '#40ff40' : '#ffd100',
+        invite: () => this.setState({ handled: { ...s.handled, [a.id]: 'invited' } }),
+        decline: () => this.setState({ handled: { ...s.handled, [a.id]: 'declined' } })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

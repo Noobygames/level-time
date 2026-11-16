@@ -13,8 +13,8 @@ local function entryOf(labelKey)
   end
 end
 
-local section = options.SectionOf("COMFORT_PAGE_AUTOMATION")
-expectTrue("Abschnitt Automatik gefunden", section ~= nil)
+local section = options.SectionOf("SECTION_QUEST_AUTOMATION")
+expectTrue("Abschnitt Quest-Automatik gefunden", section ~= nil)
 local accept = entryOf("AUTO_ACCEPT_QUESTS")
 local progress = entryOf("QUEST_PROGRESS_TOGGLE")
 local yBefore = progress.cell.y

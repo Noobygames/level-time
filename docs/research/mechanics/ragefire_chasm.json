@@ -1,0 +1,78 @@
+{
+  "instance": "Ragefire Chasm",
+  "instanceMapID": 389,
+  "kind": "dungeon",
+  "levels": [15, 21],
+  "bosses": [
+    {
+      "name": "Oggleflint",
+      "npcID": 11517,
+      "level": 15,
+      "mechanics": [
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the tank and a neighbour: only the tank stands in front", "de": "Spaltet Tank und Nachbarn: nur der Tank steht vorne", "verified": true}
+      ]
+    },
+    {
+      "name": "Taragaman the Hungerer",
+      "npcID": 11520,
+      "level": 16,
+      "mechanics": [
+        {"spellID": 18072, "spell": "Uppercut", "type": "positioning", "en": "Uppercut knocks targets back: tank with your back to a wall, away from lava", "de": "Aufwärtshaken schleudert weg: Tank mit Rücken zur Wand, weg von der Lava", "verified": true},
+        {"spellID": 11970, "spell": "Fire Nova", "type": "avoid", "en": "Fire burst around him: keep pets and ranged out of melee range", "de": "Feuerstoß um ihn herum: Begleiter und Fernkämpfer auf Abstand halten", "verified": true}
+      ]
+    },
+    {
+      "name": "Jergosh the Invoker",
+      "npcID": 11518,
+      "level": 16,
+      "mechanics": [
+        {"spellID": 20800, "spell": "Immolate", "type": "dispel", "en": "Fire damage over time on a player: heal through or dispel", "de": "Feuerschaden über Zeit auf Spieler: gegenheilen oder bannen", "verified": true},
+        {"spellID": 18267, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse lowers melee damage: remove the curse from the tank", "de": "Fluch senkt Nahkampfschaden: Fluch vom Tank entfernen", "verified": true}
+      ]
+    },
+    {
+      "name": "Bazzalan",
+      "npcID": 11519,
+      "level": 16,
+      "mechanics": [
+        {"spellID": 744, "spell": "Poison", "type": "dispel", "en": "Nature poison ticks for 15 sec: cure poison on the tank", "de": "Naturgift tickt 15 Sek.: Gift beim Tank heilen", "verified": true},
+        {"spellID": 14873, "spell": "Sinister Strike", "type": "tank", "en": "Quick hard strikes on the tank: keep healing steady", "de": "Schnelle harte Schläge auf den Tank: gleichmäßig heilen", "verified": true},
+        {"spellID": 2818, "spell": "Deadly Poison", "type": "dispel", "en": "Deadly poison on the tank: cure poison", "de": "Tödliches Gift auf dem Tank: Gift heilen", "verified": true}
+      ]
+    }
+  ],
+  "trash": [
+    {
+      "name": "Ragefire Shaman",
+      "npcID": 11319,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 11986, "spell": "Healing Wave", "type": "interrupt", "en": "Heals other troggs: interrupt the cast or kill it first", "de": "Heilt andere Troggs: Zauber unterbrechen oder zuerst töten", "verified": true},
+        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Nature bolt on a player: interrupt when possible", "de": "Naturblitz auf Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Searing Blade Warlock",
+      "npcID": 11324,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 12746, "spell": "Summon Voidwalker", "type": "adds", "en": "Summons a Voidwalker: kill the warlock before it finishes", "de": "Beschwört Leerwandler: Hexer töten, bevor er fertig ist"},
+        {"spellID": 20791, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolts hurt casters: interrupt or line of sight", "de": "Schattenblitze treffen Stoffträger: unterbrechen oder Sichtlinie brechen", "verified": true}
+      ]
+    }
+  ],
+  "rares": [],
+  "sources": [
+    "https://warcraft.wiki.gg/wiki/Ragefire_Chasm_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Oggleflint",
+    "https://warcraft.wiki.gg/wiki/Taragaman_the_Hungerer",
+    "https://warcraft.wiki.gg/wiki/Jergosh_the_Invoker_(Classic)",
+    "https://warcraft.wiki.gg/wiki/Bazzalan",
+    "https://warcraft.wiki.gg/wiki/Ragefire_Shaman",
+    "https://warcraft.wiki.gg/wiki/Searing_Blade_Warlock",
+    "https://www.wowhead.com/classic/item=14145",
+    "https://www.wowhead.com/classic/item=14148",
+    "https://www.wowhead.com/classic/item=14149",
+    "https://www.wowhead.com/forever/guide/ragefire-chasm-dungeon-overview-location-rewards"
+  ]
+}

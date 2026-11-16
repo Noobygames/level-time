@@ -2,7 +2,6 @@
 -- Spaltenkopf der Historie (W3), Hinweiszeile der Graphen (W5), Tooltips der Werkzeugknöpfe (W24), abhängige
 -- Schalter ausgegraut (S30), Recap ohne "25 > 25" (W36) und einheitliche Begriffe.
 local L = addon.L
-local Stats = addon.Stats
 wow.login({ level = 10, xp = 0, xpMax = 1000 })
 
 ---------------------------------------------------------------------------
@@ -161,6 +160,12 @@ for key, text in pairs(locales.deDE) do
   expectTrue("deDE " .. key .. ": Knopf statt Button", not text:find("Button"))
   expectTrue("deDE " .. key .. ": „…“ statt \"…\"", not text:find('"'))
   expectTrue("deDE " .. key .. ": Erholt statt Erholungs-/Ruhe-XP", not text:find("Erholungs") and not text:find("Ruhe%-XP"))
+  -- LT-63: Dungeon-Run statt Instanz-Lauf, Live-Tracker, Layout bearbeiten, Rare, Session
+  expectTrue("deDE " .. key .. ": Dungeon-Run statt Instanz-Lauf", not text:find("Instanz%-Lauf"))
+  expectTrue("deDE " .. key .. ": Live-Tracker statt Live-Karte", not text:find("Live%-Karte"))
+  expectTrue("deDE " .. key .. ": Layout bearbeiten statt Edit-Modus", not text:find("Edit%-Modus"))
+  expectTrue("deDE " .. key .. ": Rare statt Rar", not (text .. " "):find("Rar[^%a]"))
+  expectTrue("deDE " .. key .. ": Session statt Sitzung", not text:find("Sitzung") and not text:find("Session%-Karte"))
 end
 for key, text in pairs(locales.enUS) do
   expectTrue("enUS " .. key .. ": gerade Anführungszeichen", not text:find("“") and not text:find("‘"))

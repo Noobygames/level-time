@@ -165,13 +165,25 @@ end
 ---------------------------------------------------------------------------
 -- Ersatzkarte für Würfe ohne sichtbares Blizzard-Fenster
 ---------------------------------------------------------------------------
+-- Gegenstand mit Symbol; das Symbol steht im Link-Text, damit auch Drüberfahren am Symbol den Item-Tooltip zeigt
+function LootRollDisplay.ItemText(roll)
+  local icon = roll.texture and ("|T" .. roll.texture .. ":0|t") or ""
+  if roll.link then
+    local withIcon, found = roll.link:gsub("(|H[^|]+|h)", "%1" .. icon, 1)
+    if found > 0 then return withIcon end
+    return icon .. roll.link
+  end
+  return icon .. (roll.name or "?")
+end
+
 local function cardLines(list)
   local lines = {}
   for _, roll in ipairs(list) do
+    local item = LootRollDisplay.ItemText(roll)
     if roll.completed then
-      lines[#lines + 1] = ns.LootRollReport.SummaryText(roll)
+      lines[#lines + 1] = ns.LootRollReport.SummaryText(roll, item)
     else
-      lines[#lines + 1] = (roll.link or roll.name or "?") .. "\n" .. LootRollDisplay.CountsLine(roll)
+      lines[#lines + 1] = item .. "\n" .. LootRollDisplay.CountsLine(roll)
     end
   end
   return table.concat(lines, "\n")
@@ -269,21 +281,7 @@ end
 
 card = ns.Card.Create(ns.GlobalName("LootRolls"))
 card.frame:SetFrameStrata("DIALOG")
--- Item-Links im Text: Tooltip beim Drüberfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled, SimpleFrameAPI
--- in allen Zweigen)
-if card.frame.SetHyperlinksEnabled then
-  card.frame:SetHyperlinksEnabled(true)
-  card.frame:SetScript("OnHyperlinkEnter", function(self, link)
-    GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-    GameTooltip:SetHyperlink(link)
-    GameTooltip:Show()
-  end)
-  card.frame:SetScript("OnHyperlinkLeave", function() GameTooltip:Hide() end)
-  card.frame:SetScript("OnHyperlinkClick", function(_, link, text, button)
-    if HandleModifiedItemClick and HandleModifiedItemClick(text) then return end
-    if SetItemRef then SetItemRef(link, text, button) end
-  end)
-end
+ns.Widgets.EnableItemLinks(card.frame)  -- Item-Links im Text: Tooltip beim Drüberfahren, Shift-Klick
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
   settingsPage = "COMFORT_PAGE_LOOT", clickable = true, actionsTip = true,

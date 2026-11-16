@@ -1,0 +1,176 @@
+{
+ "instance": "Scarlet Monastery: Library",
+ "instanceMapID": 189,
+ "kind": "dungeon",
+ "levels": [
+  29,
+  39
+ ],
+ "bosses": [
+  {
+   "name": "Houndmaster Loksey",
+   "npcID": 3974,
+   "level": 34,
+   "mechanics": [
+    {
+     "spellID": 6742,
+     "spell": "Bloodlust",
+     "type": "adds",
+     "en": "Comes with hounds and speeds them up; AoE or CC the dogs",
+     "de": "Kommt mit Hunden und beschleunigt sie; Hunde AoE oder CC",
+     "verified": true
+    },
+    {
+     "spellID": 6192,
+     "spell": "Battle Shout",
+     "type": "tank",
+     "en": "Shout raises his melee damage; tank with cooldowns",
+     "de": "Ruf erhoeht seinen Nahkampfschaden; Tank mit Cooldowns",
+     "unverified": true,
+     "verified": true
+    }
+   ]
+  },
+  {
+   "name": "Arcanist Doan",
+   "npcID": 6487,
+   "level": 34,
+   "mechanics": [
+    {
+     "spellID": 9435,
+     "spell": "Detonation",
+     "type": "avoid",
+     "en": "At half health he bubbles, then detonates; break line of sight",
+     "de": "Bei halbem Leben Blase, dann Detonation; Sichtlinie brechen",
+     "verified": true
+    },
+    {
+     "spellID": 13323,
+     "spell": "Polymorph",
+     "type": "dispel",
+     "en": "Sheeps a player; dispel magic to free them",
+     "de": "Verwandelt Spieler in Schaf; Magie bannen",
+     "verified": true
+    },
+    {
+     "spellID": 8988,
+     "spell": "Silence",
+     "type": "survive",
+     "en": "Area silence locks casters; heal before it lands",
+     "de": "Flaechenstille sperrt Zauberer; vorher heilen",
+     "verified": true
+    }
+   ]
+  }
+ ],
+ "trash": [
+  {
+   "name": "Scarlet Chaplain",
+   "npcID": 4299,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 22187,
+     "spell": "Power Word: Shield",
+     "type": "interrupt",
+     "en": "Shields and renews allies; kill it first",
+     "de": "Schildet und heilt Verbuendete; zuerst toeten"
+    },
+    {
+     "spellID": 25058,
+     "spell": "Renew",
+     "type": "dispel",
+     "en": "HoT on allies; purge it or burst through",
+     "de": "HoT auf Verbuendeten; reinigen oder wegschlagen"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Adept",
+   "npcID": 4296,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 11642,
+     "spell": "Heal",
+     "type": "interrupt",
+     "en": "Healer; interrupt every Heal cast",
+     "de": "Heiler; jede Heilung unterbrechen"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Diviner",
+   "npcID": 4291,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 11981,
+     "spell": "Mana Burn",
+     "type": "interrupt",
+     "en": "Burns healer mana; interrupt or stun it",
+     "de": "Verbrennt Heilermana; unterbrechen oder betaeuben"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Beastmaster",
+   "npcID": 4288,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 7896,
+     "spell": "Exploding Shot",
+     "type": "positioning",
+     "en": "Fire shot hits the target and nearby players; spread",
+     "de": "Feuerschuss trifft Ziel und Umstehende; verteilen"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Gallant",
+   "npcID": 4287,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 77787,
+     "spell": "Hammer of Justice",
+     "type": "survive",
+     "en": "Stuns a player; watch healer health",
+     "de": "Betaeubt einen Spieler; Heiler im Blick behalten",
+     "unverified": true,
+     "version": "classic"
+    }
+   ]
+  },
+  {
+   "name": "Scarlet Monk",
+   "npcID": 4540,
+   "elite": true,
+   "mechanics": [
+    {
+     "spellID": 3391,
+     "spell": "Thrash",
+     "type": "tank",
+     "en": "Bursts of extra attacks on the tank",
+     "de": "Schubweise Extra-Angriffe auf den Tank"
+    }
+   ]
+  }
+ ],
+ "rares": [],
+ "sources": [
+  "https://warcraft.wiki.gg/wiki/Scarlet_Monastery_Library",
+  "https://warcraft.wiki.gg/wiki/Houndmaster_Loksey_(tactics)",
+  "https://warcraft.wiki.gg/wiki/Arcanist_Doan",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Chaplain",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Adept",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Diviner",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Beastmaster",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Gallant",
+  "https://warcraft.wiki.gg/wiki/Scarlet_Monk",
+  "https://warcraft.wiki.gg/wiki/Loksey's_Training_Stick",
+  "https://warcraft.wiki.gg/wiki/Hypnotic_Blade",
+  "https://warcraft.wiki.gg/wiki/Illusionary_Rod"
+ ]
+}

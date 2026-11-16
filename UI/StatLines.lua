@@ -182,8 +182,13 @@ local function timeShare(getSeconds)
   end
 end
 
-local function timePart(counter)
-  return timeShare(function(scope) return ns.TimeBreakdown.GetSeconds(scope, counter) end)
+local function timePart(counterName)
+  return timeShare(function(scope) return ns.TimeBreakdown.GetSeconds(scope, counterName) end)
+end
+
+-- Aktive Zeit ohne den Buff (Roadmap 485)
+local function withoutBuff(counterName)
+  return timeShare(function(scope) return ns.TimeBreakdown.WithoutBuff(scope, counterName) end)
 end
 
 -- Noch verfügbare Erholt-XP, Anteil am aktuellen Level (bis 150 %); unabhängig vom Bereich
@@ -211,6 +216,13 @@ local function goldPerHour(scope)
   return rate and Format.Money(rate) or NO_VALUE
 end
 
+-- Gold je Stunde einschließlich Beutewert (Farm-Tracker: was die Beute beim Verkauf bringen würde)
+local function farmGoldPerHour(scope)
+  local total = Stats.Get(scope, Stats.MONEY_EARNED) + Stats.Get(scope, Stats.LOOT_VALUE)
+  local rate = ns.Money.PerHour(total, Experience.ScopeRateSeconds(scope))
+  return rate and Format.Money(rate) or NO_VALUE
+end
+
 -- Unabhängig vom Bereich: Instanzlimit "3/5, nächste in 14m" (siehe InstanceLimit.lua)
 local function instanceLimit()
   local InstanceLimit = ns.InstanceLimit
@@ -228,11 +240,14 @@ local function instancesToday()
   return string.format(ns.L.INSTANCES_TODAY_DAILY, today, InstanceLimit.GetDayCount(), dailyLimit)
 end
 
--- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP"
+-- Unabhängig vom Bereich: laufender Instanz-Lauf "12m 30s, 5.000 XP" (mit Bossen: ", Bosse 2/7")
 local function instanceRun()
   local run = ns.Instances.GetCurrentRun()
   if not run then return NO_VALUE end
-  return string.format(ns.L.INSTANCE_RUN_VALUE, Format.Duration(ns.Instances.GetRunSeconds(run)), Format.Number(ns.Instances.Summarize(run)))
+  local text = string.format(ns.L.INSTANCE_RUN_VALUE, Format.Duration(ns.Instances.GetRunSeconds(run)),
+    Format.Number(ns.Instances.Summarize(run)))
+  local bosses = ns.InstanceBosses.ProgressText(run)
+  return bosses and (text .. ", " .. string.format(ns.L.INSTANCE_REPORT_BOSSES, bosses)) or text
 end
 
 -- Stammdaten der Instanz des laufenden Laufs "5 Spieler, Reset: Täglich, Level 15-28" (InstanceInfo)
@@ -284,7 +299,8 @@ ns.STAT_LINES = {
   { setting = "showRecentXpRate", group = "STAT_GROUP_XP", label = "STAT_RECENT_XP_RATE",
     rows = { globalRow("ROW_RECENT_XP_RATE", recentXpRate) } },
   { setting = "showXpGained", group = "STAT_GROUP_XP", label = "STAT_XP_GAINED", rows = { { label = "ROW_XP_GAINED", value = xpGained } } },
-  { setting = "showLevelEta", group = "STAT_GROUP_XP", label = "STAT_LEVEL_ETA", rows = { { label = "ROW_LEVEL_ETA", value = timeToLevel } } },
+  { setting = "showLevelEta", group = "STAT_GROUP_XP", label = "STAT_LEVEL_ETA",
+    rows = { { label = "ROW_LEVEL_ETA", value = timeToLevel } } },
   { setting = "showKillsToLevel", group = "STAT_GROUP_XP", label = "STAT_KILLS_TO_LEVEL",
     rows = { globalRow("ROW_KILLS_TO_LEVEL", countToLevel(Stats.XP_KILLS, Stats.PVE_KILLS)) } },
   { setting = "showQuestsToLevel", group = "STAT_GROUP_XP", label = "STAT_QUESTS_TO_LEVEL",
@@ -319,6 +335,10 @@ ns.STAT_LINES = {
     { label = "ROW_ITEMS_LOOTED", value = function(scope) return Format.Number(Stats.Get(scope, Stats.ITEMS_LOOTED)) end },
     { label = "ROW_ITEM_RATE", value = perHour(Stats.ITEMS_LOOTED) },
   } },
+  { setting = "showLootValue", group = "STAT_GROUP_LOOT", label = "STAT_LOOT_VALUE", rows = {
+    { label = "ROW_LOOT_VALUE", value = money(Stats.LOOT_VALUE) },
+    { label = "ROW_FARM_GOLD_PER_HOUR", value = farmGoldPerHour },
+  } },
   { setting = "showRecentItems", group = "STAT_GROUP_LOOT", label = "STAT_RECENT_ITEMS", rows = {
     globalRow("ROW_RECENT_ITEMS", recentCount(Stats.ITEMS_LOOTED)),
     globalRow("ROW_RECENT_ITEM_RATE", recentRate(Stats.ITEMS_LOOTED)),
@@ -352,6 +372,15 @@ ns.STAT_LINES = {
     { label = "ROW_TIME_IDLE", value = timePart(Stats.IDLE_SECONDS) },
     { label = "ROW_TIME_REST", value = timeShare(function(scope) return ns.TimeBreakdown.GetRestSeconds(scope) end) },
   } },
+  { setting = "showWellFedTime", group = "STAT_GROUP_TIME_MONEY", label = "STAT_WELL_FED_TIME", rows = {
+    { label = "ROW_WELL_FED", value = timePart(Stats.WELL_FED_SECONDS) },
+    { label = "ROW_NOT_WELL_FED", value = withoutBuff(Stats.WELL_FED_SECONDS) },
+  } },
+  { setting = "showWellRestedTime", group = "STAT_GROUP_TIME_MONEY", label = "STAT_WELL_RESTED_TIME",
+    available = ns.Client.IsForever, rows = {
+    { label = "ROW_WELL_RESTED", value = timePart(Stats.WELL_RESTED_SECONDS) },
+    { label = "ROW_NOT_WELL_RESTED", value = withoutBuff(Stats.WELL_RESTED_SECONDS) },
+  } },
   { setting = "showInstanceRun", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_RUN",
     rows = { globalRow("ROW_INSTANCE_RUN", instanceRun) } },
   { setting = "showInstanceInfo", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCE_INFO",
@@ -362,7 +391,8 @@ ns.STAT_LINES = {
     rows = { globalRow("ROW_INSTANCE_LIMIT", instanceLimit) } },
   { setting = "showInstancesToday", group = "STAT_GROUP_INSTANCE", label = "STAT_INSTANCES_TODAY",
     rows = { globalRow("ROW_INSTANCES_TODAY", instancesToday) } },
-  { setting = "showQuests", group = "STAT_GROUP_TIME_MONEY", label = "STAT_QUESTS", rows = { { label = "ROW_QUESTS", value = counter(Stats.QUESTS) } } },
+  { setting = "showQuests", group = "STAT_GROUP_TIME_MONEY", label = "STAT_QUESTS",
+    rows = { { label = "ROW_QUESTS", value = counter(Stats.QUESTS) } } },
   { setting = "showMoney", group = "STAT_GROUP_TIME_MONEY", label = "STAT_MONEY", rows = { { label = "ROW_MONEY", value = income } } },
   { setting = "showSpending", group = "STAT_GROUP_TIME_MONEY", label = "STAT_SPENDING", rows = {
     { label = "ROW_SPENT_REPAIR", value = money(Stats.SPENT_REPAIR) },
@@ -403,7 +433,7 @@ ns.STAT_PRESETS = {
     "showKillsPerDeath", "showNearDeaths", "showInstanceRun", "showInstanceLimit", "showInstancesToday" } },
   -- Farm-Runde (Wunsch auf CurseForge, Roadmap 382): Tempo der Kills und der Beute, Gold/h steht in showIncome
   { label = "PRESET_FARMING", settings = { "showPveKills", "showKillRate", "showRecentKills", "showItemsLooted",
-    "showRecentItems", "showIncome" } },
+    "showRecentItems", "showIncome", "showLootValue" } },
 }
 
 -- Der Stand vor der letzten Voreinstellung liegt in db.presetBackup (Einstellung -> an/aus, wie streamBackup im

@@ -25,14 +25,13 @@ spaceButton:SetScript("OnClick", function()
   DialogKey.PressSpace()
 end)
 
-local numButtons = {}
+-- Ziffern-Buttons; SetOverrideBindingClick findet sie über ihren globalen Namen
 for i = 1, 9 do
   local btn = CreateFrame("Button", "LevelTimerDialogKeyButton" .. i, ownerFrame)
   local keyIndex = i
   btn:SetScript("OnClick", function()
     DialogKey.PressKey(keyIndex)
   end)
-  numButtons[i] = btn
 end
 
 local function setBindings()

@@ -14,6 +14,7 @@ local cases = {
   { id = "levelUp", tab = "OPTIONS_TAB_ALERTS", sub = "OPTIONS_PAGE_LEVEL_UP" },
   { id = "flight", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_TRAVEL" },
   { id = "lootRolls", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_LOOT" },
+  { id = "routeReplay", tab = "OPTIONS_TAB_SPEEDRUN", sub = "OPTIONS_PAGE_ROUTE_REPLAY" },
 }
 for _, case in ipairs(cases) do
   local frame = Frames.Get(case.id).frame
