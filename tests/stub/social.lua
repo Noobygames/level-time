@@ -78,7 +78,7 @@ C_LFGList = {
   GetLfgCategoryInfo = function(id) return { name = state.lfgWindow.categories[id] } end,
   GetAvailableActivities = function(categoryID) return state.lfgWindow.activities[categoryID] or {} end,
   GetFilteredSearchResults = function() return #state.lfgWindow.filtered, state.lfgWindow.filtered end,
-  GetDefaultLanguageSearchFilter = function() return { enUS = true } end,
+  GetDefaultLanguageSearchFilter = function() return state.lfgLanguages and state.lfgLanguages.defaults or { enUS = true } end,
   Search = function(...) table.insert(wow.lfgCalls, { "Search", ... }) end,
   HasActiveEntryInfo = function() return state.lfgWindow ~= nil and state.lfgWindow.entry ~= nil end,
   GetActiveEntryInfo = function() return state.lfgWindow.entry end,

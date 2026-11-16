@@ -1759,7 +1759,7 @@ check("LT271.lfg.languages", function()
     return table.concat(keys, ",")
   end
   return { available = list(call("C_LFGList.GetAvailableLanguageSearchFilter")), enabled = list(call("C_LFGList.GetLanguageSearchFilter")),
-    defaults = list(call("C_LFGList.GetDefaultLanguageSearchFilter")), setting = ns.db.lfgAllLanguages,
+    defaults = list(call("C_LFGList.GetDefaultLanguageSearchFilter")), setting = ns.db.lfgLanguages and "custom" or "blizzard",
     backup = plain(ns.db.lfgLanguageBackup), region = call("GetCurrentRegionName"), canChange = call("LFGListCanChangeLanguages") }
 end)
 

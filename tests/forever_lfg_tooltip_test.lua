@@ -81,20 +81,44 @@ addon.Set("lfgTooltip", false)
 expect("abgeschaltet ohne Markierungen", entry(7), nil)
 addon.Set("lfgTooltip", true)
 
--- Sprachfilter: Einschalten merkt den Filter, Ausschalten stellt ihn wieder her
-wow.state.lfgLanguages = { filter = { enUS = true }, available = { "enUS", "deDE", "frFR" }, defaults = {} }
-addon.Set("lfgAllLanguages", true)
-expect("alle Sprachen gesetzt", wow.state.lfgLanguages.filter.frFR, true)
-expect("einmal gespeichert", wow.state.lfgLanguages.saved, 1)
+-- Sprachfilter: Auswahl DE+EN setzt genau diese Sprachen, Wiederherstellen bringt Blizzards Filter zurück
+local function languages() return wow.state.lfgLanguages end
+local function keys(filter)
+  local list = {}
+  for language in pairs(filter) do list[#list + 1] = language end
+  table.sort(list)
+  return table.concat(list, ",")
+end
+wow.state.lfgLanguages = { filter = { frFR = true }, available = { "enUS", "deDE", "frFR" }, defaults = {} }
+addon.LFGLanguages.Toggle("deDE", true)
+addon.LFGLanguages.Toggle("enUS", true)
+addon.LFGLanguages.Toggle("frFR", false)
+expect("genau die gewählten Sprachen", keys(languages().filter), "deDE,enUS")
+local saves = languages().saved
 addon.ApplySettings()
-expect("Apply ändert nichts mehr", wow.state.lfgLanguages.saved, 1)
-addon.Set("lfgAllLanguages", false)
-expect("vorheriger Filter zurück", wow.state.lfgLanguages.filter.frFR, nil)
-expect("eigene Sprache bleibt", wow.state.lfgLanguages.filter.enUS, true)
-expect("keine Sprachen-Reste", addon.db.lfgLanguageBackup, false)
+expect("Apply ändert nichts mehr", languages().saved, saves)
+addon.LFGLanguages.Restore()
+expect("Blizzard-Filter zurück", keys(languages().filter), "frFR")
+expect("Auswahl verworfen", addon.db.lfgLanguages, false)
+expect("keine Sicherung mehr", addon.db.lfgLanguageBackup, false)
+
+-- Standardsprachen sind immer im gespeicherten Filter
+wow.state.lfgLanguages = { filter = { enUS = true }, available = { "enUS", "deDE" }, defaults = { enUS = true } }
+addon.LFGLanguages.Toggle("deDE", true)
+addon.LFGLanguages.Toggle("deDE", false)
+expect("Standardsprache bleibt im Filter", keys(languages().filter), "enUS")
+addon.LFGLanguages.Restore()
+wow.state.lfgLanguages = { filter = { frFR = true }, available = { "enUS", "deDE", "frFR" }, defaults = {} }
+
+-- Migration: alter Schalter "alle Sprachen" wählt alle verfügbaren Sprachen
+addon.db.lfgAllLanguages = true
+wow.login()
+expect("alle Sprachen gewählt", keys(languages().filter), "deDE,enUS,frFR")
+expect("alter Schalter entfernt", addon.db.lfgAllLanguages, nil)
 
 -- Reiter in den Einstellungen
 SlashCmdList.LEVELTIMER("config")
 expectTrue("Reiter Gruppensuche", wow.click(L.OPTIONS_TAB_LFG))
-expectTrue("Schalter Sprachen", wow.click(L.LFG_ALL_LANGUAGES_TOGGLE) or true)
+expectTrue("Schalter Sprache", wow.click(L.LFG_LANGUAGE_DEDE))
+expectTrue("Knopf Wiederherstellen", wow.click(L.LFG_LANGUAGES_RESTORE))
 expect("keine Lua-Fehler", #wow.errors, 0)
