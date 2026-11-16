@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-16",
     entries = {
+      { kind = "change",
+        deDE = "Einrichtungsassistent, Routen-Checkliste und Dungeonquest-Hinweis zeigen jetzt Symbole aus dem Spiel neben ihren Titeln.",
+        enUS = "The setup assistant, route checklist and dungeon quest hint now show in-game icons next to their titles.",
+        frFR = "L'assistant de configuration, la liste d'itinéraire et l'indice de quêtes de donjon affichent désormais des icônes du jeu à côté de leurs titres.",
+        esES = "El asistente de configuración, la lista de ruta y la pista de misiones de mazmorra ahora muestran iconos del juego junto a sus títulos." },
       { kind = "fix",
         deDE = "Questmarkierungen, Beutetaschen-Hinweise und Bedrohungsanzeige erscheinen jetzt auch an Namensplaketten, die schon vor dem Laden oder Einschalten sichtbar waren.",
         enUS = "Quest marks, bag hints and the threat display now also appear on nameplates that were already visible before loading or switching the feature on.",

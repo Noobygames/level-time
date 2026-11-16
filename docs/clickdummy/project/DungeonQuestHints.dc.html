@@ -23,7 +23,7 @@ button{font-family:inherit}
     <sc-if value="{{zoneOpen}}" hint-placeholder-val="true">
       <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
-          <span style="font-weight: 700; color: #ffd100">Dungeonquests in Westfall</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #ffd100"><span style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; background: #1d1d1d; font-size: 12px">🗝</span>Dungeonquests in Westfall</span>
           <button type="button" onclick="{{closeZone}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
         </div>
         <sc-for list="{{zoneRows}}" as="r" hint-placeholder-count="3">

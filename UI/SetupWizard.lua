@@ -60,11 +60,14 @@ local function layoutItems()
   return items
 end
 
+local ICON = "Interface\\Icons\\"  -- Client-Symbole, in Forever, Era und Retail vorhanden
 local STEPS = {
-  { id = "presets", title = "SETUP_STEP_PRESETS", text = "SETUP_STEP_PRESETS_TEXT", chips = presetItems },
-  { id = "window", title = "SETUP_STEP_WINDOW", text = "SETUP_STEP_WINDOW_TEXT", chips = layoutItems,
+  { id = "presets", icon = ICON .. "INV_Misc_Note_06", title = "SETUP_STEP_PRESETS", text = "SETUP_STEP_PRESETS_TEXT",
+    chips = presetItems },
+  { id = "window", icon = ICON .. "INV_Misc_NotePicture1c", title = "SETUP_STEP_WINDOW", text = "SETUP_STEP_WINDOW_TEXT",
+    chips = layoutItems,
     note = "SETUP_STEP_WINDOW_NOTE" },
-  { id = "quests", title = "SETUP_STEP_QUESTS", text = "SETUP_STEP_QUESTS_TEXT", toggles = {
+  { id = "quests", icon = ICON .. "INV_Scroll_04", title = "SETUP_STEP_QUESTS", text = "SETUP_STEP_QUESTS_TEXT", toggles = {
     { label = "WELCOME_DUNGEONS_CHECK", keys = { "dungeonQuestZoneHint", "dungeonQuestAcceptHint" },
       available = available("DungeonQuests", "IsAvailable") },
     { label = "QUEST_MARKS_TOGGLE", keys = { "questMarks" } },
@@ -73,20 +76,21 @@ local STEPS = {
     { label = "BAG_HINTS_TOGGLE", keys = { "bagHints" }, available = available("BagQuestMarks", "IsAvailable") },
     { label = "SHOW_ROUTE_REPLAY", keys = { "routeReplay" } },
   } },
-  { id = "dungeons", title = "SETUP_STEP_DUNGEONS", text = "SETUP_STEP_DUNGEONS_TEXT", toggles = {
+  { id = "dungeons", icon = ICON .. "INV_Misc_Key_05", title = "SETUP_STEP_DUNGEONS", text = "SETUP_STEP_DUNGEONS_TEXT", toggles = {
     { label = "LFG_TOOLTIP_TOGGLE", keys = { "lfgTooltip" }, available = available("LFGData", "IsAvailable") },
     { label = "LFG_WINDOW_TOGGLE", keys = { "lfgWindow" }, available = available("LFGSearch", "IsAvailable") },
     { label = "BOSS_LOOT_TOGGLE", keys = { "bossLoot" }, available = available("BossLoot", "IsAvailable") },
     { label = "TOOLTIP_MECHANICS_TOGGLE", keys = { "tooltipMechanics" }, available = available("MechanicTips", "IsAvailable") },
   } },
-  { id = "comfort", title = "SETUP_STEP_COMFORT", text = "SETUP_STEP_COMFORT_TEXT", toggles = {
+  { id = "comfort", icon = ICON .. "INV_Misc_Wrench_01", title = "SETUP_STEP_COMFORT", text = "SETUP_STEP_COMFORT_TEXT", toggles = {
     { label = "ALERT_TOGGLE_ELITE_SPOTTED", keys = { "alertEliteSpotted" } },
     { label = "ALERT_TOGGLE_RARE_SPOTTED", keys = { "alertRareSpotted" } },
     { label = "DELETE_CHEAPEST_JUNK", keys = { "deleteCheapestJunk" } },
     { label = "WARN_WILDERNESS_LOGOUT", keys = { "warnWildernessLogout" } },
     { label = "WARN_FALLING", keys = { "warnFalling" } },
   } },
-  { id = "finish", title = "SETUP_STEP_FINISH", text = "SETUP_STEP_FINISH_TEXT", note = "SETUP_STEP_FINISH_NOTE",
+  { id = "finish", icon = "Interface\\RaidFrame\\ReadyCheck-Ready", title = "SETUP_STEP_FINISH", text = "SETUP_STEP_FINISH_TEXT",
+    note = "SETUP_STEP_FINISH_NOTE",
     stream = true, summary = true, always = true },
 }
 
@@ -108,6 +112,8 @@ progress:SetPoint("RIGHT", header.actions, "RIGHT")
 progress:SetTextColor(Theme.RGB("note"))
 
 local stepTitle = panel:CreateFontString(nil, "OVERLAY", Theme.Font("title"))
+local stepIcon = panel:CreateTexture(nil, "ARTWORK")
+local STEP_ICON_SIZE = 24
 local stepText = panel:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 stepText:SetWidth(CONTENT_WIDTH)
 stepText:SetJustifyH("LEFT")
@@ -315,7 +321,10 @@ refresh = function()
   progress:SetText(string.format(L.SETUP_PROGRESS, current, #activeSteps))
   stepTitle:SetText(L[step.title])
   stepTitle:ClearAllPoints()
-  stepTitle:SetPoint("TOPLEFT", PADDING, -(HEADER_HEIGHT + PADDING))
+  stepIcon:ClearAllPoints()
+  stepIcon:SetPoint("TOPLEFT", PADDING, -(HEADER_HEIGHT + PADDING))
+  local iconShown = Widgets.SetIcon(stepIcon, step.icon, STEP_ICON_SIZE)
+  stepTitle:SetPoint("LEFT", stepIcon, iconShown and "RIGHT" or "LEFT", iconShown and GAP or 0, 0)
   stepText:SetText(L[step.text])
   stepText:ClearAllPoints()
   stepText:SetPoint("TOPLEFT", stepTitle, "BOTTOMLEFT", 0, -GAP)

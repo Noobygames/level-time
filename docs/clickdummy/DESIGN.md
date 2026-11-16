@@ -113,3 +113,12 @@ Neu zu extrahieren (noch nicht vorhanden):
 - Notiz-Schriftrolle "note"
 - Tooltip-Abschnittskopf "Level Time"
 - Fortschrittsbalken in 3 Höhen (6 / 12 / 24)
+
+## Icons
+
+- Größen 16 (Zeile, Reiter), 20 (Fensterkopf), 24 (Schrittkopf im Assistenten). Keine Zwischengrößen.
+- Client-Symbole zuerst: `Interface\Icons\*` oder Atlas, die in Forever, Era und Retail existieren (Nachweis: Nutzung im Blizzard-UI-Code unter `.cache/wow-ui-source`). Eigene Grafiken nur, wenn der Client nichts Passendes hat.
+- Setzen nur über `Widgets.SetIcon(texture, quelle, größe)` / `header:SetIcon(quelle)`. Fehlt ein Atlas im Client, bleibt das Icon weg und das Layout rutscht nach (Fallback ohne Icon).
+- Ein Icon steht nie allein: immer neben Text oder mit Tooltip. Keine Farbe als Bedeutungsträger über das Icon.
+- Im Clickdummy stehen Emojis als Platzhalter für das Client-Icon (gleiche Größe, Rahmen `#555`).
+- Verwendet: Einrichtungsassistent (je Schritt), Routen-Checkliste und Dungeonquest-Hinweis (Fensterkopf).

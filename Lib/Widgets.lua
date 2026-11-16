@@ -15,6 +15,22 @@ function Widgets.SpellTexture(spellID)
   return texture
 end
 
+-- Client-Symbol auf eine Textur setzen: source = Atlasname oder Pfad (Interface\Icons\...); size 16/20/24.
+-- Unbekannter Atlas (nicht in jedem Client vorhanden) oder leere Quelle: Textur versteckt, false zurück (Fallback ohne Icon).
+-- Ein Icon steht nie allein: immer neben Text oder mit Tooltip.
+function Widgets.SetIcon(texture, source, size)
+  local ok = type(source) == "string" and source ~= ""
+  if ok and not source:find("[\\/]") then
+    ok = C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(source) and true or false
+    if ok then texture:SetAtlas(source) end
+  elseif ok then
+    texture:SetTexture(source)
+  end
+  if size then texture:SetSize(size, size) end
+  texture:SetShown(ok)
+  return ok
+end
+
 -- Rangzahl eines Zaubers als Text aus C_Spell.GetSpellSubtext (Era, Retail, Forever laut SpellDocumentation; ältere
 -- Clients GetSpellSubtext), in Classic "Rang 3". Retail-Untertexte ("Volksfähigkeit", "Passiv") haben keine Zahl: nil.
 function Widgets.SpellRank(spellID)
@@ -428,6 +444,14 @@ function Widgets.CreateWindowHeader(parent, title, opts)
   header.divider:SetPoint("BOTTOMRIGHT")
   setTextureColor(header.divider, "divider")
   function header:SetTitle(text) self.title:SetText(text) end
+  -- Icon links vor dem Titel (Widgets.SetIcon); ohne Treffer bleibt der Titel an seinem Platz
+  function header:SetIcon(source)
+    self.titleIcon = rawget(self, "titleIcon") or self:CreateTexture(nil, "ARTWORK")
+    self.titleIcon:SetPoint("LEFT", HEADER_PADDING, 0)
+    local shown = Widgets.SetIcon(self.titleIcon, source, 20)
+    self.title:ClearAllPoints()
+    self.title:SetPoint("LEFT", HEADER_PADDING + (shown and 26 or 0), 0)
+  end
   return header
 end
 

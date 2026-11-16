@@ -102,3 +102,12 @@ for _ = 1, #Wizard.State().steps do Wizard.State().next._scripts.OnClick() end  
 expect("Fertig schließt", LevelTimerSetup:IsShown(), false)
 
 expect("keine Fehler", #wow.errors, 0)
+
+-- Icons (LT-303): Pfad setzt das Icon, unbekannter Atlas oder leere Quelle verstecken es (Fallback ohne Icon)
+local tex = { SetTexture = function(self, t) self.tex = t end, SetSize = function() end,
+  SetShown = function(self, v) self.shown = v end }
+expect("Icon-Pfad", addon.Widgets.SetIcon(tex, "Interface/Icons/INV_Misc_Key_05", 24), true)
+expect("Icon-Pfad gesetzt", tex.tex, "Interface/Icons/INV_Misc_Key_05")
+expect("Atlas ohne Client-Atlas: Fallback", addon.Widgets.SetIcon(tex, "gibt-es-nicht", 24), false)
+expect("Fallback versteckt", tex.shown, false)
+expect("leere Quelle", addon.Widgets.SetIcon(tex, nil, 24), false)

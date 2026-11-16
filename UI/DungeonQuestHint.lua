@@ -34,6 +34,7 @@ local panel = Widgets.CreatePanel(ns.GlobalName("DungeonQuestHint"), BACKGROUND_
 panel:Hide()
 local header = Widgets.CreateWindowHeader(panel, "", { onClose = function() DungeonQuestHint.Hide() end })
 local title = header.title
+header:SetIcon("Interface\\Icons\\INV_Misc_Key_05")  -- Dungeon
 
 local WAYPOINT_SIZE = 18
 local WAYPOINT_ATLAS = "Waypoint-MapPin-Untracked"

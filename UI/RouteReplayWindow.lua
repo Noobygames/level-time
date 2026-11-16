@@ -25,6 +25,7 @@ panel:SetSize(WIDTH, HEADER_HEIGHT)
 panel:Hide()
 local header = Widgets.CreateWindowHeader(panel, "", { onClose = function() ns.Set("routeReplay", false) end })
 local title = header.title
+header:SetIcon("Interface\\Icons\\INV_Misc_ScrollUnrolled01")  -- Checkliste
 local progress = header:CreateFontString(nil, "OVERLAY", Theme.Font("label"))
 progress:SetPoint("RIGHT", header.actions, "RIGHT")
 
