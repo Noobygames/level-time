@@ -52,7 +52,8 @@ expectTrue("Historie auf Spanisch", wow.click("Gráficos"))
 -- Gruppensuche-Fenster (LT-305): deutsche Texte dürfen nicht dem Englischen gleichen (außer gleichen Wörtern)
 local SAME_IN_GERMAN = { LFG_COL_LEVEL = true, LFG_LEVELS = true, LFG_ROLE_TANK = true }
 for key, text in pairs(english) do
-  if key:find("^LFG_") and not SAME_IN_GERMAN[key] then
+  -- Sprachnamen stehen in jeder Sprache in der Eigenbezeichnung (LT-312)
+  if key:find("^LFG_") and not key:find("^LFG_LANGUAGE_") and not SAME_IN_GERMAN[key] then
     expectTrue("deDE übersetzt " .. key, locales.deDE[key] ~= text)
   end
 end

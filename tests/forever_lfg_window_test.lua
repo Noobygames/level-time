@@ -26,7 +26,7 @@ wow.state.lfgInfo = { [7] = { activityIDs = { 900 }, leaderName = "Brakkus", com
   [8] = { activityIDs = { 900 }, leaderName = "Garrosh", age = 30 }, [9] = { activityIDs = { 900 }, leaderName = "Zu hoch", age = 5 } }
 wow.state.lfgMemberCounts = { [7] = { TANK = 1, HEALER = 0, DAMAGER = 1 } }
 wow.state.lfgWindow = { categories = { [2] = "Dungeons" }, activities = { [2] = { 900, 901, 902 } }, filtered = { 7, 8, 9 } }
-wow.state.lfgLanguages = { filter = { enUS = true, deDE = true }, available = { "enUS", "deDE" }, defaults = {} }
+wow.state.lfgLanguages = { filter = { enUS = true, deDE = true }, available = { "enUS", "deDE" }, defaults = { enUS = true } }
 
 local parts = LFGWindow.Parts()
 local function click(button) button._scripts.OnClick(button, "LeftButton") end
