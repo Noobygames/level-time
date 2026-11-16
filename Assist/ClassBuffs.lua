@@ -1,6 +1,7 @@
 -- Klassen-Hinweise: Selbst-Buffs, Begleiter und Waffen-Verzauberungen, die beim Leveln dauerhaft aktiv sein sollten
 -- (Rüstung des Magiers, Schild des Schamanen, Aspekt des Jägers, ...). Jeder Hinweis ist eine eigene Einstellung
--- (aus); die Schalter erscheinen nur für die eigene Klasse. Geprüft und gezeigt wie die übrigen Buff-Hinweise
+-- (aus); die Schalter erscheinen nur für die eigene Klasse. Geprüft wie die übrigen Buff-Hinweise,
+-- aber als kurzes Banner statt im Hinweisfenster
 -- (BuffReminder.lua: nur beim Leveln, außerhalb von Kampf und Ruhegebiet, Abstand reminderInterval).
 --   buff    erinnert, wenn keiner der Buffs aktiv ist. Erkannt am Namen, den der Client für die Zauber-IDs in seiner
 --           Sprache liefert: so zählen alle Ränge und Buffs von anderen (z.B. Seelenstärke eines anderen Priesters).
@@ -302,7 +303,7 @@ end
 for _, reminder in ipairs(ClassBuffs.REMINDERS) do
   local isBuff = reminder.kind == BUFF
   ns.BuffReminder.Register({
-    inCombat = isBuff, anyLevel = true, remindOnLoss = isBuff,
+    inCombat = isBuff, anyLevel = true, remindOnLoss = isBuff, banner = true,
     setting = reminder.setting,
     isMissing = function() return ClassBuffs.IsMissing(reminder) end,
     message = function() return ClassBuffs.Message(reminder) end,

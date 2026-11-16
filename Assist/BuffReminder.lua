@@ -146,8 +146,8 @@ local REMINDERS = {
 
 -- Weitere Hinweise anderer Module (ClassBuffs.lua): { setting, isMissing() -> true/false/nil, message, icon,
 -- optional: outdoorsOnly, inCombat (auch im Kampf), anyLevel (auch ohne Leveln), anyLevelInInstance (in Instanzen
--- auch ohne Leveln), remindOnLoss (sofort, sobald der Buff wegfällt, ohne die Pause abzuwarten), auraOnly
--- (isMissing hängt nur am Aura-Schnappschuss, Ergebnis gilt bis zur nächsten Änderung) }
+-- auch ohne Leveln), banner (kurzes Banner statt Hinweisfenster), remindOnLoss (sofort, sobald der Buff
+-- wegfällt, ohne die Pause abzuwarten), auraOnly (isMissing hängt nur am Aura-Schnappschuss, Ergebnis gilt bis zur nächsten Änderung) }
 function BuffReminder.Register(reminder)
   table.insert(REMINDERS, reminder)
 end
@@ -223,12 +223,18 @@ local function noticeOf(reminder)
     texture = reminder.texture and reminder.texture() or nil }
 end
 
+-- Hinweise sammeln sich im Hinweisfenster; kurze Banner (banner, Klassen-Buffs) bleiben Einblendungen
+local function notifyOptions(reminder)
+  if reminder.banner then return nil end
+  return ns.Alerts.COLLECT
+end
+
 -- Vorschau (Testen-Knopf): ein Schritt je Hinweis, den es in diesem Client gibt, wie echt
 function BuffReminder.PreviewSteps()
   local steps = {}
   for _, reminder in ipairs(REMINDERS) do
     if not reminder.available or reminder.available() then
-      steps[#steps + 1] = function() ns.Alerts.Notify(noticeOf(reminder), ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT) end
+      steps[#steps + 1] = function() ns.Alerts.Notify(noticeOf(reminder), ns.Alerts.WARNING_COLOR, notifyOptions(reminder)) end
     end
   end
   return steps
@@ -238,18 +244,22 @@ end
 function BuffReminder.Check()
   if not ns.db then return end
   readContext()
-  local messages
+  local collected, banners
   for _, reminder in ipairs(REMINDERS) do
     if isDue(reminder) then
       ns.Debug("reminder", "%s missing, reminding", reminder.setting)
       reminder.lastShown = GetTime()
-      messages = messages or {}
-      table.insert(messages, noticeOf(reminder))
+      if reminder.banner then
+        banners = banners or {}
+        table.insert(banners, noticeOf(reminder))
+      else
+        collected = collected or {}
+        table.insert(collected, noticeOf(reminder))
+      end
     end
   end
-  if messages then
-    ns.Alerts.Notify(messages, ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT)
-  end
+  if collected then ns.Alerts.Notify(collected, ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT) end
+  if banners then ns.Alerts.Notify(banners, ns.Alerts.WARNING_COLOR) end
 end
 
 -- Regelmäßig prüfen statt auf UNIT_AURA zu hören: Ablauf, Kampfende und Ruhegebiet ändern sich

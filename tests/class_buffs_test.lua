@@ -1,6 +1,5 @@
 -- Klassen-Hinweise: Selbst-Buffs, Begleiter und Waffen-Verzauberungen der eigenen Klasse; nur eingeschaltet, nur mit
 -- bekanntem Zauber, Buffs am Namen erkannt (alle Ränge, auch von anderen). Der Stub-Charakter ist Krieger.
-local function hint() local entries = addon.Hints.Entries() return entries[#entries] end
 local BuffReminder, ClassBuffs = addon.BuffReminder, addon.ClassBuffs
 local L = addon.L
 
@@ -47,9 +46,12 @@ expect("unbekannt: still", shown("Schlachtruf"), 0)
 
 -- Bekannt und fehlt: Hinweis mit Name und Symbol des Zaubers
 wow.state.knownSpells = { [BATTLE_SHOUT] = true }
+addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
 expect("Hinweis", shown(string.format(L.REMIND_CLASS_BUFF, "Schlachtruf")), 1)
-expect("als Karte", hint().text, string.format(L.REMIND_CLASS_BUFF, "Schlachtruf"))
+expectTrue("als Banner", LevelTimerNotice:IsShown())
+expect("nicht im Hinweisfenster", #addon.Hints.Entries(), 0)
 
 -- Buff aktiv (auch von einem anderen Krieger): still
 wow.advance(301)
