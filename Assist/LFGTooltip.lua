@@ -146,14 +146,18 @@ end
 -- Für Tests: vorhandene Markierungen einer Zeile
 function LFGTooltip.EntryMarks(entry) return entryMarksByFrame[entry] end
 
+-- Spanne nur bei mehreren Mitgliedern mit unterschiedlichem Level: Blizzard zeigt die Stufe sonst schon neben dem Namen
+local function entryRangeText(data)
+  if not data or not data.levelLow or (data.numMembers or 0) <= 1 or data.levelLow == data.levelHigh then return "" end
+  return data.levelLow .. "–" .. data.levelHigh
+end
+
 function LFGTooltip.UpdateEntryMarks(entry)
   if not entry or not entry.ActivityName then return end
   local data = LFGTooltip.IsEnabled() and LFGData.Summary(entry.resultID)
   if not data and not entryMarksByFrame[entry] then return end
   local marks = entryMarks(entry)
-  local range = data and data.levelLow and (data.levelLow == data.levelHigh and tostring(data.levelLow)
-    or (data.levelLow .. "-" .. data.levelHigh)) or ""
-  marks.range:SetText(range)
+  marks.range:SetText(entryRangeText(data))
   marks.dot:SetShown(data and data.friends + data.guild > 0 or false)
   marks.dim:SetShown(data and data.delisted or false)
 end

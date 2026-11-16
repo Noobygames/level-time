@@ -17,6 +17,9 @@ wow.state.lfgResults = {
   },
   [8] = { { name = "Garrosh" } },
   [9] = { { name = "Level 5", level = 5 }, { name = "Level 40", level = 40 } },
+  [10] = { { name = "Solo", level = 30 } },
+  [11] = { { name = "Gleich A", level = 37 }, { name = "Gleich B", level = 37 } },
+  [12] = { { name = "Spanne A", level = 37 }, { name = "Spanne B", level = 40 } },
 }
 wow.state.lfgInfo = { [7] = { activityIDs = { 900 }, numGuildMates = 1, numBNetFriends = 1 }, [9] = { isDelisted = true } }
 wow.state.lfgEncounters = { [7] = { vanCleef } }
@@ -72,7 +75,10 @@ local function entry(resultID)
   return addon.LFGTooltip.EntryMarks(frame)
 end
 local marks7, marks9 = entry(7), entry(9)
-expect("Level-Spanne in der Zeile", marks7.range._text, "20-23")
+expect("Level-Spanne in der Zeile", marks7.range._text, "20–23")
+expect("Solo ohne Spanne", entry(10).range._text, "")
+expect("Gruppe mit gleichem Level ohne Spanne", entry(11).range._text, "")
+expect("Gruppe 37/40 als Spanne", entry(12).range._text, "37–40")
 expect("Punkt bei Freunden", marks7.dot:IsShown(), true)
 expect("nicht abgedunkelt", marks7.dim:IsShown(), false)
 expect("aufgelöst abgedunkelt", marks9.dim:IsShown(), true)
