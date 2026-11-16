@@ -282,18 +282,23 @@ end)
 -- steht als Bereich "print" im laufenden Log
 check("LT226.runs.live", function()
   local run = ns.Instances.GetCurrentRun()
-  local card, record = ns.InstanceRunTracker.Card(), ns.History.GetInstanceLog(ns.characterKey)[1]
+  local card, log = ns.InstanceRunTracker.Card(), ns.History.GetInstanceLog(ns.characterKey)
+  local record = log[1]
   local state = { tracker = { setting = ns.db.showRunTracker, card = card and cardText(card.frame),
     frame = card and frameState(card.frame) },
     current = run and { name = run.name, progress = ns.InstanceBosses.ProgressText(run) } or false,
     windowShown = ns.InstanceRunWindow.IsShown(), newBest = ns.InstanceRuns.IsNewBest() }
   if record then
+    -- Fensterende wie in UI/InstanceRunWindow.lua (neuester Lauf: bis jetzt)
+    local windowEnd = ns.InstanceRuns.WindowEnd(log, 1)
     local xpList = {}
-    for id, value in pairs(ns.InstanceRuns.BossXp(ns.characterKey, record)) do xpList[#xpList + 1] = id .. "=" .. plain(value) end
+    for id, value in pairs(ns.InstanceRuns.BossXp(ns.characterKey, record, windowEnd)) do
+      xpList[#xpList + 1] = id .. "=" .. plain(value)
+    end
     table.sort(xpList)
     state.record = { name = record.name, seconds = ns.InstanceRuns.Seconds(record), completed = ns.InstanceRuns.IsCompleted(record),
       progress = ns.InstanceBosses.ProgressText(record), splits = ns.InstanceRuns.Splits(record), bossXp = xpList,
-      loot = #ns.InstanceRuns.Loot(ns.characterKey, record), tooltip = ns.InstanceBosses.TooltipLines(record) or false }
+      loot = #ns.InstanceRuns.Loot(ns.characterKey, record, windowEnd), tooltip = ns.InstanceBosses.TooltipLines(record) or false }
   end
   return state
 end)

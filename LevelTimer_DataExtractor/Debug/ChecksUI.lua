@@ -354,7 +354,9 @@ check("LT187.blizzardFrames.mouse", function()
     if first and #entries < MAX_ITEMS then
       local children, clickable = descendants(first), 0
       for _, child in ipairs(children) do
-        if method(child, "IsMouseEnabled") and method(child, "IsShown") then clickable = clickable + 1 end
+        if readable(method(child, "IsMouseEnabled")) and readable(method(child, "IsShown")) then
+          clickable = clickable + 1
+        end
       end
       entries[#entries + 1] = { id = entry.id, hidden = BlizzardHide.IsHidden(entry.id), mouse = method(first, "IsMouseEnabled"),
         children = #children, clickableShown = clickable }

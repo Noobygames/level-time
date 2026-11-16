@@ -110,12 +110,13 @@ local function firstIndexSince(list, since)
   return low
 end
 
--- Einträge eines Logs im Zeitfenster [since, untilTime] an visit(entry) geben
+-- Einträge eines Logs im Zeitfenster [since, untilTime] an visit(entry) geben; untilTime nil = ohne obere Grenze
+-- (Aufrufer ohne Fensterende, sonst Vergleich nil mit Zahl)
 local function eachInWindow(characterKey, logName, since, untilTime, visit)
   local list = Journal.GetEntries(characterKey, logName)
   for i = firstIndexSince(list, since), #list do
     local entry = list[i]
-    if (entry.time or 0) > untilTime then return end
+    if untilTime and (entry.time or 0) > untilTime then return end
     visit(entry)
   end
 end
