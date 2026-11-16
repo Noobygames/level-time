@@ -29,7 +29,9 @@ local VISIBLE_ROWS = 11
 local DETAIL_WIDTH = 330
 local SCROLLBAR_SPACE = 14      -- Bildlaufleiste (8) plus Abstand
 local COLUMN_WIDTHS = { level = 78, roles = 96, age = 56 }
-local MORE_HEIGHT = 2 * CONTROL_HEIGHT + GAP  -- Weitere Filter: zwei Zeilen
+local LIST_GAP = 16              -- Abstand der Kopfzeile zur letzten Filterzeile (Trefferzahl steht darüber)
+local CHIP_GAP = 4
+local FILTER_WIDTH = LFGWindow.WIDTH - 2 * PAD
 local WHEEL_STEP = 3
 local ICON_SIZE = 18
 local MAX_MEMBER_LINES = 10
@@ -62,7 +64,7 @@ end)
 categoryDropdown:SetPoint("TOPLEFT", PAD, -FILTER_TOP)
 Widgets.AttachTooltip(categoryDropdown, function() return L.LFG_CATEGORY end, function() return L.LFG_CATEGORY_TIP end)
 
--- Aktivitäten nach Level absteigend mit Level-Spanne; "Passend für mich" zeigt nur die zum Level passenden
+-- Aktivitäten nach Level aufsteigend mit Level-Spanne; "Passend für mich" zeigt nur die zum Level passenden
 local activityDropdown = LFGWindow.NewDropdown(searchTab, 210, function()
   local entries = LFGWindow.ActivityEntries(state.categoryID, state.fitOnly)
   table.insert(entries, 1, { key = 0, text = L.LFG_ALL_ACTIVITIES })
@@ -97,20 +99,19 @@ local fitCheck = newCheck(searchTab, "LFG_FIT_ONLY", function(checked)
   if checked and chosen and not LFGSearch.ActivityFits(chosen, UnitLevel("player")) then state.activityID = nil end
   LFGWindow.Refresh()
 end)
-fitCheck:SetPoint("TOPLEFT", PAD, -(FILTER_TOP + CONTROL_HEIGHT + GAP))
+fitCheck:SetPoint("TOPLEFT", categoryDropdown, "BOTTOMLEFT", 0, -GAP)
 local moreButton = newButton(searchTab, 150, "LFG_MORE_FILTERS", function()
   state.moreOpen = not state.moreOpen
   LFGWindow.Refresh()
 end)
-moreButton:SetPoint("TOPRIGHT", -PAD, -(FILTER_TOP + CONTROL_HEIGHT + GAP))
+moreButton:SetPoint("TOPRIGHT", searchButton, "BOTTOMRIGHT", 0, -GAP)
 
--- Weitere Filter: Sprachen, Gruppenart, aufgelöste Gruppen
+-- Weitere Filter unter der zweiten Zeile: Sprachen (Chips brechen bei Platzmangel um), darunter Gruppenart und
+-- aufgelöste Gruppen. Jede Zeile hängt an der Unterkante der vorigen, die Höhe folgt aus dem Inhalt.
 local morePanel = CreateFrame("Frame", nil, searchTab)
-morePanel:SetPoint("TOPLEFT", PAD, -(FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP)))
-morePanel:SetPoint("TOPRIGHT", -PAD, -(FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP)))
-morePanel:SetHeight(MORE_HEIGHT)
+morePanel:SetWidth(FILTER_WIDTH)
+morePanel:SetPoint("TOPRIGHT", moreButton, "BOTTOMRIGHT", 0, -GAP)
 local languageLabel = morePanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-languageLabel:SetPoint("LEFT", 0, 0)
 local languageChips = {}
 local kindButton = newButton(morePanel, 120, "LFG_KIND", function()
   for index, kind in ipairs(KIND_ORDER) do
@@ -137,23 +138,35 @@ local function languageChip(index)
   return languageChips[index]
 end
 
-local function layoutMore()
+-- Chips rechts neben der Beschriftung (Breite gemessen, fr/es länger), Umbruch auf eine neue Zeile unter der vorigen
+local function layoutLanguages()
   languageLabel:SetText(L.LFG_LANGUAGES)
-  local previous
+  local left = math.ceil(languageLabel:GetStringWidth()) + GAP
+  local x, y, chipHeight = left, 0, 0
   for index, language in ipairs(LFGSearch.Languages()) do
     local chip = languageChip(index)
     chip.code = language.code
     chip:Show()
     chip:SetText(language.code:sub(1, 2):upper())
     chip:SetOn(language.enabled)
+    chipHeight = chip:GetHeight()
+    if x > left and x + chip:GetWidth() > FILTER_WIDTH then x, y = left, y + chipHeight + CHIP_GAP end
     chip:ClearAllPoints()
-    chip:SetPoint("LEFT", previous or languageLabel, "RIGHT", previous and 4 or GAP, 0)
-    previous = chip
+    chip:SetPoint("TOPLEFT", morePanel, "TOPLEFT", x, -y)
+    x = x + chip:GetWidth() + CHIP_GAP
   end
   for index = #LFGSearch.Languages() + 1, #languageChips do languageChips[index]:Hide() end
+  languageLabel:ClearAllPoints()
+  languageLabel:SetPoint("LEFT", morePanel, "TOPLEFT", 0, -chipHeight / 2)
+  return math.max(y + chipHeight, languageLabel:GetStringHeight() or 0)
+end
+
+local function layoutMore()
+  local languagesHeight = layoutLanguages()
   retext(kindButton, string.format("%s: %s", L.LFG_KIND, L[KIND_TEXTS[state.kind]]))
   kindButton:ClearAllPoints()
-  kindButton:SetPoint("TOPLEFT", morePanel, "TOPLEFT", 0, -(CONTROL_HEIGHT + GAP))
+  kindButton:SetPoint("TOPLEFT", morePanel, "TOPLEFT", 0, -(languagesHeight + GAP))
+  morePanel:SetHeight(languagesHeight + GAP + CONTROL_HEIGHT)
   delistedCheck.label:SetText(L.LFG_HIDE_DELISTED)
   delistedCheck:SetChecked(state.hideDelisted)
   delistedCheck:ClearAllPoints()
@@ -281,7 +294,7 @@ local function fillRow(row, summary)
   row.level:SetText(levelText(summary))
   row.roles:SetText(rolesText(summary))
   row.age:SetText(summary.age and Format.Duration(summary.age) or "")
-  row.title:SetTextColor(summary.delisted and Theme.RGB("muted") or Theme.RGB("accent"))
+  row.title:SetTextColor(Theme.RGB(summary.delisted and "muted" or "accent"))  -- RGB liefert drei Werte: nie in and/or
   row:SetSelected(summary.resultID == state.selected)
 end
 
@@ -295,19 +308,16 @@ end
 
 scrollBar = Widgets.CreateScrollBar(searchTab, scrollTo)
 
+-- Zeilen und Leiste hängen am Kopf, der Kopf an der letzten sichtbaren Filterzeile (mit oder ohne Weitere Filter)
+for index = 1, VISIBLE_ROWS do
+  createRow(index):SetPoint("TOPLEFT", rows[index - 1] or header, "BOTTOMLEFT", 0, 0)
+end
+scrollBar:SetPoint("TOPLEFT", header, "BOTTOMRIGHT", SCROLLBAR_SPACE - 8, 0)
+scrollBar:SetHeight(VISIBLE_ROWS * ROW_HEIGHT)
+
 local function layoutList()
-  -- hängt von "Weitere Filter" ab
-  local listTop = FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP) + (state.moreOpen and (MORE_HEIGHT + GAP) or 0) + 12
   header:ClearAllPoints()
-  header:SetPoint("TOPLEFT", PAD, -listTop)
-  for index = 1, VISIBLE_ROWS do
-    local row = rows[index] or createRow(index)
-    row:ClearAllPoints()
-    row:SetPoint("TOPLEFT", PAD, -listTop - 20 - (index - 1) * ROW_HEIGHT)
-  end
-  scrollBar:ClearAllPoints()
-  scrollBar:SetPoint("TOPLEFT", PAD + listWidth + SCROLLBAR_SPACE - 8, -listTop - 20)
-  scrollBar:SetHeight(VISIBLE_ROWS * ROW_HEIGHT)
+  header:SetPoint("TOPRIGHT", state.moreOpen and morePanel or moreButton, "BOTTOMRIGHT", -SCROLLBAR_SPACE, -LIST_GAP)
 end
 
 local emptyText = searchTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -503,7 +513,8 @@ end)
 parts.searchButton, parts.whisperButton, parts.inviteButton = searchButton, whisperButton, inviteButton
 parts.categoryDropdown, parts.activityDropdown = categoryDropdown, activityDropdown
 parts.fitCheck, parts.moreButton, parts.kindButton = fitCheck, moreButton, kindButton
-parts.scrollBar, parts.languageChips = scrollBar, languageChips
+parts.scrollBar, parts.languageChips, parts.languageLabel = scrollBar, languageChips, languageLabel
+parts.morePanel, parts.header, parts.delistedCheck = morePanel, header, delistedCheck
 
 local function refreshIfShown()
   if LFGWindow.IsShown() then LFGWindow.Refresh() end

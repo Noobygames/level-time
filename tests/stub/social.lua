@@ -100,10 +100,25 @@ GetGeneralPlaystyleString = function(playstyle) return "Spielstil" .. playstyle 
 C_LFGListRoles = { GetRoles = function() return state.lfgRoles or {} end,
   SetRoles = function(roles) table.insert(wow.lfgCalls, { "SetRoles", roles }) state.lfgRoles = roles end }
 function UnitIsGroupAssistant() return false end
--- Blizzards Gruppensuche im Vanilla-Stil: LFGVanilla_ShowFrame zeigt LFGParentFrame (wird ersetzt, siehe LFGWindow)
+-- Blizzards Gruppensuche im Vanilla-Stil (Blizzard_LFGVanilla_ParentFrame.lua): Zeigen merkt den Reiter, Umschalten
+-- schließt bei gleichem oder ohne Reiter
 LFGParentFrame = CreateFrame("Frame")
-function LFGVanilla_ShowFrame() LFGParentFrame:Show() end
+function LFGVanilla_ShowFrame(tab)
+  LFGParentFrame:Show()
+  LFGParentFrame.selectedTab = tab or LFGParentFrame.selectedTab or 1
+end
+function LFGVanilla_ToggleFrame(tab)
+  if LFGParentFrame:IsShown() and (not tab or tab == LFGParentFrame.selectedTab) then
+    HideUIPanel(LFGParentFrame)
+  else
+    LFGVanilla_ShowFrame(tab)
+  end
+end
 function HideUIPanel(frame) frame:Hide() end
+-- Blizzards Reiter (SharedUIPanelTemplates.lua): nur der gewählte Reiter wird gemerkt
+function PanelTemplates_SetNumTabs(frame, count) frame.numTabs = count end
+function PanelTemplates_SetTab(frame, id) frame.selectedTab = id end
+function PanelTemplates_TabResize() end
 ChatFrameUtil = ChatFrameUtil or {}
 ChatFrameUtil.SendTell = function(name) socialAction("tell", name) end
 -- Blizzards Tooltip-Aufbau: Retail (GameTooltip) und Classic Era (eigener Rahmen), damit Hooks darauf greifen

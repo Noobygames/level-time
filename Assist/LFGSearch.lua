@@ -1,5 +1,5 @@
--- Suche und eigener Eintrag der Gruppensuche für das eigene Fenster (UI/LFGWindow.lua; nur WoW Forever, Einstellung
--- lfgWindow, aus). Nur Daten und Aufrufe, keine Anzeige. Forever lädt Blizzards "Vanilla-Stil"-Gruppensuche
+-- Suche und eigener Eintrag der Gruppensuche für das eigene Fenster (UI/LFGWindow.lua; nur WoW Forever; Minikarten-Icon
+-- mit Einstellung lfgMinimapButton, an). Nur Daten und Aufrufe, keine Anzeige. Forever lädt Blizzards "Vanilla-Stil"-Gruppensuche
 -- (Blizzard_GroupFinder_VanillaStyle, Bewerben und Bewerberliste gibt es dort nicht): man flüstert dem Leiter oder
 -- lädt einen Einzelspieler ein, der eigene Eintrag besteht aus Aktivitäten, Einsteigerfreundlich und Soloaktionen
 -- (C_LFGListRoles). API wie in Blizzard_LFGVanilla_Browse/Listing.lua: GetAvailableCategories, GetLfgCategoryInfo,
@@ -12,7 +12,8 @@ local _, ns = ...
 
 ns.RegisterDefaults({
   settings = {
-    lfgWindow = false,
+    lfgMinimapButton = true,   -- Minikarten-Icon des eigenen Fensters (UI/LFGWindowLaunchers.lua)
+    lfgMinimapAngle = 200,
     lfgLanguageChips = false,  -- { [Sprache] = true }; false = Blizzards Filter beim ersten Öffnen übernehmen
   },
 })
@@ -34,10 +35,6 @@ function LFGSearch.IsAvailable()
     and lfg.GetAvailableActivities ~= nil and lfg.GetFilteredSearchResults ~= nil
 end
 
-function LFGSearch.IsEnabled()
-  return ns.db ~= nil and ns.db.lfgWindow == true and LFGSearch.IsAvailable()
-end
-
 -- Kategorien: { { id, name }, ... }
 function LFGSearch.Categories()
   local list = {}
@@ -48,8 +45,8 @@ function LFGSearch.Categories()
   return list
 end
 
--- Aktivitäten einer Kategorie wie in Blizzards Liste nach Level-Spanne absteigend (höchstes Maximum zuerst, 0 = offen
--- nach oben ganz oben): { { id, name, fullName, minLevel, maxLevel, mapID }, ... }
+-- Aktivitäten einer Kategorie nach Level aufsteigend (Mindestlevel, dann Höchstlevel; Höchstlevel 0 = offen nach oben
+-- zählt als höchstes): { { id, name, fullName, minLevel, maxLevel, mapID }, ... }
 function LFGSearch.Activities(categoryID)
   local list = {}
   for _, activityID in ipairs(api().GetAvailableActivities(categoryID) or {}) do
@@ -60,12 +57,10 @@ function LFGSearch.Activities(categoryID)
         minLevel = info.minLevelSuggestion or 0, maxLevel = info.maxLevelSuggestion or 0 })
     end
   end
+  local function upper(level) return level == 0 and math.huge or level end
   table.sort(list, function(a, b)
-    if a.maxLevel ~= b.maxLevel then
-      if a.maxLevel == 0 or b.maxLevel == 0 then return a.maxLevel == 0 end
-      return a.maxLevel > b.maxLevel
-    end
-    if a.minLevel ~= b.minLevel then return a.minLevel > b.minLevel end
+    if a.minLevel ~= b.minLevel then return a.minLevel < b.minLevel end
+    if a.maxLevel ~= b.maxLevel then return upper(a.maxLevel) < upper(b.maxLevel) end
     if a.name ~= b.name then return a.name < b.name end
     return a.id < b.id
   end)

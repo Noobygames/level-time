@@ -34,6 +34,9 @@ local commands = {
   [""] = function() ns.ToggleOptions() end,
   config = function() ns.ToggleOptions() end,
   history = function() ns.ToggleHistory() end,
+  lfg = function()  -- eigenes Gruppensuche-Fenster (UI/LFGWindow.lua, nur WoW Forever)
+    if ns.LFGWindow and ns.LFGSearch.IsAvailable() then ns.LFGWindow.Toggle() else printUnknown("lfg") end
+  end,
   dq = function() ns.DungeonQuestHints.Show() end,  -- Dungeonquest-Hinweis erneut zeigen (Assist/DungeonQuestHints.lua)
   report = function() ns.InstanceReport.SendNow() end,
   lock = function()

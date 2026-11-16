@@ -1,6 +1,6 @@
--- WoW Forever: eigenes Gruppensuche-Fenster (UI/LFGWindow.lua, Assist/LFGSearch.lua). Ersetzt Blizzards Fenster nur mit
--- Einstellung lfgWindow; Suche nur auf Klick mit eigenem Sprachfilter, Liste, Filter, Detail, Flüstern/Einladen,
--- eigener Eintrag. Todesminen (36): Quest 167 (Beute von NPC 626).
+-- WoW Forever: eigenes Gruppensuche-Fenster (UI/LFGWindow.lua, Assist/LFGSearch.lua) neben Blizzards (Einstiege:
+-- Minikarten-Icon, Knopf an Blizzards Fenster, /lt lfg; Aufbaufehler öffnet Blizzards); Suche nur auf Klick mit
+-- eigenem Sprachfilter, Liste, Filter, Detail, Flüstern/Einladen, eigener Eintrag. Todesminen (36): Quest 167 (Beute von NPC 626).
 local L = addon.L
 local LFGWindow = addon.LFGWindow
 
@@ -28,27 +28,56 @@ wow.state.lfgMemberCounts = { [7] = { TANK = 1, HEALER = 0, DAMAGER = 1 } }
 wow.state.lfgWindow = { categories = { [2] = "Dungeons" }, activities = { [2] = { 900, 901, 902 } }, filtered = { 7, 8, 9 } }
 wow.state.lfgLanguages = { filter = { enUS = true, deDE = true }, available = { "enUS", "deDE" }, defaults = {} }
 
--- Aus: Blizzards Fenster bleibt
-LFGVanilla_ShowFrame(2)
-expect("aus: Blizzards Fenster offen", LFGParentFrame:IsShown(), true)
-expect("aus: eigenes Fenster zu", LFGWindow.IsShown(), false)
-LFGParentFrame:Hide()
-
--- An: ersetzt Blizzards Fenster, Reiter Wer bleibt bei Blizzard
-addon.Set("lfgWindow", true)
-LFGVanilla_ShowFrame(2)
-expect("an: eigenes Fenster offen", LFGWindow.IsShown(), true)
-expect("an: Blizzards Fenster geschlossen", LFGParentFrame:IsShown(), false)
-LFGVanilla_ShowFrame(3)
-expect("Reiter Wer bleibt Blizzards", LFGParentFrame:IsShown(), true)
-LFGParentFrame:Hide()
-LFGVanilla_ShowFrame(2)
-expect("zweiter Aufruf schließt", LFGWindow.IsShown(), false)
-LFGVanilla_ShowFrame(2)
-expect("dritter Aufruf öffnet wieder", LFGWindow.IsShown(), true)
-
 local parts = LFGWindow.Parts()
 local function click(button) button._scripts.OnClick(button, "LeftButton") end
+
+-- Blizzards Fenster bleibt unberührt: Taste (Umschalten mit Reiter), Minikarten-Auge und Wer öffnen nur Blizzards
+LFGVanilla_ToggleFrame(1)
+expect("Blizzard: Umschalten öffnet", LFGParentFrame:IsShown(), true)
+expect("Blizzard: eigenes Fenster bleibt zu", LFGWindow.IsShown(), false)
+LFGVanilla_ToggleFrame(1)
+expect("Blizzard: zweites Umschalten schließt", LFGParentFrame:IsShown(), false)
+LFGVanilla_ToggleFrame()
+LFGVanilla_ShowFrame(3)
+expect("Blizzard: Reiter Wer", LFGParentFrame.selectedTab, 3)
+expect("Blizzard: Wer offen, eigenes zu", LFGParentFrame:IsShown() and not LFGWindow.IsShown(), true)
+LFGVanilla_ToggleFrame()
+expect("Blizzard: Auge schließt", LFGParentFrame:IsShown(), false)
+
+-- Minikarten-Icon (Standard an) schaltet unser Fenster um
+local minimapButton = LFGWindow.minimapButton
+expect("Minikarten-Icon sichtbar", minimapButton:IsShown(), true)
+click(minimapButton)
+expect("Icon öffnet", LFGWindow.IsShown(), true)
+expect("Reiter Suchen gewählt", LFGWindow.panel.selectedTab, LFGWindow.TAB_SEARCH)
+click(minimapButton)
+expect("Icon schließt", LFGWindow.IsShown(), false)
+addon.Set("lfgMinimapButton", false)
+expect("Icon ausgeschaltet", minimapButton:IsShown(), false)
+addon.Set("lfgMinimapButton", true)
+expect("Icon wieder an", minimapButton:IsShown(), true)
+
+-- /lt lfg schaltet um, der Knopf an Blizzards Fenster schließt dessen Fenster und öffnet unseres
+SlashCmdList.LEVELTIMER("lfg")
+expect("/lt lfg öffnet", LFGWindow.IsShown(), true)
+SlashCmdList.LEVELTIMER("lfg")
+expect("/lt lfg schließt", LFGWindow.IsShown(), false)
+LFGVanilla_ShowFrame(2)
+click(LFGWindow.blizzardButton)
+expect("Knopf: Blizzards Fenster zu", LFGParentFrame:IsShown(), false)
+expect("Knopf: eigenes Fenster offen", LFGWindow.IsShown(), true)
+
+-- Scheitert der Aufbau, öffnet Blizzards Fenster statt keinem
+LFGWindow.Hide()
+local realRefresh = LFGWindow.Refresh
+LFGWindow.Refresh = function() error("Aufbau kaputt") end
+click(minimapButton)
+LFGWindow.Refresh = realRefresh
+expect("Fehler: eigenes Fenster zu", LFGWindow.IsShown(), false)
+expect("Fehler: Blizzards Fenster offen", LFGParentFrame:IsShown(), true)
+LFGParentFrame:Hide()
+click(minimapButton)
+expect("danach öffnet es wieder", LFGWindow.IsShown(), true)
 expect("vor der Suche: Hinweis", parts.emptyText:GetText(), L.LFG_STATE_START)
 expect("vor der Suche keine Suche", #wow.lfgCalls, 0)
 
@@ -75,13 +104,13 @@ C_LFGList.Search = realSearch
 expect("Ereignis während Search: fertig", LFGWindow.State().status, "done")
 expect("Ereignis während Search: kein Hinweis", parts.emptyText:GetText(), "")
 
--- Aktivitätsliste: nach Level absteigend, mit Level-Spanne
+-- Aktivitätsliste: nach Level aufsteigend, mit Level-Spanne
 local activityEntries = parts.activityDropdown.entriesFn()
 expect("Alle zuerst", activityEntries[1].key, 0)
-expect("höchste Spanne zuerst", activityEntries[2].key, 902)
-expectTrue("Spanne im Text", activityEntries[2].text:find("(40 - 47)", 1, true) ~= nil)
-expect("dann nach Maximum", activityEntries[3].key, 901)
-expect("niedrigste zuletzt", activityEntries[4].key, 900)
+expect("niedrigste Spanne zuerst", activityEntries[2].key, 900)
+expect("dann nach Mindestlevel", activityEntries[3].key, 901)
+expect("höchste zuletzt", activityEntries[4].key, 902)
+expectTrue("Spanne im Text", activityEntries[4].text:find("(40 - 47)", 1, true) ~= nil)
 expect("Ergebnisse: drei Zeilen", parts.rows[3]:IsShown(), true)
 expect("Zeile 3 leer", parts.rows[4]:IsShown(), false)
 expect("neueste Gruppe zuerst", parts.rows[1].resultID, 9)
@@ -117,6 +146,54 @@ click(parts.kindButton)
 expect("nur Einzelspieler: Gruppe 7 weg", parts.rows[3]:IsShown(), false)
 click(parts.kindButton)
 
+-- Mit Treffern schließen und wieder öffnen (LT-309: die Titel-Farbe warf hier, das Fenster blieb zu)
+LFGWindow.Hide()
+click(minimapButton)
+expect("mit Treffern wieder offen", LFGWindow.IsShown(), true)
+expectTrue("Titel-Farbe gesetzt", parts.rows[1].title._textColor[3] ~= nil)
+
+-- Layout: jede Filterzeile hängt an der Unterkante der vorigen, die Kopfzeile unter der letzten
+local function anchorOf(frame)
+  local point, relative, relativePoint, x, y = unpack(frame._points[#frame._points])
+  return { point = point, relative = relative, relativePoint = relativePoint, x = x or 0, y = y or 0 }
+end
+local fitAnchor = anchorOf(parts.fitCheck)
+-- parts.categoryDropdown ist die des Reiters Eigene Gruppe; die Aktivität hängt rechts an der Kategorie der Suche
+expectTrue("Passend unter der Kategorie", fitAnchor.relative == anchorOf(parts.activityDropdown).relative
+  and fitAnchor.relativePoint == "BOTTOMLEFT" and fitAnchor.y < 0)
+local moreAnchor = anchorOf(parts.moreButton)
+expectTrue("Weitere Filter unter Suchen", moreAnchor.relative == parts.searchButton and moreAnchor.y < 0)
+local panelAnchor = anchorOf(parts.morePanel)
+expectTrue("Filterbereich unter Weitere Filter", panelAnchor.relative == parts.moreButton
+  and panelAnchor.relativePoint == "BOTTOMRIGHT" and panelAnchor.y < 0)
+local headerAnchor = anchorOf(parts.header)
+expectTrue("Kopf unter dem Filterbereich", headerAnchor.relative == parts.morePanel
+  and headerAnchor.relativePoint == "BOTTOMRIGHT" and headerAnchor.y < 0)
+-- Viele Sprachen: Chips brechen um, bleiben in der Breite, Gruppenart liegt unter der letzten Chip-Zeile
+wow.state.lfgLanguages.available = { "enUS", "deDE", "frFR", "esES", "ruRU", "ptBR", "itIT", "koKR", "zhCN", "zhTW",
+  "esMX", "ptPT", "enGB", "nlNL" }
+LFGWindow.Refresh()
+local filterWidth = LFGWindow.WIDTH - 2 * LFGWindow.PAD
+local lowest, wrapped = 0, false
+for _, chip in ipairs(parts.languageChips) do
+  local anchor = anchorOf(chip)
+  expectTrue("Chip in der Breite", anchor.x + chip:GetWidth() <= filterWidth)
+  expectTrue("Chip rechts der Beschriftung", anchor.x >= parts.languageLabel:GetStringWidth())
+  wrapped = wrapped or anchor.y < 0
+  lowest = math.min(lowest, anchor.y - chip:GetHeight())
+end
+expect("Chips brechen um", wrapped, true)
+local kindAnchor = anchorOf(parts.kindButton)
+expectTrue("Gruppenart unter den Chips", kindAnchor.relative == parts.morePanel and kindAnchor.y < lowest)
+expectTrue("Bereich umfasst die Gruppenart", parts.morePanel:GetHeight() >= -kindAnchor.y + LFGWindow.CONTROL_HEIGHT)
+expectTrue("Aufgelöste neben der Gruppenart", anchorOf(parts.delistedCheck).relative == parts.kindButton)
+wow.state.lfgLanguages.available = { "enUS", "deDE" }
+click(parts.moreButton)
+headerAnchor = anchorOf(parts.header)
+expectTrue("zugeklappt: Kopf unter Weitere Filter", headerAnchor.relative == parts.moreButton and headerAnchor.y < 0)
+expect("zugeklappt: Bereich weg", parts.morePanel:IsShown(), false)
+click(parts.moreButton)
+
 -- Detail: Mitglieder, Quest, Aktionen
 parts.rows[3]._scripts.OnClick(parts.rows[3], "LeftButton")
 expect("Gruppe gewählt", LFGWindow.State().selected, 7)
@@ -144,10 +221,10 @@ expect("Liste nur mit passender Aktivität", parts.activityRows[1].activityID, 9
 expect("Liste: zweite Zeile leer", parts.activityRows[2]:IsShown(), false)
 parts.allLevelsCheck:SetChecked(true)
 parts.allLevelsCheck._scripts.OnClick(parts.allLevelsCheck)
-expect("Alle Stufen: höchste Spanne zuerst", parts.activityRows[1].activityID, 902)
-expect("Alle Stufen: Spanne rechts", parts.activityRows[1].level:GetText(), "(40 - 47)")
-expect("Alle Stufen: drei Zeilen", parts.activityRows[3].activityID, 900)
-parts.activityRows[3]._scripts.OnClick(parts.activityRows[3], "LeftButton")
+expect("Alle Stufen: niedrigste Spanne zuerst", parts.activityRows[1].activityID, 900)
+expect("Alle Stufen: Spanne rechts", parts.activityRows[3].level:GetText(), "(40 - 47)")
+expect("Alle Stufen: drei Zeilen", parts.activityRows[3].activityID, 902)
+parts.activityRows[1]._scripts.OnClick(parts.activityRows[1], "LeftButton")
 expect("Aktivität gewählt", LFGWindow.State().listingActivities[900], true)
 expect("ohne Spielstil kein Eintragen", parts.postButton:IsEnabled(), false)
 parts.playstyleDropdown.pick(1)
@@ -211,7 +288,4 @@ expect("Seitenfenster nur im Reiter Suchen", parts.detail:IsShown(), false)
 click(parts.backButton)
 expect("Zurück öffnet die Suche", LFGWindow.State().tab, 2)
 
--- Ausschalten schließt das Fenster
-addon.Set("lfgWindow", false)
-expect("ausgeschaltet schließt", LFGWindow.IsShown(), false)
 expect("keine Lua-Fehler", #wow.errors, 0)

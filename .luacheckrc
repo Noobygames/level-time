@@ -83,7 +83,7 @@ read_globals = {
   "IsResting", "issecretvalue", "IsShiftKeyDown", "IsSpellKnown", "IsSwimming", "IsTradeskillTrainer",
   "IsXPUserDisabled", "Item", "ITEM_QUALITY_COLORS", "ItemRefTooltip", "LE_PARTY_CATEGORY_INSTANCE",
   "LevelUpDisplay", "GetGeneralPlaystyleString", "LFGBrowseSearchEntry_Update", "LFGBrowseSearchEntryTooltip", "LFGBrowseSearchEntryTooltip_UpdateAndShow", "LFGInvitePopup",
-  "LFGListUtil_SetSearchEntryTooltip", "LFGParentFrame", "LFGVanilla_ShowFrame", "LibStub", "LoadAddOn", "LOCALIZED_CLASS_NAMES_MALE", "Logout", "LootSlot",
+  "LFGListUtil_SetSearchEntryTooltip", "LFGParentFrame", "LFGVanilla_ShowFrame", "LibStub", "PanelTemplates_SetNumTabs", "PanelTemplates_SetTab", "PanelTemplates_TabResize", "LoadAddOn", "LOCALIZED_CLASS_NAMES_MALE", "Logout", "LootSlot",
   "LOSS_OF_CONTROL_DISPLAY_STUN", "MailFrame", "MAX_BATTLEFIELD_QUEUES", "MAX_BOSS_FRAMES", "MAX_NUM_QUESTS",
   "MAX_QUESTS", "Menu", "MerchantFrame", "Minimap", "Minimap_ZoomIn", "Minimap_ZoomOut", "MinimapBackdrop", "MinimapCluster",
   "MinimapZoomIn", "MinimapZoomOut", "MovieFrame", "MuteSoundFile", "NO", "NotifyInspect", "NUM_BAG_SLOTS",

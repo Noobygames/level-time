@@ -1,6 +1,6 @@
 -- Optionen, Reiter Gruppensuche (nur WoW Forever): Zusatzinfos im Tooltip von Blizzards Gruppensuche, der
--- Sprachfilter und das eigene Fenster. Die Logik steht in Assist/LFGTooltip.lua, Assist/LFGLanguages.lua und
--- Assist/LFGSearch.lua (Fenster: UI/LFGWindow.lua).
+-- Sprachfilter und das Minikarten-Icon des eigenen Fensters. Die Logik steht in Assist/LFGTooltip.lua,
+-- Assist/LFGLanguages.lua und Assist/LFGSearch.lua (Fenster: UI/LFGWindow.lua, Einstiege: UI/LFGWindowLaunchers.lua).
 local _, ns = ...
 if not ns.Client.IsForever() then return end
 local O = ns.OptionsCore
@@ -27,5 +27,5 @@ end
 addToggles(languageToggles)
 addButton("LFG_LANGUAGES_RESTORE", function() ns.LFGLanguages.Restore() end)
 addSection("SECTION_LFG_WINDOW")
-addToggles({ toggle("LFG_WINDOW_TOGGLE", "lfgWindow", ns.LFGSearch.IsAvailable) })
+addToggles({ toggle("LFG_WINDOW_TOGGLE", "lfgMinimapButton", ns.LFGSearch.IsAvailable) })
 finishPage()

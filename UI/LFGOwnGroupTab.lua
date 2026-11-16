@@ -1,7 +1,7 @@
 -- Reiter Eigene Gruppe des Gruppensuche-Fensters (UI/LFGWindow.lua), aufgebaut wie Blizzards Eintragsfenster
 -- (Blizzard_LFGVanilla_Listing.xml): runde Rollenknöpfe mit Haken (Tank, Heiler, Schaden) und Einsteigerfreundlich-Knopf
 -- (Anführer-Symbol), Spielstil-Auswahl, "Alle Stufen anzeigen", Kategorie, Aktivitätsliste mit Haken und Level-Spanne
--- (nach Level absteigend), Voicechat, Zurück / Austragen / Eintragen. Mehrfachauswahl wie bei Blizzard.
+-- (nach Level aufsteigend), Voicechat, Zurück / Austragen / Eintragen. Mehrfachauswahl wie bei Blizzard.
 -- Den Kommentar kann nur Blizzards gesichertes Eingabefeld setzen; ein eigenes Feld würde nicht gelesen.
 -- Eintragen läuft nur aus dem Klick des eigenen Knopfs (Hardware-Ereignis, kein Taint).
 local _, ns = ...
@@ -182,7 +182,7 @@ local function levelFont(activity)
     or ((activity.minLevel ~= 0 and activity.minLevel > level) and FONT_DIFFICULT) or "GameFontNormal"
 end
 
--- Sichtbare Aktivitäten: nach Level absteigend; ohne "Alle Stufen" nur passende und bereits gewählte
+-- Sichtbare Aktivitäten: nach Level aufsteigend; ohne "Alle Stufen" nur passende und bereits gewählte
 local function visibleActivities()
   local list = state.listingCategoryID and LFGSearch.Activities(state.listingCategoryID) or {}
   if state.showAllLevels then return list end

@@ -192,7 +192,13 @@ local frameMethods = {
   SetBackdropColor = function(self, r, g, b, a) self._backdropColor = { r, g, b, a } end,
   SetBackdropBorderColor = function(self, r, g, b, a) self._borderColor = { r, g, b, a } end,
   SetColorTexture = function(self, r, g, b, a) self._colorTexture = { r, g, b, a or 1 } end,
-  SetTextColor = function(self, r, g, b, a) self._textColor = { r, g, b, a or 1 } end,
+  -- Wie im Client: drei Zahlen (oder ein Farbobjekt), sonst Fehler (z.B. "x and RGB() or RGB()" liefert nur eine Zahl)
+  SetTextColor = function(self, r, g, b, a)
+    if type(r) ~= "table" and not (type(r) == "number" and type(g) == "number" and type(b) == "number") then
+      error("bad argument #1 to 'SetTextColor' (Usage: self:SetTextColor(color [, a]))", 2)
+    end
+    self._textColor = { r, g, b, a or 1 }
+  end,
   -- Anker werden nur gemerkt (frame._points), nicht ausgewertet
   SetPoint = function(self, ...) table.insert(self._points, { ... }) end,
   ClearAllPoints = function(self) self._points = {} end,

@@ -1,10 +1,11 @@
--- Eigenes Gruppensuche-Fenster statt Blizzards (Einstellung lfgWindow, aus; nur WoW Forever; Daten und Aufrufe in
--- Assist/LFGSearch.lua und Assist/LFGData.lua). Sieht aus wie Blizzards Vanilla-Stil-Gruppensuche (Blizzard_GroupFinder_
+-- Eigenes Gruppensuche-Fenster neben Blizzards (nur WoW Forever; Daten und Aufrufe in Assist/LFGSearch.lua und
+-- Assist/LFGData.lua). Blizzards Fenster bleibt unberührt; Einstiege (Minikarten-Icon, Knopf an Blizzards Fenster,
+-- /lt lfg) stehen in UI/LFGWindowLaunchers.lua. Sieht aus wie Blizzards Vanilla-Stil-Gruppensuche (Blizzard_GroupFinder_
 -- VanillaStyle): PortraitFrameTemplate, rote UIPanelButtonTemplate-Knöpfe, WowStyle1DropdownTemplate, Rollen-Atlanten
 -- und Hintergründe von Blizzard; unser Detail hängt als Seitenfenster rechts daran. Von Blizzards Mixins kommt nichts
 -- mit (die rufen geschützte Funktionen), nur Vorlagen und Atlanten. Diese Datei: Rahmen, Reiter, gemeinsamer Zustand und
 -- Hilfen. Die Reiter melden sich mit LFGWindow.RegisterTab an: UI/LFGSearchTab.lua (Suchen) und UI/LFGOwnGroupTab.lua
--- (Eigene Gruppe); das Ersetzen von Blizzards Fenster steht in Assist/LFGWindowHook.lua.
+-- (Eigene Gruppe). Scheitert der Aufbau beim Öffnen, öffnet Blizzards Fenster (der Spieler bleibt nie ohne Gruppensuche).
 -- Suche, Einladen und Eintragen laufen nur aus dem Klick eines eigenen Knopfs (Hardware-Ereignis, kein Taint).
 local _, ns = ...
 if not ns.Client.IsForever() then return end
@@ -18,7 +19,7 @@ ns.LFGWindow = LFGWindow
 
 local WIDTH, HEIGHT = 480, 600
 local PAD = 16
-local TAB_GAP = 8
+local TAB_X, TAB_Y = 19, 2  -- erster Reiter unter dem Rahmen wie bei Blizzards PVEFrame
 local MENU_HEIGHT = 300          -- Höhe der Auswahllisten, danach Bildlauf
 local PORTRAIT = "Interface\\ICONS\\INV_SideTab_GroupFinder_c60"  -- wie Blizzards Reiter Eigener Eintrag
 LFGWindow.PAD = PAD
@@ -61,15 +62,20 @@ panel:Hide()
 table.insert(UISpecialFrames, panelName)  -- mit Esc schließen
 LFGWindow.panel = panel
 
--- Reiter hängen wie bei Blizzards Fenstern unter dem Rahmen
+-- Blizzards Reiter (PanelTabButtonTemplate) unter dem Rahmen; Reihenfolge = Index in panel.Tabs = Reiter-ID
 local tabs = {}
 local function newTab(id, key)
-  local tab = Widgets.CreateTab(panel, "GameFontNormal", function() LFGWindow.SetTab(id) end)
-  tab.id, tab.labelKey = id, key
+  local tab = CreateFrame("Button", panelName .. "Tab" .. id, panel, "PanelTabButtonTemplate")
+  tab:SetID(id)
+  tab.labelKey = key
+  tab:SetScript("OnClick", function() LFGWindow.SetTab(id) end)
   tabs[id] = tab
 end
-newTab(TAB_SEARCH, "LFG_TAB_SEARCH")
 newTab(TAB_LISTING, "LFG_TAB_LISTING")
+newTab(TAB_SEARCH, "LFG_TAB_SEARCH")
+tabs[1]:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", TAB_X, TAB_Y)
+PanelTemplates_SetNumTabs(panel, #tabs)  -- reiht die weiteren Reiter an den ersten
+parts.tabs = tabs
 
 local function newContainer()
   local frame = CreateFrame("Frame", nil, panel)
@@ -172,16 +178,11 @@ function LFGWindow.RegisterTab(id, refresh) tabModules[id] = refresh end
 ---------------------------------------------------------------------------
 function LFGWindow.Refresh()
   if panel.SetTitle then panel:SetTitle(L.LFG_WIN_TITLE) end
-  local previous
-  for _, id in ipairs({ TAB_LISTING, TAB_SEARCH }) do
-    local tab = tabs[id]
-    tab:SetLabel(L[tab.labelKey])
-    tab:SetActive(id == state.tab)
-    tab:ClearAllPoints()
-    tab:SetPoint("TOPLEFT", previous or panel, previous and "TOPRIGHT" or "BOTTOMLEFT", previous and TAB_GAP or PAD,
-      previous and 0 or 2)
-    previous = tab
+  for _, tab in ipairs(tabs) do
+    tab:SetText(L[tab.labelKey])
+    PanelTemplates_TabResize(tab)
   end
+  PanelTemplates_SetTab(panel, state.tab)
   LFGWindow.searchContainer:SetShown(state.tab == TAB_SEARCH)
   LFGWindow.listingContainer:SetShown(state.tab == TAB_LISTING)
   if parts.detail and state.tab ~= TAB_SEARCH then parts.detail:Hide() end  -- Seitenfenster gehört zur Suche
@@ -193,11 +194,23 @@ function LFGWindow.SetTab(id)
   LFGWindow.Refresh()
 end
 
+-- Öffnet das Fenster (tab: TAB_SEARCH oder TAB_LISTING, sonst der zuletzt gewählte). Scheitert der Aufbau, bleibt
+-- unser Fenster zu und Blizzards Gruppensuche öffnet stattdessen.
 function LFGWindow.Show(tab)
-  if not LFGSearch.IsEnabled() then return end
-  state.tab = tab == TAB_LISTING and TAB_LISTING or (tab == TAB_SEARCH and TAB_SEARCH or state.tab)
-  LFGWindow.Refresh()
-  panel:Show()
+  if not LFGSearch.IsAvailable() then return end
+  if tab == TAB_LISTING or tab == TAB_SEARCH then state.tab = tab end
+  local ok, err = pcall(LFGWindow.Refresh)
+  if ok then
+    panel:Show()
+    return
+  end
+  panel:Hide()
+  ns.Debug("lfg", "own group finder failed, opening Blizzard's: %s", tostring(err))
+  if LFGVanilla_ShowFrame then LFGVanilla_ShowFrame(tab) end
+end
+
+function LFGWindow.Toggle()
+  if panel:IsShown() then panel:Hide() else LFGWindow.Show() end
 end
 
 function LFGWindow.Hide() panel:Hide() end
@@ -208,12 +221,10 @@ function LFGWindow.Parts() return parts end
 ns.Frames.Register({
   id = "lfgWindow", frame = panel, label = "EDIT_FRAME_LFG", default = { "CENTER", "CENTER", 0, 20 },
   settingsPage = "OPTIONS_TAB_LFG", available = LFGSearch.IsAvailable,
-  hide = function() ns.Set("lfgWindow", false) end,
 })
 
 ns.RegisterApply(function()
-  if not panel:IsShown() then return end
-  if LFGSearch.IsEnabled() then LFGWindow.Refresh() else panel:Hide() end
+  if panel:IsShown() then LFGWindow.Refresh() end
 end)
 
 ns.RegisterEvent("GROUP_ROSTER_UPDATE", function()

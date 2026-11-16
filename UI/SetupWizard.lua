@@ -78,7 +78,7 @@ local STEPS = {
   } },
   { id = "dungeons", icon = ICON .. "INV_Misc_Key_05", title = "SETUP_STEP_DUNGEONS", text = "SETUP_STEP_DUNGEONS_TEXT", toggles = {
     { label = "LFG_TOOLTIP_TOGGLE", keys = { "lfgTooltip" }, available = available("LFGData", "IsAvailable") },
-    { label = "LFG_WINDOW_TOGGLE", keys = { "lfgWindow" }, available = available("LFGSearch", "IsAvailable") },
+    { label = "LFG_WINDOW_TOGGLE", keys = { "lfgMinimapButton" }, available = available("LFGSearch", "IsAvailable") },
     { label = "BOSS_LOOT_TOGGLE", keys = { "bossLoot" }, available = available("BossLoot", "IsAvailable") },
     { label = "TOOLTIP_MECHANICS_TOGGLE", keys = { "tooltipMechanics" }, available = available("MechanicTips", "IsAvailable") },
   } },

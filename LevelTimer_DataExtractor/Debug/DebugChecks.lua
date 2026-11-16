@@ -1766,8 +1766,8 @@ check("LT271.lfg.languages", function()
     backup = plain(ns.db.lfgLanguageBackup), region = call("GetCurrentRegionName"), canChange = call("LFGListCanChangeLanguages") }
 end)
 
--- LT-272: Eigenes Gruppensuche-Fenster. Über welche Funktion öffnet Forever Blizzards Fenster (Hook), ist es nach dem
--- Ersetzen zu, existieren die APIs, die das Fenster braucht, und wie sehen Kategorien/Aktivitäten/Rollen aus?
+-- LT-272: Eigenes Gruppensuche-Fenster. Welche Funktionen von Blizzards Fenster gibt es, ist es offen, existieren
+-- die APIs, die das Fenster braucht, und wie sehen Kategorien/Aktivitäten/Rollen aus?
 check("LT272.lfg.window", function()
   local functions = {}
   for _, name in ipairs({ "LFGVanilla_ShowFrame", "LFGVanilla_ToggleFrame", "ToggleGroupFinderFrame", "LFGParentFrame_SearchActiveEntry",
@@ -1790,7 +1790,9 @@ check("LT272.lfg.window", function()
       and type(ns.LFGWindow.Parts().categoryDropdown.SetupMenu) == "function",
     playstyles = Enum and Enum.LFGEntryGeneralPlaystyle ~= nil, voiceModes = Enum and Enum.LFGEntryVoiceMode ~= nil,
     playstyleText = GetGeneralPlaystyleString ~= nil }
-  return { enabled = ns.LFGSearch.IsEnabled() == true, look = look,
+  -- LT-309: Einstiege statt Ersetzen (Minikarten-Icon, Knopf an Blizzards Fenster)
+  return { minimapButton = ns.db.lfgMinimapButton == true, look = look,
+    blizzardButton = ns.LFGWindow ~= nil and ns.LFGWindow.blizzardButton ~= nil,
     functions = functions, api = apis, categories = table.concat(categories, ","),
     roles = fieldsOf(roles), parentShown = LFGParentFrame and LFGParentFrame:IsShown() or false,
     windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false, chatTell = ChatFrameUtil and ChatFrameUtil.SendTell ~= nil }

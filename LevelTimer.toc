@@ -333,7 +333,6 @@ UI\InstanceRunWindow.lua
 UI\LFGWindow.lua
 UI\LFGSearchTab.lua
 UI\LFGOwnGroupTab.lua
-Assist\LFGWindowHook.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua
@@ -344,6 +343,7 @@ UI\SpellHistory.lua
 UI\StreamMode.lua
 Lib\MinimapButton.lua
 UI\MinimapButton.lua
+UI\LFGWindowLaunchers.lua
 UI\Broker.lua
 UI\Options\Core.lua
 UI\Options\General.lua
