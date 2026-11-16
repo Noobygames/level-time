@@ -30,6 +30,11 @@ local MAX_STRING_LENGTH = 300  -- lange Texte (Chatzeilen, Aufrufstapel) werden 
 local MAX_TABLE_DEPTH = 7      -- Eintrag > result > Liste > Struktur > Felder; tiefer wird nicht ausgeschrieben
 local MAX_TABLE_ITEMS = 40
 DebugLog.MAX_TABLE_ITEMS = MAX_TABLE_ITEMS  -- längere Listen teilen Prüfungen selbst auf (DebugChecks.lua)
+-- Werte je Eintrag: Tiefe und Breite allein erlauben 40^7 Werte, große Ergebnisse brachen mit "script ran too long" ab
+DebugLog.MAX_ENTRY_VALUES = 2000
+local MAX_SORTED_KEYS = 500    -- größere Tabellen ohne Sortierung (tausende Schlüssel sortieren ist zu teuer)
+local TRUNCATED = "<truncated>"
+DebugLog.TRUNCATED = TRUNCATED
 local SECRET = "<secret>"
 local NULL = {}                -- Platzhalter für nil in Listen (JSON null), damit Lücken die Liste nicht abschneiden
 
@@ -45,27 +50,36 @@ local function jsonString(text)
   end) .. '"'
 end
 
-local function isArray(value)
+-- Anzahl der Einträge und ob die Tabelle eine lückenlose Liste ist
+local function countEntries(value)
   local count = 0
   for _ in pairs(value) do count = count + 1 end
-  return count == #value
+  return count, count == #value
 end
 
 local encode
+local budget = 0  -- verbleibende Werte des laufenden Eintrags (encode ohne depth setzt zurück)
 
 local function encodeTable(value, depth)
   if depth > MAX_TABLE_DEPTH then return '"<table>"' end
   local parts = {}
-  if isArray(value) then
-    for i = 1, math.min(#value, MAX_TABLE_ITEMS) do
+  local count, array = countEntries(value)
+  if array then
+    for i = 1, math.min(count, MAX_TABLE_ITEMS) do
+      if budget <= 0 then parts[#parts + 1] = jsonString(TRUNCATED) break end
       parts[#parts + 1] = encode(value[i], depth + 1)
     end
     return "[" .. table.concat(parts, ",") .. "]"
   end
+  local sorted = count <= MAX_SORTED_KEYS
   local keys = {}
-  for key in pairs(value) do keys[#keys + 1] = tostring(key) end
-  table.sort(keys)
+  for key in pairs(value) do
+    keys[#keys + 1] = tostring(key)
+    if not sorted and #keys >= MAX_TABLE_ITEMS then break end
+  end
+  if sorted then table.sort(keys) end
   for i = 1, math.min(#keys, MAX_TABLE_ITEMS) do
+    if budget <= 0 then parts[#parts + 1] = jsonString(TRUNCATED) .. ":true" break end
     local key = keys[i]
     local item = value[key]
     if item == nil then item = value[tonumber(key)] end
@@ -75,6 +89,8 @@ local function encodeTable(value, depth)
 end
 
 encode = function(value, depth)
+  if not depth then budget = DebugLog.MAX_ENTRY_VALUES end
+  budget = budget - 1
   if ns.IsSecret(value) then return jsonString(SECRET) end
   if value == NULL then return "null" end
   local kind = type(value)
@@ -196,24 +212,57 @@ local function writeHeader(reason)
   for _, writer in ipairs(headerWriters) do ns.SafeCall(writer, reason) end
 end
 
--- Alle Prüfungen ausführen und ins Log schreiben; Rückgabe: Anzahl, davon mit Fehler
-function DebugLog.RunChecks()
+-- Eine Prüfung ausführen und schreiben; false bei Fehler (auch beim Ausschreiben des Ergebnisses)
+local function runCheck(check)
+  local results = pack(pcall(check.run))
+  local entry = { area = "check", name = check.name }
+  if results[1] then
+    table.remove(results, 1)
+    entry.result = results
+  else
+    entry.error = tostring(results[2])
+  end
+  local written, writeError = pcall(write, entry)
+  if not written then
+    write({ area = "check", name = check.name, error = tostring(writeError) })
+    return false
+  end
+  return results[1] == true
+end
+
+-- Alle Prüfungen in einem Bild liefen in WoWs Zeitlimit ("script ran too long"): je Bild höchstens SLICE_MS
+-- Rechenzeit, dann im nächsten Bild weiter (C_Timer.After(0))
+DebugLog.SLICE_MS = 8
+local run  -- laufender Durchgang { index, failed, onDone }
+
+local function runSlice()
+  local started = debugprofilestop()
+  while run.index <= #checks do
+    if not runCheck(checks[run.index]) then run.failed = run.failed + 1 end
+    run.index = run.index + 1
+    if run.index <= #checks and debugprofilestop() - started >= DebugLog.SLICE_MS then
+      C_Timer.After(0, runSlice)
+      return
+    end
+  end
+  local finished = run
+  run = nil
+  if finished.onDone then finished.onDone(#checks, finished.failed) end
+end
+
+function DebugLog.IsRunning()
+  return run ~= nil
+end
+
+-- Alle Prüfungen ausführen und ins Log schreiben, über mehrere Bilder verteilt; danach onDone(Anzahl, davon mit
+-- Fehler). false, wenn schon ein Durchgang läuft
+function DebugLog.RunChecks(onDone)
+  if run then return false end
   writeHeader("check")
   if store then store.lastCheckRun = date("%Y-%m-%d %H:%M") end  -- für die Erinnerung (CheckReminders.lua)
-  local failed = 0
-  for _, check in ipairs(checks) do
-    local results = pack(pcall(check.run))
-    local entry = { area = "check", name = check.name }
-    if results[1] then
-      table.remove(results, 1)
-      entry.result = results
-    else
-      failed = failed + 1
-      entry.error = tostring(results[2])
-    end
-    write(entry)
-  end
-  return #checks, failed
+  run = { index = 1, failed = 0, onDone = onDone }
+  runSlice()
+  return true
 end
 
 ---------------------------------------------------------------------------
@@ -316,6 +365,8 @@ end
 
 -- /lt debug check
 function DebugLog.CheckCommand()
-  local count, failed = DebugLog.RunChecks()
-  feedback(string.format(L.DEBUG_CHECK_DONE, count, failed))
+  local started = DebugLog.RunChecks(function(count, failed)
+    feedback(string.format(L.DEBUG_CHECK_DONE, count, failed))
+  end)
+  if not started then feedback(L.DEBUG_CHECK_RUNNING) end
 end

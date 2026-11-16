@@ -34,8 +34,9 @@ for i = 1, 9 do
   end)
 end
 
+-- Override-Bindings sind geschützt: in der Kampfsperre (InCombatLockdown) blockiert WoW sie (ADDON_ACTION_BLOCKED)
 local function setBindings()
-  if bindingsActive then return end
+  if bindingsActive or InCombatLockdown() then return end
   if not SetOverrideBindingClick then return end
   SetOverrideBindingClick(ownerFrame, true, "SPACE", "LevelTimerDialogKeySpaceButton")
   for i = 1, 9 do
@@ -44,12 +45,12 @@ local function setBindings()
   bindingsActive = true
 end
 
+-- Nur gesetzte Bindings lösen (Kampfbeginn hat sie schon gelöst); in der Kampfsperre erst nach dem Kampf
 local function clearBindings()
-  if ClearOverrideBindings and ownerFrame then
-    ClearOverrideBindings(ownerFrame)
-  end
-  bindingsActive = false
   dialogOpen = nil
+  if not bindingsActive or InCombatLockdown() then return end
+  if ClearOverrideBindings then ClearOverrideBindings(ownerFrame) end
+  bindingsActive = false
 end
 
 local function isBlocked()
@@ -239,6 +240,11 @@ end)
 
 ns.RegisterEvent("PLAYER_REGEN_DISABLED", function()
   clearBindings()
+end)
+
+-- In der Kampfsperre liegen gebliebene Bindings nachholen
+ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
+  if not dialogOpen then clearBindings() end
 end)
 
 ns.RegisterApply(function(db)

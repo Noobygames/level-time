@@ -142,11 +142,17 @@ FACTION_STANDING_INCREASED_GENERIC = "Euer Ruf bei der Fraktion '%s' hat sich ve
 function GetCurrentKeyBoardFocus() return wow.focus end
 
 wow.overrideBindings = {}
+-- Geschützt wie im Client: in der Kampfsperre ADDON_ACTION_BLOCKED (hier als Fehler, den die Tests sehen)
+local function protected(name)
+  if wow.state.combatLockdown then error("ADDON_ACTION_BLOCKED: " .. name .. " in combat") end
+end
 function SetOverrideBindingClick(owner, _, key, buttonName, mouseClick)
+  protected("SetOverrideBindingClick")
   wow.overrideBindings[owner] = wow.overrideBindings[owner] or {}
   wow.overrideBindings[owner][key] = { buttonName = buttonName, mouseClick = mouseClick or "LeftButton" }
 end
 function ClearOverrideBindings(owner)
+  protected("ClearOverrideBindings")
   if owner then
     wow.overrideBindings[owner] = nil
   else

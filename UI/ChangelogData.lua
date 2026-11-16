@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-16",
     entries = {
+      { kind = "fix",
+        deDE = "Die Dialogtasten lösen im Kampf keine Meldung über eine blockierte Aktion mehr aus, wenn du die Einstellung änderst.",
+        enUS = "The dialog keys no longer trigger a blocked action warning in combat when you change the setting.",
+        frFR = "Les touches de dialogue ne provoquent plus d'avertissement d'action bloquée en combat quand vous modifiez le réglage.",
+        esES = "Las teclas de diálogo ya no provocan un aviso de acción bloqueada en combate al cambiar el ajuste." },
       { kind = "change",
         deDE = "Einrichtungsassistent, Routen-Checkliste und Dungeonquest-Hinweis zeigen jetzt Symbole aus dem Spiel neben ihren Titeln.",
         enUS = "The setup assistant, route checklist and dungeon quest hint now show in-game icons next to their titles.",

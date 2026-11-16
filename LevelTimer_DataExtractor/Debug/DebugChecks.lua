@@ -1152,8 +1152,11 @@ end)
 
 -- LT-267: Kampflog-Abruf in WoW Forever 1.60.1 laut Doku weg (forever CombatLogDocumentation.lua); feuert
 -- COMBAT_LOG_EVENT_UNFILTERED trotzdem, ist das Kampflog gesperrt, und welche Quelle nutzt jede Funktion?
-local combatLogEvents = { count = 0 }
-X.On("COMBAT_LOG_EVENT_UNFILTERED", function() combatLogEvents.count = combatLogEvents.count + 1 end)
+-- Ohne Abruf ist schon das Anmelden des Events verboten (Forever: ADDON_ACTION_FORBIDDEN, BugGrabber 2026-11-16).
+local combatLogEvents = { count = ns.Client.CombatLogEventInfo and 0 or "forbidden" }
+if ns.Client.CombatLogEventInfo then
+  X.On("COMBAT_LOG_EVENT_UNFILTERED", function() combatLogEvents.count = combatLogEvents.count + 1 end)
+end
 check("LT267.combatlog.api", function()
   local restricted
   if C_CombatLog and C_CombatLog.IsCombatLogRestricted then

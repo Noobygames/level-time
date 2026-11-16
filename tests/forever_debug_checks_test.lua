@@ -55,3 +55,9 @@ expectTrue("Suchergebnis-Probe", hasLine('"event":"lfg.results"') ~= nil)
 LFGBrowseSearchEntryTooltip_UpdateAndShow(LFGBrowseSearchEntryTooltip, 7)
 expectTrue("Überfahren-Probe", hasLine('"event":"lfg.hover"') ~= nil and hasLine('"variant":"classic"') ~= nil)
 expect("keine Lua-Fehler bei der Gruppensuche", #wow.errors, 0)
+
+-- Ohne Kampflog-Abruf (Forever) meldet niemand COMBAT_LOG_EVENT_UNFILTERED an: das Anmelden ist dort verboten
+-- (ADDON_ACTION_FORBIDDEN, LT-316)
+expect("kein Kampflog-Event angemeldet", wow.findFrame(function(frame)
+  return frame._events.COMBAT_LOG_EVENT_UNFILTERED ~= nil
+end), nil)

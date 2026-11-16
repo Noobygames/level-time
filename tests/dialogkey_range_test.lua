@@ -140,7 +140,23 @@ expect("dialogOpen reset on combat", DialogKey.GetDialogOpen(), nil)
 expectTrue("bindings cleared on combat", wow.overrideBindings[DialogKey.ownerFrame] == nil)
 expect("PressSpace blocked in combat", DialogKey.PressSpace(), false)
 expect("no action in combat", lastAction(), nil)
+-- Einstellung im Kampf ändern: kein geschütztes ClearOverrideBindings in der Kampfsperre (ADDON_ACTION_BLOCKED)
+wow.state.combatLockdown = true
+addon.Set("dialogKeys", false)
+addon.Set("dialogKeys", true)
+expect("no blocked call in combat", #wow.errors, 0)
 wow.state.inCombat = false
+wow.state.combatLockdown = false
+
+-- Bindings, die beim Lösen in der Kampfsperre steckten, löst das Kampfende
+wow.fire("QUEST_DETAIL")
+wow.state.combatLockdown = true
+wow.fire("QUEST_FINISHED")
+expectTrue("bindings kept during lockdown", wow.overrideBindings[DialogKey.ownerFrame] ~= nil)
+wow.state.combatLockdown = false
+wow.fire("PLAYER_REGEN_ENABLED")
+expectTrue("bindings cleared after combat", wow.overrideBindings[DialogKey.ownerFrame] == nil)
+expect("no blocked call after combat", #wow.errors, 0)
 
 -- Shift-Taste und Tastaturfokus blockieren Tastendruck
 wow.fire("QUEST_DETAIL")
