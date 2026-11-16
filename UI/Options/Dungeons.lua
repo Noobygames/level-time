@@ -16,6 +16,7 @@ if ns.DungeonQuests.IsAvailable() then
   addToggles({
     toggle("DUNGEON_QUEST_ZONE_HINT_TOGGLE", "dungeonQuestZoneHint"),
     toggle("DUNGEON_QUEST_ACCEPT_HINT_TOGGLE", "dungeonQuestAcceptHint"),
+    toggle("DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE", "dungeonQuestHintAutoClose"),
     toggle("INSTANCE_QUEST_CHECK_TOGGLE", "instanceQuestCheck", ns.InstanceQuestCheck.IsAvailable),
     toggle("DUNGEON_QUEST_GIVERS_TOGGLE", "dungeonQuestGivers", ns.DungeonQuestGivers.IsAvailable),
     requires(toggle("DUNGEON_QUEST_MINIMAP_TOGGLE", "dungeonQuestMinimap", ns.DungeonQuestMinimap.IsAvailable),
@@ -24,6 +25,7 @@ if ns.DungeonQuests.IsAvailable() then
       ns.DungeonQuestMinimap.IsAvailable), "dungeonQuestMinimap")),
     toggle("DUNGEON_QUEST_TAGS_TOGGLE", "dungeonQuestTags", ns.DungeonQuestTags.IsAvailable),
   })
+  addButton("DUNGEON_QUEST_HINT_SHOW", function() ns.DungeonQuestHints.Show() end)
 end
 -- Karte: Dungeon-Eingänge nur mit gepflegten Eingangsdaten (WoW Forever)
 if ns.DungeonEntrances.IsAvailable() then

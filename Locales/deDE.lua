@@ -223,7 +223,7 @@ ns.locales.deDE = {
   CMD_MINIMAP_ON = "Minimap-Knopf eingeblendet.",
   CMD_SYNC = "Spielzeit wird beim Server abgefragt …",
   CMD_SYNCED = "Spielzeit vom Server: %s gesamt, %s auf diesem Level.",
-  HELP = "/lt: Einstellungen | history: Historie | recap: Session-Zusammenfassung | newsession: neue Session | runs: Dungeon-Runs\nedit: alle Anzeigen verschieben und skalieren | show/hide: Hauptfenster | stream: Stream-Modus | setup: Einrichtungsassistent | changelog: Neuigkeiten\nAlle Befehle (Dungeons, Speedrun, Profile): /lt help all",
+  HELP = "/lt: Einstellungen | history: Historie | recap: Session-Zusammenfassung | newsession: neue Session | runs: Dungeon-Runs | dq: Dungeonquests\nedit: alle Anzeigen verschieben und skalieren | show/hide: Hauptfenster | stream: Stream-Modus | setup: Einrichtungsassistent | changelog: Neuigkeiten\nAlle Befehle (Dungeons, Speedrun, Profile): /lt help all",
   MINIMAP_HIDDEN = "Minimap-Knopf versteckt. Mit /lt minimap wieder einblenden.",
 
   -- Einstellungen
@@ -1658,7 +1658,7 @@ ns.locales.deDE = {
   SHOW_SPLIT_HEADER = "Kopfzeile",
   SHOW_SPLIT_HEADER_TIP = "Zeile „Level / Zeit / ±“ über den Splits, damit die Spalten benannt sind.",
   CHART_HIGHLIGHT_LEGEND = "laufend / heute",
-  HELP_ALL = "/lt oder /lt config: Einstellungen\nFenster: show/hide | edit (Layout bearbeiten: alle Anzeigen verschieben, skalieren) | setup (Einrichtungsassistent) | changelog (Änderungen der letzten 14 Tage) | lock/unlock (fixieren) | reset (Position, Größe aller Anzeigen, nach Rückfrage) | compact (Layout Kompakt: Zeit, XP-Balken und die gewählten Werte) | bar (Layout Leiste) | splits (Split-Liste) | stream (Stream-Modus)\nAuswertung: history | recap (Session-Zusammenfassung) | newsession | goal <Level> (off entfernt)\nDungeons: runs (Dungeon-Runs) | runs import/backup/verify/lss | report (Instanz-Bericht an die Gruppe) | resetinstance (Instanz-Daten)\nSpeedrun: compare best/pb/<Name> | split [Name]/undo/template\nRoute: route (Checkliste des besten eigenen Laufs)\nSonstiges: profile [Name/save/delete/export/import] | copy (Chat kopieren) | link (Stream-Link kopieren) | transport master (Ziel als Transportmeister merken) | sync (/played abfragen) | minimap",
+  HELP_ALL = "/lt oder /lt config: Einstellungen\nFenster: show/hide | edit (Layout bearbeiten: alle Anzeigen verschieben, skalieren) | setup (Einrichtungsassistent) | changelog (Änderungen der letzten 14 Tage) | lock/unlock (fixieren) | reset (Position, Größe aller Anzeigen, nach Rückfrage) | compact (Layout Kompakt: Zeit, XP-Balken und die gewählten Werte) | bar (Layout Leiste) | splits (Split-Liste) | stream (Stream-Modus)\nAuswertung: history | recap (Session-Zusammenfassung) | newsession | goal <Level> (off entfernt)\nDungeons: runs (Dungeon-Runs) | runs import/backup/verify/lss | report (Instanz-Bericht an die Gruppe) | resetinstance (Instanz-Daten) | dq (Dungeonquest-Hinweis erneut zeigen)\nSpeedrun: compare best/pb/<Name> | split [Name]/undo/template\nRoute: route (Checkliste des besten eigenen Laufs)\nSonstiges: profile [Name/save/delete/export/import] | copy (Chat kopieren) | link (Stream-Link kopieren) | transport master (Ziel als Transportmeister merken) | sync (/played abfragen) | minimap",
   LAYOUT_TABLE_TIP = "Jede eingeschaltete Zeile mit Bezeichnung links und Wert rechts, darüber die Reiter Level, Session und Instanz, darunter der XP-Balken.",
   LAYOUT_BAR_TIP = "Alles in einer Zeile nebeneinander, darunter der XP-Balken; passt an den Bildschirmrand (/lt bar).",
   LAYOUT_COMPACT_TIP = "Nur die Zeit, der XP-Balken und bis zu 3 gewählte Werte (Einstellungen > Layout) (/lt compact).",
@@ -2317,4 +2317,10 @@ ns.locales.deDE = {
   SETUP_SUMMARY_HELPERS = "Helfer eingeschaltet",
   SETUP_SUMMARY_VALUES = "Werte",
   SETUP_TITLE = "Level Time einrichten",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE = "Dungeonquest-Fenster nach 20 Sekunden schließen",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE_TIP = "Aus (Standard): Die Dungeonquest-Fenster bleiben stehen, bis du sie mit dem Schließen-Knopf schließt. An: Sie schließen sich nach 20 Sekunden von selbst, unter der Maus bleiben sie stehen.",
+  DUNGEON_QUEST_HINT_NONE = "Keine Dungeonquests zum Anzeigen.",
+  DUNGEON_QUEST_HINT_SHOW = "Dungeonquests anzeigen",
+  DUNGEON_QUEST_HINT_SHOW_TIP = "Zeigt das Dungeonquest-Fenster der aktuellen Zone erneut, sonst das zuletzt gezeigte (/lt dq). Auf der Karte öffnet ein Rechtsklick auf einen Dungeon-Eingang die Quests dieser Instanz.",
+  DUNGEON_ENTRANCE_RIGHT_CLICK = "Rechtsklick: offene Dungeonquests anzeigen",
 }

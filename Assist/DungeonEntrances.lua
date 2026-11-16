@@ -93,6 +93,7 @@ local function addQuestLines(tooltip, mapID)
     tooltip:AddDoubleLine(string.format("[%d] %s", quest.level, quest.title), status,
       TEXT_COLOR[1], TEXT_COLOR[2], TEXT_COLOR[3], color[1], color[2], color[3])
   end
+  tooltip:AddLine(L.DUNGEON_ENTRANCE_RIGHT_CLICK, ns.Theme.RGB("muted"))
 end
 
 local showTooltip
@@ -146,6 +147,9 @@ local layer = ns.MapPins.Create({
   points = mapPoints,
   revision = function() return ns.MapCompat.ShowsDungeonEntrances() end,
   onEnter = showTooltip,
+  onClick = function(_, point, button)  -- Rechtsklick: offene Dungeonquests der Instanz
+    if button == "RightButton" and ns.DungeonQuests.IsAvailable() then ns.DungeonQuestHints.ShowInstance(point.mapIDs[1]) end
+  end,
   mapIDs = mapIDs,
 })
 

@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-16",
     entries = {
+      { kind = "change",
+        deDE = "Dungeonquest-Fenster bleiben stehen, bis du sie schließt (Automatik optional); mit /lt dq, per Knopf in den Optionen oder Rechtsklick auf einen Dungeon-Eingang auf der Karte öffnest du sie erneut.",
+        enUS = "Dungeon quest windows now stay until you close them (auto-close is optional); reopen them with /lt dq, a button in the options or a right-click on a dungeon entrance on the map.",
+        frFR = "Les fenêtres de quêtes de donjon restent jusqu'à leur fermeture (fermeture auto en option) ; rouvrez-les avec /lt dq, un bouton dans les options ou un clic droit sur une entrée de donjon sur la carte.",
+        esES = "Las ventanas de misiones de mazmorra permanecen hasta que las cierras (cierre automático opcional); reábrelas con /lt dq, un botón en las opciones o clic derecho en la entrada de una mazmorra del mapa." },
       { kind = "new",
         deDE = "Einrichtungsassistent mit sechs Schritten statt der Willkommenskarte (erscheint einmal für alle, danach mit /lt setup), dazu die Option \"Kein Fenster\" für das Hauptfenster.",
         enUS = "Setup wizard with six steps replaces the welcome card (shown once for everyone, later via /lt setup), plus a \"No window\" option for the main window.",

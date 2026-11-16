@@ -1,6 +1,7 @@
 -- Kleines Hinweisfenster der Dungeonquests (Inhalt aus Assist/DungeonQuestHints.lua): Titel, je Quest eine Zeile
--- (Titel, darunter Geber und Ort), Schließen-Knopf; schließt nach DISPLAY_SECONDS von selbst, unter der Maus bleibt es
--- stehen. Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt, ziehbar solange nicht gesperrt).
+-- (Titel, darunter Geber und Ort), Schließen-Knopf; bleibt stehen, bis es geschlossen wird. Nur mit der Einstellung
+-- dungeonQuestHintAutoClose schließt es nach DISPLAY_SECONDS von selbst (unter der Maus bleibt es dann stehen).
+-- Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt, ziehbar solange nicht gesperrt).
 -- DungeonQuestHint.Show(title, rows), rows = { { text, detail, muted, place = { uiMapID, x, y } }, ... }.
 -- Klick auf eine Zeile mit Ort: eigener Kartenpunkt (eine Ebene über Lib/MapPins.lua, ersetzt den vorigen), wo es sie
 -- gibt zusätzlich Blizzards Wegpunkt (C_Map.CanSetUserWaypointOnMap/SetUserWaypoint mit UiMapPoint; laut Blizzard-Doku
@@ -41,6 +42,7 @@ local WAYPOINT_TEXTURE = "Interface\\Icons\\INV_Misc_Map_01"  -- Rückfall, wo d
 local rows = {}
 local rowEntries = {}  -- [Zeile] = angezeigter Eintrag
 local shownAt
+local lastShown  -- { title, entries } des zuletzt gezeigten Hinweises (erneut öffnen mit ShowLast)
 local editing = false
 local waypoint      -- { uiMapID, x, y, text } des zuletzt angeklickten Eintrags
 local waypointRevision = 0
@@ -142,10 +144,18 @@ end
 function DungeonQuestHint.Show(titleText, entries)
   if #entries == 0 then return end
   layout(titleText, entries)
+  lastShown = { title = titleText, entries = entries }
   shownAt = GetTime()
   panel:SetAlpha(1)
   panel:Show()
   ns.Debug("dungeonquests", "hint shown: %s (%s rows)", titleText, #entries)
+end
+
+-- Zuletzt gezeigten Hinweis erneut öffnen; false, wenn es noch keinen gab
+function DungeonQuestHint.ShowLast()
+  if not lastShown then return false end
+  DungeonQuestHint.Show(lastShown.title, lastShown.entries)
+  return true
 end
 
 function DungeonQuestHint.IsShown()
@@ -166,12 +176,13 @@ end
 
 local sinceRefresh = 0
 ns.SetUpdateScript(panel, "DungeonQuestHint", function(self, elapsed)
-  if editing or not shownAt then return end
+  if editing or not shownAt or not panel:IsShown() then return end
   sinceRefresh = sinceRefresh + (elapsed or 0)
   if sinceRefresh >= REFRESH_SECONDS then
     sinceRefresh = 0
     refreshDetails()
   end
+  if not (ns.db and ns.db.dungeonQuestHintAutoClose) then return end
   local age = GetTime() - shownAt
   local hold = DungeonQuestHint.DISPLAY_SECONDS
   if self:IsMouseOver() and age > hold then  -- unter der Maus bleibt es stehen

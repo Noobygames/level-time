@@ -71,10 +71,31 @@ _G[addon.GlobalName("NpcNameScanTooltip") .. "TextLeft1"] = nil
 LevelTimerStatsDB.questNpcs = { [167] = { giver = { name = "Wilder Klippenschmied" }, spots = {} } }
 expect("gelernter Name", Hints.GiverName(167), "Wilder Klippenschmied")
 
--- Schließt nach der Anzeigedauer von selbst
+-- Bleibt stehen, bis es geschlossen wird (Standard)
+expect("Auto-Schließen Standard aus", addon.db.dungeonQuestHintAutoClose, false)
+wow.advance(Hint.DISPLAY_SECONDS + 5)
+wow.update(0.1)
+expectTrue("bleibt ohne Auto-Schließen", Hint.IsShown())
+Hint.Hide()
+expectTrue("Schließen-Knopf", not Hint.IsShown())
+
+-- /lt dq: Hinweis der Zone erneut (Sturmwind), ohne Zone mit Geber der zuletzt gezeigte
+SlashCmdList.LEVELTIMER("dq")
+expectTrue("/lt dq: Zonenhinweis", Hint.IsShown())
+Hint.Hide()
+playerMap.id = 9999
+SlashCmdList.LEVELTIMER("dq")
+expectTrue("/lt dq: zuletzt gezeigter", Hint.IsShown())
+Hint.Hide()
+playerMap.id = 1453
+
+-- Mit Auto-Schließen schließt es nach der Anzeigedauer von selbst
+addon.Set("dungeonQuestHintAutoClose", true)
+Hint.Show("Test", Hints.ZoneEntries(1453))
 wow.advance(Hint.DISPLAY_SECONDS + 1)
 wow.update(0.1)
 expectTrue("schließt von selbst", not Hint.IsShown())
+addon.Set("dungeonQuestHintAutoClose", false)
 
 -- Einmal je Zone und Sitzung
 wow.fire("ZONE_CHANGED_NEW_AREA")

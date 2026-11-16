@@ -223,7 +223,7 @@ ns.locales.enUS = {
   CMD_MINIMAP_ON = "Minimap button shown.",
   CMD_SYNC = "Requesting played time from the server …",
   CMD_SYNCED = "Played time from the server: %s total, %s on this level.",
-  HELP = "/lt: settings | history | recap: session card | newsession: new session | runs: dungeon runs\nedit: move and resize all displays | show/hide: main window | stream: stream mode | setup: setup wizard | changelog: what's new\nAll commands (dungeons, speedrun, profiles): /lt help all",
+  HELP = "/lt: settings | history | recap: session card | newsession: new session | runs: dungeon runs | dq: dungeon quests\nedit: move and resize all displays | show/hide: main window | stream: stream mode | setup: setup wizard | changelog: what's new\nAll commands (dungeons, speedrun, profiles): /lt help all",
   MINIMAP_HIDDEN = "Minimap button hidden. Use /lt minimap to show it again.",
 
   -- Settings
@@ -1658,7 +1658,7 @@ ns.locales.enUS = {
   SHOW_SPLIT_HEADER = "Header row",
   SHOW_SPLIT_HEADER_TIP = "Row \"Level / Time / ±\" above the splits so the columns are named.",
   CHART_HIGHLIGHT_LEGEND = "current / today",
-  HELP_ALL = "/lt or /lt config: settings\nWindow: show/hide | edit (edit layout: move and resize all displays) | setup (setup wizard) | changelog (changes of the last 14 days) | lock/unlock | reset (position, size of all displays, after confirmation) | compact (compact layout: time, XP bar and the chosen values) | bar (bar layout) | splits (split list) | stream (stream mode)\nEvaluation: history | recap (session card) | newsession | goal <level> (off removes)\nDungeons: runs (dungeon runs) | runs import/backup/verify/lss | report (instance report to the group) | resetinstance (instance data)\nSpeedrun: compare best/pb/<name> | split [name]/undo/template\nRoute: route (checklist of your best run)\nOther: profile [name/save/delete/export/import] | copy (copy chat) | link (copy stream link) | transport master (remember target as transport master) | sync (request /played) | minimap",
+  HELP_ALL = "/lt or /lt config: settings\nWindow: show/hide | edit (edit layout: move and resize all displays) | setup (setup wizard) | changelog (changes of the last 14 days) | lock/unlock | reset (position, size of all displays, after confirmation) | compact (compact layout: time, XP bar and the chosen values) | bar (bar layout) | splits (split list) | stream (stream mode)\nEvaluation: history | recap (session card) | newsession | goal <level> (off removes)\nDungeons: runs (dungeon runs) | runs import/backup/verify/lss | report (instance report to the group) | resetinstance (instance data) | dq (show dungeon quest hint again)\nSpeedrun: compare best/pb/<name> | split [name]/undo/template\nRoute: route (checklist of your best run)\nOther: profile [name/save/delete/export/import] | copy (copy chat) | link (copy stream link) | transport master (remember target as transport master) | sync (request /played) | minimap",
   LAYOUT_TABLE_TIP = "Every enabled row with label on the left and value on the right, the Level, Session and Instance tabs above and the XP bar below.",
   LAYOUT_BAR_TIP = "Everything side by side on one line, the XP bar below; fits along a screen edge (/lt bar).",
   LAYOUT_COMPACT_TIP = "Only the time, the XP bar and up to 3 chosen values (Settings > Layout) (/lt compact).",
@@ -2317,4 +2317,10 @@ ns.locales.enUS = {
   SETUP_SUMMARY_HELPERS = "Helpers on",
   SETUP_SUMMARY_VALUES = "Values",
   SETUP_TITLE = "Set up Level Time",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE = "Close dungeon quest windows after 20 seconds",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE_TIP = "Off (default): the dungeon quest windows stay until you close them with the close button. On: they close by themselves after 20 seconds, but stay while the mouse is over them.",
+  DUNGEON_QUEST_HINT_NONE = "No dungeon quests to show.",
+  DUNGEON_QUEST_HINT_SHOW = "Show dungeon quests",
+  DUNGEON_QUEST_HINT_SHOW_TIP = "Shows the dungeon quest window of the current zone again, otherwise the last one shown (/lt dq). On the map, right-clicking a dungeon entrance opens the quests of that instance.",
+  DUNGEON_ENTRANCE_RIGHT_CLICK = "Right-click: show open dungeon quests",
 }

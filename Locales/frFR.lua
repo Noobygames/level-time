@@ -223,7 +223,7 @@ ns.locales.frFR = {
   CMD_MINIMAP_ON = "Bouton de la minicarte affiché.",
   CMD_SYNC = "Demande du temps de jeu au serveur…",
   CMD_SYNCED = "Temps de jeu du serveur : %s au total, %s à ce niveau.",
-  HELP = "/lt : réglages | history : historique | recap : carte de session | newsession : nouvelle session | runs : runs de donjon\nedit : déplacer et redimensionner tous les affichages | show/hide : fenêtre principale | stream : mode stream | setup : assistant de configuration | changelog : nouveautés\nToutes les commandes (donjons, speedrun, profils) : /lt help all",
+  HELP = "/lt : réglages | history : historique | recap : carte de session | newsession : nouvelle session | runs : runs de donjon | dq : quêtes de donjon\nedit : déplacer et redimensionner tous les affichages | show/hide : fenêtre principale | stream : mode stream | setup : assistant de configuration | changelog : nouveautés\nToutes les commandes (donjons, speedrun, profils) : /lt help all",
   MINIMAP_HIDDEN = "Bouton de la minicarte masqué. /lt minimap pour le réafficher.",
 
   -- Options
@@ -1658,7 +1658,7 @@ ns.locales.frFR = {
   SHOW_SPLIT_HEADER = "Ligne d'en-tête",
   SHOW_SPLIT_HEADER_TIP = "Ligne « Niveau / Temps / ± » au-dessus des splits pour nommer les colonnes.",
   CHART_HIGHLIGHT_LEGEND = "en cours / aujourd'hui",
-  HELP_ALL = "/lt ou /lt config : réglages\nFenêtre : show/hide | edit (modifier la disposition : déplacer et redimensionner tous les affichages) | setup (assistant de configuration) | changelog (modifications des 14 derniers jours) | lock/unlock | reset (position, taille de tous les affichages, après confirmation) | compact (disposition compacte : temps, barre d'XP et les valeurs choisies) | bar (disposition barre) | splits (liste des écarts) | stream (mode stream)\nAnalyse : history | recap (carte de session) | newsession | goal <niveau> (off retire)\nDonjons : runs (runs de donjon) | runs import/backup/verify/lss | report (rapport d'instance au groupe) | resetinstance (données d'instance)\nSpeedrun : compare best/pb/<nom> | split [nom]/undo/template\nRoute : route (liste de contrôle de votre meilleur run)\nDivers : profile [nom/save/delete/export/import] | copy (copier le chat) | link (copier le lien de stream) | transport master (retenir la cible comme maître des transports) | sync (demander /played) | minimap",
+  HELP_ALL = "/lt ou /lt config : réglages\nFenêtre : show/hide | edit (modifier la disposition : déplacer et redimensionner tous les affichages) | setup (assistant de configuration) | changelog (modifications des 14 derniers jours) | lock/unlock | reset (position, taille de tous les affichages, après confirmation) | compact (disposition compacte : temps, barre d'XP et les valeurs choisies) | bar (disposition barre) | splits (liste des écarts) | stream (mode stream)\nAnalyse : history | recap (carte de session) | newsession | goal <niveau> (off retire)\nDonjons : runs (runs de donjon) | runs import/backup/verify/lss | report (rapport d'instance au groupe) | resetinstance (données d'instance) | dq (afficher à nouveau l'aide des quêtes de donjon)\nSpeedrun : compare best/pb/<nom> | split [nom]/undo/template\nRoute : route (liste de contrôle de votre meilleur run)\nDivers : profile [nom/save/delete/export/import] | copy (copier le chat) | link (copier le lien de stream) | transport master (retenir la cible comme maître des transports) | sync (demander /played) | minimap",
   LAYOUT_TABLE_TIP = "Chaque ligne activée avec le libellé à gauche et la valeur à droite, les onglets Niveau, Session et Instance au-dessus, la barre d'XP en dessous.",
   LAYOUT_BAR_TIP = "Tout côte à côte sur une ligne, la barre d'XP en dessous ; tient le long d'un bord de l'écran (/lt bar).",
   LAYOUT_COMPACT_TIP = "Seulement le temps, la barre d'XP et jusqu'à 3 valeurs choisies (Réglages > Disposition) (/lt compact).",
@@ -2317,4 +2317,10 @@ ns.locales.frFR = {
   SETUP_SUMMARY_HELPERS = "Aides activées",
   SETUP_SUMMARY_VALUES = "Valeurs",
   SETUP_TITLE = "Configurer Level Time",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE = "Fermer les fenêtres de quêtes de donjon après 20 secondes",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE_TIP = "Désactivé (par défaut) : les fenêtres de quêtes de donjon restent jusqu'à ce que vous les fermiez avec le bouton de fermeture. Activé : elles se ferment seules après 20 secondes, mais restent tant que la souris est dessus.",
+  DUNGEON_QUEST_HINT_NONE = "Aucune quête de donjon à afficher.",
+  DUNGEON_QUEST_HINT_SHOW = "Afficher les quêtes de donjon",
+  DUNGEON_QUEST_HINT_SHOW_TIP = "Affiche à nouveau la fenêtre des quêtes de donjon de la zone actuelle, sinon la dernière affichée (/lt dq). Sur la carte, un clic droit sur une entrée de donjon ouvre les quêtes de cette instance.",
+  DUNGEON_ENTRANCE_RIGHT_CLICK = "Clic droit : afficher les quêtes de donjon ouvertes",
 }

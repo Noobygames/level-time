@@ -12,6 +12,8 @@
 -- Das Fenster fragt Detail gedrosselt neu ab und zieht so einen später auflösbaren NPC-Namen nach.
 -- Objektnamen: Classic Era hat kein C_TooltipInfo (keine Objekt-ID im Welt-Tooltip), übersetzte Namen gibt es nur
 -- englisch; auf deDE/frFR/esES bleibt "Objekt".
+-- Fenster bleiben stehen (Schließen-Knopf); /lt dq und der Knopf in den Optionen öffnen sie erneut (Show), Rechtsklick
+-- auf einen Dungeon-Eingang der Karte zeigt die Quests dieser Instanz (ShowInstance).
 -- Ort "Zone (x, y)" über DungeonEntrances.StartText (C_Map.GetMapInfo).
 local _, ns = ...
 
@@ -19,6 +21,7 @@ ns.RegisterDefaults({
   settings = {
     dungeonQuestZoneHint = true,
     dungeonQuestAcceptHint = true,
+    dungeonQuestHintAutoClose = false,  -- aus: Fenster bleibt, bis es geschlossen wird
   },
 })
 local L = ns.L
@@ -121,18 +124,42 @@ local function instanceQuestText(quest)
   return text
 end
 
--- Einträge für die übrigen offenen Quests der Instanz von questID; nil, wenn die Quest zu keiner Instanz gehört
-function DungeonQuestHints.AcceptEntries(questID)
-  local mapID = DungeonQuests.Instance(questID) or DungeonQuests.Chain(questID)
-  if not mapID then return nil end
+-- Einträge der offenen Quests einer Instanz (ohne exceptQuestID), annehmbare zuerst
+local function instanceEntries(mapID, exceptQuestID)
   local entries = {}
   for _, quest in ipairs(DungeonQuests.InstanceQuests(mapID)) do
-    if quest.questID ~= questID then
+    if quest.questID ~= exceptQuestID then
       local place = DungeonQuests.GiverPlace(quest.questID)
       table.insert(entries, questEntry(quest.questID, instanceQuestText(quest), place, not quest.available))
     end
   end
-  return entries, mapID
+  return entries
+end
+
+-- Einträge für die übrigen offenen Quests der Instanz von questID; nil, wenn die Quest zu keiner Instanz gehört
+function DungeonQuestHints.AcceptEntries(questID)
+  local mapID = DungeonQuests.Instance(questID) or DungeonQuests.Chain(questID)
+  if not mapID then return nil end
+  return instanceEntries(mapID, questID), mapID
+end
+
+-- Quests einer Instanz zeigen (Rechtsklick auf den Eingang); false ohne offene Quests
+function DungeonQuestHints.ShowInstance(mapID)
+  local entries = instanceEntries(mapID)
+  if #entries == 0 then return false end
+  ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ACCEPT_HINT_TITLE, ns.InstanceInfo.MapName(mapID)), entries)
+  return true
+end
+
+-- /lt dq: Hinweis der aktuellen Zone, sonst der zuletzt gezeigte
+function DungeonQuestHints.Show()
+  local zone = DungeonQuests.IsAvailable() and currentZone()
+  local entries = zone and DungeonQuestHints.ZoneEntries(zone) or {}
+  if #entries > 0 then
+    ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ZONE_HINT_TITLE, zoneName(zone)), entries)
+  elseif not ns.DungeonQuestHint.ShowLast() then
+    ns.Print(L.DUNGEON_QUEST_HINT_NONE)
+  end
 end
 
 ns.QuestWatch.Subscribe({

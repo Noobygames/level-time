@@ -223,7 +223,7 @@ ns.locales.esES = {
   CMD_MINIMAP_ON = "Botón del minimapa mostrado.",
   CMD_SYNC = "Pidiendo el tiempo jugado al servidor…",
   CMD_SYNCED = "Tiempo jugado del servidor: %s en total, %s en este nivel.",
-  HELP = "/lt: ajustes | history: historial | recap: tarjeta de sesión | newsession: nueva sesión | runs: mazmorras\nedit: mover y escalar todas las pantallas | show/hide: ventana principal | stream: modo stream | setup: asistente de configuración | changelog: novedades\nTodos los comandos (mazmorras, speedrun, perfiles): /lt help all",
+  HELP = "/lt: ajustes | history: historial | recap: tarjeta de sesión | newsession: nueva sesión | runs: mazmorras | dq: misiones de mazmorra\nedit: mover y escalar todas las pantallas | show/hide: ventana principal | stream: modo stream | setup: asistente de configuración | changelog: novedades\nTodos los comandos (mazmorras, speedrun, perfiles): /lt help all",
   MINIMAP_HIDDEN = "Botón del minimapa oculto. Usa /lt minimap para mostrarlo de nuevo.",
 
   -- Opciones
@@ -1658,7 +1658,7 @@ ns.locales.esES = {
   SHOW_SPLIT_HEADER = "Fila de cabecera",
   SHOW_SPLIT_HEADER_TIP = "Fila «Nivel / Tiempo / ±» sobre los parciales para nombrar las columnas.",
   CHART_HIGHLIGHT_LEGEND = "actual / hoy",
-  HELP_ALL = "/lt o /lt config: ajustes\nVentana: show/hide | edit (editar diseño: mover y escalar todas las pantallas) | setup (asistente de configuración) | changelog (cambios de los últimos 14 días) | lock/unlock | reset (posición, tamaño de todas las pantallas, tras confirmar) | compact (diseño compacto: tiempo, barra de PX y los valores elegidos) | bar (diseño barra) | splits (lista de parciales) | stream (modo stream)\nAnálisis: history | recap (tarjeta de sesión) | newsession | goal <nivel> (off lo quita)\nMazmorras: runs (mazmorras) | runs import/backup/verify/lss | report (informe de instancia al grupo) | resetinstance (datos de instancia)\nSpeedrun: compare best/pb/<nombre> | split [nombre]/undo/template\nRuta: route (lista de control de tu mejor carrera)\nOtros: profile [nombre/save/delete/export/import] | copy (copiar chat) | link (copiar enlace de stream) | transport master (recordar el objetivo como maestro de transportes) | sync (pedir /played) | minimap",
+  HELP_ALL = "/lt o /lt config: ajustes\nVentana: show/hide | edit (editar diseño: mover y escalar todas las pantallas) | setup (asistente de configuración) | changelog (cambios de los últimos 14 días) | lock/unlock | reset (posición, tamaño de todas las pantallas, tras confirmar) | compact (diseño compacto: tiempo, barra de PX y los valores elegidos) | bar (diseño barra) | splits (lista de parciales) | stream (modo stream)\nAnálisis: history | recap (tarjeta de sesión) | newsession | goal <nivel> (off lo quita)\nMazmorras: runs (mazmorras) | runs import/backup/verify/lss | report (informe de instancia al grupo) | resetinstance (datos de instancia) | dq (mostrar de nuevo el aviso de misiones de mazmorra)\nSpeedrun: compare best/pb/<nombre> | split [nombre]/undo/template\nRuta: route (lista de control de tu mejor carrera)\nOtros: profile [nombre/save/delete/export/import] | copy (copiar chat) | link (copiar enlace de stream) | transport master (recordar el objetivo como maestro de transportes) | sync (pedir /played) | minimap",
   LAYOUT_TABLE_TIP = "Cada fila activada con la etiqueta a la izquierda y el valor a la derecha, las pestañas Nivel, Sesión e Instancia arriba y la barra de PX abajo.",
   LAYOUT_BAR_TIP = "Todo en una línea, la barra de PX abajo; cabe junto a un borde de la pantalla (/lt bar).",
   LAYOUT_COMPACT_TIP = "Solo el tiempo, la barra de PX y hasta 3 valores elegidos (Ajustes > Diseño) (/lt compact).",
@@ -2317,4 +2317,10 @@ ns.locales.esES = {
   SETUP_SUMMARY_HELPERS = "Ayudas activadas",
   SETUP_SUMMARY_VALUES = "Valores",
   SETUP_TITLE = "Configurar Level Time",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE = "Cerrar las ventanas de misiones de mazmorra tras 20 segundos",
+  DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE_TIP = "Desactivado (por defecto): las ventanas de misiones de mazmorra permanecen hasta que las cierras con el botón de cierre. Activado: se cierran solas tras 20 segundos, pero permanecen mientras el ratón está encima.",
+  DUNGEON_QUEST_HINT_NONE = "No hay misiones de mazmorra que mostrar.",
+  DUNGEON_QUEST_HINT_SHOW = "Mostrar misiones de mazmorra",
+  DUNGEON_QUEST_HINT_SHOW_TIP = "Muestra de nuevo la ventana de misiones de mazmorra de la zona actual o, si no hay, la última mostrada (/lt dq). En el mapa, clic derecho en la entrada de una mazmorra abre las misiones de esa instancia.",
+  DUNGEON_ENTRANCE_RIGHT_CLICK = "Clic derecho: mostrar misiones de mazmorra abiertas",
 }

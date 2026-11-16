@@ -34,6 +34,7 @@ local commands = {
   [""] = function() ns.ToggleOptions() end,
   config = function() ns.ToggleOptions() end,
   history = function() ns.ToggleHistory() end,
+  dq = function() ns.DungeonQuestHints.Show() end,  -- Dungeonquest-Hinweis erneut zeigen (Assist/DungeonQuestHints.lua)
   report = function() ns.InstanceReport.SendNow() end,
   lock = function()
     ns.Set("locked", true)
