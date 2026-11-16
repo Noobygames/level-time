@@ -9,6 +9,7 @@ Gilt für jeden neuen oder geänderten Screen im Clickdummy (`docs/clickdummy/pr
 - Input-Hintergrund `#111`, Button-Hintergrund `#1d1d1d`, Auswahl-Hintergrund `#3a2e0c`.
 - Text `#f2f2f2`, sekundär `#c8c8c8`, Notiz `#8a8a8a`, Label `#9fb3a8`.
 - Keine neuen Grautöne und Rottöne. Nur die Tokens verwenden.
+- Fenster, die ein Blizzard-Fenster ersetzen (z. B. die Gruppensuche), übernehmen Blizzards Look und Vorlagen (Porträtrahmen, rote Knöpfe, Blizzard-Auswahllisten, dessen Atlanten) statt der Addon-Tokens.
 
 ## Abstände & Größen
 

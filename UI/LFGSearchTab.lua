@@ -1,7 +1,8 @@
--- Reiter Suchen des Gruppensuche-Fensters (UI/LFGWindow.lua): Kategorie, Aktivität, Suchen-Knopf, "Passend für mich",
--- seltene Filter unter "Weitere Filter" (Sprach-Chips, Gruppenart, aufgelöste Gruppen), links die Ergebnisliste mit
--- Bildlaufleiste, rechts das Detail der gewählten Gruppe (Flüstern, Einladen). Keine Bewerbungen: Forever nutzt
--- Blizzards Vanilla-Stil, dort flüstert man dem Leiter oder lädt Einzelspieler ein.
+-- Reiter Suchen des Gruppensuche-Fensters (UI/LFGWindow.lua): Kategorie und Aktivität (Blizzards Auswahlliste, nach
+-- Level sortiert, mit Level-Spanne), Suchen-Knopf, "Passend für mich" (Aktivitäten und Gruppen nach Level),
+-- seltene Filter unter "Weitere Filter" (Sprach-Chips, Gruppenart, aufgelöste Gruppen) und die Ergebnisliste mit
+-- Bildlaufleiste; das Detail der gewählten Gruppe (Flüstern, Einladen) hängt als Seitenfenster rechts am Fenster.
+-- Keine Bewerbungen: Forever nutzt Blizzards Vanilla-Stil, dort flüstert man dem Leiter oder lädt Einzelspieler ein.
 local _, ns = ...
 if not ns.Client.IsForever() then return end
 
@@ -17,24 +18,26 @@ local LFGWindow = ns.LFGWindow
 local PAD, GAP, CONTROL_HEIGHT = LFGWindow.PAD, LFGWindow.GAP, LFGWindow.CONTROL_HEIGHT
 local ROLE_ORDER, SOLO_ROLE_KEYS = LFGWindow.ROLE_ORDER, LFGWindow.SOLO_ROLE_KEYS
 local newButton, newCheck, retext = LFGWindow.NewButton, LFGWindow.NewCheck, LFGWindow.Retext
-local pickFrom, nameOf, entriesOf = LFGWindow.PickFrom, LFGWindow.NameOf, LFGWindow.EntriesOf
+local entriesOf = LFGWindow.EntriesOf
 local state = LFGWindow.State()
 local parts = LFGWindow.Parts()
 local searchTab = LFGWindow.searchContainer
 
+local FILTER_TOP = 34           -- unter dem Titel
 local ROW_HEIGHT = 32
-local VISIBLE_ROWS = 15
-local DETAIL_WIDTH = 360
-local SCROLLBAR_SPACE = 12      -- Bildlaufleiste (8) plus Abstand
-local COLUMN_WIDTHS = { level = 96, roles = 110, age = 64 }
+local VISIBLE_ROWS = 11
+local DETAIL_WIDTH = 330
+local SCROLLBAR_SPACE = 14      -- Bildlaufleiste (8) plus Abstand
+local COLUMN_WIDTHS = { level = 78, roles = 96, age = 56 }
+local MORE_HEIGHT = 2 * CONTROL_HEIGHT + GAP  -- Weitere Filter: zwei Zeilen
 local WHEEL_STEP = 3
-local ICON_SIZE = 14
+local ICON_SIZE = 18
 local MAX_MEMBER_LINES = 10
 local MAX_QUEST_LINES = 8
 local FIT_ICON = { [LFGData.FITS] = "ReadyCheck-Ready", [LFGData.ABOVE] = "ReadyCheck-Waiting",
   [LFGData.BELOW] = "ReadyCheck-Waiting" }
-local ROLE_ATLAS = { TANK = "groupfinder-icon-role-micro-tank", HEALER = "groupfinder-icon-role-micro-heal",
-  DAMAGER = "groupfinder-icon-role-micro-dps" }
+local ROLE_ATLAS = { TANK = "groupfinder-icon-role-large-tank", HEALER = "groupfinder-icon-role-large-heal",
+  DAMAGER = "groupfinder-icon-role-large-dps" }
 local KIND_ORDER = { LFGSearch.KIND_ALL, LFGSearch.KIND_GROUPS, LFGSearch.KIND_SOLO }
 local KIND_TEXTS = { all = "LFG_KIND_ALL", groups = "LFG_KIND_GROUPS", solo = "LFG_KIND_SOLO" }
 
@@ -50,48 +53,62 @@ end
 ---------------------------------------------------------------------------
 -- Filterzeile
 ---------------------------------------------------------------------------
-local categoryButton = newButton(searchTab, 180, "LFG_CATEGORY", function(self)
-  pickFrom(self, entriesOf(LFGSearch.Categories()), state.categoryID, function(id)
-    state.categoryID, state.activityID = id, nil
-    LFGWindow.Refresh()
-  end)
+local categoryDropdown = LFGWindow.NewDropdown(searchTab, 150, function()
+  return entriesOf(LFGSearch.Categories())
+end, function() return state.categoryID end, function(id)
+  state.categoryID, state.activityID = id, nil
+  LFGWindow.Refresh()
 end)
-categoryButton:SetPoint("TOPLEFT", 0, 0)
+categoryDropdown:SetPoint("TOPLEFT", PAD, -FILTER_TOP)
+Widgets.AttachTooltip(categoryDropdown, function() return L.LFG_CATEGORY end, function() return L.LFG_CATEGORY_TIP end)
 
-local activityButton = newButton(searchTab, 220, "LFG_ACTIVITY", function(self)
-  if not state.categoryID then return end
-  pickFrom(self, entriesOf(LFGSearch.Activities(state.categoryID), true), state.activityID or 0, function(id)
-    state.activityID = id ~= 0 and id or nil
-    LFGWindow.Refresh()
-  end)
+-- Aktivitäten nach Level absteigend mit Level-Spanne; "Passend für mich" zeigt nur die zum Level passenden
+local activityDropdown = LFGWindow.NewDropdown(searchTab, 210, function()
+  local entries = LFGWindow.ActivityEntries(state.categoryID, state.fitOnly)
+  table.insert(entries, 1, { key = 0, text = L.LFG_ALL_ACTIVITIES })
+  return entries
+end, function() return state.activityID or 0 end, function(id)
+  state.activityID = id ~= 0 and id or nil
+  LFGWindow.Refresh()
 end)
-activityButton:SetPoint("LEFT", categoryButton, "RIGHT", GAP, 0)
+activityDropdown:SetPoint("LEFT", categoryDropdown, "RIGHT", GAP, 0)
+Widgets.AttachTooltip(activityDropdown, function() return L.LFG_ACTIVITY end, function() return L.LFG_ACTIVITY_TIP end)
+
+local searchButton = newButton(searchTab, 90, "LFG_SEARCH_BUTTON", function()
+  local activityIDs = state.activityID and { state.activityID }
+  if not activityIDs and state.fitOnly then  -- Passend für mich: nur Aktivitäten, die zum Level passen
+    local _, fitting = LFGWindow.ActivityEntries(state.categoryID, true)
+    activityIDs = {}
+    for _, activity in ipairs(fitting) do table.insert(activityIDs, activity.id) end
+  end
+  -- Zustand vor dem Aufruf setzen: das Ergebnisereignis kann schon während Search eintreffen
+  state.status, state.offset, state.selected, state.results = "searching", 0, nil, {}
+  if LFGSearch.Search(state.categoryID, activityIDs) then
+    LFGWindow.Refresh()
+  else
+    state.status = "start"
+  end
+end)
+searchButton:SetPoint("TOPRIGHT", -PAD, -FILTER_TOP)
 
 local fitCheck = newCheck(searchTab, "LFG_FIT_ONLY", function(checked)
   state.fitOnly, state.offset = checked, 0
+  local chosen = state.activityID and LFGWindow.ActivityOf(state.categoryID, state.activityID)
+  if checked and chosen and not LFGSearch.ActivityFits(chosen, UnitLevel("player")) then state.activityID = nil end
   LFGWindow.Refresh()
 end)
-fitCheck:SetPoint("LEFT", activityButton, "RIGHT", GAP, 0)
-
+fitCheck:SetPoint("TOPLEFT", PAD, -(FILTER_TOP + CONTROL_HEIGHT + GAP))
 local moreButton = newButton(searchTab, 150, "LFG_MORE_FILTERS", function()
   state.moreOpen = not state.moreOpen
   LFGWindow.Refresh()
 end)
-local searchButton = newButton(searchTab, 100, "LFG_SEARCH_BUTTON", function()
-  if LFGSearch.Search(state.categoryID, state.activityID and { state.activityID } or nil) then
-    state.status, state.offset, state.selected, state.results = "searching", 0, nil, {}
-    LFGWindow.Refresh()
-  end
-end)
-searchButton:SetPrimary(true)
-searchButton:SetPoint("TOPRIGHT", 0, 0)
-moreButton:SetPoint("RIGHT", searchButton, "LEFT", -GAP, 0)
+moreButton:SetPoint("TOPRIGHT", -PAD, -(FILTER_TOP + CONTROL_HEIGHT + GAP))
 
 -- Weitere Filter: Sprachen, Gruppenart, aufgelöste Gruppen
 local morePanel = CreateFrame("Frame", nil, searchTab)
-morePanel:SetPoint("TOPLEFT", 0, -(CONTROL_HEIGHT + GAP))
-morePanel:SetPoint("TOPRIGHT", 0, -(CONTROL_HEIGHT + GAP))
-morePanel:SetHeight(CONTROL_HEIGHT)
+morePanel:SetPoint("TOPLEFT", PAD, -(FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP)))
+morePanel:SetPoint("TOPRIGHT", -PAD, -(FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP)))
+morePanel:SetHeight(MORE_HEIGHT)
 local languageLabel = morePanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 languageLabel:SetPoint("LEFT", 0, 0)
 local languageChips = {}
@@ -136,7 +153,7 @@ local function layoutMore()
   for index = #LFGSearch.Languages() + 1, #languageChips do languageChips[index]:Hide() end
   retext(kindButton, string.format("%s: %s", L.LFG_KIND, L[KIND_TEXTS[state.kind]]))
   kindButton:ClearAllPoints()
-  kindButton:SetPoint("LEFT", previous or languageLabel, "RIGHT", GAP * 2, 0)
+  kindButton:SetPoint("TOPLEFT", morePanel, "TOPLEFT", 0, -(CONTROL_HEIGHT + GAP))
   delistedCheck.label:SetText(L.LFG_HIDE_DELISTED)
   delistedCheck:SetChecked(state.hideDelisted)
   delistedCheck:ClearAllPoints()
@@ -154,7 +171,7 @@ end
 ---------------------------------------------------------------------------
 -- Liste mit Bildlaufleiste
 ---------------------------------------------------------------------------
-local listWidth = LFGWindow.WIDTH - 2 * PAD - DETAIL_WIDTH - PAD - SCROLLBAR_SPACE
+local listWidth = LFGWindow.WIDTH - 2 * PAD - SCROLLBAR_SPACE
 local header = CreateFrame("Frame", nil, searchTab)
 header:SetSize(listWidth, 20)
 local headerCells = {}
@@ -279,16 +296,17 @@ end
 scrollBar = Widgets.CreateScrollBar(searchTab, scrollTo)
 
 local function layoutList()
-  local listTop = CONTROL_HEIGHT + GAP + (state.moreOpen and (CONTROL_HEIGHT + GAP) or 0)  -- hängt von "Weitere Filter" ab
+  -- hängt von "Weitere Filter" ab
+  local listTop = FILTER_TOP + 2 * (CONTROL_HEIGHT + GAP) + (state.moreOpen and (MORE_HEIGHT + GAP) or 0) + 12
   header:ClearAllPoints()
-  header:SetPoint("TOPLEFT", 0, -listTop - 12)
+  header:SetPoint("TOPLEFT", PAD, -listTop)
   for index = 1, VISIBLE_ROWS do
     local row = rows[index] or createRow(index)
     row:ClearAllPoints()
-    row:SetPoint("TOPLEFT", 0, -listTop - 12 - 20 - (index - 1) * ROW_HEIGHT)
+    row:SetPoint("TOPLEFT", PAD, -listTop - 20 - (index - 1) * ROW_HEIGHT)
   end
   scrollBar:ClearAllPoints()
-  scrollBar:SetPoint("TOPLEFT", listWidth + SCROLLBAR_SPACE - 8, -listTop - 12 - 20)
+  scrollBar:SetPoint("TOPLEFT", PAD + listWidth + SCROLLBAR_SPACE - 8, -listTop - 20)
   scrollBar:SetHeight(VISIBLE_ROWS * ROW_HEIGHT)
 end
 
@@ -320,11 +338,20 @@ end)
 ---------------------------------------------------------------------------
 -- Detail rechts
 ---------------------------------------------------------------------------
-local detail = CreateFrame("Frame", nil, searchTab, "BackdropTemplate")
-detail:SetPoint("TOPRIGHT", 0, -(CONTROL_HEIGHT + GAP))
-detail:SetPoint("BOTTOMRIGHT", 0, 0)
-detail:SetWidth(DETAIL_WIDTH)
-Theme.RegisterCard(detail)
+-- Seitenfenster rechts am Fenster (wie Blizzards Seitenfenster), nur sichtbar, solange eine Gruppe gewählt ist
+local DETAIL_TOP = 34           -- unter dem Titel des Seitenfensters
+local detail = CreateFrame("Frame", nil, LFGWindow.panel, "PortraitFrameTemplate")
+detail:SetSize(DETAIL_WIDTH, LFGWindow.HEIGHT)
+detail:SetPoint("TOPLEFT", LFGWindow.panel, "TOPRIGHT", -2, 0)
+if detail.SetPortraitShown then detail:SetPortraitShown(false) end
+if type(detail.CloseButton) == "table" then
+  detail.CloseButton:SetScript("OnClick", function()
+    state.selected = nil
+    LFGWindow.Refresh()
+  end)
+end
+detail:Hide()
+parts.detail = detail
 
 -- Kennzahlen als Label-Wert-Zeilen über dem Text: Level, offene Rollen, Alter
 local DETAIL_FIELD_HEIGHT = 20
@@ -344,9 +371,6 @@ detailText:SetJustifyH("LEFT")
 detailText:SetJustifyV("TOP")
 detailText:SetSpacing(2)
 parts.detailText = detailText
-local detailEmpty = detail:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-detailEmpty:SetPoint("CENTER")
-detailEmpty:SetTextColor(Theme.RGB("muted"))
 
 local whisperButton = newButton(detail, 100, "LFG_WHISPER", function()
   local summary = state.selected and LFGSearch.Summary(state.selected)
@@ -425,9 +449,8 @@ local DETAIL_FIELDS = { { "level", "LFG_COL_LEVEL" }, { "open", "LFG_COL_ROLES" 
 
 local function refreshDetail()
   local summary = state.selected and LFGSearch.Summary(state.selected)
-  detailText:SetShown(summary ~= nil)
-  detailEmpty:SetShown(summary == nil)
-  detailEmpty:SetText(L.LFG_DETAIL_EMPTY)
+  detail:SetShown(summary ~= nil)
+  if summary and detail.SetTitle then detail:SetTitle(titleOf(summary)) end
   retext(whisperButton)
   retext(inviteButton)
   whisperButton:SetEnabled(summary ~= nil and summary.leaderName ~= nil and not summary.delisted)
@@ -441,14 +464,14 @@ local function refreshDetail()
       line:SetValues(L[field[2]], value)
       line:ClearAllPoints()
       line:SetPoint("TOPLEFT", previous or detail, previous and "BOTTOMLEFT" or "TOPLEFT", previous and 0 or 12,
-        previous and 0 or -8)
+        previous and 0 or -DETAIL_TOP)
       line:SetPoint("RIGHT", -12, 0)
       previous = line
     end
   end
   detailText:ClearAllPoints()
   detailText:SetPoint("TOPLEFT", previous or detail, previous and "BOTTOMLEFT" or "TOPLEFT", previous and 0 or 12,
-    previous and -8 or -8)
+    previous and -8 or -DETAIL_TOP)
   detailText:SetPoint("RIGHT", -12, 0)
   if summary then detailText:SetText(table.concat(detailLines(summary), "\n")) end
 end
@@ -461,9 +484,8 @@ LFGWindow.RegisterTab(LFGWindow.TAB_SEARCH, function()
     local first = LFGSearch.Categories()[1]
     state.categoryID = first and first.id
   end
-  retext(categoryButton, nameOf(LFGSearch.Categories(), state.categoryID) or L.LFG_CATEGORY)
-  retext(activityButton, state.activityID and nameOf(LFGSearch.Activities(state.categoryID), state.activityID)
-    or L.LFG_ALL_ACTIVITIES)
+  LFGWindow.RefreshDropdown(categoryDropdown, L.LFG_CATEGORY)
+  LFGWindow.RefreshDropdown(activityDropdown, L.LFG_ALL_ACTIVITIES)
   fitCheck.label:SetText(L.LFG_FIT_ONLY)
   fitCheck:SetChecked(state.fitOnly)
   retext(searchButton)
@@ -479,6 +501,7 @@ LFGWindow.RegisterTab(LFGWindow.TAB_SEARCH, function()
 end)
 
 parts.searchButton, parts.whisperButton, parts.inviteButton = searchButton, whisperButton, inviteButton
+parts.categoryDropdown, parts.activityDropdown = categoryDropdown, activityDropdown
 parts.fitCheck, parts.moreButton, parts.kindButton = fitCheck, moreButton, kindButton
 parts.scrollBar, parts.languageChips = scrollBar, languageChips
 

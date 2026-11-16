@@ -93,6 +93,10 @@ C_LFGList = {
   end,
 }
 wow.lfgCalls = {}
+Enum = Enum or {}
+Enum.LFGEntryGeneralPlaystyle = { None = 0, Learning = 1, FunRelaxed = 2, FunSerious = 3, Expert = 4 }
+Enum.LFGEntryVoiceMode = { None = 0, Legacy = 1, Discord = 2, Custom = 3 }
+GetGeneralPlaystyleString = function(playstyle) return "Spielstil" .. playstyle end
 C_LFGListRoles = { GetRoles = function() return state.lfgRoles or {} end,
   SetRoles = function(roles) table.insert(wow.lfgCalls, { "SetRoles", roles }) state.lfgRoles = roles end }
 function UnitIsGroupAssistant() return false end

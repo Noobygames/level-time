@@ -5,7 +5,6 @@
 -- (C_LFGListRoles). API wie in Blizzard_LFGVanilla_Browse/Listing.lua: GetAvailableCategories, GetLfgCategoryInfo,
 -- GetAvailableActivities(categoryID), GetActivityInfoTable, Search(categoryID, filter, preferredFilters, languageFilter,
 -- crossFaction, advancedFilter, activityIDs), GetFilteredSearchResults, CreateListing/UpdateListing/RemoveListing.
--- shortcut: ein Eintrag je Aktivität (Blizzard erlaubt mehrere), bei Bedarf Mehrfachauswahl im Fenster.
 -- Search, CreateListing, UpdateListing und RemoveListing dürfen nur aus dem Klick eines eigenen Knopfs kommen.
 -- Der Sprachfilter der Suche kommt aus eigenen Chips (lfgLanguageChips) und wird Search direkt mitgegeben, Blizzards
 -- gespeicherter Filter bleibt unberührt.
@@ -49,22 +48,42 @@ function LFGSearch.Categories()
   return list
 end
 
--- Aktivitäten einer Kategorie in Blizzards Reihenfolge: { { id, name, mapID }, ... }
+-- Aktivitäten einer Kategorie wie in Blizzards Liste nach Level-Spanne absteigend (höchstes Maximum zuerst, 0 = offen
+-- nach oben ganz oben): { { id, name, fullName, minLevel, maxLevel, mapID }, ... }
 function LFGSearch.Activities(categoryID)
   local list = {}
   for _, activityID in ipairs(api().GetAvailableActivities(categoryID) or {}) do
     local info = api().GetActivityInfoTable(activityID)
     if type(info) == "table" then
       local name = (info.shortName and info.shortName ~= "" and info.shortName) or info.fullName
-      table.insert(list, { id = activityID, name = name, fullName = info.fullName, order = info.orderIndex or 0,
-        mapID = info.mapID })
+      table.insert(list, { id = activityID, name = name, fullName = info.fullName, mapID = info.mapID,
+        minLevel = info.minLevelSuggestion or 0, maxLevel = info.maxLevelSuggestion or 0 })
     end
   end
   table.sort(list, function(a, b)
-    if a.order ~= b.order then return a.order < b.order end
+    if a.maxLevel ~= b.maxLevel then
+      if a.maxLevel == 0 or b.maxLevel == 0 then return a.maxLevel == 0 end
+      return a.maxLevel > b.maxLevel
+    end
+    if a.minLevel ~= b.minLevel then return a.minLevel > b.minLevel end
+    if a.name ~= b.name then return a.name < b.name end
     return a.id < b.id
   end)
   return list
+end
+
+-- Passt der Level zur empfohlenen Spanne der Aktivität? Eine Grenze 0 heißt unbegrenzt.
+function LFGSearch.ActivityFits(activity, level)
+  return (activity.minLevel == 0 or activity.minLevel <= level) and (activity.maxLevel == 0 or level <= activity.maxLevel)
+end
+
+-- Nur die Aktivitäten, die zum Level passen (Alle Stufen anzeigen aus); passt keine, bleibt die ganze Liste
+function LFGSearch.FitActivities(list, level)
+  local fitting = {}
+  for _, activity in ipairs(list) do
+    if LFGSearch.ActivityFits(activity, level) then table.insert(fitting, activity) end
+  end
+  return #fitting > 0 and fitting or list
 end
 
 ---------------------------------------------------------------------------
@@ -166,13 +185,14 @@ end
 ---------------------------------------------------------------------------
 -- Eigener Eintrag
 ---------------------------------------------------------------------------
--- Aktiver Eintrag: { activityIDs, newPlayerFriendly, categoryID } oder nil
+-- Aktiver Eintrag: { activityIDs, newPlayerFriendly, categoryID, voiceMode, generalPlaystyle } oder nil
 function LFGSearch.ActiveEntry()
   if not (api().HasActiveEntryInfo and api().HasActiveEntryInfo()) then return nil end
   local entry = api().GetActiveEntryInfo()
   if type(entry) ~= "table" or ns.IsSecret(entry) then return nil end
   local info = entry.activityIDs and entry.activityIDs[1] and api().GetActivityInfoTable(entry.activityIDs[1])
   return { activityIDs = entry.activityIDs or {}, newPlayerFriendly = entry.newPlayerFriendly == true,
+    voiceMode = entry.voiceMode, generalPlaystyle = entry.generalPlaystyle,
     categoryID = type(info) == "table" and info.categoryID or nil }
 end
 
@@ -186,16 +206,19 @@ function LFGSearch.GetRoles()
   return C_LFGListRoles and C_LFGListRoles.GetRoles() or {}
 end
 
--- Eintragen oder aktualisieren (nur aus dem Klick eines Knopfs): data = { activityID, newPlayerFriendly, roles }
+-- Eintragen oder aktualisieren (nur aus dem Klick eines Knopfs): data = { activityIDs, newPlayerFriendly, roles,
+-- generalPlaystyle, voiceMode }. Blizzard schickt den Spielstil nur beim Erstellen mit.
 function LFGSearch.Post(data)
-  local payload = { activityIDs = { data.activityID }, newPlayerFriendly = data.newPlayerFriendly == true }
+  local payload = { activityIDs = data.activityIDs, newPlayerFriendly = data.newPlayerFriendly == true,
+    voiceMode = data.voiceMode }
   if data.roles and C_LFGListRoles then C_LFGListRoles.SetRoles(data.roles) end
   if LFGSearch.ActiveEntry() then
     api().UpdateListing(payload)
   else
+    payload.generalPlaystyle = data.generalPlaystyle
     api().CreateListing(payload)
   end
-  ns.Debug("lfg", "listing posted for activity %s", data.activityID)
+  ns.Debug("lfg", "listing posted for %s activities", #data.activityIDs)
 end
 
 function LFGSearch.Unlist()

@@ -1779,7 +1779,16 @@ check("LT272.lfg.window", function()
     categories[#categories + 1] = category.id .. "=" .. category.name .. "(" .. #ns.LFGSearch.Activities(category.id) .. ")"
   end
   local roles = call("C_LFGListRoles.GetRoles")
-  return { enabled = ns.LFGSearch.IsEnabled() == true, functions = functions, api = apis, categories = table.concat(categories, ","),
+  -- LT-305: Blizzard-Optik des Fensters: Vorlagen vorhanden (Titel, Schließen, Menüaufbau), Spielstil- und Voicechat-Werte
+  local panel = ns.LFGWindow and ns.LFGWindow.panel
+  local look = { panelTitle = panel ~= nil and type(panel.SetTitle) == "function",
+    closeButton = panel ~= nil and type(panel.CloseButton) == "table",
+    dropdownMenu = panel ~= nil and ns.LFGWindow.Parts().categoryDropdown ~= nil
+      and type(ns.LFGWindow.Parts().categoryDropdown.SetupMenu) == "function",
+    playstyles = Enum and Enum.LFGEntryGeneralPlaystyle ~= nil, voiceModes = Enum and Enum.LFGEntryVoiceMode ~= nil,
+    playstyleText = GetGeneralPlaystyleString ~= nil }
+  return { enabled = ns.LFGSearch.IsEnabled() == true, look = look,
+    functions = functions, api = apis, categories = table.concat(categories, ","),
     roles = fieldsOf(roles), parentShown = LFGParentFrame and LFGParentFrame:IsShown() or false,
     windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false, chatTell = ChatFrameUtil and ChatFrameUtil.SendTell ~= nil }
 end)
