@@ -1,4 +1,5 @@
 -- Pausen-Erinnerung: nach N Minuten Spielzeit ohne Pause, nicht im Kampf/in Instanzen, AFK zählt als Pause
+local function hint() local entries = addon.Hints.Entries() return entries[#entries] end
 local L = addon.L
 local BreakReminder = addon.BreakReminder
 
@@ -26,7 +27,7 @@ addon.Set("remindBreak", true)
 addon.Set("breakMinutes", 60)
 wow.update(5)
 expect("nach 60 min: Erinnerung", reminders(), 1)
-expect("Karte", LevelTimerNotice.title:GetText(), L.NOTICE_BREAK)
+expect("Karte", hint().title, L.NOTICE_BREAK)
 play(600)
 expect("danach erst wieder nach 60 min", reminders(), 1)
 

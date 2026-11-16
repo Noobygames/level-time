@@ -6,6 +6,7 @@ wow.state.class = "DRUID"
 wow.state.spellNames[5487] = "Bärengestalt"
 wow.login({ level = 9 })
 addon.Alerts.Clear()
+addon.Hints.Clear()
 local gains = { health = 90 }
 
 local function printed(text)
@@ -25,7 +26,7 @@ wow.levelUp(10, nil, gains)
 wow.runTimers()
 expect("Chatzeile", printed(ClassQuests.Text(10)), true)
 expect("Fenster sichtbar", LevelTimerLevelUp:IsShown(), true)
-expect("keine Einblendung neben dem Fenster", LevelTimerNotice:IsShown(), false)
+expect("keine Einblendung neben dem Fenster", addon.Hints.IsShown(), false)
 LevelTimerLevelUp:Hide()
 
 -- Fenster aus: Einblendung
@@ -35,13 +36,14 @@ wow.state.class = "SHAMAN"
 wow.state.level = 19
 wow.levelUp(20, nil, gains)
 wow.runTimers()
-expect("Einblendung ohne Fenster", LevelTimerNotice:IsShown(), true)
+expect("Einblendung ohne Fenster", addon.Hints.IsShown(), true)
 expect("Wassertotem als Item-Link", printed("item:5177"), true)
 
 -- Einstellung aus: nichts
 addon.Alerts.Clear()
+addon.Hints.Clear()
 addon.Set("remindClassQuest", false)
 wow.levelUp(30, nil, gains)
 wow.runTimers()
-expect("aus: keine Einblendung", LevelTimerNotice:IsShown(), false)
+expect("aus: keine Einblendung", addon.Hints.IsShown(), false)
 expect("Fehlerfrei", #wow.errors, 0)

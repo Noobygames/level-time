@@ -1,5 +1,6 @@
 -- Hinweis auf fehlendes "Satt": nur eingeschaltet, beim Leveln, außerhalb von Kampf und Ruhegebiet,
 -- mit Pause zwischen zwei Hinweisen.
+local function hint() local entries = addon.Hints.Entries() return entries[#entries] end
 local BuffReminder = addon.BuffReminder
 local L = addon.L
 
@@ -19,8 +20,8 @@ expect("aus: kein Hinweis", reminders(), 0)
 addon.Set("remindFood", true)
 BuffReminder.Check()
 expect("Hinweis", reminders(), 1)
-expect("als Karte: Text", LevelTimerNotice.body:GetText(), L.REMIND_FOOD)
-expect("als Karte: Titel", LevelTimerNotice.title:GetText(), L.NOTICE_BUFF)
+expect("als Karte: Text", hint().text, L.REMIND_FOOD)
+expect("als Karte: Titel", hint().title, L.NOTICE_BUFF)
 expect("Banner bleibt aus", LevelTimerAlert:IsShown(), false)
 
 BuffReminder.Check()
@@ -71,8 +72,9 @@ wow.state.buffs = { "Satt" }
 expect("Camp fehlt", BuffReminder.IsCampMissing(), true)
 addon.Set("remindCamp", true)
 addon.Alerts.Clear()  -- Einblendungen warten sonst hinter der laufenden
+addon.Hints.Clear()
 BuffReminder.Check()
-expect("Camp-Hinweis", LevelTimerNotice.body:GetText(), L.REMIND_CAMP)
+expect("Camp-Hinweis", hint().text, L.REMIND_CAMP)
 
 -- Aktiver Camp-Buff wird an der Spell-ID erkannt
 wow.state.buffs = { "Satt", { name = "Lagervorteile", spellId = 1229741 } }
@@ -82,11 +84,10 @@ expect("Camp erkannt", BuffReminder.IsCampMissing(), false)
 wow.advance(301)
 wow.state.buffs = {}
 addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
-expect("beide: erst Essen", LevelTimerNotice.body:GetText(), L.REMIND_FOOD)
-wow.advance(1.5 + 1.1)  -- die laufende zeigt sich kürzer, solange eine weitere wartet
-LevelTimerNotice._scripts.OnUpdate(LevelTimerNotice, 0.1)
-expect("beide: dann Camp", LevelTimerNotice.body:GetText(), L.REMIND_CAMP)
+expect("beide in einem Fenster: Essen", addon.Hints.Entries()[1].text, L.REMIND_FOOD)
+expect("beide in einem Fenster: Camp", addon.Hints.Entries()[2].text, L.REMIND_CAMP)
 
 -- Im Dungeon: Essen ja, Lagervorteile nein (dort gibt es keine Lagerfeuer)
 local function printedCount(text)
@@ -100,6 +101,7 @@ local campBefore, foodBefore = printedCount(L.REMIND_CAMP), reminders()
 wow.state.instance = { name = "Die Höhlen des Wehklagens", type = "party" }
 wow.advance(301)
 addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
 expect("Dungeon: Essen erinnert", reminders(), foodBefore + 1)
 expect("Dungeon: kein Camp", printedCount(L.REMIND_CAMP), campBefore)
@@ -109,6 +111,7 @@ local isLeveling = addon.Experience.IsLeveling
 addon.Experience.IsLeveling = function() return false end
 wow.advance(301)
 addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
 expect("Maximallevel im Dungeon: Essen", reminders(), foodBefore + 2)
 wow.state.instance = nil
@@ -190,8 +193,9 @@ wow.state.race = { "Himmelsgeborene der Windformer", "Skyborne", 96 }
 expect("Aufgeladen fehlt", BuffReminder.IsChargedMissing(), true)
 wow.advance(1000)
 addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
-expect("Aufgeladen-Hinweis mit Buff-Namen", LevelTimerNotice.body:GetText(), string.format(L.REMIND_CHARGED, "Aufgeladen"))
+expect("Aufgeladen-Hinweis mit Buff-Namen", hint().text, string.format(L.REMIND_CHARGED, "Aufgeladen"))
 
 wow.state.buffs = { { name = "Aufgeladen", spellId = 1270893 } }
 expect("Aufgeladen erkannt", BuffReminder.IsChargedMissing(), false)

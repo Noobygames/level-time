@@ -228,7 +228,7 @@ function BuffReminder.PreviewSteps()
   local steps = {}
   for _, reminder in ipairs(REMINDERS) do
     if not reminder.available or reminder.available() then
-      steps[#steps + 1] = function() ns.Alerts.Notify(noticeOf(reminder), ns.Alerts.WARNING_COLOR) end
+      steps[#steps + 1] = function() ns.Alerts.Notify(noticeOf(reminder), ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT) end
     end
   end
   return steps
@@ -248,7 +248,7 @@ function BuffReminder.Check()
     end
   end
   if messages then
-    ns.Alerts.Notify(messages, ns.Alerts.WARNING_COLOR)
+    ns.Alerts.Notify(messages, ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT)
   end
 end
 

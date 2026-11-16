@@ -161,6 +161,7 @@ UI\SessionCompare.lua
 UI\Alerts.lua
 UI\AlertTriggers.lua
 UI\AlertPosition.lua
+UI\HintCollector.lua
 UI\LevelUpWindow.lua
 UI\CampDisplay.lua
 UI\FoodDisplay.lua

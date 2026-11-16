@@ -1,5 +1,6 @@
 -- Schlafsack-Hinweis (WoW Forever): "Gemütlicher Schlafsack" (Item 211527) in der Tasche, unter Maximallevel und
 -- ohne "Gut erholt" (Spell 429959) -> erinnern; mit Buff, auf Maximallevel, ohne Item und in Instanzen nicht
+local function hint() local entries = addon.Hints.Entries() return entries[#entries] end
 local BuffReminder = addon.BuffReminder
 local L = addon.L
 local BAG, WELL_RESTED, BAG_ICON = 211527, 429959, 133650
@@ -15,6 +16,7 @@ end
 local function remindAfterPause()
   wow.advance(301)
   addon.Alerts.Clear()
+  addon.Hints.Clear()
   BuffReminder.Check()
 end
 
@@ -28,9 +30,10 @@ BuffReminder.Check()
 expect("aus: kein Hinweis", reminders(), 0)
 addon.Set("remindSleepingBag", true)
 addon.Alerts.Clear()
+addon.Hints.Clear()
 BuffReminder.Check()
 expect("Schlafsack dabei, Buff fehlt: Hinweis", reminders(), 1)
-expect("Karte: Text", LevelTimerNotice.body:GetText(), L.REMIND_SLEEPING_BAG)
+expect("Karte: Text", hint().text, L.REMIND_SLEEPING_BAG)
 
 -- Buff da (Erkennung über die Spell-ID, der Name darf geheim sein)
 wow.state.buffs = { { name = "Gut erholt", spellId = WELL_RESTED, duration = 7200,
@@ -63,7 +66,7 @@ addon.Experience.IsLeveling = isLeveling
 -- Wieder alles erfüllt: Hinweis mit dem Symbol des Items
 remindAfterPause()
 expect("wieder erinnert", reminders(), 2)
-expect("Symbol des Items", LevelTimerNotice.icon:GetTexture(), BAG_ICON)
+expect("Symbol des Items", hint().texture, BAG_ICON)
 
 -- Client ohne das Item: nichts behaupten
 wow.state.itemIcons[BAG] = nil

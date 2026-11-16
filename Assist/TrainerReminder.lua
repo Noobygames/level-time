@@ -23,7 +23,7 @@ end
 
 local function notifyTrainer(level)
   ns.Alerts.Notify({ title = L.NOTICE_TRAINER, text = string.format(L.REMIND_TRAINER, level),
-    icon = ns.Alerts.ICONS.trainer }, ns.Alerts.REMINDER_COLOR)
+    icon = ns.Alerts.ICONS.trainer }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end
 
 -- Vorschau (Testen-Knopf): Lehrer-Hinweis für das aktuelle Level, ohne das Level-Up-Fenster

@@ -150,7 +150,7 @@ function QuestCleanup.CheckFull()
   if warned then return end
   warned = true
   ns.Alerts.Notify({ title = L.QUEST_LOG_FULL_TITLE, text = string.format(L.QUEST_LOG_FULL, count, max),
-    icon = ns.Alerts.ICONS.questLog }, ns.Alerts.WARNING_COLOR)
+    icon = ns.Alerts.ICONS.questLog }, ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT)
 end
 
 ns.QuestWatch.Subscribe({

@@ -57,7 +57,7 @@ end
 
 local function notifyBreak(played)
   local text = string.format(L.BREAK_REMINDER, ns.Format.Duration(played))
-  ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR)
+  ns.Alerts.Notify({ title = L.NOTICE_BREAK, text = text, icon = ns.Alerts.ICONS.rest }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end
 
 function BreakReminder.Check()

@@ -34,6 +34,7 @@ addToggles({
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
   toggle("WARN_OLD_SPELL_RANKS_TOGGLE", "warnOldSpellRanks", ns.OldSpellRanks.IsAvailable),
   toggle("REMIND_CLASS_QUEST_TOGGLE", "remindClassQuest", ns.ClassQuests.IsAvailable),
+  toggle("HINTS_AUTOCLOSE_TOGGLE", "hintsAutoClose"),
 })
 -- Wiederholung gilt für alle Buff-Erinnerungen (auch die Klassen-Buffs darunter)
 addSlider({

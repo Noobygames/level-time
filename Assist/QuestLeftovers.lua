@@ -227,7 +227,7 @@ ns.RegisterEvent("MERCHANT_SHOW", function()
   local text = QuestLeftovers.Text()
   if text then
     ns.Alerts.Notify({ title = L.QUEST_LEFTOVERS_TITLE, text = string.format(L.QUEST_LEFTOVERS, text),
-      icon = ns.Alerts.ICONS.bags }, ns.Alerts.REMINDER_COLOR)
+      icon = ns.Alerts.ICONS.bags }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
   end
 end)
 ns.Every(SCAN_SECONDS, rememberSpecialItems, function(db) return db.questLeftovers end)

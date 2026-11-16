@@ -1,4 +1,5 @@
 -- Warnungen beim Leveln: einmal beim Eintreten, wieder erst, nachdem der Zustand vorbei war.
+local function hint() local entries = addon.Hints.Entries() return entries[#entries] end
 local GearWarnings = addon.GearWarnings
 local L = addon.L
 
@@ -23,9 +24,9 @@ expect("aus: still", count(L.WARN_BAGS_FULL), 0)
 addon.Set("warnBagsFull", true)
 GearWarnings.Check()
 expect("Warnung", count(L.WARN_BAGS_FULL), 1)
-expect("Karte: Text mit freien Plätzen", LevelTimerNotice.body:GetText(),
+expect("Karte: Text mit freien Plätzen", hint().text,
   L.WARN_BAGS_FULL .. " (" .. string.format(L.BAGS_FREE_COUNT, 1) .. ")")
-expect("Karte: Titel", LevelTimerNotice.title:GetText(), L.NOTICE_BAGS)
+expect("Karte: Titel", hint().title, L.NOTICE_BAGS)
 GearWarnings.Check()
 expect("nur einmal", count(L.WARN_BAGS_FULL), 1)
 
@@ -70,9 +71,10 @@ wow.state.interface = 11509
 wow.levelUp(13)
 expect("ungerade: still", trainerReminders(), 0)
 addon.Alerts.Clear()
+addon.Hints.Clear()
 wow.levelUp(14)
 expect("gerade: Hinweis", trainerReminders(), 1)
-expect("mit Level", LevelTimerNotice.body:GetText(), string.format(L.REMIND_TRAINER, 14))
+expect("mit Level", hint().text, string.format(L.REMIND_TRAINER, 14))
 
 wow.state.interface = 16001
 expect("Forever: verfügbar", addon.TrainerReminder.IsAvailable(), true)

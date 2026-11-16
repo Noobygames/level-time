@@ -2,7 +2,9 @@
 local L = addon.L
 
 local function shownTitle()
-  return LevelTimerNotice:IsShown() and LevelTimerNotice.title:GetText() or nil
+  if LevelTimerNotice:IsShown() then return LevelTimerNotice.title:GetText() end
+  local entries = addon.Hints.Entries()  -- Erinnerungen landen im Hinweisfenster
+  return entries[#entries] and entries[#entries].title or nil
 end
 
 wow.login({ level = 10 })

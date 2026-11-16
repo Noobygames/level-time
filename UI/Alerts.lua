@@ -273,14 +273,22 @@ function Alerts.NoticeCard(entry)
     body = entry.title and entry.text or nil }
 end
 
--- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander).
--- notices = Text, { text, title, icon } oder eine Liste davon; icon siehe Alerts.ICONS
-function Alerts.Notify(notices, color)
+-- Erinnerungen statt dringender Meldungen: Notify(..., Alerts.COLLECT) sammelt sie im Hinweisfenster (UI/HintCollector.lua)
+Alerts.COLLECT = { collect = true }
+
+-- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander) oder, mit
+-- options.collect, als Zeile im gemeinsamen Hinweisfenster. notices = Text, { text, title, icon, rows, header } oder
+-- eine Liste davon; icon siehe Alerts.ICONS
+function Alerts.Notify(notices, color, options)
   if type(notices) == "string" or notices.text then notices = { notices } end
   for _, entry in ipairs(notices) do
     if type(entry) == "string" then entry = { text = entry } end
     ns.Print(entry.text)
-    Alerts.Show(entry.text, color, { notice = Alerts.NoticeCard(entry) })
+    if options and options.collect then
+      ns.Hints.Add(entry)
+    else
+      Alerts.Show(entry.text, color, { notice = Alerts.NoticeCard(entry) })
+    end
   end
 end
 

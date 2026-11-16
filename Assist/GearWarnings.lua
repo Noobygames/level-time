@@ -148,7 +148,7 @@ local function notify(warning)
   local detail = warning.detail and warning.detail()
   local text = detail and string.format("%s (%s)", L[warning.message], detail) or L[warning.message]
   ns.Alerts.Notify({ title = L[warning.title], text = text, icon = ns.Alerts.ICONS[warning.icon] },
-    ns.Alerts.WARNING_COLOR)
+    ns.Alerts.WARNING_COLOR, ns.Alerts.COLLECT)
 end
 
 -- Vorschau (Testen-Knopf): ein Schritt je Hinweis, wie echt ausgelöst; Munition nur für Jäger, Reagenzien nur für

@@ -35,7 +35,7 @@ expect("aus: still", count(L.WARN_REAGENTS), 0)
 addon.Set("warnReagents", true)
 GearWarnings.Check()
 expect("Warnung", count(L.WARN_REAGENTS), 1)
-expect("Karte: Titel", LevelTimerNotice.title:GetText(), L.NOTICE_REAGENTS)
+expect("Karte: Titel", addon.Hints.Entries()[1].title, L.NOTICE_REAGENTS)
 GearWarnings.Check()
 expect("nur einmal", count(L.WARN_REAGENTS), 1)
 wow.state.itemCounts[SACRED_CANDLE] = 20

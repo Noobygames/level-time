@@ -16,7 +16,7 @@ a{color:#ffd100}a:hover{color:#fff1a8}
 button,input{font-family:inherit}
 </style>
 </helmet>
-<div style="width: 1400px; height: 1060px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+<div style="width: 1400px; height: 1400px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
 
   <!-- Einrichtungsassistent (UI/SetupWizard.lua), Größe Mittel 640 x 520, 6 Schritte -->
   <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px">
@@ -233,9 +233,32 @@ button,input{font-family:inherit}
       <span style="width: 36px; height: 36px; border: 1px solid #222; background: #3a2236"></span>
     </div>
   </section>
+
+  <!-- Hinweisfenster (UI/HintCollector.lua): Erinnerungen gesammelt statt Banner nacheinander; Tabelle bei alten Zauberrängen -->
+  <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 12px; color: #9fb3a8">Hinweisfenster: gesammelte Erinnerungen, X je Zeile, "Alle schließen"; Zaubersymbol mit Tooltip beim Überfahren</span>
+    <div style="width: 440px; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; box-sizing: border-box">
+      <div style="height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 16px; border-bottom: 1px solid #333">
+        <span style="flex: 1; font-size: 16px; font-weight: 700; color: #ffd100">Hinweise</span>
+        <button style="height: 28px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; font-size: 13px">Alle schließen</button>
+        <button style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #f2f2f2; font-size: 13px">X</button>
+      </div>
+      <div style="padding: 8px 12px; display: flex; flex-direction: column; font-size: 13px">
+        <div style="height: 32px; display: flex; align-items: center; gap: 8px"><span style="width: 24px; height: 24px; background: #3a2f22; border: 1px solid #555"></span><span style="flex: 1">Essen fehlt</span><button style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #c8c8c8">X</button></div>
+        <div style="height: 32px; display: flex; align-items: center; gap: 8px"><span style="width: 24px; height: 24px; background: #2f3a22; border: 1px solid #555"></span><span style="flex: 1">Lagerfeuer fehlt</span><button style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #c8c8c8">X</button></div>
+        <div style="height: 32px; display: flex; align-items: center; gap: 8px"><span style="width: 24px; height: 24px; background: #22303a; border: 1px solid #555"></span><span style="flex: 1">Alter Zauberrang</span><button style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #c8c8c8">X</button></div>
+        <div style="margin-left: 32px; display: grid; grid-template-columns: 1fr 80px 96px; align-items: center; font-variant-numeric: tabular-nums">
+          <span style="height: 24px; line-height: 24px; font-weight: 600; color: #8a8a8a">Zauber</span><span style="font-weight: 600; color: #8a8a8a; text-align: right">Leiste</span><span style="font-weight: 600; color: #8a8a8a; text-align: right">Zauberbuch</span>
+          <span style="height: 32px; display: flex; align-items: center; gap: 8px"><span style="width: 24px; height: 24px; background: #3a2236; border: 1px solid #555"></span>Frostblitz</span><span style="text-align: right">3</span><span style="text-align: right">5</span>
+          <span style="height: 32px; display: flex; align-items: center; gap: 8px"><span style="width: 24px; height: 24px; background: #3a3622; border: 1px solid #555"></span>Feuerball</span><span style="text-align: right">2</span><span style="text-align: right">4</span>
+        </div>
+      </div>
+    </div>
+    <span style="font-size: 12px; color: #8a8a8a">Dringendes (Aggro, Atemnot, Rare/Elite, Notfall) bleibt als Banner. Einstellung: nach 30 Sekunden schließen (Standard aus).</span>
+  </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1060}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1400}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);

@@ -46,20 +46,28 @@ local function rankOf(spellID)
   return tonumber((ns.Widgets.SpellRank(spellID)))
 end
 
--- WoW Forever: Spell-IDs aller niedrigen Ränge im Zauberbuch
+-- Prüffunktionen: spellID -> Rang im Zauberbuch (der höchste dieses Namens), wenn der Knopf einen niedrigeren hat,
+-- sonst nil; false statt Zahl, wo der Rang nicht lesbar ist
+-- WoW Forever: Spell-IDs aller niedrigen Ränge im Zauberbuch, höchster Rang je Name aus allen Einträgen
 local function foreverLowRankCheck()
   local bank = Enum.SpellBookSpellBank.Player
-  local low = {}
+  local low, highest = {}, {}
   for line = 1, C_SpellBook.GetNumSpellBookSkillLines() do
     local info = C_SpellBook.GetSpellBookSkillLineInfo(line)
     if info then
       for slot = info.itemIndexOffset + 1, info.itemIndexOffset + info.numSpellBookItems do
         local item = C_SpellBook.GetSpellBookItemInfo(slot, bank)
-        if item and item.spellID and C_SpellBook.IsSpellBookItemLowRank(slot, bank) then low[item.spellID] = true end
+        if item and item.spellID then
+          if C_SpellBook.IsSpellBookItemLowRank(slot, bank) then low[item.spellID] = true end
+          local name, rank = C_Spell.GetSpellName(item.spellID), rankOf(item.spellID)
+          if name and rank and rank > (highest[name] or 0) then highest[name] = rank end
+        end
       end
     end
   end
-  return function(spellID) return low[spellID] == true end
+  return function(spellID)
+    if low[spellID] then return highest[C_Spell.GetSpellName(spellID)] or false end
+  end
 end
 
 -- Classic Era/TBC: höchster bekannter Rang je Name, verglichen mit dem Rang des Knopfs
@@ -75,42 +83,55 @@ local function legacyLowRankCheck()
   end
   return function(spellID)
     local name, rank = C_Spell.GetSpellName(spellID), rankOf(spellID)
-    return name ~= nil and rank ~= nil and rank < (highest[name] or 0)
+    if name ~= nil and rank ~= nil and rank < (highest[name] or 0) then return highest[name] end
   end
 end
 
--- Namen der Zauber, die als niedriger Rang auf einem Aktionsplatz liegen (je Name einmal)
+-- Zauber, die als niedriger Rang auf einem Aktionsplatz liegen (je Name einmal):
+-- { { spellID, name, barRank, bookRank }, ... }; ein Rang ist nil, wo er nicht lesbar ist
 function OldSpellRanks.Find()
-  local isLowRank = hasLowRankApi() and foreverLowRankCheck() or legacyLowRankCheck()
-  local names, seen = {}, {}
+  local bookRankOf = hasLowRankApi() and foreverLowRankCheck() or legacyLowRankCheck()
+  local found, seen = {}, {}
   for slot = 1, OldSpellRanks.MAX_ACTION_SLOT do
     local actionType, id = GetActionInfo(slot)
     if not ns.IsSecret(actionType) and actionType == "spell" and not ns.IsSecret(id) and type(id) == "number"
-        and isLowRank(id) then
+        and bookRankOf(id) ~= nil then
       local name = C_Spell.GetSpellName(id)
       if name and not seen[name] then
         seen[name] = true
-        table.insert(names, name)
+        table.insert(found, { spellID = id, name = name, barRank = rankOf(id), bookRank = bookRankOf(id) or nil })
       end
     end
   end
-  return names
+  return found
+end
+
+local function rankText(rank)
+  return rank and tostring(rank) or "?"
 end
 
 function OldSpellRanks.Check()
   dirty = false
   local fresh = {}
-  for _, name in ipairs(OldSpellRanks.Find()) do
-    if not notified[name] then
-      notified[name] = true
-      table.insert(fresh, name)
+  for _, spell in ipairs(OldSpellRanks.Find()) do
+    if not notified[spell.name] then
+      notified[spell.name] = true
+      table.insert(fresh, spell)
     end
   end
   ns.Debug("spellranks", "old ranks on action bars, new: %s", #fresh)
   if #fresh == 0 then return end
+  local names, rows = {}, {}
+  for _, spell in ipairs(fresh) do
+    table.insert(names, spell.name)
+    table.insert(rows, { spellID = spell.spellID, name = spell.name,
+      columns = { rankText(spell.barRank), rankText(spell.bookRank) } })
+  end
   ns.Alerts.Notify({ title = L.NOTICE_OLD_SPELL_RANKS,
-    text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(fresh, ", ")),
-    icon = ns.Alerts.ICONS.trainer }, ns.Alerts.REMINDER_COLOR)
+    text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(names, ", ")),
+    icon = ns.Alerts.ICONS.trainer, rows = rows,
+    header = { L.OLD_RANKS_COL_SPELL, L.OLD_RANKS_COL_BAR, L.OLD_RANKS_COL_BOOK } },
+    ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end
 
 ns.RegisterEvent("SPELLS_CHANGED", function() dirty = true end)

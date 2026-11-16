@@ -30,11 +30,17 @@ end
 expectTrue("Era: verfügbar", OldSpellRanks.IsAvailable())
 wow.login({ level = 20 })
 expect("Standard an nach Login", addon.db.warnOldSpellRanks, true)
-expect("nur Frostblitz, einmal", table.concat(OldSpellRanks.Find(), ","), "Frostblitz")
+expect("nur Frostblitz, einmal", OldSpellRanks.Find()[1].name, "Frostblitz")
 
 wow.update(OldSpellRanks.SCAN_INTERVAL + 1)
 expect("Hinweis beim Login", hints(), 1)
-expect("Karte: Titel", LevelTimerNotice.title:GetText(), L.NOTICE_OLD_SPELL_RANKS)
+local entry = addon.Hints.Entries()[1]
+expect("Hinweisfenster: Titel", entry.title, L.NOTICE_OLD_SPELL_RANKS)
+expect("Tabelle: eine Zeile je Zauber", #entry.rows, 1)
+expect("Tabelle: Zauber", entry.rows[1].name, "Frostblitz")
+expect("Tabelle: Rang Leiste", entry.rows[1].columns[1], "1")
+expect("Tabelle: Rang Zauberbuch", entry.rows[1].columns[2], "2")
+expect("Tabelle: Kopf", entry.header[2], L.OLD_RANKS_COL_BAR)
 
 wow.fire("SPELLS_CHANGED")
 wow.update(OldSpellRanks.SCAN_INTERVAL + 1)
