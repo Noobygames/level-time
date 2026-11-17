@@ -6,7 +6,7 @@ Values for the CurseForge project form.
 
 - **Project name:** Level Time
 - **Logo:** `logo.png` (512x512, own artwork, no Blizzard assets; regenerate with `make artwork`)
-- **Summary:** Leveling statistics per level, session and instance (play time, XP/h, time to level, kills, deaths, quests, gold) with history and charts for all characters, speedrun splits, alerts and optional comfort features.
+- **Summary:** Your leveling companion for WoW Forever, Classic and Retail: live XP/h and time to level, account-wide history and charts, dungeon quests and boss tips, group finder, campfire/food/sleeping bag timers, Beyond Ultra graphics, speedrun splits and 70+ comfort tweaks.
 - **Class:** Addons
 - **Primary category:** Quests & Leveling
 
