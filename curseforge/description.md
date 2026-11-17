@@ -43,6 +43,12 @@ See who rolled Need, Greed or Pass right on the roll frame, keep a compact roll 
 ![Loot roll settings](https://raw.githubusercontent.com/Noobygames/level-time/main/curseforge/screenshots/v3.0/DungeonLootSettings.png)
 ![Healer helper](https://raw.githubusercontent.com/Noobygames/level-time/main/curseforge/screenshots/v3.0/HealerHelper.png)
 
+### Group finder (WoW Forever)
+
+A Blizzard-style group finder with filters by role, class, level and language, "fits me" matching, friends first, and which of your open dungeon quests a group's dungeon covers. Opens from its own minimap button or `/lt lfg`.
+
+![Group finder](https://raw.githubusercontent.com/Noobygames/level-time/main/curseforge/screenshots/v3.0/ImprovedLFG.png)
+
 ### Campfire, food and sleeping bag (WoW Forever)
 
 Countdowns until camp benefits, Well Fed and Well Rested kick in, a notice per Well Rested stack, and reminders when a buff is missing — reminders disappear by themselves once you have the buff again.
@@ -57,7 +63,6 @@ Settings the Forever graphics menu doesn't offer: grass density and distance, ob
 
 ### And much more
 
-- **Group finder (WoW Forever):** a Blizzard-style window with filters by role, class, level and language, "fits me" matching, and which of your open dungeon quests a group's dungeon covers.
 - **Collapsed buff bar:** keep Water/Lightning Shield charges visible while Blizzard's buff bar is collapsed.
 - **Objective tracker** stays collapsed the way you left it after `/reload`.
 - **Bags full:** delete the cheapest junk with one click (up to three offers, never reagents or quest items).
