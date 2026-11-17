@@ -90,10 +90,10 @@ LFGWindow.searchContainer, LFGWindow.listingContainer = newContainer(), newConta
 ---------------------------------------------------------------------------
 -- Gemeinsame Hilfen der Reiter
 ---------------------------------------------------------------------------
--- Text wie in Blizzards Fenster: dessen globaler Text (Client-Sprache, z. B. SEARCH, LFG_TITLE), sonst L[key]. Das
--- Fenster ersetzt Blizzards Gruppensuche und spricht deshalb dessen Sprache, auch wenn das Addon anders eingestellt ist.
+-- Text wie in Blizzards Fenster: dessen globaler Text (z. B. SEARCH, LFG_TITLE), sonst L[key]. Blizzards Text nur,
+-- wenn das Addon die Client-Sprache spricht; sonst stünden zwei Sprachen nebeneinander.
 function LFGWindow.Text(globalName, key)
-  local blizzard = globalName and _G[globalName]
+  local blizzard = globalName and ns.SpeaksClientLanguage() and _G[globalName]
   if type(blizzard) == "string" and blizzard ~= "" then return blizzard end
   return L[key]
 end

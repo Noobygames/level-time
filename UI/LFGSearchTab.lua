@@ -456,6 +456,8 @@ local DETAIL_TOP = 34           -- unter dem Titel des Seitenfensters
 local detail = CreateFrame("Frame", nil, LFGWindow.panel, "PortraitFrameTemplate")
 detail:SetSize(DETAIL_WIDTH, LFGWindow.HEIGHT)
 detail:SetPoint("TOPLEFT", LFGWindow.panel, "TOPRIGHT", -2, 0)
+-- Ohne Porträt: auch der Rahmen ohne Ring (sonst überdeckt der leere Ring oben links die erste Zeile)
+if detail.SetBorder then detail:SetBorder("ButtonFrameTemplateNoPortrait") end
 if detail.SetPortraitShown then detail:SetPortraitShown(false) end
 if type(detail.CloseButton) == "table" then
   detail.CloseButton:SetScript("OnClick", function()

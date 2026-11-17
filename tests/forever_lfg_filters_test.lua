@@ -129,3 +129,14 @@ expect("Taste schließt", LFGWindow.IsShown(), false)
 LevelTimer_LFGWindow()
 expect("Taste öffnet", LFGWindow.IsShown(), true)
 expect("keine Lua-Fehler", #wow.errors, 0)
+
+-- v3.0.1: Addon-Sprache ungleich Client-Sprache: keine Blizzard-Texte (Client) zwischen unseren
+local clientLocale = GetLocale()
+LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE or { WARRIOR = "Krieger" }
+addon.Set("language", clientLocale == "enUS" and "deDE" or "enUS")
+expect("spricht nicht Client-Sprache", addon.SpeaksClientLanguage(), false)
+expectTrue("Klasse in Addon-Sprache", view.classChecks[1].textFn():find(addon.L.CLASS_NAME_WARRIOR, 1, true) ~= nil)
+expect("Fenstertext aus eigenen Texten", addon.LFGWindow.Text("LFG_TITLE", "LFG_WIN_TITLE"), addon.L.LFG_WIN_TITLE)
+addon.Set("language", addon.AUTO_LANGUAGE)
+expect("wieder Client-Sprache", addon.SpeaksClientLanguage(), true)
+expect("keine Fehler (Sprache)", #wow.errors, 0)

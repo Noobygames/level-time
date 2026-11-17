@@ -28,6 +28,12 @@ function ns.Language()
   return ns.DefaultLanguage()
 end
 
+-- true, wenn das Addon die Sprache des Clients spricht: dann passen Blizzards globale Texte (Client-Sprache) zu
+-- unseren; sonst würden sie sich mischen (z. B. englisches Addon im deutschen Client)
+function ns.SpeaksClientLanguage()
+  return ns.Language() == ns.DefaultLanguage()
+end
+
 -- L.KEY liefert den Text in der eingestellten Sprache, Fallback Englisch
 ns.L = setmetatable({}, {
   __index = function(_, key)

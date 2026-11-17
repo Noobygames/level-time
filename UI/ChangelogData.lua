@@ -6,6 +6,31 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-18",
+    entries = {
+      { kind = "fix",
+        deDE = "Gruppensuche: Ist Level Time auf eine andere Sprache als das Spiel eingestellt, erscheinen keine gemischten Texte mehr (z. B. „Schutz open“).",
+        enUS = "Group finder: when Level Time uses a different language than the game, texts are no longer mixed (e.g. \"Schutz open\").",
+        frFR = "Recherche de groupe : si Level Time utilise une autre langue que le jeu, les textes ne sont plus mélangés.",
+        esES = "Buscador de grupos: si Level Time usa otro idioma que el juego, los textos ya no se mezclan." },
+      { kind = "fix",
+        deDE = "Gruppensuche: Lange Klassennamen in den Filtern werden nicht mehr abgeschnitten.",
+        enUS = "Group finder: long class names in the filters are no longer cut off.",
+        frFR = "Recherche de groupe : les noms de classe longs dans les filtres ne sont plus coupés.",
+        esES = "Buscador de grupos: los nombres de clase largos en los filtros ya no se cortan." },
+      { kind = "change",
+        deDE = "Taschen voll: Das Fenster zeigt bis zu drei Gegenstände zum Löschen, auch wertlose weiße Ausrüstung (nie Reagenzien), und lässt sich schließen.",
+        enUS = "Bags full: the window offers up to three items to delete, including near-worthless white gear (never reagents), and can be closed.",
+        frFR = "Sacs pleins : la fenêtre propose jusqu'à trois objets à supprimer, y compris de l'équipement blanc sans valeur (jamais de composants), et peut être fermée.",
+        esES = "Bolsas llenas: la ventana ofrece hasta tres objetos para borrar, incluido equipo blanco casi sin valor (nunca componentes), y se puede cerrar." },
+      { kind = "fix",
+        deDE = "Gruppensuche: Das Detailfenster einer Gruppe hat keinen leeren Porträtring mehr, der die erste Zeile überdeckt.",
+        enUS = "Group finder: a group's detail window no longer shows an empty portrait ring covering the first line.",
+        frFR = "Recherche de groupe : la fenêtre de détail d'un groupe n'affiche plus d'anneau de portrait vide masquant la première ligne.",
+        esES = "Buscador de grupos: la ventana de detalle de un grupo ya no muestra un anillo de retrato vacío que tapa la primera línea." },
+    },
+  },
+  {
     date = "2026-11-17",
     entries = {
       { kind = "change",

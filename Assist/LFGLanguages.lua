@@ -27,7 +27,7 @@ end
 
 -- Name einer Sprache: Blizzards eigener Text (Client-Sprache), sonst unserer, sonst das Kürzel
 function LFGLanguages.Name(code)
-  local blizzard = _G["LFG_LIST_LANGUAGE_" .. code:upper()]
+  local blizzard = ns.SpeaksClientLanguage() and _G["LFG_LIST_LANGUAGE_" .. code:upper()]  -- nur in Client-Sprache
   if type(blizzard) == "string" and blizzard ~= "" then return blizzard end
   local key = "LFG_LANGUAGE_" .. code:upper()
   return ns.L[key] ~= key and ns.L[key] or code

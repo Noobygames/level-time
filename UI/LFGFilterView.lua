@@ -41,7 +41,9 @@ local function withRoleIcon(role, text)
 end
 -- Klassenname mit Klassen-Symbol davor (ohne CLASS_ICON_TCOORDS nur der Name)
 local function className(class)
-  local name = LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[class] or class
+  -- Blizzards Klassennamen nur in Client-Sprache, sonst unsere (CLASS_NAME_<KLASSE>)
+  local blizzard = ns.SpeaksClientLanguage() and LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[class]
+  local name = blizzard or L["CLASS_NAME_" .. class]
   local coords = CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class]
   if not coords then return name end
   local s = CLASS_ICONS_SIZE
@@ -256,14 +258,17 @@ function LFGFilterView.Create(parent, state, onChange)
       if not (box.HasFocus and box:HasFocus()) then box:SetText(filters()[box.field] and tostring(filters()[box.field]) or "") end
     end
     y = y + SECTION_GAP
-    -- Klassen in festen Spalten
+    -- Klassen in festen Spalten; so viele Spalten (höchstens CLASS_COLUMNS), wie der breiteste Name samt Symbol zulässt
     y = place(classHeader, y)
-    local columnWidth = math.floor(width / CLASS_COLUMNS)
+    local widest = 0
+    for _, check in ipairs(classChecks) do widest = math.max(widest, show(check, 0, y)) end
+    local columns = math.max(1, math.min(CLASS_COLUMNS, math.floor((width + ITEM_GAP) / (widest + ITEM_GAP))))
+    local columnWidth = math.floor(width / columns)
     for index, check in ipairs(classChecks) do
-      local column, row = (index - 1) % CLASS_COLUMNS, math.floor((index - 1) / CLASS_COLUMNS)
+      local column, row = (index - 1) % columns, math.floor((index - 1) / columns)
       show(check, column * columnWidth, y + row * ROW_HEIGHT)
     end
-    y = y + math.ceil(#classChecks / CLASS_COLUMNS) * ROW_HEIGHT + SECTION_GAP
+    y = y + math.ceil(#classChecks / columns) * ROW_HEIGHT + SECTION_GAP
     -- Spielstil, rechts daneben Zurücksetzen
     LFGWindow.Retext(resetButton)
     resetButton:ClearAllPoints()
