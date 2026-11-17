@@ -2539,4 +2539,6 @@ ns.locales.enUS = {
   CLASS_NAME_SHAMAN = "Shaman",
   CLASS_NAME_WARLOCK = "Warlock",
   CLASS_NAME_WARRIOR = "Warrior",
+  CARD_CLOSE = "Close",
+  CARD_CLOSE_TIP = "Hides this display until next time. To turn it off for good, right-click it to open its settings.",
 }

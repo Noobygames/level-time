@@ -36,7 +36,13 @@ local SAMPLE_MAP, SAMPLE_DIFFICULTY = 36, 1
 local SAMPLE_SECONDS = 1458
 
 local PORTRAIT_SIZE = 48  -- Porträt des nächsten Bosses größer als das Standard-Symbol einer Karte
-local card = ns.Card.Create(ns.GlobalName("DungeonRun"), { iconSize = PORTRAIT_SIZE })
+-- X: diesen Lauf nicht mehr zeigen (dismissedRun = Startzeit des Laufs); ganz abschalten: showRunTracker
+local dismissedRun
+local card = ns.Card.Create(ns.GlobalName("DungeonRun"), { iconSize = PORTRAIT_SIZE, onClose = function()
+  local records = ns.History and ns.characterKey and ns.History.GetInstanceLog(ns.characterKey)
+  dismissedRun = records and records[1] and records[1].time
+  ns.InstanceRunTracker.Refresh()
+end })
 ns.Widgets.EnableItemLinks(card.frame)  -- Beute-Symbole des nächsten Bosses mit Item-Tooltip
 -- Stern an unbestätigter Beute: Erklärzeile im Item-Tooltip
 card.frame:SetScript("OnHyperlinkEnter", function(self, link)
@@ -159,7 +165,7 @@ end
 function InstanceRunTracker.Refresh()
   if not ns.db then return end
   local record, best = currentAndBest()
-  if not record or not (previewing or ns.db.showRunTracker) then
+  if not record or not (previewing or ns.db.showRunTracker) or (not previewing and record.time == dismissedRun) then
     card.frame:Hide()
     return
   end

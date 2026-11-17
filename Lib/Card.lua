@@ -1,7 +1,8 @@
 -- Karte für Hinweise: dunkler Grund, Farbleiste links, Symbol, Titel, Text und auf Wunsch eine große Zahl
 -- mit leerlaufendem Balken. Eine Karte zeigt immer einen Inhalt; Größe aus den Texten der Sprache.
---   local card = Card.Create("MeinFrame")          options = { iconSize = 48, bodySpacing = 4 } (optional: Symbolgröße,
---                                                   Zeilenabstand im Text)
+--   local card = Card.Create("MeinFrame")          options = { iconSize = 48, bodySpacing = 4, onClose = fn }
+--                                                   (optional: Symbolgröße, Zeilenabstand im Text, X oben rechts,
+--                                                   das onClose() ruft; Tooltip sagt, wo man die Anzeige ganz abschaltet)
 --   card.Set({ color = { r, g, b }, icon = Pfad oder Spell-ID, title = "...", body = "...", time = true })
 --   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
 --   timeText = erster Text der großen Zeile (optional); die Breite reicht für ihn und für eine zweistellige Zahl
@@ -25,6 +26,8 @@ local BAR_GAP = 8
 local BAR_BACK_COLOR = { 1, 1, 1, 0.12 }
 local BODY_COLOR = ns.Theme.COLORS.text
 local FALLBACK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+local CLOSE_SIZE = 20            -- X oben rechts (options.onClose)
+local CLOSE_INSET = 2
 
 -- Pfad bleibt, eine Zahl ist eine Spell-ID (Textur aus dem Client); fehlt sie, das Fragezeichen
 local function iconTexture(icon)
@@ -43,6 +46,17 @@ function Card.Create(name, options)
   card.frame = frame
 
   ns.Theme.RegisterCard(frame)  -- Grund (und im Stil flat ein Rand) aus dem Theme
+
+  local closeSpace = 0
+  if options and options.onClose then
+    local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+    close:SetSize(CLOSE_SIZE, CLOSE_SIZE)
+    close:SetPoint("TOPRIGHT", -CLOSE_INSET, -CLOSE_INSET)
+    close:SetScript("OnClick", function() options.onClose() end)
+    ns.Widgets.AttachTooltip(close, function() return ns.L.CARD_CLOSE end, function() return ns.L.CARD_CLOSE_TIP end)
+    frame.closeButton = close
+    closeSpace = CLOSE_SIZE  -- Texte laufen nicht unter das X
+  end
 
   local accent = frame:CreateTexture(nil, "BORDER")
   accent:SetColorTexture(1, 1, 1, 1)
@@ -115,7 +129,7 @@ function Card.Create(name, options)
       end
       widest, height = math.max(widest, width), height + LINE_GAP + timeHeight
     end
-    frame:SetWidth(math.max(MIN_WIDTH, textLeft + widest + PADDING))
+    frame:SetWidth(math.max(MIN_WIDTH, textLeft + widest + PADDING + closeSpace))
     frame:SetHeight(2 * PADDING + math.max(hasIcon and iconSize or 0, height) + (hasTime and BAR_GAP + BAR_HEIGHT or 0))
   end
 

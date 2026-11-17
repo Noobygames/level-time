@@ -14,6 +14,7 @@
 --   estimated (geschätzte Restzeit: Farbe config.colors.estimated, formatTime sieht den Zustand).
 -- spellId darf auch ein Texturpfad sein (Card nimmt beides).
 -- Einstellungen: db[soundKey] (bei "done"); Position und Größe in db.frames[id].
+-- Das X der Karte blendet den gezeigten Zustand aus, bis er endet oder ein anderer kommt; ganz abschalten: toggleKey.
 local _, ns = ...
 
 local TimerDisplay = {}
@@ -29,13 +30,19 @@ local PULSE_SPEED = 3
 
 function TimerDisplay.Create(config)
   local Display = {}
-  local card = ns.Card.Create(config.name)
+  local hide
+  local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
+  local dismissed  -- per X geschlossener Zustand { kind, title }: bleibt aus, bis er endet oder ein anderer kommt
+  local override  -- Vorschau oder Edit-Modus; solange gesetzt, ignoriert die Anzeige die echten Zustände
+  local card = ns.Card.Create(config.name, { onClose = function()
+    if current and not override then dismissed = { kind = current.kind, title = current.title } end
+    if override and not override.frozen then override = nil end
+    hide()
+  end })
   local frame = card.frame
   frame:SetFrameStrata("HIGH")
 
-  local current   -- angezeigter Zustand: { kind, spellId, expiration, duration, frozen, endsAt }
   local shownSeconds  -- zuletzt angezeigte Sekunde: die Zahl ändert sich nur einmal pro Sekunde, der Balken öfter
-  local override  -- Vorschau oder Edit-Modus; solange gesetzt, ignoriert die Anzeige die echten Zustände
   local shownAt
   local faded = false  -- Einblenden fertig (Alpha 1), solange der Zustand steht
 
@@ -65,7 +72,7 @@ function TimerDisplay.Create(config)
     frame:SetAlpha(alpha)
   end
 
-  local function hide()
+  hide = function()
     if current then ns.Debug("timer", "%s hides %s", config.name, current.kind) end
     current = nil
     frame:Hide()
@@ -116,8 +123,13 @@ function TimerDisplay.Create(config)
   function Display.Show(state)
     if override then return end
     if not state then
+      dismissed = nil
       if not (current and current.endsAt) then hide() end
       return
+    end
+    if dismissed then
+      if dismissed.kind == state.kind and dismissed.title == state.title then return end
+      dismissed = nil
     end
     if current and current.kind == state.kind and current.title == state.title
       and current.estimated == state.estimated then
@@ -146,6 +158,7 @@ function TimerDisplay.Create(config)
   -- Abschluss, der kurz stehen bleibt: kind "done" (mit Ton nach db[soundKey]) oder ein eigener wie "cancelled"
   function Display.ShowEnd(kind, spellId, title)
     if override then return end
+    dismissed = nil
     display({ kind = kind, spellId = spellId, title = title, endsAt = GetTime() + DONE_SECONDS })
     if kind ~= "done" then return end
     local sound = ns.db and ns.db[config.soundKey]

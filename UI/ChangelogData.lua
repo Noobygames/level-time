@@ -6,6 +6,16 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-19",
+    entries = {
+      { kind = "change",
+        deDE = "Dungeon-Run-Tracker und die Zeit-Karten (Lagerfeuer, Essen, Schlafsack, Flug) haben ein X zum Schließen; ganz abschalten geht weiter in den Einstellungen (Rechtsklick auf die Karte).",
+        enUS = "The dungeon run tracker and the timer cards (campfire, food, sleeping bag, flight) have an X to close them; turning them off for good still works in the settings (right-click the card).",
+        frFR = "Le suivi de donjon et les cartes de minuteur (feu de camp, nourriture, sac de couchage, vol) ont un X pour les fermer ; les désactiver définitivement se fait toujours dans les paramètres (clic droit sur la carte).",
+        esES = "El seguimiento de mazmorras y las tarjetas de temporizador (hoguera, comida, saco de dormir, vuelo) tienen una X para cerrarlas; desactivarlas del todo sigue siendo posible en las opciones (clic derecho en la tarjeta)." },
+    },
+  },
+  {
     date = "2026-11-18",
     entries = {
       { kind = "fix",
