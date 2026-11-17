@@ -74,9 +74,30 @@ panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, panelName)  -- mit ESC schließen
 
-local title = Widgets.CreateWindowHeader(panel, "")
+local windowHeader = Widgets.CreateWindowHeader(panel, "")
+windowHeader:SetIcon("Interface\\Icons\\INV_Helmet_08")  -- Dungeon
+local title = windowHeader
+-- Dungeon Guide von Hand öffnen (Assist/DungeonGuide.lua, nur mit Guide-Daten)
+local guideButton = Widgets.CreateButton(windowHeader.actions, 1, 22, function() ns.DungeonGuide.Open() end)
+guideButton:SetPoint("RIGHT")
+Widgets.AttachTooltip(guideButton, function() return L.DUNGEON_GUIDE_SHOW end, function() return L.DUNGEON_GUIDE_SHOW_TIP end)
+ns.RegisterApply(function()
+  guideButton:SetText(L.DUNGEON_GUIDE_BUTTON)
+  guideButton:SetWidth(math.ceil(guideButton.label:GetStringWidth()) + 16)
+  windowHeader.actions:SetWidth(guideButton:GetWidth())
+  guideButton:SetShown(ns.DungeonGuide.IsAvailable())
+end)
 
 local refresh
+
+-- Knopf "Recap": öffnet den Dungeon-Recap des gewählten Laufs (nur bei abgeschlossenen Läufen; UI/DungeonRecapWindow.lua)
+local RECAP_BUTTON_HEIGHT = 22
+local RECAP_BUTTON_PADDING = 24
+local recapButton = Widgets.CreateButton(windowHeader.actions, 60, RECAP_BUTTON_HEIGHT, function()
+  ns.DungeonRecapWindow.Show(state.characterKey, state.selected)
+end)
+recapButton:SetPoint("RIGHT")
+Widgets.AttachTooltip(recapButton, function() return L.DUNGEON_RECAP_BUTTON end, function() return L.DUNGEON_RECAP_BUTTON_TIP end)
 
 -- Reiterzeile (Filter oder Vergleich): options = { { id, label } }, onPick(id)
 local function createToggles(options, onPick)
@@ -109,7 +130,7 @@ local compareTabs = createToggles(COMPARES, function(id)
   state.compare = id
   refresh()
 end)
-local compareLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+local compareLabel = panel:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 
 ---------------------------------------------------------------------------
 -- Liste der Läufe
@@ -131,14 +152,14 @@ local function createListRow(index)
   row.background:SetAllPoints()
   row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   row.name:SetPoint("TOPLEFT", 4, -3)
-  row.badge = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  row.badge = row:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   row.badge:SetPoint("TOPRIGHT", -4, -4)
   row.name:SetPoint("RIGHT", row.badge, "LEFT", -4, 0)
   row.name:SetJustifyH("LEFT")
   row.name:SetWordWrap(false)
-  row.date = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  row.date = row:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   row.date:SetPoint("BOTTOMLEFT", 4, 3)
-  row.time = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  row.time = row:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   row.time:SetPoint("BOTTOMRIGHT", -4, 3)
   row:SetScript("OnClick", function(self)
     state.selected = self.recordTime
@@ -203,7 +224,7 @@ detailArea:SetScrollChild(detail)
 local runName = detail:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 runName:SetPoint("TOPLEFT")
 runName:SetJustifyH("LEFT")
-local runInfo = detail:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+local runInfo = detail:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 runInfo:SetPoint("TOPLEFT", runName, "BOTTOMLEFT", 0, -2)
 -- Platz rechts für das Endboss-Porträt
 runName:SetWidth(DETAIL_WIDTH - HEADER_PORTRAIT_SIZE - SECTION_GAP)
@@ -226,11 +247,12 @@ for index = 1, 2 * TILE_COLUMNS do
   local background = tile:CreateTexture(nil, "BACKGROUND")
   background:SetAllPoints()
   background:SetColorTexture(1, 1, 1, 0.06)
-  tile.label = tile:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+  tile.label = tile:CreateFontString(nil, "OVERLAY", Theme.Font("note"))
+  tile.label:SetTextColor(Theme.RGB("note"))
   tile.label:SetPoint("TOPLEFT", 6, -4)
   tile.value = tile:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
   tile.value:SetPoint("LEFT", 6, 0)
-  tile.note = tile:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  tile.note = tile:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   tile.note:SetPoint("BOTTOMLEFT", 6, 4)
   for _, text in ipairs({ tile.label, tile.value, tile.note }) do
     text:SetPoint("RIGHT", -6, 0)
@@ -269,12 +291,13 @@ local function createTableRow(fontObject, portraitSize)
   return row
 end
 
-local tableHeader = createTableRow("GameFontDisableSmall")
+local tableHeader = createTableRow(Theme.Font("note"))
+for _, cell in ipairs(tableHeader.cells) do cell:SetTextColor(Theme.RGB("note")) end  -- grau wie früher DisableSmall
 tableHeader:SetPoint("TOPLEFT", runInfo, "BOTTOMLEFT", 0, -TILES_BOTTOM)
 local bossRows = {}
 
 local lootTitle = detail:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-local lootText = detail:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+local lootText = detail:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 lootText:SetPoint("TOPLEFT", lootTitle, "BOTTOMLEFT", 0, -4)
 lootText:SetWidth(DETAIL_WIDTH)
 lootText:SetJustifyH("LEFT")
@@ -349,12 +372,12 @@ end
 local function bossRow(index)
   local row = bossRows[index]
   if not row then
-    row = createTableRow("GameFontHighlightSmall", ROW_PORTRAIT_SIZE)
+    row = createTableRow(Theme.Font("body"), ROW_PORTRAIT_SIZE)
     row:EnableMouse(true)
     row:SetScript("OnEnter", showBossTooltip)
     row:SetScript("OnLeave", function() GameTooltip:Hide() end)
     -- Beute-Symbole rechts im Namensfeld, jedes mit Item-Tooltip; danach wieder der Tooltip der Zeile
-    row.loot = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    row.loot = row:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
     row.loot:SetPoint("RIGHT", row.cells[2], "LEFT", -4, 0)
     row.cells[1]:SetPoint("RIGHT", row.loot, "LEFT", -4, 0)
     Widgets.EnableItemLinks(row, function(self)
@@ -443,6 +466,9 @@ local function lootLines(items, ownName)
   return #lines > 0 and table.concat(lines, "\n") or colored("muted", L.DUNGEON_RUNS_NO_LOOT)
 end
 
+-- Beute- und Wurfzeilen eines Laufs mit dem Ergebnis aus Sicht von ownName (auch für den Dungeon-Recap)
+InstanceRunWindow.LootLines = lootLines
+
 local function statusText(record)
   if record.isCurrent then return colored("accent", L.DUNGEON_RUNS_STATUS_RUNNING) end
   if InstanceRuns.IsCompleted(record) then return colored("good", L.DUNGEON_RUNS_STATUS_DONE) end
@@ -512,6 +538,10 @@ refresh = function()
   selectedIndex = selectedIndex or indices[1]
   state.selected = selectedIndex and records[selectedIndex].time or nil
   selectedIsCurrent = selectedIndex ~= nil and records[selectedIndex].isCurrent == true
+  recapButton:SetText(L.DUNGEON_RECAP_BUTTON)
+  recapButton:SetWidth(recapButton:GetTextWidth() + RECAP_BUTTON_PADDING)
+  windowHeader.actions:SetWidth(recapButton:GetWidth())
+  recapButton:SetEnabled(selectedIndex ~= nil and InstanceRuns.IsCompleted(records[selectedIndex]))
   renderList(records, indices, selectedIndex)
   renderDetail(records, selectedIndex)
 end

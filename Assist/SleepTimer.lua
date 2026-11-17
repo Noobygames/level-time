@@ -14,6 +14,9 @@
 --                                        (ChatFrameEditBox.lua, EMOTE88_TOKEN), das Emote-Menü ebenso. DoEmote ist dort
 --                                        nur eine Deprecation-Hülle um PerformEmote, daher nur ohne PerformEmote gehookt.
 --   UNIT_SPELLCAST_SUCCEEDED (player)    der Zauber des Items laut C_Item.GetItemSpell (Ausrollen, im Spiel 429961)
+--   UNIT_AURA (player)                   ein neuer Stapel "Gut erholt" (unter MAX_STACKS) ohne laufenden Timer: der
+--                                        Spieler liegt, egal wie (Sitzen, Rechtsklick auf den Sack); Restzeit = fehlende
+--                                        Stapel mal STACK_SECONDS. Ob Sitzen den Buff gibt, zeigt der Debug-Log (430.sleep.auras).
 -- Mit dem Emote startet der Timer nur, wenn der Schlafsack in der Tasche ist oder vor kurzem ausgerollt wurde. Stapel
 -- und Ablauf kommen aus aura.applications/expirationTime (Felder wie in BuffFrame.lua); ein Buff ohne Stapel (0)
 -- zählt als 1. Prüfung 430.sleep.state, Proben in LevelTimer_DataExtractor/Debug/DebugChecks.lua.
@@ -36,6 +39,7 @@ ns.SleepTimer = SleepTimer
 
 SleepTimer.DURATION = 180            -- Sekunden liegen bleiben unter MAX_STACKS (Wunsch des Spielers)
 SleepTimer.MAX_STACKS = 3            -- "Gut erholt" stapelt bis 3 (vom Spieler bestätigt)
+SleepTimer.STACK_SECONDS = 60        -- so lange dauert ein Stapel (DURATION / MAX_STACKS)
 SleepTimer.REFRESH_SECONDS = 60      -- bei MAX_STACKS frischt das Liegen den Buff nach so vielen Sekunden auf
 SleepTimer.REFRESH_JUMP = 30         -- um so viele Sekunden muss der Ablauf ohne Stapeländerung springen (Auffrischung)
 SleepTimer.ROLLED_OUT_SECONDS = 300  -- so lange nach dem Ausrollen startet /schlafen auch ohne Schlafsack in der
@@ -137,6 +141,7 @@ end
 -- Ende des Liegens: "done" (fertig), "off" (Einstellung aus, ohne Anzeige) oder ein Abbruchgrund
 local function finish(reason)
   if not running or running.phase ~= RESTING then return end
+  rolledOutAt = nil  -- das Ausrollen ist verbraucht: UPDATE_EXHAUSTION im Ruhezustand startet sonst sofort neu
   ns.Debug("sleep", "ended: %s after %s s, well rested stacks %s (started by %s)", reason,
     math.floor(GetTime() - running.startedAt), running.stacks, running.signal)
   if reason == "done" then
@@ -173,6 +178,10 @@ function SleepTimer.Start(signal)
   local stacks, expiration = readWellRested()
   stacks = stacks or 0
   local duration = stacks >= SleepTimer.MAX_STACKS and SleepTimer.REFRESH_SECONDS or SleepTimer.DURATION
+  if signal == "aura" then
+    -- Der Stapel kam schon beim Liegen: nur noch die fehlenden Stapel abwarten
+    duration = (SleepTimer.MAX_STACKS - stacks) * SleepTimer.STACK_SECONDS
+  end
   ns.Debug("sleep", "started by %s, well rested stacks %s, countdown %s s", signal, stacks, duration)
   setRunning({ phase = RESTING, startedAt = GetTime(), signal = signal, stacks = stacks, expiration = expiration,
     duration = duration })
@@ -266,6 +275,31 @@ local function onSpellCast(_, _, spellId)
   if itemSpell and spellId == itemSpell then SleepTimer.RollOut() end
 end
 
+-- Automatischer Start ohne Emote (Sitzen, Rechtsklick auf den Sack, ...): ein neuer Stapel "Gut erholt" außerhalb
+-- eines laufenden Timers heißt, dass der Spieler gerade liegt; Start prüft Schlafsack, Bewegung und Kampf.
+-- Beim ersten Ereignis nach dem Anmelden wird nur der Stand gemerkt (Buff stammt vom Laden, nicht vom Liegen).
+local lastStacks
+local function onAura()
+  local stacks = readWellRested()
+  local previous = lastStacks
+  lastStacks = stacks or 0
+  if running and running.phase == RESTING then return end
+  if previous == nil or not stacks or stacks <= previous or stacks >= SleepTimer.MAX_STACKS then return end
+  SleepTimer.Start("aura")
+end
+
+-- Hinlegen durch Betreten des ausgerollten Schlafsacks (kein Emote): der Client macht den Spieler "ruhend" (Chat
+-- "Ihr fühlt Euch erholt.") und schickt dann alle 10-16 s UPDATE_EXHAUSTION (Debug-Log 2026-11-17: erstes Ereignis
+-- 5,6 s nach dem Ausrollen, erster Stapel 56 s später). UPDATE_EXHAUSTION kommt auch bei XP mit Erholung, daher nur
+-- kurz nach dem Ausrollen und nur, wenn IsResting() wahr ist (draußen sonst nie ruhend).
+local function onExhaustion()
+  if running and running.phase == RESTING then return end
+  if not SleepTimer.RolledOut() then return end
+  local resting = IsResting()
+  if ns.IsSecret(resting) or not resting then return end
+  SleepTimer.Start("lie down")
+end
+
 local function hookIfPresent(owner, name, hook)
   if type(owner) == "table" and type(owner[name]) == "function" then hooksecurefunc(owner, name, hook) end
 end
@@ -283,6 +317,8 @@ if SleepTimer.IsAvailable() then
   hookIfPresent(_G, "JumpOrAscendStart", function() finish("jump") end)
 
   startEvents.Add("UNIT_SPELLCAST_SUCCEEDED", "player", onSpellCast)
+  startEvents.Add("UNIT_AURA", "player", onAura)
+  startEvents.Add("UPDATE_EXHAUSTION", nil, onExhaustion)
   runEvents.Add("PLAYER_STARTED_MOVING", nil, function() finish("moving") end)
   runEvents.Add("PLAYER_REGEN_DISABLED", nil, function() finish("combat") end)
   runEvents.Add("PLAYER_DEAD", nil, function() finish("dead") end)
@@ -292,6 +328,7 @@ local function reset()
   setRunning(nil)
   lastSignalAt = nil
   rolledOutAt = nil
+  lastStacks = nil
 end
 
 ns.OnLogin(reset)

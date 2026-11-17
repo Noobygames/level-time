@@ -76,7 +76,7 @@ local function rememberSpecialItems()
   if not dirty then return end
   dirty = false
   local items = specialItems()
-  for _, candidate in ipairs(ns.QuestItem.Candidates()) do
+  for _, candidate in ipairs(ns.QuestItem.CachedCandidates()) do
     if OWNED_SOURCES[candidate.source] then items[candidate.questID] = candidate.itemId end
   end
 end

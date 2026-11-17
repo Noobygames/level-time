@@ -1,5 +1,5 @@
 -- WoW Forever: Level-Time-Block im Tooltip der Gruppensuche (Assist/LFGTooltip.lua, Daten Assist/LFGData.lua) und
--- Sprachfilter (Assist/LFGLanguages.lua). Retail-Stil hängt an GameTooltip an, Classic-Stil zeigt GameTooltip unter dem
+-- Sprachfilter (Assist/LFGLanguages.lua). Retail-Stil hängt an GameTooltip an, Classic-Stil ergänzt Blizzards
 -- eigenen Rahmen. Todesminen (36): Quest 166 (Beute von VanCleef, Boss), 167 (Beute von NPC 626), 174 (nur Objekte).
 local L = addon.L
 local LFGData = addon.LFGData
@@ -62,10 +62,35 @@ LFGListUtil_SetSearchEntryTooltip(GameTooltip, 7)
 expect("abgeschaltet ohne Block", #GameTooltip._lines, 1)
 addon.Set("lfgTooltip", true)
 
--- Classic-Stil: Block in GameTooltip unter dem Rahmen
-LFGBrowseSearchEntryTooltip_UpdateAndShow(LFGBrowseSearchEntryTooltip, 7)
-expectTrue("Classic: GameTooltip gehört dem Rahmen", GameTooltip:IsOwned(LFGBrowseSearchEntryTooltip))
-expectTrue("Classic: Mitglied mit Zone", has("Brakkus - " .. L.LFG_ROLE_TANK .. " = 23 · Westfall"))
+-- Classic-Stil: Blizzards Rahmen wird ergänzt (Zone je Zeile, eigene Zeilen unten), kein GameTooltip-Block
+local tip = LFGBrowseSearchEntryTooltip
+GameTooltip:Hide()
+LFGBrowseSearchEntryTooltip_UpdateAndShow(tip, 7)
+expect("Classic: GameTooltip bleibt aus", GameTooltip:IsShown(), false)
+local function zoneOf(row) return addon.LFGTooltip.RowZone(row) end
+expect("Zone beim Leader", zoneOf(tip.Leader):GetText(), "Westfall")
+local _, zoneAnchor = zoneOf(tip.Leader):GetPoint(1)
+expect("Zone hängt an der eigenen Zeile, nicht an der Rahmenmitte", zoneAnchor, tip.Leader.Name)
+local zones = {}
+for row in tip.memberPool:EnumerateActive() do
+  local zone = zoneOf(row)
+  zones[#zones + 1] = zone and zone:IsShown() and zone:GetText() or "-"
+end
+expect("Zonen der Mitglieder", table.concat(zones, ","), "-,Durotar")
+local texts = table.concat(addon.LFGTooltip.BlockTexts(tip), " | ")
+expectTrue("Classic: Level-Spanne und Passung", texts:find(string.format(L.LFG_LEVELS, "20-23"), 1, true) ~= nil)
+expectTrue("Classic: offener Heiler", texts:find(string.format(L.LFG_OPEN, "1 " .. L.LFG_ROLE_HEALER), 1, true) ~= nil)
+expectTrue("Classic: Freunde und Gilde", texts:find(string.format(L.LFG_SOCIAL, 1, 1), 1, true) ~= nil)
+expect("Classic: keine Mitglieder doppelt", texts:find("Brakkus", 1, true), nil)
+expect("Classic: keine Bosse doppelt", texts:find(vanCleef, 1, true), nil)
+local grown = tip:GetHeight()
+expectTrue("Rahmen wächst um den Block", grown > 100)
+expectTrue("Rahmen wird breiter für Zone und Zeilen", tip:GetWidth() > 150)
+LFGBrowseSearchEntryTooltip_UpdateAndShow(tip, 7)
+expect("zweiter Aufruf wächst nicht doppelt", tip:GetHeight(), grown)
+LFGBrowseSearchEntryTooltip_UpdateAndShow(tip, 8)
+expect("Gruppe ohne Block: Blizzards Höhe", tip:GetHeight(), 100)
+expect("Gruppe ohne Block: keine Zeilen", #addon.LFGTooltip.BlockTexts(tip), 0)
 
 -- Trefferliste: Level-Spanne, Punkt bei Freunden/Gilde, abgedunkelt bei aufgelöster Gruppe
 local function entry(resultID)

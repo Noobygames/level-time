@@ -15,7 +15,6 @@ local chunked, method, frameState, frameName, readable = H.chunked, H.method, H.
 local MAX_FRAMES = 500      -- Obergrenze beim Durchlaufen eines Fensters
 local MAX_ITEMS = 40        -- Obergrenze je Liste im Log
 local SLACK = 1             -- Pixel Toleranz bei Breitenvergleichen
-local MAX_HEIGHT_SHARE = 0.9
 
 local function number(value)
   value = readable(value)
@@ -88,35 +87,16 @@ end
 -- Einstellungsfenster
 ---------------------------------------------------------------------------
 
--- LT81, LT82, LT102, LT162, LT163: Voreinstellungs-, Fußzeilen-, Reiter- und Seitenleisten-Knöpfe, deren Text nicht in
+-- LT-350 (auch LT-348 fr/es): Voreinstellungs-, Fußzeilen-, Reiter- und Seitenleisten-Knöpfe, deren Text nicht in
 -- den Knopf passt, und Rahmen, die rechts über das Fenster ragen. Je Sprache einmal ausführen (Fenster offen oder zu).
-check("LT81.options.textFit", function()
+check("LT350.options.textFit", function()
   return fitReport(ns.OptionsWindow.panel)
 end)
 
--- LT80: Höhe des Fensters gegen 90 % des Bildschirms und Bildlauf je Seite (Bereich, Stellung, Mausrad). Bei kleiner
--- Auflösung oder großer UI-Skalierung wiederholen.
-check("LT80.options.scroll", function()
-  local panel, scrolls = ns.OptionsWindow.panel, {}
-  for _, frame in ipairs(descendants(panel)) do
-    local range = number(method(frame, "GetVerticalScrollRange"))
-    if range and #scrolls < MAX_ITEMS then
-      local child = method(frame, "GetScrollChild")
-      scrolls[#scrolls + 1] = { shown = method(frame, "IsShown"), scroll = number(method(frame, "GetVerticalScroll")), range = range,
-        height = number(method(frame, "GetHeight")), contentHeight = type(child) == "table" and number(method(child, "GetHeight")) or nil,
-        wheel = method(frame, "IsMouseWheelEnabled") }
-    end
-  end
-  local screen = number(method(UIParent, "GetHeight"))
-  local tab, sub = ns.OptionsWindow.CurrentPage()
-  return { panel = frameState(panel), screenHeight = screen, maxHeight = screen and screen * MAX_HEIGHT_SHARE,
-    effectiveScale = number(method(panel, "GetEffectiveScale")), page = { tab, sub }, scrolls = chunked(scrolls) }
-end)
-
--- LT102, LT189, LT247: alle Reiter und Unterseiten in Fensterreihenfolge (Key, Text, Zahl der Standard-Werte), Klasse
+-- LT-350 (Einstellungen nach Themen): alle Reiter und Unterseiten in Fensterreihenfolge (Key, Text, Zahl der Standard-Werte), Klasse
 -- (Munition nur Jäger) und wo feste Suchbegriffe stehen (zeigt, auf welcher Seite ein Baustein jetzt liegt)
 local PAGE_PROBES = { "Munition", "Lagerfeuer", "Level-Up", "Beute", "Blizzard", "Minimap", "Instanzbericht" }
-check("LT189.options.pages", function()
+check("LT350.options.pages", function()
   local builder, pages, hits = ns.OptionsWindow, {}, {}
   for index, page in ipairs(builder.PageKeys()) do
     pages[index] = { tab = page.tab, sub = page.sub, text = ns.L[page.sub or page.tab],
@@ -131,31 +111,6 @@ check("LT189.options.pages", function()
   end
   return { class = select(2, UnitClass("player")), language = ns.db.language, tabsHidden = builder.TabsHidden(),
     advanced = ns.db.optionsAdvanced, pages = chunked(pages), hits = hits }
-end)
-
--- LT210: feste Suchbegriffe: Trefferreihenfolge, Ort und Art (Beschriftung vor Tooltip)
-local SEARCH_TERMS = { "Repar", "Atem", "Munition", "Gruppenchat", "repair", "ammo" }
-check("LT210.options.search", function()
-  local builder, terms = ns.OptionsWindow, {}
-  for _, term in ipairs(SEARCH_TERMS) do
-    terms[term] = {}
-    for index, entry in ipairs(builder.Search(term)) do
-      if index > 8 then break end
-      local title = type(entry.title) == "function" and safe(entry.title) or nil
-      local byLabel = type(title) == "string" and title:lower():find(term:lower(), 1, true) ~= nil
-      terms[term][index] = { where = builder.WhereOf(entry), title = title, kind = byLabel and "label" or "tip",
-        shown = builder.IsEntryShown(entry) }
-    end
-  end
-  return { terms = terms, resultRows = #builder.SearchResultRows(), highlighted = builder.Highlighted() ~= nil }
-end)
-
--- LT163: Modus Einfach/Erweitert und Profil-Kopfzeile (aktives Profil, Zahl der Charaktere)
-check("LT163.options.profiles", function()
-  local Profiles = ns.Profiles
-  local active = Profiles.GetActive()
-  return { advanced = ns.db.optionsAdvanced, active = active, display = Profiles.DisplayName(active),
-    characters = #Profiles.CharactersOf(active), names = Profiles.GetNames() }
 end)
 
 -- LT223: offene Auswahlliste (Lib/Dropdown.lua): Zeilen, gewählter und hervorgehobener Eintrag, Suchtext. Liste offen lassen.
@@ -224,44 +179,6 @@ check("LT165.window.hints", function()
   return { actions = actions, timer = _G.LevelTimerFrame and fitReport(_G.LevelTimerFrame) or nil, tabs = chunked(tabs) }
 end)
 
--- LT212, LT247: je Anzeige Mausstatus (Einblendung klickdurchlässig; Timer-Anzeigen nur mit clickable), Zielseite des
--- Rechtsklicks und Esc-Liste (Changelog, Optionen, Historie)
-check("LT212.frames.mouse", function()
-  local list, special = {}, {}
-  for _, reg in ipairs(ns.Frames.All()) do
-    list[#list + 1] = { id = reg.id, page = reg.settingsPage, clickable = reg.clickable == true, protected = reg.protected == true,
-      mouse = method(reg.frame, "IsMouseEnabled"), shown = method(reg.frame, "IsShown"),
-      width = number(method(reg.frame, "GetWidth")), height = number(method(reg.frame, "GetHeight")) }
-  end
-  for _, name in ipairs({ ns.GlobalName("Changelog"), ns.GlobalName("Options"), ns.GlobalName("History") }) do
-    special[name] = false
-    for _, entry in ipairs(UISpecialFrames) do
-      if entry == name then special[name] = true end
-    end
-  end
-  return { frames = chunked(list), alertMouse = method(ns.Alerts.frame, "IsMouseEnabled"), escCloses = special }
-end)
-
--- LT78: Texturen der Einblendung und der Karte (GetTexture/Atlas leer = unsichtbar), Stil; bei sichtbarer Vorschau ausführen
-local function textureStates(frame)
-  local list = {}
-  for index, region in ipairs(listOf(frame, "GetRegions")) do
-    if method(region, "GetObjectType") == "Texture" and #list < MAX_ITEMS then
-      list[#list + 1] = { index = index, texture = method(region, "GetTexture"), atlas = method(region, "GetAtlas"),
-        shown = method(region, "IsShown"), alpha = number(method(region, "GetAlpha")),
-        width = number(method(region, "GetWidth")), height = number(method(region, "GetHeight")) }
-    end
-  end
-  return list
-end
-check("LT78.alert.banner", function()
-  local Alerts = ns.Alerts
-  return { style = ns.db.alertStyle, banner = Alerts.IsBanner(), frame = frameState(Alerts.frame),
-    text = method(Alerts.frame.text, "GetText"),
-    frameTextures = chunked(textureStates(Alerts.frame)), card = frameState(Alerts.noticeFrame),
-    cardTextures = chunked(textureStates(Alerts.noticeFrame)) }
-end)
-
 -- LT155, LT225: Einblendungen und Testen-Karten: Art, Text, Zweitzeile, Kampfstatus, Quest-XP des Questlogs (LT270.questLogXp)
 local function alertLine(event, ...)
   if not DebugLog.IsEnabled() then return end
@@ -308,10 +225,16 @@ check("LT129.tooltip.state", function()
 end)
 
 -- LT213: Anker (Besitzer der Welt-Tooltips), Größe je Tooltip und Gildenrang
+local lastAnchor  -- nur Änderungen loggen: der Hook feuert bei jedem Tooltip-Refresh
 hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tooltip, parent)
   if not DebugLog.IsEnabled() or tooltip ~= GameTooltip then return end
-  write({ area = "tooltip", event = "ui.tooltip.anchor", extra = { owner = frameName(parent), world = parent == UIParent,
-    setting = ns.db.tooltipAnchor, anchor = method(tooltip, "GetAnchorType") } })
+  local extra = { owner = frameName(parent), world = parent == UIParent, setting = ns.db.tooltipAnchor,
+    anchor = method(tooltip, "GetAnchorType") }
+  local signature = tostring(extra.owner) .. "|" .. tostring(extra.world) .. "|" .. tostring(extra.setting) .. "|"
+    .. tostring(extra.anchor)
+  if signature == lastAnchor then return end
+  lastAnchor = signature
+  write({ area = "tooltip", event = "ui.tooltip.anchor", extra = extra })
 end)
 hooksecurefunc(ns.Tooltip, "ApplyScale", function(scale)
   if not DebugLog.IsEnabled() then return end
@@ -345,25 +268,6 @@ check("LT149.tooltip.api", function()
   return { methods = methods, forever = ns.Client.IsForever(), classicEra = ns.Client.IsClassicEra and ns.Client.IsClassicEra() or nil }
 end)
 
--- LT187: Blizzard-Oberfläche ausblenden: je Eintrag Maus-Zustand der Kinder (unsichtbare Symbole/Knöpfe dürfen nicht
--- klickbar sein). Vor und nach dem Ausblenden ausführen.
-check("LT187.blizzardFrames.mouse", function()
-  local BlizzardHide, entries = ns.BlizzardHide, {}
-  for _, entry in ipairs(BlizzardHide.ENTRIES) do
-    local first = BlizzardHide.Frames(entry)[1]
-    if first and #entries < MAX_ITEMS then
-      local children, clickable = descendants(first), 0
-      for _, child in ipairs(children) do
-        if readable(method(child, "IsMouseEnabled")) and readable(method(child, "IsShown")) then
-          clickable = clickable + 1
-        end
-      end
-      entries[#entries + 1] = { id = entry.id, hidden = BlizzardHide.IsHidden(entry.id), mouse = method(first, "IsMouseEnabled"),
-        children = #children, clickableShown = clickable }
-    end
-  end
-  return { pending = BlizzardHide.IsPending(), combat = readable(InCombatLockdown()), entries = chunked(entries) }
-end)
 hooksecurefunc(ns.BlizzardHide, "SetHidden", function(id, hidden)
   if not DebugLog.IsEnabled() then return end
   write({ area = "comfort", event = "ui.blizzardHide", extra = { id = id, hidden = hidden, combat = readable(InCombatLockdown()),
@@ -373,26 +277,6 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", function()
   if DebugLog.IsEnabled() then
     write({ area = "comfort", event = "ui.blizzardHide.afterCombat", extra = { pending = ns.BlizzardHide.IsPending() } })
   end
-end)
-
--- LT215: eckige Minimap: Maske, Größe, Drehung, Rahmen
-check("LT215.minimap.square", function()
-  local Minimap = _G.Minimap
-  return { can = ns.MinimapTweaks.CanSquare(), square = ns.MinimapTweaks.IsSquare(), setting = ns.db.minimapSquare,
-    width = number(method(Minimap, "GetWidth")), height = number(method(Minimap, "GetHeight")),
-    rotate = call("GetCVar", "rotateMinimap"), forever = ns.Client.IsForever(), border = method(_G.MinimapBorder, "IsShown") }
-end)
-
--- LT217: Questtext-Größe: aktuelle Schriftgrößen der Quest-Schriften (Reglergröße, sonst Blizzards Original)
-check("LT217.quests.textSize", function()
-  local QuestTextSize, sizes = ns.QuestTextSize, {}
-  for _, list in ipairs({ QuestTextSize.BODY_FONTS, QuestTextSize.TITLE_FONTS }) do
-    for _, name in ipairs(list) do
-      local _, size = method(_G[name], "GetFont")
-      sizes[name] = number(size)
-    end
-  end
-  return { available = QuestTextSize.IsAvailable(), settings = settings({ "questTextResize", "questTextSize" }), fonts = sizes }
 end)
 
 -- LT219: Bildschirmränder: Pixel je Seite, Strata/Ebene, Mausfang, Elternrahmen (UIParent: Alt+Z blendet mit aus)
@@ -427,12 +311,6 @@ for _, name in ipairs({ "UndressAll", "UndressTabard" }) do
   end)
 end
 
--- LT89: Infokarte: erkanntes Ziel (Art, ID, Name), Text mit Link je Client; beim Überfahren eines Ziels ausführen
-check("LT89.infoCard.subject", function()
-  local subject = ns.InfoCard.Subject()
-  return { enabled = ns.db.infoCards, subject = subject, text = subject and ns.InfoCard.Text(subject) or nil,
-    forever = ns.Client.IsForever(), tooltipShown = method(GameTooltip, "IsShown") }
-end)
 hooksecurefunc(ns.InfoCard, "Show", function()
   if not DebugLog.IsEnabled() then return end
   local subject = ns.InfoCard.Subject()

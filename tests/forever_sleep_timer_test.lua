@@ -180,6 +180,31 @@ sleep()
 JumpOrAscendStart()
 expect("Springen bricht ab", SleepTimer.State(), nil)
 
+-- Automatischer Start ohne Emote: neuer Stapel "Gut erholt" bei Schlafsack in der Tasche
+wow.state.buffs = {}
+wow.fire("UNIT_AURA", "player")  -- merkt nur den Stand
+expect("erstes Aura-Ereignis startet nichts", SleepTimer.State(), nil)
+wellRested(1)
+wow.fire("UNIT_AURA", "player")
+expect("neuer Stapel startet den Timer", SleepTimer.State() and SleepTimer.State().signal, "aura")
+expect("Restzeit: 2 fehlende Stapel", SleepTimer.State().duration, 2 * SleepTimer.STACK_SECONDS)
+wellRested(2)
+wow.fire("UNIT_AURA", "player")
+wait(1)
+expect("weiterer Stapel läuft im selben Timer", SleepTimer.State().signal, "aura")
+SleepTimer.Cancel("test")
+wait(5)
+wow.fire("UNIT_AURA", "player")
+expect("gleicher Stapel startet nicht neu", SleepTimer.State(), nil)
+wow.state.itemCounts[BAG] = 0
+wellRested(1)
+wow.fire("UNIT_AURA", "player")
+expect("ohne Schlafsack kein Aura-Start", SleepTimer.State(), nil)
+wow.state.itemCounts[BAG] = 1
+wow.state.buffs = {}
+wow.fire("UNIT_AURA", "player")
+wait(1)
+
 -- Andere Emotes starten nichts; doppeltes /schlafen startet nicht neu
 C_ChatInfo.PerformEmote("DANCE")
 expect("/tanzen startet nichts", SleepTimer.State(), nil)
@@ -248,6 +273,24 @@ expect("ohne Stapel-Hinweis keine Chatzeile", stackNotices(), notices)
 expect("Titel zeigt den Stapel trotzdem", card.title:GetText(), stacksTitle(1))
 SleepTimer.Cancel("test")
 addon.Set("sleepStackNotice", true)
+
+-- Hinlegen durch Betreten des Schlafsacks (ohne Emote): ruhend + UPDATE_EXHAUSTION kurz nach dem Ausrollen startet
+wait(5)
+wow.state.buffs = {}
+wow.state.resting = false
+wow.fire("UPDATE_EXHAUSTION")
+expect("ohne Ausrollen: XP-Erholung startet nichts", SleepTimer.State(), nil)
+wow.fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-6", BAG_SPELL)
+wow.fire("UPDATE_EXHAUSTION")
+expect("ausgerollt, aber nicht ruhend: kein Start", SleepTimer.State(), nil)
+wow.state.resting = true
+wow.fire("UPDATE_EXHAUSTION")
+expectTrue("hingelegt: Timer läuft", SleepTimer.State() ~= nil)
+SleepTimer.Cancel("test")
+-- LT-340: nach dem Ende (hier Abbruch) startet weiteres UPDATE_EXHAUSTION im Ruhezustand keinen neuen Timer
+wow.fire("UPDATE_EXHAUSTION")
+expect("nach dem Ende kein Neustart", SleepTimer.State(), nil)
+wow.state.resting = false
 
 -- Vorschau und Edit-Modus
 wait(5)

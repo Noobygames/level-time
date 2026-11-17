@@ -1,13 +1,123 @@
--- Optionen, Reiter Komfort (3/3): Fenster, Tooltip & Karten, Beute (mit Beute-Glitzer), Timer, Reisen, System, Grafik (mit Beyond Ultra)
--- (lange Seiten in Unterseiten geteilt, Roadmap 465) und Ton; schließt den Reiter ab.
+-- Optionen, Reiter Oberfläche: Oberfläche, Ausblenden, Rahmen, Tooltip & Karten, Grafik & Ton, Beute-Glitzer.
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
-local finishPage, addSection, addSlider, addToggles, addButton = O.finishPage, O.addSection, O.addSlider, O.addToggles, O.addButton
-local addChooser, addHint, addSubPage, finishSubPages, toggle = O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle
-local localized, advanced, requires, percent, toPercent = O.localized, O.advanced, O.requires, O.percent, O.toPercent
-local addFrameScaleSlider = O.addFrameScaleSlider
+local addPage, finishPage, addSection, addSlider = O.addPage, O.finishPage, O.addSection, O.addSlider
+local addToggles, addButton, addChooser, addHint, addSubPage = O.addToggles, O.addButton, O.addChooser, O.addHint, O.addSubPage
+local finishSubPages, toggle, localized, advanced, requires = O.finishSubPages, O.toggle, O.localized, O.advanced, O.requires
+local percent, toPercent = O.percent, O.toPercent
 
+-- Ausblenden (UX S15: alles an einem Ort): ein Schalter je Element der Liste in BlizzardHide.lua, auch die mit eigener
+-- Einstellung (Erfahrungs-, Ruf- und Haltungsleiste, Kalender, Chat-Knöpfe; Kalender und Chat-Knöpfe stehen zusätzlich
+-- bei Minimap und Chat); auch im Edit-Modus direkt am Element schaltbar. In Gruppen mit einklappbaren Überschriften
+-- (Roadmap 406); unbekannte Einträge landen unter "Weitere"
+local BLIZZARD_GROUPS = {
+  { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
+    "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
+  { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
+    "BLIZZ_FRAME_CALENDAR", "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
+  { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
+    "BLIZZ_FRAME_STANCE", "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS", "BLIZZ_FRAME_XP_BAR",
+    "BLIZZ_FRAME_REP_BAR" } },
+}
+
+-- Blizzard-Meldungen und -Effekte (HideFrames.lua): nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner
+-- und Ereignis-Einblendungen nicht in Classic)
+local function addBlizzardMessages()
+  local HideFrames = ns.HideFrames
+  addSection("SECTION_HIDE_FRAMES", { collapsible = true })
+  addToggles({
+    toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
+    toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
+    toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
+    advanced(toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation)),
+    advanced(toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers)),
+  })
+end
+local function addBlizzardHideGroups()
+  local groupOf = {}
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    for _, label in ipairs(group.labels) do groupOf[label] = index end
+  end
+  local lists, rest = {}, {}
+  for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
+    if not entry.setting then entry.resetKeys = { "hiddenBlizzardFrames" } end
+    local index = groupOf[entry.label]
+    if index then
+      lists[index] = lists[index] or {}
+      table.insert(lists[index], entry)
+    else
+      table.insert(rest, entry)
+    end
+  end
+  for index, group in ipairs(BLIZZARD_GROUPS) do
+    if lists[index] then
+      addSection(group.section, { collapsible = true })
+      addToggles(lists[index])
+    end
+  end
+  if #rest > 0 then
+    addSection("SECTION_BLIZZ_OTHER", { collapsible = true })
+    addToggles(rest)
+  end
+end
+
+
+addPage("OPTIONS_TAB_INTERFACE")
+addSubPage("COMFORT_PAGE_INTERFACE")
+addSection("SECTION_SCREEN_TEXT")
+addToggles({
+  toggle("HIDE_ERRORS", "hideErrors"),
+  toggle("HIDE_ZONE_TEXT", "hideZoneText"),
+})
+-- Schwarze Ränder über der Spielwelt (unter der Oberfläche)
+addSection("SECTION_SCREEN_BORDERS")
+addToggles({ toggle("SCREEN_BORDERS", "screenBorders") })
+addSlider({
+  label = "SCREEN_BORDER_TOP",
+  advanced = true,
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderTop end,
+  set = function(value) ns.SetDeferred("screenBorderTop", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
+addSlider({
+  label = "SCREEN_BORDER_BOTTOM",
+  advanced = true,
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderBottom end,
+  set = function(value) ns.SetDeferred("screenBorderBottom", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
+addSlider({
+  label = "SCREEN_BORDER_SIDES",
+  advanced = true,
+  min = 0,
+  max = ns.ScreenBorders.MAX_SIZE,
+  step = ns.ScreenBorders.STEP,
+  get = function(db) return db.screenBorderSides end,
+  set = function(value) ns.SetDeferred("screenBorderSides", value) end,
+  format = function(value) return tostring(value) end,
+  enabled = function(db) return db.screenBorders end,
+})
+addSection("SECTION_ACTION_BARS")
+addToggles({
+  toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
+  toggle("HIDE_MACRO_TEXT", "hideMacroText"),
+  toggle("RANGE_COLOR", "rangeColor"),
+  toggle("COMFORT_COOLDOWN_NUMBERS", "cooldownNumbers"),
+})
+addSubPage("COMFORT_PAGE_HIDE")
+addSection("SECTION_BLIZZARD_FRAMES")
+addHint("BLIZZARD_FRAMES_HINT")
+addBlizzardHideGroups()
+addBlizzardMessages()
 addSubPage("COMFORT_PAGE_FRAMES")
 addSection("SECTION_CHARACTER_FRAME")
 addToggles({
@@ -121,32 +231,75 @@ addToggles({
 })
 addSection("SECTION_WORLD_MAP")
 addToggles({ toggle("MAP_COORDS_TOGGLE", "mapCoordinates"), toggle("DEATH_MAP_TOGGLE", "deathMap"),
-  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow") })
+  toggle("CORPSE_ARROW_TOGGLE", "corpseArrow"), toggle("MAP_REVEAL_TOGGLE", "mapReveal", function() return ns.MapOverlayData ~= nil end) })
 -- Blizzard-Fenster verschieben und skalieren (UX S16: bei den übrigen Fenstern statt unter Oberfläche)
 addSection("SECTION_WINDOWS")
-addToggles({ toggle("MOVE_FRAMES", "moveFrames") })
+addToggles({ toggle("MOVE_FRAMES", "moveFrames"), toggle("REMEMBER_TRACKER_COLLAPSE", "rememberTrackerCollapse") })
 addButton("MOVE_FRAMES_RESET", function() ns.MoveFrames.Reset() end)
--- Beute (UX S16): Plündern, Würfeln und Beute-Glitzer zusammen statt verteilt auf System und Oberfläche
-addSubPage("COMFORT_PAGE_LOOT")
-addSection("SECTION_LOOT")
+-- Grafik und Ton: Kamera, Bildschirmeffekte, Wetter, Stummschalten
+addSubPage("COMFORT_PAGE_GRAPHICS")
+addSection("SECTION_CAMERA")
+addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
+addSection("SECTION_GRAPHICS")
 addToggles({
-  toggle("FASTER_LOOT", "fasterLoot"),
-  toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
+  toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
+  toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
+  advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
 })
-addSection("SECTION_LOOT_ROLLS")
-addToggles({
-  toggle("LOOT_ROLL_COUNTS_TOGGLE", "lootRollCounts"),
-  requires(toggle("LOOT_ROLL_NAMES_TOGGLE", "lootRollNames"), "lootRollCounts"),
-  toggle("LOOT_ROLL_SUMMARY_TOGGLE", "lootRollSummary"),
-  advanced(toggle("LOOT_ROLL_JOURNAL_TOGGLE", "lootRollJournal")),
-  toggle("LOOT_ROLL_HISTORY_TOGGLE", "lootRollHistory"),
-})
-addFrameScaleSlider("LOOT_ROLL_CARD_SCALE", "lootRolls", nil, true)
-O.addFramePreview("LOOT_ROLL_PREVIEW", "lootRolls")
+addSlider(requires({
+  label = "WEATHER_DENSITY",
+  advanced = true,
+  setting = "weatherDensity",
+  min = ns.ScreenEffects.MIN_WEATHER,
+  max = ns.ScreenEffects.MAX_WEATHER,
+  step = 1,
+  get = function(db) return db.weatherDensity end,
+  set = function(value) ns.SetDeferred("weatherDensity", value) end,
+  format = function(value) return tostring(value) end,
+}, "setWeatherDensity"))
+-- Stummschalten nur, wo MuteSoundFile existiert
+local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
+for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
+  table.insert(muteToggles, advanced(toggle(group.label, group.setting, ns.Sounds.CanMute)))
+end
+addSection("SECTION_SOUND")
+addToggles(muteToggles)
+
+-- Grafikdetails (nur WoW Forever): Hauptschalter, Regler je CVar, Nachschärfen, empfohlene Werte
+local ForeverGraphics = ns.ForeverGraphics
+if ForeverGraphics.IsAvailable() then
+  addHint("FOREVER_GRAPHICS_HINT")
+  addToggles({ toggle("FOREVER_GRAPHICS", "foreverGraphics") })
+  addSection("SECTION_GRAPHICS_DISTANCE")
+  local function addGraphicsSliders(list, requiredSetting)
+    for _, slider in ipairs(list) do
+      addSlider(requires({
+        label = slider.label,
+        setting = slider.setting,
+        min = slider.min,
+        max = slider.max,
+        step = slider.step,
+        get = function(db) return db[slider.setting] end,
+        set = function(value) ns.SetDeferred(slider.setting, value) end,
+        format = slider.format and function(value) return string.format(slider.format, value) end or tostring,
+      }, requiredSetting))
+    end
+  end
+  addGraphicsSliders(ForeverGraphics.SLIDERS, "foreverGraphics")
+  addSection("SECTION_GRAPHICS_IMAGE")
+  addToggles({
+    toggle(ForeverGraphics.SHARPEN.label, ForeverGraphics.SHARPEN.setting),  -- wirkt auch ohne Beyond Ultra
+    requires(toggle(ForeverGraphics.PAUSE.label, ForeverGraphics.PAUSE.setting), "foreverGraphics"),
+  })
+  addSection("SECTION_GRAPHICS_HDR")
+  addToggles({ toggle(ForeverGraphics.HDR.label, ForeverGraphics.HDR.setting) })  -- wirkt auch ohne Beyond Ultra
+  addGraphicsSliders(ForeverGraphics.HDR_SLIDERS, ForeverGraphics.HDR.setting)
+  addButton("GRAPHICS_RECOMMENDED", ForeverGraphics.ApplyRecommended)
+end
 -- Beute-Glitzer: Quest-Gegenstände nur, wo es die CVar gibt (WoW Forever), Annähern nur mit Soft-Targeting-API
 local LootSparkles = ns.LootSparkles
 if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
-  addSection("SECTION_LOOT_SPARKLES")
+  addSubPage("OPTIONS_PAGE_LOOT_SPARKLES")
   addToggles({
     toggle("LOOT_SPARKLE_QUEST_ITEMS", "lootSparkleQuestItems", LootSparkles.HasQuestItemSparkle),
     toggle("LOOT_SPARKLE_ORE", "lootSparkleOre", LootSparkles.CanSoftTarget),
@@ -189,147 +342,6 @@ if LootSparkles.HasQuestItemSparkle() or LootSparkles.CanSoftTarget() then
     }, "lootSparkleOre", "lootSparkleHerbs", "lootSparkleChests", "lootSparkleBobber", "lootSparkleQuestObjects", "lootSparkleCorpses"))
     addButton("LOOT_SPARKLE_PREVIEW", function() ns.LootSparkle.Preview() end)
   end
-end
--- Zeit-Anzeigen (Lib/TimerDisplay.lua): Größe und Vorschau; Texte <PREFIX>_SCALE, _PREVIEW. Verschieben und
--- Zurücksetzen übernimmt der Edit-Modus (Button unten)
-local function addTimerDisplayControls(prefix, display, frameId)
-  addFrameScaleSlider(prefix .. "_SCALE", frameId, nil, true)
-  addButton(prefix .. "_PREVIEW", function() display.Preview() end)
-end
-
--- Timer & Flüge (UX S11: dort, wo man Komfort-Helfer sucht): Lagerfeuer und Schlafsack (nur WoW Forever), Essen (wo
--- der Client die Buffs "Essen" und "Satt" kennt) und Flugzeiten (immer)
-addSubPage("COMFORT_PAGE_TIMERS")
-if ns.CampFire.IsAvailable() then
-  addSection("SECTION_CAMP")
-  addToggles({
-    toggle("CAMP_COUNTDOWN_TOGGLE", "campCountdown"),
-    toggle("CAMP_HINT_TOGGLE", "campHint"),
-    requires(toggle("CAMP_SOUND", "campSound"), "campCountdown"),
-  })
-  addSlider(requires({
-    label = "CAMP_HINT_PAUSE",
-    advanced = true,
-    setting = "campHintPause",
-    min = ns.CampFire.MIN_HINT_PAUSE,
-    max = ns.CampFire.MAX_HINT_PAUSE,
-    step = 1,
-    get = function(db) return db.campHintPause end,
-    set = function(value) ns.SetDeferred("campHintPause", value) end,
-    format = function(value) return string.format(L.MINUTES, value) end,
-  }, "campHint"))
-  addTimerDisplayControls("CAMP", ns.CampDisplay, "camp")
-end
-if ns.FoodTimer.IsAvailable() then
-  addSection("SECTION_FOOD")
-  addToggles({
-    toggle("FOOD_TIMER_TOGGLE", "foodTimer"),
-    requires(toggle("FOOD_SOUND", "foodSound"), "foodTimer"),
-  })
-  addTimerDisplayControls("FOOD", ns.FoodDisplay, "food")
-end
-if ns.SleepTimer.IsAvailable() then
-  addSection("SECTION_SLEEP")
-  addToggles({
-    toggle("SLEEP_TIMER_TOGGLE", "sleepTimer"),
-    toggle("SLEEP_STACK_NOTICE", "sleepStackNotice"),
-    toggle("SLEEP_TIMER_SOUND", "sleepTimerSound"),
-  })
-  addTimerDisplayControls("SLEEP", ns.SleepDisplay, "sleep")
-end
-
--- Reisen: Flugzeiten (eigene Messung je Strecke wie Leatrix Plus "Show flight times"), Schiffe und Zeppeline
-addSubPage("COMFORT_PAGE_TRAVEL")
-addSection("SECTION_FLIGHTS")
-addToggles({
-  toggle("FLIGHT_TIMER_TOGGLE", "flightTimer"),
-  requires(toggle("FLIGHT_SOUND", "flightSound"), "flightTimer"),
-  requires(toggle("FLIGHT_TOOLTIP_TOGGLE", "flightTimeTooltip"), "flightTimer"),
-})
-addTimerDisplayControls("FLIGHT", ns.FlightDisplay, "flight")
-
--- Schiffe und Zeppeline (Roadmap 440): gelernte Abfahrtszeiten, nicht in Retail
-if ns.Transports.IsAvailable() then
-  addSection("SECTION_TRANSPORT")
-  addToggles({
-    toggle("TRANSPORT_TIMERS_TOGGLE", "transportTimers"),
-    requires(toggle("TRANSPORT_MINIMAP_TOGGLE", "transportMinimap"), "transportTimers"),
-    requires(toggle("TRANSPORT_WORLDMAP_TOGGLE", "transportWorldMap"), "transportTimers"),
-    requires(toggle("TRANSPORT_NAMEPLATE_TOGGLE", "transportNameplate"), "transportTimers"),
-    requires(toggle("TRANSPORT_TOOLTIP_TOGGLE", "transportTooltip"), "transportTimers"),
-    requires(toggle("TRANSPORT_SHARE_TOGGLE", "transportShare"), "transportTimers"),
-  })
-  addHint("TRANSPORT_NAMEPLATE_HINT")
-  addFrameScaleSlider("TRANSPORT_SCALE", "transport", nil, true)
-  O.addFramePreview("TRANSPORT_PREVIEW", "transport")
-end
-addSubPage("COMFORT_PAGE_SYSTEM")
-addSection("SECTION_DIALOGS")
-addToggles({
-  toggle("EASY_DELETE", "easyDelete"),
-  toggle("FASTER_MOVIE_SKIP", "fasterMovieSkip"),
-})
-addSection("SECTION_COMBAT_GROUP")
-addToggles({
-  toggle("COMBAT_PLATES", "combatPlates"),
-  toggle("COMFORT_THREAT_NUMERIC", "threatShowNumeric"),
-  advanced(toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable)),
-  toggle("READY_TIMER", "readyTimer"),
-})
-if ns.AddonListSort.IsAvailable() then
-  addSection("SECTION_ADDON_LIST")
-  addToggles({ advanced(toggle("SORT_ADDON_LIST", "sortAddonList")) })
-end
--- Grafik und Ton: Kamera, Bildschirmeffekte, Wetter, Stummschalten
-addSubPage("COMFORT_PAGE_GRAPHICS")
-addSection("SECTION_CAMERA")
-addToggles({ toggle("MAX_CAMERA_ZOOM", "maxCameraZoom") })
-addSection("SECTION_GRAPHICS")
-addToggles({
-  toggle("NO_DRUNKEN_HAZE", "noDrunkenHaze"),
-  toggle("NO_SCREEN_EFFECTS", "noScreenEffects"),
-  advanced(toggle("SET_WEATHER_DENSITY", "setWeatherDensity")),
-})
-addSlider(requires({
-  label = "WEATHER_DENSITY",
-  advanced = true,
-  setting = "weatherDensity",
-  min = ns.ScreenEffects.MIN_WEATHER,
-  max = ns.ScreenEffects.MAX_WEATHER,
-  step = 1,
-  get = function(db) return db.weatherDensity end,
-  set = function(value) ns.SetDeferred("weatherDensity", value) end,
-  format = function(value) return tostring(value) end,
-}, "setWeatherDensity"))
--- Stummschalten nur, wo MuteSoundFile existiert
-local muteToggles = { toggle("SILENCE_RESTED_EMOTES", "silenceRestedEmotes") }
-for _, group in ipairs(ns.Sounds.MUTE_GROUPS) do
-  table.insert(muteToggles, advanced(toggle(group.label, group.setting, ns.Sounds.CanMute)))
-end
-addSection("SECTION_SOUND")
-addToggles(muteToggles)
-
--- Grafikdetails (nur WoW Forever): Hauptschalter, Regler je CVar, Nachschärfen, empfohlene Werte
-local ForeverGraphics = ns.ForeverGraphics
-if ForeverGraphics.IsAvailable() then
-  addHint("FOREVER_GRAPHICS_HINT")
-  addToggles({ toggle("FOREVER_GRAPHICS", "foreverGraphics") })
-  addSection("SECTION_GRAPHICS_DISTANCE")
-  for _, slider in ipairs(ForeverGraphics.SLIDERS) do
-    addSlider(requires({
-      label = slider.label,
-      setting = slider.setting,
-      min = slider.min,
-      max = slider.max,
-      step = slider.step,
-      get = function(db) return db[slider.setting] end,
-      set = function(value) ns.SetDeferred(slider.setting, value) end,
-      format = tostring,
-    }, "foreverGraphics"))
-  end
-  addSection("SECTION_GRAPHICS_IMAGE")
-  addToggles({ requires(toggle(ForeverGraphics.SHARPEN.label, ForeverGraphics.SHARPEN.setting), "foreverGraphics") })
-  addButton("GRAPHICS_RECOMMENDED", ForeverGraphics.ApplyRecommended)
 end
 finishSubPages()
 finishPage()

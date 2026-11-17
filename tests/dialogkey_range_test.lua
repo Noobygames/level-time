@@ -231,6 +231,20 @@ wow.state.units.target.dead = false
 wow.state.targetInteractDistance = wow.SECRET
 expect("secret distance: fallback 28+ m", TargetRange.Estimate("target"), "28+ m")
 
+-- Kampfsperre: CheckInteractDistance ist geschützt, darf nicht aufgerufen werden
+wow.state.targetInteractDistance = { [3] = true, [2] = true, [1] = true }
+local realCheck = CheckInteractDistance
+local checkCalls = 0
+CheckInteractDistance = function(...) checkCalls = checkCalls + 1; return realCheck(...) end
+wow.state.combatLockdown = true
+expect("combat lockdown: Estimate nil", TargetRange.Estimate("target"), nil)
+expect("combat lockdown: no CheckInteractDistance call", checkCalls, 0)
+TargetRange.Update()
+expect("combat lockdown: frame hidden", TargetRange.Frame():IsShown(), false)
+wow.state.combatLockdown = false
+CheckInteractDistance = realCheck
+expect("after combat: Estimate 0-10 m", TargetRange.Estimate("target"), "0-10 m")
+
 -- Deaktivieren blendet Frame aus
 addon.Set("showTargetRange", false)
 expect("disabled: frame hidden", TargetRange.Frame():IsShown(), false)

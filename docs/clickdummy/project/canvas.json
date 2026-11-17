@@ -57,6 +57,22 @@
       "w": 1800,
       "x": 5070,
       "y": 0
+    },
+    "DungeonGuide.dc.html": {
+      "h": 560,
+      "is_interactive": true,
+      "title": "Dungeon Guide (Trash- und Bossseiten)",
+      "w": 1000,
+      "x": 5070,
+      "y": 1080
+    },
+    "DungeonRecap.dc.html": {
+      "h": 600,
+      "is_interactive": true,
+      "title": "Dungeon-Recap nach dem Endboss (Planung)",
+      "w": 760,
+      "x": 3540,
+      "y": 1740
     }
   },
   "createdOnFiles": {
@@ -95,6 +111,7 @@
     "History.dc.html",
     "Displays.dc.html",
     "DungeonRun.dc.html",
+    "DungeonRecap.dc.html",
     "LFG.dc.html"
   ],
   "pages": [],

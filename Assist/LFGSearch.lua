@@ -19,11 +19,13 @@ ns.RegisterDefaults({
 })
 
 local LFGData = ns.LFGData
+local LFGFilters = ns.LFGFilters
 
 local LFGSearch = {}
 ns.LFGSearch = LFGSearch
 
-LFGSearch.KIND_ALL, LFGSearch.KIND_GROUPS, LFGSearch.KIND_SOLO = "all", "groups", "solo"
+LFGSearch.KIND_ALL, LFGSearch.KIND_GROUPS, LFGSearch.KIND_SOLO = LFGFilters.KIND_ALL, LFGFilters.KIND_GROUPS,
+  LFGFilters.KIND_SOLO
 
 local cache = {}  -- resultID -> LFGData.Summary
 
@@ -152,23 +154,37 @@ local function isSolo(summary)
   return summary.numMembers == 1
 end
 
--- Ergebnisliste nach den Filtern { kind, hideDelisted, fitOnly }, neueste zuerst: { summary, ... }
+-- Ergebnisliste nach { fitOnly, filters = LFGFilters.Get() }, neueste zuerst (mit filters.socialFirst Freunde/Gilde
+-- davor): { summary, ... }
 function LFGSearch.Results(options)
   local _, ids = api().GetFilteredSearchResults()
+  local filters = options.filters
   local list = {}
   for _, resultID in ipairs(ids or {}) do
     local summary = LFGSearch.Summary(resultID)
-    local keep = summary ~= nil and not (options.hideDelisted and summary.delisted)
-      and not (options.kind == LFGSearch.KIND_SOLO and not isSolo(summary))
-      and not (options.kind == LFGSearch.KIND_GROUPS and isSolo(summary))
+    local keep = summary ~= nil and LFGFilters.Matches(summary, filters)
       and not (options.fitOnly and summary.fit ~= LFGData.FITS and summary.fit ~= nil)
     if keep then table.insert(list, summary) end
   end
   table.sort(list, function(a, b)
+    if filters.socialFirst and LFGFilters.IsSocial(a) ~= LFGFilters.IsSocial(b) then return LFGFilters.IsSocial(a) end
     if (a.age or 0) ~= (b.age or 0) then return (a.age or 0) < (b.age or 0) end
     return a.resultID < b.resultID
   end)
   return list
+end
+
+-- Treffer in zwei Abschnitten (LT-326): { { kind = KIND_GROUPS|KIND_SOLO, items = { summary, ... } }, ... }. Wer allein
+-- ist, sucht eine Gruppe: Gruppen zuerst; in einer Gruppe sucht man Leute: Einzelspieler zuerst. Gleiche Filter wie Results.
+function LFGSearch.Sections(options)
+  local groups, solo = {}, {}
+  for _, summary in ipairs(LFGSearch.Results(options)) do
+    table.insert(isSolo(summary) and solo or groups, summary)
+  end
+  local groupSection = { kind = LFGSearch.KIND_GROUPS, items = groups }
+  local soloSection = { kind = LFGSearch.KIND_SOLO, items = solo }
+  if IsInGroup() then return { soloSection, groupSection } end
+  return { groupSection, soloSection }
 end
 
 -- Einzelspieler kann man einladen (Blizzards Regel: nur allein oder als Leiter/Assistent); Gruppen nur anflüstern

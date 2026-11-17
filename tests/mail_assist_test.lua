@@ -56,6 +56,9 @@ expectTrue("Open All Knopf existiert", openAll ~= nil)
 expectTrue("Open All Knopf ist sichtbar", openAll:IsShown())
 expectTrue("Alt Knopf existiert", altBtn ~= nil)
 expectTrue("Alt Knopf ist sichtbar", altBtn:IsShown())
+-- Breite folgt dem Text in der Addon-Sprache (lange Sprachen laufen nicht über den Knopf)
+expect("Alt Knopf Text", altBtn:GetText(), addon.L.MAIL_RECIPIENTS_ALTS)
+expectTrue("Alt Knopf breit genug", altBtn:GetWidth() >= altBtn:GetTextWidth())
 
 -- Twink-Durchschalten per Klick auf LevelTimerMailAltButton
 altBtn._scripts.OnClick(altBtn)

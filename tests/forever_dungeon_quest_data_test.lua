@@ -34,3 +34,6 @@ expect("Horde-Kette Anfang", DB.questChains[95283][2], 96332)
 expect("Horde-Kette hinten", DB.questChains[95285][3], 3)
 expect("Vorquest Allianz", DB.questInfo[96381].preAny[1], 95198)
 expectTrue("Sully gibt 95262", DB.givers.npc[260271][3] == 95262)
+
+-- LT-328: Negolash anlocken (619) ist in Forever eine Düsterbruch-Quest, aber nicht schon ab 35 annehmbar
+expect("619 Mindeststufe", DB.questInfo[619][2], 51)

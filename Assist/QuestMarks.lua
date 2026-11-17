@@ -95,16 +95,20 @@ local function layout(mark, plate)
   local height = bar and bar:GetHeight()
   if not (type(height) == "number" and not ns.IsSecret(height) and height > 0) then height = nil end
   local target = height and bar or plate
+  local scale = QuestMarks.CurrentScale()
   local anchor = anchors[mark]
-  if anchor and anchor.target == target and anchor.height == height then return end
-  anchors[mark] = { target = target, height = height }
+  if anchor and anchor.target == target and anchor.height == height and anchor.scale == scale then return end
+  anchors[mark] = { target = target, height = height, scale = scale }
+  -- Der Versatz eines Ankers wird mit der Skalierung des Symbols multipliziert: durch scale geteilt bleibt der
+  -- Abstand zum Lebensbalken bei jeder Größe GAP
+  local gap = GAP / scale
   mark:ClearAllPoints()
   if height then
     mark:SetSize(height * BAR_HEIGHT_FACTOR, height * BAR_HEIGHT_FACTOR)
-    mark:SetPoint("RIGHT", bar, "LEFT", -GAP, 0)
+    mark:SetPoint("RIGHT", bar, "LEFT", -gap, 0)
   else
     mark:SetSize(FALLBACK_SIZE, FALLBACK_SIZE)
-    mark:SetPoint("BOTTOM", plate, "TOP", 0, GAP)
+    mark:SetPoint("BOTTOM", plate, "TOP", 0, gap)
   end
 end
 

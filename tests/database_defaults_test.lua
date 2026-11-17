@@ -11,7 +11,7 @@ expect("Frames Default", Database.SettingDefault("locked"), false)
 expect("TimerWindow Default", Database.SettingDefault("bgAlpha"), 0.8)
 expect("KillCounter Default", Database.SettingDefault("showPveKills"), true)
 expect("Alerts Default", Database.SettingDefault("alertDuration"), 3)
-expect("Core Default", Database.SettingDefault("language"), addon.DefaultLanguage())
+expect("Core Default", Database.SettingDefault("language"), addon.AUTO_LANGUAGE)
 
 -- Neue Zähler enthalten alle angemeldeten Zähler mit Standard 0
 local counters = Database.NewCounters()

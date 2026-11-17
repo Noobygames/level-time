@@ -20,7 +20,6 @@ local FOREVER_ITEM_MIN_ID = 250000  -- Forever-eigene Items (Classic Era kennt s
 local INSTANCE_TYPE_INDEX, DIFFICULTY_INDEX, INSTANCE_ID_INDEX = 3, 4, 9
 local QUEST_CHECK_DELAY = 2         -- Sekunden nach dem Betreten, bis der Lauf steht
 local LOOT_ICON_SIZE = 14
-local SAMPLE_DURATIONS = { 250, 37 }  -- Beispiel-Restzeiten für die Kartenformate (LT160)
 
 ---------------------------------------------------------------------------
 -- Helfer
@@ -120,7 +119,6 @@ local function forecastState()
   return { level = UnitLevel("player"), max = GetMaxPlayerLevel and GetMaxPlayerLevel() or nil,
     secondsToMax = ns.Forecast.SecondsToMaxLevel(), xpRate = ns.Forecast.AverageLevelXpRate(), recentLevels = levels }
 end
-check("LT76.forecast.maxLevel", forecastState)
 
 -- LT-145: LiveSplit-Datei: Länge, Segmentzahl, ausgewogene Tags, letzte Zeit gegen die Level-Zeiten des Charakters
 local function balancedTags(text)
@@ -160,26 +158,6 @@ end)
 ---------------------------------------------------------------------------
 -- Hauptfenster, Historie
 ---------------------------------------------------------------------------
--- LT-160: Tooltip je Zeile/Kachel (Erklärung, Platzhalterzeile) für beide Zeilenquellen der Layouts, dazu Zeit-Formate
--- und aktueller Text der Karten (Flug/Essen/Lagerfeuer/Schlafsack)
-check("LT160.window.tooltips", function()
-  local WindowModel, sources = ns.WindowModel, {}
-  for _, source in ipairs({ WindowModel.VISIBLE, WindowModel.CHOSEN }) do
-    local model = WindowModel.New()
-    model:Build(ns.db, source)
-    local rows = {}
-    for index, row in ipairs(model.rows) do
-      rows[index] = { row.label, plain(row.value), ns.WindowElements.RowTip(row) or false }
-    end
-    sources[#sources + 1] = { source = source, rows = chunked(rows) }
-  end
-  local cards = {}
-  for _, suffix in ipairs({ "Flight", "Food", "Camp", "Sleep" }) do cards[suffix] = cardText(_G[ns.GlobalName(suffix)]) end
-  local durations = {}
-  for index, seconds in ipairs(SAMPLE_DURATIONS) do durations[index] = ns.Format.Duration(seconds) end
-  return { sources = sources, cards = cards, durations = durations }
-end)
-
 -- LT-172: Bereichs-Beschriftung (Tab-Texte, Layout-Einstellungen) und Titel der Split-Liste im aktuellen Vergleich
 check("LT172.window.labels", function()
   local model = ns.WindowModel.New()
@@ -276,6 +254,59 @@ check("LT200.instance.master", function()
     hasLevels = InstanceInfo.HasLevels(), forLevel = { total = #forLevel, first = first(forLevel, 3) },
     lastRun = last and { name = last.name, mapID = last.mapID, difficultyID = last.difficultyID, groupSize = last.groupSize,
       info = last.mapID and InstanceInfo.Get(last.mapID, last.difficultyID) } or false }
+end)
+
+-- LT-318: Flügel vor dem ersten Boss: Hinweis des Laufs, Flügel aus Boss-Kills, gemerkter Gruppensuche-Eintrag (bleibt
+-- er nach der Gruppenbildung bestehen?), gelernte Gegner je Karte
+check("LT318.wings.state", function()
+  local run = ns.Instances.GetCurrentRun()
+  return { available = ns.InstanceWings ~= nil, run = run and { name = run.name, mapID = run.mapID, hint = run.wing or false,
+    bossWing = ns.InstanceBosses.BossWing(run) or false, progress = ns.InstanceBosses.ProgressText(run) } or false,
+    activeEntry = C_LFGList and C_LFGList.HasActiveEntryInfo and C_LFGList.HasActiveEntryInfo() or false,
+    state = ns.InstanceWings and ns.InstanceWings.State() or false }
+end)
+
+-- LT-334 (nach einem Dungeon mit Endboss prüfen): Dungeon-Recap. api = Schadensmesser und seine Sitzungen (heißen die
+-- Boss-Sitzungen wie der Boss? bossDamage hängt daran), state = gespeicherte Zahlen des letzten Laufs und Fenster,
+-- deaths = Quellen im Messwert Deaths gegen die gezählten Tode des Laufs (eine Quelle je Tod oder je Spieler?)
+check("LT334.recap.api", function()
+  local sessions = {}
+  local list = type(C_DamageMeter) == "table" and C_DamageMeter.GetAvailableCombatSessions
+    and C_DamageMeter.GetAvailableCombatSessions() or {}
+  for _, session in ipairs(type(list) == "table" and not ns.IsSecret(list) and list or {}) do
+    sessions[#sessions + 1] = { id = plain(session.sessionID), name = plain(session.name) }
+  end
+  return { available = ns.RunMeter.IsAvailable(), total = #sessions, sessions = chunked(first(sessions, 20)),
+    bosses = (function()
+      local names = {}
+      local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
+      for id in string.gmatch(run and run.bosses or "", "%d+") do names[#names + 1] = ns.InstanceBosses.Name(tonumber(id)) or "?" end
+      return names
+    end)() }
+end)
+
+check("LT334.recap.state", function()
+  local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
+  local window = ns.DungeonRecapWindow
+  return { autoOpen = ns.db.dungeonRecapAutoOpen, windowShown = window.IsShown(),
+    run = run and { name = run.name, players = run.recapPlayers or false, mobs = run.recapMobs or false,
+      parsed = #ns.InstanceRecap.Players(run), mobsParsed = #ns.InstanceRecap.Mobs(run) } or false }
+end)
+
+check("LT334.recap.deaths", function()
+  if not ns.RunMeter.IsAvailable() then return { available = false } end
+  local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
+  local sources, entries = 0, {}
+  local list = C_DamageMeter.GetAvailableCombatSessions()
+  for _, session in ipairs(type(list) == "table" and not ns.IsSecret(list) and list or {}) do
+    local data = C_DamageMeter.GetCombatSessionFromID(readable(session.sessionID), Enum.DamageMeterType.Deaths)
+    for _, source in ipairs(type(data) == "table" and not ns.IsSecret(data) and data.combatSources or {}) do
+      sources = sources + 1
+      entries[#entries + 1] = { name = plain(source.name), amount = plain(source.totalAmount), recap = plain(source.deathRecapID) }
+    end
+  end
+  local _, _, deaths = ns.Instances.Summarize(run or { counters = {} })
+  return { sources = sources, ownRunDeaths = deaths or false, entries = chunked(first(entries, 20)) }
 end)
 
 -- LT-226: Live-Tracker (Karte), neuester Lauf mit Zeit, Splits, XP je Boss, Beute; die Chatzeile "neue Bestzeit!"

@@ -85,6 +85,9 @@ function RouteReplayWindow.Update()
     progress:SetText("")
     showEntries({})
   end
+  -- Fortschritt als Aktion im Kopf: der Titel (Name, lange Sprachen) schiebt das Fenster breiter statt zu überlappen
+  header.actions:SetWidth(math.max(1, math.ceil(progress:GetStringWidth())))
+  panel:SetWidth(math.max(WIDTH, header:MinWidth()))
   panel:Show()
 end
 

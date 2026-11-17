@@ -178,10 +178,31 @@ local function isOpen(questID, info)
   return fits(info) and not isDone(questID) and not ns.QuestLog.Find(questID) and not excluded(info.excl)
 end
 
+-- Instanzen, zu denen die Quest führt: ihre eigenen, sonst die Ziele ihrer Vorquest-Ketten
+local function targetMaps(questID)
+  local maps = DungeonQuests.Instances(questID)
+  if maps then return maps end
+  local result = {}
+  for _, chain in ipairs(DungeonQuests.Chains(questID) or {}) do result[#result + 1] = chain[CHAIN_MAP] end
+  return result
+end
+
+-- Ist der Charakter über die Höchststufe aller Ziel-Instanzen hinaus? (LT-330; ohne Level-Daten nie)
+local function outgrown(questID, level)
+  local maps = targetMaps(questID)
+  if #maps == 0 then return false end
+  for _, mapID in ipairs(maps) do
+    local info = ns.InstanceInfo.Get(mapID)
+    if not (info and info.maxLevel) or level <= info.maxLevel then return false end
+  end
+  return true
+end
+
 local function computeCanTake(questID)
   local info = db().questInfo[questID]
   if not info or not isOpen(questID, info) then return false end
-  return (UnitLevel("player") or 0) >= info[MIN_LEVEL] and allDone(info.pre) and anyDone(info.preAny)
+  local level = UnitLevel("player") or 0
+  return level >= info[MIN_LEVEL] and not outgrown(questID, level) and allDone(info.pre) and anyDone(info.preAny)
 end
 
 -- Kann der Charakter die Quest jetzt annehmen?

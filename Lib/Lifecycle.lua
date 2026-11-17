@@ -52,6 +52,17 @@ function ns.Debug(area, format, ...)
   record(area, ns.FormatDebug(format, ...))
 end
 
+-- Wie ns.Debug, schreibt pro key aber nur, wenn sich die Zeile gegenüber der letzten dieses keys geändert hat
+-- (Aufrufer aus Refresh-Schleifen wie dem Tooltip-Update)
+local lastDebugLine = {}
+function ns.DebugOnChange(area, key, format, ...)
+  if not debugRecorder then return end
+  local text = ns.FormatDebug(format, ...)
+  if lastDebugLine[key] == text then return end
+  lastDebugLine[key] = text
+  record(area, text)
+end
+
 -- Retail kann Werte als "secret" markieren; die dürfen Addons nicht auswerten
 -- Kämpft der Spieler gerade? Anzeigen, die stören würden, warten damit bis nach dem Kampf
 function ns.InCombat()
@@ -236,9 +247,18 @@ function ns.RegisterApply(callback)
   addCallback(applyCallbacks, callback)
 end
 
--- Verzögerter Apply (ns.SetDeferred): ein unsichtbarer Rahmen, dessen OnUpdate nur läuft, solange er gezeigt wird
+-- Verzögerter Apply (ns.SetDeferred): ein unsichtbarer Rahmen, dessen OnUpdate nur läuft, solange er gezeigt wird.
+-- Er wendet erst an, wenn DEFERRED_QUIET Sekunden lang keine weitere Änderung kam: beim Ziehen eines Reglers kommt
+-- sonst je Bild ein voller Apply (alle Module bauen neu auf).
+local DEFERRED_QUIET = 0.2
 local deferredApplyFrame = CreateFrame("Frame")
 deferredApplyFrame:Hide()
+local deferredQuiet = 0  -- Sekunden seit der letzten verzögerten Änderung
+
+local function requestDeferredApply()
+  deferredQuiet = 0
+  deferredApplyFrame:Show()
+end
 
 function ns.ApplySettings()
   deferredApplyFrame:Hide()  -- ein noch ausstehender verzögerter Apply ist damit erledigt
@@ -246,8 +266,9 @@ function ns.ApplySettings()
   ns.RefreshTasks()
 end
 
-ns.SetUpdateScript(deferredApplyFrame, "DeferredApply", function()
-  ns.ApplySettings()
+ns.SetUpdateScript(deferredApplyFrame, "DeferredApply", function(_, elapsed)
+  deferredQuiet = deferredQuiet + (elapsed or 0)
+  if deferredQuiet >= DEFERRED_QUIET then ns.ApplySettings() end
 end)
 
 -- Gleicher Wert ändert nichts: kein Apply (alle Module bauen dabei ihren Zustand neu auf). Tabellen (Positionen)
@@ -268,17 +289,17 @@ function ns.SetBatch(change)
   ns.ApplySettings()
 end
 
--- Wie ns.Set, der Apply läuft aber erst im nächsten Frame, einmal für alle Änderungen bis dahin (Regler ziehen:
+-- Wie ns.Set, der Apply läuft aber erst, wenn die Änderungen kurz ruhen, einmal für alle bis dahin (Regler ziehen:
 -- OnValueChanged kommt je Pixel). Der Wert steht sofort in ns.db.
 function ns.SetDeferred(key, value)
   if unchanged(key, value) then return end
   ns.db[key] = value
-  deferredApplyFrame:Show()
+  requestDeferredApply()
 end
 
--- Ein Apply im nächsten Frame, wenn ein Modul ns.db selbst geändert hat (z.B. Frames.SetScale beim Mausrad)
+-- Ein verzögerter Apply, wenn ein Modul ns.db selbst geändert hat (z.B. Frames.SetScale beim Mausrad)
 function ns.RequestApply()
-  deferredApplyFrame:Show()
+  requestDeferredApply()
 end
 
 ---------------------------------------------------------------------------

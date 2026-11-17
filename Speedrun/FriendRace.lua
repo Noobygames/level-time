@@ -23,6 +23,7 @@ local FriendRace = {
   MAX_MESSAGE = 240,     -- Grenze 255 Byte, mit Reserve
   SEND_INTERVAL = 1,
   MAX_QUEUE = 50,
+  MAX_RUNS = 50,         -- gespeicherte Freundesläufe; darüber fliegt der älteste (updated) raus
   REQUEST_PAUSE = 60,    -- dieselbe Anfrage an Gruppe/Spieler und die Antwort je Absender höchstens so oft
 }
 ns.FriendRace = FriendRace
@@ -122,8 +123,18 @@ end)
 ---------------------------------------------------------------------------
 -- Empfangen
 ---------------------------------------------------------------------------
+local function pruneRuns(all)
+  local count, oldest, oldestTime = 0, nil, math.huge
+  for name, run in pairs(all) do
+    count = count + 1
+    if (run.updated or 0) < oldestTime then oldest, oldestTime = name, run.updated or 0 end
+  end
+  if count >= FriendRace.MAX_RUNS then all[oldest] = nil end
+end
+
 local function runOf(sender)
   local all = runs()
+  if not all[sender] then pruneRuns(all) end
   all[sender] = all[sender] or { times = {} }
   all[sender].updated = time()
   current = sender
@@ -176,8 +187,13 @@ local function readable(value)
   return type(value) == "string" and not ns.IsSecret(value) and value or nil
 end
 
-ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
+-- Gruppen- und Gildenkanäle gelten als vertraut; Flüstern nur von Freunden und Gildenmitgliedern
+local TRUSTED_CHANNELS = { PARTY = true, RAID = true, INSTANCE_CHAT = true, GUILD = true }
+
+ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, channel, sender)
   prefix, text, sender = readable(prefix), readable(text), readable(sender)
+  channel = readable(channel)
+  if not sender or not (TRUSTED_CHANNELS[channel] or (channel == WHISPER and ns.Friends and ns.Friends.IsTrusted(sender))) then return end
   if prefix ~= FriendRace.PREFIX or not text or not sender or not enabled() or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):?(.*)$")
   local handler = kind and HANDLERS[kind]

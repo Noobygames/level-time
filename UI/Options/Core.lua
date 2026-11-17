@@ -1,5 +1,5 @@
--- Einstellungsfenster mit Reitern: Allgemein, Statistiken, Chat & Erinnerungen, Einblendungen, Komfort, Speedrun,
--- Profile; alle außer Profile mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie,
+-- Einstellungsfenster mit Reitern: Hauptfenster, Dungeons, Quests, Hinweise & Warnungen, Komfort, Oberfläche,
+-- Stream & Speedrun, Allgemein; alle mit Seitenleiste (Kategorien als Unterseiten). Darunter auf allen Reitern: Historie,
 -- Layout bearbeiten, Zusammenfassung, Neue Session. Oben links die Suche über alle Einstellungen (OptionsBuilder).
 -- Nur der Inhalt; Aufbau, Tooltips, Breite und Aktualisierung übernimmt Lib/OptionsBuilder.lua.
 -- Dies ist der gemeinsame Teil (Builder, Hilfsbausteine); jeder Reiter steht in einer eigenen Datei in UI/Options/.
@@ -103,6 +103,22 @@ local function addFrameScaleSlider(label, id, enabled, isAdvanced)
   })
 end
 
+-- Kontur der Schrift (Hauptfenster > Aussehen; auf der Stream-Seite als Abkürzung, weil OBS-Szenen sie brauchen)
+local function addOutlineChooser(isAdvanced)
+  local outlines = {}
+  for i, key in ipairs(ns.Theme.OUTLINE_ORDER) do
+    outlines[i] = { value = key, name = localized("OUTLINE_" .. key:upper()) }
+  end
+  addChooser({ label = "THEME_OUTLINE", setting = "themeOutline", choices = outlines, advanced = isAdvanced })
+end
+
+-- Minimap-Button an/aus (Zurücksetzen je Unterseite): nur hide, nicht die Position am Rand
+local minimapReset = {
+  get = function() return ns.db.minimap.hide end,
+  set = function(hidden) ns.db.minimap.hide = hidden end,
+  default = function() return ns.Database.SettingDefault("minimap").hide end,
+}
+
 -- Gemeinsame Bausteine für die Reiter-Dateien (UI/Options/*.lua)
 ns.OptionsCore = {
   builder = builder,
@@ -111,6 +127,6 @@ ns.OptionsCore = {
   addChooser = addChooser, addDropdown = builder.AddDropdown, addFramePreview = addFramePreview, addPreviewCycle = addPreviewCycle,
   addHint = addHint, addSubPage = addSubPage, finishSubPages = finishSubPages,
   toggle = toggle, localized = localized, advanced = advanced, requires = requires,
-  percent = percent, toPercent = toPercent,
+  percent = percent, toPercent = toPercent, addOutlineChooser = addOutlineChooser, minimapReset = minimapReset,
   addVisibilityDropdown = addVisibilityDropdown, addFrameScaleSlider = addFrameScaleSlider,
 }

@@ -15,7 +15,7 @@ Gilt für jeden neuen oder geänderten Screen im Clickdummy (`docs/clickdummy/pr
 
 - Abstände nur 4 / 8 / 12 / 16 / 24.
 - Fenster-Padding 12 x 16, Kopfhöhe 40.
-- Karten-Padding 8 x 12. Gap in einer Gruppe 8, zwischen Gruppen 16.
+- Karten-Padding 12 (rundum), Abstand Symbol zu Text 12, Zeilenabstand 4, Balken 8 unter dem Text. Gap in einer Gruppe 8, zwischen Gruppen 16.
 - Radius 6 für Fenster und Panels, 4 für Controls.
 - Controls 28 (kompakt) oder 32 (Standard). Listenzeile 32. Close-Button 24 x 24.
 
@@ -121,4 +121,4 @@ Neu zu extrahieren (noch nicht vorhanden):
 - Setzen nur über `Widgets.SetIcon(texture, quelle, größe)` / `header:SetIcon(quelle)`. Fehlt ein Atlas im Client, bleibt das Icon weg und das Layout rutscht nach (Fallback ohne Icon).
 - Ein Icon steht nie allein: immer neben Text oder mit Tooltip. Keine Farbe als Bedeutungsträger über das Icon.
 - Im Clickdummy stehen Emojis als Platzhalter für das Client-Icon (gleiche Größe, Rahmen `#555`).
-- Verwendet: Einrichtungsassistent (je Schritt), Routen-Checkliste und Dungeonquest-Hinweis (Fensterkopf).
+- Verwendet: Einrichtungsassistent (je Schritt und Kopf), Routen-Checkliste, Dungeonquest-Hinweis, Dungeon Guide, Verlauf, Lauf-Fenster, Rückblick und Hinweisfenster (Fensterkopf). Die Pfade stehen alle schon in `UI/Options/Icons.lua`; neue Symbole dort zuerst im Blizzard-Code nachweisen.

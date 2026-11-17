@@ -22,6 +22,7 @@ func main() {
 	transportsDir := flag.String("transports", "Assist/TransportData", "Ordner für die Schiffs- und Zeppelin-Rundkurse")
 	instancesDir := flag.String("instances", "Assist/InstanceData", "Ordner für die Instanz-Stammdaten je Flavor")
 	mapCoordsDir := flag.String("mapcoords", "Assist/MapCoordsData", "Ordner für die Kartenbereiche (Weltkoordinaten) je Flavor")
+	overlaysDir := flag.String("overlays", "Assist/MapOverlayData", "Ordner für die Kacheldaten unerkundeter Kartengebiete je Flavor")
 	bossesDir := flag.String("bosses", "Assist/BossData", "Ordner für die Boss-Listen je Instanz und Flavor")
 	namesDir := flag.String("names", "Assist/FlightNamesData", "Ordner für die Flugpunkt-Namen aller Sprachen je Flavor (leer = nicht laden)")
 	flag.Parse()
@@ -30,7 +31,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Fehler: bitte -wow oder WOW_DIR setzen")
 		os.Exit(1)
 	}
-	if err := run(*wowDir, *out, Dirs{Paths: *pathsDir, Transports: *transportsDir, Instances: *instancesDir, MapCoords: *mapCoordsDir, Names: *namesDir, Bosses: *bossesDir}); err != nil {
+	if err := run(*wowDir, *out, Dirs{Paths: *pathsDir, Transports: *transportsDir, Instances: *instancesDir, MapCoords: *mapCoordsDir, Overlays: *overlaysDir, Names: *namesDir, Bosses: *bossesDir}); err != nil {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
 	}
@@ -38,7 +39,7 @@ func main() {
 
 // Dirs sind die Zielordner der erzeugten Dateien je Flavor (leer = nicht erzeugen).
 type Dirs struct {
-	Paths, Transports, Instances, MapCoords, Names, Bosses string
+	Paths, Transports, Instances, MapCoords, Overlays, Names, Bosses string
 }
 
 func run(wowDir, out string, dirs Dirs) error {
@@ -158,6 +159,9 @@ func writePaths(client *wagoClient, builds map[string]string, snapshot *Snapshot
 		if err := writeMapCoords(client, mapCoordsDir, flavor, build, date); err != nil {
 			return err
 		}
+		if err := writeMapOverlays(client, dirs.Overlays, flavor, build, date); err != nil {
+			return err
+		}
 		if err := writeBosses(client, dirs.Bosses, flavor, build, date); err != nil {
 			return err
 		}
@@ -250,6 +254,27 @@ func writeBosses(client *wagoClient, dir, flavor, build, date string) error {
 	})
 	if err == nil {
 		fmt.Printf("Bosse %s: %d Karten, %d Encounter, Build %s\n", flavor, len(bosses.Maps), len(bosses.Names), bosses.Build)
+	}
+	return err
+}
+
+// writeMapOverlays lädt die Kacheldaten unerkundeter Gebiete und schreibt Assist/MapOverlayData/<flavor>.lua (nur OverlayFlavors).
+func writeMapOverlays(client *wagoClient, dir, flavor, build, date string) error {
+	if dir == "" || !OverlayFlavors[flavor] {
+		return nil
+	}
+	data, err := client.MapOverlays(build)
+	if err != nil {
+		return fmt.Errorf("%s: %w", flavor, err)
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	err = writeFile(filepath.Join(dir, flavor+".lua"), func(file *os.File) error {
+		return WriteMapOverlaysLua(file, flavor, data, date)
+	})
+	if err == nil {
+		fmt.Printf("Kartenüberlagerungen %s: %d Kartengrafiken, %d Überlagerungen, Build %s\n", flavor, len(data.Art), data.Count(), data.Build)
 	}
 	return err
 }

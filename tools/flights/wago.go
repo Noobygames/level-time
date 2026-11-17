@@ -165,6 +165,19 @@ func (c *wagoClient) MapCoords(build string) (*MapCoords, error) {
 	return ParseMapCoords(build, bytes.NewReader(uiMap), bytes.NewReader(assignment))
 }
 
+// MapOverlays lädt WorldMapOverlay und WorldMapOverlayTile eines Builds.
+func (c *wagoClient) MapOverlays(build string) (*MapOverlays, error) {
+	overlays, err := c.table("WorldMapOverlay", build)
+	if err != nil {
+		return nil, err
+	}
+	tiles, err := c.table("WorldMapOverlayTile", build)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMapOverlays(build, bytes.NewReader(overlays), bytes.NewReader(tiles))
+}
+
 // Bosses lädt DungeonEncounter eines Builds in den Sprachen aus NameLocales.
 func (c *wagoClient) Bosses(build string) (*Bosses, error) {
 	tables := make([]io.Reader, len(NameLocales))

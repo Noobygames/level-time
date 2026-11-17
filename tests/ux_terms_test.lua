@@ -123,7 +123,7 @@ for _, case in ipairs({
   { page = "COMFORT_PAGE_AUTOMATION", label = "AUTO_REPAIR_GUILD", setting = "autoRepair" },
   { page = "OPTIONS_PAGE_ALERT_KINDS", label = "ALERT_TOGGLE_RARE_FLASH", setting = "alertRareSpotted" },
   { page = "OPTIONS_PAGE_LEVEL_UP", label = "LEVEL_UP_COMPACT", setting = "levelUpWindow" },
-  { page = "COMFORT_PAGE_LOOT", label = "LOOT_ROLL_NAMES_TOGGLE", setting = "lootRollCounts" },
+  { page = "OPTIONS_PAGE_LOOT_ROLLS", label = "LOOT_ROLL_NAMES_TOGGLE", setting = "lootRollCounts" },
 }) do
   options.ShowPage(case.page)
   local control = controlOf(case.label)
@@ -170,5 +170,5 @@ end
 for key, text in pairs(locales.enUS) do
   expectTrue("enUS " .. key .. ": gerade Anführungszeichen", not text:find("“") and not text:find("‘"))
 end
-expect("Reiter eindeutig", L.OPTIONS_TAB_NOTIFICATIONS ~= L.OPTIONS_TAB_ALERTS, true)
+expect("Reiter eindeutig", L.OPTIONS_TAB_HINTS ~= L.OPTIONS_TAB_QUESTS, true)
 expect("Anzahl statt Gesamt", string.format(L.HISTORY_COUNT, 3), "3 Einträge")

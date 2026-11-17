@@ -11,7 +11,7 @@ local Goals = ns.Goals
 local Kinds = ns.Kinds
 local L = ns.L
 
-local ICON = "Interface\\Icons\\Spell_Holy_HolyBolt"
+local ICON = "Interface\\Icons\\Achievement_BG_WinWSG"  -- Sieg-Banner statt Heilzauber
 
 -- ID aus einem Erfolgs-Link ("|Hachievement:123:...") oder einer Zahl
 local function parseAchievement(text)

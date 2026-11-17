@@ -46,6 +46,8 @@ local ARROWS = { UP = { 0, 1 }, DOWN = { 0, -1 }, LEFT = { -1, 0 }, RIGHT = { 1,
 local active = false
 local selected     -- zuletzt angeklickte Anzeige (Pfeiltasten)
 local overlays = {}  -- id -> Fläche
+local OVERLAY_LEVEL_ABOVE = 100  -- Ebenen über der Anzeige (Platz für ihre Kind-Rahmen)
+local MAX_FRAME_LEVEL = 10000    -- höchste Ebene, die der Client annimmt
 local enterListeners, leaveListeners = {}, {}
 
 function EditMode.IsActive()
@@ -220,7 +222,7 @@ local function createOverlay(reg)
     end
     overlay.lines[side] = line
   end
-  overlay.label = overlay:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  overlay.label = overlay:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
   overlay.label:SetPoint("CENTER")
 
   overlay:SetScript("OnMouseDown", function() select(reg) end)
@@ -319,9 +321,9 @@ table.insert(UISpecialFrames, ns.GlobalName("EditMode"))  -- Esc schließt auch 
 toolbar.title = toolbar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 toolbar.title:SetPoint("TOP", 0, -TOOLBAR_PADDING)
 -- Gesten in zwei kurzen Zeilen statt einer langen (UX W34): Maus, dann Tastatur und Menü
-toolbar.hint = toolbar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+toolbar.hint = toolbar:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 toolbar.hint:SetPoint("TOP", toolbar.title, "BOTTOM", 0, -4)
-toolbar.hint2 = toolbar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+toolbar.hint2 = toolbar:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
 toolbar.hint2:SetPoint("TOP", toolbar.hint, "BOTTOM", 0, -2)
 
 local toolbarButtons = {}
@@ -504,7 +506,14 @@ function EditMode.ShowPopup(id)
   popup.slider.label:SetText(L.EDIT_MODE_SCALE)
   local percent = math.floor(Frames.GetScale(id) * PERCENT + 0.5)
   popup.slider:SetValueSilently(percent, percent .. "%")
-  for _, button in ipairs(popupButtons) do button:SetText(L[button.labelKey]) end
+  -- Breite folgt dem längsten Text (fr/es), die Knöpfe füllen sie
+  local width = math.max(POPUP_WIDTH, popup.title:GetStringWidth() + 2 * POPUP_PADDING)
+  for _, button in ipairs(popupButtons) do
+    button:SetText(L[button.labelKey])
+    width = math.max(width, math.ceil(button:GetTextWidth()) + Widgets.BUTTON_TEXT_PADDING + 2 * POPUP_PADDING)
+  end
+  popup:SetWidth(width)
+  for _, button in ipairs(popupButtons) do button:SetWidth(width - 2 * POPUP_PADDING) end
   popup.hideButton:SetEnabled(reg.hide ~= nil)
   popup.settingsButton:SetEnabled(reg.settingsPage ~= nil)
   local height = 2 * POPUP_PADDING + 14 + 8 + popup.slider:GetHeight() + 10
@@ -533,6 +542,9 @@ function EditMode.Enter()
   for _, reg in ipairs(Frames.All()) do
     if reg.preview then reg.preview(true) end
     local overlay = overlays[reg.id] or createOverlay(reg)
+    -- Über der Anzeige und ihren Kindern (z.B. Fähigkeiten-Symbole im Level-Up-Fenster, gleiche Schicht), sonst fangen
+    -- die die Maus ab und die Anzeige lässt sich nicht ziehen
+    overlay:SetFrameLevel(math.min(reg.frame:GetFrameLevel() + OVERLAY_LEVEL_ABOVE, MAX_FRAME_LEVEL))
     paintOverlay(overlay)
     overlay:Show()
   end

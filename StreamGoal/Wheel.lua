@@ -23,7 +23,7 @@ Wheel.MAX_REROLLS = 5
 Wheel.VOTE_OPTIONS = 4
 Wheel.DEFAULT_VOTE_SECONDS = 30
 
-local ICON = "Interface\\Icons\\INV_Misc_Bag_10"
+local ICON = "Interface\\Buttons\\UI-GroupLoot-Dice-Up"  -- Würfel: Zufall wie beim Beutewürfeln
 local TOOLTIP_ANCHOR = "ANCHOR_BOTTOM"
 local spinning = false
 local resultToken = 0   -- jede gezeigte Ergebnis-Karte bekommt eine Nummer; ein alter Ausblend-Timer lässt neue stehen

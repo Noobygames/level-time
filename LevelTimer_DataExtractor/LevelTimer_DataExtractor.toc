@@ -20,6 +20,7 @@ Collect\Services.lua
 Collect\World.lua
 Collect\CombatSpells.lua
 Collect\Books.lua
+Collect\DamageMeter.lua
 
 # Debug-Werkzeug von Level Time (nur mit Level Time, über LevelTimerAPI)
 Debug\DebugLog.lua
@@ -30,4 +31,6 @@ Debug\ChecksUI.lua
 Debug\ChecksQuests.lua
 Debug\ChecksRuns.lua
 Debug\CheckReminders.lua
+Debug\CheckListData.lua
+Debug\CheckList.lua
 Debug\DebugTools.lua

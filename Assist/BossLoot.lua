@@ -278,14 +278,25 @@ end
 
 -- Kompakte Symbolzeile der ersten MAX_LINES Drops, jedes Symbol ein Item-Link (Tooltip über
 -- Widgets.EnableItemLinks am Frame des Texts); kein Laden nötig. nil, wenn aus oder nichts bekannt.
+local unverifiedIcons = {}  -- itemID -> true für Symbole der letzten IconLinks-Zeile mit Stern
+
+-- Gehört der Item-Link eines Symbols zu einem unbestätigten Drop (Erklärzeile im Tooltip)?
+function BossLoot.IsUnverifiedLink(link)
+  return unverifiedIcons[tonumber((tostring(link):match("item:(%d+)")))] == true
+end
+
 function BossLoot.IconLinks(drops, size)
   if not isEnabled() then return nil end
   local icons = {}
+  unverifiedIcons = {}
   for _, drop in ipairs(drops) do
     if #icons >= BossLoot.MAX_LINES then break end
     local itemID = drop[ITEM_ID]
     local link = exists(itemMixin(itemID)) and Items.IconLink(itemID, drop[QUALITY], size)
-    if link and isUnverified(drop) then link = link .. ns.UnverifiedHint.Mark() end
+    if link and isUnverified(drop) then
+      unverifiedIcons[itemID] = true
+      link = link .. ns.UnverifiedHint.Mark()
+    end
     if link then icons[#icons + 1] = link end
   end
   return #icons > 0 and table.concat(icons, " ") or nil

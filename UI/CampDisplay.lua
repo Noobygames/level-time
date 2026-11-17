@@ -26,7 +26,6 @@ end
 
 local CampDisplay = ns.TimerDisplay.Create({
   name = ns.GlobalName("Camp"),
-  default = { "TOP", "TOP", 0, -230 },  -- unter den Einblendungen
   id = "camp", label = "EDIT_FRAME_CAMP", soundKey = "campSound",
   available = function() return ns.CampFire.IsAvailable() end,
   colors = COLORS,

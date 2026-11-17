@@ -6,10 +6,10 @@ local function hasLine(text)
 end
 
 local CHECKS = {
-  "LT81.options.textFit", "LT80.options.scroll", "LT189.options.pages", "LT210.options.search", "LT163.options.profiles",
-  "LT223.dropdown.state", "LT147.history.textFit", "LT165.window.hints", "LT212.frames.mouse", "LT78.alert.banner",
-  "LT85.welcome.state", "LT129.tooltip.state", "LT149.tooltip.api", "LT187.blizzardFrames.mouse", "LT215.minimap.square",
-  "LT217.quests.textSize", "LT219.screenBorders", "LT86.classicPlayerFrame", "LT87.dressUp", "LT89.infoCard.subject",
+  "LT350.options.textFit", "LT350.options.pages",
+  "LT223.dropdown.state", "LT147.history.textFit", "LT165.window.hints",
+  "LT85.welcome.state", "LT129.tooltip.state", "LT149.tooltip.api",
+  "LT219.screenBorders", "LT86.classicPlayerFrame", "LT87.dressUp",
 }
 
 wow.login()
@@ -25,7 +25,7 @@ expect("keine Lua-Fehler", #wow.errors, 0)
 addon.DebugLog.SetEnabled(true)
 addon.Alerts.Raise("questComplete", "Testquest", "+10 XP")
 expectTrue("Probe Einblendung", hasLine('"event":"ui.alert.raise"') ~= nil)
-addon.ToggleOptionsPage("COMFORT_PAGE_DUNGEONS")
+addon.ToggleOptionsPage("OPTIONS_PAGE_DUNGEON_RUNS")
 expectTrue("Probe Rechtsklick-Seite", hasLine('"event":"ui.optionsPage"') ~= nil)
 addon.OptionsWindow.ResetPage("OPTIONS_PAGE_ALERT_LOOK")
 addon.OptionsWindow.UndoReset("OPTIONS_PAGE_ALERT_LOOK")

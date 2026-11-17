@@ -10,6 +10,10 @@ ns.ProfileStore = ProfileStore
 
 local KIND = "profile"  -- Kennung im Serializer-Text
 -- Verwaltung der Profile selbst, gehört zu keinem Profil
+-- Schalter, die ein importiertes Profil nicht einschalten darf (Datenschutz, Auto-Einladung, Sync mit Fremden)
+local IMPORT_BLOCKED_KEYS = { inviteFromWhisper = true, friendRace = true, partyQuestSync = true, transportShare = true }
+local IMPORT_BLOCKED_PREFIX = "^announce"
+
 local OWN_META_KEYS = { "profiles", "activeProfile", "characterProfiles", "schemaVersion" }
 
 local deepCopy = ns.Database.CopyValue  -- Core/Database.lua lädt vorher (.toc)
@@ -192,11 +196,16 @@ function ProfileStore.New(host)
     local data = ns.Serializer.Decode(KIND, text)
     if type(data) ~= "table" or type(data.name) ~= "string" or data.name == ""
       or type(data.settings) ~= "table" then return nil end
-    local name = freeName(storedName(data.name))  -- "Standard" meint das Standardprofil, hieße der Import sonst unerreichbar
+    local cleanName = data.name:gsub("|", "")  -- keine Formatcodes in Profilnamen
+    if cleanName == "" then return nil end
+    local name = freeName(storedName(cleanName))  -- "Standard" meint das Standardprofil, hieße der Import sonst unerreichbar
     -- Nur bekannte Einstellungen mit passendem Typ: ein falscher Wert würde sonst bei jedem Login
     -- das Anwenden der Einstellungen abbrechen
     local settings = host.sanitize(data.settings)
     for key in pairs(metaKeys) do settings[key] = nil end
+    for key in pairs(settings) do
+      if IMPORT_BLOCKED_KEYS[key] or key:find(IMPORT_BLOCKED_PREFIX) then settings[key] = nil end
+    end
     profiles()[name] = settings
     return name
   end

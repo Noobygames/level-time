@@ -16,17 +16,19 @@ local CHECKS = {
   "286.bracketForecast", "287.ssf", "288.customSplits", "290.runs", "293.friendRace", "246.battleground",
   "329.social.target", "329.chat.windows", "329.chat.colors", "329.classColors", "329.characterFrame", "329.minimap",
   "357.theme", "358.frames.positions", "359.editMode",
-  "364.lootRoll.api", "365.blizzardXpBar", "258.flight.estimates", "440.transport.state", "442.graphics.cvars",
+  "364.lootRoll.api", "365.blizzardXpBar", "258.flight.estimates", "440.transport.state", "LT388.graphics.cvars",
   "360.window.layout", "360.xpTooltip", "362.visibility", "371.blizzardFrames", "403.blizzardSettings", "361.readability",
   "430.sleep.state",
   "443.threat", "445.qol", "450.mail", "453.partyQuestSync", "451.minimapBar.buttons", "character.guid", "452.swing.combatlog",
   "487.spellHistory.rank", "479.lootSparkles.skinning",
-  "486.questRewards", "488.reagents", "481.minimapBar.layers", "500.collapsedBuffs", "LT38.tooltip.object", "LT51.npcName", "LT72.lfg.api",
+  "486.questRewards", "488.reagents", "481.minimapBar.layers", "500.collapsedBuffs", "LT352.lfg.api",
   "LT52.combatlog.guid", "LT279.kills.events", "LT267.combatlog.api", "LT259.questArrow.state", "LT254.attunements",
-  "LT274.map.dungeonart", "LT252.map.zoneLevels",
-  "LT271.lfg.finder", "LT271.lfg.encounters", "LT271.lfg.languages", "LT272.lfg.window",
+  "LT252.map.zoneLevels",
+  "LT271.lfg.finder", "LT271.lfg.encounters", "LT271.lfg.languages", "LT272.lfg.window", "LT351.lfg.sidetab",
   "LT273.questmarks.instance",
   "LT285.damageMeter.api",
+  "LT334.recap.api", "LT334.recap.state", "LT334.recap.deaths",
+  "LT352.lfg.filters", "LT387.guide.anytime", "LT338.sync.groupApi", "LT393.dungeonArt.coverage", "LT395.icons.spells",
 }
 
 wow.login()

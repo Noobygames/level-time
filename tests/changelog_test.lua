@@ -21,6 +21,17 @@ expectTrue("Datum im Text", Changelog.Text():find(newest, 1, true) ~= nil)
 expectTrue("Zeile mit Art", Changelog.Text():find(addon.L.CHANGELOG_NEW .. ":", 1, true) ~= nil)
 expect("neue Version gemerkt", LevelTimerStatsDB.changelog.version, "v1.1.0")
 
+-- Nur der neueste Tag offen, Klick klappt ein; Art-Reihenfolge neu, geändert, behoben; Danksagung
+expect("neuester Tag offen", Changelog.IsExpanded(newest), true)
+if addon.CHANGELOG[2] then expect("älterer Tag zu", Changelog.IsExpanded(addon.CHANGELOG[2].date), false) end
+local header = Changelog.DayHeader(1)
+header._scripts.OnMouseUp(header)
+expect("eingeklappt", Changelog.IsExpanded(newest), false)
+header._scripts.OnMouseUp(header)
+local day = Changelog.FormatDay({ entries = {
+  { kind = "fix", enUS = "c", deDE = "c" }, { kind = "new", enUS = "a", deDE = "a" }, { kind = "change", enUS = "b", deDE = "b" } } })
+expectTrue("Reihenfolge", day:find("|r a", 1, true) < day:find("|r b", 1, true) and day:find("|r b", 1, true) < day:find("|r c", 1, true))
+
 -- "Nicht mehr automatisch anzeigen"
 local check = Changelog.HideCheck()
 check:SetChecked(true)

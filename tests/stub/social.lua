@@ -81,7 +81,7 @@ C_LFGList = {
   GetDefaultLanguageSearchFilter = function() return state.lfgLanguages and state.lfgLanguages.defaults or { enUS = true } end,
   Search = function(...) table.insert(wow.lfgCalls, { "Search", ... }) end,
   HasActiveEntryInfo = function() return state.lfgWindow ~= nil and state.lfgWindow.entry ~= nil end,
-  GetActiveEntryInfo = function() return state.lfgWindow.entry end,
+  GetActiveEntryInfo = function() return state.lfgWindow and state.lfgWindow.entry end,
   CreateListing = function(data) table.insert(wow.lfgCalls, { "CreateListing", data }) end,
   UpdateListing = function(data) table.insert(wow.lfgCalls, { "UpdateListing", data }) end,
   RemoveListing = function() table.insert(wow.lfgCalls, { "RemoveListing" }) end,
@@ -100,6 +100,8 @@ GetGeneralPlaystyleString = function(playstyle) return "Spielstil" .. playstyle 
 C_LFGListRoles = { GetRoles = function() return state.lfgRoles or {} end,
   SetRoles = function(roles) table.insert(wow.lfgCalls, { "SetRoles", roles }) state.lfgRoles = roles end }
 function UnitIsGroupAssistant() return false end
+-- Rollenabfrage (Blizzards RolePollButton): landet in wow.lfgCalls
+function InitiateRolePoll() table.insert(wow.lfgCalls, { "InitiateRolePoll" }) return true end
 -- Blizzards Gruppensuche im Vanilla-Stil (Blizzard_LFGVanilla_ParentFrame.lua): Zeigen merkt den Reiter, Umschalten
 -- schließt bei gleichem oder ohne Reiter
 LFGParentFrame = CreateFrame("Frame")
@@ -127,8 +129,39 @@ function LFGListUtil_SetSearchEntryTooltip(tooltip, resultID)
   tooltip:AddLine("Gruppe " .. resultID)
 end
 function LFGBrowseSearchEntry_Update() end
+-- Classic-Stil: Rahmen mit Leader-Zeile und Pool der Mitgliedszeilen; setzt Größe wie Blizzard bei jedem Aufruf neu
+local function lfgRow()
+  local row = CreateFrame("Frame")
+  row.Name = row:CreateFontString()
+  row.Name:SetText("")
+  row.Level = row:CreateFontString()
+  row.Roles = {}
+  return row
+end
 LFGBrowseSearchEntryTooltip = CreateFrame("Frame")
-function LFGBrowseSearchEntryTooltip_UpdateAndShow(self) self:Show() end
+LFGBrowseSearchEntryTooltip.Leader = lfgRow()
+do
+  local active, free = {}, {}
+  LFGBrowseSearchEntryTooltip.memberPool = {
+    ReleaseAll = function() for _, row in ipairs(active) do row:Hide(); table.insert(free, row) end active = {} end,
+    Acquire = function() local row = table.remove(free) or lfgRow(); table.insert(active, row); return row end,
+    EnumerateActive = function() local i = 0; return function() i = i + 1; return active[i] end end,
+  }
+end
+function LFGBrowseSearchEntryTooltip_UpdateAndShow(self, resultID)
+  local pool = self.memberPool
+  pool:ReleaseAll()
+  local leader
+  for index, info in ipairs((state.lfgResults or {})[resultID] or {}) do
+    if index == 1 then leader = info
+    else
+      local row = pool:Acquire()
+      row.Name:SetText(info.name); row:Show()
+    end
+  end
+  self.Leader.Name:SetText(leader and leader.name or ""); self.Leader:SetShown(leader ~= nil)
+  self:SetWidth(150); self:SetHeight(100); self:Show()
+end
 C_PartyInfo = { InviteUnit = function(name) socialAction("invite", name) end }
 function BNGetNumFriendInvites() return #state.friendInvites end
 function BNDeclineFriendInvite(inviteID)

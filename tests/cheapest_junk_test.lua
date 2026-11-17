@@ -34,3 +34,16 @@ wow.click(addon.L.DELETE_CHEAPEST_JUNK_BUTTON:format("Item 1", addon.Format.Mone
 expectTrue("weißer Gegenstand bleibt", wow.state.bags[0][offered.slot] ~= nil)
 expect("Cursor leer", CursorHasItem(), false)
 expect("Knopf zeigt keinen Treffer mehr", CheapestJunk.Find(), nil)
+
+-- Leistung: volle Taschen ohne Änderung durchsucht der Takt nicht erneut; nach einer Sperr-Änderung schon
+wow.state.bags[0][offered.slot] = { itemID = 1, stackCount = 1, quality = 0 }
+wow.fire("BAG_UPDATE_DELAYED")
+local finds = { count = 0 }
+local find = CheapestJunk.Find
+CheapestJunk.Find = function() finds.count = finds.count + 1 return find() end
+for _ = 1, 5 do wow.update(2) end
+expect("unverändert: keine Suche im Takt", finds.count, 0)
+wow.fire("ITEM_LOCK_CHANGED", 0, offered.slot)
+wow.update(2)
+expect("nach Sperr-Änderung: neu gesucht", finds.count, 1)
+CheapestJunk.Find = find

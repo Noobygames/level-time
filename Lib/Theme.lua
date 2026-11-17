@@ -67,6 +67,9 @@ local CLASSIC_COLORS = {
   note = { 138 / 255, 138 / 255, 138 / 255 },
   divider = { 0.2, 0.2, 0.2 },
   rowSelected = { 58 / 255, 46 / 255, 12 / 255 },
+  -- XP-Balken: Erholung und XP der fertigen Quests (Deckkraft setzt UI/WindowElements.lua)
+  xpRested = { 0.3, 0.55, 1 },
+  xpQuests = { 1, 0.8, 0.2 },
 }
 
 -- Rahmenstile: tooltip = Blizzards Tooltip-Grund mit goldenem Rand, flat = einfarbig mit 1-px-Rand (nur
@@ -122,12 +125,14 @@ local BUILTIN_FONTS = {
 -- Ein Font-Objekt je Rolle; Grundlage (Größe, Farbe, Schatten) ist das Blizzard-Objekt dahinter
 local FONT_ROLES = {
   title = "GameFontNormal",          -- Kartentitel, Überschriften (gold)
+  heading = "GameFontNormalLarge",   -- große Überschrift in Lesefenstern (Dungeon Guide, gold)
   body = "GameFontHighlight",        -- Fließtext (weiß)
+  bodyLarge = "GameFontHighlightMedium",  -- Fließtext in Lesefenstern (Dungeon Guide, weiß)
   label = "GameFontNormalSmall",     -- Zeilenbeschriftungen (gold)
   small = "GameFontHighlightSmall",  -- Zeilenwerte (weiß)
   number = "GameFontNormalLarge",    -- Zeit im Hauptfenster
   huge = "GameFontNormalHuge",       -- große Zahl auf Karten, Einblendungen
-  note = "GameFontHighlightSmall",   -- graue Notizen, eine Zeile (Farbe Theme.COLORS.note setzt der Aufrufer)
+  note = "GameFontHighlight",        -- graue Notizen und Erklärtexte, mindestens 12 Punkt (Farbe Theme.COLORS.note setzt der Aufrufer)
 }
 
 Theme.COLORS = {}

@@ -172,7 +172,9 @@ panel:SetScript("OnDragStart", panel.StartMoving)
 panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 panel:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("Recap"))  -- mit ESC schließen
-local title = Widgets.CreateWindowHeader(panel, "").title
+local header = Widgets.CreateWindowHeader(panel, "")
+header:SetIcon("Interface\\Icons\\Ability_Rogue_FeignDeath")  -- Tod
+local title = header.title
 
 local copyButton = Widgets.CreateButton(panel, 80, BUTTON_HEIGHT, function()
   local content = RecapWindow.BuildRows(currentMode)
@@ -184,7 +186,6 @@ local copyButton = Widgets.CreateButton(panel, 80, BUTTON_HEIGHT, function()
   ns.Export.Show(heading, table.concat(lines, "\n"))
 end)
 copyButton:SetPoint("BOTTOM", panel, "BOTTOM", 0, MARGIN)
-Widgets.SetButtonText(copyButton, L.RECAP_COPY, 80)
 Widgets.AttachTooltip(copyButton, function() return L.RECAP_COPY end, function() return L.RECAP_COPY_TIP end)
 
 local rows = {}  -- { label, value } Schriftzeilen, bei Bedarf angelegt
@@ -210,7 +211,7 @@ end
 local function render()
   title:SetText(modeTitle(currentMode))
   Widgets.SetButtonText(copyButton, L.RECAP_COPY, 80)
-  local width = math.max(MIN_WIDTH, title:GetStringWidth() + 2 * MARGIN)
+  local width = math.max(MIN_WIDTH, header:MinWidth())
   local content = RecapWindow.BuildRows(currentMode)
   for i, line in ipairs(content) do
     local row = getRow(i)

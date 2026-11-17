@@ -32,13 +32,13 @@ for _, language in ipairs({ "deDE", "frFR" }) do
   expect(language .. ": Automatik verdeckt", automation:IsShown(), false)
 
   -- Unterseite rechts neben dem breitesten Eintrag der Seitenleiste, Schalter passen ins Fenster
-  local entry = findByLabel(L.COMFORT_PAGE_AUTOMATION)
+  local entry = findByLabel(L.COMFORT_PAGE_SOCIAL)  -- Automatik gibt es auch bei den Quests
   local offset = anchorX(automation)
   expectTrue(language .. ": Unterseite neben der Leiste", offset >= entry:GetWidth())
   local guild = findByLabel(L.AUTO_SELL_JUNK)
   expectTrue(language .. ": rechte Spalte im Fenster",
     offset + anchorX(guild) + guild:GetWidth() + guild.label:GetStringWidth() <= LevelTimerOptions:GetWidth())
-  wow.click(L.COMFORT_PAGE_AUTOMATION)
+  addon.OptionsWindow.ShowPage("COMFORT_PAGE_AUTOMATION")
   LevelTimerOptions:Hide()
 end
 -- Stichwort fürs Einladen per Flüstern: Eingabefeld auf der Sozial-Seite, übernommen beim Verlassen des Felds

@@ -77,6 +77,36 @@ expectNear("am Rand blass", list[1]:GetAlpha(), 0.6)
 x, y = offset(list[1])
 expectTrue("am Rand oben (nach Norden)", y > 0 and math.abs(x) < 0.01)
 
+-- Leistung: stehender Spieler fasst die Pins nicht an; ein neuer Questlog-Stand liest den Questlog einmal (nicht je
+-- Karte) und rechnet keine Kartenpunkte neu in Weltkoordinaten um
+local edgePin = list[1]
+local moves = { count = 0 }
+local setPoint = edgePin.SetPoint
+edgePin.SetPoint = function(...) moves.count = moves.count + 1 return setPoint(...) end
+for _ = 1, 10 do wow.update(0.3) end
+expect("stehend: keine Neuplatzierung", moves.count, 0)
+local conversions = { count = 0 }
+local mapToWorld = addon.MapCoords.MapToWorld
+addon.MapCoords.MapToWorld = function(mapID, ...)
+  if mapID == 1453 then conversions.count = conversions.count + 1 end  -- Abgabe in Sturmwind, nicht der Spieler
+  return mapToWorld(mapID, ...)
+end
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(0.3)
+expect("Kartenpunkte aus dem Speicher", conversions.count, 0)
+expect("neuer Stand: neu gezeichnet", moves.count, 1)
+addon.MapCoords.MapToWorld = mapToWorld
+-- Weltkarte und Minimap lesen den Questlog einmal je Stand, nicht je Karte
+local scans = { count = 0 }
+local entries = addon.QuestLog.Entries
+addon.QuestLog.Entries = function() scans.count = scans.count + 1 return entries() end
+wow.fire("QUEST_LOG_UPDATE")
+addon.QuestMap.MapIDs()
+addon.QuestMap.PointsOn(1429)
+addon.QuestMap.PointsOn(1453)
+expect("ein Questlog-Durchlauf je Stand", scans.count, 1)
+addon.QuestLog.Entries = entries
+
 -- Minimap-Schalter aus: Symbole weg
 addon.Set("questMinimap", false)
 expect("Minimap aus: keine Symbole", #shown(), 0)

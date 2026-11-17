@@ -1,6 +1,6 @@
 -- Reichweiten-Anzeige am Zielrahmen (Roadmap 447): Kompakte Entfernungsanzeige in Metern
 -- (0-10 m, 10-11 m, 11-28 m, 28+ m) am Zielrahmen. Gedrosselt über ns.Every(0.25) nur bei vorhandenem Ziel.
--- Nutzt CheckInteractDistance mit Schutz vor geheimen Werten (ns.IsSecret).
+-- Nutzt CheckInteractDistance mit Schutz vor geheimen Werten (ns.IsSecret); in der Kampfsperre ausgeblendet.
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -21,6 +21,8 @@ end
 
 function TargetRange.Estimate(unit)
   unit = unit or "target"
+  -- CheckInteractDistance ist in der Kampfsperre geschützt: WoW meldet ADDON_ACTION_BLOCKED, pcall fängt das nicht
+  if InCombatLockdown() then return nil end
   if not UnitExists(unit) then return nil end
   local dead = UnitIsDeadOrGhost(unit)
   if not ns.IsSecret(dead) and dead == true then return nil end

@@ -17,12 +17,13 @@ local function linesFor(guid)
   return lines
 end
 
--- Rhahk'Zor (Todesminen, 644): eine Tank-Mechanik mit Zaubersymbol, Text auf Deutsch (Stub-Locale deDE)
+-- Rhahk'Zor (Todesminen, 644): eine Tank-Mechanik mit Typ-Symbol (Verteidigungshaltung), Text auf Deutsch (Stub-Locale deDE)
 local rhahk = linesFor("Creature-0-1-0-36-644-0001")
 expect("eine Zeile", #rhahk, 1)
 expectTrue("Typ", rhahk[1]:find(L.MECHANIC_TANK .. ":", 1, true) ~= nil)
 expectTrue("deutscher Text", rhahk[1]:find("Tank voll geheilt halten", 1, true) ~= nil)
-expectTrue("Zaubersymbol", rhahk[1]:find("Spell_6304", 1, true) ~= nil)
+expectTrue("Typ-Symbol", rhahk[1]:find("Spell_71:", 1, true) ~= nil)
+expect("kein Gegnerzauber-Symbol", rhahk[1]:find("Spell_6304", 1, true), nil)
 
 -- Trash (LT-11): Defias-Beschwörer (Todesminen, 1729) hat zwei Mechaniken
 expect("Trash", #linesFor("Creature-0-1-0-36-1729-0001"), 2)
@@ -53,3 +54,16 @@ for npcID, list in pairs(addon.Mechanics) do
     end
   end
 end
+
+-- Debug-Log: wiederholte Tooltip-Refreshs derselben NPC loggen einmal, Wechsel erneut, Spieler gar nicht
+local logged = {}
+addon.SetDebugRecorder(function(area, text) if area == "mechanics" then table.insert(logged, text) end end)
+linesFor("Creature-0-1-0-36-644-0001")
+linesFor("Creature-0-1-0-36-644-0001")
+linesFor("Creature-0-1-0-36-644-0001")
+expect("Refresh: eine Logzeile", #logged, 1)
+linesFor("Creature-0-1-0-36-1729-0001")
+expect("Wechsel: neue Logzeile", #logged, 2)
+linesFor("Player-1-0000ABCD")
+expect("Spieler: keine Logzeile", #logged, 2)
+addon.SetDebugRecorder(nil)

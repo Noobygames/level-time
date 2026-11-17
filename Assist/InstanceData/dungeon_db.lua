@@ -107,7 +107,7 @@ ns.DungeonDB = {
 [484]={22,18,"A",0,"n",2094,1437,0.086,0.557,name="Young Crocolisk Skins"},
 [544]={33,30,"H",0,"n",2410,1424,0.616,0.209,name="Prison Break In"},
 [545]={35,30,"H",0,"n",2410,1424,0.616,0.209,pre={544,93680},name="Dalaran Patrols"},
-[619]={52,35,nil,0,"o",2289,1434,0.325,0.82,name="Enticing Negolash"},
+[619]={52,51,nil,0,"o",2289,1434,0.325,0.82,name="Enticing Negolash"},  -- Mindeststufe Forever unbestätigt: Instanzstufe Düsterbruch angenommen (LT-328)
 [629]={37,30,"H",0,"n",2519,1434,0.323,0.277,name="The Vile Reef"},
 [704]={38,30,"A",0,"n",1344,1432,0.659,0.656,preAny={739},name="Agmond's Fate"},
 [707]={37,30,"A",0,"n",1356,1455,0.746,0.117,name="Ironband Wants You!"},

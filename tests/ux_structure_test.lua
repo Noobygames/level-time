@@ -101,7 +101,11 @@ for _, viewKey in ipairs({ "HISTORY_TAB_COMPARE", "HISTORY_TAB_PERSONAL_RECORDS"
   expectTrue(viewKey .. ": Name ersetzt", findText(L.HISTORY_ALL_CHARACTERS) ~= nil)
   expect(viewKey .. ": Löschen aus", deleteButton:IsEnabled(), false)
 end
-local previous = findButton("<")
+-- Auch das Dungeon-Guide-Fenster hat einen "<"-Knopf: den des sichtbaren Verlaufsfensters nehmen
+local previous = wow.findFrame(function(frame)
+  local label = rawget(frame, "label")
+  return label and label._text == "<" and frame:IsVisible()
+end)
 expect("Pfeil aus", previous:IsEnabled(), false)
 HistoryWindow.ShowView("HISTORY_TAB_LEVELS")
 expect("eigene Ansicht: Auswahl an", HistoryWindow.IsAllCharacters(), false)

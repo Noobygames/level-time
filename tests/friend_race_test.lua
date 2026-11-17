@@ -7,6 +7,9 @@ expect("Präfix registriert", wow.addonPrefixes.LevelTimer, true)
 addon.character.levelHistory[2] = { level = 2, seconds = 100 }
 addon.character.levelHistory[3] = { level = 3, seconds = 200 }
 
+wow.state.friends["Freund-Testrealm"] = true
+wow.state.friends["Zweiter-Testrealm"] = true
+
 -- Aus: weder Anfrage noch Antwort
 wow.state.inGroup = true
 wow.fire("GROUP_ROSTER_UPDATE")
@@ -106,3 +109,20 @@ local friendTimes = select(2, FriendRace.Current()).times
 expect("Zeit bis Max-Level", friendTimes[99], 5)
 expect("Null-Zeit verworfen", friendTimes[100], nil)
 expect("über Max-Level verworfen", friendTimes[101], nil)
+
+-- Fremde per Flüstern werden weder beantwortet noch gespeichert
+local stored = LevelTimerStatsDB.friendRuns
+local beforeStranger = #wow.addonMessages
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "I:9:MAGE", "WHISPER", "Fremder-Testrealm")
+wow.fire("CHAT_MSG_ADDON", "LevelTimer", "Q", "WHISPER", "Fremder-Testrealm")
+wow.update(3)
+expect("Fremder nicht gespeichert", stored["Fremder-Testrealm"], nil)
+expect("Fremder nicht beantwortet", #wow.addonMessages, beforeStranger)
+
+-- Liste begrenzt: der älteste Lauf fliegt raus
+for i = 1, FriendRace.MAX_RUNS + 5 do
+  wow.fire("CHAT_MSG_ADDON", "LevelTimer", "I:9:MAGE", "PARTY", "Gast" .. i .. "-Testrealm")
+end
+local n = 0
+for _ in pairs(stored) do n = n + 1 end
+expectTrue("friendRuns begrenzt", n <= FriendRace.MAX_RUNS)

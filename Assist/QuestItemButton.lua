@@ -26,7 +26,9 @@
 --               Unbekannte Zone (Kategorie-Überschrift, fehlende Daten) zählt als "hier", damit nichts zu Unrecht
 --               verschwindet. Sichtbare Questgegner auf Namensplaketten sind ohnehin in der Nähe und bleiben.
 --               Ort und Entscheidungen werden zwischengespeichert und bei Zonenwechsel (ZONE_CHANGED*,
---               PLAYER_ENTERING_WORLD) bzw. Questlog-Änderung (QUEST_LOG_UPDATE) verworfen.
+--               PLAYER_ENTERING_WORLD) verworfen; eine Entscheidung gilt außerdem nur, solange ihre Eingaben
+--               (Überschrift, Questkarte, gelernte Orte) gleich bleiben (QUEST_LOG_UPDATE kommt in Forever alle paar
+--               Sekunden, ohne dass sich daran etwas ändert). Debug-Zeilen nur, wenn sich das Ergebnis ändert.
 -- Aktualisiert wird ereignisgesteuert (Roadmap 390): Questlog, Taschen, Zone, Namensplaketten, Kampfende und
 -- Einstellungen setzen Merker; der Sekundentakt arbeitet nur, wenn ein Merker steht. Die Item-Kandidaten bleiben bis
 -- zur nächsten Questlog- oder Taschenänderung gespeichert (C_QuestLog.GetInfo erzeugt je Eintrag eine Tabelle).
@@ -70,7 +72,8 @@ local shown = { itemId = nil, target = nil, texture = nil }  -- zuletzt gesetzte
 local pending = false                         -- im Kampf aufgeschoben
 local acceptedAt = {}                         -- [questID] = GetTime() der Annahme
 local here                                    -- QuestLog.Here(), bis zum nächsten Zonenwechsel
-local zoneCache = {}                          -- [questID] = { inZone, signals }
+local zoneCache = {}                          -- [questID] = { inZone, signals, header, questMap, spots, lastSpot }
+local loggedZone = {}                         -- [questID] = zuletzt geloggtes Ergebnis (Debug nur bei Änderung)
 local headers                                 -- [questID] = Questlog-Überschrift, bis zur nächsten Questlog-Änderung
 local candidates                              -- QuestItem.Candidates(), bis zur nächsten Questlog-/Taschenänderung
 local itemDirty, targetDirty = true, true     -- Item bzw. Zielknopf neu bestimmen
@@ -93,10 +96,10 @@ end
 
 -- Quests mit benutzbarem Item, unabhängig von der Zone (QuestLeftovers braucht alle):
 -- { questID, index, header, link, itemId, texture, source }; erst die Quest-Items des Questlogs, dann die aus den
--- Taschen für die übrigen Quests
-function QuestItem.Candidates()
+-- Taschen für die übrigen Quests; entries optional (schon gelesenes QuestLog.Entries())
+function QuestItem.Candidates(entries)
   local list, taken = {}, {}
-  local entries = ns.QuestLog.Entries()
+  entries = entries or ns.QuestLog.Entries()
   for _, entry in ipairs(entries) do
     local link, texture
     if GetQuestLogSpecialItemInfo then link, texture = GetQuestLogSpecialItemInfo(entry.index) end
@@ -122,7 +125,7 @@ local function forgetZones()
 end
 
 local function forgetQuestLog()
-  headers, zoneCache, candidates = nil, {}, nil
+  headers, candidates = nil, nil
   markAll()
 end
 
@@ -131,10 +134,23 @@ local function forgetItems()
   itemDirty = true
 end
 
+local function headersFrom(entries)
+  headers = {}
+  for _, entry in ipairs(entries) do headers[entry.questID] = entry.header or false end
+end
+
+-- Kandidaten und Überschriften aus einem Questlog-Durchlauf (C_QuestLog.GetInfo erzeugt je Eintrag eine Tabelle)
 local function cachedCandidates()
-  if not candidates then candidates = QuestItem.Candidates() end
+  if not candidates then
+    local entries = ns.QuestLog.Entries()
+    headersFrom(entries)
+    candidates = QuestItem.Candidates(entries)
+  end
   return candidates
 end
+
+-- Zwischengespeicherte Kandidaten bis zur nächsten Questlog- oder Taschenänderung (QuestLeftovers); nicht verändern
+QuestItem.CachedCandidates = cachedCandidates
 
 function QuestItem.Here()
   if not here then here = ns.QuestLog.Here() end
@@ -142,10 +158,7 @@ function QuestItem.Here()
 end
 
 local function headerOf(questID)
-  if not headers then
-    headers = {}
-    for _, entry in ipairs(ns.QuestLog.Entries()) do headers[entry.questID] = entry.header or false end
-  end
+  if not headers then headersFrom(ns.QuestLog.Entries()) end
   return headers[questID] or nil
 end
 
@@ -161,14 +174,37 @@ local function learnedMaps(questID)
 end
 
 -- Zone der Quest: true/false, nil = unbekannt; dazu die Einzelhinweise (QuestLog.ZoneStatus)
+-- Gelernte Orte der Quest: Anzahl und letzter Ort (neue Orte werden angehängt, alte fallen vorne heraus)
+local function spotsKey(questID)
+  local record = ns.QuestNpcs.Get(questID)
+  local spots = record and record.spots
+  if not spots then return 0, nil end
+  return #spots, spots[#spots]
+end
+
+-- Gilt die gespeicherte Entscheidung noch? (gleiche Überschrift, Questkarte und gelernte Orte)
+local function zoneStillValid(cached, questID, header)
+  if cached.header ~= header or cached.questMap ~= ns.QuestLog.QuestMap(questID) then return false end
+  local count, last = spotsKey(questID)
+  return cached.spots == count and cached.lastSpot == last
+end
+
 function QuestItem.ZoneOf(questID)
+  local header = headerOf(questID)
   local cached = zoneCache[questID]
-  if not cached then
-    local status, signals = ns.QuestLog.ZoneStatus(questID, headerOf(questID), QuestItem.Here(), learnedMaps(questID))
-    cached = { inZone = status, signals = signals }
+  if not (cached and zoneStillValid(cached, questID, header)) then
+    local status, signals = ns.QuestLog.ZoneStatus(questID, header, QuestItem.Here(), learnedMaps(questID))
+    local count, last = spotsKey(questID)
+    cached = { inZone = status, signals = signals, header = header, questMap = ns.QuestLog.QuestMap(questID),
+      spots = count, lastSpot = last }
     zoneCache[questID] = cached
-    ns.Debug("questitem", "quest %s zone %s (map %s, header %s %s, learned %s) player map %s zone %s", questID,
-      status, signals.map, headerOf(questID), signals.header, signals.learned, here.mapID, here.zone)
+    -- "nil" als Merker für "unbekannt", damit auch ein erstes nil einmal geloggt wird
+    local logged = status == nil and "nil" or status
+    if loggedZone[questID] ~= logged then
+      loggedZone[questID] = logged
+      ns.Debug("questitem", "quest %s zone %s (map %s, header %s %s, learned %s) player map %s zone %s", questID,
+        status, signals.map, header, signals.header, signals.learned, here.mapID, here.zone)
+    end
   end
   return cached.inZone, cached.signals
 end

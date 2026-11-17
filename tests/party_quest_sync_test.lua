@@ -106,6 +106,19 @@ local p201 = PartyQuestSync.PeerProgress(201)
 expect("Jaina Quest 201 Fertig", p201[1].summary, L.PARTY_QUEST_SYNC_READY)
 expect("Jaina Quest 201 ready", p201[1].ready, true)
 
+-- Obergrenzen: zu hohes Ziel und zu viele Quests je Peer werden ignoriert
+wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "U:300:99:1:2", "PARTY", "Jaina-Realm")
+expect("Ziel über Grenze ignoriert", PartyQuestSync.PeerProgress(300)[1], nil)
+for qid = 1000, 1000 + PartyQuestSync.MAX_QUESTS_PER_PEER + 5 do
+  wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "C:" .. qid, "PARTY", "Jaina-Realm")
+end
+local jainaQuests = 0
+for _ in pairs(PartyQuestSync.GetPeers()["Jaina"]) do jainaQuests = jainaQuests + 1 end
+expectTrue("Quests je Peer begrenzt", jainaQuests <= PartyQuestSync.MAX_QUESTS_PER_PEER)
+for qid = 1000, 1000 + PartyQuestSync.MAX_QUESTS_PER_PEER + 5 do
+  wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "R:" .. qid, "PARTY", "Jaina-Realm")
+end
+
 -- Quest abgegeben/entfernt: "R:200"
 wow.fire("CHAT_MSG_ADDON", addon.PartyQuestSync.PREFIX, "R:200", "PARTY", "Jaina-Realm")
 expect("Jaina Quest 200 entfernt", #PartyQuestSync.PeerProgress(200), 0)

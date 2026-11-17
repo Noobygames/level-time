@@ -119,22 +119,8 @@ ns.RegisterEvent("RAID_TARGET_UPDATE", function()
 end)
 
 ---------------------------------------------------------------------------
--- Questlog: aufräumen, Abgabe-Übersicht, Effizienz
+-- Questlog: aufräumen, Effizienz
 ---------------------------------------------------------------------------
--- LT-156: graue Quests, Plätze im Log, Fenster, an dem der Knopf hängt (CheckFull meldet etwas und läuft hier nicht)
-check("LT156.quests.cleanup", function()
-  local gray = ns.QuestCleanup.GrayQuests()
-  local frames = {}
-  for _, name in ipairs({ "QuestLogFrame", "QuestMapFrame", "WorldMapFrame" }) do
-    if _G[name] ~= nil then frames[name] = frameState(_G[name]) end
-  end
-  return { settings = settings("questCleanupButton", "warnQuestLogFull"), questCount = ns.QuestLog.QuestCount(),
-    max = ns.QuestLog.MaxQuests(), margin = ns.QuestCleanup.FULL_MARGIN, grayCount = #gray, frames = frames,
-    gray = sample(gray, function(entry)
-      return { questID = entry.questID, level = entry.level, title = entry.title, isGray = ns.QuestCleanup.IsGray(entry) }
-    end) }
-end)
-
 -- LT-156: Abbrechen (Quest danach noch im Log?) und Meldung "Questlog fast voll"
 hooksecurefunc(ns.QuestCleanup, "Abandon", function(questID)
   if not logging() then return end
@@ -144,21 +130,6 @@ hooksecurefunc(ns.Alerts, "Notify", function(entry)
   if not logging() or type(entry) ~= "table" or entry.icon ~= ns.Alerts.ICONS.questLog then return end
   write({ area = "event", event = "quests.fullHint", extra = { title = entry.title, text = entry.text,
     count = ns.QuestLog.QuestCount(), max = ns.QuestLog.MaxQuests() } })
-end)
-
--- LT-157: Abgabe-Übersicht (Zone, Level, XP, Anteil) und Summen wie in der Fußzeile
-check("LT157.quests.turnIn", function()
-  local records = ns.QuestViews.TurnInRecords(ns.characterKey)
-  local xp, share = 0, 0
-  for _, record in ipairs(records) do
-    xp = xp + (record.xp or 0)
-    share = share + (record.share or 0)
-  end
-  return { count = #records, xpSum = xp, shareSum = share, hubs = #ns.QuestViews.TurnInHubs(ns.characterKey),
-    records = sample(records, function(record)
-      return { questID = record.questID, title = record.title, zone = record.zone, level = record.level, xp = record.xp,
-        share = record.share, npc = record.npc, hubCount = record.hubCount }
-    end) }
 end)
 
 -- LT-174: Quest-Effizienz (Tabelle) und Tooltipzeile je Quest im Log
@@ -258,8 +229,8 @@ check("LT177.map.questPoints", function()
     end) }
 end)
 
--- LT-231: Angebote von Mouseover und Ziel, Geber auf der aktuellen Zonenkarte
-check("LT231.dungeon.givers", function()
+-- LT-330 (vorher LT-231): keine Geber über dem Levelbereich? Angebote von Mouseover und Ziel, Geber auf der aktuellen Zonenkarte
+check("LT330.dungeon.givers", function()
   local units = {}
   for _, unit in ipairs({ "mouseover", "target" }) do
     units[unit] = { name = unitName(unit), offers = sample(ns.DungeonQuests.UnitOffers(unit), function(offer)
@@ -273,22 +244,6 @@ check("LT231.dungeon.givers", function()
   return { settings = settings("dungeonQuestGivers"), available = ns.DungeonQuests.IsAvailable(),
     revision = ns.DungeonQuests.Revision(), units = units, mapID = mapID, zone = zone, mapPoints = #points,
     firstPoint = points[1] and { x = points[1].x, y = points[1].y, offers = #points[1].offers } or nil }
-end)
-
--- LT-232, LT-233: Kurzname, Aufschrift, Tooltipzeile und Kettenschritt je Dungeonquest im Log (Länge der Aufschrift)
-check("LT232.dungeon.tags", function()
-  local rows = {}
-  for _, entry in ipairs(ns.QuestLog.Entries()) do
-    local tag = ns.DungeonQuestTags.Tag(entry.questID)
-    if tag and #rows < MAX_SAMPLE then
-      local decorated = ns.DungeonQuestTags.Decorate(entry.title or "", entry)
-      local chainMap, _, step, total = ns.DungeonQuests.Chain(entry.questID)
-      rows[#rows + 1] = { questID = entry.questID, tag = tag, decorated = decorated, length = decorated and #decorated or nil,
-        tooltip = ns.DungeonQuestTags.TooltipLine(entry.questID), chainMap = chainMap, step = step, total = total,
-        instance = ns.DungeonQuests.Instance(entry.questID) }
-    end
-  end
-  return { settings = settings("dungeonQuestTags", "questLevels"), available = ns.DungeonQuestTags.IsAvailable(), rows = rows }
 end)
 
 -- LT-237: Kartenaddons, Weltkarte (Karte, Skalierung), Geber auf der angezeigten Karte
@@ -323,8 +278,9 @@ end)
 ---------------------------------------------------------------------------
 -- Dungeonquests beim Betreten und nach der Annahme
 ---------------------------------------------------------------------------
--- LT-235: Einträge der Zone: Geber, Titel, schon im Log?, Ort gegen die Spielerposition
-check("LT235.dungeon.zone", function()
+-- LT-330 (vorher LT-235): Einträge des Zonen-Hinweises (keine Instanzen unter dem eigenen Level?): Geber, Titel,
+-- schon im Log?, Ort gegen die Spielerposition
+check("LT330.dungeon.zone", function()
   local mapID = currentMap()
   local zone = mapID and ns.QuestLog.ZoneMapOf(mapID)
   local x, y = H.readXY(mapID and call("C_Map.GetPlayerMapPosition", mapID, "player"))
@@ -336,21 +292,21 @@ check("LT235.dungeon.zone", function()
     end) }
 end)
 
--- LT-235: beim Betreten einer Zone, nachdem die Module reagiert haben
+-- LT-330: beim Betreten einer Zone, nachdem die Module reagiert haben
 local function zoneProbe(event)
   return function()
     if not logging() then return end
     local mapID = currentMap()
     local zone = mapID and ns.QuestLog.ZoneMapOf(mapID)
-    write({ area = "event", event = event, name = "LT235.dungeon.zoneEntered", extra = { zone = zone,
+    write({ area = "event", event = event, name = "LT330.dungeon.zoneEntered", extra = { zone = zone,
       entries = zone and #ns.DungeonQuestHints.ZoneEntries(zone) or 0, hintShown = ns.DungeonQuestHint.IsShown() } })
   end
 end
 ns.RegisterEvent("PLAYER_ENTERING_WORLD", zoneProbe("PLAYER_ENTERING_WORLD"))
 ns.RegisterEvent("ZONE_CHANGED_NEW_AREA", zoneProbe("ZONE_CHANGED_NEW_AREA"))
 
--- LT-236: übrige Quests der Instanz je Dungeonquest im Log (annehmbar/später), Wegpunkt-API
-check("LT236.dungeon.accept", function()
+-- LT-328 (vorher LT-236): Mindeststufe in Forever, übrige Quests der Instanz je Dungeonquest im Log (annehmbar/später), Wegpunkt-API
+check("LT328.dungeon.accept", function()
   local rows = {}
   for _, entry in ipairs(ns.QuestLog.Entries()) do
     local entries = ns.DungeonQuestHints.AcceptEntries(entry.questID)
@@ -389,27 +345,6 @@ if type(_G.TaxiNodeOnButtonEnter) == "function" then
   end)
 end
 
--- LT-185: Einstellungen und Haken der Flugzeiten
-check("LT185.flight.settings", function()
-  return { settings = settings("flightTimer", "flightTimeTooltip"), tooltipHook = type(_G.TaxiNodeOnButtonEnter) == "function",
-    flightMapMixin = type(_G.FlightMap_FlightPointPinMixin), onTaxi = call("UnitOnTaxi", "player"),
-    summary = ns.FlightTimes.Summary() }
-end)
-
--- LT-202: Messungen mit Namen (alt) und mit IDs (neu), nodeIDs der Flug-API
-check("LT202.flight.legacy", function()
-  local times = LevelTimerStatsDB and LevelTimerStatsDB.flightTimes or {}
-  local ids, names = 0, 0
-  for key in pairs(times) do
-    if type(key) == "string" and key:find("^id ") then ids = ids + 1 else names = names + 1 end
-  end
-  local mapID = call("GetTaxiMapID")
-  local nodes = type(mapID) == "number" and mapID ~= 0 and call("C_TaxiMap.GetAllTaxiNodes", mapID)
-  local first = type(nodes) == "table" and nodes[1]
-  return { idEntries = ids, nameEntries = names, taxiMapID = mapID, locale = GetLocale(),
-    firstNode = type(first) == "table" and { nodeID = first.nodeID, slotIndex = first.slotIndex, name = first.name } or nil }
-end)
-
 -- LT-84: Bereit-Timer (Text, Frame, Schlachtfeld-Restzeit)
 local function readyState()
   local frame = ns.ReadyTimer.Frame()
@@ -428,45 +363,11 @@ for _, event in ipairs({ "READY_CHECK", "READY_CHECK_FINISHED", "UPDATE_BATTLEFI
   end)
 end
 
--- LT-211: Chatfenster: gemerkte Originalgröße, Größe laut Client und tatsächliche Schrift, Klemm-Abstände
-check("LT211.chat.fonts", function()
-  local windows = {}
-  local originals = ns.character and ns.character.chatFontOriginals
-  for _, chatFrame in ipairs(ns.ChatFrames()) do
-    local id = chatFrame:GetID()
-    local _, size = call("GetChatWindowInfo", id)
-    local _, fontSize = chatFrame:GetFont()
-    windows[#windows + 1] = { id = id, windowSize = size, fontSize = fontSize, original = originals and originals[id],
-      insets = { chatFrame:GetClampRectInsets() }, clamped = chatFrame:IsClampedToScreen() }
-  end
-  return { settings = settings("chatFontOverride", "chatFontSize", "unclampChat"),
-    available = ns.ChatFontSize.IsAvailable(), clamp = ns.ChatFontSize.Clamp(ns.db.chatFontSize), windows = windows }
-end)
-
--- LT-199: gesammelte Minimap-Knöpfe mit Eltern und Anker (nach dem Ausschalten: Liste leer, Eltern wieder die alten)
-check("LT199.minimapBar.restore", function()
-  local collected = {}
-  for _, button in ipairs(ns.MinimapBar.Collected()) do
-    collected[#collected + 1] = { name = H.frameName(button), parent = H.frameName(button:GetParent()), point = H.pointOf(button) }
-  end
-  return { setting = ns.db.minimapButtonBar, available = ns.MinimapBar.IsAvailable(), expanded = ns.MinimapBar.IsExpanded(),
-    count = #collected, collected = sample(collected), inCombat = call("InCombatLockdown") }
-end)
-
 -- LT-199: Zurückstellen der Knöpfe (im Kampf aufgeschoben?)
 hooksecurefunc(ns.MinimapBar, "RestoreAll", function()
   if not logging() then return end
   write({ area = "event", event = "minimapBar.restoreAll", extra = { inCombat = call("InCombatLockdown"),
     collected = #ns.MinimapBar.Collected() } })
-end)
-
--- LT-199: Gruppenfortschritt im Tooltip (Zeile je Quest im Log)
-check("LT199.partyQuestSync.lines", function()
-  local lines = {}
-  for _, entry in ipairs(sample(ns.QuestLog.Entries())) do
-    lines[tostring(entry.questID)] = ns.PartyQuestSync.TooltipLines(entry.questID)
-  end
-  return { setting = ns.db.partyQuestSync, peers = ns.PartyQuestSync.GetPeerCount(), lines = lines }
 end)
 
 -- LT-252: Stufenbereiche der Zonen aus dem Client (Blizzard zeigt sie selbst auf der Weltkarte; eigene Anzeige nur,

@@ -33,7 +33,7 @@
 --
 -- Abonnenten (Instances.lua, InstanceLimit.lua):
 --   OnEnter(fn(name, instanceType, isNew))                     isNew = Schätzung
---   OnLeave(fn(name))
+--   OnLeave(fn(name, isLogout))                               isLogout = Logout oder /reload in der Instanz
 --   OnCorrected(fn(name, instanceType, isNew, enteredAt))     die zoneUID widerspricht der Schätzung
 --   OnConfirmed(fn(name, zoneUID))                            Kopie steht fest
 --   OnReset(fn(name))                                         alte Kopie ist weg
@@ -202,7 +202,7 @@ local function enter(key, name, instanceType, difficultyID)
   notify("enter", name, instanceType, guessNew)
 end
 
-local function leave()
+local function leave(isLogout)
   local name = inside.name
   local visit = visits()[inside.key]
   if visit then visit.leftAt = time() end
@@ -210,7 +210,7 @@ local function leave()
   leftAsGhost = ghost and { key = inside.key, name = name } or nil
   ns.Debug("instances", "leave %s, ghost %s", inside.key, ghost)
   inside = nil
-  notify("leave", name)
+  notify("leave", name, isLogout)
 end
 
 local function confirm(zoneUID)
@@ -329,7 +329,7 @@ end)
 ns.OnLogout(function()
   if not inside then return end
   ns.character.instanceLogout = { key = inside.key, name = inside.name, at = time() }
-  leave()
+  leave(true)
 end)
 
 ns.RegisterEvent("PLAYER_ENTERING_WORLD", onWorldChanged)

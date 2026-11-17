@@ -16,8 +16,8 @@ local WindowElements = {
 ns.WindowElements = WindowElements
 
 local XP_BAR_BACKGROUND = { 1, 1, 1, 0.1 }
-local XP_BAR_RESTED = { 0.3, 0.55, 1, 0.6 }
-local XP_BAR_QUESTS = { 1, 0.8, 0.2, 0.75 }  -- XP der fertigen Quests (Einstellung questXpOnBar)
+local XP_BAR_RESTED_ALPHA = 0.6
+local XP_BAR_QUESTS_ALPHA = 0.75  -- XP der fertigen Quests (Einstellung questXpOnBar)
 local MIN_PART_WIDTH = 1
 WindowElements.TILE_PADDING = 4  -- Abstand von Wert und Beschriftung zum Rand der Kachel
 
@@ -94,8 +94,10 @@ end
 
 -- Füllungen in der Balkentextur des Themes (themeBarTexture), Fortschritt in der Akzentfarbe; nach jedem Apply
 function XpBar:ApplyTexture()
-  Theme.SetBarTexture(self.rested, unpack(XP_BAR_RESTED))
-  Theme.SetBarTexture(self.quests, unpack(XP_BAR_QUESTS))
+  local r, g, b = Theme.RGB("xpRested")
+  Theme.SetBarTexture(self.rested, r, g, b, XP_BAR_RESTED_ALPHA)
+  r, g, b = Theme.RGB("xpQuests")
+  Theme.SetBarTexture(self.quests, r, g, b, XP_BAR_QUESTS_ALPHA)
   Theme.SetBarTexture(self.fill, Theme.RGB("accent"))
 end
 

@@ -66,7 +66,7 @@ expect("nichts gefunden", rows[1].text, L.OPTIONS_SEARCH_NONE)
 options.SetSearchText(L.WARN_BREATH_BELOW)
 box._scripts.OnEnterPressed(box)
 tab, sub = options.CurrentPage()
-expect("Enter: Reiter", tab, "OPTIONS_TAB_NOTIFICATIONS")
+expect("Enter: Reiter", tab, "OPTIONS_TAB_HINTS")
 expect("Enter: Unterseite", sub, "OPTIONS_PAGE_WARNINGS")
 local breath
 for _, entry in ipairs(options.Search(L.WARN_BREATH_BELOW)) do

@@ -32,7 +32,7 @@ expectTrue("Forever-Text", atrexis[1]:find("Unheilige Raserei", 1, true) ~= nil)
 -- Vom Wowhead-Forever-Führer bestätigt (Zauber-ID 15496): Oggleflint ohne Hinweis
 local oggleflint = linesFor(11517)
 expect("bestätigt: kein Hinweis", oggleflint[#oggleflint]:find(L.FOREVER_UNVERIFIED, 1, true), nil)
-expectTrue("Forever-Zauber-ID", oggleflint[1]:find("Spell_15496", 1, true) ~= nil)
+expect("Typ-Symbol statt Forever-Zauber", oggleflint[1]:find("Spell_15496", 1, true), nil)
 
 -- Nur aus Classic übernommen: Defias-Schwarzwache (Todesminen) mit Hinweis als letzte Zeile
 local blackguard = linesFor(636)

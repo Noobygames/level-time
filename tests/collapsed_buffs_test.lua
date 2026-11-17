@@ -47,6 +47,16 @@ wow.state.aurasSecret = true
 wow.fire("UNIT_AURA", "player")
 tick()
 expect("gesperrt: nichts", CollapsedBuffs.ShownCount(), 0)
+-- LT-349: im Kampf gibt Blizzard einzelne Auren frei; per Spell-ID abgefragt erscheint der Schild trotzdem
+addon.Set("collapsedBuffsList", "52129")
+tick()
+expect("gesperrt, Schild freigegeben", CollapsedBuffs.ShownCount(), 1)
+expect("Stapel im Kampf", (CollapsedBuffs.IconTexts(1)), "3")
+wow.state.secretSpellAuras = { [52129] = true }
+tick()
+expect("Schild geheim: nichts", CollapsedBuffs.ShownCount(), 0)
+wow.state.secretSpellAuras = nil
+addon.Set("collapsedBuffsList", "52127; Satt")
 wow.state.aurasSecret = false
 wow.fire("UNIT_AURA", "player")
 
@@ -74,6 +84,25 @@ expectTrue("Vorschau", addon.Frames.Preview("collapsedBuffs"))
 expect("Vorschau zeigt ein Symbol", CollapsedBuffs.ShownCount(), 1)
 wow.runTimers()
 expect("Vorschau vorbei", CollapsedBuffs.ShownCount(), 0)
+
+-- Angedockt hinter den letzten sichtbaren Blizzard-Buff, solange nie verschoben
+BuffFrame.AuraContainer = CreateFrame("Frame", nil, BuffFrame)
+local shownBuff, hiddenBuff = CreateFrame("Button"), CreateFrame("Button")
+hiddenBuff:Hide()
+BuffFrame.auraFrames = { shownBuff, hiddenBuff }
+bar.expanded = false
+tick()
+local _, dockedTo, relPoint = frame:GetPoint(1)
+expectTrue("angedockt an letzten sichtbaren Buff", dockedTo == shownBuff)
+expect("links daneben", relPoint, "TOPLEFT")
+addon.Frames.SetPosition("collapsedBuffs", "CENTER", "CENTER", 10, 20)
+tick()
+_, dockedTo = frame:GetPoint(1)
+expectTrue("verschoben: eigene Position", dockedTo ~= shownBuff)
+addon.Frames.Reset("collapsedBuffs")
+tick()
+_, dockedTo = frame:GetPoint(1)
+expectTrue("zurückgesetzt: wieder angedockt", dockedTo == shownBuff)
 
 -- Client ohne einklappbare Leiste
 BuffFrame = nil

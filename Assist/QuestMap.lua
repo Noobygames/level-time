@@ -24,10 +24,18 @@ local logRevision = 0
 ns.RegisterEvent("QUEST_LOG_UPDATE", function() logRevision = logRevision + 1 end)
 ns.QuestFocus.OnChange(function() logRevision = logRevision + 1 end)
 
+-- Questlog einmal je Stand lesen: PointsOn läuft je Karte, MapIDs dazu (C_QuestLog.GetInfo erzeugt je Eintrag eine
+-- Tabelle); nicht verändern
+local entries, entriesRevision
+local function questEntries()
+  if entriesRevision ~= logRevision then entries, entriesRevision = QuestLog.Entries(), logRevision end
+  return entries
+end
+
 -- Punkte auf einer Karte: { x, y, size, texture oder color, title, questID, npc, ready }
 function QuestMap.PointsOn(mapID)
   local points = {}
-  for _, entry in ipairs(QuestLog.Entries()) do
+  for _, entry in ipairs(questEntries()) do
     local record = ns.QuestNpcs.Get(entry.questID)
     if record then
       local alpha = ns.QuestFocus.AlphaFor(entry.questID)
@@ -51,7 +59,7 @@ end
 -- Karten mit Punkten (für die Minimap, Assist/QuestMinimap.lua)
 function QuestMap.MapIDs()
   local seen, list = {}, {}
-  for _, entry in ipairs(QuestLog.Entries()) do
+  for _, entry in ipairs(questEntries()) do
     local record = ns.QuestNpcs.Get(entry.questID)
     local places = record and (entry.ready and { record.turnIn } or record.spots) or {}
     for _, place in ipairs(places) do

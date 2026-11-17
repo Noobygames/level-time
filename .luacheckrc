@@ -10,8 +10,8 @@ exclude_files = { "tools/**", "dist/**", "docs/**", "curseforge/**", ".claude/**
 -- Eigene Globals: SavedVariables, Slash-Befehle, Keybinding-Texte, vom Client gerufene Funktionen,
 -- und WoW-Tabellen, in die Addons eintragen (SlashCmdList, StaticPopupDialogs, UISpecialFrames).
 globals = {
-  "BINDING_HEADER_LEVELTIMER", "BINDING_NAME_LEVELTIMER_CUSTOM_SPLIT", "BINDING_NAME_LEVELTIMER_INFO_CARD",
-  "GetMinimapShape", "LevelTimer_CustomSplit", "LevelTimer_InfoCard", "LevelTimer_OnAddonCompartmentClick",
+  "BINDING_HEADER_LEVELTIMER", "BINDING_NAME_LEVELTIMER_CUSTOM_SPLIT", "BINDING_NAME_LEVELTIMER_INFO_CARD", "BINDING_NAME_LEVELTIMER_LFG_WINDOW",
+  "GetMinimapShape", "LevelTimer_CustomSplit", "LevelTimer_InfoCard", "LevelTimer_LFGWindow", "LevelTimer_OnAddonCompartmentClick",
   "LevelTimerAPI", "LevelTimerArchiveDB", "LevelTimerCharDB", "LevelTimerDB", "LevelTimerDebugLog",
   "LevelTimerExtractorDB", "LevelTimerStatsDB", "SLASH_LEVELTIMEREXTRACTOR1", "SLASH_STREAMGOAL1",
   "SLASH_STREAMGOAL2", "SlashCmdList", "StaticPopupDialogs", "StreamGoalDB",
@@ -20,7 +20,9 @@ globals = {
 
 -- WoW-Client-API, FrameXML und fremde Addons (nur lesen)
 read_globals = {
-  "C_EncounterJournal", "EJ_GetCurrentInstance", "EJ_GetEncounterInfoByIndex", "EJ_GetNumLoot", "EJ_SelectEncounter",
+  "CLASS_ICON_TCOORDS", "SetPortraitTexture",
+  "C_EncounterJournal", "EJ_GetCurrentInstance", "EJ_GetCurrentTier", "EJ_GetEncounterInfoByIndex", "EJ_GetInstanceByIndex",
+  "EJ_GetNumLoot", "EJ_GetNumTiers", "EJ_SelectEncounter", "EJ_SelectTier",
   "EJ_SelectInstance", "EncounterJournal",
   "AbandonQuest", "AcceptGroup", "AcceptQuest", "AcceptResurrect", "AcknowledgeAutoAcceptQuest",
   "ActionButton_UpdateRangeIndicator", "AddonList", "AddonList_Update", "AlertFrame", "Auctionator",
@@ -31,7 +33,7 @@ read_globals = {
   "C_ChatInfo", "C_Club", "C_CombatLog", "C_Container", "C_CurrencyInfo", "C_DamageMeter", "C_CVar", "C_DeathInfo", "C_DeathRecap",
   "C_FriendList", "C_GossipInfo", "C_GuildInfo", "C_Item", "C_LFGList", "C_LootHistory", "C_LossOfControl", "C_Map",
   "C_MapExplorationInfo", "C_MerchantFrame", "C_NamePlate", "C_PartyInfo", "C_PlayerInfo", "C_PvP", "C_QuestLog",
-  "C_Reputation", "C_Secrets", "C_Spell", "C_SpellBook", "C_SummonInfo", "C_SwingTimer", "C_TaxiMap", "C_Texture", "C_Timer",
+  "C_Reputation", "C_Secrets", "C_Spell", "C_SpellBook", "C_SummonInfo", "C_SwingTimer", "C_TaxiMap", "C_Texture", "C_Timer", "C_XMLUtil",
   "C_TooltipInfo",
   "C_UnitAuras", "CancelDuel", "CancelTrade", "CanGuildBankRepair", "CanLootUnit", "CanMerchantRepair",
   "ChangeChatColor", "CharacterMainHandSlot", "CharacterRangedSlot", "CharacterSecondaryHandSlot", "CHAT_FRAMES",
@@ -76,7 +78,7 @@ read_globals = {
   "GetTitleText", "GetTotalAchievementPoints", "GetTrainerServiceCost", "GetTrainerServiceIcon",
   "GetTrainerServiceInfo", "GetTrainerServiceLevelReq", "GetTrainerServiceSkillReq", "GetUnitName",
   "GetWeaponEnchantInfo", "GetXPExhaustion", "GetZoneText", "GuildInviteFrame", "HandleModifiedItemClick",
-  "hooksecurefunc", "InboxFrame", "InCombatLockdown", "InterfaceOptions_AddCategory", "InviteUnit", "INVSLOT_AMMO",
+  "hooksecurefunc", "InitiateRolePoll", "issecurevariable", "InboxFrame", "InCombatLockdown", "InterfaceOptions_AddCategory", "InviteUnit", "INVSLOT_AMMO",
   "INVSLOT_LAST_EQUIPPED", "INVSLOT_TABARD", "IsAddOnLoaded", "IsAltKeyDown", "IsControlKeyDown", "IsFalling",
   "IsIndoors", "IsInGroup", "IsInGuild", "IsInInstance", "IsInRaid", "IsModifiedClick",
   "IsPlayerAtEffectiveMaxLevel", "IsPlayerMoving", "IsPlayerSpell", "IsQuestCompletable", "IsQuestFlaggedCompleted",
@@ -86,7 +88,7 @@ read_globals = {
   "LFGListUtil_SetSearchEntryTooltip", "LFGParentFrame", "LFGVanilla_ShowFrame", "LibStub", "PanelTemplates_SetNumTabs", "PanelTemplates_SetTab", "PanelTemplates_TabResize", "LoadAddOn", "LOCALIZED_CLASS_NAMES_MALE", "Logout", "LootSlot",
   "LOSS_OF_CONTROL_DISPLAY_STUN", "MailFrame", "MAX_BATTLEFIELD_QUEUES", "MAX_BOSS_FRAMES", "MAX_NUM_QUESTS",
   "MAX_QUESTS", "Menu", "MerchantFrame", "Minimap", "Minimap_ZoomIn", "Minimap_ZoomOut", "MinimapBackdrop", "MinimapCluster",
-  "MinimapZoomIn", "MinimapZoomOut", "MovieFrame", "MuteSoundFile", "NO", "NotifyInspect", "NUM_BAG_SLOTS",
+  "MinimapZoomIn", "MinimapZoomOut", "MovieFrame", "MuteSoundFile", "NO", "NotifyInspect", "NUM_BAG_SLOTS", "NUM_CONTAINER_FRAMES",
   "NUM_CHAT_WINDOWS", "NUM_TOTAL_EQUIPPED_BAG_SLOTS", "NumberFontNormal", "NumTaxiNodes", "OPEN_LOCK_SELF",
   "OpenWorldMap", "PaperDollFrame", "PetHitIndicator", "PickupContainerItem", "PlayerFrame",
   "PlayerFrame_GetAlternatePowerBar", "PlayerFrameManaBar", "PlayerFrameTexture", "PlayerHitIndicator", "PlayerName",
@@ -106,7 +108,7 @@ read_globals = {
   "UnitChannelInfo", "UnitClass", "UnitClassification", "UnitCreatureFamily", "UnitCreatureType",
   "UnitDetailedThreatSituation", "UnitExists", "UnitFactionGroup", "UnitGroupRolesAssigned", "UnitGUID",
   "UnitHealth", "UnitHealthMax", "UnitIsAFK", "UnitIsDead", "UnitIsDeadOrGhost", "UnitIsFeignDeath",
-  "UnitIsGameObject", "UnitIsGhost", "UnitIsGroupAssistant", "UnitIsGroupLeader", "UnitIsInInteractRange",
+  "UnitInParty", "UnitInRaid", "UnitIsGameObject", "UnitIsGhost", "UnitIsGroupAssistant", "UnitIsGroupLeader", "UnitIsInInteractRange",
   "UnitIsPlayer", "UnitIsUnit", "UnitLevel", "UnitName", "UnitOnTaxi", "UnitPlayerControlled", "UnitPower",
   "UnitPowerMax", "UnitPowerType", "UnitRace", "UnitRangedDamage", "UnitReaction", "UnitSelectionColor", "UnitStat",
   "UnitThreatSituation", "UnitTokenFromGUID", "UnitUsesAmmo", "UnitXP", "UnitXPMax", "UnmuteSoundFile",
@@ -114,7 +116,8 @@ read_globals = {
 }
 
 -- Datendateien: generiert oder lange Texte, Zeilenlänge egal
-local DATA = { "Locales/**", "StreamGoal/Locales/**", "Assist/*Data/**", "UI/ChangelogData.lua" }
+local DATA = { "Locales/**", "StreamGoal/Locales/**", "Assist/*Data/**", "UI/ChangelogData.lua",
+  "LevelTimer_DataExtractor/Debug/CheckListData.lua" }
 for _, pattern in ipairs(DATA) do
   files[pattern] = { max_line_length = false }
 end

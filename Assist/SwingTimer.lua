@@ -245,7 +245,6 @@ ns.Frames.Register({
   frame = frame,
   label = "SWING_TIMER",
   labelKey = "SWING_TIMER",
-  default = { "CENTER", "CENTER", 0, -180 },
   defaultScale = 1,
   settingsPage = "COMFORT_PAGE_FRAMES",
   clickable = true,

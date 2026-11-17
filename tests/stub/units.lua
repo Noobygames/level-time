@@ -44,6 +44,7 @@ function UnitGUID(unit)
   return state.guid
 end
 function GetZoneText() return state.zone end
+function GetSubZoneText() return state.subZone or "" end
 -- Einheit zur GUID aus state.units (Ziel, Namensplaketten ...), sonst nil
 function UnitTokenFromGUID(guid)
   for unit, info in pairs(state.units) do

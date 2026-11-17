@@ -21,7 +21,8 @@ local Profiles = ns.ProfileStore.New({
   sanitize = function(settings) return ns.Database.SanitizeSettings(settings) end,
   apply = function() ns.ApplySettings() end,
   -- cvarOriginals: Werte des Spielers vor unseren CVar-Änderungen (CVars.lua), gehören zum Account, nicht zum Profil
-  metaKeys = { "cvarOriginals" },
+  -- language: gehört zum Spieler, nicht zum Profil (ein geteiltes Profil soll die Sprache nicht umstellen)
+  metaKeys = { "cvarOriginals", "language" },
   defaultName = "Default",  -- angezeigt als L.PROFILE_DEFAULT
   defaultLabel = function() return L.PROFILE_DEFAULT end,
   debug = function(fmt, ...) ns.Debug("profiles", fmt, ...) end,

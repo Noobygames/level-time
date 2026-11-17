@@ -1,0 +1,34 @@
+{
+  "instance": "Shaper's Terrace",
+  "kind": "dungeon",
+  "bosses": [
+    {"name": "Titanosaur", "npcID": 253201, "mechanics": [
+      {"spellID": 0, "spell": "Fear", "type": "survive", "en": "Fears the group: Fear Ward or Tremor Totem help", "de": "Furcht auf der Gruppe: Furchtzauberschutz oder Erdungstotem helfen", "version": "forever"},
+      {"spellID": 0, "spell": "Tail", "type": "positioning", "en": "Tail knocks back: stay away from his rear", "de": "Schwanz schleudert zurück: nicht hinter ihm stehen", "version": "forever"}
+    ]},
+    {"name": "Venomridge", "npcID": 261813, "mechanics": [
+      {"spellID": 0, "spell": "Poison volley", "type": "dispel", "en": "Poison volley and stomp: cure poison, spread slightly", "de": "Giftsalve und Stampfen: Gift heilen, leicht verteilen", "version": "forever"}
+    ]},
+    {"name": "Thunderhoof", "npcID": 261812, "mechanics": [
+      {"spellID": 0, "spell": "Lightning", "type": "interrupt", "en": "Lightning cast can be interrupted: plan a kick order", "de": "Blitzzauber ist unterbrechbar: Reihenfolge der Unterbrecher planen", "version": "forever"}
+    ]},
+    {"name": "Direhorn Matriarch", "npcID": 262127, "mechanics": [
+      {"spellID": 0, "spell": "Puncture", "type": "tank", "en": "Puncture bleeds the tank: extra healing", "de": "Durchbohren lässt den Tank bluten: mehr Heilung", "version": "forever"},
+      {"spellID": 0, "spell": "Tail Lash", "type": "positioning", "en": "Tail lash and charge at distant players: stay at her flanks", "de": "Schwanzpeitsche und Sturmangriff auf Ferne: an ihren Flanken stehen", "version": "forever"}
+    ]},
+    {"name": "Cinder", "npcID": 261974, "mechanics": [
+      {"spellID": 0, "spell": "Fire", "type": "avoid", "en": "Fire damage: bring fire resistance, stay out of flames", "de": "Feuerschaden: Feuerresistenz mitbringen, Flammen meiden", "version": "forever"}
+    ]},
+    {"name": "Bolt", "npcID": 262081, "mechanics": [
+      {"spellID": 0, "spell": "Chain Lightning", "type": "positioning", "en": "Chain lightning jumps: do not stack; immune to nature", "de": "Kettenblitz springt: nicht stapeln; immun gegen Natur", "version": "forever"}
+    ]},
+    {"name": "Snowtalon", "npcID": 262297, "mechanics": [
+      {"spellID": 0, "spell": "Frost Nova", "type": "avoid", "en": "Cone of cold, frost nova and root: bring frost resistance, fight away from the blue crystals", "de": "Kältekegel, Frostnova und Wurzeln: Frostresistenz, fern der blauen Kristalle kämpfen", "version": "forever"}
+    ]},
+    {"name": "Nanaya", "npcID": 261809, "mechanics": [
+      {"spellID": 0, "spell": "Ground slam", "type": "survive", "en": "Ground slam stuns everyone close by", "de": "Bodenschlag betäubt alle in der Nähe", "version": "forever"},
+      {"spellID": 0, "spell": "Element change", "type": "avoid", "en": "Changes element every 25% health: swap resistances", "de": "Wechselt alle 25 % Leben das Element: Resistenzen anpassen", "version": "forever"}
+    ]}
+  ],
+  "sources": ["https://conquestcapped.com/guides/wow-forever/wow-forever-shapers-terrace-guide/ (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)"]
+}

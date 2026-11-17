@@ -29,7 +29,7 @@ addon.Alerts.Show = function(message, ...)
 end
 
 SlashCmdList.LEVELTIMER("config")
-expectTrue("Reiter Chat & Erinnerungen", wow.click(L.OPTIONS_TAB_NOTIFICATIONS))
+expectTrue("Reiter Hinweise & Warnungen", wow.click(L.OPTIONS_TAB_HINTS))
 
 -- Login: Session-Vergleich (Beispielwerte), Rekordmeldung, Twink-Hinweis
 wow.printed = {}

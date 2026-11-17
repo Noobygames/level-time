@@ -158,7 +158,8 @@ local function stateOf(run)
   return table.concat({ run.name or "", run.startedAt or 0, xp, kills }, ":")
 end
 
-local function report()
+local function report(_, isLogout)
+  if isLogout then return end  -- /reload ist kein Verlassen
   if not ns.db.announceInstanceReport or UnitIsDeadOrGhost("player") then return end
   local run = ns.Instances.GetCurrentRun()
   if not run or ns.Instances.GetRunSeconds(run) < MIN_SECONDS then return end

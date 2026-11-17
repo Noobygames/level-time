@@ -12,6 +12,11 @@ header.close:GetScript("OnClick")(header.close)
 expectTrue("onClose", panel.closed)
 header:SetTitle("Neu")
 expect("Titel neu", header.title:GetText(), "Neu")
+-- Mindestbreite: Rand 16 + Titel + 8 + Close 24 + 8; Aktionen und Symbol kommen dazu
+expect("Mindestbreite", header:MinWidth(), 16 + header.title:GetStringWidth() + 8 + 24 + 8)
+header.actions:SetWidth(100)
+header:SetIcon("Interface\\Icons\\INV_Misc_Key_05")
+expect("Mindestbreite mit Aktion und Symbol", header:MinWidth(), 16 + 26 + header.title:GetStringWidth() + 8 + 108 + 24 + 8)
 
 local button = Widgets.CreateButton(parent, 80, 28, function() end)
 button:SetPrimary(true)

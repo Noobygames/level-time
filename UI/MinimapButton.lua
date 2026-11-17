@@ -15,14 +15,18 @@ local CLICKS = {
   { button = "RightButton", shift = false, tip = "TOOLTIP_RIGHT",
     run = function() ns.Set("showTimer", not ns.db.showTimer) end },
   { button = "RightButton", shift = true, tip = "TOOLTIP_SHIFT_RIGHT", run = function() ns.EditMode.Toggle() end },
+  { button = "LeftButton", ctrl = true, tip = "TOOLTIP_CTRL_LEFT", available = function() return ns.DungeonGuide.IsAvailable() end,
+    run = function() ns.DungeonGuide.Open() end },
 }
 
 -- Jede andere Taste (Mitte, unbekannt) gilt als Linksklick
 function LauncherClicks.Handle(mouseButton)
   local button = mouseButton == "RightButton" and "RightButton" or "LeftButton"
   local shift = IsShiftKeyDown() and true or false
+  local ctrl = IsControlKeyDown() and true or false
   for _, click in ipairs(CLICKS) do
-    if click.button == button and click.shift == shift then
+    if click.button == button and (click.shift or false) == shift and (click.ctrl or false) == ctrl
+        and (not click.available or click.available()) then
       click.run()
       return
     end
@@ -31,7 +35,7 @@ end
 
 function LauncherClicks.AddTooltipLines(tooltip, r, g, b)
   for _, click in ipairs(CLICKS) do
-    tooltip:AddLine(L[click.tip], r, g, b)
+    if not click.available or click.available() then tooltip:AddLine(L[click.tip], r, g, b) end
   end
 end
 

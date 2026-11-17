@@ -90,7 +90,7 @@ end
 
 -- Freitext prüfen und kürzen (strtrim); Rückgabe: Text oder nil und Fehlertext
 function Kinds.CleanText(text, emptyError)
-  text = strtrim(text or "")
+  text = strtrim(((text or ""):gsub("|", ""))) -- keine Formatcodes (|T/|H/|c) einschleusen
   if text == "" then return nil, emptyError end
   if Kinds.TextLength(text) > Kinds.MAX_TEXT_LENGTH then
     return nil, string.format(L.SG_ERR_TEXT_LONG, Kinds.MAX_TEXT_LENGTH)

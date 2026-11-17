@@ -74,6 +74,8 @@ addon.InstanceRunTracker.Refresh()
 local card = addon.InstanceRunTracker.Card()
 expectTrue("Tracker in der Instanz sichtbar", card.frame:IsShown())
 expectTrue("Tracker zeigt die Bosse", card.frame.body:GetText():find("Rhahk'Zor", 1, true) ~= nil)
+local moreBosses = string.format(L.DUNGEON_RUN_MORE_BOSSES, #addon.InstanceBosses.List(36, 1) - 2)
+expectTrue("Tracker: Rest als weitere Bosse", card.frame.body:GetText():find(moreBosses, 1, true) ~= nil)
 expectTrue("Tracker zeigt den Abstand ab der Bewegung", card.frame.time:GetText():find("-20", 1, true) ~= nil)
 -- Porträt des nächsten Bosses (Rhahk'Zor besiegt -> zweiter Boss der Liste) über das Modell
 local _, trackerPortrait = addon.InstanceRunTracker.Card()

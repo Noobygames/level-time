@@ -50,6 +50,13 @@ expectTrue("Zeile mit Instanz", first ~= nil)
 expect("Geber und Ort", first and first.detail,
   string.format(L.DUNGEON_QUEST_HINT_DETAIL, L.DUNGEON_QUEST_GIVER_NPC, "Sturmwind (70, 41)"))
 
+-- Sprachwechsel bei offenem Fenster: Zeilentext wird neu gebildet
+local rowText = Hint.Rows()[1].detail
+local before = rowText:GetText()
+addon.Set("language", "enUS")
+expectTrue("Sprachwechsel: Zeile neu übersetzt", rowText:GetText() ~= before)
+addon.Set("language", "deDE")
+
 -- Name aus dem Kreaturen-Cache des Clients (versteckter Tooltip mit unit-Link) ersetzt "Questgeber"
 local scanTitle = CreateFrame("Frame")
 scanTitle.GetText = function() return "Wilder Klippenschmied" end
@@ -135,3 +142,51 @@ if row then row:GetScript("OnClick")(row) end
 expect("Kartenpunkt", Hint.Waypoint() and Hint.Waypoint().uiMapID, 1453)
 expect("Karte geöffnet", opened[1], 1453)
 
+-- Klick auf eine Zeile schaltet den Kartenpunkt: mehrere gleichzeitig, erneuter Klick entfernt ihn
+expect("ein Punkt", Hint.PinCount(), 1)
+expectTrue("Zeile markiert", row.pinMark:IsShown())
+local other
+for _, candidate in ipairs(rows) do
+  if candidate:IsShown() and rowEntries[candidate] and rowEntries[candidate].place and candidate ~= row then other = candidate end
+end
+expectTrue("zweite Zeile mit Ort", other ~= nil)
+other:GetScript("OnClick")(other)
+expect("zwei Punkte", Hint.PinCount(), 2)
+row:GetScript("OnClick")(row)
+expect("Klick entfernt", Hint.PinCount(), 1)
+expectTrue("Markierung weg", not row.pinMark:IsShown())
+
+-- Alle markieren / Alle löschen
+Hint.ClearAll()
+expect("alle gelöscht", Hint.PinCount(), 0)
+Hint.MarkAll()
+local withPlace = 0
+for _, entry in ipairs(Hints.AcceptEntries(167)) do if entry.place then withPlace = withPlace + 1 end end
+expect("alle mit Ort markiert", Hint.PinCount(), withPlace)
+Hint.ClearAll()
+
+-- Mehr Zeilen als die Fensterhöhe: alle erreichbar (Bildlauf), kein "... weitere"
+local many = {}
+for index = 1, Hint.MAX_ROWS + 5 do many[index] = { text = "Quest " .. index, detail = "x" } end
+Hint.Show("Viele", many)
+local manyRows = Hint.Rows()
+expectTrue("alle Zeilen vorhanden", #manyRows >= #many and manyRows[#many]:IsShown())
+
+
+-- LT-394: Dungeon je Charakter abschalten: Zonen-Hinweis ohne seine Zeilen, kein Hinweis nach der Annahme,
+-- Rechtsklick auf den Eingang zeigt ihn weiter
+local DEADMINES = 36
+local zoneCount = #Hints.ZoneEntries(1453)
+Hints.SetHidden(DEADMINES, true)
+expectTrue("gemerkt je Charakter", addon.character.hiddenDungeonQuestHints[DEADMINES] == true)
+expectTrue("Zonen-Hinweis ohne Todesminen", #Hints.ZoneEntries(1453) < zoneCount)
+Hint.Hide()
+wow.state.questLog = { { questID = 168, title = "Rote Seide", level = 20, objectives = {} } }
+wow.fire("QUEST_ACCEPTED", 2, 168)
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1)
+expectTrue("Annahme: kein Hinweis", not Hint.IsShown())
+expectTrue("Eingang: trotzdem", Hints.ShowInstance(DEADMINES) and Hint.IsShown())
+Hints.SetHidden(DEADMINES, false)
+expect("wieder an", addon.character.hiddenDungeonQuestHints[DEADMINES], nil)
+expect("Zonen-Hinweis wieder vollständig", #Hints.ZoneEntries(1453), zoneCount)

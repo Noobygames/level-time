@@ -7,6 +7,8 @@
 --               in den Taschen
 -- Erinnert wird nur, wenn es sich lohnt: beim Leveln, außerhalb von Kampf und Ruhegebiet, lebendig,
 -- und je Buff wiederholt im Abstand von reminderInterval Minuten (Einstellung), solange er fehlt.
+-- Hinweisfenster nur beim ersten Fehlen; Wiederholungen, solange der Buff weiter fehlt, nur als Chatzeile. War er
+-- bei einer Prüfung wieder da (auch in der Pause), öffnet das nächste Fehlen wieder das Fenster (reminder.collected).
 -- Lagervorteile und Aufgeladen nur in der offenen Welt (outdoorsOnly): in Dungeons, Schlachtzügen und
 -- Schlachtfeldern gibt es weder Lagerfeuer noch Elementarkonvergenzen.
 -- "Satt" wird über den Namen erkannt, den der Client für Zauber WELL_FED_SPELL_ID in seiner Sprache
@@ -207,20 +209,35 @@ end
 
 -- Fällig: fehlt und die Pause ist um, oder (remindOnLoss) war bei der letzten Prüfung noch da. Ohne remindOnLoss
 -- wird während der Pause gar nicht erst nachgesehen (das Ergebnis würde nichts ändern).
+-- Buff wieder da: sein Hinweis verschwindet aus dem Hinweisfenster, das nächste Fehlen öffnet es wieder
+local function buffBack(reminder)
+  if not reminder.collected then return end
+  reminder.collected = nil
+  ns.Hints.DismissKey(reminder.setting)
+end
+
 local function isDue(reminder)
+  -- schon gezeigter Buff wieder da? Immer nachsehen, auch im Ruhegebiet, Kampf und in der Pause (gegessen wird oft
+  -- in der Stadt)
+  if reminder.collected and missingNow(reminder) == false then buffBack(reminder) end
   if not ns.db[reminder.setting] or not allowedNow(reminder) then return false end
   if not reminder.remindOnLoss and not pauseOver(reminder) then return false end
   local isMissing = missingNow(reminder)
   local wasPresent = reminder.present
   if isMissing ~= nil then reminder.present = not isMissing end
+  if isMissing == false then buffBack(reminder) end
   if isMissing ~= true then return false end
   if reminder.remindOnLoss and wasPresent then return true end
   return pauseOver(reminder)
 end
 
+-- Im Hinweisfenster steht nur der Text (er sagt schon, was fehlt); die Karte hat zusätzlich den Titel. Beide Texte
+-- werden erst beim Anzeigen gebildet, damit sie einem Sprachwechsel folgen.
 local function noticeOf(reminder)
-  return { title = L.NOTICE_BUFF, text = messageText(reminder), icon = iconOf(reminder),
-    texture = reminder.texture and reminder.texture() or nil }
+  local collected = not reminder.banner
+  return { title = not collected and function() return L.NOTICE_BUFF end or nil,
+    text = function() return messageText(reminder) end, key = reminder.setting,
+    icon = iconOf(reminder), texture = reminder.texture and reminder.texture() or nil }
 end
 
 -- Hinweise sammeln sich im Hinweisfenster; kurze Banner (banner, Klassen-Buffs) bleiben Einblendungen
@@ -252,7 +269,10 @@ function BuffReminder.Check()
       if reminder.banner then
         banners = banners or {}
         table.insert(banners, noticeOf(reminder))
+      elseif reminder.collected then
+        ns.Print(messageText(reminder))  -- Wiederholung: nur die Chatzeile
       else
+        reminder.collected = true
         collected = collected or {}
         table.insert(collected, noticeOf(reminder))
       end

@@ -28,7 +28,6 @@ local function wellRestedSpell() return ns.SleepTimer.WELL_RESTED_SPELL_ID end
 
 local SleepDisplay = ns.TimerDisplay.Create({
   name = ns.GlobalName("Sleep"),
-  default = { "TOP", "TOP", 0, -370 },  -- unter dem Essen-Timer
   id = "sleep", label = "EDIT_FRAME_SLEEP", soundKey = "sleepTimerSound",
   toggleKey = "sleepTimer",
   available = function() return ns.SleepTimer.IsAvailable() end,

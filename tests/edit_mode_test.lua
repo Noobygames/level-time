@@ -114,6 +114,20 @@ addon.Set("showTimer", true)
 
 -- "Einstellungen" im Menü springt auf den Reiter der Anzeige
 EditMode.Enter()
+-- Fläche liegt über der Anzeige und ihren Kindern (Level-Up-Fenster: Fähigkeiten-Symbole fingen die Maus ab)
+local levelUpFrame = addon.Frames.Get("levelUp")
+levelUpFrame = levelUpFrame and levelUpFrame.frame
+expectTrue("Level-Up: Fläche über dem Fenster",
+  levelUpFrame and LevelTimerEdit_levelUp:GetFrameLevel() > levelUpFrame:GetFrameLevel() + 10)
+-- Französisch: das Menü wird so breit wie "Réinitialiser position et taille" (Knopftext passt)
+addon.Set("language", "frFR")
+EditMode.ShowPopup("splitList")
+local resetButton = wow.findFrame(function(frame)
+  local label = rawget(frame, "label")
+  return type(label) == "table" and rawget(label, "_text") == L.EDIT_MODE_RESET
+end)
+expectTrue("Menü-Knopf passt zum Text", resetButton:GetWidth() >= resetButton.label:GetStringWidth() + 24)
+addon.Set("language", "deDE")
 EditMode.ShowPopup("splitList")
 expectTrue("Einstellungen", wow.click(L.EDIT_MODE_SETTINGS, true))
 expect("Modus beendet", EditMode.IsActive(), false)

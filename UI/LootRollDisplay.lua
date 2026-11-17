@@ -28,6 +28,8 @@ ns.LootRollDisplay = LootRollDisplay
 local ICON_SIZE = 14
 local ICON_TEXT_GAP = 2
 local CELL_GAP = 8
+local CARD_LINE_SPACING = 4      -- Zeilenabstand auf der Karte (Item, darunter die Zähler)
+local CARD_COUNT_GAP = "    "     -- Abstand zwischen den Zählern einer Kartenzeile
 local ROW_OFFSET = -2           -- Abstand der Zeile unter dem Blizzard-Fenster
 local MAX_BLIZZARD_FRAMES = 10  -- GroupLootFrame1..n (heute 4 in allen Clients)
 local DEFAULT_POS = { "BOTTOM", "BOTTOM", 0, 260 }
@@ -42,6 +44,7 @@ local hooked = {}     -- Fenster mit OnShow/OnHide-Hook
 local card
 local previewing = false  -- Edit-Modus: Karte mit Beispielwürfen
 local results = {}       -- abgeschlossene Würfe der letzten WINNER_SECONDS: { roll, at } (LootRolls vergisst sie)
+local cardRolls = {}      -- Würfe, die die Karte gerade zeigt (für den Kartentooltip)
 local cardTimed = false   -- Karte zeigt Würfe mit Ablauf: Sekundentakt aktiv
 
 local function setIcon(texture, kind)
@@ -63,18 +66,18 @@ function LootRollDisplay.IconText(kind, size)
   return string.format("|T%s:%d:%d|t", path, size, size)
 end
 
-local function isShownKind(kind, counts)
-  return ALWAYS_SHOWN[kind] or counts[kind] > 0
+local function isShownKind(kind, counts, hideZero)
+  return counts[kind] > 0 or (not hideZero and ALWAYS_SHOWN[kind])
 end
 
--- "|T..|t 2  |T..|t 1 ..." für einen Wurf
+-- "|T..|t 2  |T..|t 1 ..." für einen Wurf (Karte: nur Wahlen mit Stimmen, ohne Nullen)
 function LootRollDisplay.CountsLine(roll)
   local counts = LootRolls.Counts(roll)
   local parts = {}
   for _, kind in ipairs(DISPLAY_KINDS) do
-    if isShownKind(kind, counts) then parts[#parts + 1] = LootRollDisplay.IconText(kind) .. " " .. counts[kind] end
+    if isShownKind(kind, counts, true) then parts[#parts + 1] = LootRollDisplay.IconText(kind) .. " " .. counts[kind] end
   end
-  return table.concat(parts, "  ")
+  return table.concat(parts, CARD_COUNT_GAP)
 end
 
 ---------------------------------------------------------------------------
@@ -167,7 +170,7 @@ end
 ---------------------------------------------------------------------------
 -- Gegenstand mit Symbol; das Symbol steht im Link-Text, damit auch Drüberfahren am Symbol den Item-Tooltip zeigt
 function LootRollDisplay.ItemText(roll)
-  local icon = roll.texture and ("|T" .. roll.texture .. ":0|t") or ""
+  local icon = roll.texture and ("|T" .. roll.texture .. ":0|t ") or ""
   if roll.link then
     local withIcon, found = roll.link:gsub("(|H[^|]+|h)", "%1" .. icon, 1)
     if found > 0 then return withIcon end
@@ -213,11 +216,33 @@ function LootRollDisplay.SampleRolls()
   }
 end
 
+-- Kartentooltip (Einstellung lootRollNames): je offenem Wurf die Namen je Wahl, wie am Knopf-Tooltip
+local function cardTooltipText()
+  if not ns.db.lootRollNames then return nil end
+  local lines = {}
+  for _, roll in ipairs(cardRolls) do
+    if not roll.completed then
+      lines[#lines + 1] = roll.name or "?"
+      for _, kind in ipairs(DISPLAY_KINDS) do
+        local names = LootRolls.NamesOf(roll, kind)
+        if #names > 0 then
+          local colored = {}
+          for index, name in ipairs(names) do colored[index] = ns.LootRollReport.ColoredName(roll, name) end
+          lines[#lines + 1] = string.format(L.LOOT_ROLL_TOOLTIP_TITLE, ns.LootRollReport.KindLabel(kind), #names)
+            .. " (" .. table.concat(colored, ", ") .. ")"
+        end
+      end
+    end
+  end
+  return #lines > 0 and table.concat(lines, "\n") or nil
+end
+
 local function showCard(list)
   if previewing then list = LootRollDisplay.SampleRolls() end
+  cardRolls = list
   if #list > 0 then
-    -- Symbol des ersten Gegenstands (das Würfelbild fehlt in manchen Clients), sonst die Würfel
-    card.Set({ color = { Theme.RGB("accent") }, icon = LootRolls.ICONS.need, texture = list[1].texture,
+    -- Würfel als Kartensymbol; der Gegenstand steht mit eigenem Symbol im Text
+    card.Set({ color = { Theme.RGB("accent") }, icon = LootRolls.ICONS.need,
       title = L.LOOT_ROLL_CARD_TITLE, body = cardLines(list) })
     card.frame:Show()
   else
@@ -279,12 +304,12 @@ function LootRollDisplay.RowOf(frame)
   return rows[frame]
 end
 
-card = ns.Card.Create(ns.GlobalName("LootRolls"))
+card = ns.Card.Create(ns.GlobalName("LootRolls"), { bodySpacing = CARD_LINE_SPACING })
 card.frame:SetFrameStrata("DIALOG")
 ns.Widgets.EnableItemLinks(card.frame)  -- Item-Links im Text: Tooltip beim Drüberfahren, Shift-Klick
 ns.Frames.Register({
   id = "lootRolls", frame = card.frame, label = "EDIT_FRAME_LOOT_ROLLS", default = DEFAULT_POS,
-  settingsPage = "COMFORT_PAGE_LOOT", clickable = true, actionsTip = true,
+  settingsPage = "OPTIONS_PAGE_LOOT_ROLLS", clickable = true, actionsTip = cardTooltipText,
   preview = function(on)
     previewing = on and true or false
     LootRollDisplay.Refresh()

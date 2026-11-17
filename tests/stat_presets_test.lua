@@ -34,7 +34,7 @@ expect("Dungeon blendet Geld aus", LevelTimerDB.showMoney, false)
 
 -- Button in den Einstellungen
 SlashCmdList.LEVELTIMER("config")
-wow.click(addon.L.STATISTICS)
+wow.click(addon.L.OPTIONS_TAB_MAIN)
 expectTrue("Button Leveln", wow.click(addon.L.PRESET_LEVELING))
 expect("Leveln: Quests an", LevelTimerDB.showQuests, true)
 expect("Leveln: Instanz-Zeile aus", LevelTimerDB.showInstanceRun, false)
@@ -54,7 +54,7 @@ expect("Minimal blendet Geld aus", LevelTimerDB.showMoney, false)
 wow.logout()
 wow.login({ level = 10 })
 SlashCmdList.LEVELTIMER("config")
-wow.click(addon.L.STATISTICS)
+wow.click(addon.L.OPTIONS_TAB_MAIN)
 expectTrue("Button Rückgängig", wow.clickOption("PRESET_UNDO"))  -- "Rückgängig" gibt es auch unter der Seitenleiste
 expect("Geld wieder an", LevelTimerDB.showMoney, true)
 expect("Erholung wieder an", LevelTimerDB.showRested, true)

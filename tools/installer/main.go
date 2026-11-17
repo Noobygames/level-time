@@ -25,6 +25,9 @@ type options struct {
 	// -debuglog: Debug-Log von Level Time ausgeben (nur lesen), tail = nur die letzten Zeilen
 	debugLog bool
 	tail     int
+	// -checkresults: Ergebnisse der Spiel-Checkliste (/lte todo) ausgeben, json = je Zeile ein JSON-Objekt
+	checkResults bool
+	json         bool
 }
 
 func main() {
@@ -38,11 +41,15 @@ func main() {
 	flag.StringVar(&o.addons, "addons", "", "Kommagetrennte Addons (Ordnername), z.B. StreamGoal; Standard: alle beim Installieren, das Hauptaddon beim Packen")
 	flag.StringVar(&o.pkgPath, "package", "", "Statt zu installieren eine ZIP für CurseForge/manuelle Installation schreiben")
 	flag.BoolVar(&o.debugLog, "debuglog", false, "Debug-Log von Level Time (/lt debug log) aus den SavedVariables ausgeben, nur lesen; -flavors filtert")
+	flag.BoolVar(&o.checkResults, "checkresults", false, "Ergebnisse der Spiel-Checkliste (/lte todo) aus den SavedVariables ausgeben, nur lesen; -flavors filtert")
+	flag.BoolVar(&o.json, "json", false, "Mit -checkresults: je Ergebnis eine JSON-Zeile statt Text")
 	flag.IntVar(&o.tail, "tail", 0, "Mit -debuglog: nur die letzten N Zeilen je Log")
 	flag.Parse()
 
 	var err error
-	if o.debugLog {
+	if o.checkResults {
+		err = runCheckResults(o, os.Stdout, os.Stderr)
+	} else if o.debugLog {
 		err = runDebugLog(o, os.Stdout, os.Stderr)
 	} else if o.pkgPath != "" {
 		err = runPackage(o)

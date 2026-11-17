@@ -157,6 +157,15 @@ local function spellAuraSecret(spellId)
   return not ok or ns.IsSecret(secret) or secret == true
 end
 
+-- Einzelne Aura per Spell-ID, auch bei gesperrter Buff-Liste: Aura-Tabelle, false = nicht aktiv, nil = geheim oder
+-- nicht abfragbar (GetPlayerAuraBySpellID: RequiresNonSecretAura)
+function Auras.PlayerAuraBySpellId(spellId)
+  if not C_UnitAuras or not C_UnitAuras.GetPlayerAuraBySpellID or spellAuraSecret(spellId) then return nil end
+  local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+  if not ok or ns.IsSecret(aura) then return nil end
+  return aura or false
+end
+
 function Auras.HasPlayerSpell(spellIds)
   if not C_UnitAuras or not C_UnitAuras.GetPlayerAuraBySpellID then return nil end
   local unknown = false

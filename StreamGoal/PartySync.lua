@@ -132,6 +132,11 @@ end
 ---------------------------------------------------------------------------
 -- Empfangen
 ---------------------------------------------------------------------------
+-- Nur Gruppenkanäle; Flüstern von Fremden darf keine Ziele anlegen oder Fortschritt melden
+local GROUP_CHANNELS = { PARTY = true, RAID = true, INSTANCE_CHAT = true }
+-- Obergrenze je empfangenem Fortschrittspaket
+local MAX_REMOTE_DELTA = 1000
+
 local function readable(value)
   return type(value) == "string" and not LT.IsSecret(value) and value or nil
 end
@@ -166,6 +171,7 @@ end
 
 local function handleProgress(sharedKey, delta)
   if not enabled() or not delta or delta <= 0 then return end
+  delta = math.min(delta, MAX_REMOTE_DELTA)
   for _, goal in ipairs(Goals.Active()) do
     local key = goalSharedKey(goal)
     if key == sharedKey or (SHARED_KINDS[goal.kind] and key == sharedKey) then
@@ -188,8 +194,9 @@ local HANDLERS = {
   end,
 }
 
-LT.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
+LT.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, channel, sender)
   prefix, text, sender = readable(prefix), readable(text), readable(sender)
+  if not GROUP_CHANNELS[readable(channel)] then return end
   if prefix ~= PartySync.PREFIX or not text or not sender or not enabled() or LT.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):?(.*)$")
   local handler = kind and HANDLERS[kind]

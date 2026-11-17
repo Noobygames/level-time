@@ -1,4 +1,4 @@
--- Level-Time-Block im Tooltip der Gruppensuche (Einstellung lfgTooltip, an; nur WoW Forever, andere Clients hängen
+-- Level-Time-Ergänzungen im Tooltip der Gruppensuche (Einstellung lfgTooltip, an; nur WoW Forever, andere Clients hängen
 -- nichts ein): Mitglieder mit Klasse/Rolle/Level/Zone, Level-Spanne und Passung, offene Rollen, besiegte Bosse,
 -- Freunde/Gilde, aufgelöst, offene Dungeonquests mit Machbarkeit, Warnung bei 13 Level Abstand (keine Erfahrung).
 -- Die Trefferliste bekommt zusätzlich Markierungen (UpdateEntryMarks, gleiche Einstellung).
@@ -7,7 +7,8 @@
 --   Retail-Stil: hooksecurefunc("LFGListUtil_SetSearchEntryTooltip", tooltip, resultID), Tooltip ist GameTooltip.
 --   Classic-Stil (Blizzard_GroupFinder_VanillaStyle, lädt bei Bedarf): hooksecurefunc
 --     ("LFGBrowseSearchEntryTooltip_UpdateAndShow", self, resultID). Der eigene Rahmen LFGBrowseSearchEntryTooltip
---     berechnet seine Höhe von Hand, darum steht der Block in GameTooltip direkt darunter und verschwindet mit ihm.
+--     zeigt Mitglieder, Bosse und "aufgelöst" selbst: wir ergänzen die Zone je Mitgliedszeile und unseren Block
+--     (ohne Doppelungen) im Rahmen und vergrößern ihn.
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -76,26 +77,29 @@ local function addLevelLine(tooltip, data)
   if data.noXpLow then tooltip:AddLine(string.format(L.LFG_NO_XP, data.noXpLow, data.noXpHigh), ns.Theme.RGB("bad")) end
 end
 
--- Fügt den Block an; false = nichts zu zeigen
-local function addBlock(tooltip, resultID)
+-- Fügt den Block an; false = nichts zu zeigen. inline = Classic-Stil: Blizzards Rahmen zeigt Mitglieder, besiegte
+-- Bosse und "aufgelöst" schon selbst, darum fehlen sie hier.
+local function addBlock(tooltip, resultID, inline)
   if not LFGTooltip.IsEnabled() then return false end
   local data = LFGData.Summary(resultID)
   if not data or (#data.members == 0 and not data.delisted) then return false end
   tooltip:AddLine(" ")
   tooltip:AddLine(ns.DISPLAY_NAME, ns.Theme.RGB("info"))
-  for index = 1, math.min(#data.members, MAX_MEMBER_ROWS) do memberLine(tooltip, data.members[index]) end
+  if not inline then
+    for index = 1, math.min(#data.members, MAX_MEMBER_ROWS) do memberLine(tooltip, data.members[index]) end
+  end
   if data.levelLow then addLevelLine(tooltip, data) end
   local open = data.open and openRolesText(data.open)
   if open and open ~= "" then tooltip:AddLine(string.format(L.LFG_OPEN, open), 1, 1, 1) end
-  if #data.killedBosses > 0 then
+  if #data.killedBosses > 0 and not inline then
     tooltip:AddLine(string.format(L.LFG_BOSSES_KILLED, table.concat(data.killedBosses, ", ")), ns.Theme.RGB("muted"))
   end
   if data.friends + data.guild > 0 then
     tooltip:AddLine(string.format(L.LFG_SOCIAL, data.friends, data.guild), ns.Theme.RGB("success"))
   end
-  if data.delisted then tooltip:AddLine(L.LFG_DELISTED, ns.Theme.RGB("bad")) end
+  if data.delisted and not inline then tooltip:AddLine(L.LFG_DELISTED, ns.Theme.RGB("bad")) end
   if #data.quests > 0 then addQuestLines(tooltip, data.quests) end
-  return true
+  return true, data
 end
 
 local retailHooked = false
@@ -107,19 +111,133 @@ local function hookRetail()
   end)
 end
 
+-- Classic-Stil: Blizzards Rahmen bekommt die Zone je Mitgliedszeile und unten unseren Block (eigene Zeilen in
+-- einem Kindrahmen, Rahmenhöhe/-breite wachsen mit). Blizzard berechnet Größe und Zeilen bei jedem Aufruf neu, der
+-- Post-Hook setzt darauf auf und ist darum wiederholbar.
+local ZONE_GAP, BLOCK_GAP, BLOCK_BOTTOM_PAD, LINE_HEIGHT, SIDE_PAD = 6, 6, 12, 13, 11
+
+-- Sammelt Tooltip-Zeilen als { Text } (Doppelzeile: rechter Teil farbig angehängt)
+local function lineCollector()
+  local lines = {}
+  local function hex(r, g, b) return string.format("|cff%02x%02x%02x", (r or 1) * 255, (g or 1) * 255, (b or 1) * 255) end
+  return {
+    AddLine = function(_, text, r, g, b) table.insert(lines, { text = text, r = r, g = g, b = b }) end,
+    AddDoubleLine = function(_, left, right, lr, lg, lb, rr, rg, rb)
+      local text = right ~= "" and (left .. "  " .. hex(rr, rg, rb) .. right .. "|r") or left
+      table.insert(lines, { text = text, r = lr, g = lg, b = lb })
+    end,
+  }, lines
+end
+
+local blockByFrame = setmetatable({}, { __mode = "k" })
+local function blockOf(frame)
+  if blockByFrame[frame] then return blockByFrame[frame] end
+  local block = CreateFrame("Frame", nil, frame)
+  block.lines = {}
+  blockByFrame[frame] = block
+  return block
+end
+
+-- Für Tests: Zeilentexte des Blocks
+function LFGTooltip.BlockTexts(frame)
+  local block, texts = blockByFrame[frame], {}
+  for _, line in ipairs(block and block:IsShown() and block.lines or {}) do
+    if line:IsShown() then table.insert(texts, line:GetText()) end
+  end
+  return texts
+end
+
+local function blockLine(block, index)
+  if not block.lines[index] then
+    local line = block:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    line:SetJustifyH("LEFT")
+    line:SetPoint("TOPLEFT", block, "TOPLEFT", 0, -(index - 1) * LINE_HEIGHT)
+    block.lines[index] = line
+  end
+  return block.lines[index]
+end
+
+-- Breite von Level und Rollen-Symbolen hinter dem Namen (wie Blizzards GetMemberRowLevelAndRoleWidth)
+local function levelAndRoleWidth(row)
+  local width = row.Level and row.Level:GetWidth() or 0
+  for _, icon in ipairs(row.Roles or {}) do
+    if icon:IsShown() then width = width + icon:GetWidth() end
+  end
+  return width + 4
+end
+
+local zoneByRow = setmetatable({}, { __mode = "k" })
+-- Zone je Mitgliedszeile (Pool-Rahmen werden wiederverwendet: einmal anlegen, bei jedem Aufruf neu setzen), als
+-- Spalte hinter Name, Level und Rollen derselben Zeile (offset ab dem Namen). Gibt die Zonenbreite zurück.
+local function setRowZone(row, area, offset)
+  local zone = zoneByRow[row]
+  if not zone and not area then return 0 end
+  if not zone then
+    zone = row:CreateFontString(nil, "ARTWORK", "GameFontDisableSmallLeft")
+    zone:SetJustifyH("LEFT")
+    zoneByRow[row] = zone
+  end
+  zone:ClearAllPoints()
+  zone:SetPoint("LEFT", row.Name, "RIGHT", offset, 0)
+  zone:SetText(area or "")
+  zone:SetShown(area ~= nil)
+  return area and zone:GetStringWidth() or 0
+end
+
+function LFGTooltip.RowZone(row) return zoneByRow[row] end
+
+local function memberAreas(data)
+  local areas = {}
+  for _, member in ipairs(data and data.members or {}) do
+    if member.name and member.area then areas[member.name] = member.area end
+  end
+  return areas
+end
+
+local function updateClassicFrame(frame, resultID)
+  local collector, lines = lineCollector()
+  local ok, data = addBlock(collector, resultID, true)
+  local areas = memberAreas(ok and data or nil)
+  local zoneWidth = 0
+  local rows = { frame.Leader }
+  if frame.memberPool then
+    for row in frame.memberPool:EnumerateActive() do table.insert(rows, row) end
+  end
+  local offset = 0
+  for _, row in ipairs(rows) do
+    if row:IsShown() then offset = math.max(offset, levelAndRoleWidth(row)) end
+  end
+  offset = offset + ZONE_GAP
+  for _, row in ipairs(rows) do
+    local name = row.Name and row.Name:GetText()
+    zoneWidth = math.max(zoneWidth, setRowZone(row, row:IsShown() and areas[name] or nil, offset))
+  end
+  local block = blockOf(frame)
+  block:Hide()
+  if not ok or #lines <= 2 then return end -- nur Leerzeile und Überschrift: nichts zu ergänzen
+  local height, width = frame:GetHeight(), frame:GetWidth()
+  for index, entry in ipairs(lines) do
+    local line = blockLine(block, index)
+    line:SetText(entry.text)
+    line:SetTextColor(entry.r or 1, entry.g or 1, entry.b or 1)
+    line:Show()
+    width = math.max(width, line:GetStringWidth() + 2 * SIDE_PAD)
+  end
+  for index = #lines + 1, #block.lines do block.lines[index]:Hide() end
+  if zoneWidth > 0 then width = math.max(width, frame:GetWidth() + zoneWidth + ZONE_GAP) end
+  block:ClearAllPoints()
+  block:SetPoint("TOPLEFT", frame, "TOPLEFT", SIDE_PAD, -(height - BLOCK_BOTTOM_PAD + BLOCK_GAP))
+  block:SetSize(width - 2 * SIDE_PAD, #lines * LINE_HEIGHT)
+  block:Show()
+  frame:SetHeight(height - BLOCK_BOTTOM_PAD + BLOCK_GAP + #lines * LINE_HEIGHT + BLOCK_BOTTOM_PAD)
+  frame:SetWidth(width)
+end
+
 local classicHooked = false
 local function hookClassic()
   if classicHooked or not (hooksecurefunc and LFGBrowseSearchEntryTooltip_UpdateAndShow and LFGBrowseSearchEntryTooltip) then return end
   classicHooked = true
-  hooksecurefunc("LFGBrowseSearchEntryTooltip_UpdateAndShow", function(frame, resultID)
-    GameTooltip:SetOwner(frame, "ANCHOR_NONE")
-    GameTooltip:ClearAllPoints()
-    GameTooltip:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -2)
-    if addBlock(GameTooltip, resultID) then GameTooltip:Show() else GameTooltip:Hide() end
-  end)
-  LFGBrowseSearchEntryTooltip:HookScript("OnHide", function(frame)
-    if GameTooltip:IsOwned(frame) then GameTooltip:Hide() end
-  end)
+  hooksecurefunc("LFGBrowseSearchEntryTooltip_UpdateAndShow", updateClassicFrame)
 end
 
 -- Markierungen in der Trefferliste (Classic-Stil): Level-Spanne, grüner Punkt bei Freunden/Gilde, abgedunkelt bei

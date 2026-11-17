@@ -9,7 +9,7 @@ local locale = "enUS"
 function GetLocale() return locale end
 
 wow.state.class = "WARRIOR"
-wow.login({ level = 40 })
+wow.login({ level = 20 })  -- Todesminen-Quest 373: im Levelbereich der Instanz (LT-330)
 wow.fire("QUEST_LOG_UPDATE")
 
 -- Gegenstand: Zeile über OnTooltipSetItem
@@ -21,7 +21,8 @@ local offer = addon.DungeonQuests.GiverOffers("item", 2874)[1]
 expectTrue("Gegenstand: Angebot", offer ~= nil and offer.questID == 373)
 expect("Gegenstand: Zeile", line, addon.DungeonQuestGivers.OfferLine(offer))
 
--- Objekt: Welt-Tooltip mit Titel „Crumpled Map“
+-- Objekt: Welt-Tooltip mit Titel „Crumpled Map“ (Kette nach Uldaman ab 35)
+wow.levelUp(40)
 GameTooltip.GetItem = function() return nil end
 GameTooltip.GetUnit = function() return nil end
 GameTooltip.GetOwner = function() return UIParent end

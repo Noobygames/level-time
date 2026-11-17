@@ -7,13 +7,14 @@ local Widgets = ns.Widgets
 local TabStrip = {}
 ns.TabStrip = TabStrip
 
--- options = { font, left, top (Anker TOPLEFT am parent), gap, maxWidth (optional: umbrechen), rowHeight (mit maxWidth) }
+-- options = { font, left, top (Anker TOPLEFT am parent), gap, maxWidth (optional: umbrechen), rowHeight (mit maxWidth),
+--   filled (Reiter mit Fläche, Widgets.CreateTab) }
 function TabStrip.New(parent, options)
   local strip = { tabs = {} }
 
   -- Neuer Reiter am Ende; onClick wie bei Widgets.CreateTab
   function strip:Add(onClick)
-    local tab = Widgets.CreateTab(parent, options.font, onClick)
+    local tab = Widgets.CreateTab(parent, options.font, onClick, options.filled)
     local previous = self.tabs[#self.tabs]
     if not options.maxWidth then
       if previous then

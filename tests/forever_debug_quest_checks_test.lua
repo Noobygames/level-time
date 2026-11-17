@@ -7,11 +7,11 @@ local function hasLine(text)
 end
 
 local CHECKS = {
-  "LT152.quests.counters", "LT154.quests.targetButton", "LT156.quests.cleanup", "LT157.quests.turnIn",
+  "LT152.quests.counters", "LT154.quests.targetButton",
   "LT174.quests.efficiency", "LT176.quests.itemTooltip", "LT179.quests.leftovers", "LT177.map.questPoints",
-  "LT231.dungeon.givers", "LT232.dungeon.tags", "LT237.map.pins", "LT238.minimap.givers", "LT235.dungeon.zone",
-  "LT236.dungeon.accept", "LT185.flight.settings", "LT202.flight.legacy", "LT84.ready.state", "LT211.chat.fonts",
-  "LT199.minimapBar.restore", "LT199.partyQuestSync.lines", "LT234.lootroll.icon",
+  "LT330.dungeon.givers", "LT237.map.pins", "LT238.minimap.givers", "LT330.dungeon.zone",
+  "LT328.dungeon.accept", "LT84.ready.state",
+  "LT234.lootroll.icon",
 }
 
 wow.login()
@@ -34,7 +34,7 @@ expectTrue("Bereit-Probe", hasLine('"name":"LT84.ready.event"') ~= nil)
 wow.fire("READY_CHECK_FINISHED")
 wow.fire("UPDATE_BATTLEFIELD_STATUS")
 wow.fire("ZONE_CHANGED_NEW_AREA")
-expectTrue("Zonen-Probe", hasLine('"name":"LT235.dungeon.zoneEntered"') ~= nil)
+expectTrue("Zonen-Probe", hasLine('"name":"LT330.dungeon.zoneEntered"') ~= nil)
 addon.QuestCleanup.Abandon(999999)
 expectTrue("Abbrechen-Probe", hasLine('"event":"quests.abandon"') ~= nil)
 addon.MinimapBar.RestoreAll()

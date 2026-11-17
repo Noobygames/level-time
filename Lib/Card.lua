@@ -1,6 +1,7 @@
 -- Karte für Hinweise: dunkler Grund, Farbleiste links, Symbol, Titel, Text und auf Wunsch eine große Zahl
 -- mit leerlaufendem Balken. Eine Karte zeigt immer einen Inhalt; Größe aus den Texten der Sprache.
---   local card = Card.Create("MeinFrame")
+--   local card = Card.Create("MeinFrame")          options = { iconSize = 48, bodySpacing = 4 } (optional: Symbolgröße,
+--                                                   Zeilenabstand im Text)
 --   card.Set({ color = { r, g, b }, icon = Pfad oder Spell-ID, title = "...", body = "...", time = true })
 --   texture = Pfad oder Datei-ID (z.B. Item-Symbol) statt icon; gewinnt, wenn beide gesetzt sind
 --   timeText = erster Text der großen Zeile (optional); die Breite reicht für ihn und für eine zweistellige Zahl
@@ -13,14 +14,14 @@ local Card = {}
 ns.Card = Card
 
 local ICON_SIZE = 36
-local PADDING = 10
+local PADDING = 12               -- Abstände nach DESIGN.md (4 / 8 / 12 / 16 / 24)
 local ACCENT_WIDTH = 4
-local ICON_GAP = 10
+local ICON_GAP = 12
 local MIN_WIDTH = 210
 local MAX_TEXT_WIDTH = 280      -- längere Texte brechen um
-local LINE_GAP = 2
+local LINE_GAP = 4
 local BAR_HEIGHT = 5
-local BAR_GAP = 6
+local BAR_GAP = 8
 local BAR_BACK_COLOR = { 1, 1, 1, 0.12 }
 local BODY_COLOR = ns.Theme.COLORS.text
 local FALLBACK_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -33,10 +34,11 @@ local function iconTexture(icon)
   return icon
 end
 
-function Card.Create(name)
+function Card.Create(name, options)
+  local iconSize = options and options.iconSize or ICON_SIZE
   local card = {}
   local frame = CreateFrame("Frame", name, UIParent)
-  frame:SetSize(MIN_WIDTH, ICON_SIZE + 2 * PADDING)
+  frame:SetSize(MIN_WIDTH, iconSize + 2 * PADDING)
   frame:Hide()
   card.frame = frame
 
@@ -49,7 +51,7 @@ function Card.Create(name)
   accent:SetWidth(ACCENT_WIDTH)
 
   local icon = frame:CreateTexture(nil, "ARTWORK")
-  icon:SetSize(ICON_SIZE, ICON_SIZE)
+  icon:SetSize(iconSize, iconSize)
   icon:SetPoint("TOPLEFT", ACCENT_WIDTH + PADDING, -PADDING)
 
   local title = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("title"))
@@ -57,6 +59,7 @@ function Card.Create(name)
   local body = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("body"))
   body:SetJustifyH("LEFT")
   body:SetTextColor(unpack(BODY_COLOR))
+  if options and options.bodySpacing then body:SetSpacing(options.bodySpacing) end
   local timeText = frame:CreateFontString(nil, "OVERLAY", ns.Theme.Font("huge"))
   timeText:SetJustifyH("LEFT")
   timeText:SetTextColor(1, 1, 1)
@@ -65,8 +68,8 @@ function Card.Create(name)
   local barBack = frame:CreateTexture(nil, "ARTWORK")
   barBack:SetColorTexture(unpack(BAR_BACK_COLOR))
   barBack:SetHeight(BAR_HEIGHT)
-  barBack:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", ACCENT_WIDTH + PADDING, PADDING - 2)
-  barBack:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -PADDING, PADDING - 2)
+  barBack:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", ACCENT_WIDTH + PADDING, PADDING)
+  barBack:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -PADDING, PADDING)
   local barFill = frame:CreateTexture(nil, "ARTWORK", nil, 1)  -- Farbe und Textur setzt card.Set
   barFill:SetHeight(BAR_HEIGHT)
   barFill:SetPoint("TOPLEFT", barBack)
@@ -87,7 +90,7 @@ function Card.Create(name)
   local shownIcon, shownTexture  -- zuletzt gesetztes Symbol (icon bzw. texture aus card.Set)
 
   local function layout()
-    local textLeft = ACCENT_WIDTH + PADDING + (hasIcon and ICON_SIZE + ICON_GAP or 0)
+    local textLeft = ACCENT_WIDTH + PADDING + (hasIcon and iconSize + ICON_GAP or 0)
     title:ClearAllPoints()
     title:SetPoint("TOPLEFT", frame, "TOPLEFT", textLeft, -PADDING - (hasIcon and LINE_GAP or 0))
     local titleWidth, titleHeight = measure(title)
@@ -113,7 +116,7 @@ function Card.Create(name)
       widest, height = math.max(widest, width), height + LINE_GAP + timeHeight
     end
     frame:SetWidth(math.max(MIN_WIDTH, textLeft + widest + PADDING))
-    frame:SetHeight(2 * PADDING + math.max(hasIcon and ICON_SIZE or 0, height) + (hasTime and BAR_GAP + BAR_HEIGHT or 0))
+    frame:SetHeight(2 * PADDING + math.max(hasIcon and iconSize or 0, height) + (hasTime and BAR_GAP + BAR_HEIGHT or 0))
   end
 
   -- spec = { color, icon (Pfad oder Spell-ID, optional), texture (Pfad oder Datei-ID, optional), title,

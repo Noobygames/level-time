@@ -1,11 +1,32 @@
--- Optionen, Reiter Speedrun: Split-Liste, Vergleich, Rekorde, Screenshots, SSF.
+-- Optionen, Reiter Stream & Speedrun: Stream, Split-Liste, Route, Vergleich, Rekorde, Screenshots, SSF.
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
+local TimerWindow = ns.TimerWindow
+local builder, addButton, addOutlineChooser = O.builder, O.addButton, O.addOutlineChooser
 local addPage, finishPage, addSection, addSlider, addToggles = O.addPage, O.finishPage, O.addSection, O.addSlider, O.addToggles
 local addChooser, addHint, addSubPage, finishSubPages, toggle = O.addChooser, O.addHint, O.addSubPage, O.finishSubPages, O.toggle
 local localized, advanced, requires, percent = O.localized, O.advanced, O.requires, O.percent
 local addVisibilityDropdown, addFrameScaleSlider = O.addVisibilityDropdown, O.addFrameScaleSlider
+
+-- Hintergrund des Fensters: Standard oder Chroma-Farbe für Streams
+local function addBackgroundChooser()
+  addChooser({ label = "WINDOW_BACKGROUND", setting = "windowBackground", choices = {
+    { value = TimerWindow.BACKGROUND_DEFAULT, name = localized("BACKGROUND_DEFAULT") },
+    { value = "green", name = localized("BACKGROUND_GREEN") },
+    { value = "magenta", name = localized("BACKGROUND_MAGENTA") },
+  } })
+end
+
+-- Abkürzung zu den Layouts, die sich für OBS eignen (alle Layouts: Allgemein > Layout)
+local STREAM_LAYOUTS = { "text", "clock", "table" }
+local function addStreamLayoutChooser()
+  local choices = {}
+  for i, id in ipairs(STREAM_LAYOUTS) do
+    choices[i] = { value = id, name = localized(ns.WindowLayouts.Get(id).label) }
+  end
+  addChooser({ label = "STREAM_LAYOUT", setting = "windowLayout", choices = choices })
+end
 
 -- Vergleich der Splits; ein fester Charakter wird per /lt compare Name gewählt
 local function addSplitComparisonChooser()
@@ -36,7 +57,95 @@ local function addSsfCategoryChooser()
 end
 
 -- Speedrun: Split-Liste, Vergleich, Speedrun-Rekorde, Screenshots, SSF
-addPage("OPTIONS_TAB_SPEEDRUN")
+-- Stream & Speedrun: Stream (Stream-Modus, OBS) und die Speedrun-Seiten Split-Liste, Route, Vergleich, Rekorde, Screenshots, SSF
+addPage("OPTIONS_TAB_STREAM_SPEEDRUN")
+-- Stream: alles, was nur für Streams gedacht ist (Speedrun hat einen eigenen Reiter), dazu Abkürzungen zu Layout und
+-- Kontur, die für OBS zählen (UX S18)
+addSubPage("OPTIONS_TAB_STREAM")
+addHint("STREAM_MODE_HINT")
+addToggles({
+  { label = "STREAM_MODE", get = function() return ns.StreamMode.IsEnabled() end,
+    set = function(checked) ns.StreamMode.SetEnabled(checked) end },
+  toggle("STREAMER_PRIVACY", "streamerPrivacy"),
+  toggle("HIGHLIGHT_DEATHS", "highlightDeaths"),
+  -- Abkürzung zu "Minimap-Knopf anzeigen" (Allgemein > Minimap), umgekehrt formuliert
+  { label = "STREAM_HIDE_MINIMAP", get = function(db) return db.minimap.hide end,
+    set = function(checked) ns.SetMinimapHidden(checked) end, reset = O.minimapReset },
+  toggle("SHOW_DEATH_CARD", "showDeathCard"),
+  toggle("SHOW_MAX_LEVEL_CARD", "showMaxLevelCard"),
+  toggle("OBS_SIGNAL", "obsSignal"),
+  toggle("SHOW_SPELL_HISTORY", "showSpellHistory"),
+})
+addSlider(requires({
+  label = "OBS_SIGNAL_SIZE",
+  advanced = true,
+  setting = "obsSignalSize",
+  min = 8,
+  max = 64,
+  step = 4,
+  get = function(db) return db.obsSignalSize end,
+  set = function(value) ns.SetDeferred("obsSignalSize", value) end,
+  format = function(value) return tostring(value) end,
+}, "obsSignal"))
+O.addFramePreview("OBS_SIGNAL_PREVIEW", "obsSignal")
+O.addFramePreview("SPELL_HISTORY_PREVIEW", "spellHistory")
+addSlider(requires({
+  label = "SPELL_HISTORY_COUNT",
+  setting = "spellHistoryCount",
+  min = 3,
+  max = 10,
+  step = 1,
+  get = function(db) return db.spellHistoryCount end,
+  set = function(value) ns.SetDeferred("spellHistoryCount", value) end,
+  format = function(value) return tostring(value) end,
+}, "showSpellHistory"))
+addSlider(requires({
+  label = "SPELL_HISTORY_FADE",
+  advanced = true,
+  setting = "spellHistoryFadeSeconds",
+  min = 0,
+  max = 30,
+  step = 5,
+  get = function(db) return db.spellHistoryFadeSeconds end,
+  set = function(value) ns.SetDeferred("spellHistoryFadeSeconds", value) end,
+  format = function(value) return value == 0 and L.SPELL_HISTORY_PERMANENT or string.format(L.SECONDS_SHORT, value) end,
+}, "showSpellHistory"))
+builder.AddTextInput({
+  label = "STREAM_LINK",
+  setting = "streamLink",
+  width = 180,
+  get = function(db) return db.streamLink end,
+  set = function(text) ns.Set("streamLink", text) end,
+})
+addChooser({
+  label = "STREAM_LINK_CHANNEL",
+  setting = "streamLinkChannel",
+  choices = {
+    { value = "off", name = localized("STREAM_LINK_CHANNEL_OFF") },
+    { value = "party", name = localized("STREAM_LINK_CHANNEL_PARTY") },
+    { value = "guild", name = localized("STREAM_LINK_CHANNEL_GUILD") },
+  },
+})
+addSlider({
+  label = "STREAM_LINK_MINUTES",
+  advanced = true,
+  setting = "streamLinkMinutes",
+  min = 15,
+  max = 120,
+  step = 15,
+  get = function(db) return db.streamLinkMinutes end,
+  set = function(value) ns.SetDeferred("streamLinkMinutes", value) end,
+  format = function(value) return string.format(L.MINUTES, value) end,
+  enabled = function(db) return db.streamLinkChannel ~= "off" end,
+})
+addButton("STREAM_LINK_COPY", function()
+  if ns.StreamLink then ns.StreamLink.OpenCopy() end
+end)
+addSection("SECTION_STREAM_OBS")
+addHint("STREAM_OBS_HINT")
+addStreamLayoutChooser()
+addBackgroundChooser()
+addOutlineChooser()
 addSubPage("OPTIONS_PAGE_SPLIT_LIST")
 addSection("SECTION_SPLIT_LIST")
 addToggles({

@@ -12,7 +12,7 @@ RUN       := go -C $(INSTALLER) run . -src "$(CURDIR)" -version "$(VERSION)"
 # Zusätzliche Flags, z.B. make install ARGS="-flavors retail -wow 'D:/Games/World of Warcraft'"
 ARGS ?=
 
-.PHONY: install update dry-run debuglog extract extract-check package artwork records flights locale mechanics test test-addon test-installer test-artwork test-records test-flights test-locale test-extractor test-mechanics test-site vet lint api-docs
+.PHONY: install update dry-run debuglog checkresultsextract extract-check package artwork records flights locale mechanics test test-addon test-fast test-installer test-artwork test-records test-flights test-locale test-extractor test-mechanics test-site vet lint api-docs
 
 # Interaktiver Wizard: Flavors wählen, Plan ansehen, bestätigen
 install:
@@ -35,6 +35,10 @@ package:
 debuglog:
 	$(RUN) -debuglog $(ARGS)
 
+# Ergebnisse der Spiel-Checkliste (/lte todo) aus den SavedVariables: id, Status, Datum, Notiz (ARGS="-json" für JSON Lines)
+checkresults:
+	$(RUN) -checkresults $(ARGS)
+
 # Spieldaten des Data Extractors (LevelTimerExtractorDB) je Flavor nach dist/extractor/<flavor>.json, mit Übersicht
 extract:
 	go -C $(EXTRACTOR) run . -out "$(CURDIR)/dist/extractor" $(ARGS)
@@ -56,7 +60,7 @@ records:
 # Flugpunkt-Namen aller Sprachen nach Assist/FlightNamesData/<flavor>.lua, Boss-Listen nach Assist/BossData/<flavor>.lua,
 # z.B. make flights ARGS="-wow 'D:/Games/World of Warcraft'" (oder WOW_DIR)
 flights:
-	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" -paths "$(CURDIR)/Assist/FlightPathsData" -transports "$(CURDIR)/Assist/TransportData" -instances "$(CURDIR)/Assist/InstanceData" -mapcoords "$(CURDIR)/Assist/MapCoordsData" -names "$(CURDIR)/Assist/FlightNamesData" -bosses "$(CURDIR)/Assist/BossData" $(ARGS)
+	go -C $(FLIGHTS) run . -out "$(CURDIR)/Assist/FlightTimesData.lua" -paths "$(CURDIR)/Assist/FlightPathsData" -transports "$(CURDIR)/Assist/TransportData" -instances "$(CURDIR)/Assist/InstanceData" -mapcoords "$(CURDIR)/Assist/MapCoordsData" -overlays "$(CURDIR)/Assist/MapOverlayData" -names "$(CURDIR)/Assist/FlightNamesData" -bosses "$(CURDIR)/Assist/BossData" $(ARGS)
 
 # Texte in alle vier Sprachdateien schreiben/entfernen, ohne sie zu lesen: make locale ARGS="-file texts.json" oder ARGS="-remove KEY"
 locale:
@@ -70,8 +74,13 @@ test: test-addon test-installer test-artwork test-records test-flights test-loca
 
 # Lua-Szenarien aus tests/ gegen eine nachgebaute WoW-API.
 # -count=1: Go kennt die Lua-Dateien nicht und würde sonst veraltete Ergebnisse aus dem Cache zeigen.
+# Schonend (während Streams): 4 Szenarien gleichzeitig, 7 GiB Heap-Limit (max. ~8 GB RAM), niedrige Priorität; LT_TEST_PARALLEL=<n> und LT_TEST_MEMLIMIT=<MiB> ändern das.
 test-addon:
 	go -C $(ADDONTEST) test -count=1 -timeout 30m ./...
+
+# Alle Kerne, wenn nebenbei nichts läuft
+test-fast:
+	LT_TEST_PARALLEL=999 LT_TEST_MEMLIMIT=16384 go -C $(ADDONTEST) test -count=1 -timeout 30m ./...
 
 test-installer:
 	go -C $(INSTALLER) test ./...

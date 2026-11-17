@@ -1,13 +1,15 @@
 -- Sammelfenster für Erinnerungen (Buffs, Lehrer, Taschen, alte Zauberränge, ...): Hinweise, die kurz nacheinander
 -- kommen, stehen als Liste in EINEM Fenster statt als mehrere Banner nacheinander (Alerts.Notify mit
 -- options.collect). Je Zeile Symbol und Text, ein X schließt sie, "Alle schließen" im Kopf. Das Fenster bleibt, bis es
--- geschlossen wird; nur mit hintsAutoClose schließt es nach AUTO_CLOSE_SECONDS (unter der Maus bleibt es stehen).
+-- geschlossen wird; mit hintsAutoClose (Standard an) schließt es nach hintsAutoCloseSeconds (Standard 10), unter der Maus bleibt es.
 -- Dringende Meldungen (Aggro, Atemnot, Rare/Elite, Notfall) bleiben sofortige Banner (UI/Alerts.lua).
 -- Hints.Add(entry): entry = { text, title, icon/texture (Alerts.ICONS), key, rows, header }. Gleicher key (Standard:
 -- der Text) ersetzt die Zeile statt sie zu verdoppeln. rows = { { spellID, name, columns = { ... } } } hängt eine
 -- Tabelle mit ausgerichteten Spalten unter die Zeile (Zaubersymbol mit Zaubertooltip, Name, Spalten); header =
--- { Name-Kopf, Spaltenkopf, ... } ist ihre Kopfzeile.
--- Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt).
+-- { Name-Kopf, Spaltenkopf, ... } ist ihre Kopfzeile. Eine Tabellenzeile mit onDismiss hat rechts einen eigenen
+-- Schließen-Knopf: er ruft onDismiss() und nimmt die Zeile heraus (ohne Zeilen fällt der ganze Eintrag weg).
+-- text und title dürfen Funktionen sein: sie werden bei jedem Aufbau des Fensters ausgewertet, so folgt der Text einem
+-- Sprachwechsel (Alerts.Resolve). Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt).
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -15,11 +17,15 @@ local Theme = ns.Theme
 
 ns.RegisterDefaults({
   settings = {
-    hintsAutoClose = false,  -- aus: Fenster bleibt, bis es geschlossen wird
+    hintsAutoClose = true,  -- aus: Fenster bleibt, bis es geschlossen wird
+    hintsAutoCloseSeconds = 10,
+  },
+  ranges = {
+    hintsAutoCloseSeconds = { 5, 120 },
   },
 })
 
-local Hints = { AUTO_CLOSE_SECONDS = 30, MAX_ENTRIES = 12 }
+local Hints = { MIN_AUTO_CLOSE = 5, MAX_AUTO_CLOSE = 120, MAX_ENTRIES = 12 }
 ns.Hints = Hints
 
 local DEFAULT_POSITION = { "TOP", "TOP", 0, -220 }
@@ -31,7 +37,8 @@ local ICON_SIZE = 20
 local ICON_INSET = 8
 local TEXT_GAP = 6
 local COLUMN_GAP = 16
-local DISMISS_SIZE = 18
+local DISMISS_SIZE = 24  -- wie der Schließen-Knopf im Fensterkopf (DESIGN.md)
+local ROW_PADDING = 8    -- Luft über und unter dem Text einer Zeile
 local TEXT_MAX_WIDTH = 360
 local FADE_OUT = 0.7
 local BACKGROUND_ALPHA = 0.92
@@ -39,11 +46,17 @@ local CLOSE_ALL_WIDTH = 110
 
 local panel = Widgets.CreatePanel(ns.GlobalName("Hints"), BACKGROUND_ALPHA)
 panel:Hide()
-local header = Widgets.CreateWindowHeader(panel, L.HINTS_TITLE, { onClose = function() Hints.Clear() end })
+local header = Widgets.CreateWindowHeader(panel, "", { onClose = function() Hints.Clear() end })
+header:SetIcon("Interface\\Icons\\INV_Misc_NotePicture1c")  -- Hinweis
 local closeAll = Widgets.CreateButton(header.actions, CLOSE_ALL_WIDTH, 22, function() Hints.Clear() end)
 closeAll:SetPoint("RIGHT")
-closeAll:SetText(L.HINTS_CLOSE_ALL)
-header.actions:SetWidth(CLOSE_ALL_WIDTH)
+-- Feste Texte erst nach dem Login und bei jedem Sprachwechsel (beim Laden gilt noch die Client-Sprache)
+ns.RegisterApply(function()
+  header:SetTitle(L.HINTS_TITLE)
+  closeAll:SetText(L.HINTS_CLOSE_ALL)
+  closeAll:SetWidth(math.max(CLOSE_ALL_WIDTH, closeAll:GetTextWidth() + 16))
+  header.actions:SetWidth(closeAll:GetWidth())
+end)
 
 local entries = {}  -- Hinweise in Reihenfolge des Eintreffens
 local rows = {}     -- Zeilenpool; row.entry = Hinweis, row.detail = Tabellenzeile
@@ -65,10 +78,13 @@ local function getRow(index)
   row.text:ClearAllPoints()
   row.text:SetPoint("LEFT", row.icon, "RIGHT", TEXT_GAP, 0)
   row.columns = {}
-  row.dismiss = Widgets.CreateButton(row, DISMISS_SIZE, DISMISS_SIZE, function() Hints.Dismiss(row.entry) end)
-  row.dismiss:SetPoint("RIGHT", -ICON_INSET, 0)
-  row.dismiss:SetText("X")
-  Widgets.AttachTooltip(row.dismiss, function() return ns.DISPLAY_NAME end, function() return L.HINTS_DISMISS_TIP end)
+  row.dismiss = Widgets.CreateCloseButton(row)
+  row.dismiss:ClearAllPoints()
+  row.dismiss:SetPoint("RIGHT", -ICON_INSET / 2, 0)
+  row.dismiss:SetScript("OnClick", function() Hints.DismissLine(row) end)
+  Widgets.AttachTooltip(row.dismiss, function() return ns.DISPLAY_NAME end, function(self)
+    return type(self:GetParent().detail) == "table" and L.HINTS_DISMISS_RANK_TIP or L.HINTS_DISMISS_TIP
+  end)
   -- Zaubertabelle: Mausover zeigt den Zaubertooltip
   row:HookScript("OnEnter", function(self)
     if not (self.detail and self.detail.spellID) then return end
@@ -92,9 +108,10 @@ local function getColumn(row, index)
 end
 
 local function lineText(entry)
-  if not entry.title then return entry.text end
-  if entry.rows then return entry.title end
-  return entry.title .. ": " .. entry.text
+  local text, title = ns.Alerts.Resolve(entry.text), ns.Alerts.Resolve(entry.title)
+  if not title then return text end
+  if entry.rows then return title end
+  return title .. ": " .. text
 end
 
 local measure = panel:CreateFontString(nil, "OVERLAY", Theme.Font("body"))
@@ -121,6 +138,7 @@ local function buildLines()
   return lines
 end
 
+-- Zeichnet eine Zeile bei y und gibt ihre Höhe zurück (wächst mit dem umgebrochenen Text)
 local function paintRow(row, line, y, nameWidth, columnWidths)
   row.entry, row.detail = line.entry, line.detail
   row:ClearAllPoints()
@@ -130,9 +148,11 @@ local function paintRow(row, line, y, nameWidth, columnWidths)
   row.text:SetText(line.text)
   row.text:SetTextColor(Theme.RGB(color))
   row.text:SetWidth(line.isTable and nameWidth or widthOf(line.text))
+  local height = math.max(ROW_HEIGHT, (row.text:GetStringHeight() or 0) + ROW_PADDING)
+  row:SetHeight(height)
   if line.texture then row.icon:SetTexture(line.texture) end
   row.icon:SetShown(line.texture ~= nil)
-  row.dismiss:SetShown(not line.isTable)
+  row.dismiss:SetShown(not line.isTable or (line.detail ~= nil and line.detail.onDismiss ~= nil))
   local x = ICON_INSET + ICON_SIZE + TEXT_GAP + nameWidth + COLUMN_GAP
   local columns = line.columns or {}
   for index, value in ipairs(columns) do
@@ -146,6 +166,7 @@ local function paintRow(row, line, y, nameWidth, columnWidths)
   end
   for index = #columns + 1, #row.columns do row.columns[index]:Hide() end
   row:Show()
+  return height
 end
 
 -- Fenster aus den Einträgen neu aufbauen; Tabellen teilen sich eine Namensspalte und gleich breite Spalten
@@ -162,21 +183,33 @@ local function layout()
   local width = ICON_INSET + ICON_SIZE + TEXT_GAP + nameWidth
   if hasTable then
     for _, columnWidth in ipairs(columnWidths) do width = width + COLUMN_GAP + columnWidth end
+    for _, line in ipairs(lines) do
+      if line.detail and line.detail.onDismiss then
+        width = width + TEXT_GAP + DISMISS_SIZE
+        break
+      end
+    end
   end
   for _, line in ipairs(lines) do
     if not line.isTable then
       width = math.max(width, ICON_INSET + ICON_SIZE + 2 * TEXT_GAP + widthOf(line.text) + DISMISS_SIZE + ICON_INSET)
     end
   end
+  local y = -HEADER_HEIGHT
   for index, line in ipairs(lines) do
-    paintRow(getRow(index), line, -HEADER_HEIGHT - (index - 1) * ROW_HEIGHT, nameWidth, columnWidths)
+    y = y - paintRow(getRow(index), line, y, nameWidth, columnWidths)
   end
   for index = #lines + 1, #rows do
     rows[index].entry, rows[index].detail = nil, nil
     rows[index]:Hide()
   end
-  panel:SetSize(math.max(MIN_WIDTH, width + 2 * PADDING), PADDING + HEADER_HEIGHT + #lines * ROW_HEIGHT)
+  panel:SetSize(math.max(MIN_WIDTH, width + 2 * PADDING, header:MinWidth()), PADDING - y)
 end
+
+-- Sprachwechsel bei offenem Fenster: Zeilen neu bilden
+ns.RegisterApply(function()
+  if panel:IsShown() and not editing then layout() end
+end)
 
 local function hide()
   editing = false
@@ -199,9 +232,30 @@ function Hints.Dismiss(entry)
   if #entries == 0 then Hints.Clear() else layout() end
 end
 
+-- Eintrag mit diesem key herausnehmen, falls er noch im Fenster steht (z.B. Buff wieder da)
+function Hints.DismissKey(key)
+  for _, shown in ipairs(entries) do
+    if shown.key == key then return Hints.Dismiss(shown) end
+  end
+end
+
+-- X einer Zeile: bei einer Tabellenzeile mit onDismiss nur diese Zeile, sonst der ganze Eintrag
+function Hints.DismissLine(row)
+  local entry, detail = row.entry, row.detail
+  if type(detail) ~= "table" or not detail.onDismiss then return Hints.Dismiss(entry) end
+  detail.onDismiss()
+  for index, shown in ipairs(entry.rows) do
+    if shown == detail then
+      table.remove(entry.rows, index)
+      break
+    end
+  end
+  if #entry.rows == 0 then Hints.Dismiss(entry) else layout() end
+end
+
 -- Hinweis aufnehmen (Fenster öffnet sich oder wächst); gleicher key ersetzt den alten Eintrag
 function Hints.Add(entry)
-  entry.key = entry.key or entry.text
+  entry.key = entry.key or ns.Alerts.Resolve(entry.text)
   for index, shown in ipairs(entries) do
     if shown.key == entry.key then
       table.remove(entries, index)
@@ -225,7 +279,7 @@ function Hints.Rows() return rows end
 ns.SetUpdateScript(panel, "Hints", function(self)
   if editing or not shownAt or not (ns.db and ns.db.hintsAutoClose) then return end
   local age = GetTime() - shownAt
-  local hold = Hints.AUTO_CLOSE_SECONDS
+  local hold = ns.db.hintsAutoCloseSeconds
   if self:IsMouseOver() and age > hold then  -- unter der Maus bleibt es stehen
     shownAt = GetTime() - hold
     age = hold

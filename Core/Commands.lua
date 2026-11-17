@@ -38,6 +38,9 @@ local commands = {
     if ns.LFGWindow and ns.LFGSearch.IsAvailable() then ns.LFGWindow.Toggle() else printUnknown("lfg") end
   end,
   dq = function() ns.DungeonQuestHints.Show() end,  -- Dungeonquest-Hinweis erneut zeigen (Assist/DungeonQuestHints.lua)
+  guide = function(argument)  -- Dungeon Guide (Assist/DungeonGuide.lua), optional mit Dungeonname
+    if ns.DungeonGuide.IsAvailable() then ns.DungeonGuide.Open(argument) else printUnknown("guide") end
+  end,
   report = function() ns.InstanceReport.SendNow() end,
   lock = function()
     ns.Set("locked", true)
@@ -63,6 +66,8 @@ local commands = {
       ns.RecapWindow.ShowMode(ns.RecapWindow.MODE_MAX)
     elseif arg == "session" then
       ns.RecapWindow.ShowMode(ns.RecapWindow.MODE_SESSION)
+    elseif arg == "run" then
+      if not ns.DungeonRecapWindow.Show() then ns.Print(L.DUNGEON_RECAP_NONE) end
     else
       ns.ToggleRecap()
     end

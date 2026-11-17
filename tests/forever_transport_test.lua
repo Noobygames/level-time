@@ -210,11 +210,11 @@ local count = routeCount()
 
 expect("Teilen ist Standard", addon.db.transportShare, true)
 addon.Set("transportShare", false)
-receive(string.format("P:Barrens:Stranglethorn Vale:%d:300", now - 30))
+receive(string.format("P:The Barrens:Stranglethorn Vale:%d:300", now - 30))
 expect("ohne Teilen-Schalter nichts", routeCount(), count)
 addon.Set("transportShare", true)
-receive(string.format("P:Barrens:Stranglethorn Vale:%d:300", now - 30))
-local shared = Transports.Data().routes["Barrens>Stranglethorn Vale"]
+receive(string.format("P:The Barrens:Stranglethorn Vale:%d:300", now - 30))
+local shared = Transports.Data().routes["The Barrens>Stranglethorn Vale"]
 expectTrue("geteilte Strecke", shared ~= nil)
 expect("geteilte Phase", shared.syncAt, now - 30)
 expect("geteilte Periode", shared.period, 300)
@@ -233,13 +233,16 @@ receive("P:" .. string.rep("x", 60) .. ":Booty:" .. now .. ":300")     -- Name z
 receive(string.format("P:Ratchet:Booty:%d:300", now), "Friend-Realm", "Fremd")  -- anderes Präfix
 receive(string.format("P:Ratchet:Booty:%d:300", now), wow.SECRET)      -- geheimer Absender
 receive(string.format("P:Ratchet:Booty:%d:300", now), "Testchar")      -- eigene Nachricht
+receive(string.format("P:Nowhere:Elsewhere:%d:300", now))               -- unbekannte Strecke
 expect("schlechte Daten abgelehnt", routeCount(), after)
 
-receive(string.format("P:Barrens:Stranglethorn Vale:%d:300", now - 100))
+receive(string.format("P:The Barrens:Stranglethorn Vale:%d:300", now - 100))
 expect("ältere Phase überschreibt nicht", shared.syncAt, now - 30)
-receive(string.format("P:Barrens:Stranglethorn Vale:%d:301", now - 10))
+receive(string.format("P:The Barrens:Stranglethorn Vale:%d:301", now - 10))
 expect("neuere Phase gilt", shared.syncAt, now - 10)
 expect("Periode bleibt", shared.period, 300)
+wow.fire("CHAT_MSG_ADDON", Transports.PREFIX, string.format("P:The Barrens:Stranglethorn Vale:%d:300", now), "WHISPER", "Fremder-Realm")
+expect("Flüstern überschreibt nicht", shared.syncAt, now - 10)
 
 -- Senden: nach einer eigenen Fahrt geht die Phase an die Gilde
 wow.state.inGuild = true
@@ -273,7 +276,7 @@ wow.fire("GROUP_ROSTER_UPDATE")
 drainQueue()
 local synced = partyPhases()
 expectTrue("Abgleich: eigene Phase an Gruppe", synced["Orgrimmar:Tirisfal Glades"] == true)
-expectTrue("Abgleich: geteilte Phase weitergegeben", synced["Barrens:Stranglethorn Vale"] == true)
+expectTrue("Abgleich: geteilte Phase weitergegeben", synced["The Barrens:Stranglethorn Vale"] == true)
 wow.addonMessages = {}
 wow.fire("GROUP_ROSTER_UPDATE")
 wow.state.groupSize = 1

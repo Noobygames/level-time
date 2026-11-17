@@ -1,11 +1,11 @@
--- Roadmap 406: einklappbare Abschnitte (Komfort > Ausblenden in Gruppen, Komfort > Quests): Klick auf die Überschrift
+-- Roadmap 406: einklappbare Abschnitte (Oberfläche > Ausblenden in Gruppen, Quests > Questlog): Klick auf die Überschrift
 -- blendet die Bausteine darunter aus, die folgenden rücken nach oben; die Suche klappt wieder auf.
 local L = addon.L
 local options = addon.OptionsWindow
 
 wow.login()
 SlashCmdList.LEVELTIMER("config")
-options.ShowPage("COMFORT_PAGE_QUESTS")
+options.ShowPage("OPTIONS_PAGE_QUEST_LOG")
 
 local function entryOf(labelKey)
   for _, entry in ipairs(options.Search(L[labelKey])) do
@@ -13,10 +13,10 @@ local function entryOf(labelKey)
   end
 end
 
-local section = options.SectionOf("SECTION_QUEST_AUTOMATION")
-expectTrue("Abschnitt Quest-Automatik gefunden", section ~= nil)
-local accept = entryOf("AUTO_ACCEPT_QUESTS")
-local progress = entryOf("QUEST_PROGRESS_TOGGLE")
+local section = options.SectionOf("SECTION_QUEST_NOTICES")
+expectTrue("Abschnitt Quest-Hinweise gefunden", section ~= nil)
+local accept = entryOf("QUEST_PROGRESS_TOGGLE")
+local progress = entryOf("QUEST_CLEANUP_TOGGLE")
 local yBefore = progress.cell.y
 expectTrue("Schalter sichtbar", accept.left:IsVisible())
 

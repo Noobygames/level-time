@@ -24,7 +24,7 @@ expect("Schalter: Text", body, L.AUTO_INSTANCE_TAB_TIP)
 _, body = hover(clickable(L.HISTORY))
 expect("Button: Text", body, L.HISTORY_TIP)
 
-title, body = hover(clickable("Deutsch"))
+title, body = hover(clickable(L.LANGUAGE_AUTO))  -- Standard: Client-Sprache (LT-308)
 expect("Auswahl: Titel", title, L.LANGUAGE)
 expect("Auswahl: Text", body, L.LANGUAGE_TIP)
 

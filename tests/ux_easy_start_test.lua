@@ -63,6 +63,8 @@ LevelTimerOptions:Hide()
 -- S23/S24: Einrichtungsassistent (LT-301): Tooltips, Stream-Schalter
 ---------------------------------------------------------------------------
 SlashCmdList.LEVELTIMER("setup")
+expect("erster Schritt: Sprache", addon.SetupWizard.State().step, "language")
+wow.click(L.SETUP_NEXT)
 local wizard = addon.SetupWizard.State()
 local minimal = wizard.chips[1]
 expect("erste Voreinstellung", minimal.item.label, "PRESET_MINIMAL")
@@ -82,15 +84,13 @@ for _, chip in ipairs(addon.SetupWizard.State().chips) do
   expect("Layout-Tooltip " .. chip.item.label, GameTooltip._lines[1], L[chip.item.label .. "_TIP"])
   chip._scripts.OnLeave(chip)
 end
-for _ = 1, 3 do wow.click(L.SETUP_NEXT) end
-local finish = addon.SetupWizard.State().stream
-expect("Stream aus", finish:GetChecked(), false)
-finish:SetChecked(true)
-finish._scripts.OnClick(finish)
-expect("Stream-Modus an", addon.StreamMode.IsEnabled(), true)
-finish:SetChecked(false)
-finish._scripts.OnClick(finish)
-expect("Stream-Modus aus", addon.StreamMode.IsEnabled(), false)
+-- bis zum letzten Schritt (Stream-Modus gehört nicht mehr zum Assistenten)
+for _ = 1, #addon.SetupWizard.State().steps do
+  if addon.SetupWizard.State().step == "finish" then break end
+  wow.click(L.SETUP_NEXT)
+end
+expect("letzter Schritt", addon.SetupWizard.State().step, "finish")
+expect("kein Stream-Schalter", addon.SetupWizard.State().stream, nil)
 expectTrue("Hinweis nennt /lt setup", L.SETUP_STEP_FINISH_NOTE:find("/lt setup", 1, true) ~= nil)
 wow.click(L.SETUP_SKIP)
 

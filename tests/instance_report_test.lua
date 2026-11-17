@@ -107,3 +107,14 @@ for _, line in ipairs(addon.STAT_LINES) do
   if line.setting == "showInstancesToday" then today = line.rows[1].value() end
 end
 expect("Zeile mit 24 Stunden", today, string.format(L.INSTANCES_TODAY_DAILY, 4, 30, 30))
+
+-- Logout/Reload in der Instanz: kein Bericht; normales Verlassen meldet weiter
+wow.state.interface = 80000
+wow.state.inGroup = true
+addon.Set("announceInstanceReport", true)
+wow.fire("CHAT_MSG_SYSTEM", string.format(INSTANCE_RESET_SUCCESS, "Gnomeregan"))
+enter("Gnomeregan")
+wow.advance(120)
+local before = #sent()
+wow.logout()
+expect("Reload in der Instanz: nichts gesendet", #sent(), before)

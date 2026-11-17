@@ -33,7 +33,7 @@ addon.Alerts.Clear()
 addon.Hints.Clear()
 BuffReminder.Check()
 expect("Schlafsack dabei, Buff fehlt: Hinweis", reminders(), 1)
-expect("Karte: Text", hint().text, L.REMIND_SLEEPING_BAG)
+expect("Karte: Text", addon.Alerts.Resolve(hint().text), L.REMIND_SLEEPING_BAG)  -- Text folgt der Sprache (LT-342)
 
 -- Buff da (Erkennung über die Spell-ID, der Name darf geheim sein)
 wow.state.buffs = { { name = "Gut erholt", spellId = WELL_RESTED, duration = 7200,

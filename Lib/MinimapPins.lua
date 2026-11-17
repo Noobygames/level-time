@@ -2,7 +2,8 @@
 -- erscheinen nach Entfernung zum Spieler, unabhängig von der Zone (über Zonengrenzen hinweg). Kandidaten = alle Punkte
 -- auf demselben Kontinent (Weltkoordinaten über Lib/MapCoords.lua), neu gesammelt bei geändertem Datenstand oder
 -- anderem Kontinent. Außerhalb des Minimap-Radius bis EDGE_YARDS: kleineres, blasses Symbol am Rand in Richtung des
--- Punkts. Gedrosselt über ns.Every, kein eigenes OnUpdate.
+-- Punkts. Gedrosselt über ns.Every, kein eigenes OnUpdate; ein Takt ohne Änderung (Position, Blickrichtung, Zoom,
+-- Form, Datenstand) fasst die Pins nicht an. Weltkoordinaten fester Kartenpunkte werden einmal berechnet.
 -- Quellen: Minimap:GetZoom() (alle Clients), IsIndoors() (alle Clients), CVar rotateMinimap, GetPlayerFacing()
 -- (Bogenmaß, 0 = Norden, gegen den Uhrzeigersinn; kann geheim sein), GetMinimapShape() (von Addons gesetzt, sonst rund;
 -- Assist/MinimapTweaks.lua). Minimap-Durchmesser je Zoomstufe in Yards wie HereBeDragons-Pins (außen/innen).
@@ -38,12 +39,40 @@ function MinimapPins.PlayerWorld()
   return ns.MapCoords.MapToWorld(mapID, position:GetXY())
 end
 
+-- Weltkoordinaten fester Kartenpunkte: [uiMapID][x][y] = { instanceID, north, west }; ändern sich nie, die Umrechnung
+-- erzeugt aber je Aufruf Vektoren (C_Map.GetWorldPosFromMapPos). Nur Treffer werden gemerkt.
+local worldCache = {}
+
+local function cachedWorld(uiMapID, x, y)
+  if type(uiMapID) ~= "number" or type(x) ~= "number" or type(y) ~= "number" then
+    return ns.MapCoords.MapToWorld(uiMapID, x, y)
+  end
+  local byX = worldCache[uiMapID]
+  if not byX then
+    byX = {}
+    worldCache[uiMapID] = byX
+  end
+  local byY = byX[x]
+  if not byY then
+    byY = {}
+    byX[x] = byY
+  end
+  local hit = byY[y]
+  if not hit then
+    local instanceID, north, west = ns.MapCoords.MapToWorld(uiMapID, x, y)
+    if not instanceID then return nil end
+    hit = { instanceID, north, west }
+    byY[y] = hit
+  end
+  return hit[1], hit[2], hit[3]
+end
+
 -- Kandidaten aus Kartenpunkten { x, y, ... } mehrerer Karten: nur Punkte auf dem Kontinent instanceID, mit north/west
 function MinimapPins.Collect(instanceID, mapIDs, pointsOn)
   local list = {}
   for _, uiMapID in ipairs(mapIDs) do
     for _, point in ipairs(pointsOn(uiMapID)) do
-      local placeInstance, north, west = ns.MapCoords.MapToWorld(uiMapID, point.x, point.y)
+      local placeInstance, north, west = cachedWorld(uiMapID, point.x, point.y)
       if placeInstance == instanceID then
         table.insert(list, setmetatable({ north = north, west = west }, { __index = point }))
       end
@@ -86,6 +115,7 @@ function MinimapPins.Create(definition)
   local pins = {}
   local candidates = {}
   local candidateKey
+  local last = {}  -- Eingaben des zuletzt gezeichneten Takts; leer = neu zeichnen
 
   local function isEnabled(db)
     return db and Minimap ~= nil and definition.enabled(db)
@@ -104,21 +134,40 @@ function MinimapPins.Create(definition)
     for i = index, #pins do pins[i]:Hide() end
   end
 
+  local function hideAll()
+    last.north = nil
+    hideFrom(1)
+  end
+
+  -- Gleiche Eingaben wie beim letzten Zeichnen? Sonst merken und true zurück (neu zeichnen)
+  local function changed(north, west, radius, width, facing, square, edge)
+    if last.north == north and last.west == west and last.radius == radius and last.width == width
+      and last.facing == facing and last.square == square and last.edge == edge then
+      return false
+    end
+    last.north, last.west, last.radius, last.width = north, west, radius, width
+    last.facing, last.square, last.edge = facing, square, edge
+    return true
+  end
+
   function layer.Update()
     local db = ns.db
-    if not isEnabled(db) then return hideFrom(1) end
+    if not isEnabled(db) then return hideAll() end
     local instanceID, north, west = MinimapPins.PlayerWorld()
-    if not instanceID then return hideFrom(1) end
+    if not instanceID then return hideAll() end
     local key = instanceID .. ":" .. tostring(definition.key())
     if key ~= candidateKey then
       candidateKey = key
       candidates = definition.candidates(instanceID)
+      last.north = nil
     end
     local radius = MinimapPins.Radius()
-    local pixels = (Minimap:GetWidth() or 0) / 2 / radius
+    local width = Minimap:GetWidth() or 0
     local facing = rotation()
     local square = GetMinimapShape and GetMinimapShape() == SQUARE
     local edge = definition.edge(db)
+    if not changed(north, west, radius, width, facing, square, edge) then return end
+    local pixels = width / 2 / radius
     local shown = 0
     for _, candidate in ipairs(candidates) do
       -- Weltachsen: Nord = x, West = y; Bildschirm: rechts = Osten

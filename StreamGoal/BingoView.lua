@@ -23,7 +23,6 @@ local CELL_TEXT_INSET = 4
 local DONE_ALPHA, OPEN_ALPHA = 0.55, 0.85
 local SAMPLE_SIZE = 3
 local SAMPLE_DONE = { [1] = true, [5] = true }
-local DEFAULT_POSITION = { "TOPRIGHT", "TOPRIGHT", -280, -220 }
 local TOOLTIP_ANCHOR = "ANCHOR_LEFT"  -- der Schein steht meist am rechten Rand
 
 local frame = CreateFrame("Frame", "StreamGoalBingo", UIParent)
@@ -181,7 +180,7 @@ function BingoView.Refresh()
 end
 
 LT.Frames.Register({
-  id = BingoView.FRAME_ID, frame = frame, label = "SG_EDIT_BINGO", default = DEFAULT_POSITION,
+  id = BingoView.FRAME_ID, frame = frame, label = "SG_EDIT_BINGO",
   settingsPage = ns.SETTINGS_PAGES.BINGO,
   store = {
     get = function() return ns.db and ns.db.settings.bingoFrame end,

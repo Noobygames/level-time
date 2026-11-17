@@ -8,10 +8,14 @@
 -- Spezialisierung vorgegebenen Fähigkeiten, keine frei gewählte Buff-Liste.
 -- Einstellungen: collapsedBuffs (an/aus), collapsedBuffsList (Spell-IDs oder Namen, durch Komma oder Semikolon
 -- getrennt; eine ID zählt über ihren Namen in der Client-Sprache, damit alle Ränge passen).
+-- Nie verschoben: die Anzeige hängt direkt hinter den sichtbaren Buffs der eingeklappten Leiste (nur angedockt,
+-- Blizzards Leiste selbst bleibt unberührt, sonst Taint am Rechtsklick-Abbrechen). Verschoben: eigene Position.
 -- Prüfung 500.collapsedBuffs, Proben in LevelTimer_DataExtractor/Debug/DebugChecks.lua.
 local _, ns = ...
 
-local SHIELD_IDS = "324, 24398, 52127, 974"  -- Blitzschlagschild, Wasserschild (TBC/Forever, Retail), Erdschild
+-- Blitzschlagschild, Wasserschild (TBC, Forever, Retail), Erdschild; Forever kennt Wasserschild nur als 408510
+local SHIELD_IDS = "324, 24398, 408510, 52127, 974"
+local OLD_SHIELD_IDS = "324, 24398, 52127, 974"  -- alter Standard ohne Forever-ID: gespeicherte Werte nachziehen
 
 ns.RegisterDefaults({
   settings = {
@@ -20,6 +24,10 @@ ns.RegisterDefaults({
   },
 })
 local Auras = ns.Auras
+
+ns.OnLogin(function()
+  if ns.db.collapsedBuffsList == OLD_SHIELD_IDS then ns.db.collapsedBuffsList = SHIELD_IDS end
+end)
 
 local CollapsedBuffs = {}
 ns.CollapsedBuffs = CollapsedBuffs
@@ -94,7 +102,7 @@ for index = 1, CollapsedBuffs.MAX_ICONS do
   icon.texture:SetAllPoints()
   icon.count = icon:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
   icon.count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -1, 1)
-  icon.time = icon:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  icon.time = icon:CreateFontString(nil, "OVERLAY", ns.Theme.Font("body"))
   icon.time:SetPoint("TOP", icon, "BOTTOM", 0, -1)
   icon:Hide()
   icons[index] = icon
@@ -122,22 +130,64 @@ local function showCount(shown)
   if shown > 0 then frame:SetWidth(shown * ICON_SIZE + (shown - 1) * ICON_GAP) end
 end
 
+-- Letzter sichtbarer Buff der Blizzard-Leiste und die Wuchsrichtung (Standard nach links)
+local function lastBlizzardBuff()
+  local container = type(BuffFrame) == "table" and BuffFrame.AuraContainer
+  if not container or type(BuffFrame.auraFrames) ~= "table" then return nil end
+  local last
+  for _, button in ipairs(BuffFrame.auraFrames) do
+    if button.isAuraAnchor ~= true and button:IsShown() then last = button end
+  end
+  return last, container, container.addIconsToRight == true
+end
+
+-- shortcut: hängt nur hinter den letzten Buff (keine zweite Zeile), reicht für die eingeklappte Leiste
+local function dockToBuffBar()
+  if ns.Frames.HasPosition("collapsedBuffs") then return end
+  local last, container, toRight = lastBlizzardBuff()
+  if not container then return end
+  local target = last or container
+  local _, relativeTo = frame:GetPoint(1)
+  if relativeTo == target then return end
+  frame:ClearAllPoints()
+  if not last then
+    frame:SetPoint(toRight and "TOPLEFT" or "TOPRIGHT", container, toRight and "TOPLEFT" or "TOPRIGHT")
+  elseif toRight then
+    frame:SetPoint("TOPLEFT", last, "TOPRIGHT", ICON_GAP, 0)
+  else
+    frame:SetPoint("TOPRIGHT", last, "TOPLEFT", -ICON_GAP, 0)
+  end
+end
+
 local previewing = false
 
--- Gezeigte Buffs: nur bei eingeklappter Leiste und lesbaren Auren (gesperrt = nichts zeigen statt alter Stände)
+-- Gezeigte Buffs: nur bei eingeklappter Leiste. Ist die Buff-Liste gesperrt (Retail/Forever im Kampf), fragt die
+-- Anzeige die gewählten Spell-IDs einzeln ab: Blizzard gibt manche Auren trotzdem frei (C_Secrets). Geheime bleiben
+-- weg (nichts zeigen statt alter Stände); Namen ohne Spell-ID gehen dann nicht.
 function CollapsedBuffs.Update()
   if previewing then return end
   local shown = 0
-  if ns.db and ns.db.collapsedBuffs and CollapsedBuffs.IsBarCollapsed() then
-    Auras.ForEachBuff(function(aura)
-      if not CollapsedBuffs.Matches(aura) then return false end
-      shown = shown + 1
-      local count = aura.applications
-      if ns.IsSecret(count) or type(count) ~= "number" then count = CollapsedBuffs.DisplayCount(aura) end
-      fill(icons[shown], aura.icon, count, (Auras.RemainingSeconds(aura)))
-      return shown >= CollapsedBuffs.MAX_ICONS
-    end)
+  local function show(aura)
+    shown = shown + 1
+    local count = aura.applications
+    if ns.IsSecret(count) or type(count) ~= "number" then count = CollapsedBuffs.DisplayCount(aura) end
+    fill(icons[shown], aura.icon, count, (Auras.RemainingSeconds(aura)))
+    return shown >= CollapsedBuffs.MAX_ICONS
   end
+  if ns.db and ns.db.collapsedBuffs and CollapsedBuffs.IsBarCollapsed() then
+    local readable = Auras.ForEachBuff(function(aura)
+      if not CollapsedBuffs.Matches(aura) then return false end
+      return show(aura)
+    end)
+    if not readable then
+      local wantedIds = wanted()
+      for spellId in pairs(wantedIds) do
+        local aura = Auras.PlayerAuraBySpellId(spellId)
+        if aura and show(aura) then break end
+      end
+    end
+  end
+  if shown > 0 then dockToBuffBar() end
   showCount(shown)
 end
 

@@ -10,10 +10,12 @@
 -- Quest-Eintrag: { time, level, zone, questID, name, xp, money, duration, delta }
 --   duration: /played-Sekunden von Annahme bis Abgabe, delta: Abweichung zur bisherigen Bestzeit (QuestSplits.lua)
 -- Instanz-Lauf: { time, name, instanceType, seconds, level, xp, counters = { kills, deaths, reputation, money, quests },
---                zoneUID, mapID, difficultyID, bosses, splits, groupSize, rares, moveAt }   bosses = besiegte encounterIDs "2741,2747",
+--                zoneUID, mapID, difficultyID, bosses, splits, groupSize, rares, moveAt, wing }
+--                bosses = besiegte encounterIDs "2741,2747",
 --                splits = Laufzeit in Sekunden je Kill "192,305" (InstanceBosses.lua), groupSize = größte Gruppe,
 --                rares = besiegte Rare "NPC-ID:Sekunden:Name;..." (InstanceBosses.lua), moveAt = Laufzeit bei der
---                ersten Bewegung (Instances.lua, fehlt bei älteren Läufen)
+--                ersten Bewegung (Instances.lua, fehlt bei älteren Läufen), wing = Flügel-Hinweis (InstanceWings.lua),
+--                recapPlayers/recapMobs = Zahlen des Schadensmessers für den Dungeon-Recap (RunMeter.lua)
 -- Beute:        { time, level, zone, link, name, quality, quantity, source, rollChoice, roll, rollNeed, rollGreed,
 --                 rollPass, rollDisenchant, rollTransmog }
 --   roll*: gewonnener Wurf (Wahl, Zahl, wie viele Bedarf/Gier/Passen/Entzaubern/Transmog gewählt haben), nur mit
@@ -70,7 +72,7 @@ Journal.LOGS = {
     { path = "zoneUID" }, { path = "counters.reputation" }, { path = "mapID" }, { path = "difficultyID" },
     { path = "bosses", kind = VALUE }, { path = "splits", kind = VALUE }, { path = "counters.money" },
     { path = "counters.quests" }, { path = "groupSize" }, { path = "rares", kind = VALUE },
-    { path = "moveAt" } } },
+    { path = "moveAt" }, { path = "wing" }, { path = "recapPlayers", kind = VALUE }, { path = "recapMobs", kind = VALUE } } },
   lootLog = { max = Journal.MAX_LOOT, fields = {
     { path = "time" }, { path = "level" }, { path = "zone", kind = VALUE }, { path = "link", kind = VALUE },
     { path = "name", kind = VALUE }, { path = "quality" }, { path = "quantity" }, { path = "source", kind = VALUE },
@@ -229,6 +231,9 @@ function Journal.AddInstanceRun(run)
     groupSize = run.groupSize,
     rares = run.rares,
     moveAt = run.moveAt,
+    wing = run.wing,
+    recapPlayers = run.recapPlayers,
+    recapMobs = run.recapMobs,
   })
 end
 

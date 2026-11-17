@@ -26,6 +26,8 @@ local MAX_MEMBERS = 40         -- Raidgröße; mehr liest die Gruppensuche nicht
 local DUNGEON_SIZE = 5
 local ROLE_NEEDS = { TANK = 1, HEALER = 1, DAMAGER = 3 }  -- Standardbesetzung einer 5er-Gruppe
 
+local PLAYSTYLE_NONE = 0  -- Enum.LFGEntryGeneralPlaystyle.None: kein Spielstil gewählt
+
 local function readable(value)
   if value == nil or ns.IsSecret(value) then return nil end
   return value
@@ -177,6 +179,7 @@ function LFGData.Summary(resultID)
   return {
     activityNames = activityNames, leaderName = readable(info.leaderName), title = readable(info.name),
     comment = readable(info.comment), voiceChat = readable(info.voiceChat), age = readable(info.age),
+    generalPlaystyle = readable(info.generalPlaystyle) ~= PLAYSTYLE_NONE and readable(info.generalPlaystyle) or nil,
     newPlayerFriendly = readable(info.newPlayerFriendly) == true, autoAccept = readable(info.autoAccept) == true,
     crossFaction = readable(info.crossFactionListing) == true, requiredItemLevel = readable(info.requiredItemLevel),
     hasSelf = readable(info.hasSelf) == true,

@@ -604,6 +604,8 @@ function Transports.Receive(body)
   local key = Transports.RouteKey(from, to)
   local route = data.routes[key]
   if not route then
+    -- Nur Strecken aus ROUTES neu anlegen: Fremde sollen die SavedVariables nicht aufblähen
+    if not routeDefaults(from, to) then return false end
     route = newRoute(from, to)
     data.routes[key] = route
   end
@@ -615,8 +617,12 @@ function Transports.Receive(body)
   return true
 end
 
-ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, _, sender)
-  if ns.IsSecret(prefix) or ns.IsSecret(text) or ns.IsSecret(sender) then return end
+-- Nur Gruppen- und Gildenkanäle; Flüstern von Fremden darf keine Phasen überschreiben
+local SHARE_CHANNELS = { PARTY = true, RAID = true, INSTANCE_CHAT = true, GUILD = true }
+
+ns.RegisterEvent("CHAT_MSG_ADDON", function(prefix, text, channel, sender)
+  if ns.IsSecret(prefix) or ns.IsSecret(text) or ns.IsSecret(sender) or ns.IsSecret(channel) then return end
+  if not SHARE_CHANNELS[channel] then return end
   if prefix ~= Transports.PREFIX or type(text) ~= "string" or type(sender) ~= "string" then return end
   if not shareEnabled() or ns.GroupChat.IsOwnSender(sender) then return end
   local kind, body = text:match("^(%u):(.*)$")

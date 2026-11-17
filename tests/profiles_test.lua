@@ -14,8 +14,13 @@ expect("neues Profil aktiv", Profiles.GetActive(), "Stream")
 addon.Set("windowBackground", "green")
 Frames.SetScale("main", 1.5)
 
--- Zurück zum Standard: dessen Werte, Stream behält seine
+-- LT-308: die Sprache gehört nicht zum Profil
+addon.Set("language", "frFR")
 SlashCmdList.LEVELTIMER("profile Default")
+expect("Sprache bleibt beim Profilwechsel", LevelTimerDB.language, "frFR")
+addon.Set("language", addon.AUTO_LANGUAGE)
+
+-- Zurück zum Standard: dessen Werte, Stream behält seine
 expect("Standard: Größe", mainScale(), 1.2)
 expect("Standard: Hintergrund", LevelTimerDB.windowBackground, "default")
 expect("Fenster folgt", LevelTimerFrame:GetScale(), 1.2)
@@ -146,6 +151,17 @@ expect("Profil-Exists (unbekannt)", Profiles.Exists("Gibtsnicht"), false)
 local fromDefaultName = Profiles.Import(addon.Serializer.Encode("profile", { name = addon.L.PROFILE_DEFAULT, settings = {} }))
 expectTrue("Import 'Standard': eigener Name", fromDefaultName ~= nil and fromDefaultName ~= addon.L.PROFILE_DEFAULT)
 expectTrue("Import 'Standard': wählbar", Profiles.Exists(fromDefaultName))
+
+-- Import schaltet keine Datenschutz-/Auto-Einladungs-Schalter ein; Profilname ohne Formatcodes
+local risky = Profiles.Import(addon.Serializer.Encode("profile", { name = "|cffff0000Rot|r", settings = {
+  inviteFromWhisper = true, friendRace = true, announceLowMana = true, bgAlpha = 0.4,
+} }))
+expect("Formatcodes aus Namen entfernt", risky, "cffff0000Rotr")
+local riskySettings = LevelTimerDB.profiles[risky]
+expect("Auto-Einladung nicht importiert", riskySettings.inviteFromWhisper, nil)
+expect("Freundes-Rennen nicht importiert", riskySettings.friendRace, nil)
+expect("Ansage nicht importiert", riskySettings.announceLowMana, nil)
+expect("harmlose Einstellung bleibt", riskySettings.bgAlpha, 0.4)
 
 -- Positionen: nur gültige Ankerpunkte und endliche Offsets; die Größe der Split-Liste bleibt erhalten (begrenzt)
 local sane = addon.Database.SanitizeSettings({

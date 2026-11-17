@@ -46,6 +46,21 @@ wow.fire("SPELLS_CHANGED")
 wow.update(OldSpellRanks.SCAN_INTERVAL + 1)
 expect("je Sitzung nur einmal", hints(), 1)
 
+-- Einzelnen Rang dauerhaft ausblenden: Zeile und Eintrag weg, Find überspringt ihn, Knopf stellt ihn wieder her
+expectTrue("Zeile mit Ausblenden-Knopf", entry.rows[1].onDismiss ~= nil)
+local row
+for _, shown in ipairs(addon.Hints.Rows()) do
+  if shown:IsShown() and shown.detail == entry.rows[1] then row = shown end
+end
+expectTrue("Ausblenden-Knopf sichtbar", row and row.dismiss:IsShown())
+row.dismiss:GetScript("OnClick")(row.dismiss)
+expect("Rang gemerkt", addon.db.ignoredSpellRanks[FROSTBOLT_1], true)
+expect("Zähler", OldSpellRanks.IgnoredCount(), 1)
+expect("Find überspringt ihn", #OldSpellRanks.Find(), 0)
+expectTrue("keine Zeilen mehr: Fenster zu", not addon.Hints.IsShown())
+OldSpellRanks.ClearIgnored()
+expect("wieder da", #OldSpellRanks.Find(), 1)
+
 -- Neuer Rang ersetzt: nichts mehr alt
 wow.state.actions[1] = { "spell", FROSTBOLT_2 }
 wow.state.actions[5] = nil

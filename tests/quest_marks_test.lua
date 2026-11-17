@@ -76,6 +76,11 @@ expect("Plakette weg: Markierung versteckt", mark:IsShown(), false)
 wow.fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 addon.Set("questMarkScale", 2)
 expect("Größe", mark:GetScale(), 2)
+-- Abstand zum Lebensbalken bleibt bei jeder Größe gleich (Versatz wird mit der Skalierung multipliziert)
+expect("Abstand bei 200 %", mark:GetPoint(1) and select(4, mark:GetPoint(1)) * mark:GetScale(), -5)
+addon.Set("questMarkScale", 1)
+expect("Abstand bei 100 %", select(4, mark:GetPoint(1)) * mark:GetScale(), -5)
+addon.Set("questMarkScale", 2)
 
 -- Ausschalten
 addon.Set("questMarks", false)

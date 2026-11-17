@@ -1,7 +1,8 @@
--- Optionen, Reiter Komfort (1/3): Automatik, Soziales, Chat, Oberfläche, Blizzard ausblenden.
+-- Optionen, Reiter Komfort: Automatik, Sozial, Chat, Plündern, System.
 local _, ns = ...
 local O = ns.OptionsCore
 local builder, addPage, addSection, addSlider, addToggles = O.builder, O.addPage, O.addSection, O.addSlider, O.addToggles
+local finishPage, finishSubPages = O.finishPage, O.finishSubPages
 local addHint, addSubPage, toggle, advanced, requires = O.addHint, O.addSubPage, O.toggle, O.advanced, O.requires
 
 -- Komfort: Seitenleiste mit Kategorien wie bei Leatrix Plus
@@ -81,112 +82,29 @@ if ns.ChatFontSize.IsAvailable() then
     enabled = function(db) return db.chatFontOverride end,
   })
 end
-addSubPage("COMFORT_PAGE_INTERFACE")
-addSection("SECTION_SCREEN_TEXT")
+-- Plündern: schneller plündern und Bestätigungen überspringen (Würfeln um Beute: Dungeons)
+addSubPage("COMFORT_PAGE_LOOT")
+addSection("SECTION_LOOT")
 addToggles({
-  toggle("HIDE_ERRORS", "hideErrors"),
-  toggle("HIDE_ZONE_TEXT", "hideZoneText"),
+  toggle("FASTER_LOOT", "fasterLoot"),
+  toggle("SKIP_LOOT_CONFIRM", "skipLootConfirm"),
 })
--- Schwarze Ränder über der Spielwelt (unter der Oberfläche)
-addSection("SECTION_SCREEN_BORDERS")
-addToggles({ toggle("SCREEN_BORDERS", "screenBorders") })
-addSlider({
-  label = "SCREEN_BORDER_TOP",
-  advanced = true,
-  min = 0,
-  max = ns.ScreenBorders.MAX_SIZE,
-  step = ns.ScreenBorders.STEP,
-  get = function(db) return db.screenBorderTop end,
-  set = function(value) ns.SetDeferred("screenBorderTop", value) end,
-  format = function(value) return tostring(value) end,
-  enabled = function(db) return db.screenBorders end,
-})
-addSlider({
-  label = "SCREEN_BORDER_BOTTOM",
-  advanced = true,
-  min = 0,
-  max = ns.ScreenBorders.MAX_SIZE,
-  step = ns.ScreenBorders.STEP,
-  get = function(db) return db.screenBorderBottom end,
-  set = function(value) ns.SetDeferred("screenBorderBottom", value) end,
-  format = function(value) return tostring(value) end,
-  enabled = function(db) return db.screenBorders end,
-})
-addSlider({
-  label = "SCREEN_BORDER_SIDES",
-  advanced = true,
-  min = 0,
-  max = ns.ScreenBorders.MAX_SIZE,
-  step = ns.ScreenBorders.STEP,
-  get = function(db) return db.screenBorderSides end,
-  set = function(value) ns.SetDeferred("screenBorderSides", value) end,
-  format = function(value) return tostring(value) end,
-  enabled = function(db) return db.screenBorders end,
-})
-addSection("SECTION_ACTION_BARS")
+addSubPage("COMFORT_PAGE_SYSTEM")
+addSection("SECTION_DIALOGS")
 addToggles({
-  toggle("HIDE_KEYBIND_TEXT", "hideKeybindText"),
-  toggle("HIDE_MACRO_TEXT", "hideMacroText"),
-  toggle("RANGE_COLOR", "rangeColor"),
-  toggle("COMFORT_COOLDOWN_NUMBERS", "cooldownNumbers"),
+  toggle("EASY_DELETE", "easyDelete"),
+  toggle("FASTER_MOVIE_SKIP", "fasterMovieSkip"),
 })
--- Ausblenden (UX S15: alles an einem Ort): ein Schalter je Element der Liste in BlizzardHide.lua, auch die mit eigener
--- Einstellung (Erfahrungs-, Ruf- und Haltungsleiste, Kalender, Chat-Knöpfe; Kalender und Chat-Knöpfe stehen zusätzlich
--- bei Minimap und Chat); auch im Edit-Modus direkt am Element schaltbar. In Gruppen mit einklappbaren Überschriften
--- (Roadmap 406); unbekannte Einträge landen unter "Weitere"
-local BLIZZARD_GROUPS = {
-  { section = "SECTION_BLIZZ_UNIT_FRAMES", labels = { "BLIZZ_FRAME_PLAYER", "BLIZZ_FRAME_TARGET", "BLIZZ_FRAME_FOCUS",
-    "BLIZZ_FRAME_PARTY", "BLIZZ_FRAME_PET", "BLIZZ_FRAME_BOSS", "BLIZZ_FRAME_ARENA", "BLIZZ_FRAME_CAST_BAR" } },
-  { section = "SECTION_BLIZZ_MINIMAP_BUFFS", labels = { "BLIZZ_FRAME_MINIMAP", "BLIZZ_FRAME_ZONE_TEXT", "BLIZZ_FRAME_CLOCK",
-    "BLIZZ_FRAME_CALENDAR", "BLIZZ_FRAME_BUFFS", "BLIZZ_FRAME_DEBUFFS", "BLIZZ_FRAME_TRACKER" } },
-  { section = "SECTION_BLIZZ_BARS", labels = { "BLIZZ_FRAME_MAIN_BAR", "BLIZZ_FRAME_BAR", "BLIZZ_FRAME_BAR_ART",
-    "BLIZZ_FRAME_STANCE", "BLIZZ_FRAME_PET_BAR", "BLIZZ_FRAME_MICRO_MENU", "BLIZZ_FRAME_BAGS", "BLIZZ_FRAME_XP_BAR",
-    "BLIZZ_FRAME_REP_BAR" } },
-}
-
--- Blizzard-Meldungen und -Effekte (HideFrames.lua): nur Schalter für Frames, die es im Client gibt (z.B. Boss-Banner
--- und Ereignis-Einblendungen nicht in Classic)
-local function addBlizzardMessages()
-  local HideFrames = ns.HideFrames
-  addSection("SECTION_HIDE_FRAMES", { collapsible = true })
-  addToggles({
-    toggle("HIDE_BOSS_BANNER", "hideBossBanner", HideFrames.HasBossBanner),
-    toggle("HIDE_EVENT_TOASTS", "hideEventToasts", HideFrames.HasEventToasts),
-    toggle("HIDE_ALERTS", "hideAlerts", HideFrames.HasAlerts),
-    advanced(toggle("HIDE_REST_ANIMATION", "hideRestAnimation", HideFrames.HasRestAnimation)),
-    advanced(toggle("HIDE_PORTRAIT_NUMBERS", "hidePortraitNumbers", HideFrames.HasPortraitNumbers)),
-  })
+addSection("SECTION_COMBAT_GROUP")
+addToggles({
+  toggle("COMBAT_PLATES", "combatPlates"),
+  toggle("COMFORT_THREAT_NUMERIC", "threatShowNumeric"),
+  advanced(toggle("NO_RAID_RESTRICTIONS", "noRaidRestrictions", ns.RaidRestrictions.IsAvailable)),
+  toggle("READY_TIMER", "readyTimer"),
+})
+if ns.AddonListSort.IsAvailable() then
+  addSection("SECTION_ADDON_LIST")
+  addToggles({ advanced(toggle("SORT_ADDON_LIST", "sortAddonList")) })
 end
-local function addBlizzardHideGroups()
-  local groupOf = {}
-  for index, group in ipairs(BLIZZARD_GROUPS) do
-    for _, label in ipairs(group.labels) do groupOf[label] = index end
-  end
-  local lists, rest = {}, {}
-  for _, entry in ipairs(ns.BlizzardHide.Toggles()) do
-    if not entry.setting then entry.resetKeys = { "hiddenBlizzardFrames" } end
-    local index = groupOf[entry.label]
-    if index then
-      lists[index] = lists[index] or {}
-      table.insert(lists[index], entry)
-    else
-      table.insert(rest, entry)
-    end
-  end
-  for index, group in ipairs(BLIZZARD_GROUPS) do
-    if lists[index] then
-      addSection(group.section, { collapsible = true })
-      addToggles(lists[index])
-    end
-  end
-  if #rest > 0 then
-    addSection("SECTION_BLIZZ_OTHER", { collapsible = true })
-    addToggles(rest)
-  end
-end
-
-addSubPage("COMFORT_PAGE_HIDE")
-addSection("SECTION_BLIZZARD_FRAMES")
-addHint("BLIZZARD_FRAMES_HINT")
-addBlizzardHideGroups()
-addBlizzardMessages()
+finishSubPages()
+finishPage()

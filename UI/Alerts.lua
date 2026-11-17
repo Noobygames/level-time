@@ -267,10 +267,16 @@ function Alerts.Clear()
   end
 end
 
+-- Text oder Titel eines Hinweises: eine Funktion wird erst beim Anzeigen ausgewertet (folgt so dem Sprachwechsel)
+function Alerts.Resolve(value)
+  if type(value) == "function" then return value() end
+  return value
+end
+
 -- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
 function Alerts.NoticeCard(entry)
-  return { icon = entry.icon, texture = entry.texture, title = entry.title or entry.text,
-    body = entry.title and entry.text or nil }
+  local text, title = Alerts.Resolve(entry.text), Alerts.Resolve(entry.title)
+  return { icon = entry.icon, texture = entry.texture, title = title or text, body = title and text or nil }
 end
 
 -- Erinnerungen statt dringender Meldungen: Notify(..., Alerts.COLLECT) sammelt sie im Hinweisfenster (UI/HintCollector.lua)
@@ -283,11 +289,12 @@ function Alerts.Notify(notices, color, options)
   if type(notices) == "string" or notices.text then notices = { notices } end
   for _, entry in ipairs(notices) do
     if type(entry) == "string" then entry = { text = entry } end
-    ns.Print(entry.text)
+    local text = Alerts.Resolve(entry.text)
+    ns.Print(text)
     if options and options.collect then
       ns.Hints.Add(entry)
     else
-      Alerts.Show(entry.text, color, { notice = Alerts.NoticeCard(entry) })
+      Alerts.Show(text, color, { notice = Alerts.NoticeCard(entry) })
     end
   end
 end

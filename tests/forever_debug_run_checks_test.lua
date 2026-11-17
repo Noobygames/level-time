@@ -6,10 +6,11 @@ local function hasLine(text)
 end
 
 local CHECKS = {
-  "LT73.runs.imported", "LT76.forecast.maxLevel", "LT145.lss.export", "LT160.window.tooltips", "LT161.history.tooltips",
+  "LT73.runs.imported", "LT145.lss.export", "LT161.history.tooltips",
   "LT171.history.tabs", "LT172.window.labels", "LT195.report.bossName", "LT200.instance.master", "LT203.loot.value",
   "LT226.runs.live", "LT227.questCheck", "LT230.bossLoot.tooltip", "LT242.bossLoot.icons", "LT243.dungeonQuests.source",
   "LT244.bossLoot.coverage", "LT245.mechanics.forever", "LT246.bossLoot.forever",
+  "LT318.wings.state",
 }
 
 wow.login()

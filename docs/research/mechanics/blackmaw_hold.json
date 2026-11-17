@@ -1,0 +1,13 @@
+{
+  "instance": "Blackmaw Hold",
+  "kind": "dungeon",
+  "bosses": [
+    {"name": "Withermaw", "npcID": 247195, "mechanics": [
+      {"spellID": 0, "spell": "Lava pools", "type": "positioning", "en": "Rotting bear leaves lava pools: drag the fight away from them", "de": "Der faulende Bär hinterlässt Lavapfützen: Kampf davon wegziehen", "version": "forever"}
+    ]},
+    {"name": "Elder Shaman Bloodmane", "npcID": 247209, "mechanics": [
+      {"spellID": 0, "spell": "Shaman casts", "type": "interrupt", "en": "Caster: interrupt his spells", "de": "Zauberer: seine Zauber unterbrechen", "version": "forever"}
+    ]}
+  ],
+  "sources": ["https://wowclassicforever.info/dungeons/blackmaw-hold/ (2026-11-16)"]
+}

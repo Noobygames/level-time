@@ -33,9 +33,7 @@ local ROLE_ATLAS_NAMES = { TANK = "Tank", HEALER = "Healer", DAMAGER = "DPS" }
 local FONT_TRIVIAL, FONT_DIFFICULT = "LFGActivityEntryTrivial", "LFGActivityEntryDifficult"  -- Blizzards Schriftfarben
 
 local enum = Enum or {}
-local PLAYSTYLE_ORDER = enum.LFGEntryGeneralPlaystyle and { enum.LFGEntryGeneralPlaystyle.Learning,
-  enum.LFGEntryGeneralPlaystyle.FunRelaxed, enum.LFGEntryGeneralPlaystyle.FunSerious,
-  enum.LFGEntryGeneralPlaystyle.Expert } or {}
+local PLAYSTYLE_ORDER = LFGWindow.PLAYSTYLE_ORDER
 local VOICE_NONE = enum.LFGEntryVoiceMode and enum.LFGEntryVoiceMode.None
 local VOICE_LEGACY = enum.LFGEntryVoiceMode and enum.LFGEntryVoiceMode.Legacy
 
@@ -99,9 +97,7 @@ local listingStatus = listingTab:CreateFontString(nil, "OVERLAY", "GameFontNorma
 listingStatus:SetPoint("TOPLEFT", SIDE, -(ROLES_BOTTOM + 8))
 listingStatus:SetJustifyH("LEFT")
 
-local function playstyleLabel(playstyle)
-  return GetGeneralPlaystyleString and GetGeneralPlaystyleString(playstyle) or tostring(playstyle)
-end
+local playstyleLabel = LFGWindow.PlaystyleLabel
 
 local playstyleDropdown = LFGWindow.NewDropdown(listingTab, 210, function()
   local entries = {}
@@ -314,4 +310,17 @@ parts.allLevelsCheck = allLevelsCheck
 ns.RegisterEvent("LFG_LIST_ACTIVE_ENTRY_UPDATE", function()
   state.listingLoaded = false
   if LFGWindow.IsShown() and state.tab == LFGWindow.TAB_LISTING then LFGWindow.Refresh() end
+end)
+
+-- Ausgelevelte Aktivitäten abwählen (Höchstlevel unter dem neuen Level), solange nichts eingetragen ist; ein aktiver
+-- Eintrag bleibt, wie er ist (Blizzard entscheidet dort selbst)
+ns.OnLevelStarted(function(newLevel)
+  if LFGSearch.ActiveEntry() or not state.listingCategoryID then return end
+  for _, activity in ipairs(LFGSearch.Activities(state.listingCategoryID)) do
+    if state.listingActivities[activity.id] and activity.maxLevel > 0 and activity.maxLevel < newLevel then
+      state.listingActivities[activity.id] = nil
+      ns.Debug("lfg", "deselected outleveled activity %s", activity.id)
+    end
+  end
+  if LFGWindow.IsShown() then LFGWindow.Refresh() end
 end)

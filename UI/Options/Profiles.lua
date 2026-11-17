@@ -1,10 +1,11 @@
--- Optionen, Reiter Profile: benannt speichern, je Charakter wählen, teilen.
+-- Optionen, Reiter Allgemein, Unterseite Profile: benannt speichern, je Charakter wählen, teilen (schließt den Reiter).
 local _, ns = ...
 local O = ns.OptionsCore
 local L = ns.L
 local Widgets = ns.Widgets
 local Builder = ns.OptionsBuilder
-local builder, addPage, finishPage, addSection, addButton = O.builder, O.addPage, O.finishPage, O.addSection, O.addButton
+local builder, addSubPage, finishPage = O.builder, O.addSubPage, O.finishPage
+local finishSubPages, addSection, addButton = O.finishSubPages, O.addSection, O.addButton
 local addHint, localized = O.addHint, O.localized
 
 local MAX_PROFILE_ROWS = 6     -- so viele Profile listet der Reiter "Profile"
@@ -183,7 +184,7 @@ local function addProfileSaver()
 end
 
 -- Profile: Einstellungen benannt speichern, je Charakter wählen, als Text teilen
-addPage("OPTIONS_TAB_PROFILES")
+addSubPage("OPTIONS_TAB_PROFILES")
 addSection("SECTION_PROFILES")
 addProfileUsage()
 addProfileList()
@@ -194,4 +195,5 @@ addButton("PROFILE_EXPORT", function()
 end)
 addButton("PROFILE_IMPORT", function() ns.ShowProfileImport() end)
 addHint("PROFILE_HINT")
+finishSubPages()
 finishPage()

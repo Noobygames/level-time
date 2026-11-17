@@ -319,22 +319,21 @@ end
 -- Vor dem Login puffern; danach entscheidet die gespeicherte Einstellung
 ns.SetDebugRecorder(recordDebugLine)
 
+-- Lokal installiert = immer mitschreiben: jeder Login und /reload schaltet das Log an, "/lt debug log off" gilt nur
+-- bis dahin (ein dauerhaft ausgeschaltetes Log verlor sonst unbemerkt ganze Spielabende)
 ns.OnLogin(function()
-  LevelTimerDebugLog = LevelTimerDebugLog or { enabled = true }  -- lokal installiert = immer mitschreiben
+  LevelTimerDebugLog = LevelTimerDebugLog or {}
   local firstLogin = store == nil
   store = LevelTimerDebugLog
   store.lines = store.lines or {}
-  if firstLogin and DebugLog.IsEnabled() then
+  if firstLogin then
+    store.enabled = true
     for _, line in ipairs(pending) do store.lines[#store.lines + 1] = line end
     store.lines = trim(store.lines)
   end
   pending = {}
   attach()
-  if DebugLog.IsEnabled() then
-    writeHeader("login")
-  elseif firstLogin then
-    ns.Print(L.DEBUG_LOG_OFF_REMINDER)  -- ausgeschaltet bleibt aus, aber nie unbemerkt
-  end
+  if DebugLog.IsEnabled() then writeHeader("login") end
 end)
 
 ns.OnLogout(function()

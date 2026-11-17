@@ -88,7 +88,10 @@ expectTrue("Icon-Datei vorhanden: " .. iconFile, handle ~= nil)
 if handle then handle:close() end
 
 -- Einstellungen: Sprache über die Reiter wählen
+-- Mit "Automatisch" (LT-308) ist die Auswahl eine Liste: erst über den gewählten Eintrag öffnen, dann wählen
+wow.click("Deutsch")
 expectTrue("Sprach-Reiter English", wow.click("English"))
 expect("Sprache Englisch", LevelTimerDB.language, "enUS")
+wow.click("English")
 expectTrue("Sprach-Reiter Deutsch", wow.click("Deutsch"))
 expect("Sprache Deutsch", LevelTimerDB.language, "deDE")

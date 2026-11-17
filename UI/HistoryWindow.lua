@@ -49,6 +49,7 @@ panel:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("History"))  -- mit ESC schließen
 
 local header = Widgets.CreateWindowHeader(panel, "")
+header:SetIcon("Interface\\Icons\\INV_Misc_ScrollUnrolled01")  -- Verlauf
 
 local content = CreateFrame("Frame", nil, panel)
 content:SetSize(HistoryWindow.CONTENT_WIDTH, HistoryWindow.CONTENT_HEIGHT)

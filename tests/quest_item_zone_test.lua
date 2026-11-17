@@ -57,3 +57,29 @@ addon.Set("questButtonsZoneOnly", false)
 expect("aus: erste Quest", item:GetAttribute("item"), "item:5000")
 expectTrue("aus: sichtbar", item:IsShown())
 expect("Fehler?", #wow.errors, 0)
+
+-- Leistung: QUEST_LOG_UPDATE ohne Änderung liest den Questlog einmal je Takt, entscheidet die Zonen nicht neu und
+-- schreibt keine Debug-Zeilen; erst eine geänderte Überschrift entscheidet (und loggt) die Quest neu
+addon.Set("questButtonsZoneOnly", true)
+wow.update(1)
+local lines = { count = 0 }
+addon.SetDebugRecorder(function(area, text)
+  if area == "questitem" and text:find("^quest ") then lines.count = lines.count + 1 end
+end)
+local scans = { count = 0 }
+local entries = QuestLog.Entries
+QuestLog.Entries = function() scans.count = scans.count + 1 return entries() end
+for _ = 1, 10 do
+  wow.fire("QUEST_LOG_UPDATE")
+  wow.update(1)
+end
+expect("unverändert: keine Debug-Zeilen", lines.count, 0)
+expect("ein Questlog-Durchlauf je Takt", scans.count, 10)
+wow.state.questLog[3].title = "Elwynn Forest"
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1)
+expect("neue Überschrift: neu entschieden", (QuestItem.ZoneOf(91)), true)
+expect("geändertes Ergebnis geloggt", lines.count, 1)
+QuestLog.Entries = entries
+addon.SetDebugRecorder(nil)
+expect("Fehler (Leistung)?", #wow.errors, 0)

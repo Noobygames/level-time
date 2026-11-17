@@ -56,6 +56,7 @@ expect("andere Karte leer", #QuestMap.PointsOn(1411), 0)
 wow.state.units.npc = { name = "Gryan", guid = "Creature-0-1-0-1-234-0000ABCE" }
 wow.fire("QUEST_COMPLETE")
 wow.state.questLog[1].isComplete = 1
+wow.fire("QUEST_LOG_UPDATE")  -- der Client meldet jede Questlog-Änderung; die Karte liest den Questlog nur dann neu
 local points = QuestMap.PointsOn(1429)
 expect("fertig: ein Punkt", #points, 1)
 expect("am Abgabe-NPC", points[1].npc, "Gryan")

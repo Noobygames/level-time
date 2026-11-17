@@ -4,7 +4,9 @@ local Hints = addon.Hints
 local Alerts = addon.Alerts
 wow.login({ level = 20 })
 
-expect("Auto-Schließen Standard aus", addon.db.hintsAutoClose, false)
+expect("Auto-Schließen Standard an", addon.db.hintsAutoClose, true)
+expect("Standarddauer 10 s", addon.db.hintsAutoCloseSeconds, 10)
+addon.Set("hintsAutoClose", false)
 expectTrue("anfangs kein Fenster", not Hints.IsShown())
 
 Alerts.Notify({ { title = "Essen", text = "Kein Essen", icon = Alerts.ICONS.food },
@@ -27,14 +29,18 @@ expect("einer weniger", #Hints.Entries(), 2)
 expectTrue("Fenster bleibt", Hints.IsShown())
 
 -- Bleibt stehen, auch nach langer Zeit (Auto-Schließen aus)
-wow.advance(Hints.AUTO_CLOSE_SECONDS * 3)
+wow.advance(100)
 wow.update(0.1)
 expectTrue("bleibt ohne Automatik", Hints.IsShown())
 
 -- Mit Auto-Schließen nach der Anzeigedauer
 addon.Set("hintsAutoClose", true)
+addon.Set("hintsAutoCloseSeconds", 20)
 Hints.Add({ text = "neu", title = "Neu" })
-wow.advance(Hints.AUTO_CLOSE_SECONDS + 1)
+wow.advance(15)
+wow.update(0.1)
+expectTrue("noch offen vor 20 s", Hints.IsShown())
+wow.advance(6)
 wow.update(0.1)
 expectTrue("schließt von selbst", not Hints.IsShown())
 expect("leer", #Hints.Entries(), 0)

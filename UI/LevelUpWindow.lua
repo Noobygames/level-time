@@ -32,7 +32,6 @@ local LevelUpWindow = {
 }
 ns.LevelUpWindow = LevelUpWindow
 
-local DEFAULT_POSITION = { "TOP", "TOP", 0, -160 }
 local PADDING = 14
 local COLUMN_GAP = 14
 local MIN_WIDTH = 300
@@ -470,7 +469,7 @@ local function setEditing(enabled)
 end
 
 ns.Frames.Register({
-  id = "levelUp", frame = frame, label = "EDIT_FRAME_LEVEL_UP", default = DEFAULT_POSITION,
+  id = "levelUp", frame = frame, label = "EDIT_FRAME_LEVEL_UP",
   settingsPage = "OPTIONS_PAGE_LEVEL_UP", preview = setEditing,
   hide = function() ns.Set("levelUpWindow", false) end,
 })

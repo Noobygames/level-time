@@ -1,0 +1,22 @@
+{
+  "instance": "Krol'dok Stronghold",
+  "kind": "dungeon",
+  "bosses": [
+    {"name": "Twilight Commander Zarmok", "npcID": 258972, "mechanics": [
+      {"spellID": 0, "spell": "Bleed", "type": "tank", "en": "Strong bleed on the tank: keep health high, cleanse if possible", "de": "Starke Blutung auf dem Tank: Leben hoch halten, wenn möglich reinigen", "version": "forever"}
+    ]},
+    {"name": "Nar'gurk", "npcID": 258964, "mechanics": [
+      {"spellID": 0, "spell": "Mind Control", "type": "survive", "en": "Mind-controls a player: break line of sight, use crowd control", "de": "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "version": "forever"},
+      {"spellID": 0, "spell": "Shadow Staff", "type": "tank", "en": "Charges his staff with shadow damage: more damage on the tank", "de": "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "version": "forever"}
+    ]},
+    {"name": "War Handler Ashka", "npcID": 259281, "mechanics": [
+      {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"}
+    ]},
+    {"name": "Overlord Mugg", "npcID": 258968, "mechanics": [
+      {"spellID": 0, "spell": "Weapon swap", "type": "tank", "en": "Swaps maces for mauls and hits harder with each set", "de": "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "version": "forever"},
+      {"spellID": 0, "spell": "Mugg's Fury", "type": "tank", "en": "Each hit speeds up his attacks until he swaps weapons", "de": "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "version": "forever"},
+      {"spellID": 0, "spell": "Centurions", "type": "adds", "en": "Centurion adds lower the tank's healing: kill them first", "de": "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "version": "forever"}
+    ]}
+  ],
+  "sources": ["https://conquestcapped.com/guides/wow-forever/wow-forever-kroldok-stronghold-guide/ (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)"]
+}

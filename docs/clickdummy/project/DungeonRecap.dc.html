@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Level Time: Dungeon-Recap</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd100}a:hover{color:#fff1a8}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 760px; height: 600px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: flex; flex-direction: column; gap: 8px">
+  <span style="font-size: 12px; color: #9fb3a8">Dungeon-Recap nach dem Endboss (öffnet automatisch, /lt recap run, Knopf „Recap“ im Run-Fenster; verschiebbar, Esc schließt)</span>
+  <div style="width: 640px; height: 520px; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+
+    <!-- Kopf: Endboss-Porträt (live als 3D-Modell), Name, Status, Close -->
+    <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #333; padding-bottom: 8px; height: 40px; box-sizing: content-box">
+      <span title="Endboss als 3D-Porträt (CreatureModel)" style="width: 40px; height: 40px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #555; border-radius: 4px; flex: none"></span>
+      <div style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+        <span style="font-size: 16px; font-weight: 700; color: #ffd100; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Die Todesminen: Edwin VanCleef besiegt</span>
+        <span style="font-size: 12px; color: #c8c8c8">13.11. 20:14 · Level 21 · <span style="color: #40ff40">Abgeschlossen</span></span>
+      </div>
+      <span style="display: flex; flex-direction: column; align-items: flex-end">
+        <span title="Laufzeit ab der ersten Bewegung. Grün ▲ = schneller, rot ▼ = langsamer als dein bester Lauf" style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">31:05</span>
+        <span style="font-size: 12px; font-weight: 600; color: {{deltaColor}}">{{deltaText}}</span>
+      </span>
+      <button type="button" style="width: 24px; height: 24px; border: 1px solid #555; background: #1d1d1d; color: #eee; border-radius: 4px; cursor: pointer">x</button>
+    </div>
+
+    <!-- Reiter -->
+    <div style="display: flex; gap: 4px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <!-- Inhalt -->
+    <div style="flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 8px">
+
+      <sc-if test="{{isOverview}}">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
+            <div style="background: #161616; border: 1px solid #333; border-radius: 4px; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 12px; color: #c8c8c8">{{t.label}}</span>
+              <span style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">{{t.value}}</span>
+              <span style="font-size: 12px; color: {{t.noteColor}}">{{t.note}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Auszeichnungen</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{awards}}" as="a" hint-placeholder-count="6">
+            <div title="{{a.tip}}" style="display: flex; align-items: center; gap: 8px; background: #161616; border: 1px solid #333; border-radius: 4px; padding: 4px 12px; min-height: 32px">
+              <span style="width: 24px; height: 24px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; flex: none; text-align: center; font-size: 14px; line-height: 24px">{{a.icon}}</span>
+              <span style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+                <span style="font-size: 12px; color: #c8c8c8">{{a.label}}</span>
+                <span style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span style="color: {{a.nameColor}}">{{a.who}}</span> <span style="color: #c8c8c8">{{a.what}}</span></span>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if test="{{isLoot}}">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <sc-for list="{{loot}}" as="l" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{l.bg}}; border-radius: 4px">
+              <span style="width: 24px; height: 24px; background: #3a3020; border: 1px solid {{l.color}}; border-radius: 4px"></span>
+              <span style="color: {{l.color}}; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{l.item}} <span style="color: #8a8a8a">{{l.boss}}</span></span>
+              <span style="font-size: 12px; color: {{l.resultColor}}">{{l.result}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 12px; color: #8a8a8a">Würfe und Beute des Laufs, Würfe zuerst</span>
+      </sc-if>
+
+      <sc-if test="{{isGroup}}">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; font-size: 12px; font-weight: 600; color: #ffd100; padding: 0 8px 4px; border-bottom: 1px solid #333">
+          <span>Spieler</span><span style="text-align: right">Schaden</span><span style="text-align: right">Heilung</span><span style="text-align: right">Unterbr.</span><span style="text-align: right">Tode</span>
+        </div>
+        <sc-for list="{{players}}" as="p" hint-placeholder-count="5">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; align-items: center; min-height: 32px; font-size: 13px; padding: 0 8px; border-radius: 4px; background: {{p.bg}}; font-variant-numeric: tabular-nums">
+            <span style="display: flex; align-items: center; gap: 8px; min-width: 0"><span title="Porträt live (SetPortraitTexture), sonst Klassensymbol" style="width: 24px; height: 24px; background: {{p.color}}; border-radius: 4px; flex: none; opacity: 0.8"></span><span style="color: {{p.color}}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{p.name}}</span><span title="MVP" style="color: #ffd100">{{p.mvp}}</span></span>
+            <span style="text-align: right">{{p.damage}}</span><span style="text-align: right">{{p.healing}}</span><span style="text-align: right">{{p.interrupts}}</span><span style="text-align: right; color: {{p.deathColor}}">{{p.deaths}}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 12px; color: #8a8a8a">Zahlen aus dem Schadensmesser des Spiels, ganzer Lauf</span>
+      </sc-if>
+
+      <sc-if test="{{isEnemies}}">
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Gefährlichste Gegner</span>
+        <sc-for list="{{mobs}}" as="m" hint-placeholder-count="3">
+          <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) 90px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{m.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
+            <span style="text-align: center">☠</span><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{m.name}}</span><span style="text-align: right">{{m.damage}}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Bosse</span>
+        <sc-for list="{{bosses}}" as="b" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 70px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{b.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.name}} <span style="color: #ffd100">{{b.tag}}</span></span><span style="text-align: right">{{b.split}}</span><span style="text-align: right; color: {{b.diffColor}}">{{b.diff}}</span>
+          </div>
+        </sc-for>
+      </sc-if>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #333; padding-top: 8px">
+      <button type="button" style="height: 28px; padding: 0 12px; border-radius: 4px; border: 1px solid #555; background: #1d1d1d; color: #eee; cursor: pointer">Run-Fenster</button>
+      <button type="button" style="height: 28px; padding: 0 12px; border-radius: 4px; border: 1px solid #ffd100; background: #2b2410; color: #ffd100; cursor: pointer">Schließen</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'overview' };
+  }
+  renderVals() {
+    const s = this.state;
+    const GOOD = '#40ff40', BAD = '#ff5050', NOTE = '#c8c8c8', GOLD = '#ffd100';
+    const tab = (on) => 'height: 28px; padding: 0 12px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid ' +
+      (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
+    const CLASS = { Krieger: '#c79c6e', Priester: '#ffffff', Magier: '#69ccf0', Schurke: '#fff569', Jäger: '#abd473' };
+    const PLAYERS = [
+      ['Thorgrim', 'Krieger', '412.300', '0', '2', '0'], ['Lunaria', 'Priester', '98.400', '361.200', '0', '1'],
+      ['Frostbyte', 'Magier', '655.800', '0', '4', '0'], ['Shadowstep', 'Schurke', '701.900', '0', '6', '0'],
+      ['Eagleeye', 'Jäger', '589.100', '0', '1', '2']
+    ];
+    const AWARDS = [
+      { icon: '⚡', label: 'Schnellster Boss', who: 'Rhahk\'Zor', what: 'nach 3:12', tip: 'Kürzeste Zeit zwischen zwei Boss-Kills', nameColor: '#f2f2f2' },
+      { icon: '☠', label: 'Die meisten Tode', who: 'Eagleeye', what: '2 Tode', tip: 'Tode im Lauf je Spieler', nameColor: CLASS['Jäger'] },
+      { icon: '⚔', label: 'Gefährlichster Gegner', who: 'Kapitän Grünhaut', what: '48.200 Schaden', tip: 'Gegner mit dem meisten Schaden an der Gruppe', nameColor: '#f2f2f2' },
+      { icon: '✦', label: 'Unterbrechungen', who: 'Shadowstep', what: '6', tip: 'Meiste Unterbrechungen', nameColor: CLASS['Schurke'] },
+      { icon: '✚', label: 'Heilung', who: 'Lunaria', what: '361.200', tip: 'Meiste Heilung', nameColor: CLASS['Priester'] },
+      { icon: '🎲', label: 'Würfelglück', who: 'Frostbyte', what: '3 Würfe gewonnen', tip: 'Wer die meisten Gruppenwürfe gewonnen hat', nameColor: CLASS['Magier'] }
+    ];
+    const tabs = [['overview', 'Übersicht'], ['loot', 'Beute'], ['group', 'Gruppe'], ['enemies', 'Gegner']];
+    return {
+      deltaText: '▲ -4:47 zur Bestzeit', deltaColor: GOOD,
+      tabs: tabs.map(([id, label]) => ({ label, style: tab(s.tab === id), pick: () => this.setState({ tab: id }) })),
+      isOverview: s.tab === 'overview', isLoot: s.tab === 'loot', isGroup: s.tab === 'group', isEnemies: s.tab === 'enemies',
+      tiles: [
+        { label: 'Bosse', value: '7 / 7', note: '+1 Rare', noteColor: GOLD },
+        { label: 'Tode', value: '3', note: '▼ +2 zum letzten Run', noteColor: BAD },
+        { label: 'Kills', value: '93', note: 'alle Gegner', noteColor: NOTE },
+        { label: 'XP', value: '14.380', note: '27.700 XP/h', noteColor: NOTE },
+        { label: 'Geld', value: '4g 12s', note: 'Beute + Verkauf', noteColor: NOTE },
+        { label: 'Gruppe', value: '5', note: 'Ø Level 21', noteColor: NOTE }
+      ],
+      awards: AWARDS,
+      loot: [
+        { item: '[Kapitänsmantel]', boss: 'Kapitän Grünhaut', color: '#5fa8ff', result: 'Bedarf gewonnen (87)', resultColor: GOOD },
+        { item: '[Schmieds Hammer]', boss: 'Mr. Smite', color: '#5fa8ff', result: 'Bedarf verloren (41)', resultColor: BAD },
+        { item: '[Grausamer Widerhaken]', boss: 'Edwin VanCleef', color: '#a335ee', result: 'Gier verloren', resultColor: BAD },
+        { item: '[Zuchtmeisteraxt]', boss: 'Sneed', color: '#5fa8ff', result: 'an Thorgrim', resultColor: NOTE }
+      ].map((l, i) => ({ ...l, bg: i % 2 ? 'transparent' : '#141414' })),
+      players: PLAYERS.map(([name, cls, damage, healing, interrupts, deaths], i) => ({ name, color: CLASS[cls], damage, healing, interrupts, deaths,
+        deathColor: deaths !== '0' ? BAD : '#f2f2f2', mvp: name === 'Shadowstep' ? '★' : '', bg: i % 2 ? 'transparent' : '#141414' })),
+      mobs: [['Kapitän Grünhaut', '48.200'], ['Edwin VanCleef', '41.900'], ['Verteidias-Feuerwache', '12.300']]
+        .map(([name, damage], i) => ({ name, damage, bg: i % 2 ? 'transparent' : '#141414' })),
+      bosses: [['Rhahk\'Zor', '3:12', '-0:28', ''], ['Sneed', '9:48', '-0:43', ''], ['Mr. Smite', '19:57', '-2:17', ''], ['Edwin VanCleef', '29:40', '-3:38', ' Endboss']]
+        .map(([name, split, diff, tag], i) => ({ name, split, diff: '▲ ' + diff, tag, diffColor: GOOD, bg: i % 2 ? 'transparent' : '#141414' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

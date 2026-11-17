@@ -29,7 +29,7 @@ wow.login({ level = 10 })
 -- Einstellungen: nur die Schalter der eigenen Klasse, beschriftet mit dem Zaubernamen des Clients
 expect("Krieger: ein Hinweis", #ClassBuffs.ForPlayerClass(), 1)
 SlashCmdList.LEVELTIMER("")
-expectTrue("Reiter Hinweise", wow.click(L.OPTIONS_TAB_NOTIFICATIONS))
+expectTrue("Reiter Hinweise", wow.click(L.OPTIONS_TAB_HINTS))
 expectTrue("Schalter Schlachtruf", wow.findFrame(function(frame)
   local label = rawget(frame, "label")
   return label and label._text == string.format(L.REMIND_CLASS_TOGGLE, "Schlachtruf")

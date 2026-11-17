@@ -24,15 +24,25 @@ button{font-family:inherit}
       <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
           <span style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #ffd100"><span style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; background: #1d1d1d; font-size: 12px">🗝</span>Dungeonquests in Westfall</span>
-          <button type="button" onclick="{{closeZone}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+          <span style="display: flex; gap: 6px; align-items: center">
+            <button type="button" onclick="{{closeZone}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+          </span>
         </div>
+        <!-- Alle Quests, Mausrad-Bildlauf ab 8 Zeilen; markierte Zeile = Kartenpunkt gesetzt -->
+        <div style="max-height: 256px; overflow-y: auto; display: flex; flex-direction: column">
         <sc-for list="{{zoneRows}}" as="r" hint-placeholder-count="3">
           <button type="button" onclick="{{r.pick}}" style="text-align: left; background: none; border: 0; padding: 2px 0; color: #f2f2f2; cursor: pointer; font-size: 13px; display: flex; flex-direction: column">
-            <span>{{r.title}} <span style="color: #9fd0ff">({{r.instance}})</span></span>
+            <span>{{r.title}} <span style="color: #9fd0ff">({{r.instance}})</span> <span style="color: #ffd100">&#128205;</span></span>
             <span style="color: #bbb; font-size: 12px">{{r.giver}} – {{r.place}}</span>
           </button>
         </sc-for>
-        <span style="color: #888; font-size: 11px">Klick: Kartenpunkt setzen und Karte öffnen</span>
+        </div>
+        <span style="color: #888; font-size: 11px">Klick: Kartenpunkt setzen oder entfernen</span>
+        <!-- Knöpfe unter der Liste: der Titel behält die volle Breite -->
+        <div style="display: flex; justify-content: flex-end; gap: 6px">
+          <button type="button" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle markieren</button>
+          <button type="button" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle löschen</button>
+        </div>
       </div>
     </sc-if>
     <sc-if value="{{!zoneOpen}}" hint-placeholder-val="false">

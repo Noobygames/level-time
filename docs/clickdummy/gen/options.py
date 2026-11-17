@@ -48,7 +48,7 @@ for m in re.finditer(r'setting = "(\w+)", group = "(\w+)", label = "(\w+)"', ope
 GROUP_PAGE = [('STAT_GROUP_XP', 'OPTIONS_PAGE_STAT_XP'), ('STAT_GROUP_PROGRESS', 'OPTIONS_PAGE_STAT_PROGRESS'),
               ('STAT_GROUP_COMBAT', 'OPTIONS_PAGE_STAT_COMBAT'), ('STAT_GROUP_LOOT', 'OPTIONS_PAGE_STAT_LOOT'),
               ('STAT_GROUP_INSTANCE', 'OPTIONS_PAGE_STAT_INSTANCE'), ('STAT_GROUP_TIME_MONEY', 'OPTIONS_PAGE_STAT_TIME_MONEY')]
-order = ['General', 'Statistics', 'Notifications', 'Alerts', 'Comfort', 'ComfortQuests', 'Dungeons', 'ComfortWorld', 'Speedrun', 'Profiles']
+order = ['MainWindow', 'Dungeons', 'Quests', 'Notifications', 'Comfort', 'Interface', 'StreamSpeedrun', 'General', 'Profiles']
 pages = []
 state = {'page': None, 'sub': None}
 

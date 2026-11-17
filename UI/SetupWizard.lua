@@ -1,6 +1,9 @@
--- Einrichtungsassistent (LT-301, Nachfolger der Willkommenskarte): bis zu sechs Schritte mit den wichtigsten
--- Einstellungen: 1 Werte-Voreinstellung, 2 Hauptfenster (Layout oder "Kein Fenster"), 3 Quest-Helfer,
--- 4 Dungeons & Gruppensuche, 5 Komfort & Warnungen, 6 Stream & Fertig. Schalter erscheinen nur, wo es das Feature im
+-- Einrichtungsassistent (LT-301, Nachfolger der Willkommenskarte): bis zu zwölf Schritte mit den wichtigsten
+-- Einstellungen, in der Reihenfolge der Einstellungs-Reiter (LT-350): Sprache, Hauptfenster (Werte, Layout), Dungeons,
+-- Quests, Hinweise & Warnungen, Zeit-Anzeigen (Lagerfeuer, Essen, Schlafsack, Flug), Komfort, Oberfläche,
+-- Beute-Glitzer, Grafik (Beyond Ultra, nur Forever), Fertig.
+-- Ein Schalter mit set statt keys entscheidet selbst, was Ein/Aus bewirkt; preview = { label, run } setzt einen
+-- Vorschau-Knopf rechts in seine Zeile, step.preview einen Knopf unter die Schalter. Schalter erscheinen nur, wo es das Feature im
 -- laufenden Client gibt (IsAvailable); Schritte ohne Schalter entfallen. Alles wirkt sofort über ns.Set.
 -- Einmal für jeden Account (LevelTimerStatsDB.setupWizardSeen), auch für Spieler, die die alte Willkommenskarte kannten;
 -- erst nach dem Login, außerhalb von Kampf und Level-Up-Fenster. Später: /lt setup und Einstellungen > Allgemein.
@@ -23,7 +26,7 @@ local ROW_HEIGHT = 32
 local CONTROL_HEIGHT = 32
 local CHECK_LABEL_INSET = 34   -- Kästchen (26) plus Abstand und Rand im Vergleich zur Zeilenbreite
 local DOT_GAP = 8
-local MAX_STEPS = 6
+local MAX_STEPS = 12
 local BUTTON_MIN_WIDTH = 80
 local LOGIN_DELAY = 8          -- Sekunden nach dem Login, bis der Assistent erscheinen darf
 local RETRY_DELAY = 5          -- erneut prüfen, solange Kampf oder Level-Up-Fenster blockieren
@@ -61,37 +64,94 @@ local function layoutItems()
 end
 
 local ICON = "Interface\\Icons\\"  -- Client-Symbole, in Forever, Era und Retail vorhanden
+-- Sprache: "Automatisch" (Client-Sprache) und jede Sprache des Addons; Namen stehen in der eigenen Sprache
+local function languageItems()
+  local items = { { label = "LANGUAGE_AUTO", tip = "LANGUAGE_AUTO_TIP",
+    active = function(db) return db.language == ns.AUTO_LANGUAGE end,
+    pick = function() ns.Set("language", ns.AUTO_LANGUAGE) end } }
+  for _, language in ipairs(ns.languages) do
+    items[#items + 1] = { label = "LFG_LANGUAGE_" .. language.code:sub(1, 4):upper(), tip = "LANGUAGE_TIP",
+      active = function(db) return db.language == language.code end,
+      pick = function() ns.Set("language", language.code) end }
+  end
+  return items
+end
+
 local STEPS = {
+  { id = "language", icon = ICON .. "INV_Misc_Book_09", title = "SETUP_STEP_LANGUAGE", text = "SETUP_STEP_LANGUAGE_TEXT",
+    chips = languageItems },
   { id = "presets", icon = ICON .. "INV_Misc_Note_06", title = "SETUP_STEP_PRESETS", text = "SETUP_STEP_PRESETS_TEXT",
     chips = presetItems },
   { id = "window", icon = ICON .. "INV_Misc_NotePicture1c", title = "SETUP_STEP_WINDOW", text = "SETUP_STEP_WINDOW_TEXT",
     chips = layoutItems,
     note = "SETUP_STEP_WINDOW_NOTE" },
-  { id = "quests", icon = ICON .. "INV_Scroll_04", title = "SETUP_STEP_QUESTS", text = "SETUP_STEP_QUESTS_TEXT", toggles = {
+  { id = "dungeons", icon = ICON .. "INV_Misc_Key_05", title = "SETUP_STEP_DUNGEONS", text = "SETUP_STEP_DUNGEONS_TEXT", toggles = {
     { label = "WELCOME_DUNGEONS_CHECK", keys = { "dungeonQuestZoneHint", "dungeonQuestAcceptHint" },
       available = available("DungeonQuests", "IsAvailable") },
+    { label = "LFG_TOOLTIP_TOGGLE", keys = { "lfgTooltip" }, available = available("LFGData", "IsAvailable") },
+    { label = "LFG_WINDOW_TOGGLE", keys = { "lfgMinimapButton" }, available = available("LFGSearch", "IsAvailable") },
+    { label = "BOSS_LOOT_TOGGLE", keys = { "bossLoot" }, available = available("BossLoot", "IsAvailable") },
+    { label = "TOOLTIP_MECHANICS_TOGGLE", keys = { "tooltipMechanics" }, available = available("MechanicTips", "IsAvailable") },
+  } },
+  { id = "quests", icon = ICON .. "INV_Scroll_04", title = "SETUP_STEP_QUESTS", text = "SETUP_STEP_QUESTS_TEXT", toggles = {
     { label = "QUEST_MARKS_TOGGLE", keys = { "questMarks" } },
     { label = "QUEST_TARGETS_TAKE_TOGGLE", keys = { "questTargetsTake" }, available = available("QuestTargets", "IsAvailable") },
     { label = "QUEST_TARGETS_PARTY_TOGGLE", keys = { "questTargetsParty" }, available = available("QuestTargets", "IsAvailable") },
     { label = "BAG_HINTS_TOGGLE", keys = { "bagHints" }, available = available("BagQuestMarks", "IsAvailable") },
     { label = "SHOW_ROUTE_REPLAY", keys = { "routeReplay" } },
   } },
-  { id = "dungeons", icon = ICON .. "INV_Misc_Key_05", title = "SETUP_STEP_DUNGEONS", text = "SETUP_STEP_DUNGEONS_TEXT", toggles = {
-    { label = "LFG_TOOLTIP_TOGGLE", keys = { "lfgTooltip" }, available = available("LFGData", "IsAvailable") },
-    { label = "LFG_WINDOW_TOGGLE", keys = { "lfgMinimapButton" }, available = available("LFGSearch", "IsAvailable") },
-    { label = "BOSS_LOOT_TOGGLE", keys = { "bossLoot" }, available = available("BossLoot", "IsAvailable") },
-    { label = "TOOLTIP_MECHANICS_TOGGLE", keys = { "tooltipMechanics" }, available = available("MechanicTips", "IsAvailable") },
-  } },
-  { id = "comfort", icon = ICON .. "INV_Misc_Wrench_01", title = "SETUP_STEP_COMFORT", text = "SETUP_STEP_COMFORT_TEXT", toggles = {
+  { id = "hints", icon = ICON .. "Ability_ThunderClap", title = "SETUP_STEP_HINTS", text = "SETUP_STEP_HINTS_TEXT", toggles = {
     { label = "ALERT_TOGGLE_ELITE_SPOTTED", keys = { "alertEliteSpotted" } },
     { label = "ALERT_TOGGLE_RARE_SPOTTED", keys = { "alertRareSpotted" } },
-    { label = "DELETE_CHEAPEST_JUNK", keys = { "deleteCheapestJunk" } },
     { label = "WARN_WILDERNESS_LOGOUT", keys = { "warnWildernessLogout" } },
     { label = "WARN_FALLING", keys = { "warnFalling" } },
   } },
+  -- Zeit-Anzeigen mit Vorschau (wie in den Einstellungen unter Hinweise > Zeit-Anzeigen)
+  { id = "timers", icon = 818, title = "SETUP_STEP_TIMERS", text = "SETUP_STEP_TIMERS_TEXT", toggles = {
+    { label = "CAMP_COUNTDOWN_TOGGLE", keys = { "campCountdown" }, available = available("CampFire", "IsAvailable"),
+      preview = { label = "CAMP_PREVIEW", run = function() ns.CampDisplay.Preview() end } },
+    { label = "FOOD_TIMER_TOGGLE", keys = { "foodTimer" }, available = available("FoodTimer", "IsAvailable"),
+      preview = { label = "FOOD_PREVIEW", run = function() ns.FoodDisplay.Preview() end } },
+    { label = "SLEEP_TIMER_TOGGLE", keys = { "sleepTimer" }, available = available("SleepTimer", "IsAvailable"),
+      preview = { label = "SLEEP_PREVIEW", run = function() ns.SleepDisplay.Preview() end } },
+    { label = "FLIGHT_TIMER_TOGGLE", keys = { "flightTimer" },
+      preview = { label = "FLIGHT_PREVIEW", run = function() ns.FlightDisplay.Preview() end } },
+  } },
+  { id = "comfort", icon = ICON .. "INV_Misc_Wrench_01", title = "SETUP_STEP_COMFORT", text = "SETUP_STEP_COMFORT_TEXT", toggles = {
+    { label = "AUTO_REPAIR", keys = { "autoRepair" } },
+    { label = "AUTO_SELL_JUNK", keys = { "autoSellJunk" } },
+    { label = "DELETE_CHEAPEST_JUNK", keys = { "deleteCheapestJunk" } },
+    { label = "FASTER_LOOT", keys = { "fasterLoot" } },
+  } },
+  { id = "interface", icon = ICON .. "Item_Shop_GiftBox01", title = "SETUP_STEP_INTERFACE", text = "SETUP_STEP_INTERFACE_TEXT", toggles = {
+    { label = "CLASS_COLOR_FRAMES", keys = { "classColorFrames" }, available = available("ClassColors", "IsAvailable") },
+    { label = "TOOLTIP_CLASS_COLORS", keys = { "tooltipClassColors" } },
+    { label = "HIDE_ZONE_TEXT", keys = { "hideZoneText" } },
+    { label = "MAP_COORDS_TOGGLE", keys = { "mapCoordinates" } },
+  } },
+  -- Beute-Glitzer: Quest-Gegenstände (Forever-CVar) und Annähern per Soft-Targeting, Vorschau unter den Schaltern
+  { id = "sparkles", icon = 2855, title = "SETUP_STEP_SPARKLES", text = "SETUP_STEP_SPARKLES_TEXT", toggles = {
+    { label = "LOOT_SPARKLE_QUEST_ITEMS", keys = { "lootSparkleQuestItems" },
+      available = available("LootSparkles", "HasQuestItemSparkle") },
+    { label = "LOOT_SPARKLE_ORE", keys = { "lootSparkleOre" }, available = available("LootSparkles", "CanSoftTarget") },
+    { label = "LOOT_SPARKLE_HERBS", keys = { "lootSparkleHerbs" }, available = available("LootSparkles", "CanSoftTarget") },
+    { label = "LOOT_SPARKLE_CHESTS", keys = { "lootSparkleChests" }, available = available("LootSparkles", "CanSoftTarget") },
+    { label = "LOOT_SPARKLE_CORPSES", keys = { "lootSparkleCorpses" },
+      available = available("LootSparkles", "CanSoftTarget") },
+  }, preview = { label = "LOOT_SPARKLE_PREVIEW", run = function() ns.LootSparkle.Preview() end,
+    available = available("LootSparkles", "CanSoftTarget") } },
+  -- Beyond Ultra: Einschalten setzt die empfohlenen Werte (Standardwerte = Client-Werte, sonst sähe man nichts)
+  { id = "graphics", icon = 6196, title = "SETUP_STEP_GRAPHICS", text = "SETUP_STEP_GRAPHICS_TEXT", toggles = {
+    { label = "SETUP_GRAPHICS_RECOMMENDED", keys = { "foreverGraphics" }, available = available("ForeverGraphics", "IsAvailable"),
+      set = function(on)
+        if on then ns.ForeverGraphics.ApplyRecommended() else ns.Set("foreverGraphics", false) end
+      end },
+    { label = "GRAPHICS_PAUSE_INSTANCES", keys = { "graphicsPauseInstances" },
+      available = available("ForeverGraphics", "IsAvailable") },
+  } },
   { id = "finish", icon = "Interface\\RaidFrame\\ReadyCheck-Ready", title = "SETUP_STEP_FINISH", text = "SETUP_STEP_FINISH_TEXT",
     note = "SETUP_STEP_FINISH_NOTE",
-    stream = true, summary = true, always = true },
+    finish = true, always = true },
 }
 
 ---------------------------------------------------------------------------
@@ -107,6 +167,7 @@ panel:Hide()
 table.insert(UISpecialFrames, ns.GlobalName("Setup"))
 
 local header = Widgets.CreateWindowHeader(panel, "")
+header:SetIcon("Interface\\Icons\\INV_Misc_Wrench_01")  -- Einrichtung
 local progress = header:CreateFontString(nil, "OVERLAY", Theme.Font("small"))
 progress:SetPoint("RIGHT", header.actions, "RIGHT")
 progress:SetTextColor(Theme.RGB("note"))
@@ -134,18 +195,30 @@ for _, step in ipairs(STEPS) do
     for i, item in ipairs(step.chips()) do
       local chip = Widgets.CreateChip(panel, "", function() item.pick(); refresh() end)
       chip.item = item
-      Widgets.AttachTooltip(chip, function() return L[item.label] end, function() return L[item.label .. "_TIP"] end)
+      Widgets.AttachTooltip(chip, function() return L[item.label] end, function() return L[item.tip or item.label .. "_TIP"] end)
       step.chipWidgets[i] = chip
     end
+  end
+  if step.preview then
+    step.previewButton = Widgets.CreateButton(panel, BUTTON_MIN_WIDTH, CONTROL_HEIGHT, step.preview.run)
+    Widgets.AttachTooltip(step.previewButton, function() return L[step.preview.label] end,
+      function() return L[step.preview.label .. "_TIP"] end)
   end
   if step.toggles then
     step.toggleWidgets = {}
     for i, def in ipairs(step.toggles) do
       local check = Widgets.CreateCheckbox(panel, function(checked)
+        if def.set then return def.set(checked) end
         for _, key in ipairs(def.keys) do ns.Set(key, checked) end
       end)
       check.def = def
-      check.label:SetWidth(CONTENT_WIDTH - CHECK_LABEL_INSET)
+      check.previewButton = false  -- nur Schalter mit Vorschau bekommen einen Knopf
+      if def.preview then
+        check.previewButton = Widgets.CreateButton(panel, BUTTON_MIN_WIDTH, CONTROL_HEIGHT, def.preview.run)
+        Widgets.AttachTooltip(check.previewButton, function() return L[def.preview.label] end,
+          function() return L[def.preview.label .. "_TIP"] end)
+      end
+      check.label:SetWidth(CONTENT_WIDTH - CHECK_LABEL_INSET - (def.preview and BUTTON_MIN_WIDTH + GAP or 0))
       check.label:SetJustifyH("LEFT")
       check.label:SetMaxLines(1)
       Widgets.AttachTooltip(check, function() return L[def.label] end, function() return L[def.label .. "_TIP"] end)
@@ -154,12 +227,7 @@ for _, step in ipairs(STEPS) do
   end
 end
 
--- Schritt "Fertig": Stream-Schalter, Knöpfe und Zusammenfassung
-local streamCheck = Widgets.CreateCheckbox(panel, function(checked) ns.StreamMode.SetEnabled(checked) end)
-streamCheck.label:SetWidth(CONTENT_WIDTH - CHECK_LABEL_INSET)
-streamCheck.label:SetJustifyH("LEFT")
-streamCheck.label:SetMaxLines(1)
-Widgets.AttachTooltip(streamCheck, function() return L.STREAM_MODE end, function() return L.STREAM_MODE_TIP end)
+-- Schritt "Fertig": Knöpfe und Zusammenfassung
 
 local function actionButton(labelKey, onClick)
   local button = Widgets.CreateButton(panel, BUTTON_MIN_WIDTH, CONTROL_HEIGHT, onClick)
@@ -179,7 +247,8 @@ local settingsButton = actionButton("SETUP_ALL_SETTINGS", function()
 end)
 
 local summaryLines = {}
-for i = 1, 4 do
+local SUMMARY_LINES = 3
+for i = 1, SUMMARY_LINES do
   local line = Widgets.CreateLabelValue(panel)
   line:SetWidth(CONTENT_WIDTH)
   summaryLines[i] = line
@@ -220,7 +289,23 @@ end
 
 local function hideStepWidgets(step)
   for _, widget in ipairs(step.chipWidgets or {}) do widget:Hide() end
-  for _, widget in ipairs(step.toggleWidgets or {}) do widget:Hide() end
+  for _, widget in ipairs(step.toggleWidgets or {}) do
+    widget:Hide()
+    if widget.previewButton then widget.previewButton:Hide() end
+  end
+  if step.previewButton then step.previewButton:Hide() end
+end
+
+-- Vorschau-Knopf mit Text in der Spielersprache; rechts in der Zeile (Schalter) oder links unter den Schaltern
+local function placePreview(button, labelKey, y, rightAligned)
+  Widgets.SetButtonText(button, L[labelKey], BUTTON_MIN_WIDTH)
+  button:ClearAllPoints()
+  if rightAligned then
+    button:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -PADDING, -y)
+  else
+    button:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING, -y)
+  end
+  button:Show()
 end
 
 local function placeCheck(check, text, y)
@@ -253,7 +338,7 @@ local function isOn(db, def)
   return false
 end
 
--- Zusammenfassung: Werte, Hauptfenster, Stream-Modus, Anzahl eingeschalteter Helfer
+-- Zusammenfassung: Werte, Hauptfenster, Anzahl eingeschalteter Helfer
 local function fillSummary(db)
   local on, total = 0, 0
   for _, step in ipairs(STEPS) do
@@ -269,16 +354,9 @@ local function fillSummary(db)
   summaryLines[1]:SetValues(L.SETUP_SUMMARY_VALUES, preset and L[preset.label] or L.SETUP_OWN_CHOICE)
   summaryLines[2]:SetValues(L.SETUP_STEP_WINDOW, layout)
   summaryLines[3]:SetValues(L.SETUP_SUMMARY_HELPERS, string.format(L.SETUP_SUMMARY_COUNT, on, total))
-  summaryLines[4]:SetValues(L.STREAM_MODE, ns.StreamMode.IsEnabled() and L.SETUP_ON or L.SETUP_OFF)
 end
 
 local function showFinish(db, top)
-  streamCheck:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING - 4, -top)
-  streamCheck.label:SetText(L.STREAM_MODE)
-  streamCheck:SetChecked(ns.StreamMode.IsEnabled())
-  streamCheck:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + (streamCheck.label:GetStringWidth() or 0)), 0, 0)
-  streamCheck:Show()
-  top = top + ROW_HEIGHT + GAP
   Widgets.SetButtonText(editButton, L.SETUP_EDIT_MODE, BUTTON_MIN_WIDTH)
   Widgets.SetButtonText(settingsButton, L.SETUP_ALL_SETTINGS, BUTTON_MIN_WIDTH)
   editButton:ClearAllPoints()
@@ -335,16 +413,20 @@ refresh = function()
     if not check.def.available or check.def.available() then
       placeCheck(check, L[check.def.label], top)
       check:SetChecked(isOn(db, check.def))
+      if check.previewButton then placePreview(check.previewButton, check.def.preview.label, top, true) end
       top = top + ROW_HEIGHT
     else
       check:Hide()
     end
   end
-  streamCheck:Hide()
+  if step.previewButton and (not step.preview.available or step.preview.available()) then
+    placePreview(step.previewButton, step.preview.label, top + GAP, false)
+    top = top + GAP + CONTROL_HEIGHT
+  end
   editButton:Hide()
   settingsButton:Hide()
   for _, line in ipairs(summaryLines) do line:Hide() end
-  if step.stream then showFinish(db, top) end
+  if step.finish then showFinish(db, top) end
   stepNote:ClearAllPoints()
   stepNote:SetPoint("BOTTOMLEFT", PADDING, FOOTER_HEIGHT + GAP)
   stepNote:SetText(step.note and L[step.note] or "")
@@ -372,7 +454,7 @@ function SetupWizard.State()
   for i, step in ipairs(activeSteps) do ids[i] = step.id end
   local step = activeSteps[current]
   return { steps = ids, current = current, step = step and step.id, chips = step and step.chipWidgets,
-    toggles = step and step.toggleWidgets, stream = streamCheck, summary = summaryLines, dots = dots, next = nextButton }
+    toggles = step and step.toggleWidgets, preview = step and step.previewButton, summary = summaryLines, dots = dots, next = nextButton }
 end
 
 ns.RegisterApply(function()

@@ -24,10 +24,20 @@ expect("gemerkt", LevelTimerStatsDB.setupWizardSeen, true)
 
 -- Retail: kein Dungeon-Schritt
 local state = Wizard.State()
-expect("Schritte", table.concat(state.steps, ","), "presets,window,quests,comfort,finish")
-expect("Schritt 1", state.step, "presets")
+expect("Schritte", table.concat(state.steps, ","), "language,presets,window,quests,hints,timers,comfort,interface,finish")
+expect("Schritt 1", state.step, "language")
 wow.click(L.SETUP_BACK)  -- im ersten Schritt wirkungslos
-expect("noch Schritt 1", Wizard.State().step, "presets")
+expect("noch Schritt 1", Wizard.State().step, "language")
+
+-- LT-308: Sprache wählbar, Automatisch folgt dem Client
+expect("Sprache automatisch", LevelTimerDB.language, addon.AUTO_LANGUAGE)
+expectTrue("Sprache Deutsch", wow.click("Deutsch"))
+expect("Sprache gespeichert", LevelTimerDB.language, "deDE")
+expect("Sprache wirkt", addon.Language(), "deDE")
+expectTrue("Sprache Automatisch", wow.click(addon.L.LANGUAGE_AUTO))
+expect("Automatisch = Client", addon.Language(), addon.DefaultLanguage())
+wow.click(L.SETUP_NEXT)
+expect("Schritt 2", Wizard.State().step, "presets")
 
 -- Schritt 1: Voreinstellung wirkt sofort
 expectTrue("Voreinstellung Minimal", wow.click(L.PRESET_MINIMAL))
@@ -67,18 +77,25 @@ marks:SetChecked(false)
 marks._scripts.OnClick(marks)
 expect("Quest-Markierungen aus", LevelTimerDB.questMarks, false)
 
--- Schritt 4 (Komfort) und Schritt 5 (Fertig) mit Zusammenfassung
-wow.click(L.SETUP_NEXT)
-expect("Schritt Komfort", Wizard.State().step, "comfort")
-wow.click(L.SETUP_NEXT)
+-- Hinweise, Komfort, Oberfläche und Fertig mit Zusammenfassung
+for _, step in ipairs({ "hints", "timers", "comfort", "interface", "finish" }) do
+  wow.click(L.SETUP_NEXT)
+  expect("Schritt " .. step, Wizard.State().step, step)
+  if step == "timers" then
+    -- Zeit-Anzeigen: Flugzeit mit Vorschau-Knopf in der Zeile
+    local flight
+    for _, toggle in ipairs(Wizard.State().toggles) do
+      if toggle.def.label == "FLIGHT_TIMER_TOGGLE" then flight = toggle end
+    end
+    expectTrue("Flug-Vorschau sichtbar", flight.previewButton and flight.previewButton:IsShown())
+    flight.previewButton._scripts.OnClick(flight.previewButton)
+    expect("Vorschau ohne Fehler", #wow.errors, 0)
+  end
+end
 local finish = Wizard.State()
 expect("Fertig-Schritt", finish.step, "finish")
 expect("Zusammenfassung Fenster", finish.summary[2].value:GetText(), L[layout.label])
-finish.stream:SetChecked(true)
-finish.stream._scripts.OnClick(finish.stream)
-expect("Stream-Modus an", addon.StreamMode.IsEnabled(), true)
-finish.stream:SetChecked(false)
-finish.stream._scripts.OnClick(finish.stream)
+expect("kein Stream-Schalter mehr", finish.stream, nil)
 expectTrue("Position anpassen", wow.click(L.SETUP_EDIT_MODE))
 expect("Assistent zu", LevelTimerSetup:IsShown(), false)
 expect("Edit-Modus an", addon.EditMode.IsActive(), true)
@@ -91,7 +108,7 @@ wow.runTimers()
 expect("zweiter Login: nicht noch einmal", LevelTimerSetup:IsShown(), false)
 SlashCmdList.LEVELTIMER("setup")
 expect("/lt setup", LevelTimerSetup:IsShown(), true)
-expect("beginnt vorn", Wizard.State().step, "presets")
+expect("beginnt vorn", Wizard.State().step, "language")
 wow.click(L.SETUP_SKIP)
 expect("Überspringen schließt", LevelTimerSetup:IsShown(), false)
 SlashCmdList.LEVELTIMER("config")

@@ -77,12 +77,14 @@ local function applyEnabled(enabled, db, ...)
     widget:EnableMouse(on)
   end
 end
-local SIDEBAR_ROW = 24       -- Höhe eines Eintrags der Seitenleiste
+local SIDEBAR_ROW = 28       -- Höhe eines Eintrags der Seitenleiste (Reiter 24 + Abstand)
 local SIDEBAR_GAP = 16       -- Abstand zwischen Seitenleiste und Unterseite
 local TEXT_INPUT_WIDTH = 120 -- Standardbreite eines Eingabefelds (AddTextInput)
 local TEXT_INPUT_BORDER = 6  -- InputBoxTemplate zeichnet seinen Rand links außerhalb
-local SEARCH_WIDTH = 150         -- Suchfeld oben links
+local SEARCH_WIDTH = 150         -- Suchfeld im Fensterkopf
 local SEARCH_TOP = -10
+local HEADER_GAP = 12            -- Abstand zwischen Titel, Suchfeld, Schalter und Schließen-Knopf im Fensterkopf
+local HEADER_CLOSE_WIDTH = 40    -- Schließen-Knopf samt Rand rechts
 local SEARCH_MIN_CHARS = 2       -- kürzere Eingaben suchen nicht (zu viele Treffer)
 local SEARCH_MAX_RESULTS = 10    -- so viele Treffer listet die Ergebnisliste, der Rest als "... und n weitere"
 local SEARCH_ROW = 18
@@ -94,8 +96,6 @@ local HIGHLIGHT_SECONDS = 2
 local HIGHLIGHT_ALPHA = 0.3
 local SIDEBAR_BUTTON_GAP = 12      -- Abstand zwischen Seitenleiste und "Standard"
 local SIDEBAR_BUTTON_MIN_WIDTH = 80
-local MODE_RIGHT = 32              -- Schalter "Erweitert": Platz für den Schließen-Knopf rechts daneben
-local MODE_TOP = SEARCH_TOP + 1
 local COLLAPSED_MARK, EXPANDED_MARK = "+", "-"  -- vor einklappbaren Überschriften
 
 -- Für eigene Bausteine des Fensters (z.B. Profil-Liste)
@@ -156,11 +156,11 @@ function OptionsBuilder.New(options)
   panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
   panel:Hide()
   table.insert(UISpecialFrames, options.name)  -- mit ESC schließen
-  Widgets.CreateCloseButton(panel)
   builder.panel = panel
 
-  local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-  title:SetPoint("TOP", 0, -14)
+  -- Fensterkopf wie bei allen Fenstern: Titel links, rechts Schließen, davor Suchfeld und Schalter "Erweitert"
+  local windowHeader = Widgets.CreateWindowHeader(panel, "")
+  local title = windowHeader.title
 
   -- { run(db), owner }: owner = Seite oder Unterseite, auf der das Steuerelement steht (nil = immer sichtbar: Reiter,
   -- Fuß-Buttons). Bei offenem Fenster aktualisiert ein Apply nur die sichtbaren (Roadmap 395); verborgene Seiten
@@ -198,7 +198,8 @@ function OptionsBuilder.New(options)
   -- Reiter: je Reiter eine Seite über das ganze Fenster; Steuerelemente hängen an ihrer Seite
   -------------------------------------------------------------------------
   local pages = {}          -- { key, tabButton, frame, bottom } in Reihenfolge
-  local pageTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP })
+  local pageTabs = ns.TabStrip.New(panel, { font = "GameFontNormal", left = MARGIN, top = TABS_TOP, gap = TAB_GAP,
+    filled = true })
   -- options.hideSingleTab: bei genau einer Seite keine Reiterzeile, der Inhalt rückt um ihre Höhe nach oben (Finish)
   local tabsHidden = false
   local nextRowY = CONTENT_TOP
@@ -406,8 +407,8 @@ function OptionsBuilder.New(options)
   local searchBox = CreateFrame("EditBox", options.name .. "Search", panel, "InputBoxTemplate")
   searchBox:SetSize(SEARCH_WIDTH, BUTTON_HEIGHT)
   searchBox:SetAutoFocus(false)
-  searchBox:SetPoint("TOPLEFT", MARGIN + TEXT_INPUT_BORDER, SEARCH_TOP)
-  local placeholder = searchBox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  searchBox:SetPoint("RIGHT", windowHeader.close, "LEFT", -HEADER_GAP, 0)  -- mit "Erweitert" rückt er nach links (unten)
+  local placeholder = searchBox:CreateFontString(nil, "OVERLAY", ns.Theme.Font("note"))
   placeholder:SetPoint("LEFT", 2, 0)
   placeholder:SetTextColor(unpack(Widgets.COLORS.muted))
 
@@ -442,7 +443,7 @@ function OptionsBuilder.New(options)
     row:SetHeight(SEARCH_ROW)
     row:SetPoint("TOPLEFT", SEARCH_PADDING, -SEARCH_PADDING - (rowIndex - 1) * SEARCH_ROW)
     row:SetPoint("TOPRIGHT", -SEARCH_PADDING, -SEARCH_PADDING - (rowIndex - 1) * SEARCH_ROW)
-    row.where = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    row.where = row:CreateFontString(nil, "OVERLAY", ns.Theme.Font("note"))
     row.where:SetPoint("RIGHT")
     row.where:SetTextColor(unpack(Widgets.COLORS.muted))
     row.text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -533,6 +534,7 @@ function OptionsBuilder.New(options)
     currentTab, currentSub = entry, nil
     scroll:SetScrollChild(entry.frame)
     entry.tabButton = pageTabs:Add(function() showPage(entry) end)
+    entry.tabButton:SetIcon(ns.OptionsIcons[labelKey])
     table.insert(pages, entry)
     page = entry.frame
     nextRowY = CONTENT_TOP
@@ -554,7 +556,8 @@ function OptionsBuilder.New(options)
     local entry = { key = labelKey, frame = CreateFrame("Frame", nil, bar.parent) }
     entry.frame:SetPoint("TOPLEFT")
     entry.frame:SetPoint("BOTTOMRIGHT")
-    entry.button = Widgets.CreateTab(bar.parent, "GameFontNormal", function() showSubPage(bar, entry) end)
+    entry.button = Widgets.CreateTab(bar.parent, "GameFontNormal", function() showSubPage(bar, entry) end, true)
+    entry.button:SetIcon(ns.OptionsIcons[labelKey])
     entry.button:SetPoint("TOPLEFT", MARGIN, bar.startY - #bar.entries * SIDEBAR_ROW)
     table.insert(bar.entries, entry)
     page = entry.frame
@@ -620,6 +623,7 @@ function OptionsBuilder.New(options)
     local item = beginItem(itemOptions, true)
     if nextRowY ~= CONTENT_TOP then nextRowY = nextRowY - SECTION_GAP end
     local header = Widgets.CreateSectionHeader(page)
+    header:SetIcon(ns.OptionsIcons[labelKey])
     index(localized(labelKey), nil, header)
     addRow(header, ROW_SECTION, true)
     local collapsible = itemOptions and itemOptions.collapsible
@@ -721,14 +725,17 @@ function OptionsBuilder.New(options)
     endItem()
   end
 
-  -- options = { advanced } optional
+  -- options = { advanced, text = function() -> Beschriftung statt L[labelKey], enabled = function(db) } optional
   function builder.AddButton(labelKey, onClick, itemOptions)
     beginItem(itemOptions)
     local button = Widgets.CreateButton(page, MIN_WIDTH - 2 * MARGIN, BUTTON_HEIGHT, onClick)
     index(localized(labelKey), labelKey .. "_TIP", button)
     addRow(button, ROW_BUTTON, true)
     addTooltip(button, labelKey .. "_TIP", localized(labelKey))
-    onRefresh(function() button:SetText(L[labelKey]) end)
+    onRefresh(function(db)
+      button:SetText(itemOptions and itemOptions.text and itemOptions.text() or L[labelKey])
+      if itemOptions and itemOptions.enabled then applyEnabled(itemOptions.enabled, db, button) end
+    end)
     endItem()
   end
 
@@ -878,7 +885,7 @@ function OptionsBuilder.New(options)
   -- options = { advanced } optional
   function builder.AddHint(labelKey, itemOptions)
     beginItem(itemOptions)
-    local hint = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    local hint = page:CreateFontString(nil, "OVERLAY", ns.Theme.Font("note"))
     hint:SetTextColor(unpack(Widgets.COLORS.muted))
     hint:SetJustifyH("LEFT")
     addRow(hint, ROW_HINT, true)
@@ -959,7 +966,7 @@ function OptionsBuilder.New(options)
   local function sidebarOffset()
     local widest = 0
     for _, bar in ipairs(sidebars) do
-      for _, entry in ipairs(bar.entries) do widest = math.max(widest, entry.button:GetWidth()) end
+      for _, entry in ipairs(bar.entries) do widest = math.max(widest, entry.button.naturalWidth or entry.button:GetWidth()) end
       widest = math.max(widest, bar.resetButton:GetWidth(), bar.undoButton:GetWidth())
     end
     return widest > 0 and widest + SIDEBAR_GAP or 0
@@ -998,13 +1005,17 @@ function OptionsBuilder.New(options)
     local offset = sidebarOffset()
     for _, bar in ipairs(sidebars) do
       for _, entry in ipairs(bar.entries) do
+        entry.button:SetSidebar(offset - SIDEBAR_GAP)  -- alle Einträge gleich breit: liest sich als Navigation
         entry.frame:ClearAllPoints()
         entry.frame:SetPoint("TOPLEFT", offset, 0)
         entry.frame:SetPoint("BOTTOMRIGHT")
       end
     end
-    -- Titel steht mittig: links und rechts je Platz für das Suchfeld
-    local titleRow = title:GetStringWidth() + 2 * (SEARCH_WIDTH + TEXT_INPUT_BORDER + MARGIN)
+    -- Fensterkopf: Titel, Suchfeld und (falls vorhanden) Schalter "Erweitert" nebeneinander
+    local modeWidth = builder.modeCheckbox
+      and Widgets.CHECKBOX_LABEL_GAP + builder.modeCheckbox.label:GetStringWidth() + 26 + HEADER_GAP or 0
+    local titleRow = 16 + title:GetStringWidth() + HEADER_GAP + SEARCH_WIDTH + TEXT_INPUT_BORDER + HEADER_GAP + modeWidth
+      + HEADER_CLOSE_WIDTH - 2 * MARGIN
     local content = math.max(offset + 2 * column, widestChooserRow(), tabsHidden and 0 or pageTabs:Width(), footerWidth(),
       buttonRowsWidth(), titleRow)
     panel:SetWidth(math.max(MIN_WIDTH, content + 2 * MARGIN))
@@ -1283,7 +1294,9 @@ function OptionsBuilder.New(options)
       if setMeasuredText(mode.label, "SetText", L[options.advanced.label]) then
         mode:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + mode.label:GetStringWidth()), 0, 0)
         mode:ClearAllPoints()
-        mode:SetPoint("TOPRIGHT", -(MODE_RIGHT + Widgets.CHECKBOX_LABEL_GAP + mode.label:GetStringWidth()), MODE_TOP)
+        mode:SetPoint("RIGHT", windowHeader.close, "LEFT", -(HEADER_GAP + Widgets.CHECKBOX_LABEL_GAP + mode.label:GetStringWidth()), 0)
+        searchBox:ClearAllPoints()
+        searchBox:SetPoint("RIGHT", mode, "LEFT", -HEADER_GAP, 0)
       end
     end, nil)
   end

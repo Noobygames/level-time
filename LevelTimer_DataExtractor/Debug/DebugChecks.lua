@@ -894,14 +894,20 @@ check("440.transport.state", function()
     worldPosition = worldPositionProbe(position) }
 end)
 
--- 442: Grafikdetails (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes Original
-check("442.graphics.cvars", function()
-  local cvars = {}
+-- 442/LT-388: Grafikdetails und Beyond Ultra (WoW Forever): je CVar aktueller Wert, Client-Standard und gemerktes
+-- Original; exists = false heißt, der Client kennt die CVar nicht (weatherDensity, rippleDetail, sunshafts, HDR*?).
+-- paused = Pause in Instanzen greift gerade (Einstellung an und in einer Instanz).
+check("LT388.graphics.cvars", function()
+  local cvars, missing = {}, {}
   for _, name in ipairs(ns.ForeverGraphics.CVarNames()) do
-    cvars[name] = { value = Probe.call("C_CVar.GetCVar", name), default = Probe.call("C_CVar.GetCVarDefault", name),
+    local default = Probe.call("C_CVar.GetCVarDefault", name)
+    cvars[name] = { value = Probe.call("C_CVar.GetCVar", name), default = default, exists = default ~= nil,
       overridden = ns.CVars.IsOverridden(name) }
+    if default == nil then missing[#missing + 1] = name end
   end
-  return { available = ns.ForeverGraphics.IsAvailable(), enabled = ns.db.foreverGraphics, cvars = cvars }
+  local pause = ns.db[ns.ForeverGraphics.PAUSE.setting]
+  return { available = ns.ForeverGraphics.IsAvailable(), enabled = ns.db.foreverGraphics, hdr = ns.db.graphicsHdr,
+    paused = pause == true and IsInInstance() == true, missing = table.concat(missing, ","), cvars = cvars }
 end)
 
 -- 360: Layout des Hauptfensters: Zeilen des Modells, Maße und je sichtbarem Text die gemessene Breite gegen die
@@ -1422,36 +1428,16 @@ check("500.collapsedBuffs", function()
     consolidateBuffs = ns.CVars.Get("consolidateBuffs") or "<missing>",
     cooldownViewer = call("C_CooldownViewer.IsCooldownViewerAvailable"),
     aurasReadable = aurasReadable == true, matches = matches, shown = CollapsedBuffs.ShownCount(),
+    -- LT-349 im Kampf: gibt Blizzard die Schilde einzeln frei? (true/false = lesbar, nil = geheim)
+    restricted = ns.Auras.Restricted(), bySpellId = (function()
+      local result = {}
+      for _, spellId in ipairs({ 324, 408510, 52127, 974 }) do
+        local aura = ns.Auras.PlayerAuraBySpellId(spellId)
+        result[tostring(spellId)] = aura == nil and "secret" or (aura and "active" or "none")
+      end
+      return result
+    end)(),
   }
-end)
-
--- /lt debug check mit der Maus über einem Objekt der Spielwelt (Briefkasten, Questobjekt; LT-38): liefert der Client im
--- Welt-Tooltip eine Objekt-ID oder GUID (C_TooltipInfo.GetWorldCursor)? Dann ginge die Erkennung ohne englische Namen.
-check("LT38.tooltip.object", function()
-  local info = { locale = call("GetLocale"), namesAvailable = ns.DungeonQuestStarters.NamesAvailable(),
-    worldCursorApi = api("C_TooltipInfo.GetWorldCursor") ~= nil }
-  local title = _G.GameTooltipTextLeft1
-  info.title = GameTooltip:IsShown() and title and readable(title:GetText()) or nil
-  if info.title then info.offers = #ns.DungeonQuestStarters.ObjectOffers(info.title) end
-  info.cursorObjectID = ns.DungeonQuestStarters.CursorObjectID()
-  if info.worldCursorApi then
-    local ok, data = pcall(C_TooltipInfo.GetWorldCursor)
-    if ok and type(data) == "table" then
-      local first = type(data.lines) == "table" and data.lines[1]
-      info.data = { type = readable(data.type), id = readable(data.id), guid = readable(data.guid),
-        firstLine = type(first) == "table" and readable(first.leftText) or nil }
-    end
-  end
-  return info
-end)
-
--- LT-51 (/lt debug check, zweimal im Abstand einiger Sekunden): liefert der versteckte Tooltip mit dem Link
--- "unit:Creature-0-0-0-0-<npcID>-..." in Classic Era/Forever den NPC-Namen in der Client-Sprache (NpcNames.Get)?
--- Thrall (4949) kennt der Client meist schon, seltene NPCs (3) evtl. erst beim zweiten Aufruf.
-check("LT51.npcName", function()
-  local result = { locale = call("GetLocale") }
-  for _, npcID in ipairs({ 4949, 3 }) do result["npc" .. npcID] = ns.NpcNames.Get(npcID) or "<nil>" end
-  return result
 end)
 
 -- LT-10/LT-11 (/lt debug check, Maus über einem Dungeon-Gegner, in und außerhalb von Instanzen): ist die GUID lesbar
@@ -1509,48 +1495,6 @@ check("LT254.attunements", function()
   return result
 end)
 
--- LT-274 (/lt debug check, einmal draußen, einmal mitten in einer Instanz): welche Dungeon-/Raid-Karten kennt der
--- Client (C_Map.GetMapChildrenInfo ab Kosmos, Typ Dungeon), und liefern sie Kartenbilder? Je Karte: Name, Ebenen
--- (Größe/Kachelgröße), Anzahl und erste FileDataIDs der Kacheln der Ebene 1. `here` = Karte des Spielers; `here.pos` =
--- GetPlayerMapPosition in der Instanz liefert ein x/y (Schlüsselfrage für Minikarten-Pins im Dungeon, LT-273).
-local DUNGEON_MAP_SAMPLE = 25       -- so viele Dungeon-Karten vollständig, der Rest nur gezählt
-local DUNGEON_MAP_TEXTURES = 3      -- erste Kachel-FileDataIDs je Karte
-local COSMIC_MAP_ID = 946           -- Wurzel der Kartenhierarchie
-
-local function dungeonMapInfo(mapID)
-  local info = read("C_Map.GetMapInfo", mapID)
-  local layers = read("C_Map.GetMapArtLayers", mapID)
-  local textures = read("C_Map.GetMapArtLayerTextures", mapID, 1)
-  local out = { id = mapID, name = type(info) == "table" and readable(info.name) or nil,
-    layers = type(layers) == "table" and #layers or nil,
-    textures = type(textures) == "table" and #textures or nil }
-  local first = type(layers) == "table" and layers[1]
-  if type(first) == "table" then
-    out.layer1 = string.format("%sx%s tile %sx%s", plain(first.layerWidth), plain(first.layerHeight),
-      plain(first.tileWidth), plain(first.tileHeight))
-  end
-  if type(textures) == "table" then
-    out.firstIDs = table.concat(textures, ",", 1, math.min(#textures, DUNGEON_MAP_TEXTURES))
-  end
-  local x, y = readXY(read("C_Map.GetPlayerMapPosition", mapID, "player"))
-  out.pos = x ~= nil and string.format("%.3f,%.3f", x, y) or "none"
-  return out
-end
-
-check("LT274.map.dungeonart", function()
-  local result = { instance = read("IsInInstance") and true or false }
-  local dungeon = Enum and Enum.UIMapType and Enum.UIMapType.Dungeon
-  local children = read("C_Map.GetMapChildrenInfo", COSMIC_MAP_ID, dungeon, true)
-  local maps, ids = {}, {}
-  for _, child in ipairs(type(children) == "table" and children or {}) do ids[#ids + 1] = child.mapID end
-  result.dungeonMaps = #ids
-  for index = 1, math.min(#ids, DUNGEON_MAP_SAMPLE) do maps[#maps + 1] = dungeonMapInfo(ids[index]) end
-  result.maps = maps
-  local here = read("C_Map.GetBestMapForUnit", "player")
-  result.here = here and dungeonMapInfo(here) or "none"
-  return result
-end)
-
 -- LT-285 (/lt debug check, einmal nach einem Kampf außer Kampf): C_DamageMeter als Quelle für Gegner-Zauber (DamageTaken)
 -- und Todesursache (Deaths), LT-286. Fehlende API = "absent"; geheime Werte werden als "secret" gemeldet.
 local DAMAGE_METER_SAMPLE = 3   -- so viele Quellen/Zauber je Sitzung vollständig
@@ -1602,7 +1546,7 @@ end
 check("LT285.damageMeter.api", function()
   if type(C_DamageMeter) ~= "table" then return { api = "absent" } end
   local result = { inCombat = read("InCombatLockdown") and true or false,
-    cvar = read("GetCVar", "damageMeterEnabled") or "none" }
+    cvar = read("GetCVar", "damageMeterEnabled") or "none", collector = X.DamageMeter.Status() }
   if type(C_DamageMeter.IsDamageMeterAvailable) == "function" then
     local ok, available, reason = pcall(C_DamageMeter.IsDamageMeterAvailable)
     result.available = not ok and "error" or plain(available)
@@ -1631,9 +1575,9 @@ check("LT285.damageMeter.api", function()
 end)
 
 ---------------------------------------------------------------------------
--- LT-72 Gruppensuche (WoW Forever): welche Gruppensuche hat der Client, welche Felder liefert C_LFGList wirklich?
+-- LT-72/LT-352 Gruppensuche (WoW Forever): welche Gruppensuche hat der Client, welche Felder liefert C_LFGList wirklich?
 -- Sammelt nebenbei: bei jedem Suchergebnis (Event lfg.results) und beim Überfahren einer Gruppe (lfg.hover) alle
--- Felder der Gruppe und ihrer Mitglieder; dazu /lt debug check "LT72.lfg.api".
+-- Felder der Gruppe und ihrer Mitglieder (Rollen, Klassen für die Filter von LT-352); dazu /lt debug check "LT352.lfg.api".
 ---------------------------------------------------------------------------
 local LFG_SAMPLE_RESULTS = 3   -- so viele Gruppen je Suchergebnis vollständig
 local LFG_SAMPLE_MEMBERS = 5   -- so viele Mitglieder je Gruppe vollständig
@@ -1681,7 +1625,7 @@ local function lfgResultIDs()
   return type(results) == "table" and not ns.IsSecret(results) and results or {}
 end
 
-check("LT72.lfg.api", function()
+check("LT352.lfg.api", function()
   local ui, functions = {}, {}
   for _, name in ipairs(LFG_UI) do ui[name] = api(name) ~= nil end
   for _, name in ipairs(LFG_API) do functions[name] = api("C_LFGList." .. name) ~= nil end
@@ -1792,10 +1736,114 @@ check("LT272.lfg.window", function()
     playstyleText = GetGeneralPlaystyleString ~= nil }
   -- LT-309: Einstiege statt Ersetzen (Minikarten-Icon, Knopf an Blizzards Fenster)
   return { minimapButton = ns.db.lfgMinimapButton == true, look = look,
-    blizzardButton = ns.LFGWindow ~= nil and ns.LFGWindow.blizzardButton ~= nil,
+    blizzardTab = ns.LFGWindow ~= nil and ns.LFGWindow.blizzardTab ~= nil,
     functions = functions, api = apis, categories = table.concat(categories, ","),
     roles = fieldsOf(roles), parentShown = LFGParentFrame and LFGParentFrame:IsShown() or false,
     windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false, chatTell = ChatFrameUtil and ChatFrameUtil.SendTell ~= nil }
+end)
+
+-- LT-351: Seitenreiter an Blizzards Gruppensuche. Gibt es Blizzards Vorlage und den Reiter "Wer", ist LFG Forever
+-- da, woran hängt unser Reiter, und bleibt Blizzards Fenster nach unseren Klicks ungetaintet (Taint-Quelle leer)?
+check("LT351.lfg.sidetab", function()
+  local tab = ns.LFGWindow and ns.LFGWindow.blizzardTab
+  local anchor = tab and select(2, tab:GetPoint(1))
+  local parent = LFGParentFrame
+  local secure, taintedBy
+  if parent and issecurevariable then secure, taintedBy = issecurevariable(parent, "selectedTab") end
+  return { template = C_XMLUtil ~= nil and C_XMLUtil.GetTemplateInfo ~= nil
+      and C_XMLUtil.GetTemplateInfo("LargeSideTabButtonTemplate") ~= nil,
+    whoTab = parent ~= nil and parent.WhoListingTab ~= nil, lfgForever = _G.LFGForeverBlizzardTab ~= nil,
+    tab = tab ~= nil, anchor = (anchor ~= nil and anchor == _G.LFGForeverBlizzardTab and "LFGForever")
+      or (parent ~= nil and anchor ~= nil and anchor == parent.WhoListingTab and "WhoListingTab") or tostring(anchor),
+    selectedTabSecure = secure, taintedBy = taintedBy, combat = InCombatLockdown(),
+    ownSideTabs = ns.LFGWindow and ns.LFGWindow.sideTabs and #ns.LFGWindow.sideTabs or 0 }
+end)
+
+-- LT-352: Filter der eigenen Gruppensuche. Gespeicherte Filter (nach /reload noch da?), Rollenabfrage (Funktion da, als
+-- Leiter/Assistent erlaubt?), Tastenbelegung, Klassennamen und Spielstile, die der Client für die Filteransicht liefert
+check("LT352.lfg.filters", function()
+  local classes = {}
+  for _, class in ipairs(ns.LFGFilters.CLASSES) do
+    classes[class] = type(LOCALIZED_CLASS_NAMES_MALE) == "table" and LOCALIZED_CLASS_NAMES_MALE[class] or false
+  end
+  local saved = ns.db.lfgFilters
+  return { saved = type(saved) == "table" and saved or false,
+    active = type(saved) == "table" and ns.LFGFilters.ActiveCount(saved) or 0,
+    rolePoll = api("InitiateRolePoll") ~= nil, inGroup = read("IsInGroup"),
+    leader = read("UnitIsGroupLeader", "player"), assistant = read("UnitIsGroupAssistant", "player"),
+    binding = read("GetBindingKey", "LEVELTIMER_LFG_WINDOW") or false, classes = classes,
+    playstyles = Enum ~= nil and Enum.LFGEntryGeneralPlaystyle ~= nil,
+    activeEntry = ns.LFGSearch.ActiveEntry() ~= nil, windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false }
+end)
+
+-- LT-387: Dungeon-Guide jederzeit. Welche Dungeons stehen in der Auswahl (Namen in der Client-Sprache? unnamed =
+-- Karten ohne Namen, noRange = ohne Levelbereich, stehen am Ende), Vorauswahl nach Level und was das Fenster zeigt
+local GUIDE_SAMPLE = 5
+check("LT387.guide.anytime", function()
+  local list, sample, unnamed, noRange = ns.DungeonGuide.Dungeons(), {}, 0, 0
+  for index, dungeon in ipairs(list) do
+    if not dungeon.name or dungeon.name == "" then unnamed = unnamed + 1 end
+    local ranged = dungeon.minLevel ~= math.huge
+    if not ranged then noRange = noRange + 1 end
+    if index <= GUIDE_SAMPLE or index == #list then
+      sample[#sample + 1] = { index = index, mapID = dungeon.mapID, name = dungeon.name,
+        range = ranged and (dungeon.minLevel .. "-" .. dungeon.maxLevel) or "?" }
+    end
+  end
+  local suggested = ns.DungeonGuide.SuggestedMapID()
+  local pageIndex, pages, name, mapID = ns.DungeonGuideWindow.Current()
+  return { available = ns.DungeonGuide.IsAvailable(), level = read("UnitLevel", "player"), count = #list, unnamed = unnamed,
+    noRange = noRange, sample = sample, suggested = suggested,
+    suggestedName = suggested and ns.InstanceInfo.MapName(suggested) or false, auto = ns.db.dungeonGuideAuto,
+    shown = ns.DungeonGuideWindow.IsShown(), page = pageIndex, pages = type(pages) == "table" and #pages or 0,
+    shownName = name, shownMapID = mapID }
+end)
+
+-- LT-393: Liefert das Dungeonkompendium Bilder für die Guide-Dungeons? found/missing = Guide-Dungeons mit/ohne Bild
+-- (missing mit Namen, höchstens SAMPLE), journal = Kompendium-API vorhanden, total = alle gefundenen Instanzbilder
+local ART_SAMPLE = 10
+check("LT393.dungeonArt.coverage", function()
+  local total, journal = ns.DungeonArt.Count()
+  local found, missing = 0, {}
+  for _, dungeon in ipairs(ns.DungeonGuide.Dungeons()) do
+    if ns.DungeonArt.ForMap(dungeon.mapID, 416, 96) then
+      found = found + 1
+    elseif #missing < ART_SAMPLE then
+      missing[#missing + 1] = dungeon.mapID .. " " .. tostring(dungeon.name)
+    end
+  end
+  return { journal = journal, total = total, found = found, missing = missing }
+end)
+
+-- LT-395: Symbole aus Zauber-IDs (UI/Options/Icons.lua, Mechanik-Typen): kennt der Client jeden Zauber und sein
+-- Symbol? missing = Schlüssel ohne Symbol (bleiben in den Einstellungen ohne Icon)
+check("LT395.icons.spells", function()
+  local missing, count = {}, 0
+  for key, source in pairs(ns.OptionsIcons) do
+    if type(source) == "number" then
+      count = count + 1
+      if not ns.Widgets.SpellTexture(source) then missing[#missing + 1] = key .. " " .. source end
+    end
+  end
+  table.sort(missing)
+  return { spells = count, missing = missing }
+end)
+
+-- LT-335..338: Gruppen-Sync nur mit Gruppe/Gilde/Freunden. Gibt es die Gruppen-APIs (sonst bleiben Abgänger in der
+-- Peer-Liste), und erkennt UnitInParty/UnitInRaid die Absender im Format "Name-Realm" (inParty je Peer)?
+local SYNC_PEERS = 5
+check("LT338.sync.groupApi", function()
+  local functions = {}
+  for _, name in ipairs({ "UnitInParty", "UnitInRaid", "IsInGroup", "IsInRaid", "IsInGuild", "C_FriendList.IsFriend" }) do
+    functions[name] = api(name) ~= nil
+  end
+  local peers = {}
+  for name in pairs(ns.PartyQuestSync.GetPeers()) do
+    if #peers >= SYNC_PEERS then break end
+    peers[#peers + 1] = { name = name, inParty = read("UnitInParty", name), inRaid = read("UnitInRaid", name) }
+  end
+  return { functions = functions, inGroup = read("IsInGroup"), inGuild = read("IsInGuild"), setting = ns.db.partyQuestSync,
+    peerCount = ns.PartyQuestSync.GetPeerCount(), queue = ns.PartyQuestSync.GetQueueLength(), peers = peers }
 end)
 
 -- Helfer für die Prüfungen nach Bereich (ChecksUI.lua, ChecksQuests.lua, ChecksRuns.lua, laden danach)

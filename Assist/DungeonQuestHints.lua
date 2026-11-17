@@ -15,6 +15,8 @@
 -- Fenster bleiben stehen (Schließen-Knopf); /lt dq und der Knopf in den Optionen öffnen sie erneut (Show), Rechtsklick
 -- auf einen Dungeon-Eingang der Karte zeigt die Quests dieser Instanz (ShowInstance).
 -- Ort "Zone (x, y)" über DungeonEntrances.StartText (C_Map.GetMapInfo).
+-- Abgeschaltete Dungeons (LT-394, Haken im Instanz-Hinweis, je Charakter in character.hiddenDungeonQuestHints): keine
+-- Zeilen im Zonen-Hinweis, kein Hinweis nach der Annahme; der Rechtsklick auf den Eingang zeigt sie weiter.
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -72,19 +74,30 @@ local function offerText(offer)
   return string.format(L.DUNGEON_QUEST_HINT_ROW, questTitle, instance)
 end
 
--- Eintrag mit questID und place; refresh liefert die Detailzeile neu (Fenster zieht Gebernamen nach, sobald auflösbar)
-local function questEntry(questID, text, place, muted)
-  return { text = text, detail = DungeonQuestHints.Detail(questID, place), place = place, muted = muted,
+-- Eintrag mit questID und place; textOf bildet den Text beim Anzeigen neu (folgt dem Sprachwechsel), refresh die
+-- Detailzeile (Fenster zieht Gebernamen nach, sobald auflösbar)
+local function questEntry(questID, textOf, place, muted)
+  return { text = textOf(), textOf = textOf, detail = DungeonQuestHints.Detail(questID, place), place = place, muted = muted,
     questID = questID, refresh = function() return DungeonQuestHints.Detail(questID, place) end }
 end
 
--- Einträge für die Geber auf einer Zonenkarte
+function DungeonQuestHints.IsHidden(mapID)
+  return ns.character ~= nil and ns.character.hiddenDungeonQuestHints[mapID] == true
+end
+
+function DungeonQuestHints.SetHidden(mapID, hidden)
+  ns.character.hiddenDungeonQuestHints[mapID] = hidden or nil
+end
+
+-- Einträge für die Geber auf einer Zonenkarte (ohne abgeschaltete Dungeons)
 function DungeonQuestHints.ZoneEntries(uiMapID)
   local entries = {}
   for _, point in ipairs(DungeonQuests.OffersOnMap(uiMapID)) do
     local place = { uiMapID = uiMapID, x = point.x, y = point.y }
     for _, offer in ipairs(point.offers) do
-      table.insert(entries, questEntry(offer.questID, offerText(offer), place))
+      if not DungeonQuestHints.IsHidden(offer.mapID) then
+        table.insert(entries, questEntry(offer.questID, function() return offerText(offer) end, place))
+      end
     end
   end
   return entries
@@ -108,7 +121,7 @@ local function onZoneEntered()
   ns.Debug("dungeonquests", "zone %s: %s offers", zone, #entries)
   if #entries == 0 then return end
   shownZones[zone] = true
-  ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ZONE_HINT_TITLE, zoneName(zone)), entries)
+  ns.DungeonQuestHint.Show(function() return string.format(L.DUNGEON_QUEST_ZONE_HINT_TITLE, zoneName(zone)) end, entries)
 end
 
 ns.RegisterEvent("ZONE_CHANGED_NEW_AREA", onZoneEntered)
@@ -130,7 +143,7 @@ local function instanceEntries(mapID, exceptQuestID)
   for _, quest in ipairs(DungeonQuests.InstanceQuests(mapID)) do
     if quest.questID ~= exceptQuestID then
       local place = DungeonQuests.GiverPlace(quest.questID)
-      table.insert(entries, questEntry(quest.questID, instanceQuestText(quest), place, not quest.available))
+      table.insert(entries, questEntry(quest.questID, function() return instanceQuestText(quest) end, place, not quest.available))
     end
   end
   return entries
@@ -147,7 +160,9 @@ end
 function DungeonQuestHints.ShowInstance(mapID)
   local entries = instanceEntries(mapID)
   if #entries == 0 then return false end
-  ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ACCEPT_HINT_TITLE, ns.InstanceInfo.MapName(mapID)), entries)
+  ns.DungeonQuestHint.Show(function()
+    return string.format(L.DUNGEON_QUEST_ACCEPT_HINT_TITLE, ns.InstanceInfo.MapName(mapID))
+  end, entries, mapID)
   return true
 end
 
@@ -156,7 +171,7 @@ function DungeonQuestHints.Show()
   local zone = DungeonQuests.IsAvailable() and currentZone()
   local entries = zone and DungeonQuestHints.ZoneEntries(zone) or {}
   if #entries > 0 then
-    ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ZONE_HINT_TITLE, zoneName(zone)), entries)
+    ns.DungeonQuestHint.Show(function() return string.format(L.DUNGEON_QUEST_ZONE_HINT_TITLE, zoneName(zone)) end, entries)
   elseif not ns.DungeonQuestHint.ShowLast() then
     ns.Print(L.DUNGEON_QUEST_HINT_NONE)
   end
@@ -167,7 +182,9 @@ ns.QuestWatch.Subscribe({
   onAccepted = function(quest)
     local entries, mapID = DungeonQuestHints.AcceptEntries(quest.questID)
     ns.Debug("dungeonquests", "accepted %s: instance %s, %s more", quest.questID, mapID, entries and #entries)
-    if not entries or #entries == 0 then return end
-    ns.DungeonQuestHint.Show(string.format(L.DUNGEON_QUEST_ACCEPT_HINT_TITLE, ns.InstanceInfo.MapName(mapID)), entries)
+    if not entries or #entries == 0 or DungeonQuestHints.IsHidden(mapID) then return end
+    ns.DungeonQuestHint.Show(function()
+      return string.format(L.DUNGEON_QUEST_ACCEPT_HINT_TITLE, ns.InstanceInfo.MapName(mapID))
+    end, entries, mapID)
   end,
 })

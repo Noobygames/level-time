@@ -87,7 +87,27 @@ local function legacyLowRankCheck()
   end
 end
 
--- Zauber, die als niedriger Rang auf einem Aktionsplatz liegen (je Name einmal):
+-- Dauerhaft ausgeblendete Ränge (ns.db.ignoredSpellRanks[spellID] = true, genau dieser Rang), Tabelle erst bei Bedarf
+local function ignoredRanks() return ns.db.ignoredSpellRanks end
+
+function OldSpellRanks.IgnoredCount()
+  local count = 0
+  for _ in pairs(ignoredRanks() or {}) do count = count + 1 end
+  return count
+end
+
+function OldSpellRanks.Ignore(spellID)
+  ns.db.ignoredSpellRanks = ns.db.ignoredSpellRanks or {}
+  ns.db.ignoredSpellRanks[spellID] = true
+  ns.ApplySettings()  -- Beschriftung des Optionsknopfs
+end
+
+function OldSpellRanks.ClearIgnored()
+  ns.db.ignoredSpellRanks = nil
+  ns.ApplySettings()
+end
+
+-- Zauber, die als niedriger Rang auf einem Aktionsplatz liegen (je Name einmal, ohne ausgeblendete Ränge):
 -- { { spellID, name, barRank, bookRank }, ... }; ein Rang ist nil, wo er nicht lesbar ist
 function OldSpellRanks.Find()
   local bookRankOf = hasLowRankApi() and foreverLowRankCheck() or legacyLowRankCheck()
@@ -95,7 +115,7 @@ function OldSpellRanks.Find()
   for slot = 1, OldSpellRanks.MAX_ACTION_SLOT do
     local actionType, id = GetActionInfo(slot)
     if not ns.IsSecret(actionType) and actionType == "spell" and not ns.IsSecret(id) and type(id) == "number"
-        and bookRankOf(id) ~= nil then
+        and not (ignoredRanks() and ignoredRanks()[id]) and bookRankOf(id) ~= nil then
       local name = C_Spell.GetSpellName(id)
       if name and not seen[name] then
         seen[name] = true
@@ -125,7 +145,8 @@ function OldSpellRanks.Check()
   for _, spell in ipairs(fresh) do
     table.insert(names, spell.name)
     table.insert(rows, { spellID = spell.spellID, name = spell.name,
-      columns = { rankText(spell.barRank), rankText(spell.bookRank) } })
+      columns = { rankText(spell.barRank), rankText(spell.bookRank) },
+      onDismiss = function() OldSpellRanks.Ignore(spell.spellID) end })
   end
   ns.Alerts.Notify({ title = L.NOTICE_OLD_SPELL_RANKS,
     text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(names, ", ")),

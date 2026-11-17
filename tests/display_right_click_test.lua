@@ -9,12 +9,12 @@ local function rightClick(frame)
 end
 
 local cases = {
-  { id = "main", tab = "SECTION_GENERAL", sub = "OPTIONS_PAGE_WINDOW" },
-  { id = "splitList", tab = "OPTIONS_TAB_SPEEDRUN", sub = "OPTIONS_PAGE_SPLIT_LIST" },
-  { id = "levelUp", tab = "OPTIONS_TAB_ALERTS", sub = "OPTIONS_PAGE_LEVEL_UP" },
-  { id = "flight", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_TRAVEL" },
-  { id = "lootRolls", tab = "OPTIONS_TAB_COMFORT", sub = "COMFORT_PAGE_LOOT" },
-  { id = "routeReplay", tab = "OPTIONS_TAB_SPEEDRUN", sub = "OPTIONS_PAGE_ROUTE_REPLAY" },
+  { id = "main", tab = "OPTIONS_TAB_MAIN", sub = "OPTIONS_PAGE_WINDOW" },
+  { id = "splitList", tab = "OPTIONS_TAB_STREAM_SPEEDRUN", sub = "OPTIONS_PAGE_SPLIT_LIST" },
+  { id = "levelUp", tab = "OPTIONS_TAB_HINTS", sub = "OPTIONS_PAGE_LEVEL_UP" },
+  { id = "flight", tab = "OPTIONS_TAB_HINTS", sub = "COMFORT_PAGE_TRAVEL" },
+  { id = "lootRolls", tab = "OPTIONS_TAB_DUNGEONS", sub = "OPTIONS_PAGE_LOOT_ROLLS" },
+  { id = "routeReplay", tab = "OPTIONS_TAB_STREAM_SPEEDRUN", sub = "OPTIONS_PAGE_ROUTE_REPLAY" },
 }
 for _, case in ipairs(cases) do
   local frame = Frames.Get(case.id).frame

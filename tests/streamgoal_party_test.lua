@@ -56,6 +56,13 @@ local ownSender = UnitName("player") .. "-" .. ownRealm
 wow.fire("CHAT_MSG_ADDON", "StreamGoal", "P:" .. itemGoal.sharedKey .. ":1", "PARTY", ownSender)
 expect("Eigene Addon-Nachricht ignoriert", itemGoal.progress, 2)
 
+-- Flüstern von Fremden ignorieren (nur Gruppenkanäle)
+wow.fire("CHAT_MSG_ADDON", "StreamGoal", "P:" .. itemGoal.sharedKey .. ":1", "WHISPER", "Fremder")
+expect("Flüstern ignoriert", itemGoal.progress, 2)
+
+-- CleanText entfernt Formatcodes
+expect("Pipe entfernt", streamGoal.Kinds.CleanText("|cffff0000Hi|r"), "cffff0000Hir")
+
 -- Geheime Nachrichten ignorieren
 wow.fire("CHAT_MSG_ADDON", "StreamGoal", wow.SECRET, "PARTY", "Gefährte")
 expect("Geheime Nachricht ignoriert", itemGoal.progress, 2)

@@ -15,10 +15,18 @@ function Widgets.SpellTexture(spellID)
   return texture
 end
 
--- Client-Symbol auf eine Textur setzen: source = Atlasname oder Pfad (Interface\Icons\...); size 16/20/24.
--- Unbekannter Atlas (nicht in jedem Client vorhanden) oder leere Quelle: Textur versteckt, false zurück (Fallback ohne Icon).
+-- Client-Symbol auf eine Textur setzen: source = Atlasname, Pfad (Interface\Icons\...) oder Zauber-ID (Zahl: dessen
+-- Symbol aus den Spieldaten, existiert sicher in jedem Client, der den Zauber kennt); size 16/20/24.
+-- Unbekannter Atlas oder Zauber oder leere Quelle: Textur versteckt, false zurück (Fallback ohne Icon).
 -- Ein Icon steht nie allein: immer neben Text oder mit Tooltip.
 function Widgets.SetIcon(texture, source, size)
+  if type(source) == "number" then source = Widgets.SpellTexture(source) end
+  if type(source) == "number" then  -- Datei-ID aus GetSpellTexture
+    texture:SetTexture(source)
+    if size then texture:SetSize(size, size) end
+    texture:Show()
+    return true
+  end
   local ok = type(source) == "string" and source ~= ""
   if ok and not source:find("[\\/]") then
     ok = C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(source) and true or false
@@ -200,36 +208,97 @@ function Widgets.CreateSlider(parent, minValue, maxValue, step, onChange)
   return container
 end
 
--- Reiter als schlichter Text-Button; der aktive Reiter ist hervorgehoben: Farbe und Unterstrich (UX 216, damit er
--- sich nicht nur durch die Farbe unterscheidet)
-local TAB_UNDERLINE_HEIGHT = 1
-local TAB_UNDERLINE_INSET = 2
+-- Reiter mit Text (und Symbol); der aktive hat helle Schrift und eine goldene Marke (UX 216: nicht nur Farbe). Die Marke
+-- liegt unten (Reiterzeile) oder links (Seitenleiste, tab:SetSidebar(width): feste Breite, Text linksbündig).
+-- filled (Einstellungsfenster): zusätzlich eine Fläche je Reiter, unter der Maus heller, aktiv mit Auswahl-Grund.
+-- Ohne filled bleibt der Reiter schlichter Text (kompakte Fenster wie das Hauptfenster).
+local TAB_UNDERLINE_HEIGHT = 2
+local TAB_VERTICAL_PADDING = { filled = 10, plain = 4 }  -- Höhe = Schrifthöhe + dieser Wert
+local TAB_ALPHA = { normal = 0.55, hover = 0.9, active = 1 }
+local ICON_SIZE = 16
+local ICON_GAP = 4
+local ICON_CROP = { 0.07, 0.93, 0.07, 0.93 }  -- Blizzard-Symbole haben einen eigenen Rand
 
-function Widgets.CreateTab(parent, fontObject, onClick)
+function Widgets.CreateTab(parent, fontObject, onClick, filled)
   local tab = CreateFrame("Button", nil, parent)
+  local verticalPadding = filled and TAB_VERTICAL_PADDING.filled or TAB_VERTICAL_PADDING.plain
+  tab.background = tab:CreateTexture(nil, "BACKGROUND")
+  tab.background:SetAllPoints()
   tab.label = tab:CreateFontString(nil, "OVERLAY", fontObject)
   tab.label:SetPoint("CENTER")
+  tab.iconTexture, tab.iconShown = false, false  -- erst SetIcon legt die Textur an
+  tab.active, tab.hovered, tab.sidebarWidth, tab.naturalWidth = false, false, false, false
   tab:SetScript("OnClick", onClick)
   tab.underline = tab:CreateTexture(nil, "OVERLAY")
   tab.underline:SetHeight(TAB_UNDERLINE_HEIGHT)
-  tab.underline:SetPoint("TOPLEFT", tab.label, "BOTTOMLEFT", 0, -TAB_UNDERLINE_INSET)
-  tab.underline:SetPoint("TOPRIGHT", tab.label, "BOTTOMRIGHT", 0, -TAB_UNDERLINE_INSET)
+  tab.underline:SetPoint("BOTTOMLEFT")
+  tab.underline:SetPoint("BOTTOMRIGHT")
   tab.underline:Hide()
+
+  local function paint(self)
+    local state = self.active and "active" or (self.hovered and "hover" or "normal")
+    local color = self.active and Theme.COLORS.rowSelected or Theme.COLORS.buttonFace
+    self.background:SetColorTexture(color[1], color[2], color[3], filled and TAB_ALPHA[state] or 0)
+    local text = self.active and Widgets.COLORS.highlight or (self.hovered and Theme.COLORS.text or INACTIVE_TAB_COLOR)
+    self.label:SetTextColor(unpack(text))
+  end
+  tab:HookScript("OnEnter", function(self) self.hovered = true; paint(self) end)
+  tab:HookScript("OnLeave", function(self) self.hovered = false; paint(self) end)
+
+  -- Text links neben dem Symbol bzw. mittig; in der Seitenleiste immer linksbündig
+  local function placeLabel(self)
+    self.label:ClearAllPoints()
+    if self.iconShown then
+      self.label:SetPoint("LEFT", self.iconTexture, "RIGHT", ICON_GAP, 0)
+    elseif self.sidebarWidth then
+      self.label:SetPoint("LEFT", TAB_PADDING / 2 + ICON_SIZE + ICON_GAP, 0)
+    else
+      self.label:SetPoint("CENTER")
+    end
+  end
 
   function tab:SetLabel(text)
     self.label:SetText(text)
     local _, fontHeight = self.label:GetFont()
-    self:SetSize(self.label:GetStringWidth() + TAB_PADDING, fontHeight + 4)
+    local iconWidth = (self.iconShown or self.sidebarWidth) and (ICON_SIZE + ICON_GAP) or 0
+    local width = self.label:GetStringWidth() + TAB_PADDING + iconWidth
+    self.naturalWidth = width  -- ohne feste Seitenleisten-Breite (Sprachwechsel darf schmaler werden)
+    self:SetSize(width,  -- Seitenleiste: feste Breite setzt danach SetSidebar (Layout nach dem Sprachwechsel)
+      math.max(fontHeight + verticalPadding, self.iconShown and ICON_SIZE + verticalPadding / 2 or 0))
+  end
+
+  -- Seitenleiste: feste Breite (width = breitester Eintrag), Text linksbündig, Marke links statt unten
+  function tab:SetSidebar(width)
+    self.sidebarWidth = width
+    self.underline:ClearAllPoints()
+    self.underline:SetPoint("TOPLEFT")
+    self.underline:SetPoint("BOTTOMLEFT")
+    self.underline:SetWidth(TAB_UNDERLINE_HEIGHT + 1)
+    placeLabel(self)
+    self:SetWidth(math.max(self.naturalWidth or 0, width))
+  end
+
+  -- Symbol links vom Text (Widgets.SetIcon; fehlt es im Client, bleibt der Reiter ohne); die Breite folgt beim
+  -- nächsten SetLabel
+  function tab:SetIcon(source)
+    if not source then return end
+    self.iconTexture = self.iconTexture or self:CreateTexture(nil, "ARTWORK")
+    self.iconShown = Widgets.SetIcon(self.iconTexture, source, ICON_SIZE)
+    if not self.iconShown then return end
+    self.iconTexture:SetTexCoord(unpack(ICON_CROP))
+    self.iconTexture:SetPoint("LEFT", TAB_PADDING / 2, 0)
+    placeLabel(self)
   end
 
   function tab:SetActive(active)
-    local color = active and Widgets.COLORS.highlight or INACTIVE_TAB_COLOR
-    self.label:SetTextColor(unpack(color))
+    self.active = active and true or false
     local r, g, b = unpack(Widgets.COLORS.highlight)
     self.underline:SetColorTexture(r, g, b, 1)
-    self.underline:SetShown(active and true or false)
+    self.underline:SetShown(self.active)
+    paint(self)
   end
 
+  paint(tab)
   return tab
 end
 
@@ -379,6 +448,7 @@ function Widgets.CreateSectionHeader(parent)
 
   header.label = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   header.label:SetPoint("LEFT")
+  header.iconTexture = false  -- erst SetIcon legt die Textur an
 
   local line = header:CreateTexture(nil, "ARTWORK")
   line:SetHeight(1)
@@ -389,6 +459,17 @@ function Widgets.CreateSectionHeader(parent)
 
   function header:SetText(text)
     self.label:SetText(text)
+  end
+
+  -- Symbol links vom Text (Widgets.SetIcon); der Text rückt nach rechts, ohne Symbol im Client bleibt er stehen
+  function header:SetIcon(source)
+    if not source then return end
+    self.iconTexture = self.iconTexture or self:CreateTexture(nil, "ARTWORK")
+    if not Widgets.SetIcon(self.iconTexture, source, ICON_SIZE) then return end
+    self.iconTexture:SetTexCoord(unpack(ICON_CROP))
+    self.iconTexture:SetPoint("LEFT")
+    self.label:ClearAllPoints()
+    self.label:SetPoint("LEFT", self.iconTexture, "RIGHT", ICON_GAP, 0)
   end
 
   return header
@@ -407,6 +488,9 @@ end
 ---------------------------------------------------------------------------
 local HEADER_HEIGHT = 40
 local HEADER_PADDING = 16
+local HEADER_GAP = 8         -- Abstand Titel / Aktionen / Schließen-Knopf
+local HEADER_ICON_SIZE = 20
+local HEADER_ICON_SPACE = 26  -- Symbol plus Abstand zum Titel
 local CHIP_HEIGHT = 28
 local ROW_HEIGHT = 32
 local STATUS_DOT_SIZE = 8
@@ -432,11 +516,11 @@ function Widgets.CreateWindowHeader(parent, title, opts)
   header.title:SetText(title or "")
   header.close = Widgets.CreateCloseButton(header)
   header.close:ClearAllPoints()
-  header.close:SetPoint("RIGHT", -8, 0)
+  header.close:SetPoint("RIGHT", -HEADER_GAP, 0)
   header.close:SetScript("OnClick", opts.onClose or function() parent:Hide() end)
   header.actions = CreateFrame("Frame", nil, header)
-  header.actions:SetPoint("TOPRIGHT", header.close, "TOPLEFT", -8, 0)
-  header.actions:SetPoint("BOTTOMRIGHT", header.close, "BOTTOMLEFT", -8, 0)
+  header.actions:SetPoint("TOPRIGHT", header.close, "TOPLEFT", -HEADER_GAP, 0)
+  header.actions:SetPoint("BOTTOMRIGHT", header.close, "BOTTOMLEFT", -HEADER_GAP, 0)
   header.actions:SetWidth(1)
   header.divider = header:CreateTexture(nil, "ARTWORK")
   header.divider:SetHeight(1)
@@ -448,9 +532,16 @@ function Widgets.CreateWindowHeader(parent, title, opts)
   function header:SetIcon(source)
     self.titleIcon = rawget(self, "titleIcon") or self:CreateTexture(nil, "ARTWORK")
     self.titleIcon:SetPoint("LEFT", HEADER_PADDING, 0)
-    local shown = Widgets.SetIcon(self.titleIcon, source, 20)
+    local shown = Widgets.SetIcon(self.titleIcon, source, HEADER_ICON_SIZE)
+    self.iconSpace = shown and HEADER_ICON_SPACE or 0
     self.title:ClearAllPoints()
-    self.title:SetPoint("LEFT", HEADER_PADDING + (shown and 26 or 0), 0)
+    self.title:SetPoint("LEFT", HEADER_PADDING + self.iconSpace, 0)
+  end
+  -- Mindestbreite, in die Symbol, Titel, Aktionen und Schließen-Knopf ohne Überlappung passen
+  function header:MinWidth()
+    local actionsWidth = self.actions:GetWidth()
+    return HEADER_PADDING + (rawget(self, "iconSpace") or 0) + math.ceil(self.title:GetStringWidth()) + HEADER_GAP
+      + (actionsWidth > 1 and actionsWidth + HEADER_GAP or 0) + CLOSE_BUTTON_SIZE + HEADER_GAP
   end
   return header
 end
@@ -641,6 +732,9 @@ end
 -- top = kleinster Bildlauf (Standard 0; negativ, wenn der Inhalt ruhend verschoben steht),
 -- keepInRange = true: wird der Inhalt kürzer, rückt der Bildlauf in den gültigen Bereich }.
 -- area:ScrollTo(y) setzt den Bildlauf begrenzt auf top..GetVerticalScrollRange().
+-- Eine Bildlaufleiste (area.scrollBar) steht rechts neben dem Bereich, im Rand des Fensters; sie zeigt sich nur, wenn
+-- es etwas zu scrollen gibt, und lässt sich ziehen.
+local SCROLLBAR_GAP = 4
 function Widgets.CreateScrollArea(parent, options)
   local top = options.top or 0
   local area = CreateFrame("ScrollFrame", nil, parent)
@@ -649,12 +743,23 @@ function Widgets.CreateScrollArea(parent, options)
     self:SetVerticalScroll(math.max(top, math.min(self:GetVerticalScrollRange(), y)))
   end
 
+  -- Leistenwert 0.. = Bildlauf ab top
+  local bar = Widgets.CreateScrollBar(parent, function(value) area:ScrollTo(value + top) end)
+  bar:SetPoint("TOPLEFT", area, "TOPRIGHT", SCROLLBAR_GAP, 0)
+  bar:SetPoint("BOTTOMLEFT", area, "BOTTOMRIGHT", SCROLLBAR_GAP, 0)
+  bar:SetRange(0)
+  area.scrollBar = bar
+  area:HookScript("OnScrollRangeChanged", function(self, _, yRange)
+    bar:SetRange(math.max(0, math.floor((yRange or self:GetVerticalScrollRange()) - top)))
+  end)
+  area:HookScript("OnVerticalScroll", function(_, offset) bar:SetOffsetSilently(offset - top) end)
+
   area:EnableMouseWheel(true)
   area:SetScript("OnMouseWheel", function(self, delta)
     self:ScrollTo(self:GetVerticalScroll() - delta * options.step)
   end)
   if options.keepInRange then
-    area:SetScript("OnScrollRangeChanged", function(self, _, yRange)
+    area:HookScript("OnScrollRangeChanged", function(self, _, yRange)
       self:SetVerticalScroll(math.max(top, math.min(yRange, self:GetVerticalScroll())))
     end)
   end

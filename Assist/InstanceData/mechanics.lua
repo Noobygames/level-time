@@ -2049,6 +2049,12 @@ ns.Mechanics = {
     { 3391, "tank", "Extraschläge: schwere Treffer auf dem Tank", "Extra swings: heavy hits on the tank", "f" },
     { 6713, "tank", "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "Disarms the tank: expect less threat for a few seconds", "f" },
   },
+  [247195] = { -- Withermaw (Blackmaw Hold)
+    { 0, "positioning", "Der faulende Bär hinterlässt Lavapfützen: Kampf davon wegziehen", "Rotting bear leaves lava pools: drag the fight away from them", "f" },
+  },
+  [247209] = { -- Elder Shaman Bloodmane (Blackmaw Hold)
+    { 0, "interrupt", "Zauberer: seine Zauber unterbrechen", "Caster: interrupt his spells", "f" },
+  },
   [250483] = { -- Witherfang (Ruins of Lordaeron)
     { 0, "adds", "Spinnen im Hof helfen mit: zuerst räumen", "Courtyard spiders join the fight: clear them first", "f" },
     { 3358, "dispel", "Egelgift saugt einen Spieler aus: Gift heilen", "Leech poison drains a player: cure poison", "f" },
@@ -2068,6 +2074,21 @@ ns.Mechanics = {
     { 0, "positioning", "Eine Patrouille kommt vorbei: Raum vor dem Pull räumen", "A patrol passes his room: clear it before the pull", "f" },
     { 17307, "tank", "K.O.-Schlag betäubt den Tank: Tank voll geheilt halten", "Knockout stuns the tank: keep the tank topped up", "f" },
   },
+  [253201] = { -- Titanosaur (Shaper's Terrace)
+    { 0, "survive", "Furcht auf der Gruppe: Furchtzauberschutz oder Erdungstotem helfen", "Fears the group: Fear Ward or Tremor Totem help", "f" },
+    { 0, "positioning", "Schwanz schleudert zurück: nicht hinter ihm stehen", "Tail knocks back: stay away from his rear", "f" },
+  },
+  [255391] = { -- Overseer Wrex (Alcaz Prison)
+    { 0, "adds", "Zieht alle Wärter seines Raums mit: im Gang bekämpfen", "Pulls every jailer of his room: fight him out in the corridor", "f" },
+  },
+  [255702] = { -- Blazeroar (Alcaz Prison)
+    { 0, "avoid", "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "Turns into a dragon with burning scales: bring non-fire damage", "f" },
+    { 0, "avoid", "Flammenstoß in Phase 1: Feuer verlassen", "Flamestrike in the first phase: leave the fire", "f" },
+  },
+  [255997] = { -- Tidemistress Ca'zass (Alcaz Prison)
+    { 0, "interrupt", "Ihre Naga-Helfer verwandeln Spieler und wirken Salven: unterbrechen und kontrollieren", "Her naga adds polymorph players and cast volleys: interrupt and control them", "f" },
+    { 0, "avoid", "Eissturm auf der Gruppe: aus dem Schnee treten", "Blizzard on the group: step out of the snow", "f" },
+  },
   [256035] = { -- Viktor the Vile (Ruins of Lordaeron)
     { 0, "dispel", "Vergiftet sein Ziel: Gift entfernen, Leben im Blick behalten", "Poisons his target: cure poison, watch health bars", "f" },
     { 0, "tank", "Schlägt hart zu: Tank gesund halten", "Hits hard: keep the tank healthy", "f" },
@@ -2077,6 +2098,34 @@ ns.Mechanics = {
     { 0, "positioning", "Stößt Spieler zurück: Gruppen um ihn vorher räumen", "Knocks players back: clear the packs around him first", "f" },
     { 0, "tank", "Schlägt hart zu: Tank voll geheilt halten", "Hits hard: keep the tank topped up", "f" },
     { 1301635, "dispel", "Schild blockt Zauber: reinigen oder körperlichen Schaden nutzen", "Shield blocks spells: purge it or use physical damage", "f" },
+  },
+  [256236] = { -- The Questioner (Alcaz Prison)
+    { 0, "interrupt", "Lebensentzug heilt ihn: unterbrechen und seine zwei Zauberer töten", "Drain Life heals him: interrupt it and kill his two casters", "f" },
+  },
+  [257016] = { -- Katerina the Cleaner (Alcaz Prison)
+    { 0, "positioning", "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "Teleports behind ranged players and stabs them: heal them up", "f" },
+  },
+  [258905] = { -- Zul'Alai (The Drowned City)
+    { 0, "survive", "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "Enrages near death and hits the group hard: save cooldowns", "f" },
+  },
+  [258924] = { -- Var'Taka (The Drowned City)
+    { 0, "survive", "Harpuniert einen zufälligen Spieler und zieht ihn heran", "Harpoons a random player and pulls them in", "f" },
+    { 0, "adds", "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "Two priestesses heal him: control or kill them first", "f" },
+  },
+  [258964] = { -- Nar'gurk (Krol'dok Stronghold)
+    { 0, "survive", "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "Mind-controls a player: break line of sight, use crowd control", "f" },
+    { 0, "tank", "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "Charges his staff with shadow damage: more damage on the tank", "f" },
+  },
+  [258968] = { -- Overlord Mugg (Krol'dok Stronghold)
+    { 0, "tank", "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "Swaps maces for mauls and hits harder with each set", "f" },
+    { 0, "tank", "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "Each hit speeds up his attacks until he swaps weapons", "f" },
+    { 0, "adds", "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "Centurion adds lower the tank's healing: kill them first", "f" },
+  },
+  [258972] = { -- Twilight Commander Zarmok (Krol'dok Stronghold)
+    { 0, "tank", "Starke Blutung auf dem Tank: Leben hoch halten, wenn möglich reinigen", "Strong bleed on the tank: keep health high, cleanse if possible", "f" },
+  },
+  [259281] = { -- War Handler Ashka (Krol'dok Stronghold)
+    { 0, "adds", "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "Fights alongside two wolves: kill the wolves first", "f" },
   },
   [260322] = { -- Saltspine (Excavation Site: Wetlands)
     { 0, "positioning", "Läuft zwischen Elite-Krokilisken: diese räumen oder ihn weglocken", "Roams among elite crocolisks: clear them or pull him away", "f" },
@@ -2094,6 +2143,10 @@ ns.Mechanics = {
     { 0, "tank", "Setzt Bedrohung zurück und wechselt Ziel: Schaden drosseln, Tank holt ihn zurück", "Drops threat and swaps targets: damage slows down, tank takes him back", "f" },
     { 15588, "positioning", "Donnerknall verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "Thunderclap slows nearby players: ranged keep distance", "f" },
   },
+  [260808] = { -- Highland Horror (Excavation Site: Wetlands)
+    { 0, "dispel", "Wurzelt einen Spieler: bannen oder befreien", "Roots a player: dispel or free them", "f" },
+    { 0, "survive", "Regeneriert Leben: Schaden gleichmäßig halten", "Regenerates health: keep damage steady", "f" },
+  },
   [261306] = { -- Faldrim Anvilmar (Hall of Thanes)
     { 1292602, "dispel", "Langer Fluch auf dem Tank: entfluchen", "Long curse on the tank: decurse it", "f" },
     { 26048, "survive", "Patrouilliert, wirkt Gedankenschlag: ohne Trash pullen", "Patrols and casts Mind Blast: pull him away from trash", "f" },
@@ -2109,6 +2162,29 @@ ns.Mechanics = {
     { 0, "adds", "Zwei Steingolems: erst Plünderer räumen, Golems einzeln töten", "Two stone golems join: clear the looters first, kill golems one by one", "f" },
     { 26070, "survive", "Furcht auf die Gruppe: Raum vorher räumen", "Fears the group: clear the room first", "f" },
     { 12054, "tank", "Verwunden blutet den Tank: viel Schaden, Betäubungen nutzen", "Rend bleeds the tank: heavy damage, use stuns", "f" },
+  },
+  [261809] = { -- Nanaya (Shaper's Terrace)
+    { 0, "survive", "Bodenschlag betäubt alle in der Nähe", "Ground slam stuns everyone close by", "f" },
+    { 0, "avoid", "Wechselt alle 25 % Leben das Element: Resistenzen anpassen", "Changes element every 25% health: swap resistances", "f" },
+  },
+  [261812] = { -- Thunderhoof (Shaper's Terrace)
+    { 0, "interrupt", "Blitzzauber ist unterbrechbar: Reihenfolge der Unterbrecher planen", "Lightning cast can be interrupted: plan a kick order", "f" },
+  },
+  [261813] = { -- Venomridge (Shaper's Terrace)
+    { 0, "dispel", "Giftsalve und Stampfen: Gift heilen, leicht verteilen", "Poison volley and stomp: cure poison, spread slightly", "f" },
+  },
+  [261974] = { -- Cinder (Shaper's Terrace)
+    { 0, "avoid", "Feuerschaden: Feuerresistenz mitbringen, Flammen meiden", "Fire damage: bring fire resistance, stay out of flames", "f" },
+  },
+  [262081] = { -- Bolt (Shaper's Terrace)
+    { 0, "positioning", "Kettenblitz springt: nicht stapeln; immun gegen Natur", "Chain lightning jumps: do not stack; immune to nature", "f" },
+  },
+  [262127] = { -- Direhorn Matriarch (Shaper's Terrace)
+    { 0, "tank", "Durchbohren lässt den Tank bluten: mehr Heilung", "Puncture bleeds the tank: extra healing", "f" },
+    { 0, "positioning", "Schwanzpeitsche und Sturmangriff auf Ferne: an ihren Flanken stehen", "Tail lash and charge at distant players: stay at her flanks", "f" },
+  },
+  [262297] = { -- Snowtalon (Shaper's Terrace)
+    { 0, "avoid", "Kältekegel, Frostnova und Wurzeln: Frostresistenz, fern der blauen Kristalle kämpfen", "Cone of cold, frost nova and root: bring frost resistance, fight away from the blue crystals", "f" },
   },
   [263396] = { -- Dark Iron Looter (Hall of Thanes)
     { 0, "tank", "Schnelle Dolchtreffer: wenige pullen, Plünderer zuerst", "Fast dagger hits: pull few, kill looters first", "f" },
@@ -2135,3 +2211,111 @@ for npcID, list in pairs(ns.Mechanics) do
   end
   if #list == 0 then ns.Mechanics[npcID] = nil end
 end
+
+-- Dungeon Guide: ns.MechanicGuide = { [Karten-ID] = { bosses = { { NPC-ID, Name }, ... }, trash = { ... } } }
+ns.MechanicGuide = {
+  [33] = {
+    bosses = { { 3914, "Rethilgore" }, { 3886, "Razorclaw the Butcher" }, { 3887, "Baron Silverlaine" }, { 4278, "Commander Springvale" }, { 4279, "Odo the Blindwatcher" }, { 4274, "Fenrus the Devourer" }, { 3927, "Wolf Master Nandos" }, { 4275, "Archmage Arugal" }, },
+    trash = { { 3872, "Deathsworn Captain" }, { 2529, "Son of Arugal" }, { 3875, "Haunted Servitor" }, { 3855, "Shadowfang Darksoul" }, { 3853, "Shadowfang Moonwalker" }, { 3873, "Tormented Officer" }, { 3877, "Wailing Guardsman" }, { 3864, "Fel Steed" }, },
+  },
+  [34] = {
+    bosses = { { 1696, "Targorr the Dread" }, { 1666, "Kam Deepfury" }, { 1717, "Hamhock" }, { 1716, "Bazil Thredd" }, { 1663, "Dextren Ward" }, },
+    trash = { { 1715, "Defias Insurgent" }, { 1706, "Defias Prisoner" }, },
+  },
+  [36] = {
+    bosses = { { 644, "Rhahk'Zor" }, { 642, "Sneed's Shredder" }, { 643, "Sneed" }, { 1763, "Gilnid" }, { 646, "Mr. Smite" }, { 647, "Captain Greenskin" }, { 639, "Edwin VanCleef" }, { 645, "Cookie" }, },
+    trash = { { 3586, "Miner Johnson" }, { 1729, "Defias Evoker" }, { 4418, "Defias Wizard" }, { 622, "Goblin Engineer" }, { 636, "Defias Blackguard" }, },
+  },
+  [43] = {
+    bosses = { { 3671, "Lady Anacondra" }, { 3669, "Lord Cobrahn" }, { 3670, "Lord Pythas" }, { 3673, "Lord Serpentis" }, { 3674, "Skum" }, { 5775, "Verdan the Everliving" }, { 3654, "Mutanus the Devourer" }, },
+    trash = { { 5761, "Deviate Shambler" }, { 3840, "Druid of the Fang" }, },
+  },
+  [47] = {
+    bosses = { { 6168, "Roogug" }, { 4424, "Aggem Thorncurse" }, { 4428, "Death Speaker Jargba" }, { 4420, "Overlord Ramtusk" }, { 4422, "Agathelos the Raging" }, { 4421, "Charlga Razorflank" }, },
+    trash = { { 4842, "Earthcaller Halmgar" }, { 4425, "Blind Hunter" }, { 4517, "Death's Head Priest" }, { 4519, "Death's Head Seer" }, { 4440, "Razorfen Totemic" }, { 4520, "Razorfen Geomancer" }, { 4522, "Razorfen Dustweaver" }, { 4516, "Death's Head Adept" }, },
+  },
+  [48] = {
+    bosses = { { 4887, "Ghamoo-ra" }, { 4831, "Lady Sarevess" }, { 6243, "Gelihast" }, { 12902, "Lorgus Jett" }, { 12876, "Baron Aquanis" }, { 4830, "Old Serra'kis" }, { 4832, "Twilight Lord Kelris" }, { 4829, "Aku'mai" }, },
+    trash = { { 4802, "Blackfathom Tide Priestess" }, { 4803, "Blackfathom Oracle" }, { 4813, "Twilight Shadowmage" }, { 4811, "Twilight Aquamancer" }, { 4799, "Fallenroot Hellcaller" }, },
+  },
+  [70] = {
+    bosses = { { 6910, "Revelosh" }, { 6906, "The Lost Dwarves" }, { 7228, "Ironaya" }, { 7023, "Obsidian Sentinel" }, { 7206, "Ancient Stone Keeper" }, { 7291, "Galgann Firehammer" }, { 4854, "Grimlok" }, { 2748, "Archaedas" }, },
+    trash = { { 4852, "Stonevault Oracle" }, { 4848, "Shadowforge Darkcaster" }, { 4853, "Stonevault Geomancer" }, { 4863, "Jadespine Basilisk" }, { 7022, "Venomlash Scorpid" }, },
+  },
+  [90] = {
+    bosses = { { 7079, "Viscous Fallout" }, { 7361, "Grubbis" }, { 6235, "Electrocutioner 6000" }, { 6229, "Crowd Pummeler 9-60" }, { 7800, "Mekgineer Thermaplugg" }, },
+    trash = { { 6228, "Dark Iron Ambassador" }, { 6232, "Arcane Nullifier X-21" }, { 6212, "Dark Iron Agent" }, { 7849, "Mobile Alert System" }, { 6224, "Leprous Machinesmith" }, { 6329, "Irradiated Pillager" }, { 6207, "Caverndeep Ambusher" }, },
+  },
+  [109] = {
+    bosses = { { 8580, "Atal'alarion" }, { 5712, "Zolo" }, { 5713, "Gasher" }, { 5714, "Loro" }, { 5715, "Hukku" }, { 5716, "Zul'Lor" }, { 5717, "Mijan" }, { 5710, "Jammal'an the Prophet" }, { 5711, "Ogom the Wretched" }, { 5721, "Dreamscythe" }, { 5720, "Weaver" }, { 5719, "Morphaz" }, { 5722, "Hazzas" }, { 8443, "Avatar of Hakkar" }, { 5709, "Shade of Eranikus" }, },
+    trash = { { 5271, "Atal'ai Deathwalker" }, { 5273, "Atal'ai High Priest" }, { 5259, "Atal'ai Witch Doctor" }, { 5269, "Atal'ai Priest" }, { 5270, "Atal'ai Corpse Eater" }, { 8497, "Nightmare Suppressor" }, { 5280, "Nightmare Wyrmkin" }, { 8336, "Hakkari Sapper" }, { 5291, "Hakkari Frostwing" }, { 5708, "Spawn of Hakkar" }, },
+  },
+  [129] = {
+    bosses = { { 7355, "Tuten'kash" }, { 7356, "Plaguemaw the Rotting" }, { 7357, "Mordresh Fire Eye" }, { 8567, "Glutton" }, { 7358, "Amnennar the Coldbringer" }, },
+    trash = { { 7335, "Death's Head Geomancer" }, { 7337, "Death's Head Necromancer" }, { 7342, "Skeletal Summoner" }, { 7352, "Frozen Soul" }, { 7328, "Withered Reaver" }, { 7332, "Withered Spearhide" }, { 7351, "Tomb Reaver" }, { 7353, "Freezing Spirit" }, { 7341, "Skeletal Frostweaver" }, },
+  },
+  [189] = {
+    bosses = { { 3975, "Herod" }, { 4542, "High Inquisitor Fairbanks" }, { 3976, "Scarlet Commander Mograine" }, { 3977, "High Inquisitor Whitemane" }, { 3983, "Interrogator Vishas" }, { 4543, "Bloodmage Thalnos" }, { 3974, "Houndmaster Loksey" }, { 6487, "Arcanist Doan" }, },
+    trash = { { 4297, "Scarlet Conjuror" }, { 4292, "Scarlet Protector" }, { 4295, "Scarlet Myrmidon" }, { 4303, "Scarlet Abbot" }, { 4294, "Scarlet Sorcerer" }, { 4300, "Scarlet Wizard" }, { 4302, "Scarlet Champion" }, { 6427, "Haunting Phantasm" }, { 6426, "Anguished Dead" }, { 4306, "Scarlet Torturer" }, { 4293, "Scarlet Scryer" }, { 4299, "Scarlet Chaplain" }, { 4296, "Scarlet Adept" }, { 4291, "Scarlet Diviner" }, { 4288, "Scarlet Beastmaster" }, { 4287, "Scarlet Gallant" }, { 4540, "Scarlet Monk" }, },
+  },
+  [209] = {
+    bosses = { { 8127, "Antu'sul" }, { 7272, "Theka the Martyr" }, { 7271, "Witch Doctor Zum'rah" }, { 7274, "Sandfury Executioner" }, { 7796, "Nekrum Gutchewer" }, { 7275, "Shadowpriest Sezz'ziz" }, { 7273, "Gahz'rilla" }, { 7795, "Hydromancer Velratha" }, { 7797, "Ruuzlu" }, { 7267, "Chief Ukorz Sandscalp" }, { 7604, "Sergeant Bly" }, },
+    trash = { { 10082, "Zerillis" }, { 5650, "Sandfury Witch Doctor" }, { 5648, "Sandfury Shadowcaster" }, { 7247, "Sandfury Soul Eater" }, { 7246, "Sandfury Shadowhunter" }, { 8095, "Sul'lithuz Sandcrawler" }, },
+  },
+  [229] = {
+    bosses = { { 9196, "Highlord Omokk" }, { 9236, "Shadow Hunter Vosh'gajin" }, { 9237, "War Master Voone" }, { 16080, "Mor Grayhoof" }, { 10596, "Mother Smolderweb" }, { 10584, "Urok Doomhowl" }, { 9736, "Quartermaster Zigris" }, { 10220, "Halycon" }, { 10268, "Gizrul the Slavener" }, { 9568, "Overlord Wyrmthalak" }, { 9816, "Pyroguard Emberseer" }, { 10264, "Solakar Flamewreath" }, { 10899, "Goraluk Anvilcrack" }, { 10429, "Warchief Rend Blackhand" }, { 10339, "Gyth" }, { 10430, "The Beast" }, { 16042, "Lord Valthalak" }, { 10363, "General Drakkisath" }, },
+    trash = { { 9217, "Spirestone Lord Magus" }, { 10263, "Burning Felguard" }, { 9596, "Bannok Grimaxe" }, { 10376, "Crystal Fang" }, { 9718, "Ghok Bashguud" }, { 9257, "Scarshield Warlock" }, { 9098, "Scarshield Spellbinder" }, { 9258, "Scarshield Raider" }, { 9240, "Smolderthorn Shadow Priest" }, { 9266, "Smolderthorn Witch Doctor" }, { 9263, "Firebrand Dreadweaver" }, { 9264, "Firebrand Pyromancer" }, { 9693, "Bloodaxe Evoker" }, { 9717, "Bloodaxe Summoner" }, { 9198, "Spirestone Mystic" }, { 9201, "Spirestone Ogre Magus" }, { 10374, "Spire Spider" }, { 9818, "Blackhand Summoner" }, { 9817, "Blackhand Dreadweaver" }, { 9819, "Blackhand Veteran" }, { 10316, "Blackhand Incarcerator" }, { 10318, "Blackhand Assassin" }, { 10742, "Blackhand Dragon Handler" }, { 10372, "Rage Talon Fire Tongue" }, { 10083, "Rage Talon Flamescale" }, { 10371, "Rage Talon Captain" }, { 10683, "Rookery Hatcher" }, { 10814, "Chromatic Elite Guard" }, { 9096, "Rage Talon Dragonspawn" }, },
+  },
+  [230] = {
+    bosses = { { 9025, "Lord Roccor" }, { 9018, "High Interrogator Gerstahn" }, { 9319, "Houndmaster Grebmar" }, { 9027, "Gorosh the Dervish" }, { 9028, "Grizzle" }, { 9029, "Eviscerator" }, { 9030, "Ok'thor the Breaker" }, { 9031, "Anub'shiah" }, { 9032, "Hedrum the Creeper" }, { 9024, "Pyromancer Loregrain" }, { 9041, "Warder Stilgiss" }, { 9476, "Watchman Doomgrip" }, { 9056, "Fineous Darkvire" }, { 9017, "Lord Incendius" }, { 9016, "Bael'Gar" }, { 9033, "General Angerforge" }, { 8983, "Golem Lord Argelmach" }, { 9537, "Hurley Blackbreath" }, { 9502, "Phalanx" }, { 9499, "Plugger Spazzring" }, { 9156, "Ambassador Flamelash" }, { 9039, "The Seven" }, { 9938, "Magmus" }, { 8929, "Princess Moira Bronzebeard" }, { 9019, "Emperor Dagran Thaurissan" }, },
+    trash = { { 8923, "Panzor the Invincible" }, { 8894, "Anvilrage Medic" }, { 8900, "Doomforge Arcanasmith" }, { 8911, "Fireguard Destroyer" }, { 8913, "Twilight Emissary" }, { 8912, "Twilight's Hammer Torturer" }, { 8922, "Bloodhound Mastiff" }, { 8908, "Molten War Golem" }, { 8906, "Ragereaver Golem" }, },
+  },
+  [249] = {
+    bosses = { { 10184, "Onyxia" }, },
+    trash = { { 12129, "Onyxian Warder" }, },
+  },
+  [289] = {
+    bosses = { { 14861, "Blood Steward of Kirtonos" }, { 10506, "Kirtonos the Herald" }, { 10503, "Jandice Barov" }, { 11622, "Rattlegore" }, { 14516, "Death Knight Darkreaver" }, { 10433, "Marduk Blackpool" }, { 10432, "Vectus" }, { 10508, "Ras Frostwhisper" }, { 16118, "Kormok" }, { 10505, "Instructor Malicia" }, { 11261, "Doctor Theolen Krastinov" }, { 10901, "Lorekeeper Polkelt" }, { 10507, "The Ravenian" }, { 10504, "Lord Alexei Barov" }, { 10502, "Lady Illucia Barov" }, { 1853, "Darkmaster Gandling" }, },
+    trash = { { 10477, "Scholomance Necromancer" }, { 10472, "Scholomance Occultist" }, { 11582, "Scholomance Dark Summoner" }, { 10469, "Scholomance Adept" }, { 10498, "Spectral Tutor" }, { 10485, "Risen Aberration" }, { 10495, "Diseased Ghoul" }, { 11551, "Necrofiend" }, { 10678, "Plagued Hatchling" }, },
+  },
+  [309] = {
+    bosses = { { 14517, "High Priestess Jeklik" }, { 14507, "High Priest Venoxis" }, { 14510, "High Priestess Mar'li" }, { 14509, "High Priest Thekal" }, { 14515, "High Priestess Arlokk" }, { 11382, "Bloodlord Mandokir" }, { 11380, "Jin'do the Hexxer" }, { 14834, "Hakkar" }, { 15114, "Gahz'ranka" }, { 15082, "Gri'lek" }, { 15083, "Hazza'rah" }, { 15084, "Renataki" }, { 15085, "Wushoolay" }, },
+    trash = { { 11352, "Gurubashi Berserker" }, { 11350, "Gurubashi Axe Thrower" }, { 11338, "Hakkari Shadowcaster" }, { 11353, "Gurubashi Blood Drinker" }, { 11831, "Hakkari Witch Doctor" }, },
+  },
+  [329] = {
+    bosses = { { 10516, "The Unforgiven" }, { 10808, "Timmy the Cruel" }, { 11032, "Malor the Zealous" }, { 10997, "Cannon Master Willey" }, { 10811, "Archivist Galford" }, { 10813, "Balnazzar" }, { 11143, "Postmaster Malown" }, { 10435, "Magistrate Barthilas" }, { 10436, "Baroness Anastari" }, { 10437, "Nerub'enkan" }, { 10438, "Maleki the Pallid" }, { 10439, "Ramstein the Gorger" }, { 10440, "Baron Rivendare" }, },
+    trash = { { 10393, "Skul" }, { 10558, "Hearthsinger Forresten" }, { 10809, "Stonespine" }, { 10423, "Crimson Priest" }, { 10422, "Crimson Sorcerer" }, { 10425, "Crimson Battle Mage" }, { 10426, "Crimson Inquisitor" }, { 11043, "Crimson Monk" }, { 10400, "Thuzadin Necromancer" }, { 10398, "Thuzadin Shadowcaster" }, { 10463, "Shrieking Banshee" }, { 10464, "Wailing Banshee" }, { 10417, "Venom Belcher" }, { 10409, "Rockwing Screecher" }, { 10414, "Patchwork Horror" }, },
+  },
+  [349] = {
+    bosses = { { 13282, "Noxxion" }, { 12258, "Razorlash" }, { 12236, "Lord Vyletongue" }, { 12225, "Celebras the Cursed" }, { 12203, "Landslide" }, { 13601, "Tinkerer Gizlock" }, { 13596, "Rotgrip" }, { 12201, "Princess Theradras" }, },
+    trash = { { 12237, "Meshlok the Harvester" }, { 11790, "Putridus Satyr" }, { 11791, "Putridus Trickster" }, { 11792, "Putridus Shadowstalker" }, { 12206, "Primordial Behemoth" }, { 11793, "Celebrian Dryad" }, { 13141, "Deeprot Stomper" }, { 13142, "Deeprot Tangler" }, { 13323, "Subterranean Diemetradon" }, { 11785, "Ambereye Basilisk" }, { 11784, "Theradrim Guardian" }, { 13533, "Spewed Larva" }, },
+  },
+  [389] = {
+    bosses = { { 11517, "Oggleflint" }, { 11520, "Taragaman the Hungerer" }, { 11518, "Jergosh the Invoker" }, { 11519, "Bazzalan" }, },
+    trash = { { 11319, "Ragefire Shaman" }, { 11324, "Searing Blade Warlock" }, },
+  },
+  [409] = {
+    bosses = { { 12118, "Lucifron" }, { 11982, "Magmadar" }, { 12259, "Gehennas" }, { 12057, "Garr" }, { 12264, "Shazzrah" }, { 12056, "Baron Geddon" }, { 12098, "Sulfuron Harbinger" }, { 11988, "Golemagg the Incinerator" }, { 12018, "Majordomo Executus" }, { 11502, "Ragnaros" }, },
+    trash = { { 11671, "Core Hound" }, { 11673, "Ancient Core Hound" }, { 11668, "Firelord" }, { 11658, "Molten Giant" }, { 11659, "Molten Destroyer" }, { 11667, "Flameguard" }, { 11666, "Firewalker" }, { 12119, "Flamewaker Protector" }, },
+  },
+  [429] = {
+    bosses = { { 14354, "Pusillin" }, { 11490, "Zevrim Thornhoof" }, { 13280, "Hydrospawn" }, { 14327, "Lethtendris" }, { 11492, "Alzzin the Wildshaper" }, { 11489, "Tendris Warpwood" }, { 11488, "Illyanna Ravenoak" }, { 11487, "Magister Kalendris" }, { 11496, "Immol'thar" }, { 11486, "Prince Tortheldrin" }, { 14326, "Guard Mol'dar" }, { 14322, "Stomper Kreeg" }, { 14321, "Guard Fengus" }, { 14323, "Guard Slip'kik" }, { 14325, "Captain Kromcrush" }, { 14324, "Cho'Rush the Observer" }, { 11501, "King Gordok" }, },
+    trash = { { 11457, "Wildspawn Hellcaller" }, { 11456, "Wildspawn Shadowstalker" }, { 11464, "Warpwood Tangler" }, { 11459, "Ironbark Protector" }, { 11480, "Arcane Aberration" }, { 11470, "Eldreth Sorcerer" }, { 11466, "Highborne Summoner" }, { 11444, "Gordok Mage-Lord" }, { 11448, "Gordok Warlock" }, { 14386, "Wandering Eye of Kilrogg" }, },
+  },
+  [469] = {
+    bosses = { { 12435, "Razorgore the Untamed" }, { 13020, "Vaelastrasz the Corrupt" }, { 12017, "Broodlord Lashlayer" }, { 11983, "Firemaw" }, { 14601, "Ebonroc" }, { 11981, "Flamegor" }, { 14020, "Chromaggus" }, { 11583, "Nefarian" }, },
+    trash = { { 12460, "Death Talon Wyrmguard" }, { 12461, "Death Talon Overseer" }, { 12467, "Death Talon Captain" }, { 13996, "Blackwing Technician" }, { 12457, "Blackwing Spellbinder" }, { 12459, "Blackwing Warlock" }, { 12458, "Blackwing Taskmaster" }, { 12464, "Death Talon Seether" }, },
+  },
+  [509] = {
+    bosses = { { 15348, "Kurinnaxx" }, { 15341, "General Rajaxx" }, { 15340, "Moam" }, { 15370, "Buru the Gorger" }, { 15369, "Ayamiss the Hunter" }, { 15339, "Ossirian the Unscarred" }, },
+    trash = { { 15355, "Anubisath Guardian" }, { 15338, "Obsidian Destroyer" }, { 15335, "Flesh Hunter" }, },
+  },
+  [531] = {
+    bosses = { { 15263, "The Prophet Skeram" }, { 15511, "Lord Kri" }, { 15543, "Princess Yauj" }, { 15544, "Vem" }, { 15516, "Battleguard Sartura" }, { 15510, "Fankriss the Unyielding" }, { 15299, "Viscidus" }, { 15509, "Princess Huhuran" }, { 15276, "Emperor Vek'lor" }, { 15275, "Emperor Vek'nilash" }, { 15517, "Ouro" }, { 15727, "C'Thun" }, },
+    trash = { { 15264, "Anubisath Sentinel" }, { 15277, "Anubisath Defender" }, { 15311, "Anubisath Warder" }, { 15252, "Qiraji Champion" }, { 15250, "Qiraji Slayer" }, { 15246, "Qiraji Mindslayer" }, { 15262, "Obsidian Eradicator" }, { 15233, "Vekniss Guardian" }, },
+  },
+  [533] = {
+    bosses = { { 15956, "Anub'Rekhan" }, { 15953, "Grand Widow Faerlina" }, { 15952, "Maexxna" }, { 15954, "Noth the Plaguebringer" }, { 15936, "Heigan the Unclean" }, { 16011, "Loatheb" }, { 16061, "Instructor Razuvious" }, { 16060, "Gothik the Harvester" }, { 16062, "The Four Horsemen" }, { 16028, "Patchwerk" }, { 15931, "Grobbulus" }, { 15932, "Gluth" }, { 15928, "Thaddius" }, { 15989, "Sapphiron" }, { 15990, "Kel'Thuzad" }, },
+    trash = { { 16168, "Stoneskin Gargoyle" }, { 16446, "Plagued Gargoyle" }, { 16021, "Living Monstrosity" }, { 16145, "Death Knight Captain" }, { 16165, "Necro Knight" }, { 15976, "Venom Stalker" }, { 16017, "Patchwork Golem" }, { 16018, "Bile Retcher" }, { 16164, "Shade of Naxxramas" }, { 16163, "Death Knight Cavalier" }, },
+  },
+}

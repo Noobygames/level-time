@@ -131,6 +131,7 @@ local frames = {}
 local frameMethods = {
   GetFont = function() return "Fonts\\FRIZQT__.TTF", 12, "" end,
   GetStringWidth = function(self) return #self._text * 6 end,
+  GetStringHeight = function() return 12 end,
   GetTextWidth = function(self) return #self._text * 6 end,
   GetWidth = function(self) return self._width end,
   SetWidth = function(self, width) self._width = width end,
@@ -486,7 +487,7 @@ local state = wow.state
 
 -- Nachgebaute API nach Bereichen (tests/stub/*.lua), in dieser Reihenfolge wie zuvor in einer Datei
 local stub = { state = state, newFrame = newFrame, ADDON_DIR = ADDON_DIR }
-for _, part in ipairs({ "ui", "chat", "units", "addons", "player", "comfort", "economy", "social" }) do
+for _, part in ipairs({ "ui", "chat", "units", "addons", "player", "comfort", "economy", "social", "damagemeter" }) do
   local chunk, err = loadfile(ADDON_DIR .. "/tests/stub/" .. part .. ".lua")
   if not chunk then error(err, 0) end
   chunk(stub)
@@ -502,6 +503,18 @@ for line in io.lines(ADDON_DIR .. "/LevelTimer.toc") do
     local chunk, err = loadfile(ADDON_DIR .. "/" .. line)
     if not chunk then error(err, 0) end
     chunk("LevelTimer", addon)
+    if line == "Locales/Core.lua" then
+      -- Texte vor PLAYER_LOGIN kämen in der Client-Sprache (ns.db.language fehlt noch): Zugriffe merken
+      wow.earlyTexts = {}
+      local index = getmetatable(addon.L).__index
+      getmetatable(addon.L).__index = function(t, key)
+        if not addon.db then
+          local info = debug.getinfo(2, "Sl")
+          table.insert(wow.earlyTexts, key .. " @ " .. tostring(info.short_src) .. ":" .. tostring(info.currentline))
+        end
+        return index(t, key)
+      end
+    end
   end
 end
 

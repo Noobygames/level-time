@@ -1,0 +1,14 @@
+{
+  "instance": "The Drowned City",
+  "kind": "dungeon",
+  "bosses": [
+    {"name": "Zul'Alai", "npcID": 258905, "mechanics": [
+      {"spellID": 0, "spell": "Enrage", "type": "survive", "en": "Enrages near death and hits the group hard: save cooldowns", "de": "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "version": "forever"}
+    ]},
+    {"name": "Var'Taka", "npcID": 258924, "mechanics": [
+      {"spellID": 0, "spell": "Harpoon", "type": "survive", "en": "Harpoons a random player and pulls them in", "de": "Harpuniert einen zufälligen Spieler und zieht ihn heran", "version": "forever"},
+      {"spellID": 0, "spell": "Priestesses", "type": "adds", "en": "Two priestesses heal him: control or kill them first", "de": "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "version": "forever"}
+    ]}
+  ],
+  "sources": ["https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "https://conquestcapped.com/guides/wow-forever/wow-forever-the-drowned-city-guide/ (2026-11-16; its NPC IDs differ from our dungeon database, which was used)"]
+}

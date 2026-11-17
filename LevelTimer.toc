@@ -11,6 +11,7 @@
 ## Notes-esMX: Estadísticas por nivel y por sesión (tiempo de juego, PX/h, abatidos, muertes y más) con historial para todos los personajes
 ## IconTexture: Interface\AddOns\LevelTimer\Media\Icon
 ## AddonCompartmentFunc: LevelTimer_OnAddonCompartmentClick
+## OptionalDeps: LFGForever
 ## SavedVariables: LevelTimerDB, LevelTimerStatsDB
 # LevelTimerCharDB: veraltet, nur noch geladen, um alte Daten in LevelTimerStatsDB zu übernehmen
 ## SavedVariablesPerCharacter: LevelTimerCharDB
@@ -72,6 +73,8 @@ Assist\InstanceData\anniversary.lua
 Assist\MapCoordsData\anniversary.lua
 Assist\InstanceData\classic_era.lua
 Assist\MapCoordsData\classic_era.lua
+Assist\MapOverlayData\classic_era.lua
+Assist\MapOverlayData\forever.lua
 Assist\InstanceData\forever.lua
 Assist\InstanceData\forever_guide.lua
 Assist\InstanceData\dungeon_db.lua
@@ -128,7 +131,9 @@ History\Money.lua
 History\PlayHours.lua
 History\Instances.lua
 History\InstanceBosses.lua
+History\InstanceWings.lua
 History\InstanceRuns.lua
+Tracking\RunMeter.lua
 History\InstanceLimit.lua
 History\PersonalRecords.lua
 History\QuestEfficiency.lua
@@ -247,6 +252,7 @@ Assist\DungeonQuests.lua
 Assist\LFGData.lua
 Assist\LFGLanguages.lua
 Assist\LFGTooltip.lua
+Assist\LFGFilters.lua
 Assist\LFGSearch.lua
 Assist\QuestTargets.lua
 Assist\DungeonQuestGivers.lua
@@ -256,6 +262,9 @@ Assist\DungeonQuestStarters.lua
 Assist\QuestLevels.lua
 Assist\DungeonQuestTags.lua
 UI\DungeonQuestHint.lua
+Assist\DungeonArt.lua
+Assist\DungeonGuide.lua
+UI\DungeonGuideWindow.lua
 Assist\DungeonQuestHints.lua
 Assist\BagQuests.lua
 Assist\BagQuestMarks.lua
@@ -263,6 +272,7 @@ Assist\Attunements.lua
 Assist\QuestLogRewards.lua
 Assist\QuestTextSize.lua
 Assist\QuestBagItems.lua
+Assist\BagItemMarks.lua
 Assist\QuestItemButton.lua
 Assist\QuestCleanup.lua
 Assist\QuestLeftovers.lua
@@ -280,6 +290,7 @@ Assist\MinimapTweaks.lua
 Assist\MinimapBar.lua
 Assist\BlizzardHide.lua
 Assist\MapCoordinates.lua
+Assist\MapReveal.lua
 Assist\DeathMap.lua
 Assist\QuestFocus.lua
 Assist\QuestMap.lua
@@ -305,6 +316,7 @@ Assist\CooldownNumbers.lua
 Assist\DialogKey.lua
 Assist\TargetRange.lua
 Assist\CollapsedBuffs.lua
+Assist\TrackerCollapse.lua
 Assist\SwingTimer.lua
 Assist\InstanceResetAnnounce.lua
 Assist\HardcoreSafeguard.lua
@@ -330,7 +342,10 @@ Lib\OptionsBuilder.lua
 UI\CharacterMenu.lua
 UI\HistoryWindow.lua
 UI\InstanceRunWindow.lua
+History\InstanceRecap.lua
+UI\DungeonRecapWindow.lua
 UI\LFGWindow.lua
+UI\LFGFilterView.lua
 UI\LFGSearchTab.lua
 UI\LFGOwnGroupTab.lua
 UI\HistoryTables.lua
@@ -345,17 +360,16 @@ Lib\MinimapButton.lua
 UI\MinimapButton.lua
 UI\LFGWindowLaunchers.lua
 UI\Broker.lua
+UI\Options\Icons.lua
 UI\Options\Core.lua
-UI\Options\General.lua
-UI\Options\Statistics.lua
-UI\Options\Notifications.lua
-UI\Options\Alerts.lua
-UI\Options\Comfort.lua
-UI\Options\ComfortQuests.lua
+UI\Options\MainWindow.lua
 UI\Options\Dungeons.lua
-UI\Options\ComfortWorld.lua
-UI\Options\Speedrun.lua
-UI\Options\LFG.lua
+UI\Options\Quests.lua
+UI\Options\Notifications.lua
+UI\Options\Comfort.lua
+UI\Options\Interface.lua
+UI\Options\StreamSpeedrun.lua
+UI\Options\General.lua
 UI\Options\Profiles.lua
 UI\Options\Window.lua
 UI\ExternalOptions.lua

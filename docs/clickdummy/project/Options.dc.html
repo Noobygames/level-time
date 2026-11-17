@@ -35,7 +35,7 @@ button,input{font-family:inherit}
       <!-- Reiter -->
       <div style="width: 210px; flex: none; border-right: 1px solid #333; padding: 10px 0; display: flex; flex-direction: column; gap: 2px">
         <sc-for list="{{pages}}" as="page" hint-placeholder-count="7">
-          <button type="button" onClick="{{page.pick}}" style="{{page.style}}">{{page.label}}</button>
+          <button type="button" onClick="{{page.pick}}" style="{{page.style}}"><span style="display: inline-block; width: 16px; height: 16px; box-sizing: border-box; border: 1px solid #555; font-size: 10px; line-height: 14px; text-align: center; vertical-align: middle; margin-right: 4px">🔹</span>{{page.label}}</button>
         </sc-for>
       </div>
 
@@ -59,7 +59,7 @@ button,input{font-family:inherit}
           <sc-if value="{{hasSubs}}" hint-placeholder-val="{{ true }}">
             <div style="display: flex; column-gap: 14px; row-gap: 2px; flex-wrap: wrap; border-bottom: 1px solid #333; padding-bottom: 6px">
               <sc-for list="{{subs}}" as="sub" hint-placeholder-count="4">
-                <button type="button" onClick="{{sub.pick}}" style="{{sub.style}}">{{sub.label}}</button>
+                <button type="button" onClick="{{sub.pick}}" style="{{sub.style}}"><span style="display: inline-block; width: 16px; height: 16px; box-sizing: border-box; border: 1px solid #555; font-size: 10px; line-height: 14px; text-align: center; vertical-align: middle; margin-right: 4px">🔹</span>{{sub.label}}</button>
               </sc-for>
             </div>
           </sc-if>
@@ -78,7 +78,7 @@ button,input{font-family:inherit}
           <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; row-gap: 4px; align-items: center">
             <sc-for list="{{items}}" as="c" hint-placeholder-count="8">
               <sc-if value="{{c.isSec}}" hint-placeholder-val="{{ false }}">
-                <div style="grid-column: 1 / -1; margin-top: 10px; font-size: 14px; font-weight: 600; color: #ffd100; border-bottom: 1px solid #2c2c2c; padding-bottom: 3px">{{c.label}}<span style="color: #8a8a8a; font-weight: 400">{{c.advTag}}</span></div>
+                <div style="grid-column: 1 / -1; margin-top: 10px; font-size: 14px; font-weight: 600; color: #ffd100; border-bottom: 1px solid #2c2c2c; padding-bottom: 3px"><span style="display: inline-block; width: 16px; height: 16px; box-sizing: border-box; border: 1px solid #555; font-size: 10px; line-height: 14px; text-align: center; vertical-align: middle; margin-right: 4px">🔹</span>{{c.label}}<span style="color: #8a8a8a; font-weight: 400">{{c.advTag}}</span></div>
               </sc-if>
               <sc-if value="{{c.isHint}}" hint-placeholder-val="{{ false }}">
                 <div style="grid-column: 1 / -1; font-size: 12px; color: #c8c8c8; line-height: 1.45">{{c.label}}</div>
@@ -158,7 +158,7 @@ class Component extends DCLogic {
     const subs = page.subs.filter((u) => u.label !== '');
     const sub = subs[s.sub] || subs[0] || { label: '', items: [] };
     const subIndex = page.subs.indexOf(sub);
-    const isPresets = page.label === 'Statistiken';
+    const isPresets = page.label === 'Hauptfenster';
     const navStyle = (on) => 'text-align: left; min-height: 36px; padding: 0 16px; border: 0; cursor: pointer; font-size: 14px; ' +
       (on ? 'background: #2b2410; color: #ffd100; font-weight: 600' : 'background: none; color: #ddd');
     const subStyle = (on) => 'background: none; border: 0; padding: 6px 0; cursor: pointer; font-size: 13px; color: ' +

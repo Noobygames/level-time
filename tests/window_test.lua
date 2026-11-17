@@ -114,7 +114,7 @@ expect("Grün: kein Rahmen", window._borderColor[4], 0)
 expectTrue("Auswahl Magenta", wow.click(addon.L.BACKGROUND_MAGENTA))
 expect("Magenta: Rot", window._backdropColor[1], 1)
 expect("Magenta: Blau", window._backdropColor[3], 1)
-expectTrue("Auswahl Standard", wow.click(addon.L.BACKGROUND_DEFAULT))
+addon.Set("windowBackground", "default")  -- "Standard" gibt es mehrfach (Profil, Tooltip, Swing-Timer); Klick-Weg prüfen Grün und Magenta
 expect("zurück: Deckkraft", window._backdropColor[4], 0.5)
 expectTrue("zurück: Rahmen", window._borderColor[4] ~= 0)
 

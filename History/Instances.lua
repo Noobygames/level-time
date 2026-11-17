@@ -164,6 +164,7 @@ function Instances.ResetCurrent()
   run.level = ns.level
   run.unconfirmed = nil
   run.bosses, run.splits, run.rares, run.groupSize, run.moveAt = nil, nil, nil, nil, nil
+  run.recapPlayers, run.recapMobs = nil, nil
   Instances.NoteGroupSize(run)
   if runningSince then runningSince = GetTime() end
   ns.Debug("instances", "run reset: %s", run.name)
@@ -231,7 +232,7 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     if not before then return end
     pause()
     local fresh = newRun(name, instanceType, before.at, before.level)
-    fresh.mapID, fresh.difficultyID = run.mapID, run.difficultyID
+    fresh.mapID, fresh.difficultyID, fresh.wing = run.mapID, run.difficultyID, run.wing
     fresh.seconds = run.seconds - before.seconds
     for counter, value in pairs(run.stats) do
       fresh.stats[counter] = value - (before.stats[counter] or 0)
@@ -266,6 +267,8 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
     local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
     run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
     run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
+    run.wing = run.wing or previous.wing
+    run.recapPlayers, run.recapMobs = run.recapPlayers or previous.recapPlayers, run.recapMobs or previous.recapMobs
     run.moveAt = previous.moveAt or (run.moveAt and run.moveAt + previous.seconds)
     local stats = run.stats
     stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp

@@ -42,15 +42,19 @@ GetLocale = originalGetLocale
 -- Umschalten in den Einstellungen
 wow.login()
 SlashCmdList.LEVELTIMER("config")
+-- Mit "Automatisch" sind es fünf Einträge: Auswahlliste öffnen, dann die Sprache wählen (LT-308)
+wow.click(addon.L.LANGUAGE_AUTO)
 expectTrue("Reiter Français", wow.click("Français"))
 expect("französische Texte", addon.L.ROW_DEATHS, "Morts")
+wow.click("Français")
 expectTrue("Reiter Español", wow.click("Español"))
 expect("spanische Texte", addon.L.ROW_DEATHS, "Muertes")
 SlashCmdList.LEVELTIMER("history")
 expectTrue("Historie auf Spanisch", wow.click("Gráficos"))
 
 -- Gruppensuche-Fenster (LT-305): deutsche Texte dürfen nicht dem Englischen gleichen (außer gleichen Wörtern)
-local SAME_IN_GERMAN = { LFG_COL_LEVEL = true, LFG_LEVELS = true, LFG_ROLE_TANK = true }
+local SAME_IN_GERMAN = { LFG_COL_LEVEL = true, LFG_LEVELS = true, LFG_ROLE_TANK = true,
+  LFG_SIDE_TAB_LFGF = true, LFG_FILTER_LEVEL = true }  -- Addonname bzw. gleiches Wort
 for key, text in pairs(english) do
   -- Sprachnamen stehen in jeder Sprache in der Eigenbezeichnung (LT-312)
   if key:find("^LFG_") and not key:find("^LFG_LANGUAGE_") and not SAME_IN_GERMAN[key] then

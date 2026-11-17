@@ -29,6 +29,14 @@
         {"spellID": 0, "spell": "Threat reset", "type": "tank", "en": "Drops threat and swaps targets: damage slows down, tank takes him back", "de": "Setzt Bedrohung zurück und wechselt Ziel: Schaden drosseln, Tank holt ihn zurück", "version": "forever"},
         {"spellID": 15588, "spell": "Thunderclap", "type": "positioning", "en": "Thunderclap slows nearby players: ranged keep distance", "de": "Donnerknall verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"}
       ]
+    },
+    {
+      "name": "Highland Horror",
+      "npcID": 260808,
+      "mechanics": [
+        {"spellID": 0, "spell": "Entangling Roots", "type": "dispel", "en": "Roots a player: dispel or free them", "de": "Wurzelt einen Spieler: bannen oder befreien", "version": "forever"},
+        {"spellID": 0, "spell": "Wild Regeneration", "type": "survive", "en": "Regenerates health: keep damage steady", "de": "Regeneriert Leben: Schaden gleichmäßig halten", "version": "forever"}
+      ]
     }
   ],
   "sources": [

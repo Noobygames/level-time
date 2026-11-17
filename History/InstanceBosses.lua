@@ -16,6 +16,8 @@
 -- Flügel ist eine Bossliste, sein letzter Boss schließt ihn ab; der Fortschritt zählt über den Flügel mit den meisten
 -- Kills (vor dem ersten Kill über die ganze Liste), Bosse außerhalb aller Flügel (Event-Bosse) zählen dann nicht mit;
 -- ein abgeschlossener Flügel (Endboss besiegt) geht vor. Wing(record) = dieser Flügel (Bestzeit je Route, Roadmap 322).
+-- Vor dem ersten Boss-Kill gilt record.wing (Hinweis aus InstanceWings.lua: gelernte Mobs, Gruppensuche-Eintrag, LT-318);
+-- ein Boss-Kill geht immer vor (BossWing).
 -- Forever-Aliase (ns.InstanceGuide.encounterAliases): ältere und neuere Encounter-IDs desselben Bosses werden auf den
 -- Eintrag der Bossliste abgebildet, damit jeder Kill zum Fortschritt und zu den Splits zählt.
 -- Rare ohne Encounter (ns.InstanceGuide.rareNpcs): UNIT_DIED (Kampflog oder Event) mit passender NPC-ID in der destGUID; run.rares =
@@ -221,17 +223,33 @@ local function wingIndex(record, killed)
   return bestIndex
 end
 
-function InstanceBosses.Wing(record)
+-- Flügel nur aus den Boss-Kills (ohne Hinweis); nil ohne Kill in einem Flügel
+function InstanceBosses.BossWing(record)
   return wingIndex(record, (InstanceBosses.Killed(record)))
+end
+
+-- Flügel aus den Boss-Kills, sonst der Hinweis record.wing, falls die Karte diesen Flügel hat
+local function runWing(record, killed)
+  local wings = wingsOf(record.mapID)
+  return wingIndex(record, killed) or (wings and wings[record.wing or 0] and record.wing) or nil
+end
+
+function InstanceBosses.Wing(record)
+  return runWing(record, (InstanceBosses.Killed(record)))
+end
+
+-- Bosse des Laufs: mit bekanntem Flügel dessen Liste, sonst die ganze Bossliste; nil ohne Liste
+function InstanceBosses.RunList(record)
+  local list = InstanceBosses.List(record.mapID, record.difficultyID)
+  local wing = list and InstanceBosses.Wing(record)
+  return wing and wingsOf(record.mapID)[wing] or list
 end
 
 -- Besiegte und nötige Bosse der Bossliste (mit Flügeln: des Flügels des Laufs) ohne Rar-Bosse; nil ohne Liste
 function InstanceBosses.Progress(record)
-  local list = InstanceBosses.List(record.mapID, record.difficultyID)
+  local list = InstanceBosses.RunList(record)
   if not list then return nil end
-  local killed = InstanceBosses.Killed(record)
-  local wing = wingIndex(record, killed)
-  return countKilled(wing and wingsOf(record.mapID)[wing] or list, killed)
+  return countKilled(list, (InstanceBosses.Killed(record)))
 end
 
 -- "3/7" (mit Bossliste, ohne Rar-Bosse), "3" (ohne Liste) oder nil, wenn es weder Liste noch Kill gibt
@@ -245,7 +263,7 @@ end
 -- Tooltip-Zeilen: je Boss Symbol (Totenkopf = besiegt, Kopf = lebt), Position im Dungeon, Name und Level, wo bekannt,
 -- und die Zeit bis zum Kill aus splits ({ [encounterID] = Sekunden }, optional); nil ohne Liste
 function InstanceBosses.TooltipLines(record, splits)
-  local list = InstanceBosses.List(record.mapID, record.difficultyID)
+  local list = InstanceBosses.RunList(record)
   if not list then return nil end
   local killed = InstanceBosses.Killed(record)
   local lines = { record.name or "?" }
@@ -258,6 +276,15 @@ function InstanceBosses.TooltipLines(record, splits)
     lines[#lines + 1] = split and (line .. "  " .. ns.Format.Duration(split)) or line
   end
   return lines
+end
+
+-- Module, die auf den abgeschlossenen Lauf reagieren (Endboss gefallen): listener(run, encounterID), z.B. der
+-- Dungeon-Recap (Tracking/RunMeter.lua)
+local completedListeners = {}
+
+function InstanceBosses.OnCompleted(listener)
+  ns.RememberSource(listener, "InstanceBosses.lua")
+  table.insert(completedListeners, listener)
 end
 
 -- Boss im offenen, laufenden Lauf als besiegt eintragen (jeder nur einmal); Endboss meldet den Abschluss
@@ -281,6 +308,7 @@ local function recordKill(id, source)
       ns.Format.Duration(math.max(0, ns.Instances.GetRunSeconds(run) - (run.moveAt or 0))),
       InstanceBosses.ProgressText(run))
     ns.Print(ns.InstanceRuns.IsNewBest() and (text .. " " .. L.DUNGEON_RUN_NEW_BEST) or text)
+    for _, listener in ipairs(completedListeners) do ns.SafeCall(listener, run, id) end
   end
   return true
 end
@@ -353,6 +381,7 @@ local function npcIDOf(guid)
   if type(guid) ~= "string" or (isSecret and isSecret(guid)) then return nil end
   return tonumber((guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)%-")))
 end
+InstanceBosses.NpcIDOf = npcIDOf
 
 -- Gestorbener Gegner (name kann nil sein): Rare über die NPC-ID, Boss über die NPC-ID oder den Namen
 local function onEnemyDied(guid, name)

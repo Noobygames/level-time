@@ -1,5 +1,5 @@
 -- Roadmap 338: Einstellungen ändern ohne unnötige Arbeit. ns.Set mit gleichem Wert wendet nichts an, Regler
--- (ns.SetDeferred) wenden einmal je Frame an, das geschlossene Optionsfenster aktualisiert erst beim Öffnen, und die
+-- (ns.SetDeferred) wenden einmal an, wenn das Ziehen kurz ruht, das geschlossene Optionsfenster aktualisiert erst beim Öffnen, und die
 -- Textbreiten werden nur gemessen, wenn sich ein Text geändert hat (Sprachwechsel).
 local L = addon.L
 
@@ -25,8 +25,17 @@ for value = 50, 70 do addon.SetDeferred("bgAlpha", value / 100) end
 expect("Wert sofort gesetzt", addon.db.bgAlpha, 0.7)
 expect("noch kein Apply", applies.count, 0)
 wow.update(0.02)
-expect("ein Apply im nächsten Frame", applies.count, 1)
-wow.update(0.02)
+expect("nächster Frame: noch kein Apply", applies.count, 0)
+-- Ziehen über viele Bilder (je Bild ein neuer Wert): kein Apply, solange der Regler bewegt wird
+for frame = 1, 60 do
+  addon.SetDeferred("bgAlpha", (40 + frame % 30) / 100)
+  wow.update(0.02)
+end
+expect("beim Ziehen kein Apply", applies.count, 0)
+wow.update(0.1)
+wow.update(0.15)
+expect("ein Apply nach dem Loslassen", applies.count, 1)
+wow.update(0.5)
 expect("danach keiner mehr", applies.count, 1)
 -- Ein sofortiger Apply erledigt einen ausstehenden mit
 addon.SetDeferred("bgAlpha", 0.5)

@@ -30,6 +30,20 @@ local Frames = {
 }
 ns.Frames = Frames
 
+-- Standardpositionen der Anzeigen, die sonst übereinander lägen (nur für nie verschobene Anzeigen; wer verschoben hat,
+-- behält die eigene Stelle). Ein Eintrag hier ersetzt das default der Anmeldung. Spalten am oberen Rand: Mitte
+-- (Einblendung -160, Hinweise -220), links die Zeit-Anzeigen (Lagerfeuer/Essen/Schlafsack), rechts Flug und Dungeonquests.
+Frames.DEFAULT_SLOTS = {
+  camp = { "TOP", "TOP", -330, -230 },
+  food = { "TOP", "TOP", -330, -300 },
+  sleep = { "TOP", "TOP", -330, -370 },
+  flight = { "TOP", "TOP", 330, -160 },
+  dungeonQuestHint = { "TOP", "TOP", 330, -300 },
+  levelUp = { "CENTER", "CENTER", 0, 150 },
+  swingTimer = { "CENTER", "CENTER", 0, -250 },
+  streamGoalBingo = { "LEFT", "LEFT", 40, 100 },
+}
+
 local SCALE_EPSILON = 0.001
 local registry = {}  -- id -> Anmeldung
 local order = {}     -- Anmeldungen in Reihenfolge
@@ -105,6 +119,11 @@ function Frames.GetScale(id)
   local entry = entryOf(reg)
   local scale = entry and entry.scale or (reg.fallbackScale and reg.fallbackScale()) or reg.defaultScale or 1
   return Frames.ClampScale(scale)
+end
+
+-- true, sobald der Spieler die Anzeige verschoben hat (sonst gilt die Standardposition)
+function Frames.HasPosition(id)
+  return hasPosition(entryOf(registry[id]))
 end
 
 -- Gespeicherte Position { point, relPoint, x, y } oder die Standardposition
@@ -281,6 +300,7 @@ end
 function Frames.Register(config)
   assert(not registry[config.id], "frame id registered twice: " .. config.id)
   local reg = config
+  reg.default = Frames.DEFAULT_SLOTS[reg.id] or reg.default
   registry[reg.id] = reg
   table.insert(order, reg)
   local frame = reg.frame

@@ -16,8 +16,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7
         with:
           go-version: "1.23"
           cache-dependency-path: tools/*/go.sum
@@ -28,18 +28,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # GitHub-Release anlegen
-    env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
-      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0  # Packager braucht die Historie für Version und Changelog
       # Datei und Anzeigename auf CurseForge einheitlich "LevelTimer-v1.2.3(.zip)" wie bei den
       # früheren Uploads; ohne -n hieße der Upload nur "v1.2.3" (Format: "{datei}:{label}")
-      - uses: BigWigsMods/packager@v2
+      - uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: -n "{package-name}-{project-version}:{package-name}-{project-version}.zip"
       # Zweites Addon (StreamGoal/, eigenes CurseForge-Projekt, ID in StreamGoal/StreamGoal.toc). Der Packager erwartet
@@ -52,8 +52,11 @@ jobs:
           git filter-branch -f --subdirectory-filter StreamGoal --tag-name-filter cat -- --all
           git checkout -q "$GITHUB_REF_NAME"
       # Ohne GITHUB_OAUTH legt dieser Lauf kein zweites GitHub-Release für denselben Tag an.
-      - uses: BigWigsMods/packager@v2
+      - uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2
         env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
           GITHUB_OAUTH: ""
         with:
           args: -t sg-repo -n "{package-name}-{project-version}:{package-name}-{project-version}.zip"

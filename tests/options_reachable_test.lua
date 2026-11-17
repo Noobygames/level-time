@@ -23,10 +23,11 @@ local pages = options.PageKeys()
 expectTrue("mehrere Seiten", #pages > 20)
 local tabs = {}
 for _, page in ipairs(pages) do tabs[page.tab] = true end
-for _, key in ipairs({ "SECTION_GENERAL", "STATISTICS", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_TAB_ALERTS",
-  "OPTIONS_TAB_COMFORT", "OPTIONS_TAB_SPEEDRUN", "OPTIONS_TAB_PROFILES" }) do
+for _, key in ipairs({ "OPTIONS_TAB_MAIN", "OPTIONS_TAB_DUNGEONS", "OPTIONS_TAB_QUESTS", "OPTIONS_TAB_HINTS",
+  "OPTIONS_TAB_COMFORT", "OPTIONS_TAB_INTERFACE", "OPTIONS_TAB_STREAM_SPEEDRUN", "SECTION_GENERAL" }) do
   expectTrue("Reiter " .. key, tabs[key])
 end
+expect("Profile sind kein Reiter mehr", tabs.OPTIONS_TAB_PROFILES, nil)
 expect("Stream ist kein Reiter mehr", tabs.OPTIONS_TAB_STREAM, nil)
 expect("Timer ist kein Reiter mehr", tabs.OPTIONS_TAB_TIMERS, nil)
 
@@ -124,35 +125,35 @@ local function placeOf(labelKey)
   return entry and entry.tab.key, entry and entry.sub and entry.sub.key
 end
 for _, case in ipairs({
-  { "AUTO_ACCEPT_QUESTS", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_QUESTS" },
-  { "QUEST_EXCLUDE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_QUESTS" },
-  { "QUEST_PROGRESS_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_QUESTS" },
-  { "WARN_QUEST_LOG_FULL_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_QUESTS" },
-  { "ALERT_TOGGLE_QUEST_COMPLETE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_QUESTS" },
-  { "STREAM_MODE", "SECTION_GENERAL", "OPTIONS_TAB_STREAM" },
-  { "WINDOW_VISIBILITY", "SECTION_GENERAL", "OPTIONS_PAGE_WINDOW" },
-  { "WINDOW_LAYOUT", "SECTION_GENERAL", "OPTIONS_PAGE_LAYOUT" },
-  { "FOOD_TIMER_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_TIMERS" },
-  { "FLIGHT_TIMER_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_TRAVEL" },
-  { "LEVEL_UP_SUMMARY_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
-  { "LEVEL_UP_ANNOUNCE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
-  { "ALERT_TOGGLE_LEVEL_UP", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
-  { "LEVEL_UP_WINDOW_TOGGLE", "OPTIONS_TAB_ALERTS", "OPTIONS_PAGE_LEVEL_UP" },
-  { "SESSION_COMPARE_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_LOGIN" },
-  { "BLIZZ_FRAME_CHAT_BUTTONS", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_HIDE" },  -- Blizzard-Leisten: blizzard_hide
-  { "MOVE_FRAMES", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_MAPS" },
+  { "AUTO_ACCEPT_QUESTS", "OPTIONS_TAB_QUESTS", "OPTIONS_PAGE_QUEST_AUTOMATION" },
+  { "QUEST_EXCLUDE", "OPTIONS_TAB_QUESTS", "OPTIONS_PAGE_QUEST_AUTOMATION" },
+  { "QUEST_PROGRESS_TOGGLE", "OPTIONS_TAB_QUESTS", "OPTIONS_PAGE_QUEST_LOG" },
+  { "WARN_QUEST_LOG_FULL_TOGGLE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_WARNINGS" },
+  { "ALERT_TOGGLE_QUEST_COMPLETE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_ALERT_KINDS" },
+  { "STREAM_MODE", "OPTIONS_TAB_STREAM_SPEEDRUN", "OPTIONS_TAB_STREAM" },
+  { "WINDOW_VISIBILITY", "OPTIONS_TAB_MAIN", "OPTIONS_PAGE_WINDOW" },
+  { "WINDOW_LAYOUT", "OPTIONS_TAB_MAIN", "OPTIONS_PAGE_LAYOUT" },
+  { "FOOD_TIMER_TOGGLE", "OPTIONS_TAB_HINTS", "COMFORT_PAGE_TIMERS" },
+  { "FLIGHT_TIMER_TOGGLE", "OPTIONS_TAB_HINTS", "COMFORT_PAGE_TRAVEL" },
+  { "LEVEL_UP_SUMMARY_TOGGLE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "LEVEL_UP_ANNOUNCE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "ALERT_TOGGLE_LEVEL_UP", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "LEVEL_UP_WINDOW_TOGGLE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_LEVEL_UP" },
+  { "SESSION_COMPARE_TOGGLE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_LOGIN" },
+  { "BLIZZ_FRAME_CHAT_BUTTONS", "OPTIONS_TAB_INTERFACE", "COMFORT_PAGE_HIDE" },  -- Blizzard-Leisten: blizzard_hide
+  { "MOVE_FRAMES", "OPTIONS_TAB_INTERFACE", "COMFORT_PAGE_MAPS" },
   { "FASTER_LOOT", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_LOOT" },
-  { "LOOT_ROLL_COUNTS_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_LOOT" },
-  { "SHOW_MINIMAP", "SECTION_GENERAL", "OPTIONS_PAGE_WINDOW" },
-  { "STREAM_LAYOUT", "SECTION_GENERAL", "OPTIONS_TAB_STREAM" },
-  { "LOW_MANA_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_GROUP" },
-  { "REMIND_TRAINER_TOGGLE", "OPTIONS_TAB_NOTIFICATIONS", "OPTIONS_PAGE_REMINDERS" },
-  { "FRIEND_RACE", "OPTIONS_TAB_SPEEDRUN", "OPTIONS_PAGE_COMPARE" },
-  { "STAT_XP_RATE", "STATISTICS", "OPTIONS_PAGE_STAT_XP" },
-  { "DUNGEON_RUN_TRACKER_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_DUNGEONS" },  -- LT-62: alles zu Dungeons
-  { "DUNGEON_RUNS_OPEN", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_DUNGEONS" },
-  { "INSTANCE_REPORT_TOGGLE", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_DUNGEONS" },
-  { "ANNOUNCE_INSTANCE_RESET", "OPTIONS_TAB_COMFORT", "COMFORT_PAGE_DUNGEONS" },
+  { "LOOT_ROLL_COUNTS_TOGGLE", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_LOOT_ROLLS" },
+  { "SHOW_MINIMAP", "SECTION_GENERAL", "OPTIONS_PAGE_MINIMAP" },
+  { "STREAM_LAYOUT", "OPTIONS_TAB_STREAM_SPEEDRUN", "OPTIONS_TAB_STREAM" },
+  { "LOW_MANA_TOGGLE", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_GROUP" },
+  { "REMIND_TRAINER_TOGGLE", "OPTIONS_TAB_HINTS", "OPTIONS_PAGE_REMINDERS" },
+  { "FRIEND_RACE", "OPTIONS_TAB_STREAM_SPEEDRUN", "OPTIONS_PAGE_COMPARE" },
+  { "STAT_XP_RATE", "OPTIONS_TAB_MAIN", "OPTIONS_PAGE_STAT_XP" },
+  { "DUNGEON_RUN_TRACKER_TOGGLE", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_DUNGEON_RUNS" },  -- LT-62: alles zu Dungeons
+  { "DUNGEON_RUNS_OPEN", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_DUNGEON_RUNS" },
+  { "INSTANCE_REPORT_TOGGLE", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_DUNGEON_RUNS" },
+  { "ANNOUNCE_INSTANCE_RESET", "OPTIONS_TAB_DUNGEONS", "OPTIONS_PAGE_DUNGEON_RUNS" },
 }) do
   local tab, sub = placeOf(case[1])
   if tab or case[1] ~= "REMIND_TRAINER_TOGGLE" then  -- Lehrer-Erinnerung gibt es nicht in Retail
@@ -164,7 +165,7 @@ end
 ---------------------------------------------------------------------------
 -- Unterseiten: Klick in der Seitenleiste wechselt, Wechsel springt nach oben; Fensterhöhe = längste Unterseite
 ---------------------------------------------------------------------------
-expectTrue("Reiter Hinweise", wow.click(L.OPTIONS_TAB_NOTIFICATIONS))
+expectTrue("Reiter Hinweise", wow.click(L.OPTIONS_TAB_HINTS))
 expectTrue("Warnungen wählen", wow.click(L.OPTIONS_PAGE_WARNINGS))
 local _, sub = options.CurrentPage()
 expect("Warnungen gezeigt", sub, "OPTIONS_PAGE_WARNINGS")
@@ -173,7 +174,7 @@ expect("Taschen-Warnung sichtbar", bags.left:IsVisible(), true)
 expect("Login-Seite verdeckt", findEntry("SESSION_COMPARE_TOGGLE").left:IsVisible(), false)
 local scroll = bags.tab.scroll
 scroll:SetVerticalScroll(300)
-wow.click(L.OPTIONS_PAGE_GROUP)
+wow.click(L.OPTIONS_PAGE_LOGIN)
 expect("Unterseitenwechsel scrollt nach oben", scroll:GetVerticalScroll(), 62)
 
 -- Zuletzt gezeigte Seite bleibt beim Schließen und Öffnen
@@ -181,8 +182,8 @@ SlashCmdList.LEVELTIMER("config")
 SlashCmdList.LEVELTIMER("config")
 local tab
 tab, sub = options.CurrentPage()
-expect("wieder offen: Reiter", tab, "OPTIONS_TAB_NOTIFICATIONS")
-expect("wieder offen: Unterseite", sub, "OPTIONS_PAGE_GROUP")
+expect("wieder offen: Reiter", tab, "OPTIONS_TAB_HINTS")
+expect("wieder offen: Unterseite", sub, "OPTIONS_PAGE_LOGIN")
 
 -- Höhe: kleiner als die Summe aller Unterseiten eines Reiters (nur die längste zählt)
 UIParent:SetHeight(100000)
@@ -192,7 +193,7 @@ expectTrue("Fenster nicht riesig", LevelTimerOptions:GetHeight() < 900)
 -- Edit-Modus "Einstellungen" springt auf die Unterseite der Anzeige
 addon.ShowOptionsPage("OPTIONS_PAGE_SPLIT_LIST")
 tab, sub = options.CurrentPage()
-expect("Split-Liste: Reiter", tab, "OPTIONS_TAB_SPEEDRUN")
+expect("Split-Liste: Reiter", tab, "OPTIONS_TAB_STREAM_SPEEDRUN")
 expect("Split-Liste: Unterseite", sub, "OPTIONS_PAGE_SPLIT_LIST")
 for _, id in ipairs({ "main", "splitList", "alert", "levelUp", "flight", "food", "lootRolls" }) do
   local reg = addon.Frames.Get(id)

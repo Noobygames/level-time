@@ -13,6 +13,8 @@ ns.RegisterDefaults({
 })
 
 local L = ns.L
+local OPEN_ALL_MIN_WIDTH = 100
+local ALT_MIN_WIDTH = 40
 
 local Mail = {}
 ns.Mail = Mail
@@ -189,9 +191,8 @@ local function updateButtons()
   local inboxParent = InboxFrame or MailFrame
   if inboxParent and not openAllButton then
     openAllButton = CreateFrame("Button", "LevelTimerMailOpenAllButton", inboxParent, "UIPanelButtonTemplate")
-    openAllButton:SetSize(100, 22)
+    openAllButton:SetHeight(22)
     openAllButton:SetPoint("TOPRIGHT", inboxParent, "TOPRIGHT", -60, -30)
-    openAllButton:SetText(L.MAIL_OPEN_ALL)
     openAllButton:SetScript("OnClick", function()
       if Mail.IsOpening() then
         Mail.StopOpenAll()
@@ -213,15 +214,15 @@ local function updateButtons()
     end)
   end
   if openAllButton then
+    ns.Widgets.SetButtonText(openAllButton, L.MAIL_OPEN_ALL, OPEN_ALL_MIN_WIDTH)  -- Sprache zur Anzeigezeit
     openAllButton:Show()
   end
 
   if SendMailNameEditBox and not altButton then
     local sendParent = SendMailFrame or MailFrame or inboxParent
     altButton = CreateFrame("Button", "LevelTimerMailAltButton", sendParent, "UIPanelButtonTemplate")
-    altButton:SetSize(40, 20)
+    altButton:SetHeight(20)
     altButton:SetPoint("LEFT", SendMailNameEditBox, "RIGHT", 4, 0)
-    altButton:SetText(L.MAIL_RECIPIENTS_ALTS or "Alts")
     altButton:SetScript("OnClick", function()
       local alts = Mail.GetKnownAlts()
       if #alts == 0 then return end
@@ -243,6 +244,7 @@ local function updateButtons()
     end)
   end
   if altButton then
+    ns.Widgets.SetButtonText(altButton, L.MAIL_RECIPIENTS_ALTS, ALT_MIN_WIDTH)
     altButton:Show()
   end
 end

@@ -39,13 +39,14 @@ button,input{font-family:inherit}
             <span style="color: {{b.diffColor}}; min-width: 40px; text-align: right">{{b.diff}}</span>
           </div>
         </sc-for>
+        <span style="color: #8a8a8a; padding-left: 22px">+3 weitere</span>
       </div>
-      <div title="Beute-Symbole des nächsten Bosses (ab rar, max. 6); Drüberfahren = Gegenstandsinfo" style="display: flex; gap: 4px">
+      <div title="Beute-Symbole des nächsten Bosses (ab rar, max. 6); Drüberfahren = Gegenstandsinfo, ein * (aus Classic übernommen) wird dort erklärt" style="display: flex; gap: 4px">
         <sc-for list="{{nextLoot}}" as="i" hint-placeholder-count="2">
           <span title="{{i.name}}" style="width: 16px; height: 16px; background: #3a3020; border: 1px solid {{i.color}}; border-radius: 2px"></span>
         </sc-for>
       </div>
-      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #c8c8c8; border-top: 1px solid #333; padding-top: 6px">
+      <div title="Fußzeile erst, sobald ein Wert über 0 liegt" style="display: flex; justify-content: space-between; font-size: 12px; color: #c8c8c8; border-top: 1px solid #333; padding-top: 6px">
         <span>Kills 58</span><span>Tode 1</span><span>XP/h 21.400</span>
       </div>
     </div>

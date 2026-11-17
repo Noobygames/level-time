@@ -67,13 +67,20 @@ function QuestItemTooltip.IsQuestDone(questID)
   return ns.QuestLog.IsFlaggedCompleted(questID)
 end
 
+-- Offenes Ziel (gelernt oder aus dem Zieltext), zu dem ein Gegenstand gehört: { title, objective }; nil ohne
+local function openObjectiveOf(itemID, itemName)
+  local hits = ns.QuestMobs.ForItem(itemID)
+  return hits and hits[1] or objectiveFor(itemName)
+end
+
+-- Gehört der Gegenstand zu einem offenen Sammelziel? (Taschen-Markierung, Assist/BagItemMarks.lua)
+function QuestItemTooltip.IsOpenQuestItem(itemID, itemName)
+  return openObjectiveOf(itemID, itemName) ~= nil
+end
+
 -- Zeile und Farbe für einen Gegenstand; nil ohne Questbezug
 function QuestItemTooltip.Line(itemID, itemName)
-  local hits = ns.QuestMobs.ForItem(itemID)
-  if hits then
-    return string.format(L.QUEST_ITEM_FOR_QUEST, progressText(hits[1].title, hits[1].objective)), OPEN_COLOR
-  end
-  local open = objectiveFor(itemName)
+  local open = openObjectiveOf(itemID, itemName)
   if open then return string.format(L.QUEST_ITEM_FOR_QUEST, progressText(open.title, open.objective)), OPEN_COLOR end
   local quests = ns.QuestMobs.QuestsOfItem(itemID)
   if #quests == 0 then return nil end

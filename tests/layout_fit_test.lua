@@ -62,12 +62,15 @@ local function checkOptions(language)
   expectTrue(language .. ": Suchfeld neben dem Titel",
     16 + search:GetWidth() + 6 <= (options:GetWidth() - titleWidth) / 2)
 
-  -- Sprachwahl: Beschriftung und alle Reiter nebeneinander
-  local row = L.LANGUAGE:len() * 6
+  -- Sprachwahl (Automatisch + vier Sprachen = Auswahlliste): Beschriftung und Knopf mit der gewählten Sprache
+  addon.OptionsWindow.ShowPage("SECTION_LANGUAGE")  -- verborgene Seiten beschriften sich erst beim Zeigen
+  local current
   for _, entry in ipairs(addon.languages) do
-    row = row + findByLabel(entry.name):GetWidth()
+    if entry.code == language then current = entry.name end
   end
-  expectTrue(language .. ": Sprachwahl passt ins Fenster", row < options:GetWidth())
+  local button = findByLabel(current)
+  expectTrue(language .. ": Sprachknopf vorhanden", button ~= nil)
+  expectTrue(language .. ": Sprachwahl passt ins Fenster", L.LANGUAGE:len() * 6 + button:GetWidth() < options:GetWidth())
 
   SlashCmdList.LEVELTIMER("config")  -- schließen
 end

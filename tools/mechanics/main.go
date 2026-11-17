@@ -41,6 +41,9 @@ type unit struct {
 type entry struct {
 	unit
 	instance string
+	mapID    int    // instanceMapID der Datei (0 = unbekannt, dann nicht im Dungeon Guide)
+	group    string // "bosses" oder "trash" (Rare zählen zum Trash)
+	seq      int    // Reihenfolge in den Dateien (Dungeon Guide)
 }
 
 func main() {
@@ -99,14 +102,24 @@ func load(dir string) ([]entry, int, error) {
 			return nil, 0, fmt.Errorf("%s: %w", path, err)
 		}
 		var instance string
+		var mapID int
 		_ = json.Unmarshal(file["instance"], &instance)
+		_ = json.Unmarshal(file["instanceMapID"], &mapID)
 		var units []unit
+		groupOf := map[int]string{}
 		for _, group := range groups {
 			var list []unit
 			if file[group] != nil {
 				if err := json.Unmarshal(file[group], &list); err != nil {
 					return nil, 0, fmt.Errorf("%s (%s): %w", path, group, err)
 				}
+			}
+			kind := "trash"
+			if group == "bosses" {
+				kind = "bosses"
+			}
+			for _, u := range list {
+				groupOf[u.NpcID] = kind
 			}
 			units = append(units, list...)
 		}
@@ -135,7 +148,7 @@ func load(dir string) ([]entry, int, error) {
 				return nil, 0, fmt.Errorf("NPC %d doppelt (%s, %s)", u.NpcID, old.instance, instance)
 			}
 			u.Mechanics = kept
-			byID[u.NpcID] = entry{u, instance}
+			byID[u.NpcID] = entry{u, instance, mapID, groupOf[u.NpcID], len(byID)}
 		}
 	}
 	entries := make([]entry, 0, len(byID))
@@ -232,5 +245,43 @@ for npcID, list in pairs(ns.Mechanics) do
   if #list == 0 then ns.Mechanics[npcID] = nil end
 end
 `)
+	renderGuide(&b, entries)
 	return b.String()
+}
+
+// renderGuide: NPCs je Instanz für den Dungeon Guide (UI/DungeonGuide.lua), in der Reihenfolge der Recherche-Dateien;
+// nur Dateien mit instanceMapID. Name englisch (nur Rückfall, wenn die Bossliste keinen übersetzten Namen hat).
+func renderGuide(b *strings.Builder, entries []entry) {
+	byMap := map[int][]entry{}
+	var maps []int
+	for _, e := range entries {
+		if e.mapID == 0 {
+			continue
+		}
+		if byMap[e.mapID] == nil {
+			maps = append(maps, e.mapID)
+		}
+		byMap[e.mapID] = append(byMap[e.mapID], e)
+	}
+	sort.Ints(maps)
+	b.WriteString(`
+-- Dungeon Guide: ns.MechanicGuide = { [Karten-ID] = { bosses = { { NPC-ID, Name }, ... }, trash = { ... } } }
+ns.MechanicGuide = {
+`)
+	for _, mapID := range maps {
+		list := byMap[mapID]
+		sort.Slice(list, func(i, j int) bool { return list[i].seq < list[j].seq })
+		fmt.Fprintf(b, "  [%d] = {\n", mapID)
+		for _, group := range []string{"bosses", "trash"} {
+			fmt.Fprintf(b, "    %s = {", group)
+			for _, e := range list {
+				if e.group == group {
+					fmt.Fprintf(b, " { %d, %s },", e.NpcID, luaString(e.Name))
+				}
+			}
+			b.WriteString(" },\n")
+		}
+		b.WriteString("  },\n")
+	}
+	b.WriteString("}\n")
 }

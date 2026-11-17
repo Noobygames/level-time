@@ -5,4 +5,7 @@
 	<Binding name="LEVELTIMER_INFO_CARD" category="ADDONS">
 		LevelTimer_InfoCard()
 	</Binding>
+	<Binding name="LEVELTIMER_LFG_WINDOW" category="ADDONS">
+		if LevelTimer_LFGWindow then LevelTimer_LFGWindow() end
+	</Binding>
 </Bindings>

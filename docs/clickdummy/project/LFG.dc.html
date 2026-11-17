@@ -15,7 +15,7 @@ body{margin:0}
 button,input,textarea,select{font-family:inherit}
 </style>
 </helmet>
-<div style="position: relative; width: 1800px; height: 1000px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 28px; align-items: start">
+<div style="position: relative; width: 1800px; height: 1720px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 28px; align-items: start">
 
   <!-- A) Ergänzungen am Blizzard-Gruppensuche-Fenster (nur Post-Hooks / Tooltip-Zeilen) -->
   <section style="display: flex; flex-direction: column; gap: 10px">
@@ -47,16 +47,15 @@ button,input,textarea,select{font-family:inherit}
       <span>Anführer: <span style="color: #C69B6D">Brakkus</span></span>
       <span>Mitglieder: 4 (1 <span style="color: #5fa8ff">Tank</span>, 0 <span style="color: #40ff40">Heiler</span>, 3 <span style="color: #ff5050">Schaden</span>)</span>
       <span style="color: #c8c8c8">Vor 4 Min. erstellt</span>
-      <span style="border-top: 1px solid #444; margin: 6px 0 2px; padding-top: 6px; color: #ffd100">Level Time</span>
       <div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 2px 6px; font-size: 12px">
-        <span style="color: #ffd100">♛</span><span style="color: #C69B6D">Brakkus</span><span style="color: #5fa8ff">Tank</span><span>23 · Westfall</span>
-        <span></span><span style="color: #FFF468">Schattenklinge <span style="color: #40ff40">(Gilde)</span></span><span style="color: #ff5050">DD</span><span>21 · Westfall</span>
-        <span></span><span style="color: #3FC7EB">Feuerfunke</span><span style="color: #ff5050">DD</span><span>20 · Dämmerwald</span>
-        <span></span><span style="color: #AAD372">Pfeilwind</span><span style="color: #ff5050">DD</span><span>22 · Sturmwind</span>
+        <span style="color: #ffd100">♛</span><span style="color: #C69B6D">Brakkus</span><span style="color: #5fa8ff">Tank</span><span style="color: #888">Westfall</span>
+        <span></span><span style="color: #FFF468">Schattenklinge</span><span style="color: #ff5050">DD</span><span style="color: #888">Westfall</span>
+        <span></span><span style="color: #3FC7EB">Feuerfunke</span><span style="color: #ff5050">DD</span><span style="color: #888">Dämmerwald</span>
+        <span></span><span style="color: #AAD372">Pfeilwind</span><span style="color: #ff5050">DD</span><span style="color: #888">Sturmwind</span>
       </div>
+      <span style="border-top: 1px solid #444; margin: 6px 0 2px; padding-top: 6px; color: #ffd100">Level Time</span>
       <span style="font-size: 12px">Level 20–23 · <span style="color: #40ff40">passt zu dir (22)</span></span>
       <span style="font-size: 12px">Offen: <span style="color: #40ff40">1 Heiler</span>, 1 Platz frei</span>
-      <span style="font-size: 12px">Bosse besiegt (ID): <span style="color: #ff9a3c">Rhahk'Zor, Sneed</span></span>
       <span style="font-size: 12px">In der Gruppe: <span style="color: #40ff40">Schattenklinge (Gilde)</span></span>
       <span style="font-size: 12px">Deine offenen Dungeonquests hier: <span style="color: #ffd100">3</span></span>
       <span style="font-size: 11px; color: #9d9d9d">Bei Questgruppen: „Passt zu Quest [Die Bruderschaft], du hast sie im Log“</span>
@@ -88,9 +87,114 @@ button,input,textarea,select{font-family:inherit}
     </div>
     <span style="font-size: 11px; color: #8a8a8a; line-height: 1.5; max-width: 1400px">Reiter Suchen und Eigene Gruppe sitzen wie bei Blizzard unter dem Rahmen. Forever lädt Blizzards Vanilla-Stil: kein Bewerben, Gruppen flüstert man an, Einzelspieler lädt man ein. Eigene Gruppe: Rollenknöpfe wie Blizzard, Anführer-Symbol = einsteigerfreundlich, Spielstil Pflicht, Mehrfachauswahl der Aktivitäten (nach Level absteigend), Voicechat; den Kommentar setzt nur Blizzards gesichertes Feld.</span>
   </section>
+  <!-- C) LT-326: Trefferliste getrennt nach Gruppen und Einzelspielern, Karten im Stil von Blizzards "Suche nach Gruppe" -->
+  <section style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 15px; font-weight: 700; color: #ffd100">C) Trefferliste: Gruppen und Einzelspieler getrennt, Karten wie Blizzard (LT-326, LT-305)</span>
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;color:#9fb3a8">Allein unterwegs: Gruppen oben</span>
+        <div style="width:452px;background:#14100c;border:2px solid #6b5a2a;border-radius:8px;padding:8px;box-sizing:border-box"><div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#2a2014;border:1px solid #5a4a2a;border-radius:3px;color:#ffd100;font-size:14px;margin-top:6px"><span>Gruppen (3)</span><span>−</span></div><div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin:4px 0;background:#1e1712;border:1px solid #3a2f22;border-radius:4px;height:72px;box-sizing:border-box">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:15px;color:#c79c6e"><span style="color:#ffd100">♛</span> Leomar Löwenherz</span><span style="font-size:12px;color:#a0a0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Feste Krol'dok &nbsp;42-46</span></div>
+          <div style="display:flex;gap:3px"><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">🛡</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span></div>
+          <div style="width:56px;text-align:right;font-size:11px;color:#9a9a9a">✔<br>4s</div></div><div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin:4px 0;background:#1e1712;border:1px solid #3a2f22;border-radius:4px;height:72px;box-sizing:border-box">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:15px;color:#f58cba"><span style="color:#ffd100">♛</span> Euter Kontrolleur</span><span style="font-size:12px;color:#a0a0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Scharlachrote Waffenkammer &nbsp;36-43</span><span style="font-size:12px;color:#40c040">Entspannt</span></div>
+          <div style="display:flex;gap:3px"><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">🛡</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span></div>
+          <div style="width:56px;text-align:right;font-size:11px;color:#9a9a9a">✔<br>12s</div></div><div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin:4px 0;background:#1e1712;border:1px solid #3a2f22;border-radius:4px;height:72px;box-sizing:border-box">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:15px;color:#0070de"><span style="color:#ffd100">♛</span> Toxo Plasmosis</span><span style="font-size:12px;color:#a0a0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Scharlachrote Bibliothek &nbsp;34-39</span><span style="font-size:12px;color:#40c040">Entspannt</span></div>
+          <div style="display:flex;gap:3px"><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">🛡</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span></div>
+          <div style="width:56px;text-align:right;font-size:11px;color:#9a9a9a">✔<br>31s</div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#2a2014;border:1px solid #5a4a2a;border-radius:3px;color:#ffd100;font-size:14px;margin-top:6px"><span>Einzelspieler (2)</span><span>+</span></div><div style="display:flex;justify-content:space-between;margin-top:8px"><span style="padding:4px 10px;border:1px solid #555;border-radius:4px;background:#5a1010;color:#ffd100;font-size:12px;opacity:0.5">Flüstern</span><span style="padding:4px 10px;border:1px solid #555;border-radius:4px;background:#5a1010;color:#ffd100;font-size:12px;opacity:0.5">Einladen</span></div></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;color:#9fb3a8">In einer Gruppe (Leute suchen): Einzelspieler oben</span>
+        <div style="width:452px;background:#14100c;border:2px solid #6b5a2a;border-radius:8px;padding:8px;box-sizing:border-box"><div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#2a2014;border:1px solid #5a4a2a;border-radius:3px;color:#ffd100;font-size:14px;margin-top:6px"><span>Einzelspieler (2)</span><span>−</span></div><div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin:4px 0;background:#1e1712;border:1px solid #3a2f22;border-radius:4px;height:72px;box-sizing:border-box">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:15px;color:#abd473">Trol Calar</span><span style="font-size:12px;color:#a0a0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Die Versunkene Stadt &nbsp;39</span></div>
+          <div style="display:flex;gap:3px"><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">✚</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">⚔</span></div>
+          <div style="width:56px;text-align:right;font-size:11px;color:#9a9a9a">✔<br>21s</div></div><div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin:4px 0;background:#1e1712;border:1px solid #3a2f22;border-radius:4px;height:72px;box-sizing:border-box">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:15px;color:#ffffff">Mirelle</span><span style="font-size:12px;color:#a0a0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Hügel von Razorfen &nbsp;40</span><span style="font-size:12px;color:#40c040">Lernen</span></div>
+          <div style="display:flex;gap:3px"><span style="width:22px;height:22px;border-radius:50%;border:1px solid #555;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#2a1a12">🛡</span></div>
+          <div style="width:56px;text-align:right;font-size:11px;color:#9a9a9a">✔<br>54s</div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#2a2014;border:1px solid #5a4a2a;border-radius:3px;color:#ffd100;font-size:14px;margin-top:6px"><span>Gruppen (3)</span><span>+</span></div><div style="display:flex;justify-content:space-between;margin-top:8px"><span style="padding:4px 10px;border:1px solid #555;border-radius:4px;background:#5a1010;color:#ffd100;font-size:12px;opacity:0.5">Flüstern</span><span style="padding:4px 10px;border:1px solid #555;border-radius:4px;background:#5a1010;color:#ffd100;font-size:12px;opacity:0.5">Einladen</span></div></div></div>
+    </div>
+    <span style="font-size: 11px; color: #8a8a8a; line-height: 1.5; max-width: 1000px">Blizzards Look (LFGBrowseNestedSearchEntryTemplate): Abschnittskopf als Leiste mit Plus/Minus, klappt ein/aus (Zustand bleibt). Gerahmte Karte 72 hoch mit 4 Abstand, Hover und Auswahl hervorgehoben: Krone und Leitername groß in Klassenfarbe, Aktivität und Level-Spanne grau, Spielstil grün; rechts je Platz ein Rollen-Symbol 27 px (freie Plätze leer, Einzelspieler: angebotene Rollen), dann Passung (✔) und Alter. Klick wählt (Seitenfenster wie bisher); Flüstern und Einladen unten im Fenster, nur mit Auswahl aktiv. Kategorie und Aktivität stehen rechts vom Porträt (x 70). Mausrad scrollt über beide Abschnitte.</span>
+  </section>
+
+  <!-- D) LT-347/351/352: Filterzeile unter dem Porträt, Seitenreiter (an Blizzards Fenster und an unserem), Filteransicht mit Parität zu LFG Forever -->
+  <section style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 15px; font-weight: 700; color: #ffd100">D) Seitenreiter, Filterzeile unter dem Porträt, Weitere Filter als eigene Ansicht</span>
+    <div style="display: flex; gap: 24px; align-items: flex-start">
+
+      <!-- C1 Blizzards LFGParentFrame mit unserem Seitenreiter unter "Wer" (bzw. unter LFG Forever) -->
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 12px; color: #9fb3a8">Blizzards Gruppensuche: unser Reiter unter Wer (oder unter LFG Forever)</span>
+        <div style="position: relative; width: 300px; height: 400px; background: #14100c; border: 2px solid #6b5a2a; border-radius: 8px">
+          <div style="height: 25px; text-align: center; line-height: 25px; color: #ffd100; font-weight: 700">Gruppensuche</div>
+          <div style="position: absolute; left: -4px; top: -4px; width: 56px; height: 56px; border-radius: 50%; background: #1b3a1b; border: 3px solid #6b5a2a"></div>
+          <div style="padding: 40px 16px; font-size: 12px; color: #8a8a8a">(Blizzards Inhalt bleibt unverändert)</div>
+          <div style="position: absolute; left: 100%; top: 60px; display: flex; flex-direction: column; gap: 2px">
+            <span title="Gruppe eintragen" style="width: 40px; height: 40px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Gruppen suchen" style="width: 40px; height: 40px; background: #3a2e0c; border: 1px solid #ffd100; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Wer" style="width: 40px; height: 40px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="LFG Forever (falls installiert)" style="width: 40px; height: 40px; background: #2a2416; border: 1px dashed #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Level Time: Gruppensuche (öffnet unser Fenster, schließt Blizzards außerhalb des Kampfs)" style="width: 40px; height: 40px; background: #1b3a1b; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block; color: #ffd100; font-size: 11px; text-align: center; line-height: 40px">LT</span>
+          </div>
+        </div>
+        <span style="font-size: 11px; color: #8a8a8a; max-width: 300px">Nur Starter: kein Hook, Blizzards Reiter bleiben unberührt.</span>
+      </div>
+
+      <!-- C2 Unser Fenster, Reiter Suchen -->
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 12px; color: #9fb3a8">Reiter Suchen: Filterzeile unter dem Porträtring, Texte aus Blizzards Client-Sprache</span>
+        <div style="position: relative; width: 480px; height: 600px; box-sizing: border-box; background: #14100c; border: 2px solid #6b5a2a; border-radius: 8px; font-size: 13px">
+          <div style="height: 25px; text-align: center; line-height: 25px; color: #ffd100; font-weight: 700">Gruppensuche</div>
+          <div style="position: absolute; left: -4px; top: -4px; width: 56px; height: 56px; border-radius: 50%; background: #1b3a1b; border: 3px solid #6b5a2a"></div>
+          <div style="position: absolute; top: 60px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; gap: 8px">
+              <span style="height: 25px; padding: 0 8px; border: 1px solid #6b5a2a; background: #0b0b0b; border-radius: 4px; line-height: 23px; color: #ffd100; font-size: 12px; width: 150px">Dungeons ▼</span>
+              <span style="height: 25px; padding: 0 8px; border: 1px solid #6b5a2a; background: #0b0b0b; border-radius: 4px; line-height: 23px; color: #ffd100; font-size: 12px; width: 190px">Alle ▼</span>
+              <span style="margin-left: auto; height: 28px; padding: 0 12px; background: #7a1f1a; border-radius: 4px; line-height: 28px; color: #ffd100">Suchen</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <span>☑ Passend für mich</span>
+              <span style="margin-left: auto; height: 28px; padding: 0 10px; background: #7a1f1a; border-radius: 4px; line-height: 28px; color: #ffd100">Rollenabfrage</span>
+              <span style="height: 28px; padding: 0 10px; background: #7a1f1a; border-radius: 4px; line-height: 28px; color: #ffd100">Weitere Filter (2)</span>
+            </div>
+            <div style="text-align: right; font-size: 12px; color: #8a8a8a">4 Gruppen · 3 Einzelspieler</div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 78px 96px 56px; gap: 8px; font-size: 12px; color: #ffd100; font-weight: 600"><span>Gruppe</span><span>Level</span><span>Rollen</span><span style="text-align: right">Alter</span></div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 78px 96px 56px; gap: 8px; height: 32px; align-items: center"><span style="color: #ffd100">Todesminen - Brakkus</span><span>✔ 20-23</span><span>1 Heiler</span><span style="text-align: right">2m</span></div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 78px 96px 56px; gap: 8px; height: 32px; align-items: center"><span style="color: #ffd100">Schattenfang - Lunalia</span><span>✔ 24-26</span><span>1 Tank</span><span style="text-align: right">6m</span></div>
+            <span style="font-size: 11px; color: #8a8a8a">Freunde/Gilde stehen oben (Filter „Freunde zuerst“), der Tooltip nennt sie</span>
+          </div>
+          <div style="position: absolute; left: 100%; top: 60px; display: flex; flex-direction: column; gap: 2px">
+            <span title="Gruppe eintragen (Blizzard, außerhalb des Kampfs)" style="width: 40px; height: 40px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Gruppen suchen (Blizzard)" style="width: 40px; height: 40px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Wer (Blizzard)" style="width: 40px; height: 40px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="LFG Forever (falls installiert)" style="width: 40px; height: 40px; background: #2a2416; border: 1px dashed #6b5a2a; border-radius: 0 6px 6px 0; display: block"></span>
+            <span title="Level Time (aktiv)" style="width: 40px; height: 40px; background: #3a2e0c; border: 1px solid #ffd100; border-radius: 0 6px 6px 0; display: block; color: #ffd100; font-size: 11px; text-align: center; line-height: 40px">LT</span>
+          </div>
+        </div>
+        <span style="font-size: 11px; color: #8a8a8a; max-width: 480px">Seitenleiste hängt rechts am Fenster, bei offenem Detail rechts am Detail.</span>
+      </div>
+
+      <!-- C3 Weitere Filter: ersetzt die Liste, bis man sie wieder schließt oder sucht -->
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 12px; color: #9fb3a8">Weitere Filter offen: ersetzt die Liste (gespeichert pro Account)</span>
+        <div style="width: 480px; height: 600px; box-sizing: border-box; background: #14100c; border: 2px solid #6b5a2a; border-radius: 8px; padding: 140px 16px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px">
+          <span style="color: #ffd100; font-weight: 600" title="Was angezeigt wird und in welcher Reihenfolge">Anzeige ⓘ</span>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center"><span style="height: 25px; padding: 0 8px; border: 1px solid #6b5a2a; background: #0b0b0b; border-radius: 4px; line-height: 23px; color: #ffd100; font-size: 12px">Art: Alle ▼</span><span>☑ Aufgelöste ausblenden</span><span>☑ Freunde zuerst</span></div>
+          <span style="color: #ffd100; font-weight: 600" title="Gruppen mit freier Rolle oder vorhandenem Tank/Heiler">Gruppen nach Rolle ⓘ</span>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap"><span>☐ Tank frei</span><span>☑ Heiler frei</span><span>☐ Schaden frei</span><span>☐ Hat Tank</span><span>☐ Hat Heiler</span></div>
+          <span style="color: #ffd100; font-weight: 600" title="Einzelspieler nach angebotener Rolle und Level">Spieler ⓘ</span>
+          <div style="display: flex; gap: 12px; align-items: center"><span>☑ Tank</span><span>☑ Heiler</span><span>☐ Schaden</span><span>Level</span><span style="width: 32px; border: 1px solid #555; background: #111; text-align: center">20</span>–<span style="width: 32px; border: 1px solid #555; background: #111; text-align: center">30</span></div>
+          <span style="color: #ffd100; font-weight: 600" title="Abgewählte Klassen: Einzelspieler und Gruppen mit dieser Klasse ausblenden">Klassen ⓘ</span>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font-size: 12px"><span>☑ Krieger</span><span>☑ Paladin</span><span>☑ Jäger</span><span>☑ Schurke</span><span>☑ Priester</span><span>☐ Schamane</span><span>☑ Magier</span><span>☑ Hexenmeister</span><span>☑ Druide</span></div>
+          <div style="display: flex; gap: 12px; align-items: center"><span style="color: #ffd100; font-weight: 600">Spielstil</span><span style="height: 25px; padding: 0 8px; border: 1px solid #6b5a2a; background: #0b0b0b; border-radius: 4px; line-height: 23px; color: #ffd100; font-size: 12px">Alle ▼</span></div>
+          <span style="color: #ffd100; font-weight: 600">Sprachen</span>
+          <div style="display: flex; gap: 12px"><span>☑ Deutsch</span><span>☑ Englisch</span><span>☐ Französisch</span></div>
+          <span style="margin-top: auto; align-self: flex-end; height: 28px; padding: 0 12px; background: #7a1f1a; border-radius: 4px; line-height: 28px; color: #ffd100">Zurücksetzen</span>
+        </div>
+        <span style="font-size: 11px; color: #8a8a8a; max-width: 480px">Auswahl immer per Haken, nie nur per Farbe.</span>
+      </div>
+    </div>
+  </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1720}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);

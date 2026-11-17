@@ -287,6 +287,11 @@ function commands.check()
   X.DebugLog.CheckCommand()
 end
 
+function commands.todo(argument)
+  if not X.CheckList then return X.Print(X.L.NO_LEVEL_TIME) end
+  X.CheckList.Command(argument)
+end
+
 function commands.help()
   X.Print(X.L.HELP)
 end

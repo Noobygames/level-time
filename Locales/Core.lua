@@ -14,13 +14,18 @@ ns.locales = {}  -- je Sprache eine Datei (Locales/deDE.lua, ...), geladen nach 
 -- Client-Sprache, für die es Texte gibt (esMX nutzt die spanischen); sonst Englisch
 local CLIENT_LANGUAGES = { deDE = "deDE", frFR = "frFR", esES = "esES", esMX = "esES" }
 
+-- Einstellungswert "folgt dem Client" (Standard); nur eine bewusste Wahl speichert einen Sprachcode
+ns.AUTO_LANGUAGE = "auto"
+
 function ns.DefaultLanguage()
   return CLIENT_LANGUAGES[GetLocale()] or "enUS"
 end
 
 -- Eingestellte Sprache des Addons (Einstellung language), sonst die des Clients
 function ns.Language()
-  return (ns.db and ns.db.language) or ns.DefaultLanguage()
+  local language = ns.db and ns.db.language
+  if language and language ~= ns.AUTO_LANGUAGE then return language end
+  return ns.DefaultLanguage()
 end
 
 -- L.KEY liefert den Text in der eingestellten Sprache, Fallback Englisch

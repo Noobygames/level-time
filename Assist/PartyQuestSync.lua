@@ -23,6 +23,9 @@ local PartyQuestSync = {
   SEND_INTERVAL = 1,
   MAX_QUEUE = 40,
   REQUEST_COOLDOWN = 30,
+  MAX_PEERS = 40,            -- Obergrenzen gegen unbegrenztes Wachsen durch fremde Nachrichten
+  MAX_QUESTS_PER_PEER = 50,
+  MAX_OBJECTIVES = 10,
 }
 ns.PartyQuestSync = PartyQuestSync
 
@@ -146,15 +149,31 @@ end
 -- Empfangen
 ---------------------------------------------------------------------------
 
+-- Eintrag eines Peers zur Quest holen oder anlegen; nil, wenn eine Obergrenze erreicht ist
+local function peerRecord(playerName, qid)
+  if not peers[playerName] then
+    if PartyQuestSync.GetPeerCount() >= PartyQuestSync.MAX_PEERS then return nil end
+    peers[playerName] = {}
+  end
+  local quests = peers[playerName]
+  if not quests[qid] then
+    local count = 0
+    for _ in pairs(quests) do count = count + 1 end
+    if count >= PartyQuestSync.MAX_QUESTS_PER_PEER then return nil end
+    quests[qid] = { objectives = {} }
+  end
+  return quests[qid]
+end
+
 local function handleSnapshot(sender, body)
   local playerName = shortName(sender)
-  peers[playerName] = peers[playerName] or {}
   local now = GetTime()
   for questChunk in body:gmatch("([^;]+)") do
     local qid, rest = questChunk:match("^(%d+):?(.*)$")
     if qid then
       qid = tonumber(qid)
-      local record = peers[playerName][qid] or { objectives = {} }
+      local record = peerRecord(playerName, qid)
+      if not record then break end
       record.updated = now
       if rest == "ready" then
         record.ready = true
@@ -163,6 +182,7 @@ local function handleSnapshot(sender, body)
         local count = 0
         for idx, have, need in rest:gmatch("(%d+)=(%d+)/(%d+)") do
           idx, have, need = tonumber(idx), tonumber(have), tonumber(need)
+          if idx > PartyQuestSync.MAX_OBJECTIVES then break end
           record.objectives[idx] = { have = have, need = need }
           count = count + 1
           if have < need then allDone = false end
@@ -171,7 +191,6 @@ local function handleSnapshot(sender, body)
           record.ready = true
         end
       end
-      peers[playerName][qid] = record
     end
   end
 end
@@ -190,22 +209,19 @@ local HANDLERS = {
     local qid, idx, have, need = body:match("^(%d+):(%d+):(%d+):(%d+)$")
     if not qid then return end
     qid, idx, have, need = tonumber(qid), tonumber(idx), tonumber(have), tonumber(need)
-    local playerName = shortName(sender)
-    peers[playerName] = peers[playerName] or {}
-    local record = peers[playerName][qid] or { objectives = {} }
+    if idx > PartyQuestSync.MAX_OBJECTIVES then return end
+    local record = peerRecord(shortName(sender), qid)
+    if not record then return end
     record.updated = GetTime()
     record.objectives[idx] = { have = have, need = need }
-    peers[playerName][qid] = record
   end,
   C = function(sender, body)
     local qid = tonumber(body:match("^(%d+)$"))
     if not qid then return end
-    local playerName = shortName(sender)
-    peers[playerName] = peers[playerName] or {}
-    local record = peers[playerName][qid] or { objectives = {} }
+    local record = peerRecord(shortName(sender), qid)
+    if not record then return end
     record.ready = true
     record.updated = GetTime()
-    peers[playerName][qid] = record
   end,
   R = function(sender, body)
     local qid = tonumber(body:match("^(%d+)$"))
@@ -347,6 +363,12 @@ ns.RegisterEvent("GROUP_ROSTER_UPDATE", function()
     peers = {}
     queue = {}
     return
+  end
+  -- Wer die Gruppe verlassen hat, fliegt aus der Liste (nur mit den Gruppen-APIs des Clients)
+  if UnitInParty and UnitInRaid then
+    for name in pairs(peers) do
+      if not (UnitInParty(name) or UnitInRaid(name)) then peers[name] = nil end
+    end
   end
   PartyQuestSync.Request()
 end)

@@ -8,7 +8,7 @@ local Database = {}
 ns.Database = Database
 
 local SETTINGS_DEFAULTS = {
-  language = ns.DefaultLanguage(),
+  language = ns.AUTO_LANGUAGE,  -- folgt dem Client, bis bewusst gewählt
   minimap = { hide = false, angle = 225 },
   -- Einstellungsfenster: true = alle Bausteine, false = Modus "Einfach" (Roadmap 402). Neue Installationen starten
   -- einfach (UX S1); wer den Schlüssel noch nicht gespeichert hat, aber schon Einstellungen hat, behält "alle"
@@ -48,6 +48,8 @@ local CHARACTER_DEFAULTS = {
   customSplits = {},    -- eigene Splits { name, played, time, level }, älteste zuerst (CustomSplits.lua)
   ssfLogouts = 0,       -- echte Logouts seit Beginn der Aufzeichnung (SSF-Regelhelfer, SsfRules.lua)
   dailyStats = {},      -- Tageswerte, Schlüssel "JJJJ-MM-TT" (siehe Daily.lua)
+  trackerCollapsed = {},  -- eingeklappte Teile der Zielverfolgung, Schlüssel = Rahmenname (TrackerCollapse.lua)
+  hiddenDungeonQuestHints = {},  -- abgeschaltete Dungeonquest-Hinweise, Schlüssel = Instanz-Karten-ID (DungeonQuestHints.lua)
 }
 
 -- Migrationen für die Daten eines Charakters, Schlüssel = Zielversion.

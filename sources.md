@@ -13,7 +13,7 @@ not part of Level Time and is never published.
   experience per kill, what they drop), quests (who starts and ends them, objectives, rewards, experience and money per
   character level, where objectives progress), items, vendors, trainers, flight masters and flight times, dungeon
   entrances, bosses, experience per level and from exploring, and which spells creatures in dungeons cast (from the
-  combat log, to verify the spell IDs of the boss and trash mechanics).
+  combat log or the damage meter, to verify the spell IDs of the boss and trash mechanics).
 - Collection happens only through the official addon API of the game client, on our own characters; other players
   are skipped.
 - We use the collected data to build and verify the data files Level Time ships. The measured flight times
@@ -31,6 +31,7 @@ Classic Era, Anniversary, WoW Forever). Our generator `tools/flights` (`make fli
 - instance resets, group sizes and level ranges (`Assist/InstanceData/<flavor>.lua`)
 - dungeon bosses in order (`Assist/BossData/`)
 - map coordinates (`Assist/MapCoordsData/`)
+- world map overlay tiles of unexplored areas, Forever and Classic Era only (`Assist/MapOverlayData/`; DB2 WorldMapOverlay, WorldMapOverlayTile)
 
 Each of these files names the game build it was generated from.
 
@@ -91,5 +92,7 @@ over into the dungeon database as Forever-confirmed drops). Tips for abilities a
 own words. The "Dungeon Levels" table of the overview page is the source of the level ranges in `forever_guide.lua`
 (widest wing range per map). No Wowhead guide existed for The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw
 Hold, Shaper's Terrace, and for the Scarlet Monastery wings other than the Cathedral.
+
+Forever-own dungeons without Wowhead guide (LT-59, 2026-11-16): boss tips for Alcaz Prison, Krol'dok Stronghold, The Drowned City, Shaper's Terrace and Blackmaw Hold are written in our own words from early-clear reports on warcraftmaps.com, conquestcapped.com, daybreakforever.com, wowclassicforever.info (and a mobalytics.gg search summary); boss NPC IDs come from `boss_npcs.lua` (section 4), none of these pages gives spell IDs, so all lines use spell ID 0 and are Forever-only without a Forever-confirmed mark. wowforevertalents.com lists no abilities for these dungeons. The Highland Horror NPC ID (260808) comes from its Wowhead WoW Forever NPC page, its two abilities from the Warcraft Wiki. Many encounters have no reported abilities yet and stay without a line.
 
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites imported once on 2026-11-16 from the same WTFPL quest database as section 4, bag names/slots and the seven enemy drops from Wowhead (2026-11-15); maintained by hand since.

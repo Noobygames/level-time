@@ -35,8 +35,16 @@ local LOOT_ICON_SIZE = 16
 local SAMPLE_MAP, SAMPLE_DIFFICULTY = 36, 1
 local SAMPLE_SECONDS = 1458
 
-local card = ns.Card.Create(ns.GlobalName("DungeonRun"))
+local PORTRAIT_SIZE = 48  -- Porträt des nächsten Bosses größer als das Standard-Symbol einer Karte
+local card = ns.Card.Create(ns.GlobalName("DungeonRun"), { iconSize = PORTRAIT_SIZE })
 ns.Widgets.EnableItemLinks(card.frame)  -- Beute-Symbole des nächsten Bosses mit Item-Tooltip
+-- Stern an unbestätigter Beute: Erklärzeile im Item-Tooltip
+card.frame:SetScript("OnHyperlinkEnter", function(self, link)
+  GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+  GameTooltip:SetHyperlink(link)
+  if ns.BossLoot.IsUnverifiedLink(link) then ns.UnverifiedHint.AddLine(GameTooltip) end
+  GameTooltip:Show()
+end)
 local previewing = false
 local cachedBest = {}  -- Bestzeit zum offenen Lauf: { key, record }
 local portrait  -- Porträt des nächsten Bosses, beim ersten Bedarf angelegt
@@ -74,9 +82,28 @@ local function rareName(name)
   return name .. " " .. Theme.Hex("accent") .. L.DUNGEON_RUNS_RARE_TAG .. "|r"
 end
 
+local function tableIndex(list, value)
+  for index, entry in ipairs(list) do
+    if entry == value then return index end
+  end
+end
+
+-- Kompakt: besiegte Bosse und der nächste, der Rest als "+N weitere" (lines[i] gehört zu list[i])
+local function compact(lines, nextID, list)
+  if not nextID then return lines end
+  local result, hidden = {}, 0
+  for index, line in ipairs(lines) do
+    if index <= (tableIndex(list, nextID)) then result[#result + 1] = line else hidden = hidden + 1 end
+  end
+  if hidden > 0 then
+    result[#result + 1] = Theme.Hex("muted") .. "   " .. string.format(L.DUNGEON_RUN_MORE_BOSSES, hidden) .. "|r"
+  end
+  return result
+end
+
 -- Zeilen der Bossliste, Abstand zur Bestzeit beim zuletzt besiegten Boss (nil ohne Vergleich) und nächster Boss
 local function bossLines(record, best)
-  local list = InstanceBosses.List(record.mapID, record.difficultyID)
+  local list = InstanceBosses.RunList(record)
   if not list then return {}, nil, nil end
   local killed, splits = InstanceBosses.Killed(record), InstanceRuns.Splits(record)
   local bestSplits = best and InstanceRuns.Splits(best) or {}
@@ -101,6 +128,7 @@ local function bossLines(record, best)
       lines[#lines + 1] = Theme.Hex("muted") .. "   " .. name .. "|r"
     end
   end
+  lines = compact(lines, nextID, list)
   -- Rare ohne Encounter: nur besiegte, unter der Bossliste
   for _, rare in ipairs(InstanceBosses.Rares(record)) do
     lines[#lines + 1] = CHECK_MARK .. " " .. rareName(rare.name or tostring(rare.npcID)) .. "  "
@@ -120,8 +148,10 @@ local function showPortrait(npcID)
   CreatureModel.Set(portrait, npcID)
 end
 
+-- Fußzeile nur, sobald ein Wert über 0 liegt (nil sonst)
 local function footer(record)
   local rate = record.seconds > 0 and record.xp * SECONDS_PER_HOUR / record.seconds or 0
+  if record.counters.kills <= 0 and record.counters.deaths <= 0 and rate <= 0 then return nil end
   return Theme.Hex("muted") .. string.format(L.DUNGEON_RUN_TRACKER_FOOTER, record.counters.kills,
     record.counters.deaths, Format.Number(rate)) .. "|r"
 end
@@ -137,7 +167,7 @@ function InstanceRunTracker.Refresh()
   local npcID = nextID and InstanceBosses.NpcID(nextID)
   local loot = nextID and ns.BossLoot.IconLinks(ns.BossLoot.ForBoss(npcID, record.mapID, nextID), LOOT_ICON_SIZE)
   if loot then lines[#lines + 1] = loot end
-  lines[#lines + 1] = footer(record)
+  lines[#lines + 1] = footer(record)  -- nil = keine Zeile
   local timeText = Format.Duration(InstanceRuns.Seconds(record))
   if delta then timeText = timeText .. "  " .. string.format(L.DUNGEON_RUN_VS_BEST, Format.SplitDelta(delta)) end
   -- icon = Platzhalter, das Porträt liegt deckend darüber
@@ -157,7 +187,7 @@ end
 
 ns.Frames.Register({
   id = "dungeonRun", frame = card.frame, label = "EDIT_FRAME_DUNGEON_RUN", default = DEFAULT_POS,
-  settingsPage = "COMFORT_PAGE_DUNGEONS", clickable = true, dragWhenUnlocked = true,
+  settingsPage = "OPTIONS_PAGE_DUNGEON_RUNS", clickable = true, dragWhenUnlocked = true,
   preview = function(on)
     previewing = on and true or false
     InstanceRunTracker.Refresh()

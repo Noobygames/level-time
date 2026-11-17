@@ -25,6 +25,14 @@ function LFGLanguages.IsAvailable()
     and api.GetLanguageSearchFilter ~= nil and api.GetAvailableLanguageSearchFilter ~= nil
 end
 
+-- Name einer Sprache: Blizzards eigener Text (Client-Sprache), sonst unserer, sonst das Kürzel
+function LFGLanguages.Name(code)
+  local blizzard = _G["LFG_LIST_LANGUAGE_" .. code:upper()]
+  if type(blizzard) == "string" and blizzard ~= "" then return blizzard end
+  local key = "LFG_LANGUAGE_" .. code:upper()
+  return ns.L[key] ~= key and ns.L[key] or code
+end
+
 function LFGLanguages.Available()
   local list = LFGLanguages.IsAvailable() and C_LFGList.GetAvailableLanguageSearchFilter()
   return list and #list > 0 and list or FALLBACK_LANGUAGES

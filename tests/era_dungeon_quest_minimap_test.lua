@@ -78,3 +78,23 @@ expect("aus: keine Symbole", #shown(), 0)
 addon.Set("dungeonQuestMinimap", true)
 addon.Set("dungeonQuestGivers", false)
 expect("Geber aus: keine Symbole", #shown(), 0)
+
+-- LT-341: stehender Spieler, Level-Up schaltet neue Angebote frei: Symbole folgen ohne Bewegung
+addon.Set("dungeonQuestGivers", true)
+player = { x, y }
+wow.update(0.3)
+local function shownOffers()
+  local count = 0
+  for _, pin in ipairs(shown()) do count = count + #(pin.offers or {}) end
+  return count
+end
+local function mapOffers()
+  local count = 0
+  for _, place in ipairs(DQ.OffersOnMap(1453)) do count = count + #place.offers end
+  return count
+end
+local before = shownOffers()
+wow.levelUp(60, 100000)
+wow.update(0.3)
+expectTrue("Level-Up bringt neue Angebote", mapOffers() > before)
+expect("Symbole folgen im Stehen", shownOffers(), mapOffers())

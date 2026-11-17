@@ -3,7 +3,8 @@
 -- erscheint das Fenster mit genau diesen Änderungen (Haken "Nicht mehr automatisch anzeigen" = changelogAutoShow aus).
 -- /lt changelog und der Knopf in den Einstellungen zeigen immer die letzten RECENT_DAYS Tage.
 -- Beim allerersten Start kommt die Willkommenskarte; der Changelog gilt dann als gesehen.
--- Inhalt: UI/ChangelogData.lua (ns.CHANGELOG).
+-- Inhalt: UI/ChangelogData.lua (ns.CHANGELOG). Je Tag eine einklappbare Überschrift (beim Öffnen nur der neueste Tag
+-- offen), darunter die Änderungen nach Art: neu, geändert, behoben. Unten fest (scrollt nicht mit) eine Danksagung.
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -21,11 +22,17 @@ local RECENT_DAYS = 14
 local SECONDS_PER_DAY = 86400
 local KIND_COLORS = { new = "ff66dd66", fix = "ffffcc44", change = "ff66bbff" }
 local KIND_LABELS = { new = "CHANGELOG_NEW", fix = "CHANGELOG_FIX", change = "CHANGELOG_CHANGE" }
+local KIND_ORDER = { "new", "change", "fix" }
+local THANKS = { "mamo_derechte" }  -- Danksagung unten im Fenster
+local COLLAPSED_MARK, EXPANDED_MARK = "+", "-"
 
 local WIDTH, HEIGHT = 520, 440
 local MARGIN = 16
 local TITLE_HEIGHT = 24
 local CHECK_HEIGHT = 26
+local THANKS_HEIGHT = 22
+local DAY_GAP = 6          -- Abstand zwischen zwei Tagen
+local DAY_BODY_GAP = 4     -- Überschrift bis Text
 local CHECK_INSET = 4      -- die Checkbox-Vorlage hat links etwas Rand
 local SCROLL_STEP = 40
 
@@ -60,18 +67,29 @@ function Changelog.EntryText(entry)
   return entry[ns.Language()] or entry.enUS
 end
 
--- Ganzer Text: je Tag eine Überschrift, je Änderung eine Zeile "• Neu: ..."
-function Changelog.Format(days)
+-- Änderungen eines Tages nach Art (neu, geändert, behoben), je Änderung eine Zeile "• Neu: ..."; unbekannte Art
+-- zählt als geändert
+function Changelog.FormatDay(day)
   local lines = {}
-  for _, day in ipairs(days) do
-    if #lines > 0 then lines[#lines + 1] = "" end
-    lines[#lines + 1] = ns.Theme.Hex("gold") .. day.date .. "|r"
+  for _, kind in ipairs(KIND_ORDER) do
     for _, entry in ipairs(day.entries) do
-      lines[#lines + 1] = string.format("• |c%s%s:|r %s", KIND_COLORS[entry.kind] or "ffffffff",
-        L[KIND_LABELS[entry.kind] or "CHANGELOG_CHANGE"], Changelog.EntryText(entry))
+      local entryKind = KIND_LABELS[entry.kind] and entry.kind or "change"
+      if entryKind == kind then
+        lines[#lines + 1] = string.format("• |c%s%s:|r %s", KIND_COLORS[kind], L[KIND_LABELS[kind]],
+          Changelog.EntryText(entry))
+      end
     end
   end
   return table.concat(lines, "\n")
+end
+
+-- Ganzer Text aller Tage (Datum, dann die Zeilen)
+function Changelog.Format(days)
+  local blocks = {}
+  for _, day in ipairs(days) do
+    blocks[#blocks + 1] = ns.Theme.Hex("gold") .. day.date .. "|r\n" .. Changelog.FormatDay(day)
+  end
+  return table.concat(blocks, "\n\n")
 end
 
 ---------------------------------------------------------------------------
@@ -90,27 +108,79 @@ table.insert(UISpecialFrames, ns.GlobalName("Changelog"))  -- mit ESC schließen
 local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", 0, -MARGIN)
 
+local CONTENT_WIDTH = WIDTH - 2 * MARGIN
 local area = Widgets.CreateScrollArea(panel, { step = SCROLL_STEP, keepInRange = true })
 area:SetPoint("TOPLEFT", MARGIN, -MARGIN - TITLE_HEIGHT)
-area:SetPoint("BOTTOMRIGHT", -MARGIN, MARGIN + CHECK_HEIGHT)
+area:SetPoint("BOTTOMRIGHT", -MARGIN, MARGIN + CHECK_HEIGHT + THANKS_HEIGHT)
 local content = CreateFrame("Frame", nil, area)
-content:SetSize(WIDTH - 2 * MARGIN, 1)
+content:SetSize(CONTENT_WIDTH, 1)
 area:SetScrollChild(content)
-local body = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-body:SetPoint("TOPLEFT")
-body:SetWidth(WIDTH - 2 * MARGIN)
-body:SetJustifyH("LEFT")
-body:SetSpacing(2)
+
+-- Danksagung: fest über dem Haken, scrollt nicht mit
+local thanks = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+thanks:SetPoint("BOTTOMLEFT", MARGIN, MARGIN + CHECK_HEIGHT)
+thanks:SetPoint("BOTTOMRIGHT", -MARGIN, MARGIN + CHECK_HEIGHT)
+thanks:SetHeight(THANKS_HEIGHT)
+thanks:SetJustifyH("CENTER")
 
 local hideCheck = Widgets.CreateCheckbox(panel, function(checked) ns.Set("changelogAutoShow", not checked) end)
 hideCheck:SetPoint("BOTTOMLEFT", MARGIN - CHECK_INSET, MARGIN - CHECK_INSET)
 
 local shownDays = {}
+local expanded = {}  -- Datum -> true, wenn der Tag offen ist
+local dayRows = {}   -- je gezeigtem Tag: Überschrift und Text (wiederverwendet)
+local refresh
 
-local function refresh()
+local function dayRow(index)
+  if dayRows[index] then return dayRows[index] end
+  local header = Widgets.CreateSectionHeader(content)
+  header:EnableMouse(true)
+  header:SetScript("OnMouseUp", function(self)
+    expanded[self.date] = not expanded[self.date] or nil
+    refresh()
+  end)
+  Widgets.AttachTooltip(header, function() return header.date end, function() return L.SECTION_COLLAPSE_TIP end)
+  local body = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+  body:SetWidth(CONTENT_WIDTH)
+  body:SetJustifyH("LEFT")
+  body:SetSpacing(2)
+  dayRows[index] = { header = header, body = body }
+  return dayRows[index]
+end
+
+-- Tage untereinander: Überschrift mit +/-; offen folgt der Text
+local function layoutDays()
+  local y = 0
+  for index, day in ipairs(shownDays) do
+    local row = dayRow(index)
+    local open = expanded[day.date] == true
+    row.header.date = day.date
+    row.header:SetText((open and EXPANDED_MARK or COLLAPSED_MARK) .. " " .. day.date)
+    row.header:ClearAllPoints()
+    row.header:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -y)
+    row.header:SetPoint("RIGHT", content, "RIGHT")
+    row.header:Show()
+    y = y + (row.header:GetHeight() or 0)
+    row.body:ClearAllPoints()
+    row.body:SetShown(open)
+    if open then
+      row.body:SetText(Changelog.FormatDay(day))
+      row.body:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(y + DAY_BODY_GAP))
+      y = y + DAY_BODY_GAP + math.ceil(row.body:GetStringHeight() or 0)
+    end
+    y = y + DAY_GAP
+  end
+  for index = #shownDays + 1, #dayRows do
+    dayRows[index].header:Hide()
+    dayRows[index].body:Hide()
+  end
+  content:SetHeight(math.max(1, y))
+end
+
+refresh = function()
   title:SetText(L.CHANGELOG_TITLE)
-  body:SetText(Changelog.Format(shownDays))
-  content:SetHeight(math.max(1, body:GetStringHeight() or 1))
+  layoutDays()
+  thanks:SetText(string.format(L.CHANGELOG_THANKS, table.concat(THANKS, ", ")))
   hideCheck.label:SetText(L.CHANGELOG_DONT_SHOW)
   hideCheck:SetChecked(ns.db and ns.db.changelogAutoShow == false)
   hideCheck:SetHitRectInsets(0, -(Widgets.CHECKBOX_LABEL_GAP + (hideCheck.label:GetStringWidth() or 0)), 0, 0)
@@ -121,6 +191,7 @@ Widgets.AttachTooltip(hideCheck, function() return L.CHANGELOG_DONT_SHOW end,
 function Changelog.Show(days)
   if not ns.db or #days == 0 then return end
   shownDays = days
+  expanded = { [days[1].date] = true }  -- nur der neueste Tag offen
   refresh()
   area:ScrollTo(0)
   panel:Show()
@@ -134,13 +205,20 @@ function Changelog.IsShown()
   return panel:IsShown()
 end
 
+-- Ganzer Text der gezeigten Tage (auch eingeklappter)
 function Changelog.Text()
-  return body:GetText()
+  return Changelog.Format(shownDays)
 end
 
--- Test-Zugriff: Haken "Nicht mehr anzeigen"
+-- Test-Zugriff: Haken "Nicht mehr anzeigen", Überschrift des n-ten Tags, ist ein Tag offen?
 function Changelog.HideCheck()
   return hideCheck
+end
+function Changelog.DayHeader(index)
+  return dayRows[index] and dayRows[index].header
+end
+function Changelog.IsExpanded(day)
+  return expanded[day] == true
 end
 
 ns.RegisterApply(function()

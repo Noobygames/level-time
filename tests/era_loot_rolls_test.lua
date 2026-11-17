@@ -77,6 +77,7 @@ expect("Namen je Wahl", table.concat(LootRolls.NamesOf(first, "pass"), ","), "To
 expect("wartende Namen aus der Gruppe", table.concat(LootRolls.NamesOf(second, "waiting"), ","), "Testchar,Tok,Vex")
 expectTrue("Zählerzeile mit Symbolen",
   Display.CountsLine(first):find("UI-GroupLoot-Dice-Up:14:14|t 2", 1, true) ~= nil)
+expectTrue("Karte ohne Nullen", Display.CountsLine(second):find("|t 0", 1, true) == nil)
 expectTrue("Sanduhr in der Zeile", Display.CountsLine(second):find("mini-hourglass:14:14|t 3", 1, true) ~= nil)
 
 -- Zähler unter Blizzards Fenster; Ersatzkarte nur für Würfe ohne sichtbares Fenster
@@ -177,6 +178,6 @@ expect("keine Lua-Fehler", #wow.errors, 0)
 -- Würfelkarte: Symbol im Link-Text (Drüberfahren am Symbol zeigt den Tooltip), ohne Link Symbol + Name
 local Display2 = addon.LootRollDisplay
 expect("Symbol im Link", Display2.ItemText({ texture = 133001, link = "|cff1eff00|Hitem:5:0|h[Helm]|h|r" }),
-  "|cff1eff00|Hitem:5:0|h|T133001:0|t[Helm]|h|r")
-expect("ohne Link Symbol vor dem Namen", Display2.ItemText({ texture = 133001, name = "Helm" }), "|T133001:0|tHelm")
+  "|cff1eff00|Hitem:5:0|h|T133001:0|t [Helm]|h|r")
+expect("ohne Link Symbol vor dem Namen", Display2.ItemText({ texture = 133001, name = "Helm" }), "|T133001:0|t Helm")
 expect("ohne Symbol unverändert", Display2.ItemText({ link = "|Hitem:5|h[Helm]|h" }), "|Hitem:5|h[Helm]|h")

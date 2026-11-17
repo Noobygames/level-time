@@ -28,12 +28,15 @@ LFGWindow.CONTROL_HEIGHT = 28
 LFGWindow.GAP = 8
 LFGWindow.TAB_SEARCH, LFGWindow.TAB_LISTING = 2, 1  -- wie Blizzards Reiter (LFGVanilla_ShowFrame(tab)): 1 Eintrag, 2 Suche
 LFGWindow.ROLE_ORDER = { "TANK", "HEALER", "DAMAGER" }
+-- Blizzards Rollen-Symbole der Gruppensuche (Atlanten)
+LFGWindow.ROLE_ATLAS = { TANK = "groupfinder-icon-role-large-tank", HEALER = "groupfinder-icon-role-large-heal",
+  DAMAGER = "groupfinder-icon-role-large-dps" }
 LFGWindow.SOLO_ROLE_KEYS = { TANK = "tank", HEALER = "healer", DAMAGER = "dps" }
 local TAB_SEARCH, TAB_LISTING = LFGWindow.TAB_SEARCH, LFGWindow.TAB_LISTING
 
 local state = {
-  tab = TAB_SEARCH, categoryID = nil, activityID = nil, fitOnly = false, kind = LFGSearch.KIND_ALL,
-  hideDelisted = true, moreOpen = false, results = {}, offset = 0, selected = nil, status = "start",
+  tab = TAB_SEARCH, categoryID = nil, activityID = nil, fitOnly = false, moreOpen = false, results = {}, lines = {},
+  collapsed = {}, offset = 0, selected = nil, status = "start",
   listingActivities = {}, listingCategoryID = nil, showAllLevels = false, playstyle = nil, voiceMode = nil,
   listingOffset = 0, listingLoaded = false,
 }
@@ -64,15 +67,15 @@ LFGWindow.panel = panel
 
 -- Blizzards Reiter (PanelTabButtonTemplate) unter dem Rahmen; Reihenfolge = Index in panel.Tabs = Reiter-ID
 local tabs = {}
-local function newTab(id, key)
+local function newTab(id, key, globalName)
   local tab = CreateFrame("Button", panelName .. "Tab" .. id, panel, "PanelTabButtonTemplate")
   tab:SetID(id)
-  tab.labelKey = key
+  tab.labelKey, tab.globalName = key, globalName
   tab:SetScript("OnClick", function() LFGWindow.SetTab(id) end)
   tabs[id] = tab
 end
 newTab(TAB_LISTING, "LFG_TAB_LISTING")
-newTab(TAB_SEARCH, "LFG_TAB_SEARCH")
+newTab(TAB_SEARCH, "LFG_TAB_SEARCH", "SEARCH")
 tabs[1]:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", TAB_X, TAB_Y)
 PanelTemplates_SetNumTabs(panel, #tabs)  -- reiht die weiteren Reiter an den ersten
 parts.tabs = tabs
@@ -87,18 +90,27 @@ LFGWindow.searchContainer, LFGWindow.listingContainer = newContainer(), newConta
 ---------------------------------------------------------------------------
 -- Gemeinsame Hilfen der Reiter
 ---------------------------------------------------------------------------
--- Roter Blizzard-Knopf (UIPanelButtonTemplate) mit Tooltip L[key .. "_TIP"]
-function LFGWindow.NewButton(parent, width, key, onClick)
+-- Text wie in Blizzards Fenster: dessen globaler Text (Client-Sprache, z. B. SEARCH, LFG_TITLE), sonst L[key]. Das
+-- Fenster ersetzt Blizzards Gruppensuche und spricht deshalb dessen Sprache, auch wenn das Addon anders eingestellt ist.
+function LFGWindow.Text(globalName, key)
+  local blizzard = globalName and _G[globalName]
+  if type(blizzard) == "string" and blizzard ~= "" then return blizzard end
+  return L[key]
+end
+
+-- Roter Blizzard-Knopf (UIPanelButtonTemplate) mit Tooltip L[key .. "_TIP"]; globalName = Blizzards Text dafür
+function LFGWindow.NewButton(parent, width, key, onClick, globalName)
   local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
   button:SetSize(width, LFGWindow.CONTROL_HEIGHT)
   button:SetScript("OnClick", onClick)
-  button.textKey = key
-  Widgets.AttachTooltip(button, function() return L[key] end, function() return L[key .. "_TIP"] end)
+  button.textKey, button.globalName = key, globalName
+  Widgets.AttachTooltip(button, function() return LFGWindow.Text(globalName, key) end,
+    function() return L[key .. "_TIP"] end)
   return button
 end
 
 function LFGWindow.Retext(button, text)
-  Widgets.SetButtonText(button, text or L[button.textKey], 60)
+  Widgets.SetButtonText(button, text or LFGWindow.Text(button.globalName, button.textKey), 60)
 end
 
 function LFGWindow.NewCheck(parent, key, onToggle)
@@ -171,15 +183,29 @@ function LFGWindow.ActivityEntries(categoryID, fitOnly)
 end
 
 -- Ein Reiter meldet seinen Inhalt an: refresh() füllt ihn, solange er sichtbar ist
+-- Wählbare Spielstile (Enum.LFGEntryGeneralPlaystyle ohne "None") in Blizzards Reihenfolge
+local playstyles = Enum and Enum.LFGEntryGeneralPlaystyle
+LFGWindow.PLAYSTYLE_ORDER = playstyles and { playstyles.Learning, playstyles.FunRelaxed, playstyles.FunSerious,
+  playstyles.Expert } or {}
+
+-- Name eines Spielstils (Enum.LFGEntryGeneralPlaystyle) in der Client-Sprache
+function LFGWindow.PlaystyleLabel(playstyle)
+  return GetGeneralPlaystyleString and GetGeneralPlaystyleString(playstyle) or tostring(playstyle)
+end
+
 function LFGWindow.RegisterTab(id, refresh) tabModules[id] = refresh end
+
+-- Nach jedem Neuaufbau (z. B. Seitenleiste neu anhängen, UI/LFGWindowLaunchers.lua)
+local afterRefresh = {}
+function LFGWindow.OnRefresh(fn) table.insert(afterRefresh, fn) end
 
 ---------------------------------------------------------------------------
 -- Gesamtansicht
 ---------------------------------------------------------------------------
 function LFGWindow.Refresh()
-  if panel.SetTitle then panel:SetTitle(L.LFG_WIN_TITLE) end
+  if panel.SetTitle then panel:SetTitle(LFGWindow.Text("LFG_TITLE", "LFG_WIN_TITLE")) end
   for _, tab in ipairs(tabs) do
-    tab:SetText(L[tab.labelKey])
+    tab:SetText(LFGWindow.Text(tab.globalName, tab.labelKey))
     PanelTemplates_TabResize(tab)
   end
   PanelTemplates_SetTab(panel, state.tab)
@@ -187,6 +213,7 @@ function LFGWindow.Refresh()
   LFGWindow.listingContainer:SetShown(state.tab == TAB_LISTING)
   if parts.detail and state.tab ~= TAB_SEARCH then parts.detail:Hide() end  -- Seitenfenster gehört zur Suche
   if tabModules[state.tab] then tabModules[state.tab]() end
+  for _, fn in ipairs(afterRefresh) do fn() end
 end
 
 function LFGWindow.SetTab(id)
