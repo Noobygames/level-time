@@ -237,6 +237,7 @@ local EVENT_PROBES = {
   { event = "ENCOUNTER_END", state = true },
   { event = "BOSS_KILL" },
   { event = "CHAT_MSG_SYSTEM" },
+  { event = "UI_ERROR_MESSAGE" },  -- Zu-viele-Instanzen-Abbruch: Systemchat oder Fehlerzeile?
   -- Beute, Geld, Berufe, Ruf, Ehre, Erfolge (254, 262, 276, 278, 295, 297, 303, 309)
   { event = "LOOT_READY", extra = lootSlots },
   { event = "LOOT_BIND_CONFIRM" },

@@ -115,6 +115,14 @@ end)
 ---------------------------------------------------------------------------
 
 -- true, wenn Einladungen dieses Spielers angenommen statt abgelehnt werden (auch für Declines.lua)
+-- Die GUID ist das einzige String-Argument hinter dem Namen (WoW Forever hat zusätzlich isCrossShard, die Position wechselt)
+function Social.InviterGUID(...)
+  for i = 1, select("#", ...) do
+    local value = select(i, ...)
+    if type(value) == "string" then return value end
+  end
+end
+
 function Social.TrustsInviter(name, guid)
   return ns.db ~= nil and ns.db.acceptFriendInvites == true and Friends.IsTrusted(name, guid)
 end
@@ -125,8 +133,11 @@ local function closeInvitePopup()
   StaticPopup_Hide(PARTY_INVITE_POPUP)
 end
 
-ns.RegisterEvent("PARTY_INVITE_REQUEST", function(name, isTank, isHealer, isDamage, _, _, inviterGUID, questSessionActive)
+ns.RegisterEvent("PARTY_INVITE_REQUEST", function(name, isTank, isHealer, isDamage, ...)
+  local inviterGUID = Social.InviterGUID(...)
   if not Social.TrustsInviter(name, inviterGUID) then return end
+  -- questSessionActive ist immer das letzte Argument
+  local questSessionActive = select(select("#", ...), ...)
   if isTank or isHealer or isDamage or questSessionActive then
     ns.Debug("social", "invite from %s needs roles or party sync, left to the player", name)
     return

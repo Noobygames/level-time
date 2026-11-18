@@ -69,10 +69,15 @@ end
 
 local function readCommunities()
   local members = {}
+  -- Geheime Rückgaben (Chat-Sperre, eingeschränkte Karten) überspringen statt zu vergleichen
   for _, club in ipairs(C_Club.GetSubscribedClubs() or {}) do
-    if club.clubType == CHARACTER_CLUB then
+    if not ns.IsSecret(club) and not ns.IsSecret(club.clubType) and not ns.IsSecret(club.clubId)
+      and club.clubType == CHARACTER_CLUB then
       for _, memberId in ipairs(C_Club.GetClubMembers(club.clubId) or {}) do
-        addMember(members, C_Club.GetMemberInfo(club.clubId, memberId))
+        if not ns.IsSecret(memberId) then
+          local info = C_Club.GetMemberInfo(club.clubId, memberId)
+          if not ns.IsSecret(info) then addMember(members, info) end
+        end
       end
     end
   end

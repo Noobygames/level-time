@@ -145,6 +145,7 @@ function UnitIsDead(unit) return state.units[unit] ~= nil and state.units[unit].
 -- Temporäre Waffen-Verzauberung der Haupthand: state.mainHandEnchant = true
 function GetWeaponEnchantInfo() return state.mainHandEnchant == true end
 function GetInventoryItemCount(_, slot) return state.inventoryCounts[slot] or 0 end
+function GetInventoryItemTexture(_, slot) return (state.inventoryCounts[slot] or 0) > 0 and "tex" or nil end
 function GetInventoryItemDurability(slot)
   local entry = state.durability[slot]
   if not entry then return nil end

@@ -93,6 +93,7 @@ ns.Database.OnCharacterReplaced(forgetCharacterKeys)
 -- andere Charaktere nur als "Charakter N" (N = Platz in GetCharacterKeys), gegen Stream-Sniping.
 function History.DisplayName(characterKey)
   local character = History.GetCharacter(characterKey)
+  if not character then return "?" end
   if not ns.db.streamerPrivacy then
     return (character.name or "?") .. " - " .. (character.realm or "?")
   end

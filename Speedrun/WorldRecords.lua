@@ -21,7 +21,9 @@ local WorldRecords = {
 }
 ns.WorldRecords = WorldRecords
 
+-- Die Rekorde stammen aus Classic Era (speedrun.com); mit Retail-Zeiten sind sie nicht vergleichbar
 local function data()
+  if ns.Client.IsRetail() then return { brackets = {} } end
   return ns.SpeedrunRecordsData or { brackets = {} }
 end
 

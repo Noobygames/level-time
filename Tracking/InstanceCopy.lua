@@ -59,7 +59,7 @@ local inside
 -- Zuletzt als Geist verlassene Instanz: { key, name }; nil, sobald man sie lebend verlassen hat
 local leftAsGhost
 
-local listeners = { enter = {}, leave = {}, corrected = {}, confirmed = {}, reset = {} }
+local listeners = { enter = {}, leave = {}, corrected = {}, confirmed = {}, reset = {}, settled = {} }
 
 local function notify(kind, ...)
   for _, listener in ipairs(listeners[kind]) do
@@ -71,6 +71,7 @@ function InstanceCopy.OnEnter(fn) table.insert(listeners.enter, fn) end
 function InstanceCopy.OnLeave(fn) table.insert(listeners.leave, fn) end
 function InstanceCopy.OnCorrected(fn) table.insert(listeners.corrected, fn) end
 function InstanceCopy.OnConfirmed(fn) table.insert(listeners.confirmed, fn) end
+function InstanceCopy.OnSettled(fn) table.insert(listeners.settled, fn) end
 function InstanceCopy.OnReset(fn) table.insert(listeners.reset, fn) end
 
 -- Name der Instanz, in der man gerade ist; nil draußen
@@ -185,6 +186,7 @@ local function enter(key, name, instanceType, difficultyID)
   if pending and not guessNew then
     -- Dieselbe, noch unbestätigte Kopie wie beim letzten Aufenthalt: deren Schätzung gilt weiter
     inside = stay(key, name, instanceType, pending.enteredAt, pending.guessNew, pending.expected)
+    inside.lastEnteredAt = now  -- Zeitpunkt dieses Betretens (enteredAt ist das erste der unbestätigten Kette)
     visit.leftAt = nil
     ns.Debug("instances", "back in unconfirmed %s", name)
     notify("enter", name, instanceType, false)
@@ -226,7 +228,7 @@ local function confirm(zoneUID)
     local isNew = zoneUID ~= expected
     if isNew ~= inside.guessNew then
       ns.Debug("instances", "%s: zoneUID %s vs %s, new copy: %s", inside.name, zoneUID, expected, isNew)
-      notify("corrected", inside.name, inside.instanceType, isNew, inside.enteredAt)
+      notify("corrected", inside.name, inside.instanceType, isNew, inside.lastEnteredAt or inside.enteredAt)
     end
   end
   notify("confirmed", inside.name, zoneUID)
@@ -244,8 +246,9 @@ function InstanceCopy.ReportNewCopy()
   if not inside then return end
   ns.Debug("instances", "boss alive again in %s: new copy", inside.key)
   inside.guessNew, inside.expectedZoneUID = true, nil
-  visits()[inside.key] = { pending = { guessNew = true, enteredAt = inside.enteredAt } }
-  notify("corrected", inside.name, inside.instanceType, true, inside.enteredAt)
+  local enteredAt = inside.lastEnteredAt or inside.enteredAt
+  visits()[inside.key] = { pending = { guessNew = true, enteredAt = enteredAt } }
+  notify("corrected", inside.name, inside.instanceType, true, enteredAt)
 end
 
 -- Gegner gesehen: zoneUID zählt erst, wenn CONFIRM_SIGHTINGS verschiedene Gegner sie zeigen
@@ -287,6 +290,7 @@ local function difficultySettled(key)
   local all = visits()
   all[key], all[inside.key] = all[inside.key], nil
   inside.key = key
+  notify("settled", inside.name)
 end
 
 local function onWorldChanged()

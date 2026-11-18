@@ -33,6 +33,10 @@ end
 -- Ursache des letzten Todes { killer, spell, environment } oder nil (keine API, kein Recap, nur geheime Werte).
 -- Ohne recapID liefert der Client den Recap des letzten Todes: recapID ist laut DeathRecapDocumentation.lua (live und
 -- forever) Nilable, Blizzards Recap-Fenster ruft GetRecapEvents(self:GetRecapID()) ebenfalls mit nil auf (Roadmap 180).
+-- Zeitstempel des tödlichen Treffers des zuletzt gelieferten Recaps: ein Recap mit gleichem oder älterem
+-- Zeitstempel gehört zu einem früheren Tod (der neue ist beim PLAYER_DEAD womöglich noch nicht aufgebaut)
+local lastTimestamp
+
 function DeathRecap.GetLastCause()
   if not DeathRecap.IsAvailable() then return nil end
   local ok, events = pcall(C_DeathRecap.GetRecapEvents)
@@ -40,6 +44,17 @@ function DeathRecap.GetLastCause()
   if not ok or type(events) ~= "table" then return nil end
   local event = events[KILLING_BLOW_INDEX]
   if not event then return nil end
+  local stamp = readable(event.timestamp)
+  if type(stamp) == "number" then
+    if lastTimestamp and stamp <= lastTimestamp then
+      ns.Debug("death", "recap is older than the last used one, ignored")
+      return nil
+    end
+  else
+    stamp = nil
+  end
   local cause = toCause(event)
-  return hasCause(cause) and cause or nil
+  if not hasCause(cause) then return nil end
+  lastTimestamp = stamp or lastTimestamp
+  return cause
 end

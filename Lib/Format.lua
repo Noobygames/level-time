@@ -83,7 +83,7 @@ end
 
 -- Große Zahlen kürzen: 950, 12.3k, 1.2M
 function Format.Number(value)
-  if value >= 1000000 then
+  if value >= 999950 then  -- ab hier rundet %.1f der k-Stufe auf 1000.0k
     return string.format("%.1f%s", value / 1000000, unit("UNIT_MILLION_SHORT"))
   elseif value >= 1000 then
     return string.format("%.1f%s", value / 1000, unit("UNIT_THOUSAND_SHORT"))

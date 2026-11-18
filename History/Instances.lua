@@ -86,7 +86,7 @@ end
 local function shiftedSplits(splits, offset)
   if not splits then return nil end
   local shifted = {}
-  for value in string.gmatch(splits, "%d+") do shifted[#shifted + 1] = tonumber(value) + offset end
+  for value in string.gmatch(splits, "%d+") do shifted[#shifted + 1] = math.max(0, math.floor(tonumber(value) + offset + 0.5)) end
   return table.concat(shifted, ",")
 end
 
@@ -184,6 +184,32 @@ local function appended(text, head)
   return text:sub(#head + 2)
 end
 
+-- Den zuletzt beendeten Teil derselben Kopie (Journal-Eintrag previous) in den offenen Lauf run zurückführen
+local function mergePrevious(run, previous)
+  run.startedAt, run.level = previous.time, previous.level
+  run.seconds = run.seconds + previous.seconds
+  -- Splits nach dem Wiedereintritt zählen ab dem Start des zusammengeführten Laufs; fehlen sie beim vorigen Teil
+  -- trotz Bossen (ältere Version), passen sie nicht mehr zu den Bossen und fallen weg
+  local ownSplits = shiftedSplits(run.splits, previous.seconds)
+  if previous.bosses then
+    run.bosses = run.bosses and (previous.bosses .. "," .. run.bosses) or previous.bosses
+    run.splits = previous.splits and (ownSplits and (previous.splits .. "," .. ownSplits) or previous.splits) or nil
+  else
+    run.splits = ownSplits
+  end
+  local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
+  run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
+  run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
+  run.wing = run.wing or previous.wing
+  run.recapPlayers, run.recapMobs = run.recapPlayers or previous.recapPlayers, run.recapMobs or previous.recapMobs
+  run.moveAt = previous.moveAt or (run.moveAt and run.moveAt + previous.seconds)
+  local stats = run.stats
+  stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
+  for _, mapping in ipairs(RECORD_COUNTERS) do
+    stats[mapping.counter] = (stats[mapping.counter] or 0) + (previous.counters[mapping.field] or 0)
+  end
+end
+
 InstanceCopy.OnEnter(function(name, instanceType, isNew)
   local run = currentRun()
   if run and run.name == name and not isNew then
@@ -197,8 +223,11 @@ InstanceCopy.OnEnter(function(name, instanceType, isNew)
   else
     ns.Debug("instances", "new run: %s (open run %s, guessed new %s, ghost %s)", name, run and run.name, isNew,
       UnitIsDeadOrGhost("player"))
+    -- Dieselbe Kopie nach kurzem Abstecher in eine andere Instanz: deren Teil steht noch als letzter Eintrag im Journal
+    local previous = not isNew and Journal.TakeLastInstanceRun(name) or nil
     finish()
     ns.character.currentRun = newRun(name, instanceType, time(), ns.level)
+    if previous then mergePrevious(currentRun(), previous) end
     currentRun().mapID, currentRun().difficultyID = currentIds()
     Instances.NoteGroupSize(currentRun())
   end
@@ -253,29 +282,15 @@ InstanceCopy.OnCorrected(function(name, instanceType, isNew)
   else
     local previous = Journal.TakeLastInstanceRun(name)
     if not previous then return end
-    run.startedAt, run.level = previous.time, previous.level
-    run.seconds = run.seconds + previous.seconds
-    -- Splits nach dem Wiedereintritt zählen ab dem Start des zusammengeführten Laufs; fehlen sie beim vorigen Teil
-    -- trotz Bossen (ältere Version), passen sie nicht mehr zu den Bossen und fallen weg
-    local ownSplits = shiftedSplits(run.splits, previous.seconds)
-    if previous.bosses then
-      run.bosses = run.bosses and (previous.bosses .. "," .. run.bosses) or previous.bosses
-      run.splits = previous.splits and (ownSplits and (previous.splits .. "," .. ownSplits) or previous.splits) or nil
-    else
-      run.splits = ownSplits
-    end
-    local ownRares = ns.InstanceBosses.ShiftRares(run.rares, previous.seconds)
-    run.rares = previous.rares and (ownRares and (previous.rares .. ";" .. ownRares) or previous.rares) or ownRares
-    run.groupSize = math.max(run.groupSize or 1, previous.groupSize or 1)
-    run.wing = run.wing or previous.wing
-    run.recapPlayers, run.recapMobs = run.recapPlayers or previous.recapPlayers, run.recapMobs or previous.recapMobs
-    run.moveAt = previous.moveAt or (run.moveAt and run.moveAt + previous.seconds)
-    local stats = run.stats
-    stats[Stats.XP_GAINED] = (stats[Stats.XP_GAINED] or 0) + previous.xp
-    for _, mapping in ipairs(RECORD_COUNTERS) do
-      stats[mapping.counter] = (stats[mapping.counter] or 0) + (previous.counters[mapping.field] or 0)
-    end
+    mergePrevious(run, previous)
   end
+end)
+
+-- Schwierigkeit hat sich drinnen eingependelt (beim Betreten meldete der Client 0): Lauf mit den echten IDs führen
+InstanceCopy.OnSettled(function(name)
+  local run = currentRun()
+  if not run or run.name ~= name or (run.difficultyID or 0) ~= 0 then return end
+  run.mapID, run.difficultyID = currentIds()
 end)
 
 InstanceCopy.OnConfirmed(function(name, zoneUID)

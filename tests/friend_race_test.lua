@@ -107,7 +107,7 @@ expect("riesige Zeit verworfen", select(2, FriendRace.Current()).times[10], nil)
 wow.fire("CHAT_MSG_ADDON", "LevelTimer", "T:99:5,0,7", "WHISPER", "Freund-Testrealm")
 local friendTimes = select(2, FriendRace.Current()).times
 expect("Zeit bis Max-Level", friendTimes[99], 5)
-expect("Null-Zeit verworfen", friendTimes[100], nil)
+expect("Null-Zeit gültig (zwei Level in einem Frame)", friendTimes[100], 0)
 expect("über Max-Level verworfen", friendTimes[101], nil)
 
 -- Fremde per Flüstern werden weder beantwortet noch gespeichert

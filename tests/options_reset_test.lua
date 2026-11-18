@@ -58,9 +58,8 @@ expect("Rückgängig weg", undo:IsShown(), false)
 addon.SetMinimapHidden(true)
 expectTrue("Hauptfenster", options.ResetPage("OPTIONS_PAGE_MINIMAP"))
 expect("Minimap wieder an", db().minimap.hide, false)
-db().recordBrackets["1-10"] = false
+-- Retail hat keine Rekord-Abschnitte (Classic-Era-Daten), die Seite setzt trotzdem zurück
 expectTrue("Rekorde", options.ResetPage("OPTIONS_PAGE_RECORDS"))
-expect("Abschnitte wieder alle", next(db().recordBrackets), nil)
 
 -- Unbekannte Seite, Seite ohne Einstellungen
 expect("unbekannt", options.ResetPage("GIBT_ES_NICHT"), false)

@@ -3,6 +3,7 @@
 -- sobald die Situation eintritt und die Prüfung für den aktuellen Build noch nicht bestätigt ist. Das Fenster bleibt, bis
 -- der Build bestätigt ist (kein Timeout, übersteht /reload). /lt debug check bestätigt nicht von selbst: erst der Knopf
 -- "Ausgeführt" zählt. Bestätigung und offene Situationen liegen in LevelTimerDebugLog.reminder.
+-- /lte todo off (oder Knopf "Hinweise aus") blendet das Fenster aus, bis /lte todo on; Situationen bleiben gemerkt.
 -- Trigger: login, instance, bossKill (nach dem Kampf), afterCombat, lfgOpen, bookRead, levelUp, worldMapOpen.
 local _, X = ...
 local ns = X.LT
@@ -22,6 +23,8 @@ local HEADER_HEIGHT = 40
 local HINT_HEIGHT = 32
 local BUTTON_HEIGHT = 28
 local DONE_WIDTH = 96
+local LAST_RUN_HEIGHT = 18
+local BUTTON_GAP = 6
 local LFG_FRAMES = { "LFGParentFrame", "PVEFrame" }
 
 -- Situationen der bestehenden Prüfungen (Prüfungen ohne Situation brauchen keine)
@@ -102,11 +105,14 @@ local function createPanel()
   hint:SetJustifyH("LEFT")
   hint:SetText(L.REMINDER_HINT)
   lastRun = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-  lastRun:SetPoint("BOTTOMLEFT", PADDING, PADDING)
+  lastRun:SetPoint("BOTTOMLEFT", PADDING, PADDING + BUTTON_HEIGHT + BUTTON_GAP)
   Widgets.CreateCloseButton(panel):SetScript("OnClick", function() panel:Hide() end)  -- bis zum nächsten Auslöser
   allButton = Widgets.CreateButton(panel, DONE_WIDTH, BUTTON_HEIGHT, function() Reminders.Confirm(nil) end)
   allButton:SetPoint("BOTTOMRIGHT", -PADDING, PADDING)
   Widgets.SetButtonText(allButton, L.REMINDER_ALL_DONE, DONE_WIDTH)
+  local offButton = Widgets.CreateButton(panel, DONE_WIDTH, BUTTON_HEIGHT, function() X.CheckList.Command("off") end)
+  offButton:SetPoint("BOTTOMLEFT", PADDING, PADDING)
+  Widgets.SetButtonText(offButton, L.REMINDER_OFF, DONE_WIDTH)
   rows = {}
 end
 
@@ -121,10 +127,15 @@ local function row(index)
   return item
 end
 
--- Offene Prüfungen der aktiven Situationen zeigen; nichts offen: Fenster zu und Situationen vergessen
+-- Offene Prüfungen der aktiven Situationen zeigen; nichts offen: Fenster zu und Situationen vergessen.
+-- Prüf-Hinweise aus (/lte todo off): Fenster zu, Situationen bleiben für /lte todo on gemerkt.
 function Reminders.Refresh()
   local reminder = state()
   if not reminder then return end
+  if X.CheckList and not X.CheckList.Enabled() then
+    if panel then panel:Hide() end
+    return
+  end
   local shown = {}
   for trigger in pairs(reminder.active) do
     local list = Reminders.Pending(trigger)
@@ -154,7 +165,7 @@ function Reminders.Refresh()
     item.button:Show()
   end
   lastRun:SetText(string.format(L.REMINDER_LAST_RUN, LevelTimerDebugLog.lastCheckRun or L.REMINDER_NEVER))
-  panel:SetHeight(top + #shown * ROW_HEIGHT + BUTTON_HEIGHT + 2 * PADDING)
+  panel:SetHeight(top + #shown * ROW_HEIGHT + LAST_RUN_HEIGHT + BUTTON_GAP + BUTTON_HEIGHT + 2 * PADDING)
   panel:Show()
 end
 
