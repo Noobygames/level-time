@@ -82,8 +82,8 @@ local function getRow(index)
   row.dismiss:ClearAllPoints()
   row.dismiss:SetPoint("RIGHT", -ICON_INSET / 2, 0)
   row.dismiss:SetScript("OnClick", function() Hints.DismissLine(row) end)
-  Widgets.AttachTooltip(row.dismiss, function() return ns.DISPLAY_NAME end, function(self)
-    return type(self:GetParent().detail) == "table" and L.HINTS_DISMISS_RANK_TIP or L.HINTS_DISMISS_TIP
+  Widgets.AttachTooltip(row.dismiss, function() return ns.DISPLAY_NAME end, function()
+    return type(row.detail) == "table" and L.HINTS_DISMISS_RANK_TIP or L.HINTS_DISMISS_TIP
   end)
   -- Zaubertabelle: Mausover zeigt den Zaubertooltip
   row:HookScript("OnEnter", function(self)
