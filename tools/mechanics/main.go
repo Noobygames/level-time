@@ -1,6 +1,8 @@
 // Mechanics erzeugt aus der Guide-Recherche (docs/research/mechanics/*.json, je Instanz eine Datei) die Tooltip-Daten
 // Assist/InstanceData/mechanics.lua: Boss- und Trash-Fähigkeiten je NPC-ID. Liest jede vorhandene Datei, neue Instanzen
 // kommen also einfach durch eine weitere JSON-Datei dazu. Aufruf über "make mechanics".
+// Textformat "en"/"de": **Fähigkeitsname** markiert einen Fähigkeitsnamen; das Addon färbt ihn (Format.Highlight),
+// die Marker bleiben unverändert in mechanics.lua.
 package main
 
 import (

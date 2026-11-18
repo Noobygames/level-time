@@ -17,7 +17,7 @@
      "spell": "Whirlwind",
      "type": "avoid",
      "en": "Spins with magic immunity; everyone but tank runs away",
-     "de": "Wirbelt magieimmun; alle ausser Tank weglaufen",
+     "de": "Wirbelt magieimmun; alle außer dem Tank weglaufen",
      "verified": true
     },
     {
@@ -25,7 +25,7 @@
      "spell": "Frenzy",
      "type": "tank",
      "en": "Attack speed jumps at low health; save tank cooldowns",
-     "de": "Bei wenig Leben schnellere Angriffe; Tank-Cooldowns sparen",
+     "de": "Bei wenig Leben schnellere Angriffe; Tank-Abklingzeiten sparen",
      "verified": true
     },
     {
@@ -35,6 +35,22 @@
      "en": "Twenty weak trainees spawn on death; use AoE",
      "de": "Nach dem Tod 20 schwache Rekruten; AoE nutzen",
      "unverified": true
+    },
+    {
+     "spellID": 22540,
+     "spell": "Cleave",
+     "type": "positioning",
+     "en": "Cleaves the tank and a neighbour: only the tank stands in front",
+     "de": "Spaltet den Tank und Spieler daneben: nur der Tank steht vorne",
+     "verified": true
+    },
+    {
+     "spellID": 8260,
+     "spell": "Rushing Charge",
+     "type": "survive",
+     "en": "Charges with a speed burst and a hard first hit: tank expects a spike",
+     "de": "Stürmt schnell heran und trifft zuerst hart: Tank rechnet mit einer Spitze",
+     "verified": true
     }
    ]
   }
@@ -50,7 +66,7 @@
      "spell": "Summon Fire Elemental",
      "type": "adds",
      "en": "Summons a fire elemental pet; kill the caster first",
-     "de": "Beschwoert Feuerelementar; Beschwoerer zuerst toeten"
+     "de": "Beschwört Feuerelementar; Beschwörer zuerst töten"
     }
    ]
   },
@@ -64,7 +80,7 @@
      "spell": "Holy Light",
      "type": "interrupt",
      "en": "Heals allies; interrupt Holy Light",
-     "de": "Heilt Verbuendete; Heiliges Licht unterbrechen",
+     "de": "Heilt Verbündete; **Heiliges Licht** unterbrechen",
      "unverified": true,
      "version": "classic"
     }
@@ -80,7 +96,7 @@
      "spell": "Enrage",
      "type": "tank",
      "en": "Enrages at low health; burst it down",
-     "de": "Wird bei wenig Leben wuetend; schnell toeten"
+     "de": "Wird bei wenig Leben wütend; schnell töten"
     }
    ]
   }

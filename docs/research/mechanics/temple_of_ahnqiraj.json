@@ -7,10 +7,10 @@
       "name": "The Prophet Skeram",
       "npcID": 15263,
       "mechanics": [
-        {"spellID": 26192, "spell": "Arcane Explosion", "type": "interrupt", "en": "Interrupt Arcane Explosion on Skeram and on each image", "de": "Arkane Explosion bei Skeram und jedem Abbild unterbrechen"},
+        {"spellID": 26192, "spell": "Arcane Explosion", "type": "interrupt", "en": "Interrupt **Arcane Explosion** on Skeram and on each image", "de": "**Arkane Explosion** bei Skeram und jedem Abbild unterbrechen"},
         {"spellID": 785, "spell": "True Fulfillment", "type": "dispel", "en": "Mind-controls a player with buffed damage; crowd-control the victim", "de": "Übernimmt einen Spieler mit Schadensbonus; Opfer kontrollieren"},
         {"spellID": 747, "spell": "Summon Images", "type": "adds", "en": "Splits into images at health thresholds; tank all and find the real one", "de": "Teilt sich bei Lebensschwellen in Abbilder; alle tanken, echten finden"},
-        {"spellID": 26194, "spell": "Earth Shock", "type": "tank", "en": "Earth Shocks whoever is not in melee range; keep a tank on him", "de": "Erdschock trifft, wer nicht im Nahkampf steht; immer einen Tank dran"}
+        {"spellID": 26194, "spell": "Earth Shock", "type": "tank", "en": "Earth Shocks whoever is not in melee range; keep a tank on him", "de": "**Erdschock** trifft, wer nicht im Nahkampf steht; immer einen Tank dran"}
       ]
     },
     {
@@ -25,7 +25,7 @@
       "name": "Princess Yauj",
       "npcID": 15543,
       "mechanics": [
-        {"spellID": 25807, "spell": "Great Heal", "type": "interrupt", "en": "Heals herself or the other bugs; always interrupt Great Heal", "de": "Heilt sich oder die anderen Käfer; Große Heilung immer unterbrechen"},
+        {"spellID": 25807, "spell": "Great Heal", "type": "interrupt", "en": "Heals herself or the other bugs; always interrupt **Great Heal**", "de": "Heilt sich oder die anderen Käfer; **Große Heilung** immer unterbrechen"},
         {"spellID": 0, "spell": "Fear", "type": "tank", "en": "Area fear wipes threat; taunt her back quickly", "de": "Flächenfurcht löscht Bedrohung; schnell zurückspotten", "unverified": true},
         {"spellID": 0, "spell": "Brood of Yauj", "type": "adds", "en": "Small bugs spawn on her death; AoE or crowd-control them", "de": "Bei ihrem Tod erscheinen kleine Käfer; flächig töten oder kontrollieren", "unverified": true}
       ]
@@ -43,8 +43,8 @@
       "name": "Battleguard Sartura",
       "npcID": 15516,
       "mechanics": [
-        {"spellID": 26083, "spell": "Whirlwind", "type": "avoid", "en": "Whirlwinds for 15 sec; melee and casters stay out of 10 yards", "de": "Wirbelwind für 15 Sek.; alle weg aus 10 Metern"},
-        {"spellID": 25174, "spell": "Sundering Cleave", "type": "tank", "en": "Cleave raises damage taken; only tanks stand in front", "de": "Spalten erhöht erlittenen Schaden; nur Tanks vorne"},
+        {"spellID": 26083, "spell": "Whirlwind", "type": "avoid", "en": "Whirlwinds for 15 sec; melee and casters stay out of 10 yards", "de": "**Wirbelwind** 15 Sek. lang; alle raus aus dem 10-m-Umkreis"},
+        {"spellID": 25174, "spell": "Sundering Cleave", "type": "tank", "en": "Cleave raises damage taken; only tanks stand in front", "de": "**Spalten** erhöht erlittenen Schaden; nur Tanks vorne"},
         {"spellID": 8269, "spell": "Frenzy", "type": "survive", "en": "Frenzies at low health; burn her down with cooldowns", "de": "Rast bei wenig Leben; mit Abklingzeiten schnell töten"}
       ]
     },
@@ -61,7 +61,7 @@
       "npcID": 15299,
       "mechanics": [
         {"spellID": 25991, "spell": "Poison Bolt Volley", "type": "dispel", "en": "Raid-wide nature volley with a poison DoT; cure poisons", "de": "Naturgeschosse auf den Raid mit Gift-DoT; Gift entfernen"},
-        {"spellID": 25993, "spell": "Poison Shock", "type": "positioning", "en": "Nature blast within 15 yards; only melee stand close", "de": "Naturschlag im Umkreis von 15 Metern; nur Nahkämpfer nah dran"},
+        {"spellID": 25993, "spell": "Poison Shock", "type": "positioning", "en": "Nature blast within 15 yards; only melee stand close", "de": "Naturschlag im 15-m-Umkreis; nur Nahkämpfer nah dran"},
         {"spellID": 25989, "spell": "Toxin", "type": "avoid", "en": "Toxin clouds slow and hurt; move out of them", "de": "Giftwolken verlangsamen und schaden; heraustreten"},
         {"spellID": 0, "spell": "Globs of Viscidus", "type": "adds", "en": "Freeze him with frost, shatter him, then kill the globs", "de": "Mit Frost einfrieren, zerschlagen, dann die Kleckse töten", "unverified": true}
       ]
@@ -70,9 +70,9 @@
       "name": "Princess Huhuran",
       "npcID": 15509,
       "mechanics": [
-        {"spellID": 26180, "spell": "Wyvern Sting", "type": "survive", "en": "Sleeps melee; dispelling it deals damage, so heal before cleansing", "de": "Lässt Nahkämpfer schlafen; Bannen macht Schaden, vorher heilen"},
+        {"spellID": 26180, "spell": "Wyvern Sting", "type": "survive", "en": "Sleeps melee; dispelling it deals damage, so heal before cleansing", "de": "Versetzt Nahkämpfer in Schlaf; Bannen verursacht Schaden, vorher heilen"},
         {"spellID": 26053, "spell": "Noxious Poison", "type": "positioning", "en": "Nature DoT and silence that splashes; ranged stay spread out", "de": "Natur-DoT mit Stille, springt über; Fernkämpfer verteilen"},
-        {"spellID": 26051, "spell": "Frenzy", "type": "tank", "en": "Frenzy boosts melee damage; hunters remove it with Tranquilizing Shot", "de": "Raserei erhöht Nahkampfschaden; Jäger nutzen Einlullenden Schuss"},
+        {"spellID": 26051, "spell": "Frenzy", "type": "tank", "en": "**Frenzy** boosts melee damage; hunters remove it with Tranquilizing Shot", "de": "**Raserei** erhöht Nahkampfschaden; Jäger nutzen **Einlullenden Schuss**"},
         {"spellID": 26068, "spell": "Berserk", "type": "survive", "en": "Berserk at 30%: poison bolts hit the closest players; burn her", "de": "Berserker bei 30 %: Giftblitze auf nahe Spieler; schnell töten"}
       ]
     },
@@ -82,7 +82,7 @@
       "mechanics": [
         {"spellID": 7393, "spell": "Heal Brother", "type": "positioning", "en": "Twins heal each other when close; keep them far apart", "de": "Zwillinge heilen sich nah beieinander; weit getrennt halten"},
         {"spellID": 800, "spell": "Twin Teleport", "type": "tank", "en": "Twins swap places and wipe threat; tanks pick them up at once", "de": "Zwillinge tauschen Plätze, Bedrohung weg; Tanks sofort übernehmen"},
-        {"spellID": 568, "spell": "Arcane Burst", "type": "positioning", "en": "Arcane Burst blasts melee; fight him at range with a warlock tank", "de": "Arkanstoß trifft Nahkämpfer; auf Distanz mit Hexer-Tank kämpfen"},
+        {"spellID": 568, "spell": "Arcane Burst", "type": "positioning", "en": "**Arcane Burst** blasts melee; fight him at range with a warlock tank", "de": "**Arkanstoß** trifft Nahkämpfer; auf Distanz mit Hexer-Tank kämpfen"},
         {"spellID": 804, "spell": "Explode Bug", "type": "avoid", "en": "Makes a bug explode; run away from glowing bugs", "de": "Lässt einen Käfer explodieren; von leuchtenden Käfern weg"}
       ]
     },
@@ -99,8 +99,8 @@
       "name": "Ouro",
       "npcID": 15517,
       "mechanics": [
-        {"spellID": 26103, "spell": "Sweep", "type": "positioning", "en": "Sweep knocks back nearby players; melee expect to be thrown", "de": "Fegen schleudert nahe Spieler weg; Nahkämpfer darauf gefasst sein"},
-        {"spellID": 26102, "spell": "Sand Blast", "type": "positioning", "en": "Frontal stun that wipes threat; only tanks stand in front", "de": "Frontaler Stun, der Bedrohung löscht; nur Tanks vorne"},
+        {"spellID": 26103, "spell": "Sweep", "type": "positioning", "en": "**Sweep** knocks back nearby players; melee expect to be thrown", "de": "**Fegen** schleudert nahe Spieler weg; Nahkämpfer darauf gefasst sein"},
+        {"spellID": 26102, "spell": "Sand Blast", "type": "positioning", "en": "Frontal stun that wipes threat; only tanks stand in front", "de": "Frontale Betäubung, die Bedrohung löscht; nur Tanks vorne"},
         {"spellID": 0, "spell": "Submerge", "type": "avoid", "en": "Burrows and reappears below players; move off the dirt mounds", "de": "Gräbt sich ein und taucht unter Spielern auf; von Erdhügeln weg", "unverified": true},
         {"spellID": 0, "spell": "Summon Ouro Scarabs", "type": "adds", "en": "Scarabs swarm after he surfaces; AoE them down", "de": "Nach dem Auftauchen kommen Skarabäen; flächig töten", "unverified": true}
       ]
@@ -109,7 +109,7 @@
       "name": "C'Thun",
       "npcID": 15727,
       "mechanics": [
-        {"spellID": 26134, "spell": "Eye Beam", "type": "positioning", "en": "Eye Beam chains between close players; spread out 10 yards", "de": "Augenstrahl springt zwischen nahen Spielern; 10 Meter verteilen"},
+        {"spellID": 26134, "spell": "Eye Beam", "type": "positioning", "en": "**Eye Beam** chains between close players; spread out 10 yards", "de": "**Augenstrahl** springt zwischen nahen Spielern; mit 10 m Abstand verteilen"},
         {"spellID": 26029, "spell": "Dark Glare", "type": "avoid", "en": "Red beam sweeps half the room; run around ahead of it", "de": "Roter Strahl fegt durch den halben Raum; vor ihm herlaufen"},
         {"spellID": 26156, "spell": "Carapace of C'Thun", "type": "adds", "en": "Takes 99% less damage until the Flesh Tentacles in the stomach die", "de": "99 % weniger Schaden, bis die Fleischtentakel im Magen tot sind"},
         {"spellID": 26476, "spell": "Digestive Acid", "type": "survive", "en": "Stacking acid in the stomach; leave via the exit when stacks get high", "de": "Stapelnde Säure im Magen; bei hohen Stapeln über den Ausgang raus"}
@@ -129,7 +129,7 @@
       "name": "Anubisath Defender",
       "npcID": 15277,
       "mechanics": [
-        {"spellID": 26558, "spell": "Meteor", "type": "positioning", "en": "Meteor damage is split; stack the raid to share it", "de": "Meteorschaden wird geteilt; Raid zusammen stehen"},
+        {"spellID": 26558, "spell": "Meteor", "type": "positioning", "en": "**Meteor** damage is split; stack the raid to share it", "de": "**Meteor**schaden wird geteilt; Raid zusammen stehen"},
         {"spellID": 26556, "spell": "Plague", "type": "positioning", "en": "Plague hurts nearby allies; infected players run out", "de": "Seuche trifft Umstehende; Infizierte laufen raus"},
         {"spellID": 26555, "spell": "Shadow Storm", "type": "positioning", "en": "Shadow bolts hit players at range; stand in close", "de": "Schattenblitze treffen Spieler auf Distanz; nah heran"},
         {"spellID": 25698, "spell": "Explode", "type": "avoid", "en": "Explodes near death; everyone runs away", "de": "Explodiert kurz vor dem Tod; alle weglaufen"}
@@ -139,7 +139,7 @@
       "name": "Anubisath Warder",
       "npcID": 15311,
       "mechanics": [
-        {"spellID": 26073, "spell": "Fire Nova", "type": "survive", "en": "Fire Nova hits everyone close; healers stay alert", "de": "Feuernova trifft alle in der Nähe; Heiler aufmerksam"},
+        {"spellID": 26073, "spell": "Fire Nova", "type": "survive", "en": "**Fire Nova** hits everyone close; healers stay alert", "de": "**Feuernova** trifft alle in der Nähe; Heiler aufmerksam"},
         {"spellID": 26070, "spell": "Fear", "type": "survive", "en": "Fears many players; use fear protection", "de": "Furcht auf viele Spieler; Furchtschutz nutzen"},
         {"spellID": 26071, "spell": "Entangling Roots", "type": "survive", "en": "Roots many players in place; free them or kill fast", "de": "Wurzelt viele Spieler fest; befreien oder schnell töten"}
       ]
@@ -182,7 +182,7 @@
       "name": "Vekniss Guardian",
       "npcID": 15233,
       "mechanics": [
-        {"spellID": 26025, "spell": "Impale", "type": "survive", "en": "Impale deals bleeding damage over time; heal the target", "de": "Aufspießen verursacht Schaden über Zeit; Ziel heilen"},
+        {"spellID": 26025, "spell": "Impale", "type": "survive", "en": "**Impale** deals bleeding damage over time; heal the target", "de": "**Aufspießen** verursacht Schaden über Zeit; Ziel heilen"},
         {"spellID": 8599, "spell": "Enrage", "type": "tank", "en": "Enrages at low health; burn it down", "de": "Rast bei wenig Leben; schnell töten"}
       ]
     }

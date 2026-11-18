@@ -9,7 +9,7 @@
       "npcID": 11517,
       "level": 15,
       "mechanics": [
-        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the tank and a neighbour: only the tank stands in front", "de": "Spaltet Tank und Nachbarn: nur der Tank steht vorne", "verified": true}
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the tank and a neighbour: only the tank stands in front", "de": "Spaltet den Tank und Spieler daneben: nur der Tank steht vorne", "verified": true}
       ]
     },
     {
@@ -17,8 +17,8 @@
       "npcID": 11520,
       "level": 16,
       "mechanics": [
-        {"spellID": 18072, "spell": "Uppercut", "type": "positioning", "en": "Uppercut knocks targets back: tank with your back to a wall, away from lava", "de": "Aufwärtshaken schleudert weg: Tank mit Rücken zur Wand, weg von der Lava", "verified": true},
-        {"spellID": 11970, "spell": "Fire Nova", "type": "avoid", "en": "Fire burst around him: keep pets and ranged out of melee range", "de": "Feuerstoß um ihn herum: Begleiter und Fernkämpfer auf Abstand halten", "verified": true}
+        {"spellID": 18072, "spell": "Uppercut", "type": "positioning", "en": "Uppercut knocks targets back: tank with your back to a wall, away from lava", "de": "**Aufwärtshaken** schleudert Ziele zurück: Tank mit dem Rücken zur Wand, weg von der Lava", "verified": true},
+        {"spellID": 11970, "spell": "Fire Nova", "type": "avoid", "en": "Fire burst around him: keep pets and ranged out of melee range", "de": "**Feuerstoß** um ihn herum: Begleiter und Fernkämpfer auf Abstand halten", "verified": true}
       ]
     },
     {
@@ -35,9 +35,9 @@
       "npcID": 11519,
       "level": 16,
       "mechanics": [
-        {"spellID": 744, "spell": "Poison", "type": "dispel", "en": "Nature poison ticks for 15 sec: cure poison on the tank", "de": "Naturgift tickt 15 Sek.: Gift beim Tank heilen", "verified": true},
+        {"spellID": 744, "spell": "Poison", "type": "dispel", "en": "Nature poison ticks for 15 sec: cure poison on the tank", "de": "Naturgift wirkt 15 Sek. lang: Gift beim Tank entfernen", "verified": true},
         {"spellID": 14873, "spell": "Sinister Strike", "type": "tank", "en": "Quick hard strikes on the tank: keep healing steady", "de": "Schnelle harte Schläge auf den Tank: gleichmäßig heilen", "verified": true},
-        {"spellID": 2818, "spell": "Deadly Poison", "type": "dispel", "en": "Deadly poison on the tank: cure poison", "de": "Tödliches Gift auf dem Tank: Gift heilen", "verified": true}
+        {"spellID": 2818, "spell": "Deadly Poison", "type": "dispel", "en": "Deadly poison on the tank: cure poison", "de": "**Tödliches Gift** auf dem Tank: Gift entfernen", "verified": true}
       ]
     }
   ],

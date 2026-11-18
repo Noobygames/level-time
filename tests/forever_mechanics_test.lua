@@ -54,4 +54,13 @@ end
 addon.db.language = "enUS"
 expect("englisch bei Addon-Sprache enUS", linesFor(247126)[1]:find("Unheilige Raserei", 1, true), nil)
 addon.db.language = "deDE"
+-- **Fähigkeitsname** wird farbig, ohne Farbe ohne Sternchen; Text ohne Markierung bleibt unverändert
+expect("Highlight", addon.Format.Highlight("**Feuerball** trifft"), addon.Theme.Hex("gold") .. "Feuerball|r trifft")
+expect("StripHighlight", addon.Format.StripHighlight("**Feuerball** trifft **hart**"), "Feuerball trifft hart")
+expect("ohne Markierung", addon.Format.Highlight("Feuerball trifft"), "Feuerball trifft")
+for _, list in pairs(addon.Mechanics) do
+  for _, mechanic in ipairs(list) do
+    expect("keine rohen Sternchen", Tips.LineText(mechanic):find("**", 1, true), nil)
+  end
+end
 expect("keine Fehler", #wow.errors, 0)

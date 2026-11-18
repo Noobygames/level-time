@@ -10,9 +10,9 @@
       "level": 48,
       "wing": "Orange",
       "mechanics": [
-        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Poison volley hits the whole group; cure poisons", "de": "Giftsalve trifft die Gruppe; Gifte entfernen", "verified": true},
+        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Poison volley hits the whole group; cure poisons", "de": "**Giftsalve** trifft die Gruppe; Gifte entfernen", "verified": true},
         {"spellID": 21707, "spell": "Summon Noxxion's Spawns", "type": "adds", "en": "Splits into small spawns while untouchable; AoE them", "de": "Teilt sich in kleine Brut auf und ist unangreifbar; Brut per AoE töten"},
-        {"spellID": 18072, "spell": "Uppercut", "type": "tank", "en": "Uppercut knocks the tank back: tank against a wall", "de": "Aufwärtshaken schleudert den Tank zurück: an der Wand tanken", "verified": true}
+        {"spellID": 18072, "spell": "Uppercut", "type": "tank", "en": "**Uppercut** knocks the tank back: tank against a wall", "de": "**Aufwärtshaken** schleudert den Tank zurück: an der Wand tanken", "verified": true}
       ]
     },
     {
@@ -22,7 +22,7 @@
       "wing": "Orange",
       "mechanics": [
         {"spellID": 15284, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm", "verified": true},
-        {"spellID": 15976, "spell": "Puncture", "type": "tank", "en": "Puncture shreds tank armor; heal the tank up", "de": "Durchbohren senkt die Tank-Rüstung; Tank gut heilen", "verified": true}
+        {"spellID": 15976, "spell": "Puncture", "type": "tank", "en": "**Puncture** shreds tank armor; heal the tank up", "de": "**Durchbohren** senkt die Tank-Rüstung; Tank gut heilen", "verified": true}
       ]
     },
     {
@@ -32,8 +32,8 @@
       "wing": "Purple",
       "mechanics": [
         {"spellID": 1953, "spell": "Blink", "type": "positioning", "en": "Blinks away and shoots; tank and melee chase him", "de": "Teleportiert sich weg und schießt; Tank und Nahkampf folgen", "verified": true},
-        {"spellID": 7964, "spell": "Smoke Bomb", "type": "survive", "en": "Smoke Bomb stuns players near him", "de": "Rauchbombe betäubt Spieler in seiner Nähe", "verified": true},
-        {"spellID": 14443, "spell": "Multi-Shot", "type": "avoid", "en": "Multi-shot hits several players: spread out", "de": "Mehrfachschuss trifft mehrere Spieler: verteilen", "verified": true}
+        {"spellID": 7964, "spell": "Smoke Bomb", "type": "survive", "en": "**Smoke Bomb** stuns players near him", "de": "**Rauchbombe** betäubt Spieler in seiner Nähe", "verified": true},
+        {"spellID": 14443, "spell": "Multi-Shot", "type": "avoid", "en": "**Multi-shot** hits several players: spread out", "de": "**Mehrfachschuss** trifft mehrere Spieler: verteilen", "verified": true}
       ]
     },
     {
@@ -42,8 +42,8 @@
       "level": 48,
       "wing": "Purple",
       "mechanics": [
-        {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close; casters stay at range", "de": "Kriegsdonner betäubt alle in der Nähe; Zauberer Abstand halten", "verified": true},
-        {"spellID": 15501, "spell": "Earth Shock", "type": "interrupt", "en": "Earth shock on a player: interrupt when you can", "de": "Erdschock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+        {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "**War Stomp** stuns everyone close; casters stay at range", "de": "**Kriegsdonner** betäubt alle in der Nähe; Zauberer Abstand halten", "verified": true},
+        {"spellID": 15501, "spell": "Earth Shock", "type": "interrupt", "en": "**Earth shock** on a player: interrupt when you can", "de": "**Erdschock** auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     },
     {
@@ -52,10 +52,10 @@
       "level": 49,
       "wing": "Purple",
       "mechanics": [
-        {"spellID": 21793, "spell": "Twisted Tranquility", "type": "interrupt", "en": "Channels Twisted Tranquility; interrupt the channel", "de": "Kanalisiert Verderbte Gelassenheit; Kanalisierung unterbrechen", "verified": true},
+        {"spellID": 21793, "spell": "Twisted Tranquility", "type": "interrupt", "en": "Channels **Twisted Tranquility**; interrupt the channel", "de": "Kanalisiert **Verderbte Gelassenheit**; Kanalisierung unterbrechen", "verified": true},
         {"spellID": 12747, "spell": "Entangling Roots", "type": "dispel", "en": "Roots players in place; dispel magic", "de": "Wurzelt Spieler fest; Magie bannen", "verified": true},
         {"spellID": 21968, "spell": "Corrupt Forces of Nature", "type": "adds", "en": "Summons corrupted plant adds; tank and kill them", "de": "Ruft verderbte Pflanzen herbei; aufnehmen und töten"},
-        {"spellID": 9739, "spell": "Wrath", "type": "interrupt", "en": "Wrath on a player: interrupt it", "de": "Zorn auf einen Spieler: unterbrechen", "verified": true},
+        {"spellID": 9739, "spell": "Wrath", "type": "interrupt", "en": "**Wrath** on a player: interrupt it", "de": "**Zorn** auf einen Spieler: unterbrechen", "verified": true},
         {"spellID": 6913, "spell": "Force of Nature", "type": "adds", "en": "Summons treants: tank and kill the adds", "de": "Beschwört Treants: Begleiter tanken und töten", "verified": true}
       ]
     },
@@ -67,7 +67,7 @@
       "mechanics": [
         {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank back and drops threat; second tank ready", "de": "Schlägt den Tank weg und senkt Bedrohung; Ersatztank bereit", "verified": true},
         {"spellID": 21808, "spell": "Summon Shardlings", "type": "adds", "en": "Calls rock shardlings; they die with him, AoE if needed", "de": "Ruft Felssplitter; sie sterben mit ihm, notfalls AoE"},
-        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "**Trample** hits players next to the tank: melee spread a bit", "de": "**Trampeln** trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
       ]
     },
     {
@@ -86,7 +86,7 @@
       "level": 50,
       "wing": "Inner",
       "mechanics": [
-        {"spellID": 16495, "spell": "Fatal Bite", "type": "tank", "en": "Fatal Bite hits the tank very hard; heal through it", "de": "Tödlicher Biss trifft den Tank sehr hart; durchheilen", "verified": true}
+        {"spellID": 16495, "spell": "Fatal Bite", "type": "tank", "en": "**Fatal Bite** hits the tank very hard; heal through it", "de": "**Tödlicher Biss** trifft den Tank sehr hart; durchheilen", "verified": true}
       ]
     },
     {
@@ -95,8 +95,8 @@
       "level": 51,
       "wing": "Inner",
       "mechanics": [
-        {"spellID": 21869, "spell": "Repulsive Gaze", "type": "survive", "en": "Repulsive Gaze fears nearby players; Fear Ward or Tremor", "de": "Abstoßender Blick lässt Spieler fliehen; Furchtschutz oder Erdstoß", "verified": true},
-        {"spellID": 21868, "spell": "Dust Field", "type": "avoid", "en": "Dust Field hurts players close to her; melee step out", "de": "Staubfeld schadet in ihrer Nähe; Nahkampf kurz raus", "verified": true},
+        {"spellID": 21869, "spell": "Repulsive Gaze", "type": "survive", "en": "**Repulsive Gaze** fears nearby players; Fear Ward or Tremor", "de": "**Abstoßender Blick** lässt Spieler fliehen; Furchtschutz oder Erdstoß", "verified": true},
+        {"spellID": 21868, "spell": "Dust Field", "type": "avoid", "en": "**Dust Field** hurts players close to her; melee step out", "de": "**Staubfeld** schadet in ihrer Nähe; Nahkampf kurz raus", "verified": true},
         {"spellID": 9483, "spell": "Boulder", "type": "survive", "en": "Throws boulders at players at range", "de": "Wirft Felsbrocken auf Spieler auf Distanz", "verified": true}
       ]
     }
@@ -107,7 +107,7 @@
       "npcID": 11790,
       "elite": true,
       "mechanics": [
-        {"spellID": 12540, "spell": "Gouge", "type": "tank", "en": "Gouges the tank; a second player with threat picks it up", "de": "Solarplexus trifft den Tank; zweiter Spieler mit Bedrohung hilft"}
+        {"spellID": 12540, "spell": "Gouge", "type": "tank", "en": "Gouges the tank; a second player with threat picks it up", "de": "**Solarplexus** trifft den Tank; zweiter Spieler mit Bedrohung hilft"}
       ]
     },
     {
@@ -115,7 +115,7 @@
       "npcID": 11791,
       "elite": true,
       "mechanics": [
-        {"spellID": 15657, "spell": "Backstab", "type": "positioning", "en": "Backstabs from behind; keep it facing the tank", "de": "Meucheln von hinten; zum Tank gedreht halten"}
+        {"spellID": 15657, "spell": "Backstab", "type": "positioning", "en": "Backstabs from behind; keep it facing the tank", "de": "**Meucheln** von hinten; zum Tank gedreht halten"}
       ]
     },
     {
@@ -148,7 +148,7 @@
       "npcID": 13141,
       "elite": true,
       "mechanics": [
-        {"spellID": 45, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close", "de": "Kriegsdonner betäubt alle in der Nähe", "verified": true}
+        {"spellID": 45, "spell": "War Stomp", "type": "survive", "en": "**War Stomp** stuns everyone close", "de": "**Kriegsdonner** betäubt alle in der Nähe", "verified": true}
       ]
     },
     {
@@ -164,7 +164,7 @@
       "npcID": 13323,
       "elite": true,
       "mechanics": [
-        {"spellID": 8281, "spell": "Sonic Burst", "type": "survive", "en": "Sonic Burst silences players nearby", "de": "Schallexplosion bringt Spieler in der Nähe zum Schweigen"}
+        {"spellID": 8281, "spell": "Sonic Burst", "type": "survive", "en": "**Sonic Burst** silences players nearby", "de": "**Schallexplosion** bringt Spieler in der Nähe zum Schweigen"}
       ]
     },
     {
@@ -172,7 +172,7 @@
       "npcID": 11785,
       "elite": true,
       "mechanics": [
-        {"spellID": 11020, "spell": "Petrify", "type": "survive", "en": "Petrify turns a player to stone for a short time", "de": "Versteinern macht einen Spieler kurz handlungsunfähig"}
+        {"spellID": 11020, "spell": "Petrify", "type": "survive", "en": "**Petrify** turns a player to stone for a short time", "de": "**Versteinern** macht einen Spieler kurz handlungsunfähig"}
       ]
     },
     {
@@ -188,7 +188,7 @@
       "npcID": 13533,
       "elite": true,
       "mechanics": [
-        {"spellID": 21862, "spell": "Radiation", "type": "avoid", "en": "Radiation aura hurts nearby players; kill from range", "de": "Strahlungsaura schadet in der Nähe; auf Distanz töten"}
+        {"spellID": 21862, "spell": "Radiation", "type": "avoid", "en": "**Radiation** aura hurts nearby players; kill from range", "de": "**Strahlungsaura** schadet in der Nähe; auf Distanz töten"}
       ]
     }
   ],

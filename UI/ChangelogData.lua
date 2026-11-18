@@ -8,6 +8,16 @@ ns.CHANGELOG = {
   {
     date = "2026-11-19",
     entries = {
+      { kind = "new",
+        deDE = "Dungeon-Guide: zusätzliche Boss- und Gegner-Hinweise für Todesminen, Burg Schattenfang, Kral der Klingenhauer, das Verlies, Gnomeregan, Scharlachrotes Kloster, Düsterbruch-Nord, Stratholme und weitere Dungeons.",
+        enUS = "Dungeon guide: additional boss and enemy tips for The Deadmines, Shadowfang Keep, Razorfen Kraul, The Stockade, Gnomeregan, Scarlet Monastery, Dire Maul North, Stratholme and more dungeons.",
+        frFR = "Guide de donjon : conseils supplémentaires sur les boss et les ennemis pour les Mortemines, le Donjon d'Ombrecrocs, les Kraals de Tranchebauge, la Prison, Gnomeregan, le Monastère écarlate, Hache-Tripes nord, Stratholme et d'autres donjons.",
+        esES = "Guía de mazmorra: consejos adicionales sobre jefes y enemigos para Las Minas de la Muerte, Castillo de Colmillo Oscuro, Horado Rajacieno, Las Mazmorras, Gnomeregan, Monasterio Escarlata, La Masacre Norte, Stratholme y más mazmorras." },
+      { kind = "change",
+        deDE = "Dungeon-Guide: verständlichere Formulierungen bei den Boss-Hinweisen, Fähigkeitsnamen sind farbig hervorgehoben.",
+        enUS = "Dungeon guide: clearer wording for boss tips, ability names are highlighted in colour.",
+        frFR = "Guide de donjon : formulations plus claires pour les conseils sur les boss, noms des capacités mis en couleur.",
+        esES = "Guía de mazmorra: redacción más clara en los consejos de jefes, nombres de habilidades resaltados en color." },
       { kind = "fix",
         deDE = "Beute-Glitzern: Bei Kisten und Quest-Objekten sitzt der Effekt wieder am Objekt statt weit darunter.",
         enUS = "Loot sparkles: on chests and quest objects the effect sits at the object again instead of far below it.",

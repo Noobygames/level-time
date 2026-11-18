@@ -7,17 +7,17 @@
     ]},
     {"name": "Tidemistress Ca'zass", "npcID": 255997, "mechanics": [
       {"spellID": 0, "spell": "Naga adds", "type": "interrupt", "en": "Her naga adds polymorph players and cast volleys: interrupt and control them", "de": "Ihre Naga-Helfer verwandeln Spieler und wirken Salven: unterbrechen und kontrollieren", "version": "forever"},
-      {"spellID": 0, "spell": "Blizzard", "type": "avoid", "en": "Blizzard on the group: step out of the snow", "de": "Eissturm auf der Gruppe: aus dem Schnee treten", "version": "forever"}
+      {"spellID": 0, "spell": "Blizzard", "type": "avoid", "en": "**Blizzard** on the group: step out of the snow", "de": "**Eissturm** auf der Gruppe: aus dem Schnee treten", "version": "forever"}
     ]},
     {"name": "Katerina the Cleaner", "npcID": 257016, "mechanics": [
       {"spellID": 0, "spell": "Backstab", "type": "positioning", "en": "Teleports behind ranged players and stabs them: heal them up", "de": "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "version": "forever"}
     ]},
     {"name": "The Questioner", "npcID": 256236, "mechanics": [
-      {"spellID": 0, "spell": "Drain Life", "type": "interrupt", "en": "Drain Life heals him: interrupt it and kill his two casters", "de": "Lebensentzug heilt ihn: unterbrechen und seine zwei Zauberer töten", "version": "forever"}
+      {"spellID": 0, "spell": "Drain Life", "type": "interrupt", "en": "**Drain Life** heals him: interrupt it and kill his two casters", "de": "**Lebensentzug** heilt ihn: unterbrechen und seine zwei Zauberer töten", "version": "forever"}
     ]},
     {"name": "Blazeroar", "npcID": 255702, "mechanics": [
       {"spellID": 0, "spell": "Searing Scales", "type": "avoid", "en": "Turns into a dragon with burning scales: bring non-fire damage", "de": "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "version": "forever"},
-      {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "Flamestrike in the first phase: leave the fire", "de": "Flammenstoß in Phase 1: Feuer verlassen", "version": "forever"}
+      {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "**Flamestrike** in the first phase: leave the fire", "de": "**Flammenstoß** in Phase 1: Feuer verlassen", "version": "forever"}
     ]}
   ],
   "sources": ["https://warcraftmaps.com/guides/alcaz-prison-guide (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "mobalytics.gg WoW Forever Alcaz Prison guide (search summary, 2026-11-16); Katerina, Questioner and Flamestrike are single-source reports"]

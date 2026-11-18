@@ -19,7 +19,7 @@
       "npcID": 7272,
       "level": 46,
       "mechanics": [
-        {"spellID": 8600, "spell": "Fevered Plague", "type": "dispel", "en": "Fevered Plague is a disease; cure it or interrupt", "de": "Fiebrige Seuche ist eine Krankheit; heilen oder unterbrechen", "verified": true},
+        {"spellID": 8600, "spell": "Fevered Plague", "type": "dispel", "en": "**Fevered Plague** is a disease; cure it or interrupt", "de": "**Fiebrige Seuche** ist eine Krankheit; heilen oder unterbrechen", "verified": true},
         {"spellID": 11089, "spell": "Theka Transform", "type": "survive", "en": "Low on health he turns immune to physical and shadow", "de": "Bei wenig Leben immun gegen Körper- und Schattenschaden", "verified": true}
       ]
     },
@@ -29,7 +29,7 @@
       "level": 46,
       "mechanics": [
         {"spellID": 11086, "spell": "Ward of Zum'rah", "type": "adds", "en": "Destroy his ward, it spawns a skeleton every 5 sec", "de": "Zauberschutz zerstören, er ruft alle 5 Sek. ein Skelett", "verified": true},
-        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt Shadow Bolt Volley and Healing Wave", "de": "Schattenblitzsalve und Welle der Heilung unterbrechen", "verified": true},
+        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt **Shadow Bolt Volley** and Healing Wave", "de": "**Schattenblitzsalve** und **Welle der Heilung** unterbrechen", "verified": true},
         {"spellID": 0, "spell": "Awaken Zul'farrak Zombie", "type": "adds", "en": "Raises zombies from graves; pull him away from them", "de": "Erweckt Zombies aus Gräbern; von den Gräbern wegziehen", "unverified": true}
       ]
     },
@@ -46,7 +46,7 @@
       "npcID": 7796,
       "level": 45,
       "mechanics": [
-        {"spellID": 8600, "spell": "Fevered Plague", "type": "dispel", "en": "Fevered Plague disease; cure it or interrupt", "de": "Fiebrige Seuche; Krankheit heilen oder unterbrechen"}
+        {"spellID": 8600, "spell": "Fevered Plague", "type": "dispel", "en": "**Fevered Plague** disease; cure it or interrupt", "de": "**Fiebrige Seuche**; Krankheit heilen oder unterbrechen"}
       ]
     },
     {
@@ -54,9 +54,9 @@
       "npcID": 7275,
       "level": 46,
       "mechanics": [
-        {"spellID": 13704, "spell": "Psychic Scream", "type": "survive", "en": "Psychic Scream fears up to 5 players; avoid pulling more", "de": "Psychischer Schrei fürchtet bis zu 5; keine Adds ziehen"},
-        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Interrupt Heal; dispel his Renew", "de": "Heilen unterbrechen; Erneuerung bannen"},
-        {"spellID": 12739, "spell": "Shadow Bolt", "type": "interrupt", "en": "Kick Shadow Bolt when no heal is being cast", "de": "Schattenblitz unterbrechen, wenn er nicht heilt", "verified": true}
+        {"spellID": 13704, "spell": "Psychic Scream", "type": "survive", "en": "**Psychic Scream** fears up to 5 players; avoid pulling more", "de": "**Psychischer Schrei** versetzt bis zu 5 Spieler in Furcht; keine Adds ziehen"},
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Interrupt **Heal**; dispel his Renew", "de": "Heilen unterbrechen; **Erneuerung** bannen"},
+        {"spellID": 12739, "spell": "Shadow Bolt", "type": "interrupt", "en": "Kick **Shadow Bolt** when no heal is being cast", "de": "**Schattenblitz** unterbrechen, wenn er nicht heilt", "verified": true}
       ]
     },
     {
@@ -64,9 +64,9 @@
       "npcID": 7273,
       "level": 0,
       "mechanics": [
-        {"spellID": 11902, "spell": "Gahz'rilla Slam", "type": "positioning", "en": "Slam knocks nearby players back; avoid ledges", "de": "Schlag stößt Nahe zurück; nicht am Rand stehen", "verified": true},
-        {"spellID": 11836, "spell": "Freeze Solid", "type": "survive", "en": "Freeze Solid stuns and deals frost damage over 6 sec", "de": "Festfrieren betäubt und macht 6 Sek. Frostschaden", "verified": true},
-        {"spellID": 11131, "spell": "Icicle", "type": "survive", "en": "Icicle hits and slows by 50% for 10 sec", "de": "Eiszapfen trifft und verlangsamt 10 Sek. um 50 %", "verified": true}
+        {"spellID": 11902, "spell": "Gahz'rilla Slam", "type": "positioning", "en": "Slam knocks nearby players back; avoid ledges", "de": "Schlag stößt Spieler in der Nähe zurück; nicht am Rand stehen", "verified": true},
+        {"spellID": 11836, "spell": "Freeze Solid", "type": "survive", "en": "**Freeze Solid** stuns and deals frost damage over 6 sec", "de": "**Festfrieren** betäubt und verursacht 6 Sek. lang Frostschaden", "verified": true},
+        {"spellID": 11131, "spell": "Icicle", "type": "survive", "en": "**Icicle** hits and slows by 50% for 10 sec", "de": "**Eiszapfen** verlangsamt 10 Sek. lang um 50 %", "verified": true}
       ]
     },
     {
@@ -74,8 +74,8 @@
       "npcID": 7795,
       "level": 46,
       "mechanics": [
-        {"spellID": 12491, "spell": "Healing Wave", "type": "interrupt", "en": "Interrupt Healing Wave", "de": "Welle der Heilung unterbrechen", "verified": true},
-        {"spellID": 0, "spell": "Water Bolt", "type": "interrupt", "en": "Interrupt Water Bolt to reduce frost damage", "de": "Wasserblitz unterbrechen, um Frostschaden zu senken", "unverified": true}
+        {"spellID": 12491, "spell": "Healing Wave", "type": "interrupt", "en": "Interrupt **Healing Wave**", "de": "**Welle der Heilung** unterbrechen", "verified": true},
+        {"spellID": 0, "spell": "Water Bolt", "type": "interrupt", "en": "Interrupt **Water Bolt** to reduce frost damage", "de": "**Wasserblitz** unterbrechen, um Frostschaden zu senken", "unverified": true}
       ]
     },
     {
@@ -84,7 +84,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 0, "spell": "Cleave", "type": "positioning", "en": "Cleaves the tank's neighbour; stand behind", "de": "Spaltet auch Nachbarn des Tanks; hinter ihm stehen", "unverified": true},
-        {"spellID": 0, "spell": "Execute", "type": "tank", "en": "Executes targets under 20% health; keep the tank topped", "de": "Hinrichten unter 20 % Leben; Tank voll halten", "unverified": true}
+        {"spellID": 0, "spell": "Execute", "type": "tank", "en": "Executes targets under 20% health; keep the tank topped", "de": "**Hinrichten** unter 20 % Leben; Tank voll halten", "unverified": true}
       ]
     },
     {
@@ -92,8 +92,8 @@
       "npcID": 7267,
       "level": 0,
       "mechanics": [
-        {"spellID": 11837, "spell": "Wide Slash", "type": "positioning", "en": "Wide Slash hits a frontal cone; only the tank in front", "de": "Weiter Hieb trifft vorne im Kegel; nur der Tank vorne", "verified": true},
-        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzy raises his attack speed and damage", "de": "Raserei erhöht Angriffstempo und Schaden"},
+        {"spellID": 11837, "spell": "Wide Slash", "type": "positioning", "en": "**Wide Slash** hits a frontal cone; only the tank in front", "de": "**Weiter Hieb** trifft vorne im Kegel; nur der Tank vorne", "verified": true},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "**Frenzy** raises his attack speed and damage", "de": "**Raserei** erhöht Angriffstempo und Schaden"},
         {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves; melee stay behind him", "de": "Spaltet; Nahkämpfer hinter ihm", "verified": true}
       ]
     },
@@ -101,7 +101,7 @@
       "name": "Sergeant Bly",
       "npcID": 7604,
       "mechanics": [
-        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "Shield bash interrupts casters: heal from range", "de": "Schildhieb unterbricht Zauberer: aus der Distanz heilen", "verified": true}
+        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "**Shield bash** interrupts casters: heal from range", "de": "**Schildhieb** unterbricht Zauberer: aus der Distanz heilen", "verified": true}
       ]
     }
   ],
@@ -111,7 +111,7 @@
       "npcID": 5650,
       "elite": true,
       "mechanics": [
-        {"spellID": 17843, "spell": "Flash Heal", "type": "interrupt", "en": "Interrupt Flash Heal", "de": "Blitzheilung unterbrechen"},
+        {"spellID": 17843, "spell": "Flash Heal", "type": "interrupt", "en": "Interrupt **Flash Heal**", "de": "**Blitzheilung** unterbrechen"},
         {"spellID": 11899, "spell": "Healing Ward", "type": "adds", "en": "Destroy the Healing Ward or pull mobs off it", "de": "Heilungszauberschutz zerstören oder Gegner wegziehen"}
       ]
     },
@@ -120,7 +120,7 @@
       "npcID": 5648,
       "elite": true,
       "mechanics": [
-        {"spellID": 12471, "spell": "Shadow Bolt", "type": "interrupt", "en": "Interrupt Shadow Bolt", "de": "Schattenblitz unterbrechen"},
+        {"spellID": 12471, "spell": "Shadow Bolt", "type": "interrupt", "en": "Interrupt **Shadow Bolt**", "de": "**Schattenblitz** unterbrechen"},
         {"spellID": 18396, "spell": "Dismounting Blast", "type": "positioning", "en": "Knocks players back; mind where you stand", "de": "Stößt Spieler zurück; auf Position achten"}
       ]
     },
@@ -129,8 +129,8 @@
       "npcID": 7247,
       "elite": true,
       "mechanics": [
-        {"spellID": 7154, "spell": "Dark Offering", "type": "interrupt", "en": "Dark Offering heals allies; interrupt it", "de": "Dunkle Opfergabe heilt Verbündete; unterbrechen"},
-        {"spellID": 11016, "spell": "Soul Bite", "type": "survive", "en": "Soul Bite drains health and mana", "de": "Seelenbiss entzieht Leben und Mana"}
+        {"spellID": 7154, "spell": "Dark Offering", "type": "interrupt", "en": "**Dark Offering** heals allies; interrupt it", "de": "**Dunkle Opfergabe** heilt Verbündete; unterbrechen"},
+        {"spellID": 11016, "spell": "Soul Bite", "type": "survive", "en": "**Soul Bite** drains health and mana", "de": "**Seelenbiss** entzieht Leben und Mana"}
       ]
     },
     {
@@ -138,7 +138,7 @@
       "npcID": 7246,
       "elite": true,
       "mechanics": [
-        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Hex turns a player into a frog for 6 sec; dispel", "de": "Verhexen macht 6 Sek. zum Frosch; bannen", "verified": true}
+        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "**Hex** turns a player into a frog for 6 sec; dispel", "de": "**Verhexen** verwandelt einen Spieler 6 Sek. lang in einen Frosch; bannen", "verified": true}
       ]
     },
     {
@@ -146,7 +146,7 @@
       "npcID": 8095,
       "elite": true,
       "mechanics": [
-        {"spellID": 11020, "spell": "Petrify", "type": "survive", "en": "Petrify stuns a player for 3 sec", "de": "Versteinern betäubt einen Spieler 3 Sek."}
+        {"spellID": 11020, "spell": "Petrify", "type": "survive", "en": "**Petrify** stuns a player for 3 sec", "de": "**Versteinern** betäubt einen Spieler 3 Sek. lang"}
       ]
     }
   ],

@@ -9,7 +9,7 @@
       "npcID": 3671,
       "level": 0,
       "mechanics": [
-        {"spellID": 8040, "spell": "Druid's Slumber", "type": "interrupt", "en": "Sleeps a player for 6 sec: interrupt the cast", "de": "Schläfert Spieler 6 Sek. ein: Zauber unterbrechen", "verified": true},
+        {"spellID": 700, "spell": "Sleep", "type": "interrupt", "en": "Sleeps a player for up to 20 sec: interrupt the cast", "de": "Schläfert Spieler bis zu 20 Sek. lang ein: Zauber unterbrechen", "verified": true},
         {"spellID": 5187, "spell": "Healing Touch", "type": "interrupt", "en": "Heals herself: save an interrupt for the heal", "de": "Heilt sich selbst: Unterbrechung für die Heilung aufheben", "verified": true},
         {"spellID": 8148, "spell": "Thorns Aura", "type": "survive", "en": "Thorns hurt melee attackers: healers watch melee health", "de": "Dornen verletzen Nahkämpfer: Heiler achten auf Nahkämpfer", "verified": true},
         {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Lightning bolt on a player: interrupt when possible", "de": "Blitzschlag auf Spieler: wenn möglich unterbrechen", "verified": true}
@@ -23,7 +23,8 @@
         {"spellID": 7965, "spell": "Cobrahn Serpent Form", "type": "tank", "en": "Turns into a serpent and hits harder in melee", "de": "Wird zur Schlange und schlägt im Nahkampf härter zu", "verified": true},
         {"spellID": 744, "spell": "Poison", "type": "dispel", "en": "Poisons in serpent form: cure poison", "de": "Vergiftet in Schlangengestalt: Gift heilen"},
         {"spellID": 8040, "spell": "Druid's Slumber", "type": "interrupt", "en": "Sleeps a player: interrupt the cast", "de": "Schläfert Spieler ein: Zauber unterbrechen", "verified": true},
-        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Lightning bolt on a player: interrupt when possible", "de": "Blitzschlag auf Spieler: wenn möglich unterbrechen", "verified": true}
+        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Lightning bolt on a player: interrupt when possible", "de": "Blitzschlag auf Spieler: wenn möglich unterbrechen", "verified": true},
+        {"spellID": 5187, "spell": "Healing Touch", "type": "interrupt", "en": "Heals himself: save an interrupt for the heal", "de": "Heilt sich selbst: Unterbrechung für die Heilung aufheben", "verified": true}
       ]
     },
     {
@@ -31,8 +32,8 @@
       "npcID": 3670,
       "level": 0,
       "mechanics": [
-        {"spellID": 8147, "spell": "Thunderclap", "type": "avoid", "en": "Nature blast within 10 yd slows: ranged keep their distance", "de": "Naturstoß in 10 m verlangsamt: Fernkämpfer halten Abstand", "verified": true},
-        {"spellID": 8040, "spell": "Druid's Slumber", "type": "interrupt", "en": "Sleeps a player: interrupt the cast", "de": "Schläfert Spieler ein: Zauber unterbrechen"},
+        {"spellID": 8147, "spell": "Thunderclap", "type": "avoid", "en": "Nature blast within 10 yd slows: ranged keep their distance", "de": "Naturstoß im 10-m-Umkreis verlangsamt: Fernkämpfer halten Abstand", "verified": true},
+        {"spellID": 700, "spell": "Sleep", "type": "interrupt", "en": "Sleeps a player for up to 20 sec: interrupt the cast", "de": "Schläfert Spieler bis zu 20 Sek. lang ein: Zauber unterbrechen", "verified": true},
         {"spellID": 5187, "spell": "Healing Touch", "type": "interrupt", "en": "Heals himself: interrupt the heal", "de": "Heilt sich selbst: Heilung unterbrechen", "verified": true},
         {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Lightning bolt on a player: interrupt when possible", "de": "Blitzschlag auf Spieler: wenn möglich unterbrechen", "verified": true}
       ]
@@ -42,7 +43,7 @@
       "npcID": 3673,
       "level": 0,
       "mechanics": [
-        {"spellID": 700, "spell": "Sleep", "type": "interrupt", "en": "Sleeps a player up to 20 sec: interrupt, damage wakes", "de": "Schlaf bis 20 Sek.: unterbrechen, Schaden weckt auf", "verified": true},
+        {"spellID": 700, "spell": "Sleep", "type": "interrupt", "en": "Sleeps a player up to 20 sec: interrupt, damage wakes", "de": "Schlaf bis zu 20 Sek. lang: unterbrechen, Schaden weckt auf", "verified": true},
         {"spellID": 5187, "spell": "Healing Touch", "type": "interrupt", "en": "Large self heal: always interrupt", "de": "Große Selbstheilung: immer unterbrechen", "verified": true},
         {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Lightning bolt on a player: interrupt when possible", "de": "Blitzschlag auf Spieler: wenn möglich unterbrechen", "verified": true}
       ]
@@ -58,7 +59,8 @@
       "npcID": 3674,
       "level": 0,
       "mechanics": [
-        {"spellID": 6254, "spell": "Chained Bolt", "type": "interrupt", "en": "Bolt jumps to up to 3 players: interrupt it", "de": "Blitz springt auf bis zu 3 Spieler: unterbrechen", "verified": true}
+        {"spellID": 6254, "spell": "Chained Bolt", "type": "interrupt", "en": "Bolt jumps to up to 3 players: interrupt it", "de": "Blitz springt auf bis zu 3 Spieler: unterbrechen", "verified": true},
+        {"spellID": 13496, "spell": "Dazed", "type": "tank", "en": "Slows his target by half for 10 sec: only a nuisance, keep tanking", "de": "Verlangsamt sein Ziel 10 Sek. lang um die Hälfte: nur lästig, weiter tanken", "verified": true}
       ]
     },
     {
@@ -66,7 +68,7 @@
       "npcID": 5775,
       "level": 0,
       "mechanics": [
-        {"spellID": 8142, "spell": "Grasping Vines", "type": "positioning", "en": "Vines root and knock down nearby players: ranged stay back", "de": "Ranken werfen um und fesseln Nahe: Fernkämpfer bleiben hinten", "verified": true}
+        {"spellID": 8142, "spell": "Grasping Vines", "type": "positioning", "en": "Vines root and knock down nearby players: ranged stay back", "de": "Ranken werfen Spieler in der Nähe um und fesseln sie: Fernkämpfer bleiben hinten", "verified": true}
       ]
     },
     {
@@ -74,9 +76,9 @@
       "npcID": 3654,
       "level": 0,
       "mechanics": [
-        {"spellID": 7967, "spell": "Naralex's Nightmare", "type": "survive", "en": "Sleeps one player up to 15 sec: hit them to wake them", "de": "Schläfert einen Spieler bis 15 Sek. ein: Treffer weckt auf", "verified": true},
-        {"spellID": 7399, "spell": "Terrify", "type": "survive", "en": "Fears a target for 4 sec: watch for extra pulls", "de": "Furcht 4 Sek. auf ein Ziel: auf zusätzliche Gegner achten", "verified": true},
-        {"spellID": 8150, "spell": "Thundercrack", "type": "avoid", "en": "Nature blast stuns nearby players: ranged stay at range", "de": "Naturstoß betäubt Nahe: Fernkämpfer bleiben auf Distanz", "verified": true}
+        {"spellID": 7967, "spell": "Naralex's Nightmare", "type": "survive", "en": "Sleeps one player up to 15 sec: hit them to wake them", "de": "Schläfert einen Spieler bis zu 15 Sek. lang ein: Treffer weckt auf", "verified": true},
+        {"spellID": 7399, "spell": "Terrify", "type": "survive", "en": "Fears a target for 4 sec: watch for extra pulls", "de": "Furcht auf ein Ziel, 4 Sek. lang: auf zusätzliche Gegner achten", "verified": true},
+        {"spellID": 8150, "spell": "Thundercrack", "type": "avoid", "en": "Nature blast stuns nearby players: ranged stay at range", "de": "Naturstoß betäubt Spieler in der Nähe: Fernkämpfer bleiben auf Distanz", "verified": true}
       ]
     }
   ],

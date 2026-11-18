@@ -8,7 +8,7 @@
       "npcID": 261306,
       "mechanics": [
         {"spellID": 1292602, "spell": "Anvilmar's Curse", "type": "dispel", "en": "Long curse on the tank: decurse it", "de": "Langer Fluch auf dem Tank: entfluchen", "version": "forever"},
-        {"spellID": 26048, "spell": "Mind Blast", "type": "survive", "en": "Patrols and casts Mind Blast: pull him away from trash", "de": "Patrouilliert, wirkt Gedankenschlag: ohne Trash pullen", "version": "forever"}
+        {"spellID": 26048, "spell": "Mind Blast", "type": "survive", "en": "Patrols and casts Mind Blast: pull him away from trash", "de": "Patrouilliert, wirkt **Gedankenschlag**: ohne Trash pullen", "version": "forever"}
       ]
     },
     {
@@ -16,7 +16,8 @@
       "npcID": 261316,
       "mechanics": [
         {"spellID": 0, "spell": "Dark Iron Summoner", "type": "adds", "en": "Comes with a Dark Iron Summoner: kill the summoner first", "de": "Kommt mit Dunkeleisenbeschwörer: Beschwörer zuerst töten", "version": "forever"},
-        {"spellID": 1293228, "spell": "Combust", "type": "survive", "en": "Combust and a fire nova burn the group: tank him away, heal through", "de": "Verbrennen und Feuernova: wegtanken, durchheilen", "version": "forever"}
+        {"spellID": 1293228, "spell": "Combust", "type": "survive", "en": "Combust and a fire nova burn the group: tank him away, heal through", "de": "Verbrennen und Feuernova: wegtanken, durchheilen", "version": "forever"},
+        {"spellID": 11970, "spell": "Fire Nova", "type": "avoid", "en": "Fire burst around him: ranged and pets stay out of melee range", "de": "**Feuerstoß** um ihn herum: Fernkämpfer und Begleiter auf Abstand halten", "verified": true}
       ]
     },
     {
@@ -32,7 +33,8 @@
       "mechanics": [
         {"spellID": 0, "spell": "Lesser Stone Golems", "type": "adds", "en": "Two stone golems join: clear the looters first, kill golems one by one", "de": "Zwei Steingolems: erst Plünderer räumen, Golems einzeln töten", "version": "forever"},
         {"spellID": 26070, "spell": "Fear", "type": "survive", "en": "Fears the group: clear the room first", "de": "Furcht auf die Gruppe: Raum vorher räumen", "version": "forever"},
-        {"spellID": 12054, "spell": "Rend", "type": "tank", "en": "Rend bleeds the tank: heavy damage, use stuns", "de": "Verwunden blutet den Tank: viel Schaden, Betäubungen nutzen", "version": "forever"}
+        {"spellID": 12054, "spell": "Rend", "type": "tank", "en": "Rend bleeds the tank: heavy damage, use stuns", "de": "**Verwunden** lässt den Tank bluten: viel Schaden, Betäubungen nutzen", "version": "forever"},
+        {"spellID": 19134, "spell": "Intimidating Shout", "type": "avoid", "en": "Shout fears nearby players: ranged stay away from him", "de": "Schrei lässt Spieler in der Nähe fliehen: Fernkämpfer bleiben weg", "verified": true}
       ]
     }
   ],
@@ -48,7 +50,7 @@
       "name": "Dark Iron Engineer",
       "npcID": 263397,
       "mechanics": [
-        {"spellID": 0, "spell": "Bomb", "type": "avoid", "en": "Throws bombs at a spot: step out, fully avoidable", "de": "Wirft Bomben auf eine Stelle: rausgehen, ganz vermeidbar", "version": "forever"}
+        {"spellID": 0, "spell": "Bomb", "type": "avoid", "en": "Throws bombs at a spot: step out, fully avoidable", "de": "Wirft Bomben auf eine Stelle: rausgehen, komplett vermeidbar", "version": "forever"}
       ]
     },
     {

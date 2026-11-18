@@ -56,7 +56,7 @@
       "npcID": 10433,
       "level": 58,
       "mechanics": [
-        {"spellID": 12040, "spell": "Shadow Shield", "type": "positioning", "en": "Shadow shield hurts melee; let ranged do the work", "de": "Schattenschild schadet Nahkämpfern; Fernkämpfer übernehmen", "verified": true},
+        {"spellID": 12040, "spell": "Shadow Shield", "type": "positioning", "en": "**Shadow shield** hurts melee; let ranged do the work", "de": "**Schattenschild** schadet Nahkämpfern; Fernkämpfer übernehmen", "verified": true},
         {"spellID": 17695, "spell": "Defiling Aura", "type": "positioning", "en": "Aura damages nearby players; ranged keep distance", "de": "Aura schadet in der Nähe; Fernkämpfer auf Abstand", "verified": true},
         {"spellID": 11609, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm", "verified": true}
       ]
@@ -66,7 +66,7 @@
       "npcID": 10432,
       "level": 60,
       "mechanics": [
-        {"spellID": 10216, "spell": "Flamestrike", "type": "avoid", "en": "Leave the Flamestrike area at once", "de": "Flammenstoß-Fläche sofort verlassen", "verified": true},
+        {"spellID": 10216, "spell": "Flamestrike", "type": "avoid", "en": "Leave the **Flamestrike** area at once", "de": "**Flammenstoß**-Fläche sofort verlassen", "verified": true},
         {"spellID": 13021, "spell": "Blast Wave", "type": "positioning", "en": "Point-blank fire burst; spread out and stay at range", "de": "Feuerwelle im Nahbereich; verteilen und Abstand halten", "verified": true}
       ]
     },
@@ -76,8 +76,8 @@
       "level": 62,
       "mechanics": [
         {"spellID": 6215, "spell": "Fear", "type": "survive", "en": "Fears players; clear his adds first so no extra pulls", "de": "Furcht auf Spieler; vorher Adds töten, sonst Zusatzpulls", "verified": true},
-        {"spellID": 18099, "spell": "Chill Nova", "type": "positioning", "en": "Frost nova roots melee; ranged stay at max range", "de": "Frostnova wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "verified": true},
-        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Interrupt the frostbolt volleys", "de": "Frostblitzsalven unterbrechen", "verified": true},
+        {"spellID": 18099, "spell": "Chill Nova", "type": "positioning", "en": "Frost nova roots melee; ranged stay at max range", "de": "**Frostnova** wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "verified": true},
+        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Interrupt the frostbolt volleys", "de": "**Frostblitzsalven** unterbrechen", "verified": true},
         {"spellID": 16350, "spell": "Freeze", "type": "dispel", "en": "Freezes a player in place: dispel magic", "de": "Friert einen Spieler ein: Magie bannen", "verified": true}
       ]
     },
@@ -86,7 +86,7 @@
       "npcID": 16118,
       "level": 60,
       "mechanics": [
-        {"spellID": 27688, "spell": "Bone Shield", "type": "positioning", "en": "Bone shield reflects damage to melee; melee pause", "de": "Knochenschild wirft Schaden auf Nahkämpfer zurück; pausieren"},
+        {"spellID": 27688, "spell": "Bone Shield", "type": "positioning", "en": "**Bone shield** reflects damage to melee; melee pause", "de": "**Knochenschild** wirft Schaden auf Nahkämpfer zurück; pausieren"},
         {"spellID": 27687, "spell": "Summon Bone Minions", "type": "adds", "en": "Summons skeleton minions and mages; kill them", "de": "Beschwört Skelettdiener und -magier; töten"}
       ],
       "summoned": true
@@ -98,11 +98,11 @@
       "wing": "Barov vault",
       "mechanics": [
         {"spellID": 17843, "spell": "Flash Heal", "type": "interrupt", "en": "Heals herself; interrupt her heals", "de": "Heilt sich selbst; Heilungen unterbrechen"},
-        {"spellID": 6146, "spell": "Slow", "type": "dispel", "en": "Slow cuts attack and move speed; dispel it", "de": "Verlangsamung senkt Angriffs- und Lauftempo; bannen", "verified": true},
+        {"spellID": 6146, "spell": "Slow", "type": "dispel", "en": "**Slow** cuts attack and move speed; dispel it", "de": "**Verlangsamung** senkt Angriffs- und Lauftempo; bannen", "verified": true},
         {"spellID": 5137, "spell": "Call of the Grave", "type": "adds", "en": "Calls undead helpers: kill the adds", "de": "Ruft untote Helfer: Begleiter töten", "verified": true},
-        {"spellID": 25311, "spell": "Corruption", "type": "dispel", "en": "Corruption on a player: dispel magic", "de": "Verderbnis auf einem Spieler: Magie bannen", "verified": true},
+        {"spellID": 25311, "spell": "Corruption", "type": "dispel", "en": "**Corruption** on a player: dispel magic", "de": "**Verderbnis** auf einem Spieler: Magie bannen", "verified": true},
         {"spellID": 6064, "spell": "Heal", "type": "interrupt", "en": "Heals herself: interrupt the cast", "de": "Heilt sich selbst: Zauber unterbrechen", "verified": true},
-        {"spellID": 25315, "spell": "Renew", "type": "dispel", "en": "Renew heals her over time: purge it", "de": "Erneuerung heilt sie über Zeit: reinigen", "verified": true}
+        {"spellID": 25315, "spell": "Renew", "type": "dispel", "en": "**Renew** heals her over time: purge it", "de": "**Erneuerung** heilt sie über Zeit: reinigen", "verified": true}
       ]
     },
     {
@@ -111,7 +111,7 @@
       "level": 60,
       "wing": "Barov vault",
       "mechanics": [
-        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrages at 50 percent; burn fast, tank uses cooldowns", "de": "Raserei bei 50 Prozent; schnell töten, Tank nutzt Cooldowns"},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrages at 50 percent; burn fast, tank uses cooldowns", "de": "**Raserei** bei 50 %; schnell töten, Tank nutzt Abklingzeiten"},
         {"spellID": 11574, "spell": "Rend", "type": "survive", "en": "Bleed on the tank; low-armor players keep away", "de": "Blutung auf dem Tank; Spieler mit wenig Rüstung Abstand halten", "verified": true},
         {"spellID": 11130, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true}
       ]
@@ -133,9 +133,9 @@
       "wing": "Barov vault",
       "mechanics": [
         {"spellID": 11130, "spell": "Knock Away", "type": "positioning", "en": "Knockback can throw players into uncleared trash", "de": "Rückstoß kann Spieler in nicht geräumte Gegner werfen", "verified": true},
-        {"spellID": 25174, "spell": "Sundering Cleave", "type": "positioning", "en": "Frontal cleave; stand behind him", "de": "Spaltangriff nach vorn; hinter ihm stehen", "verified": true},
+        {"spellID": 25174, "spell": "Sundering Cleave", "type": "positioning", "en": "Frontal cleave; stand behind him", "de": "**Spaltangriff** nach vorn; hinter ihm stehen", "verified": true},
         {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true},
-        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "**Trample** hits players next to the tank: melee spread a bit", "de": "**Trampeln** trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
       ]
     },
     {
@@ -159,8 +159,8 @@
         {"spellID": 14515, "spell": "Dominate Mind", "type": "interrupt", "en": "Mind control on a player; interrupt or crowd-control", "de": "Gedankenkontrolle auf Spieler; unterbrechen oder kontrollieren", "verified": true},
         {"spellID": 6215, "spell": "Fear", "type": "survive", "en": "Fears a player; shadow resistance helps", "de": "Furcht auf einen Spieler; Schattenwiderstand hilft", "verified": true},
         {"spellID": 12528, "spell": "Silence", "type": "positioning", "en": "AoE silence; casters spread out", "de": "Flächenstille; Zauberer verteilen sich", "verified": true},
-        {"spellID": 11713, "spell": "Bane of Agony", "type": "dispel", "en": "Bane of agony grows over time: remove the curse", "de": "Fluch der Pein wächst an: Fluch entfernen", "verified": true},
-        {"spellID": 17289, "spell": "Shadow Shock", "type": "interrupt", "en": "Shadow shock on a player: interrupt when possible", "de": "Schattenschock auf Spieler: wenn möglich unterbrechen", "verified": true}
+        {"spellID": 11713, "spell": "Bane of Agony", "type": "dispel", "en": "**Bane of agony** grows over time: remove the curse", "de": "**Fluch der Pein** wächst an: Fluch entfernen", "verified": true},
+        {"spellID": 17289, "spell": "Shadow Shock", "type": "interrupt", "en": "**Shadow shock** on a player: interrupt when possible", "de": "**Schattenschock** auf Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     },
     {
@@ -171,7 +171,7 @@
         {"spellID": 17950, "spell": "Shadow Portal", "type": "adds", "en": "Ports players into side rooms with adds; fight out", "de": "Teleportiert Spieler in Nebenräume mit Adds; freikämpfen"},
         {"spellID": 18702, "spell": "Curse of the Darkmaster", "type": "dispel", "en": "Remove his curse", "de": "Seinen Fluch entfernen", "verified": true},
         {"spellID": 12040, "spell": "Shadow Shield", "type": "tank", "en": "Shields himself; melee keep threat, ranged on stairs", "de": "Schirmt sich ab; Nahkämpfer halten Aggro, Fernkämpfer auf Treppe", "verified": true},
-        {"spellID": 25346, "spell": "Arcane Missiles", "type": "interrupt", "en": "Arcane missiles on a player: interrupt the channel", "de": "Arkane Geschosse auf Spieler: Kanalisierung unterbrechen", "verified": true}
+        {"spellID": 25346, "spell": "Arcane Missiles", "type": "interrupt", "en": "**Arcane missiles** on a player: interrupt the channel", "de": "**Arkane Geschosse** auf Spieler: Kanalisierung unterbrechen", "verified": true}
       ]
     }
   ],
@@ -182,7 +182,7 @@
       "elite": true,
       "mechanics": [
         {"spellID": 17616, "spell": "Corpse Explosion", "type": "avoid", "en": "Blows up corpses; move away from bodies", "de": "Lässt Leichen explodieren; weg von Leichen"},
-        {"spellID": 14887, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt the shadow bolt volley", "de": "Schattenblitzsalve unterbrechen"}
+        {"spellID": 14887, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Interrupt the **shadow bolt volley**", "de": "**Schattenblitzsalve** unterbrechen"}
       ]
     },
     {
@@ -207,7 +207,7 @@
       "npcID": 10469,
       "elite": true,
       "mechanics": [
-        {"spellID": 15244, "spell": "Cone of Cold", "type": "positioning", "en": "Frost cone slows; do not stand in front", "de": "Kältekegel verlangsamt; nicht davor stehen"}
+        {"spellID": 15244, "spell": "Cone of Cold", "type": "positioning", "en": "Frost cone slows; do not stand in front", "de": "**Kältekegel** verlangsamt; nicht davor stehen"}
       ]
     },
     {
@@ -224,7 +224,7 @@
       "npcID": 10485,
       "elite": true,
       "mechanics": [
-        {"spellID": 12021, "spell": "Fixate", "type": "adds", "en": "Fixates a player; only holy magic hurts them", "de": "Fixiert einen Spieler; nur Heiligmagie schadet ihnen"}
+        {"spellID": 12021, "spell": "Fixate", "type": "adds", "en": "Fixates a player; only holy magic hurts them", "de": "Fixiert einen Spieler; nur Heiligmagie schadet ihm"}
       ]
     },
     {
@@ -241,7 +241,7 @@
       "npcID": 11551,
       "elite": true,
       "mechanics": [
-        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone nearby; poison needs curing", "de": "Wurzelt alle in der Nähe; Gift entgiften"}
+        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone nearby; poison needs curing", "de": "Wurzelt alle in der Nähe; Gift entfernen"}
       ]
     },
     {

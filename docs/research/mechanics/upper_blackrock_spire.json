@@ -10,7 +10,7 @@
       "level": 59,
       "mechanics": [
         {"spellID": 0, "spell": "Encage", "type": "adds", "en": "Kill the Incarcerators first; they stun random players", "de": "Zuerst die Kerkermeister töten; sie betäuben Spieler", "unverified": true},
-        {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "Fire nova hits melee; ranged keep distance", "de": "Feuernova trifft Nahkampf; Fernkampf auf Abstand"},
+        {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "**Fire nova** hits melee; ranged keep distance", "de": "**Feuernova** trifft Nahkampf; Fernkampf auf Abstand"},
         {"spellID": 0, "spell": "Flame Buffet", "type": "survive", "en": "Stacking fire damage taken debuff; fire resist helps", "de": "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "unverified": true}
       ]
     },
@@ -55,9 +55,9 @@
       "npcID": 10339,
       "level": 59,
       "mechanics": [
-        {"spellID": 20667, "spell": "Corrosive Acid Breath", "type": "positioning", "en": "Acid breath lowers armor; keep it off the group", "de": "Säureatem senkt Rüstung; von der Gruppe weg", "verified": true},
+        {"spellID": 20667, "spell": "Corrosive Acid Breath", "type": "positioning", "en": "Acid breath lowers armor; keep it off the group", "de": "**Säureatem** senkt Rüstung; von der Gruppe weg", "verified": true},
         {"spellID": 18798, "spell": "Freeze", "type": "avoid", "en": "Frost cone stuns; avoid the front", "de": "Frostkegel betäubt; nicht vor ihm stehen", "verified": true},
-        {"spellID": 9573, "spell": "Flame Breath", "type": "positioning", "en": "Flame breath hits the front: only the tank stands in front", "de": "Flammenatem trifft nach vorn: nur der Tank steht vorne", "verified": true}
+        {"spellID": 9573, "spell": "Flame Breath", "type": "positioning", "en": "**Flame breath** hits the front: only the tank stands in front", "de": "**Flammenatem** trifft nach vorn: nur der Tank steht vorne", "verified": true}
       ]
     },
     {
@@ -66,8 +66,8 @@
       "level": 62,
       "mechanics": [
         {"spellID": 16785, "spell": "Flamebreak", "type": "positioning", "en": "Knockback AoE; tank with back to a wall", "de": "Rückstoß-Feuer; Tank mit Rücken zur Wand", "verified": true},
-        {"spellID": 0, "spell": "Terrifying Roar", "type": "survive", "en": "Fears players nearby; ranged stay at max range", "de": "Fürchtet Spieler; Fernkampf auf maximale Distanz", "unverified": true},
-        {"spellID": 19471, "spell": "Berserker Charge", "type": "tank", "en": "Charges a random player; tanks re-grab aggro", "de": "Stürmt zufälligen Spieler an; Tank holt Aggro zurück", "verified": true}
+        {"spellID": 0, "spell": "Terrifying Roar", "type": "survive", "en": "Fears players nearby; ranged stay at max range", "de": "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "unverified": true},
+        {"spellID": 19471, "spell": "Berserker Charge", "type": "tank", "en": "Charges a random player; tanks re-grab aggro", "de": "Stürmt einen zufälligen Spieler an; Tank holt Aggro zurück", "verified": true}
       ]
     },
     {
@@ -77,7 +77,7 @@
       "mechanics": [
         {"spellID": 0, "spell": "Spectral Assassin", "type": "adds", "en": "Kill the spectral assassins at once or they turn players", "de": "Geister-Attentäter sofort töten, sonst verwandeln sie", "unverified": true},
         {"spellID": 0, "spell": "Shadow Wrath", "type": "survive", "en": "Chaining drain gains damage per jump; spread out", "de": "Springender Entzug wird stärker; verteilen", "unverified": true},
-        {"spellID": 27383, "spell": "Shadow Bolt Volley", "type": "survive", "en": "From 40% he volleys shadow bolts; burn him fast", "de": "Ab 40 % Schattenblitzsalven; schnell töten"}
+        {"spellID": 27383, "spell": "Shadow Bolt Volley", "type": "survive", "en": "From 40% he volleys shadow bolts; burn him fast", "de": "Ab 40 % **Schattenblitzsalven**; schnell töten"}
       ]
     },
     {
@@ -87,7 +87,7 @@
       "mechanics": [
         {"spellID": 16805, "spell": "Conflagration", "type": "tank", "en": "Burns and panics a target; second tank taunts", "de": "Verbrennt und lähmt ein Ziel; zweiter Tank spottet", "verified": true},
         {"spellID": 0, "spell": "Chromatic Elite Guard", "type": "adds", "en": "Two elite guards join; kill them or pull him away", "de": "Zwei Elitewachen helfen; töten oder ihn wegziehen", "unverified": true},
-        {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillars on the ground; step out", "de": "Feuersäulen am Boden; herausgehen", "unverified": true}
+        {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillars on the ground; step out", "de": "**Feuersäulen** am Boden; herausgehen", "unverified": true}
       ]
     }
   ],
@@ -98,8 +98,8 @@
       "elite": true,
       "mechanics": [
         {"spellID": 15794, "spell": "Summon Blackhand Dreadweaver", "type": "interrupt", "en": "Summons more orcs; interrupt or kill first", "de": "Beschwört weitere Orcs; unterbrechen oder zuerst töten"},
-        {"spellID": 25306, "spell": "Fireball", "type": "interrupt", "en": "Fireball on a player: interrupt it", "de": "Feuerball auf Spieler: unterbrechen", "verified": true},
-        {"spellID": 122, "spell": "Frost Nova", "type": "avoid", "en": "Frost nova roots nearby players: ranged keep distance", "de": "Frostnova friert Spieler in der Nähe ein: Fernkämpfer auf Abstand", "verified": true}
+        {"spellID": 25306, "spell": "Fireball", "type": "interrupt", "en": "**Fireball** on a player: interrupt it", "de": "**Feuerball** auf Spieler: unterbrechen", "verified": true},
+        {"spellID": 122, "spell": "Frost Nova", "type": "avoid", "en": "**Frost nova** roots nearby players: ranged keep distance", "de": "**Frostnova** friert Spieler in der Nähe ein: Fernkämpfer auf Abstand", "verified": true}
       ]
     },
     {
@@ -109,7 +109,7 @@
       "mechanics": [
         {"spellID": 6909, "spell": "Curse of Thorns", "type": "dispel", "en": "Curse deals damage when the victim attacks; decurse", "de": "Fluch schadet beim Angreifen; entfluchen", "verified": true},
         {"spellID": 7068, "spell": "Veil of Shadow", "type": "dispel", "en": "Cuts healing received by 75%; dispel", "de": "Senkt erhaltene Heilung um 75 %; bannen", "verified": true},
-        {"spellID": 25307, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on a player: interrupt it", "de": "Schattenblitz auf Spieler: unterbrechen", "verified": true}
+        {"spellID": 25307, "spell": "Shadow Bolt", "type": "interrupt", "en": "**Shadow bolt** on a player: interrupt it", "de": "**Schattenblitz** auf Spieler: unterbrechen", "verified": true}
       ]
     },
     {
@@ -149,7 +149,7 @@
       "npcID": 10372,
       "elite": true,
       "mechanics": [
-        {"spellID": 16635, "spell": "Fire Nova", "type": "avoid", "en": "Fire nova around it; ranged stay away", "de": "Feuernova um ihn; Fernkampf auf Abstand"}
+        {"spellID": 16635, "spell": "Fire Nova", "type": "avoid", "en": "**Fire nova** around it; ranged stay away", "de": "**Feuernova** um ihn; Fernkampf auf Abstand"}
       ]
     },
     {
@@ -157,7 +157,7 @@
       "npcID": 10083,
       "elite": true,
       "mechanics": [
-        {"spellID": 16102, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar on the ground; move out", "de": "Feuersäule am Boden; herausgehen"}
+        {"spellID": 16102, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar on the ground; move out", "de": "**Feuersäule** am Boden; herausgehen"}
       ]
     },
     {
@@ -165,7 +165,7 @@
       "npcID": 10371,
       "elite": true,
       "mechanics": [
-        {"spellID": 15708, "spell": "Mortal Strike", "type": "tank", "en": "Healing on the tank halved for 5 sec", "de": "Heilung am Tank 5 Sek. halbiert"}
+        {"spellID": 15708, "spell": "Mortal Strike", "type": "tank", "en": "Healing on the tank halved for 5 sec", "de": "Halbiert 5 Sek. lang die Heilung am Tank"}
       ]
     },
     {

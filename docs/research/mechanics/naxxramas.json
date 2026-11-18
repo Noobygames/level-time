@@ -11,15 +11,15 @@
      "spellID": 28785,
      "spell": "Locust Swarm",
      "type": "avoid",
-     "en": "Locust Swarm silences and hurts nearby players; kite him away",
-     "de": "Heuschreckenschwarm schweigt und verletzt Nahe; Boss wegziehen (kiten)"
+     "en": "**Locust Swarm** silences and hurts nearby players; kite him away",
+     "de": "**Heuschreckenschwarm** bringt Spieler in der Nähe zum Schweigen und verletzt sie; Boss wegziehen (kiten)"
     },
     {
      "spellID": 28783,
      "spell": "Impale",
      "type": "positioning",
-     "en": "Impale hits a line and knocks players up; spread out",
-     "de": "Aufspießen trifft eine Linie und schleudert hoch; verteilen"
+     "en": "**Impale** hits a line and knocks players up; spread out",
+     "de": "**Aufspießen** trifft eine Linie und schleudert hoch; verteilen"
     },
     {
      "spellID": 28969,
@@ -39,21 +39,21 @@
      "spell": "Poison Bolt Volley",
      "type": "dispel",
      "en": "Poison volley on several players; cure poison quickly",
-     "de": "Giftblitzsalve auf mehrere Spieler; Gift schnell entfernen"
+     "de": "**Giftblitzsalve** auf mehrere Spieler; Gift schnell entfernen"
     },
     {
      "spellID": 28794,
      "spell": "Rain of Fire",
      "type": "avoid",
-     "en": "Leave Rain of Fire areas at once",
-     "de": "Feuerregen-Flächen sofort verlassen"
+     "en": "Leave **Rain of Fire** areas at once",
+     "de": "**Feuerregen**-Flächen sofort verlassen"
     },
     {
      "spellID": 28798,
      "spell": "Enrage",
      "type": "tank",
-     "en": "Enrage boosts her damage; sacrifice a Worshipper to remove it",
-     "de": "Wutanfall erhöht ihren Schaden; Anbeter opfern, um ihn zu entfernen"
+     "en": "**Enrage** boosts her damage; sacrifice a Worshipper to remove it",
+     "de": "**Wutanfall** erhöht ihren Schaden; Anbeter opfern, um ihn zu entfernen"
     }
    ]
   },
@@ -65,29 +65,29 @@
      "spellID": 28622,
      "spell": "Web Wrap",
      "type": "adds",
-     "en": "Web Wrap cocoons players on the wall; ranged break them free",
-     "de": "Netzwickel spinnt Spieler an der Wand ein; Fernkämpfer befreien sie"
+     "en": "**Web Wrap** cocoons players on the wall; ranged break them free",
+     "de": "**Netzwickel** spinnt Spieler an der Wand ein; Fernkämpfer befreien sie"
     },
     {
      "spellID": 29484,
      "spell": "Web Spray",
      "type": "survive",
-     "en": "Web Spray stuns the raid every 40 sec; top up health before",
-     "de": "Netzspray betäubt den Raid alle 40 Sek.; vorher hochheilen"
+     "en": "**Web Spray** stuns the raid every 40 sec; top up health before",
+     "de": "**Netzspray** betäubt den Raid alle 40 Sek.; vorher hochheilen"
     },
     {
      "spellID": 28776,
      "spell": "Necrotic Poison",
      "type": "dispel",
-     "en": "Necrotic Poison cuts healing on the tank; cure it",
-     "de": "Nekrotisches Gift senkt Heilung am Tank; entgiften"
+     "en": "**Necrotic Poison** cuts healing on the tank; cure it",
+     "de": "**Nekrotisches Gift** senkt Heilung am Tank; entgiften"
     },
     {
      "spellID": 28747,
      "spell": "Enrage",
      "type": "tank",
      "en": "Enrages at 30% health; save cooldowns for the end",
-     "de": "Wutanfall bei 30 % Leben; Cooldowns fürs Ende aufheben"
+     "de": "**Wutanfall** bei 30 % Leben; Abklingzeiten fürs Ende aufheben"
     }
    ]
   },
@@ -106,15 +106,15 @@
      "spellID": 29211,
      "spell": "Blink",
      "type": "tank",
-     "en": "Blink resets his threat; tanks pick him up again",
-     "de": "Blinzeln setzt Bedrohung zurück; Tanks ihn neu aufnehmen"
+     "en": "**Blink** resets his threat; tanks pick him up again",
+     "de": "**Blinzeln** setzt Bedrohung zurück; Tanks ihn neu aufnehmen"
     },
     {
      "spellID": 29212,
      "spell": "Cripple",
      "type": "survive",
-     "en": "Cripple slows nearby players and their attacks",
-     "de": "Verkrüppeln verlangsamt Spieler in der Nähe und ihre Angriffe"
+     "en": "**Cripple** slows nearby players and their attacks",
+     "de": "**Verkrüppeln** verlangsamt Spieler in der Nähe und ihre Angriffe"
     },
     {
      "spellID": 0,
@@ -149,7 +149,7 @@
      "spell": "Mana Burn",
      "type": "positioning",
      "en": "Burns mana nearby; casters stay out of range",
-     "de": "Manabrand in der Nähe; Zauberer halten Abstand"
+     "de": "**Manabrand** in der Nähe; Zauberer halten Abstand"
     }
    ]
   },
@@ -202,8 +202,8 @@
      "spellID": 29061,
      "spell": "Shield Wall",
      "type": "tank",
-     "en": "Students use Shield Wall and Taunt to swap tanking",
-     "de": "Schüler nutzen Schildwall und Spott zum Tankwechsel"
+     "en": "Students use **Shield Wall** and Taunt to swap tanking",
+     "de": "Schüler nutzen **Schildwall** und Spott zum Tankwechsel"
     }
    ]
   },
@@ -257,15 +257,15 @@
      "spellID": 28884,
      "spell": "Meteor",
      "type": "positioning",
-     "en": "Korth'azz's Meteor is split among nearby players; stack",
-     "de": "Meteor von Korth'azz wird aufgeteilt; zusammenstehen"
+     "en": "Korth'azz's **Meteor** is split among nearby players; stack",
+     "de": "**Meteor** von Korth'azz wird aufgeteilt; zusammenstehen"
     },
     {
      "spellID": 28883,
      "spell": "Holy Wrath",
      "type": "positioning",
-     "en": "Zeliek's Holy Wrath chains; spread out around him",
-     "de": "Heiliger Zorn von Zeliek springt; um ihn verteilen"
+     "en": "Zeliek's **Holy Wrath** chains; spread out around him",
+     "de": "**Heiliger Zorn** von Zeliek springt; um ihn verteilen"
     }
    ]
   },
@@ -285,7 +285,7 @@
      "spell": "Enrage",
      "type": "survive",
      "en": "Enrages at 5% health; burn him down",
-     "de": "Wutanfall bei 5 % Leben; schnell töten",
+     "de": "**Wutanfall** bei 5 % Leben; schnell töten",
      "unverified": true
     }
    ]
@@ -326,7 +326,7 @@
      "spell": "Decimate",
      "type": "adds",
      "en": "Drops everyone to 5%; kite and kill zombies before he eats them",
-     "de": "Senkt alle auf 5 %; Zombies kiten und töten, bevor er sie frisst"
+     "de": "Senkt das Leben aller auf 5 %; Zombies kiten und töten, bevor er sie frisst"
     },
     {
      "spellID": 25646,
@@ -359,8 +359,8 @@
      "spellID": 28167,
      "spell": "Chain Lightning",
      "type": "survive",
-     "en": "Chain Lightning jumps through the raid; spread and heal",
-     "de": "Kettenblitz springt durch den Raid; verteilen und heilen"
+     "en": "**Chain Lightning** jumps through the raid; spread and heal",
+     "de": "**Kettenblitz** springt durch den Raid; verteilen und heilen"
     },
     {
      "spellID": 22839,
@@ -401,15 +401,15 @@
      "spellID": 28524,
      "spell": "Frost Breath",
      "type": "avoid",
-     "en": "Frost Breath kills anyone not behind an ice block",
-     "de": "Frostatem tötet jeden ohne Deckung hinter einem Eisblock"
+     "en": "**Frost Breath** kills anyone not behind an ice block",
+     "de": "**Frostatem** tötet jeden ohne Deckung hinter einem Eisblock"
     },
     {
      "spellID": 28542,
      "spell": "Life Drain",
      "type": "dispel",
-     "en": "Life Drain curse heals him; decurse fast",
-     "de": "Lebensentzug-Fluch heilt ihn; schnell entfluchen"
+     "en": "**Life Drain** curse heals him; decurse fast",
+     "de": "**Lebensentzug**-Fluch heilt ihn; schnell entfluchen"
     }
    ]
   },
@@ -428,22 +428,22 @@
      "spellID": 27808,
      "spell": "Frost Blast",
      "type": "survive",
-     "en": "Frost Blast freezes and chains to nearby players; heal fast",
-     "de": "Frostschlag friert ein und springt auf Nahe; schnell heilen"
+     "en": "**Frost Blast** freezes and chains to nearby players; heal fast",
+     "de": "**Frostschlag** friert ein und springt auf Spieler in der Nähe über; schnell heilen"
     },
     {
      "spellID": 27810,
      "spell": "Shadow Fissure",
      "type": "avoid",
-     "en": "Move out of a Shadow Fissure immediately",
-     "de": "Schattenspalt sofort verlassen"
+     "en": "Move out of a **Shadow Fissure** immediately",
+     "de": "**Schattenspalt** sofort verlassen"
     },
     {
      "spellID": 28478,
      "spell": "Frostbolt",
      "type": "interrupt",
-     "en": "Interrupt his single-target Frostbolt on the tank",
-     "de": "Seinen Frostblitz auf den Tank unterbrechen"
+     "en": "Interrupt his single-target **Frostbolt** on the tank",
+     "de": "Seinen **Frostblitz** auf den Tank unterbrechen"
     }
    ]
   }
@@ -465,7 +465,7 @@
      "spell": "Acid Volley",
      "type": "survive",
      "en": "Acid bolts with damage over time; heal through",
-     "de": "Säurebolzen mit Schaden über Zeit; durchheilen"
+     "de": "**Säurebolzen** mit Schaden über Zeit; durchheilen"
     }
    ]
   },
@@ -477,8 +477,8 @@
      "spellID": 29325,
      "spell": "Acid Volley",
      "type": "survive",
-     "en": "Acid volley hits several players with damage over time",
-     "de": "Säuresalve trifft mehrere Spieler mit Schaden über Zeit"
+     "en": "**Acid volley** hits several players with damage over time",
+     "de": "**Säuresalve** trifft mehrere Spieler mit Schaden über Zeit"
     }
    ]
   },
@@ -490,8 +490,8 @@
      "spellID": 28293,
      "spell": "Chain Lightning",
      "type": "interrupt",
-     "en": "Interrupt its Chain Lightning",
-     "de": "Kettenblitz unterbrechen"
+     "en": "Interrupt its **Chain Lightning**",
+     "de": "**Kettenblitz** unterbrechen"
     },
     {
      "spellID": 28294,
@@ -510,8 +510,8 @@
      "spellID": 28335,
      "spell": "Whirlwind",
      "type": "positioning",
-     "en": "Whirlwind hits all melee; casters keep distance",
-     "de": "Wirbelwind trifft alle Nahkämpfer; Zauberer Abstand halten"
+     "en": "**Whirlwind** hits all melee; casters keep distance",
+     "de": "**Wirbelwind** trifft alle Nahkämpfer; Zauberer Abstand halten"
     }
    ]
   },
@@ -523,22 +523,22 @@
      "spellID": 30094,
      "spell": "Frost Nova",
      "type": "positioning",
-     "en": "Frost Nova roots players nearby",
-     "de": "Frostnova wurzelt Spieler in der Nähe fest"
+     "en": "**Frost Nova** roots players nearby",
+     "de": "**Frostnova** wurzelt Spieler in der Nähe fest"
     },
     {
      "spellID": 30091,
      "spell": "Flamestrike",
      "type": "avoid",
-     "en": "Leave Flamestrike and Blizzard areas",
-     "de": "Flammenstoß- und Blizzard-Flächen verlassen"
+     "en": "Leave **Flamestrike** and Blizzard areas",
+     "de": "**Flammenstoß**- und **Blizzard**-Flächen verlassen"
     },
     {
      "spellID": 30095,
      "spell": "Cone of Cold",
      "type": "positioning",
-     "en": "Cone of Cold in front; only the tank faces it",
-     "de": "Kältekegel nach vorn; nur der Tank steht davor"
+     "en": "**Cone of Cold** in front; only the tank faces it",
+     "de": "**Kältekegel** nach vorn; nur der Tank steht davor"
     }
    ]
   },
@@ -551,7 +551,7 @@
      "spell": "Poison Charge",
      "type": "dispel",
      "en": "Charge poisons all within 10 yards; cure poison",
-     "de": "Ansturm vergiftet alle im Umkreis von 10 Metern; entgiften"
+     "de": "**Ansturm** vergiftet alle im 10-m-Umkreis; entgiften"
     }
    ]
   },
@@ -570,8 +570,8 @@
      "spellID": 27794,
      "spell": "Cleave",
      "type": "positioning",
-     "en": "Cleave hits players beside the tank",
-     "de": "Spalten trifft Spieler neben dem Tank"
+     "en": "**Cleave** hits players beside the tank",
+     "de": "**Spalten** trifft Spieler neben dem Tank"
     }
    ]
   },
@@ -604,7 +604,7 @@
      "spell": "Shadow Bolt Volley",
      "type": "survive",
      "en": "Shadow volley on the raid; shadow protection helps",
-     "de": "Schattensalve auf den Raid; Schattenschutz hilft"
+     "de": "**Schattensalve** auf den Raid; Schattenschutz hilft"
     }
    ]
   },

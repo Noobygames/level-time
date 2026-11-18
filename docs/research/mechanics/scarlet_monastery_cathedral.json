@@ -11,9 +11,9 @@
       "mechanics": [
         {"spellID": 22678, "spell": "Fear", "type": "survive", "en": "Fears a player; avoid running into extra pulls", "de": "Furcht auf Spieler; nicht in weitere Gruppen laufen"},
         {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals himself; interrupt his Heal", "de": "Heilt sich selbst; Heilung unterbrechen", "verified": true},
-        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse adds physical damage taken; decurse", "de": "Fluch erhoeht erlittenen Schaden; entfluchen", "verified": true},
-        {"spellID": 11647, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields himself: dispel the shield", "de": "Schildet sich selbst: Schild bannen", "verified": true},
-        {"spellID": 8399, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schlaefert einen Spieler ein: Magie bannen", "verified": true}
+        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse adds physical damage taken; decurse", "de": "Fluch erhöht erlittenen Schaden; entfluchen", "verified": true},
+        {"spellID": 11647, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields himself: dispel the shield", "de": "Schützt sich mit einem Schild: Schild bannen", "verified": true},
+        {"spellID": 8399, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schläfert einen Spieler ein: Magie bannen", "verified": true}
       ]
     },
     {
@@ -21,10 +21,11 @@
       "npcID": 3976,
       "level": 42,
       "mechanics": [
-        {"spellID": 853, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player; healer must not be locked out long", "de": "Betaeubt Spieler; Heiler nicht lange ausfallen lassen", "verified": true},
-        {"spellID": 642, "spell": "Divine Shield", "type": "tank", "en": "Bubbles at low health; keep tanking, swap to Whitemane", "de": "Gottesschild bei wenig Leben; weitertanken", "verified": true},
-        {"spellID": 9257, "spell": "Lay on Hands", "type": "survive", "en": "After Whitemane revives him he fully heals her", "de": "Nach Wiederbelebung heilt er Weisskraehe voll", "verified": true},
-        {"spellID": 14518, "spell": "Crusader Strike", "type": "tank", "en": "Crusader strike hits the tank hard: heal steadily", "de": "Kreuzfahrerstoss trifft den Tank hart: gleichmaessig heilen", "verified": true}
+        {"spellID": 853, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player; healer must not be locked out long", "de": "Betäubt Spieler; Heiler nicht lange ausfallen lassen", "verified": true},
+        {"spellID": 642, "spell": "Divine Shield", "type": "tank", "en": "Bubbles at low health; keep tanking, swap to Whitemane", "de": "**Gottesschild** bei wenig Leben; weitertanken", "verified": true},
+        {"spellID": 9257, "spell": "Lay on Hands", "type": "survive", "en": "After Whitemane revives him he fully heals her", "de": "Nach der Wiederbelebung heilt er Weißkrähe voll", "verified": true},
+        {"spellID": 14518, "spell": "Crusader Strike", "type": "tank", "en": "**Crusader strike** hits the tank hard: heal steadily", "de": "**Kreuzfahrerstoß** trifft den Tank hart: gleichmäßig heilen", "verified": true},
+        {"spellID": 8990, "spell": "Retribution Aura", "type": "survive", "en": "Aura hurts melee attackers: healers watch melee health", "de": "Aura verletzt Nahkämpfer: Heiler achten auf Nahkämpfer", "verified": true}
       ]
     },
     {
@@ -32,11 +33,12 @@
       "npcID": 3977,
       "level": 42,
       "mechanics": [
-        {"spellID": 9256, "spell": "Deep Sleep", "type": "survive", "en": "At half health she sleeps the whole party for 8 sec", "de": "Bei halbem Leben schlaeft die ganze Gruppe 8 Sek.", "verified": true},
-        {"spellID": 9232, "spell": "Scarlet Resurrection", "type": "survive", "en": "Revives Mograine while you sleep; both return full", "de": "Belebt Mograine im Schlaf; beide kommen voll zurueck", "verified": true},
-        {"spellID": 0, "spell": "Mind Control", "type": "dispel", "en": "Can mind control a player; dispel or CC them", "de": "Kann Spieler uebernehmen; bannen oder kontrollieren", "unverified": true},
+        {"spellID": 9256, "spell": "Deep Sleep", "type": "survive", "en": "At half health she sleeps the whole party for 8 sec", "de": "Bei halbem Leben schläft die ganze Gruppe 8 Sek. lang", "verified": true},
+        {"spellID": 9232, "spell": "Scarlet Resurrection", "type": "survive", "en": "Revives Mograine while you sleep; both return full", "de": "Belebt Mograine im Schlaf; beide kommen voll zurück", "verified": true},
+        {"spellID": 0, "spell": "Mind Control", "type": "dispel", "en": "Can mind control a player; dispel or CC them", "de": "Kann Spieler übernehmen; bannen oder kontrollieren", "unverified": true},
         {"spellID": 9481, "spell": "Holy Smite", "type": "interrupt", "en": "Holy smite on a player: interrupt it", "de": "Heiliges Feuer auf Spieler: unterbrechen", "verified": true},
-        {"spellID": 22187, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields herself: dispel the shield", "de": "Schildet sich selbst: Schild bannen", "verified": true}
+        {"spellID": 22187, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields herself: dispel the shield", "de": "Schützt sich mit einem Schild: Schild bannen", "verified": true},
+        {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals herself and her allies: save an interrupt for it", "de": "Heilt sich und Verbündete: Unterbrechung dafür aufheben", "verified": true}
       ]
     }
   ],
@@ -46,8 +48,8 @@
       "npcID": 4303,
       "elite": true,
       "mechanics": [
-        {"spellID": 2054, "spell": "Heal", "type": "interrupt", "en": "Heals others and enrages low; kill and interrupt first", "de": "Heilt andere, wird wuetend; zuerst toeten, unterbrechen", "verified": true},
-        {"spellID": 139, "spell": "Renew", "type": "dispel", "en": "Renew heals over time: purge it or interrupt the next cast", "de": "Erneuerung heilt ueber Zeit: reinigen oder naechsten Zauber unterbrechen", "verified": true}
+        {"spellID": 2054, "spell": "Heal", "type": "interrupt", "en": "Heals others and enrages low; kill and interrupt first", "de": "Heilt andere, wird wütend; zuerst töten, unterbrechen", "verified": true},
+        {"spellID": 139, "spell": "Renew", "type": "dispel", "en": "**Renew** heals over time: purge it or interrupt the next cast", "de": "**Erneuerung** heilt über Zeit: reinigen oder nächsten Zauber unterbrechen", "verified": true}
       ]
     },
     {
@@ -55,7 +57,7 @@
       "npcID": 4294,
       "elite": true,
       "mechanics": [
-        {"spellID": 8364, "spell": "Blizzard", "type": "avoid", "en": "Frost AoE on the ground; step out", "de": "Frost-Flaechenschaden am Boden; heraustreten"}
+        {"spellID": 8364, "spell": "Blizzard", "type": "avoid", "en": "Frost AoE on the ground; step out", "de": "Frost-Flächenschaden am Boden; heraustreten"}
       ]
     },
     {
@@ -63,7 +65,7 @@
       "npcID": 4300,
       "elite": true,
       "mechanics": [
-        {"spellID": 1449, "spell": "Arcane Explosion", "type": "positioning", "en": "Spams AoE when players stack; fight it spread", "de": "Spammt AoE bei Gruppen; verteilt bekaempfen", "verified": true}
+        {"spellID": 1449, "spell": "Arcane Explosion", "type": "positioning", "en": "Spams AoE when players stack; fight it spread", "de": "Wirkt ständig Flächenschaden bei Gruppen; verteilt bekämpfen", "verified": true}
       ]
     },
     {
@@ -71,7 +73,7 @@
       "npcID": 4302,
       "elite": true,
       "mechanics": [
-        {"spellID": 17284, "spell": "Holy Strike", "type": "tank", "en": "Hard holy hits on the tank; worse with an Abbot", "de": "Harte Heiligschlaege auf Tank; schlimmer mit Abt", "verified": true}
+        {"spellID": 17284, "spell": "Holy Strike", "type": "tank", "en": "Hard holy hits on the tank; worse with an Abbot", "de": "Harte Heiligschläge auf den Tank; schlimmer mit Abt", "verified": true}
       ]
     }
   ],

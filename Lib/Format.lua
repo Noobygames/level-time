@@ -141,6 +141,18 @@ function Format.Gold(copper)
   return string.format("%d%s", math.floor(copper / COPPER_PER_GOLD), unit("UNIT_GOLD_SHORT"))
 end
 
+-- Fähigkeitsnamen in Guide-Texten stehen als **Name**; WoW-Schrift kennt kein Fett, darum Hervorhebung per Farbe
+local HIGHLIGHT_PATTERN = "%*%*(.-)%*%*"
+
+function Format.Highlight(text)
+  return (text:gsub(HIGHLIGHT_PATTERN, ns.Theme.Hex("gold") .. "%1|r"))
+end
+
+-- Dieselben Texte ohne Markierung (Chat, Export, alles ohne Farbe)
+function Format.StripHighlight(text)
+  return (text:gsub(HIGHLIGHT_PATTERN, "%1"))
+end
+
 -- Text ohne Farbcodes und Link-Markup (z.B. Item-Links), für Suche und Export
 function Format.PlainText(value)
   local text = tostring(value or "")

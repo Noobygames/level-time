@@ -21,12 +21,11 @@
      "verified": true
     },
     {
-     "spellID": 6192,
+     "spellID": 11549,
      "spell": "Battle Shout",
      "type": "tank",
      "en": "Shout raises his melee damage; tank with cooldowns",
-     "de": "Ruf erhoeht seinen Nahkampfschaden; Tank mit Cooldowns",
-     "unverified": true,
+     "de": "Ruf erhöht seinen Nahkampfschaden; Tank mit Abklingzeiten",
      "verified": true
     }
    ]
@@ -41,7 +40,7 @@
      "spell": "Detonation",
      "type": "avoid",
      "en": "At half health he bubbles, then detonates; break line of sight",
-     "de": "Bei halbem Leben Blase, dann Detonation; Sichtlinie brechen",
+     "de": "Bei halbem Leben Blase, dann **Detonation**; Sichtlinie brechen",
      "verified": true
     },
     {
@@ -49,7 +48,7 @@
      "spell": "Polymorph",
      "type": "dispel",
      "en": "Sheeps a player; dispel magic to free them",
-     "de": "Verwandelt Spieler in Schaf; Magie bannen",
+     "de": "Verwandelt Spieler in ein Schaf; Magie bannen",
      "verified": true
     },
     {
@@ -57,7 +56,23 @@
      "spell": "Silence",
      "type": "survive",
      "en": "Area silence locks casters; heal before it lands",
-     "de": "Flaechenstille sperrt Zauberer; vorher heilen",
+     "de": "Flächenstille sperrt Zauberer; vorher heilen",
+     "verified": true
+    },
+    {
+     "spellID": 9438,
+     "spell": "Arcane Bubble",
+     "type": "survive",
+     "en": "Makes him immune for a moment: hold damage until it ends",
+     "de": "Macht ihn kurz immun: Schaden bis zum Ende zurückhalten",
+     "verified": true
+    },
+    {
+     "spellID": 9433,
+     "spell": "Arcane Explosion",
+     "type": "avoid",
+     "en": "Arcane blast hits everyone close: melee step out or heal through",
+     "de": "**Arkane Druckwelle** trifft alle in der Nähe: Nahkämpfer treten raus oder gegenheilen",
      "verified": true
     }
    ]
@@ -74,14 +89,14 @@
      "spell": "Power Word: Shield",
      "type": "interrupt",
      "en": "Shields and renews allies; kill it first",
-     "de": "Schildet und heilt Verbuendete; zuerst toeten"
+     "de": "Schützt und heilt Verbündete; zuerst töten"
     },
     {
      "spellID": 25058,
      "spell": "Renew",
      "type": "dispel",
      "en": "HoT on allies; purge it or burst through",
-     "de": "HoT auf Verbuendeten; reinigen oder wegschlagen"
+     "de": "Heilung über Zeit auf einem Verbündeten; reinigen oder wegschlagen"
     }
    ]
   },
@@ -95,7 +110,7 @@
      "spell": "Heal",
      "type": "interrupt",
      "en": "Healer; interrupt every Heal cast",
-     "de": "Heiler; jede Heilung unterbrechen"
+     "de": "Wirkt Heilzauber; jede Heilung unterbrechen"
     }
    ]
   },
@@ -109,7 +124,7 @@
      "spell": "Mana Burn",
      "type": "interrupt",
      "en": "Burns healer mana; interrupt or stun it",
-     "de": "Verbrennt Heilermana; unterbrechen oder betaeuben"
+     "de": "Verbrennt Heilermana; unterbrechen oder betäuben"
     }
    ]
   },
@@ -137,7 +152,7 @@
      "spell": "Hammer of Justice",
      "type": "survive",
      "en": "Stuns a player; watch healer health",
-     "de": "Betaeubt einen Spieler; Heiler im Blick behalten",
+     "de": "Betäubt einen Spieler; Heiler im Blick behalten",
      "unverified": true,
      "version": "classic"
     }

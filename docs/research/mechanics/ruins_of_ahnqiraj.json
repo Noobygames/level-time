@@ -8,9 +8,9 @@
    "npcID": 15348,
    "mechanics": [
     {"spellID": 25646, "spell": "Mortal Wound", "type": "tank", "en": "Stacking healing reduction on the tank; swap tanks at high stacks", "de": "Stapelnde Heilungsminderung auf dem Tank; bei vielen Stapeln Tank wechseln"},
-    {"spellID": 25656, "spell": "Sand Trap", "type": "avoid", "en": "Sand trap blinds and silences players nearby; step out quickly", "de": "Sandfalle senkt Trefferchance und bringt zum Schweigen; schnell raus"},
-    {"spellID": 25814, "spell": "Wide Slash", "type": "positioning", "en": "Frontal cone slash; only the tank stands in front", "de": "Kegelhieb nach vorne; nur der Tank steht vor ihm"},
-    {"spellID": 26527, "spell": "Frenzy", "type": "survive", "en": "Frenzies at low health; burn him down fast", "de": "Raserei bei wenig Leben; schnell niederbrennen"}
+    {"spellID": 25656, "spell": "Sand Trap", "type": "avoid", "en": "**Sand trap** blinds and silences players nearby; step out quickly", "de": "**Sandfalle** senkt Trefferchance und bringt zum Schweigen; schnell raus"},
+    {"spellID": 25814, "spell": "Wide Slash", "type": "positioning", "en": "Frontal cone slash; only the tank stands in front", "de": "**Kegelhieb** nach vorne; nur der Tank steht vor ihm"},
+    {"spellID": 26527, "spell": "Frenzy", "type": "survive", "en": "Frenzies at low health; burn him down fast", "de": "**Raserei** bei wenig Leben; schnell niederbrennen"}
    ]
   },
   {
@@ -28,7 +28,7 @@
     {"spellID": 25671, "spell": "Drain Mana", "type": "dispel", "en": "Drains mana from players to fill his own; hunters drain him back", "de": "Entzieht Spielern Mana für sich; Jäger entziehen ihm Mana zurück"},
     {"spellID": 25672, "spell": "Arcane Eruption", "type": "survive", "en": "At full mana he blasts the raid; keep his mana low", "de": "Bei vollem Mana trifft er den ganzen Raid; sein Mana niedrig halten"},
     {"spellID": 25684, "spell": "Summon Mana Fiends", "type": "adds", "en": "Turns to stone and summons three Mana Fiends; kill or banish them", "de": "Versteinert sich und ruft drei Manateufel; töten oder verbannen"},
-    {"spellID": 25685, "spell": "Energize", "type": "survive", "en": "Gains mana fast while petrified; end the stone phase quickly", "de": "Gewinnt versteinert schnell Mana; Steinphase rasch beenden"}
+    {"spellID": 25685, "spell": "Energize", "type": "survive", "en": "Gains mana fast while petrified; end the stone phase quickly", "de": "Gewinnt in versteinertem Zustand schnell Mana; Steinphase rasch beenden"}
    ]
   },
   {
@@ -55,7 +55,7 @@
    "npcID": 15339,
    "mechanics": [
     {"spellID": 25176, "spell": "Strength of Ossirian", "type": "positioning", "en": "Huge damage buff; pull him onto a crystal to remove it", "de": "Riesiger Schadensbuff; ihn zu einem Kristall ziehen, um ihn zu entfernen"},
-    {"spellID": 25189, "spell": "Enveloping Winds", "type": "tank", "en": "Stuns the tank in a cyclone; a second tank must take over", "de": "Hüllt den Tank in Wirbelwind; zweiter Tank muss übernehmen"},
+    {"spellID": 25189, "spell": "Enveloping Winds", "type": "tank", "en": "Stuns the tank in a cyclone; a second tank must take over", "de": "Hüllt den Tank in einen Wirbelwind; zweiter Tank muss übernehmen"},
     {"spellID": 25160, "spell": "Sand Storm", "type": "avoid", "en": "Roaming tornadoes deal heavy damage; stay out of them", "de": "Wandernde Tornados machen hohen Schaden; ausweichen"},
     {"spellID": 25195, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse slows casting heavily; decurse casters fast", "de": "Fluch verlangsamt Zauber stark; Zauberwirker schnell entfluchen"}
    ]

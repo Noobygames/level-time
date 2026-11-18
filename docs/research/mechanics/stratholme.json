@@ -11,7 +11,8 @@
       "wing": "Live",
       "mechanics": [
         {"spellID": 16799, "spell": "Frostbolt", "type": "interrupt", "en": "Rare caster: kick his Frostbolt casts", "de": "Rarer Zauberer: Frostblitz unterbrechen", "verified": true},
-        {"spellID": 15499, "spell": "Frost Shock", "type": "survive", "en": "Instant Frost Shock slows and hurts, heal through it", "de": "Frostschock verlangsamt und trifft hart, gegenheilen", "verified": true}
+        {"spellID": 15499, "spell": "Frost Shock", "type": "survive", "en": "Instant Frost Shock slows and hurts, heal through it", "de": "Frostschock verlangsamt und trifft hart, gegenheilen", "verified": true},
+        {"spellID": 15230, "spell": "Arcane Bolt", "type": "interrupt", "en": "Arcane bolt on a player: interrupt when possible", "de": "Arkaner Blitz auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     },
     {
@@ -50,7 +51,8 @@
       "wing": "Live",
       "mechanics": [
         {"spellID": 15493, "spell": "Holy Light", "type": "interrupt", "en": "Interrupt his Holy Light self-heal", "de": "Seine Selbstheilung Heiliges Licht unterbrechen"},
-        {"spellID": 17233, "spell": "Lay on Hands", "type": "survive", "en": "Can fully heal once with Lay on Hands, save burst", "de": "Heilt sich einmal per Handauflegung voll, Burst aufheben"}
+        {"spellID": 17233, "spell": "Lay on Hands", "type": "survive", "en": "Can fully heal once with Lay on Hands, save burst", "de": "Heilt sich einmal per Handauflegung voll, Burst aufheben"},
+        {"spellID": 12734, "spell": "Ground Smash", "type": "avoid", "en": "Ground smash hits nearby players and stuns them 3 sec: ranged stay back", "de": "**Bodenschlag** trifft Spieler in der Nähe und betäubt 3 Sek. lang: Fernkämpfer bleiben hinten", "verified": true}
       ]
     },
     {
@@ -69,7 +71,7 @@
       "level": 60,
       "wing": "Live",
       "mechanics": [
-        {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "Fire Nova burns everyone close, casters stay back", "de": "Feuernova verbrennt alle in der Nähe, Zauberer Abstand", "verified": true},
+        {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "Fire Nova burns everyone close, casters stay back", "de": "**Feuernova** verbrennt alle in der Nähe, Zauberer auf Abstand", "verified": true},
         {"spellID": 17293, "spell": "Burning Winds", "type": "survive", "en": "Burning Winds deals fire damage over time to the group", "de": "Brennende Winde verursachen Feuerschaden über Zeit", "verified": true}
       ]
     },
@@ -80,10 +82,12 @@
       "wing": "Live",
       "mechanics": [
         {"spellID": 17405, "spell": "Domination", "type": "survive", "en": "Mind-controls a player, crowd-control them, do not kill", "de": "Übernimmt Spieler per Gedankenkontrolle, kontrollieren", "verified": true},
-        {"spellID": 13704, "spell": "Psychic Scream", "type": "positioning", "en": "Psychic Scream fears nearby players, ranged spread out", "de": "Psychischer Schrei lässt Nahe fliehen, verteilt stehen", "verified": true},
+        {"spellID": 13704, "spell": "Psychic Scream", "type": "positioning", "en": "Psychic Scream fears nearby players, ranged spread out", "de": "**Psychischer Schrei** lässt Spieler in der Nähe fliehen, verteilt stehen", "verified": true},
         {"spellID": 15587, "spell": "Mind Blast", "type": "interrupt", "en": "Interrupt Mind Blast casts on healers", "de": "Gedankenschlag auf Heiler unterbrechen", "verified": true},
         {"spellID": 17399, "spell": "Shadow Shock", "type": "interrupt", "en": "Shadow shock on a player: interrupt when possible", "de": "Schattenschock auf Spieler: wenn möglich unterbrechen", "verified": true},
-        {"spellID": 15970, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schläfert einen Spieler ein: Magie bannen", "verified": true}
+        {"spellID": 15970, "spell": "Sleep", "type": "dispel", "en": "Puts a player to sleep: dispel magic", "de": "Schläfert einen Spieler ein: Magie bannen", "verified": true},
+        {"spellID": 17286, "spell": "Crusader's Hammer", "type": "avoid", "en": "Stuns everyone close for 4 sec: heal up the tank beforehand", "de": "Betäubt alle in der Nähe 4 Sek. lang: Tank vorher hochheilen", "verified": true},
+        {"spellID": 18647, "spell": "Banish", "type": "survive", "en": "Banishes a target for up to 30 sec: it cannot act, wait it out", "de": "Verbannt ein Ziel bis zu 30 Sek. lang: es kann nicht handeln, abwarten", "verified": true}
       ]
     },
     {
@@ -129,7 +133,8 @@
         {"spellID": 16867, "spell": "Banshee Curse", "type": "dispel", "en": "Banshee Curse makes you miss attacks, decurse it", "de": "Bansheefluch lässt Angriffe verfehlen, Fluch entfernen", "verified": true},
         {"spellID": 16868, "spell": "Banshee Shriek", "type": "interrupt", "en": "Banshee shriek hits the group: interrupt it", "de": "Bansheekreischen trifft die Gruppe: unterbrechen", "verified": true},
         {"spellID": 17244, "spell": "Possess", "type": "survive", "en": "Possesses a player: crowd control the possessed player", "de": "Übernimmt einen Spieler: übernommenen Spieler kontrollieren", "verified": true},
-        {"spellID": 18327, "spell": "Silence", "type": "dispel", "en": "Silences a player: dispel magic on healers first", "de": "Bringt einen Spieler zum Schweigen: zuerst bei Heilern bannen", "verified": true}
+        {"spellID": 18327, "spell": "Silence", "type": "dispel", "en": "Silences a player: dispel magic on healers first", "de": "Bringt einen Spieler zum Schweigen: zuerst bei Heilern bannen", "verified": true},
+        {"spellID": 16565, "spell": "Banshee Wail", "type": "interrupt", "en": "Shadow wail on a player: interrupt when possible", "de": "Schattenklage auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     },
     {
@@ -163,7 +168,8 @@
       "wing": "Undead",
       "mechanics": [
         {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits everyone in front, only the tank faces him", "de": "Trampeln trifft alle vor ihm, nur der Tank davor", "verified": true},
-        {"spellID": 17307, "spell": "Knockout", "type": "tank", "en": "Knockout stuns the tank, off-tank may need to pick up", "de": "Niederschlag betäubt den Tank, Ersatz bereithalten", "verified": true}
+        {"spellID": 17307, "spell": "Knockout", "type": "tank", "en": "Knockout stuns the tank, off-tank may need to pick up", "de": "Niederschlag betäubt den Tank, Ersatz bereithalten", "verified": true},
+        {"spellID": 17687, "spell": "Flurry", "type": "tank", "en": "Flurry speeds up his attacks for a while: expect more damage on the tank", "de": "Raserei beschleunigt seine Angriffe eine Weile: mehr Schaden auf dem Tank", "verified": true}
       ]
     },
     {
@@ -176,6 +182,16 @@
         {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Mortal Strike cuts healing on the tank", "de": "Tödlicher Stoß senkt die Heilung auf dem Tank", "verified": true},
         {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleave hits players beside the tank, stand behind", "de": "Spalten trifft Spieler neben dem Tank, hinten stehen", "verified": true},
         {"spellID": 17393, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on a player: interrupt when possible", "de": "Schattenblitz auf Spieler: wenn möglich unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Ezra Grimm",
+      "npcID": 11058,
+      "level": 60,
+      "wing": "Live",
+      "mechanics": [
+        {"spellID": 17294, "spell": "Flame Breath", "type": "avoid", "en": "Fire cone in front of him: only the tank stands in front", "de": "Feuerkegel vor ihm: nur der Tank steht vorne", "verified": true},
+        {"spellID": 7964, "spell": "Smoke Bomb", "type": "avoid", "en": "Stuns everyone close for 4 sec: spread out a little", "de": "Betäubt alle in der Nähe 4 Sek. lang: etwas verteilt stehen", "verified": true}
       ]
     }
   ],
@@ -201,7 +217,7 @@
       "npcID": 10425,
       "elite": true,
       "mechanics": [
-        {"spellID": 15253, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane Explosion hits all nearby, casters keep away", "de": "Arkane Explosion trifft alle nahe, Zauberer Abstand"},
+        {"spellID": 15253, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane Explosion hits all nearby, casters keep away", "de": "**Arkane Explosion** trifft alle in der Nähe, Zauberer auf Abstand"},
         {"spellID": 26740, "spell": "Gnomish Mind Control Cap", "type": "survive", "en": "Can mind-control a player with a gnomish cap", "de": "Kann Spieler per Gnomen-Kappe kontrollieren"}
       ]
     },
