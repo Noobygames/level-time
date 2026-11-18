@@ -635,7 +635,7 @@ local dummyPlate = CreateFrame("Frame")
 expect("preview offset", LootSparkle.OffsetY(UIParent, "ore"), 0)
 expect("object offset", LootSparkle.OffsetY(dummyPlate, "ore"), -80)
 expect("herb offset", LootSparkle.OffsetY(dummyPlate, "herb"), -80)
-expect("chest offset", LootSparkle.OffsetY(dummyPlate, "chest"), -180)
+expect("chest offset", LootSparkle.OffsetY(dummyPlate, "chest"), -80)
 expect("corpse offset", LootSparkle.OffsetY(dummyPlate, "corpse"), -140)
 
 LootSparkle.Attach(dummyPlate, "ready", "ore")
@@ -650,7 +650,7 @@ expectNear("attached frame effective scale", frame:GetScale(), 1.3, 0.001)
 
 LootSparkle.SetState("ready", "chest")
 pt = frame._points[#frame._points]
-expectNear("switched to chest point y", pt[5], -180 / 1.3, 0.001)
+expectNear("switched to chest point y", pt[5], -80 / 1.3, 0.001)
 
 LootSparkle.SetState("ready", "corpse")
 pt = frame._points[#frame._points]
