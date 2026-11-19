@@ -2,8 +2,15 @@
   "instance": "Krol'dok Stronghold",
   "kind": "dungeon",
   "bosses": [
+    {"name": "Slavecrusher Grox", "npcID": 258966, "mechanics": [
+      {"spellID": 1280085, "spell": "Force Compliance", "type": "adds", "en": "**Force Compliance** calls nearby prisoners to help: tank them and cleave them down", "de": "Ruft Gefangene in der Nähe zu Hilfe: mittanken und mit Flächenschaden erledigen", "version": "forever"},
+      {"spellID": 21049, "spell": "Bloodlust", "type": "tank", "en": "**Bloodlust** raises his attack speed by 30% for 30 sec", "de": "**Kampfrausch** erhöht 30 Sek. lang sein Angriffstempo um 30 %", "version": "forever"},
+      {"spellID": 11428, "spell": "Knockdown", "type": "tank", "en": "**Knockdown** stuns the tank for 2 sec", "de": "Wirft den Tank 2 Sek. lang zu Boden", "version": "forever"}
+    ]},
     {"name": "Twilight Commander Zarmok", "npcID": 258972, "mechanics": [
-      {"spellID": 0, "spell": "Bleed", "type": "tank", "en": "Strong bleed on the tank: keep health high, cleanse if possible", "de": "Starke Blutung auf dem Tank: Leben hoch halten, wenn möglich reinigen", "version": "forever"}
+      {"spellID": 0, "spell": "Patrols", "type": "positioning", "en": "Several mobs patrol around him: clear them before the pull", "de": "Mehrere Gegner patrouillieren um ihn herum: vor dem Pull freiräumen", "version": "forever"},
+      {"spellID": 1280011, "spell": "Rending Whirl", "type": "survive", "en": "**Rending Whirl** causes a strong bleed: heal through it, cleanse if possible", "de": "**Verwundender Wirbel** verursacht starke Blutung: gegenheilen, wenn möglich reinigen", "version": "forever"},
+      {"spellID": 0, "spell": "Sunder Armor", "type": "tank", "en": "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "de": "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "version": "forever"}
     ]},
     {"name": "Nar'gurk", "npcID": 258964, "mechanics": [
       {"spellID": 0, "spell": "Mind Control", "type": "survive", "en": "Mind-controls a player: break line of sight, use crowd control", "de": "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "version": "forever"},
@@ -18,5 +25,17 @@
       {"spellID": 0, "spell": "Centurions", "type": "adds", "en": "Centurion adds lower the tank's healing: kill them first", "de": "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "version": "forever"}
     ]}
   ],
-  "sources": ["https://conquestcapped.com/guides/wow-forever/wow-forever-kroldok-stronghold-guide/ (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)"]
+  "trash": [
+    {"name": "Twilight Grunt", "npcID": 258042, "mechanics": [
+      {"spellID": 1307066, "spell": "Bladestorm", "type": "positioning", "en": "**Bladestorm** hits everyone within 8 yd: healers and ranged keep distance, group healing needed", "de": "**Klingensturm** trifft alle im 8-m-Umkreis: Heiler und Fernkämpfer auf Abstand, Gruppenheilung nötig", "version": "forever"},
+      {"spellID": 15572, "spell": "Sunder Armor", "type": "tank", "en": "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "de": "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "version": "forever"}
+    ]},
+    {"name": "Twilight Peon", "npcID": 277611, "mechanics": [
+      {"spellID": 0, "spell": "Alert", "type": "adds", "en": "Runs off to fetch help: stun, slow or kill quickly", "de": "Läuft los, um Hilfe zu holen: betäuben, verlangsamen oder schnell töten", "version": "forever"}
+    ]},
+    {"name": "Terrorhowl", "npcID": 259285, "mechanics": [
+      {"spellID": 0, "spell": "Howl", "type": "survive", "en": "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "de": "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"}
+    ]}
+  ],
+  "sources": ["https://conquestcapped.com/guides/wow-forever/wow-forever-kroldok-stronghold-guide/ (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "https://www.wowhead.com/forever/guide=35346 (spell/NPC IDs, docs/research/wowhead-forever/krol-dok-stronghold.md)", "Own dungeon run, WoW Forever (2026-11-18)"]
 }

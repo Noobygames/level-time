@@ -2152,6 +2152,10 @@ ns.Mechanics = {
   [257016] = { -- Katerina the Cleaner (Alcaz Prison)
     { 0, "positioning", "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "Teleports behind ranged players and stabs them: heal them up", "f" },
   },
+  [258042] = { -- Twilight Grunt (Krol'dok Stronghold)
+    { 1307066, "positioning", "**Klingensturm** trifft alle im 8-m-Umkreis: Heiler und Fernkämpfer auf Abstand, Gruppenheilung nötig", "**Bladestorm** hits everyone within 8 yd: healers and ranged keep distance, group healing needed", "f" },
+    { 15572, "tank", "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "f" },
+  },
   [258905] = { -- Zul'Alai (The Drowned City)
     { 0, "survive", "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "Enrages near death and hits the group hard: save cooldowns", "f" },
   },
@@ -2163,16 +2167,26 @@ ns.Mechanics = {
     { 0, "survive", "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "Mind-controls a player: break line of sight, use crowd control", "f" },
     { 0, "tank", "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "Charges his staff with shadow damage: more damage on the tank", "f" },
   },
+  [258966] = { -- Slavecrusher Grox (Krol'dok Stronghold)
+    { 1280085, "adds", "Ruft Gefangene in der Nähe zu Hilfe: mittanken und mit Flächenschaden erledigen", "**Force Compliance** calls nearby prisoners to help: tank them and cleave them down", "f" },
+    { 21049, "tank", "**Kampfrausch** erhöht 30 Sek. lang sein Angriffstempo um 30 %", "**Bloodlust** raises his attack speed by 30% for 30 sec", "f" },
+    { 11428, "tank", "Wirft den Tank 2 Sek. lang zu Boden", "**Knockdown** stuns the tank for 2 sec", "f" },
+  },
   [258968] = { -- Overlord Mugg (Krol'dok Stronghold)
     { 0, "tank", "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "Swaps maces for mauls and hits harder with each set", "f" },
     { 0, "tank", "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "Each hit speeds up his attacks until he swaps weapons", "f" },
     { 0, "adds", "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "Centurion adds lower the tank's healing: kill them first", "f" },
   },
   [258972] = { -- Twilight Commander Zarmok (Krol'dok Stronghold)
-    { 0, "tank", "Starke Blutung auf dem Tank: Leben hoch halten, wenn möglich reinigen", "Strong bleed on the tank: keep health high, cleanse if possible", "f" },
+    { 0, "positioning", "Mehrere Gegner patrouillieren um ihn herum: vor dem Pull freiräumen", "Several mobs patrol around him: clear them before the pull", "f" },
+    { 1280011, "survive", "**Verwundender Wirbel** verursacht starke Blutung: gegenheilen, wenn möglich reinigen", "**Rending Whirl** causes a strong bleed: heal through it, cleanse if possible", "f" },
+    { 0, "tank", "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "f" },
   },
   [259281] = { -- War Handler Ashka (Krol'dok Stronghold)
     { 0, "adds", "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "Fights alongside two wolves: kill the wolves first", "f" },
+  },
+  [259285] = { -- Terrorhowl (Krol'dok Stronghold)
+    { 0, "survive", "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "f" },
   },
   [260322] = { -- Saltspine (Excavation Site: Wetlands)
     { 0, "positioning", "Läuft zwischen Elite-Krokilisken: diese räumen oder ihn weglocken", "Roams among elite crocolisks: clear them or pull him away", "f" },
@@ -2249,6 +2263,9 @@ ns.Mechanics = {
   },
   [269475] = { -- Mana Phantom (City of Dalaran)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "Burns mana from casters: interrupt or kill it first", "f" },
+  },
+  [277611] = { -- Twilight Peon (Krol'dok Stronghold)
+    { 0, "adds", "Läuft los, um Hilfe zu holen: betäuben, verlangsamen oder schnell töten", "Runs off to fetch help: stun, slow or kill quickly", "f" },
   },
 }
 
