@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-19",
     entries = {
+      { kind = "new",
+        deDE = "Dungeon-Guide Feste Krol'dok: eigene Seite für Bossmann Toof und neue Hinweise zu Nar'gurk, Ashkas Wölfen und Aufseher Mugg.",
+        enUS = "Dungeon guide Krol'dok Stronghold: own page for Bossman Toof and new tips for Nar'gurk, Ashka's wolves and Overlord Mugg.",
+        frFR = "Guide de donjon Bastion de Krol'dok : page dédiée à Bossman Toof et nouveaux conseils pour Nar'gurk, les loups d'Ashka et Overlord Mugg.",
+        esES = "Guía de mazmorra Bastión de Krol'dok: página propia para Bossman Toof y nuevos consejos para Nar'gurk, los lobos de Ashka y Overlord Mugg." },
       { kind = "fix",
         deDE = "Dungeon-Guide: Die Mauszeiger-Hinweise der Blättern-Knöpfe verursachen keinen Lua-Fehler mehr.",
         enUS = "Dungeon guide: hovering the page buttons no longer causes a Lua error.",

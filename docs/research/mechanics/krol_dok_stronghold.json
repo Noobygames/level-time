@@ -13,16 +13,25 @@
       {"spellID": 0, "spell": "Sunder Armor", "type": "tank", "en": "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "de": "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "version": "forever"}
     ]},
     {"name": "Nar'gurk", "npcID": 258964, "mechanics": [
-      {"spellID": 0, "spell": "Mind Control", "type": "survive", "en": "Mind-controls a player: break line of sight, use crowd control", "de": "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "version": "forever"},
+      {"spellID": 0, "spell": "Mind Control", "type": "survive", "en": "Mind-controls a player: do not kill your friend, use crowd control or break line of sight", "de": "Übernimmt einen Spieler: nicht den eigenen Mitspieler töten, mit Kontrolleffekten festhalten oder Sichtlinie brechen", "version": "forever"},
+      {"spellID": 0, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "**Shadow Bolt Volley** hits the whole group: interrupt it", "de": "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "version": "forever"},
       {"spellID": 0, "spell": "Shadow Staff", "type": "tank", "en": "Charges his staff with shadow damage: more damage on the tank", "de": "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "version": "forever"}
     ]},
     {"name": "War Handler Ashka", "npcID": 259281, "mechanics": [
-      {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"}, {"spellID": 0, "spell": "Wolf howl", "type": "survive", "en": "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "de": "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"}
+      {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"},
+      {"spellID": 0, "spell": "Wolf howl", "type": "survive", "en": "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "de": "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"},
+      {"spellID": 0, "spell": "Kill Command", "type": "tank", "en": "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "de": "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "version": "forever"}
+    ]},
+    {"name": "Bossman Toof", "npcID": 264773, "mechanics": [
+      {"spellID": 0, "spell": "Mortal Strike", "type": "tank", "en": "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "de": "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "version": "forever"},
+      {"spellID": 0, "spell": "Thunderclap", "type": "positioning", "en": "**Thunderclap** hits and slows players close by: ranged keep distance", "de": "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"},
+      {"spellID": 0, "spell": "Demoralizing Shout", "type": "tank", "en": "**Demoralizing Shout** lowers the attack power of nearby players", "de": "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "version": "forever"}
     ]},
     {"name": "Overlord Mugg", "npcID": 258968, "mechanics": [
       {"spellID": 0, "spell": "Weapon swap", "type": "tank", "en": "Swaps maces for mauls and hits harder with each set", "de": "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "version": "forever"},
       {"spellID": 0, "spell": "Mugg's Fury", "type": "tank", "en": "Each hit speeds up his attacks until he swaps weapons", "de": "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "version": "forever"},
-      {"spellID": 0, "spell": "Centurions", "type": "adds", "en": "Centurion adds lower the tank's healing: kill them first", "de": "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "version": "forever"}
+      {"spellID": 0, "spell": "Centurions", "type": "adds", "en": "Two Centurion adds use **Mortal Strike** (less healing on the tank): kill them first, then a lot of healing is needed", "de": "Zwei Zenturio-Helfer setzen **Tödlicher Stoß** ein (weniger Heilung auf dem Tank): zuerst töten, danach ist viel Heilung nötig", "version": "forever"},
+      {"spellID": 0, "spell": "Leap", "type": "positioning", "en": "Leaps onto random players: healers watch everyone, not just the tank", "de": "Springt auf zufällige Spieler: Heiler im Blick auf alle, nicht nur auf den Tank", "version": "forever"}
     ]}
   ],
   "trash": [

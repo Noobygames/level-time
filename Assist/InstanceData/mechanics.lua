@@ -2164,7 +2164,8 @@ ns.Mechanics = {
     { 0, "adds", "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "Two priestesses heal him: control or kill them first", "f" },
   },
   [258964] = { -- Nar'gurk (Krol'dok Stronghold)
-    { 0, "survive", "Übernimmt einen Spieler: Sichtlinie brechen, Kontrolle bereithalten", "Mind-controls a player: break line of sight, use crowd control", "f" },
+    { 0, "survive", "Übernimmt einen Spieler: nicht den eigenen Mitspieler töten, mit Kontrolleffekten festhalten oder Sichtlinie brechen", "Mind-controls a player: do not kill your friend, use crowd control or break line of sight", "f" },
+    { 0, "interrupt", "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "**Shadow Bolt Volley** hits the whole group: interrupt it", "f" },
     { 0, "tank", "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "Charges his staff with shadow damage: more damage on the tank", "f" },
   },
   [258966] = { -- Slavecrusher Grox (Krol'dok Stronghold)
@@ -2175,7 +2176,8 @@ ns.Mechanics = {
   [258968] = { -- Overlord Mugg (Krol'dok Stronghold)
     { 0, "tank", "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "Swaps maces for mauls and hits harder with each set", "f" },
     { 0, "tank", "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "Each hit speeds up his attacks until he swaps weapons", "f" },
-    { 0, "adds", "Zenturio-Helfer senken die Heilung des Tanks: zuerst töten", "Centurion adds lower the tank's healing: kill them first", "f" },
+    { 0, "adds", "Zwei Zenturio-Helfer setzen **Tödlicher Stoß** ein (weniger Heilung auf dem Tank): zuerst töten, danach ist viel Heilung nötig", "Two Centurion adds use **Mortal Strike** (less healing on the tank): kill them first, then a lot of healing is needed", "f" },
+    { 0, "positioning", "Springt auf zufällige Spieler: Heiler im Blick auf alle, nicht nur auf den Tank", "Leaps onto random players: healers watch everyone, not just the tank", "f" },
   },
   [258972] = { -- Twilight Commander Zarmok (Krol'dok Stronghold)
     { 0, "positioning", "Mehrere Gegner patrouillieren um ihn herum: vor dem Pull freiräumen", "Several mobs patrol around him: clear them before the pull", "f" },
@@ -2185,6 +2187,7 @@ ns.Mechanics = {
   [259281] = { -- War Handler Ashka (Krol'dok Stronghold)
     { 0, "adds", "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "Fights alongside two wolves: kill the wolves first", "f" },
     { 0, "survive", "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "f" },
+    { 0, "tank", "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "f" },
   },
   [259285] = { -- Terrorhowl (Krol'dok Stronghold)
     { 0, "survive", "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "f" },
@@ -2261,6 +2264,11 @@ ns.Mechanics = {
   },
   [263466] = { -- Lesser Stone Golem (Hall of Thanes)
     { 0, "tank", "Schlägt hart, schnell: einzeln, Betäubung und Kontrolle nutzen", "Hits hard and moves fast: one at a time, use stuns and crowd control", "f" },
+  },
+  [264773] = { -- Bossman Toof (Krol'dok Stronghold)
+    { 0, "tank", "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "f" },
+    { 0, "positioning", "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "**Thunderclap** hits and slows players close by: ranged keep distance", "f" },
+    { 0, "tank", "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "**Demoralizing Shout** lowers the attack power of nearby players", "f" },
   },
   [269475] = { -- Mana Phantom (City of Dalaran)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "Burns mana from casters: interrupt or kill it first", "f" },
