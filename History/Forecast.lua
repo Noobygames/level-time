@@ -92,6 +92,6 @@ end
 Forecast.SecondsToLevel = ns.TickCache.Memo(secondsToLevel)
 
 function Forecast.SecondsToMaxLevel()
-  if not GetMaxPlayerLevel then return nil end
-  return Forecast.SecondsToLevel(GetMaxPlayerLevel())
+  local maxLevel = ns.Experience.MaxLevel()
+  return maxLevel and Forecast.SecondsToLevel(maxLevel)
 end

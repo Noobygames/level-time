@@ -9,7 +9,7 @@
       "npcID": 7079,
       "level": 30,
       "mechanics": [
-        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Toxic Volley poisons the whole group; cure poison", "de": "Toxische Salve vergiftet die Gruppe; Gift entfernen"}
+        {"spellID": 21687, "spell": "Toxic Volley", "type": "dispel", "en": "Toxic Volley poisons the whole group; cure poison", "de": "**Toxische Salve** vergiftet die Gruppe; Gift entfernen"}
       ]
     },
     {
@@ -26,7 +26,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 11085, "spell": "Chain Bolt", "type": "positioning", "en": "Chain Bolt jumps between players; spread out", "de": "Kettenblitz springt zwischen Spielern; verteilt stehen", "verified": true},
-        {"spellID": 11082, "spell": "Megavolt", "type": "survive", "en": "Megavolt deals heavy nature damage; keep health high", "de": "Megavolt macht hohen Naturschaden; Leben hoch halten", "verified": true},
+        {"spellID": 11082, "spell": "Megavolt", "type": "survive", "en": "Megavolt deals heavy nature damage; keep health high", "de": "**Megavolt** verursacht hohen Naturschaden; Leben hoch halten", "verified": true},
         {"spellID": 11084, "spell": "Shock", "type": "interrupt", "en": "Shock on a player: interrupt when possible", "de": "Schock auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     },
@@ -35,8 +35,8 @@
       "npcID": 6229,
       "level": 32,
       "mechanics": [
-        {"spellID": 8374, "spell": "Arcing Smash", "type": "positioning", "en": "Arcing Smash cleaves in front; only the tank faces him", "de": "Bogenschmettern trifft vorne; nur der Tank steht davor", "verified": true},
-        {"spellID": 10887, "spell": "Crowd Pummel", "type": "avoid", "en": "Crowd Pummel hits all nearby players; ranged stay out", "de": "Massenprügel trifft alle in der Nähe; Fernkämpfer bleiben weg", "verified": true},
+        {"spellID": 8374, "spell": "Arcing Smash", "type": "positioning", "en": "Arcing Smash cleaves in front; only the tank faces him", "de": "**Bogenschmettern** trifft vorne; nur der Tank steht davor", "verified": true},
+        {"spellID": 10887, "spell": "Crowd Pummel", "type": "avoid", "en": "Crowd Pummel hits all nearby players; ranged stay out", "de": "**Massenprügel** trifft alle in der Nähe; Fernkämpfer bleiben weg", "verified": true},
         {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
       ]
     },
@@ -46,7 +46,8 @@
       "level": 33,
       "mechanics": [
         {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Interrupt Fireball", "de": "Feuerball unterbrechen", "verified": true},
-        {"spellID": 10870, "spell": "Summon Burning Servant", "type": "adds", "en": "Summons fire servants; pick them up or kill them", "de": "Ruft brennende Diener; abfangen oder töten", "verified": true}
+        {"spellID": 10870, "spell": "Summon Burning Servant", "type": "adds", "en": "Summons fire servants; pick them up or kill them", "de": "Ruft brennende Diener; abfangen oder töten", "verified": true},
+        {"spellID": 184, "spell": "Fire Shield II", "type": "survive", "en": "Fire shield hurts melee attackers: healers watch melee health", "de": "Feuerschild verletzt Nahkämpfer: Heiler achten auf Nahkämpfer", "verified": true}
       ],
       "rare": true
     },
@@ -66,7 +67,7 @@
       "npcID": 6232,
       "elite": true,
       "mechanics": [
-        {"spellID": 10831, "spell": "Reflection Field", "type": "avoid", "en": "Reflection Field bounces spells back; stop casting until it fades", "de": "Reflexionsfeld wirft Zauber zurück; nicht zaubern bis es weg ist"}
+        {"spellID": 10831, "spell": "Reflection Field", "type": "avoid", "en": "Reflection Field bounces spells back; stop casting until it fades", "de": "**Reflexionsfeld** wirft Zauber zurück; nicht zaubern, bis es verschwindet"}
       ]
     },
     {
@@ -90,7 +91,7 @@
       "npcID": 6224,
       "elite": false,
       "mechanics": [
-        {"spellID": 10732, "spell": "Supercharge", "type": "adds", "en": "Supercharge speeds up nearby bots; kill the smith first", "de": "Überladung beschleunigt nahe Bots; Schmied zuerst töten"}
+        {"spellID": 10732, "spell": "Supercharge", "type": "adds", "en": "Supercharge speeds up nearby bots; kill the smith first", "de": "**Überladung** beschleunigt nahe Bots; Schmied zuerst töten"}
       ]
     },
     {
@@ -98,8 +99,8 @@
       "npcID": 6329,
       "elite": true,
       "mechanics": [
-        {"spellID": 9798, "spell": "Radiation", "type": "survive", "en": "Radiation damages players near it; heal through or kite", "de": "Strahlung schadet Spielern in der Nähe; gegenheilen oder wegziehen"},
-        {"spellID": 9771, "spell": "Radiation Bolt", "type": "interrupt", "en": "Radiation bolt on a player: interrupt it", "de": "Strahlungsblitz auf einen Spieler: unterbrechen", "verified": true}
+        {"spellID": 9798, "spell": "Radiation", "type": "survive", "en": "Radiation damages players near it; heal through or kite", "de": "**Strahlung** schadet Spielern in der Nähe; gegenheilen oder wegziehen"},
+        {"spellID": 9771, "spell": "Radiation Bolt", "type": "interrupt", "en": "Radiation bolt on a player: interrupt it", "de": "**Strahlungsblitz** auf einen Spieler: unterbrechen", "verified": true}
       ]
     },
     {

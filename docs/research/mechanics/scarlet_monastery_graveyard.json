@@ -38,7 +38,7 @@
      "spell": "Fire Nova",
      "type": "positioning",
      "en": "Fire burst around him; ranged and healer keep distance",
-     "de": "Feuerstoss um ihn; Fernkampf und Heiler halten Abstand",
+     "de": "**Feuerstoß** um ihn; Fernkampf und Heiler halten Abstand",
      "verified": true
     },
     {
@@ -52,8 +52,8 @@
      "spellID": 20825,
      "spell": "Shadow Bolt",
      "type": "interrupt",
-     "en": "Casts Shadow Bolt; kick it to cut damage",
-     "de": "Wirkt Schattenblitz; unterbrechen spart Schaden"
+     "en": "Casts **Shadow Bolt**; kick it to cut damage",
+     "de": "Wirkt **Schattenblitz**; unterbrechen spart Schaden"
     }
    ]
   }
@@ -69,7 +69,7 @@
      "spell": "Summon Illusionary Phantasm",
      "type": "adds",
      "en": "Spawns phantasm copies; kill the caster fast",
-     "de": "Beschwoert Phantasmen; den Beschwoerer schnell toeten"
+     "de": "Beschwört Phantasmen; den Beschwörer schnell töten"
     }
    ]
   },
@@ -97,7 +97,7 @@
      "spell": "Immolate",
      "type": "dispel",
      "en": "Fire DoT on players; dispel when possible",
-     "de": "Feuer-DoT auf Spieler; wenn moeglich bannen"
+     "de": "Feuer-DoT auf Spieler; wenn möglich bannen"
     }
    ]
   },
@@ -110,15 +110,15 @@
      "spellID": 9613,
      "spell": "Shadow Bolt",
      "type": "interrupt",
-     "en": "Caster; interrupt Shadow Bolt",
-     "de": "Zauberer; Schattenblitz unterbrechen"
+     "en": "Caster; interrupt **Shadow Bolt**",
+     "de": "Zauberer; **Schattenblitz** unterbrechen"
     },
     {
      "spellID": 77773,
      "spell": "Sleep",
      "type": "dispel",
      "en": "Puts a player to sleep; dispel the victim",
-     "de": "Schlaefert einen Spieler ein; Opfer bannen",
+     "de": "Schläfert einen Spieler ein; Opfer bannen",
      "unverified": true,
      "version": "classic"
     }
@@ -171,7 +171,7 @@
      "spell": "Cleave",
      "type": "positioning",
      "en": "Cleaves the tank and a neighbor; only tank in front",
-     "de": "Spaltet Tank und Nachbarn; nur Tank vorne"
+     "de": "Spaltet den Tank und Spieler daneben; nur der Tank steht vorne"
     }
    ]
   },

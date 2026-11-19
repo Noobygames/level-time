@@ -28,6 +28,7 @@ local RECAP_RETRY_DELAY = 1  -- Sekunden; der Recap kann beim Tod noch fehlen
 
 local deadSince   -- GetTime() beim Tod, nil solange lebendig
 local lastHit     -- { killer, spell, environment, at } des letzten Schadens am Spieler
+local unsyncedDeathAt  -- GetTime() eines Todes, bevor /played geantwortet hatte (lastDeathPlayed fehlte noch)
 local playerGUID  -- einmal beim Login gemerkt; das Kampflog feuert sehr oft
 
 -- Inklusive der laufenden Zeit, falls man gerade tot ist
@@ -42,6 +43,10 @@ end
 function DeathCounter.GetSecondsSinceDeath()
   local total = ns.PlayedTime.GetTotalSeconds()
   if not total then return nil end
+  if unsyncedDeathAt then  -- Tod vor der ersten /played-Antwort: Stand jetzt nachtragen
+    ns.character.lastDeathPlayed = total - (GetTime() - unsyncedDeathAt)
+    unsyncedDeathAt = nil
+  end
   local lastDeath = ns.character.lastDeathPlayed
   if lastDeath then return math.max(0, total - lastDeath) end
   if #ns.character.deathLog > 0 then return nil end
@@ -156,8 +161,11 @@ end
 ns.RegisterEvent("PLAYER_DEAD", function()
   if deadSince then return end  -- schon tot (z.B. Login als Geist), nicht doppelt zählen
   Stats.Increment(Stats.DEATHS)
-  -- Vor der ersten /played-Antwort ist der Wert nil: den alten nicht damit überschreiben
-  ns.character.lastDeathPlayed = ns.PlayedTime.GetTotalSeconds() or ns.character.lastDeathPlayed
+  -- Vor der ersten /played-Antwort ist der Wert nil: den alten verwerfen (sonst zählt die Zeit seit dem früheren
+  -- Tod) und den Zeitpunkt merken, GetSecondsSinceDeath trägt ihn nach
+  local played = ns.PlayedTime.GetTotalSeconds()
+  ns.character.lastDeathPlayed = played
+  unsyncedDeathAt = not played and GetTime() or nil
   local cause = takeDeathCause()
   ns.Debug("death", "died, combat log cause: %s / %s / %s", cause.killer, cause.spell, cause.environment)
   local entry = Journal.AddDeath(cause)

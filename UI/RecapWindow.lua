@@ -280,7 +280,12 @@ ns.RegisterEvent("PLAYER_DEAD", function()
   end
 end)
 
+-- Bei PLAYER_LEVEL_UP liefert UnitLevel noch das alte Level: GameRulesUtil.IsPlayerAtEffectiveMaxLevel
+-- (liest UnitLevel) ist dort zu früh; ns.level ist beim Start des neuen Levels schon aktuell
 local function isPlayerMaxLevel()
+  if GameRulesUtil and GameRulesUtil.GetEffectiveMaxLevelForPlayer then
+    return ns.level >= GameRulesUtil.GetEffectiveMaxLevelForPlayer()
+  end
   if GameRulesUtil and GameRulesUtil.IsPlayerAtEffectiveMaxLevel then
     return GameRulesUtil.IsPlayerAtEffectiveMaxLevel()
   end

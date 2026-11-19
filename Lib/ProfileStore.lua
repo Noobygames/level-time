@@ -114,7 +114,9 @@ function ProfileStore.New(host)
       if assigned == name then table.insert(keys, key) end
     end
     for _, key in ipairs(host.characterKeys and host.characterKeys() or {}) do consider(key) end
-    for key in pairs(assignments) do consider(key) end
+    local known = {}
+    for _, key in ipairs(host.characterKeys and host.characterKeys() or {}) do known[key] = true end
+    for key in pairs(assignments) do if known[key] then consider(key) end end  -- gelöschte Charaktere zählen nicht
     table.sort(keys)
     return keys
   end
@@ -203,6 +205,7 @@ function ProfileStore.New(host)
     -- das Anwenden der Einstellungen abbrechen
     local settings = host.sanitize(data.settings)
     for key in pairs(metaKeys) do settings[key] = nil end
+    settings.streamBackup = nil  -- sonst würden beim Beenden des Stream-Modus gesperrte Schlüssel ungefiltert zurückgeschrieben
     for key in pairs(settings) do
       if IMPORT_BLOCKED_KEYS[key] or key:find(IMPORT_BLOCKED_PREFIX) then settings[key] = nil end
     end

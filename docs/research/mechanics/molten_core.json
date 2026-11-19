@@ -39,7 +39,7 @@
      "spell": "Frenzy",
      "type": "tank",
      "en": "Frenzies often; hunters must remove it with Tranquilizing Shot",
-     "de": "Gerät oft in Raserei; Jäger entfernen sie per Einlullender Schuss"
+     "de": "Gerät oft in **Raserei**; Jäger entfernen sie per **Einlullender Schuss**"
     },
     {
      "spellID": 19408,
@@ -73,7 +73,7 @@
      "spell": "Rain of Fire",
      "type": "avoid",
      "en": "Fire rain on a group of players; move out at once",
-     "de": "Feuerregen auf Spielergruppe; sofort herauslaufen"
+     "de": "**Feuerregen** auf Spielergruppe; sofort herauslaufen"
     }
    ]
   },
@@ -93,7 +93,7 @@
      "spell": "Magma Shackles",
      "type": "positioning",
      "en": "Slows nearby players; keep ranged and healers spread out",
-     "de": "Verlangsamt nahe Spieler; Fernkämpfer und Heiler verteilen"
+     "de": "Verlangsamt Spieler in der Nähe; Fernkämpfer und Heiler verteilen"
     },
     {
      "spellID": 19516,
@@ -120,7 +120,7 @@
      "spell": "Gate of Shazzrah",
      "type": "tank",
      "en": "Blinks to a random player and wipes threat; tanks re-pick him",
-     "de": "Teleportiert zu zufälligem Spieler, Bedrohung weg; Tanks holen ihn"
+     "de": "Teleportiert zu einem zufälligen Spieler, Bedrohung weg; Tanks holen ihn"
     },
     {
      "spellID": 19713,
@@ -215,7 +215,7 @@
      "spell": "Earthquake",
      "type": "survive",
      "en": "Below 10% health quakes hurt all melee; burn him fast",
-     "de": "Unter 10 % Erdbeben gegen Nahkampf; schnell töten"
+     "de": "Unter 10 % Leben **Erdbeben** gegen Nahkämpfer; schnell töten"
     }
    ]
   },
@@ -242,7 +242,7 @@
      "spell": "Teleport",
      "type": "tank",
      "en": "Sends a random player into the lava pit; heal them out",
-     "de": "Schickt zufälligen Spieler in die Lavagrube; heilen"
+     "de": "Schickt einen zufälligen Spieler in die Lavagrube; heilen"
     }
    ]
   },
@@ -311,7 +311,7 @@
      "spell": "Ground Stomp",
      "type": "survive",
      "en": "Stomp that stuns nearby players",
-     "de": "Stampfer, der nahe Spieler betäubt"
+     "de": "Stampfen betäubt Spieler in der Nähe"
     }
    ]
   },
@@ -384,7 +384,7 @@
      "spell": "Cone of Fire",
      "type": "positioning",
      "en": "Fire cone in front; only the tank faces it",
-     "de": "Feuerkegel nach vorn; nur der Tank steht davor"
+     "de": "**Feuerkegel** nach vorn; nur der Tank steht davor"
     },
     {
      "spellID": 19631,

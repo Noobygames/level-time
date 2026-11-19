@@ -77,6 +77,11 @@ expectTrue("Tracker zeigt die Bosse", card.frame.body:GetText():find("Rhahk'Zor"
 local moreBosses = string.format(L.DUNGEON_RUN_MORE_BOSSES, #addon.InstanceBosses.List(36, 1) - 2)
 expectTrue("Tracker: Rest als weitere Bosse", card.frame.body:GetText():find(moreBosses, 1, true) ~= nil)
 expectTrue("Tracker zeigt den Abstand ab der Bewegung", card.frame.time:GetText():find("-20", 1, true) ~= nil)
+-- v3.0.2: X blendet den Tracker für diesen Lauf aus
+card.frame.closeButton._scripts.OnClick(card.frame.closeButton)
+expect("X: Tracker aus", card.frame:IsShown(), false)
+addon.InstanceRunTracker.Refresh()
+expect("X: bleibt für diesen Lauf aus", card.frame:IsShown(), false)
 -- Porträt des nächsten Bosses (Rhahk'Zor besiegt -> zweiter Boss der Liste) über das Modell
 local _, trackerPortrait = addon.InstanceRunTracker.Card()
 local nextNpc = addon.InstanceBosses.NpcID(addon.InstanceBosses.List(36, 1)[2])

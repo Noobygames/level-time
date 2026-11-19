@@ -50,6 +50,9 @@ local WINDOWS = {
   { open = "MAIL_SHOW", close = "MAIL_CLOSED", income = Stats.INCOME_MAIL },
   { open = "AUCTION_HOUSE_SHOW", close = "AUCTION_HOUSE_CLOSED", income = Stats.INCOME_AUCTION },
   { open = "TRADE_SHOW", close = "TRADE_CLOSED", income = Stats.INCOME_TRADE },
+  -- Bank, Kriegsmeute- und Gildenbank: Goldbewegungen sind nur Umlagerungen, weder Einnahme noch Ausgabe
+  { open = "BANKFRAME_OPENED", close = "BANKFRAME_CLOSED", transfer = true },
+  { open = "GUILDBANKFRAME_OPENED", close = "GUILDBANKFRAME_CLOSED", transfer = true },
 }
 local QUEST_WINDOW = WINDOWS[5]
 
@@ -73,6 +76,10 @@ local function currentContext()
 end
 
 local function spendingKind()
+  if InRepairMode and InRepairMode() then  -- Einzelreparatur per Hammer-Cursor beim Händler
+    repairUntil = nil
+    return Stats.SPENT_REPAIR
+  end
   if repairUntil and GetTime() <= repairUntil then
     repairUntil = nil
     return Stats.SPENT_REPAIR
@@ -134,7 +141,10 @@ end)
 
 ns.RegisterEvent("PLAYER_MONEY", function()
   local current = GetMoney()
-  if lastMoney and current > lastMoney then
+  local window = currentContext()
+  if lastMoney and window and window.transfer then
+    ns.Debug("money", "bank transfer %s ignored", current - lastMoney)
+  elseif lastMoney and current > lastMoney then
     bookIncome(current - lastMoney)
   elseif lastMoney and current < lastMoney then
     local kind = spendingKind()

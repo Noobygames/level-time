@@ -2539,4 +2539,6 @@ ns.locales.frFR = {
   CLASS_NAME_SHAMAN = "Chaman",
   CLASS_NAME_WARLOCK = "Démoniste",
   CLASS_NAME_WARRIOR = "Guerrier",
+  CARD_CLOSE = "Fermer",
+  CARD_CLOSE_TIP = "Masque cet affichage jusqu'à la prochaine fois. Pour le désactiver définitivement, faites un clic droit dessus pour ouvrir ses paramètres.",
 }

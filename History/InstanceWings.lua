@@ -116,7 +116,8 @@ end
 
 -- Aktivitäten des eigenen Eintrags merken (ohne Eintrag bleiben die letzten)
 local function readListing()
-  if not HAS_LFG then return end
+  -- Unter Chat-Sperre (eingeschränkte Instanz) kann die Struktur geheime Felder haben: nicht anfassen
+  if not HAS_LFG or ns.GroupChat.Locked() then return end
   local entry = C_LFGList.GetActiveEntryInfo()
   if type(entry) ~= "table" or ns.IsSecret(entry) or type(entry.activityIDs) ~= "table" then return end
   listed = {}

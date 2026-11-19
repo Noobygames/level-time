@@ -19,7 +19,8 @@
       "level": 30,
       "mechanics": [
         {"spellID": 14900, "spell": "Chain Heal", "type": "interrupt", "en": "Interrupt Chain Heal", "de": "Kettenheilung unterbrechen", "verified": true},
-        {"spellID": 8286, "spell": "Summon Boar Spirit", "type": "adds", "en": "Summons a Boar Spirit add", "de": "Ruft einen Ebergeist als Add", "verified": true}
+        {"spellID": 8286, "spell": "Summon Boar Spirit", "type": "adds", "en": "Summons a Boar Spirit add", "de": "Ruft einen Ebergeist als Add", "verified": true},
+        {"spellID": 6192, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout raises his group's attack power", "de": "**Schlachtruf** erhöht die Angriffskraft seiner Gruppe", "verified": true}
       ]
     },
     {
@@ -36,8 +37,8 @@
       "npcID": 4420,
       "level": 32,
       "mechanics": [
-        {"spellID": 15548, "spell": "Thunderclap", "type": "survive", "en": "Thunderclap damages and slows everyone close; melee heal up", "de": "Donnerknall schadet und verlangsamt Nahe; Nahkämpfer heilen", "verified": true},
-        {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout raises his group's attack power", "de": "Schlachtruf erhöht die Angriffskraft seiner Gruppe"}
+        {"spellID": 15548, "spell": "Thunderclap", "type": "survive", "en": "Thunderclap damages and slows everyone close; melee heal up", "de": "**Donnerknall** schadet und verlangsamt Spieler in der Nähe; Nahkämpfer heilen", "verified": true},
+        {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout raises his group's attack power", "de": "**Schlachtruf** erhöht die Angriffskraft seiner Gruppe"}
       ]
     },
     {
@@ -45,8 +46,9 @@
       "npcID": 4842,
       "level": 32,
       "mechanics": [
-        {"spellID": 2484, "spell": "Earthbind Totem", "type": "positioning", "en": "Earthbind Totem slows everyone; destroy the totem", "de": "Totem der Erdbindung verlangsamt; Totem zerstören", "verified": true},
-        {"spellID": 8270, "spell": "Summon Earth Rumbler", "type": "adds", "en": "Summons a Stone Rumbler add", "de": "Ruft einen Steingrollen als Add", "verified": true}
+        {"spellID": 2484, "spell": "Earthbind Totem", "type": "positioning", "en": "Earthbind Totem slows everyone; destroy the totem", "de": "**Totem der Erdbindung** verlangsamt; Totem zerstören", "verified": true},
+        {"spellID": 8270, "spell": "Summon Earth Rumbler", "type": "adds", "en": "Summons a Stone Rumbler add", "de": "Ruft einen Steingrollen als Add", "verified": true},
+        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Nature bolt on a player: interrupt when possible", "de": "Naturblitz auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ],
       "rare": true
     },
@@ -55,7 +57,7 @@
       "npcID": 4422,
       "level": 0,
       "mechanics": [
-        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzy boosts his attacks; tank saves cooldowns for it", "de": "Raserei verstärkt seine Angriffe; Tank spart Cooldowns dafür", "verified": true},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzy boosts his attacks; tank saves cooldowns for it", "de": "Raserei verstärkt seine Angriffe; Tank spart Abklingzeiten dafür", "verified": true},
         {"spellID": 8260, "spell": "Rushing Charge", "type": "positioning", "en": "Charges a random player: stay near the tank", "de": "Stürmt auf einen zufälligen Spieler: nah am Tank bleiben", "verified": true}
       ]
     },
@@ -75,7 +77,9 @@
       "level": 33,
       "mechanics": [
         {"spellID": 8292, "spell": "Chain Bolt", "type": "interrupt", "en": "Interrupt Chain Bolt, it jumps between players", "de": "Kettenblitz unterbrechen, springt zwischen Spielern", "verified": true},
-        {"spellID": 6077, "spell": "Renew", "type": "dispel", "en": "Purge Renew from her", "de": "Erneuerung bei ihr reinigen", "verified": true}
+        {"spellID": 6077, "spell": "Renew", "type": "dispel", "en": "Purge Renew from her", "de": "Erneuerung bei ihr reinigen", "verified": true},
+        {"spellID": 8361, "spell": "Purity", "type": "survive", "en": "Immune to everything for 2 sec: hold your damage until it ends", "de": "2 Sek. lang immun gegen alles: Schaden bis zum Ende zurückhalten", "verified": true},
+        {"spellID": 8358, "spell": "Mana Spike", "type": "survive", "en": "Restores her mana: she cannot be run out of mana", "de": "Stellt ihr Mana wieder her: sie lässt sich nicht leer ziehen", "verified": true}
       ]
     }
   ],
@@ -94,7 +98,7 @@
       "elite": true,
       "mechanics": [
         {"spellID": 4971, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it", "de": "Stellt einen Heilungszauberschutz auf; zerstören"},
-        {"spellID": 8264, "spell": "Lava Spout Totem", "type": "avoid", "en": "Lava Spout Totem burns players near it; move or kill it", "de": "Lavafontänentotem verbrennt Nahe; ausweichen oder zerstören"}
+        {"spellID": 8264, "spell": "Lava Spout Totem", "type": "avoid", "en": "Lava Spout Totem burns players near it; move or kill it", "de": "**Lavafontänentotem** verbrennt Spieler in der Nähe; ausweichen oder zerstören"}
       ]
     },
     {
@@ -103,7 +107,7 @@
       "elite": true,
       "mechanics": [
         {"spellID": 4971, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it", "de": "Stellt einen Heilungszauberschutz auf; zerstören"},
-        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "positioning", "en": "Earthgrab Totem roots nearby players; kill the totem", "de": "Totem des Erdgriffs wurzelt Nahe fest; Totem zerstören", "verified": true}
+        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "positioning", "en": "Earthgrab Totem roots nearby players; kill the totem", "de": "**Totem des Erdgriffs** wurzelt Spieler in der Nähe fest; Totem zerstören", "verified": true}
       ]
     },
     {
@@ -126,6 +130,14 @@
       "npcID": 4516,
       "mechanics": [
         {"spellID": 113, "spell": "Chains of Ice", "type": "dispel", "en": "Chains of ice slow a player: dispel if needed", "de": "Eisketten verlangsamen einen Spieler: bei Bedarf bannen", "verified": true}
+      ]
+    },
+    {
+      "name": "Razorfen Spearhide",
+      "npcID": 4438,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 8259, "spell": "Whirling Barrage", "type": "avoid", "en": "Hits everyone close around it: healers and ranged keep distance", "de": "Trifft alle in der Nähe: Heiler und Fernkämpfer halten Abstand", "verified": true}
       ]
     }
   ],

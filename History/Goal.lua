@@ -22,7 +22,7 @@ local function levelProgress()
 end
 
 local function maxLevel()
-  return GetMaxPlayerLevel and GetMaxPlayerLevel() or math.huge
+  return ns.Experience.MaxLevel() or math.huge
 end
 
 function Goal.Get()

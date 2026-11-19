@@ -308,11 +308,11 @@ function TableView.Create(definition)
     if definition.rowLink or definition.rowTooltip then
       for i, row in ipairs(rows) do
         row:EnableMouse(true)
-        row:SetScript("OnEnter", function(self)
+        row:HookScript("OnEnter", function(self)
           local record = visibleAt(frame.offset + i)
           if record then showRowTooltip(self, record) end
         end)
-        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        row:HookScript("OnLeave", function() GameTooltip:Hide() end)
       end
     end
 
@@ -399,6 +399,7 @@ function TableView.Create(definition)
 
     local headerButtons = {}  -- unten angelegt: Klick sortiert
     local fittedLanguage      -- Sprache, für die die Spaltenbreiten gelten
+    ns.RegisterApply(function() fittedLanguage = nil end)  -- Profilwechsel tauscht tableColumns
 
     -- Spalten an die Kopftexte anpassen, wenn sich die Sprache geändert hat (nicht je Aktualisierung)
     local function fitColumns()
@@ -414,7 +415,14 @@ function TableView.Create(definition)
             column, headerRow.cells[i], i
         end
       end
-      local fitted = fittedWidths(shownColumns, shownCells, width - SCROLLBAR_GAP - scrollBar:GetWidth())
+      local maxTotal = width - SCROLLBAR_GAP - scrollBar:GetWidth()
+      local fitted = fittedWidths(shownColumns, shownCells, maxTotal)
+      -- festgelegte Breiten über dem Platz: alle anteilig kürzen (Zellen schneiden ab), sonst ragt die Tabelle aus dem Fenster
+      local fittedSum = 0
+      for _, w in ipairs(fitted) do fittedSum = fittedSum + w end
+      if fittedSum > maxTotal then
+        for position, w in ipairs(fitted) do fitted[position] = math.floor(w * maxTotal / fittedSum) end
+      end
       local widths = {}
       for i in ipairs(columns) do widths[i] = 0 end
       for position, i in ipairs(shownIndex) do widths[i] = fitted[position] end

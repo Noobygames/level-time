@@ -39,7 +39,17 @@ local function isAtMaxLevel()
     return GameRulesUtil.IsPlayerAtEffectiveMaxLevel()
   end
   if IsPlayerAtEffectiveMaxLevel then return IsPlayerAtEffectiveMaxLevel() end
-  return GetMaxPlayerLevel ~= nil and ns.level >= GetMaxPlayerLevel()
+  local maxLevel = Experience.MaxLevel()
+  return maxLevel ~= nil and ns.level >= maxLevel
+end
+
+-- Höchstes Level, das dieser Spieler erreichen kann (Levelcap der Erweiterung des Accounts berücksichtigt);
+-- nil, wenn der Client keins nennt
+function Experience.MaxLevel()
+  if GameRulesUtil and GameRulesUtil.GetEffectiveMaxLevelForPlayer then
+    return GameRulesUtil.GetEffectiveMaxLevelForPlayer()
+  end
+  return GetMaxPlayerLevel and GetMaxPlayerLevel() or nil
 end
 
 -- false auf Max-Level oder bei abgeschalteter XP
@@ -241,6 +251,8 @@ local gainListeners = {}
 -- Zuletzt gesehener XP-Bedarf je Level. Beim Level-Up kann UnitXPMax schon den Bedarf des neuen Levels liefern,
 -- wenn PLAYER_XP_UPDATE vor PLAYER_LEVEL_UP kam; der Historie-Eintrag braucht aber den des alten.
 local xpMaxByLevel = {}
+-- true, wenn lastLevel dem Client voraus ist (PLAYER_XP_UPDATE kam vor PLAYER_LEVEL_UP und hat das Level schon gebucht)
+local levelBookedAhead = false
 
 -- XP-Bedarf von level, wie zuletzt gesehen; ohne Beobachtung UnitXPMax (Bedarf des aktuellen Levels)
 function Experience.XpMaxOf(level)
@@ -268,7 +280,14 @@ local function trackXpGained()
   local xp, xpMax = UnitXP("player"), UnitXPMax("player")
   if lastXp then
     local gained
-    if xpMax ~= lastXpMax or xp < lastXp or ns.level > lastLevel then
+    if levelBookedAhead and ns.level > lastLevel and xpMax == lastXpMax and xp >= lastXp then
+      -- Die verspäteten PLAYER_LEVEL_UP einer Mehrfach-Beförderung: der Gewinn ist schon gebucht, nur die
+      -- ganzen dazwischen liegenden Level fehlen noch (ohne XP-Tabelle unbekannt)
+      local skipped = skippedLevelsXp(lastLevel, ns.level)
+      if skipped > 0 then Stats.Increment(Stats.XP_GAINED, skipped) end
+      gained = xp - lastXp
+      lastLevel = ns.level
+    elseif xpMax ~= lastXpMax or xp < lastXp or ns.level > lastLevel then
       local newLevel = math.max(ns.level, lastLevel + 1)
       gained = (lastXpMax - lastXp) + skippedLevelsXp(lastLevel + 1, newLevel) + xp
       xpMaxByLevel[lastLevel] = lastXpMax
@@ -283,6 +302,7 @@ local function trackXpGained()
     end
   end
   lastXp, lastXpMax = xp, xpMax
+  levelBookedAhead = lastLevel > ns.level
 end
 
 ---------------------------------------------------------------------------
@@ -298,7 +318,8 @@ end
 
 local function trackRestedXp()
   local current = restedPool()
-  if lastRestedPool and current < lastRestedPool then
+  -- Auf Max-Level oder bei abgeschalteter XP kann der Pool ohne XP-Gewinn wegfallen: kein Verbrauch
+  if lastRestedPool and current < lastRestedPool and Experience.IsLeveling() then
     Stats.Increment(Stats.XP_RESTED, math.floor((lastRestedPool - current) / 2 + 0.5))
   end
   lastRestedPool = current
@@ -307,6 +328,7 @@ end
 ns.OnLogin(function()
   lastXp, lastXpMax, lastLevel = UnitXP("player"), UnitXPMax("player"), ns.level
   xpMaxByLevel = { [lastLevel] = lastXpMax }
+  levelBookedAhead = false
   lastRestedPool = restedPool()
 end)
 

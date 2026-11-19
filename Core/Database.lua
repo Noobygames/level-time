@@ -209,7 +209,7 @@ end
 local function isLevelTimes(value)
   if type(value) ~= "table" then return false end
   for level, seconds in pairs(value) do
-    if type(level) ~= "number" or not isFiniteNumber(seconds) or seconds <= 0 then return false end
+    if type(level) ~= "number" or not isFiniteNumber(seconds) or seconds < 0 then return false end
   end
   return true
 end
@@ -355,6 +355,18 @@ local function sanitizeValue(key, value)
     if not isFiniteNumber(value) then return nil end
     local range = SETTING_RANGES[key]
     if range then return math.max(range[1], math.min(range[2], value)) end
+  end
+  if key == "tableColumns" then  -- Tab -> Spaltenkopf -> an/aus (TableView.lua), alles andere verwerfen
+    local copy = {}
+    for tab, flags in pairs(value) do
+      if type(tab) == "string" and type(flags) == "table" then
+        copy[tab] = {}
+        for header, on in pairs(flags) do
+          if type(header) == "string" and type(on) == "boolean" then copy[tab][header] = on end
+        end
+      end
+    end
+    return copy
   end
   if type(default) == "table" and next(default) ~= nil then
     local copy = {}

@@ -63,12 +63,12 @@ addon.TimeBreakdown.Update(1)
 expect("Kampfzeit nur einmal gebucht", addon.Stats.Get(addon.Stats.LEVEL, addon.Stats.COMBAT_SECONDS), combat)
 clearErrors()
 
--- 176: Tod vor der ersten /played-Antwort löscht den letzten Wert nicht
+-- 176: Tod vor der ersten /played-Antwort: der Wert des früheren Todes gilt nicht für diesen (wird nachgetragen)
 addon.character.lastDeathPlayed = 5000
 addon.PlayedTime.GetTotalSeconds = function() return nil end
 wow.state.dead = true
 wow.fire("PLAYER_DEAD")
-expect("alter Wert bleibt", addon.character.lastDeathPlayed, 5000)
+expect("alter Wert verworfen", addon.character.lastDeathPlayed, nil)
 
 -- 185: Systemuhr zurückgestellt: eine "zukünftige" Session wird nicht fortgesetzt
 local session = addon.character.currentSession

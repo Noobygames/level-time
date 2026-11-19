@@ -45,9 +45,15 @@ function MinimapButton.New(options)
 
   function self.Update()
     local angle = math.rad(options.getAngle())
-    local radius = Minimap:GetWidth() / 2 + RADIUS_OFFSET
+    local half = Minimap:GetWidth() / 2 + RADIUS_OFFSET
+    local x, y = math.cos(angle) * half, math.sin(angle) * half
+    if GetMinimapShape and GetMinimapShape() == "SQUARE" then
+      -- Winkel auf das Quadrat projizieren: Strahl bis zum Rand verlängern
+      local scale = half / math.max(math.abs(x), math.abs(y))
+      x, y = x * scale, y * scale
+    end
     button:ClearAllPoints()
-    button:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * radius, math.sin(angle) * radius)
+    button:SetPoint("CENTER", Minimap, "CENTER", x, y)
   end
 
   function self.SetShown(shown)

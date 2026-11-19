@@ -2539,4 +2539,6 @@ ns.locales.esES = {
   CLASS_NAME_SHAMAN = "Chamán",
   CLASS_NAME_WARLOCK = "Brujo",
   CLASS_NAME_WARRIOR = "Guerrero",
+  CARD_CLOSE = "Cerrar",
+  CARD_CLOSE_TIP = "Oculta este indicador hasta la próxima vez. Para desactivarlo del todo, haz clic derecho sobre él para abrir sus opciones.",
 }

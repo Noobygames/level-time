@@ -14,6 +14,7 @@ end
 local function enterMonastery()
   wow.state.instance = DEADMINES
   wow.fire("PLAYER_ENTERING_WORLD")
+  wow.advance(31 * 60)  -- über der Wiederverwendungszeit: sonst dieselbe Kopie, der frühere Teil wird zurückgeführt
   wow.state.instance = MONASTERY
   wow.fire("PLAYER_ENTERING_WORLD")
   return addon.Instances.GetCurrentRun()

@@ -10,7 +10,7 @@ addon.locales.enUS.TEST_NUMBER = "Number"
 wow.login()
 local columns = {
   { header = "TEST_NARROW", width = 40, value = function(r) return r.a end },
-  { header = "TEST_WIDE", width = 300, align = "LEFT", value = function(r) return r.b end },
+  { header = "TEST_WIDE", width = 280, align = "LEFT", value = function(r) return r.b end },
   { header = "TEST_NUMBER", width = 60, value = function(r) return r.c end },
 }
 local view = addon.TableView.Create({
@@ -33,8 +33,8 @@ local textWidth = cells[1]:GetStringWidth()
 expectTrue("schmale Spalte passt ihren Kopf", cells[1]:GetWidth() >= textWidth)
 local total = 0
 for _, cell in ipairs(cells) do total = total + cell:GetWidth() end
-expect("Gesamtbreite bleibt", total, 400 - 3 * 6)
-expectTrue("breite Spalte gibt ab", cells[2]:GetWidth() < 300 - 6)
+expect("Gesamtbreite bleibt", total, 380 - 3 * 6)
+expectTrue("breite Spalte gibt ab", cells[2]:GetWidth() < 280 - 6)
 
 -- Sprachwechsel: neu angepasst
 addon.Set("language", "enUS")

@@ -9,7 +9,7 @@
       "npcID": 7355,
       "level": 40,
       "mechanics": [
-        {"spellID": 12252, "spell": "Web Spray", "type": "survive", "en": "Webs players in place; healer keep range", "de": "Netzt Spieler fest; Heiler auf Abstand", "verified": true},
+        {"spellID": 12252, "spell": "Web Spray", "type": "survive", "en": "Webs players in place; healer keep range", "de": "Fesselt Spieler im Netz; Heiler auf Abstand", "verified": true},
         {"spellID": 12251, "spell": "Virulent Poison", "type": "dispel", "en": "Poison DoT; cure poison", "de": "Gift-DoT; Gift entfernen", "verified": true},
         {"spellID": 12255, "spell": "Curse of Tuten'kash", "type": "dispel", "en": "Curse on players; decurse it", "de": "Fluch auf Spielern; entfluchen", "verified": true}
       ]
@@ -19,8 +19,8 @@
       "npcID": 7356,
       "level": 40,
       "mechanics": [
-        {"spellID": 11442, "spell": "Withered Touch", "type": "dispel", "en": "Disease weakens players; cure disease", "de": "Krankheit schwaecht Spieler; Krankheit heilen"},
-        {"spellID": 12946, "spell": "Putrid Stench", "type": "survive", "en": "Stench aura hurts the group; burn him fast", "de": "Gestankaura schadet der Gruppe; schnell toeten", "verified": true}
+        {"spellID": 11442, "spell": "Withered Touch", "type": "dispel", "en": "Disease weakens players; cure disease", "de": "Krankheit schwächt Spieler; Krankheit heilen"},
+        {"spellID": 12946, "spell": "Putrid Stench", "type": "survive", "en": "Stench aura hurts the group; burn him fast", "de": "Gestankaura schadet der Gruppe; schnell töten", "verified": true}
       ]
     },
     {
@@ -28,8 +28,8 @@
       "npcID": 7357,
       "level": 39,
       "mechanics": [
-        {"spellID": 12466, "spell": "Fireball", "type": "interrupt", "en": "Hard-hitting Fireball; interrupt it", "de": "Starker Feuerball; unterbrechen", "verified": true},
-        {"spellID": 12470, "spell": "Fire Nova", "type": "positioning", "en": "Fire burst near him; casters stay back", "de": "Feuerstoss in seiner Naehe; Zauberer bleiben weg", "verified": true}
+        {"spellID": 12466, "spell": "Fireball", "type": "interrupt", "en": "Hard-hitting **Fireball**; interrupt it", "de": "Starker **Feuerball**; unterbrechen", "verified": true},
+        {"spellID": 12470, "spell": "Fire Nova", "type": "positioning", "en": "Fire burst near him; casters stay back", "de": "**Feuerstoß** in seiner Nähe; Zauberer bleiben weg", "verified": true}
       ]
     },
     {
@@ -37,7 +37,7 @@
       "npcID": 8567,
       "level": 40,
       "mechanics": [
-        {"spellID": 12795, "spell": "Frenzy", "type": "tank", "en": "Frenzies at low health; tank cooldowns ready", "de": "Raserei bei wenig Leben; Tank-Cooldowns bereit", "verified": true},
+        {"spellID": 12795, "spell": "Frenzy", "type": "tank", "en": "Frenzies at low health; tank cooldowns ready", "de": "Raserei bei wenig Leben; Tank-Abklingzeiten bereit", "verified": true},
         {"spellID": 12627, "spell": "Disease Cloud", "type": "survive", "en": "Disease cloud around him; cure disease", "de": "Krankheitswolke um ihn; Krankheit heilen", "verified": true}
       ]
     },
@@ -46,10 +46,10 @@
       "npcID": 7358,
       "level": 41,
       "mechanics": [
-        {"spellID": 13009, "spell": "Amnennar's Wrath", "type": "survive", "en": "Frost AoE pulse on the group; heal through it", "de": "Frost-Flaechenpuls auf Gruppe; gegenheilen", "verified": true},
-        {"spellID": 12642, "spell": "Summon Frost Spectres", "type": "adds", "en": "Summons frost spectres; AoE or tank them", "de": "Beschwoert Frostgespenster; AoE oder tanken", "verified": true},
-        {"spellID": 15531, "spell": "Frost Nova", "type": "survive", "en": "Roots nearby players; melee stay ready", "de": "Friert Nahkaempfer fest; vorbereitet sein", "verified": true},
-        {"spellID": 15530, "spell": "Frostbolt", "type": "interrupt", "en": "Frostbolt on a player: interrupt when possible", "de": "Frostblitz auf einen Spieler: wenn moeglich unterbrechen", "verified": true}
+        {"spellID": 13009, "spell": "Amnennar's Wrath", "type": "survive", "en": "Frost AoE pulse on the group; heal through it", "de": "Frost-Flächenpuls auf Gruppe; gegenheilen", "verified": true},
+        {"spellID": 12642, "spell": "Summon Frost Spectres", "type": "adds", "en": "Summons frost spectres; AoE or tank them", "de": "Beschwört Frostgespenster; AoE oder tanken", "verified": true},
+        {"spellID": 15531, "spell": "Frost Nova", "type": "survive", "en": "Roots nearby players; melee stay ready", "de": "Friert Nahkämpfer fest; vorbereitet sein", "verified": true},
+        {"spellID": 15530, "spell": "Frostbolt", "type": "interrupt", "en": "**Frostbolt** on a player: interrupt when possible", "de": "**Frostblitz** auf einen Spieler: wenn möglich unterbrechen", "verified": true}
       ]
     }
   ],
@@ -59,7 +59,7 @@
       "npcID": 7335,
       "elite": true,
       "mechanics": [
-        {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Caster with Fireball and Slow; interrupt", "de": "Zauberer mit Feuerball und Verlangsamen; unterbrechen"}
+        {"spellID": 9053, "spell": "Fireball", "type": "interrupt", "en": "Caster with **Fireball** and Slow; interrupt", "de": "Zauberer mit **Feuerball** und Verlangsamen; unterbrechen"}
       ]
     },
     {
@@ -67,8 +67,8 @@
       "npcID": 7337,
       "elite": true,
       "mechanics": [
-        {"spellID": 12420, "spell": "Summon Skeletal Servant", "type": "adds", "en": "Summons a skeleton; kill the caster first", "de": "Beschwoert Skelett; Beschwoerer zuerst toeten", "verified": true},
-        {"spellID": 11443, "spell": "Cripple", "type": "dispel", "en": "Curse slows and weakens; decurse", "de": "Fluch verlangsamt und schwaecht; entfluchen", "verified": true}
+        {"spellID": 12420, "spell": "Summon Skeletal Servant", "type": "adds", "en": "Summons a skeleton; kill the caster first", "de": "Beschwört Skelett; Beschwörer zuerst töten", "verified": true},
+        {"spellID": 11443, "spell": "Cripple", "type": "dispel", "en": "Curse slows and weakens; decurse", "de": "Fluch verlangsamt und schwächt; entfluchen", "verified": true}
       ]
     },
     {
@@ -84,7 +84,7 @@
       "npcID": 7352,
       "elite": true,
       "mechanics": [
-        {"spellID": 12528, "spell": "Silence", "type": "survive", "en": "Banshee that silences casters; kill fast", "de": "Banshee verstummt Zauberer; schnell toeten"}
+        {"spellID": 12528, "spell": "Silence", "type": "survive", "en": "Banshee that silences casters; kill fast", "de": "Banshee bringt Zauberer zum Schweigen; schnell töten"}
       ]
     },
     {
@@ -99,28 +99,28 @@
       "name": "Withered Spearhide",
       "npcID": 7332,
       "mechanics": [
-        {"spellID": 11397, "spell": "Diseased Shot", "type": "dispel", "en": "Diseased shot on a player: cure the disease", "de": "Krankheitsschuss auf Spieler: Krankheit heilen", "verified": true}
+        {"spellID": 11397, "spell": "Diseased Shot", "type": "dispel", "en": "Diseased shot on a player: cure the disease", "de": "**Krankheitsschuss** auf Spieler: Krankheit heilen", "verified": true}
       ]
     },
     {
       "name": "Tomb Reaver",
       "npcID": 7351,
       "mechanics": [
-        {"spellID": 745, "spell": "Web", "type": "dispel", "en": "Webs a player in place: dispel or kill quickly", "de": "Fesselt einen Spieler mit Netz: bannen oder schnell toeten", "verified": true}
+        {"spellID": 745, "spell": "Web", "type": "dispel", "en": "Webs a player in place: dispel or kill quickly", "de": "Fesselt einen Spieler in einem Netz: bannen oder schnell töten", "verified": true}
       ]
     },
     {
       "name": "Freezing Spirit",
       "npcID": 7353,
       "mechanics": [
-        {"spellID": 15532, "spell": "Frost Nova", "type": "avoid", "en": "Frost nova roots nearby players: ranged keep distance", "de": "Frostnova friert Spieler in der Naehe ein: Fernkaempfer auf Abstand", "verified": true}
+        {"spellID": 15532, "spell": "Frost Nova", "type": "avoid", "en": "**Frost nova** roots nearby players: ranged keep distance", "de": "**Frostnova** friert Spieler in der Nähe ein: Fernkämpfer auf Abstand", "verified": true}
       ]
     },
     {
       "name": "Skeletal Frostweaver",
       "npcID": 7341,
       "mechanics": [
-        {"spellID": 15043, "spell": "Frostbolt", "type": "interrupt", "en": "Frostbolt on a player: interrupt it", "de": "Frostblitz auf einen Spieler: unterbrechen", "verified": true}
+        {"spellID": 15043, "spell": "Frostbolt", "type": "interrupt", "en": "**Frostbolt** on a player: interrupt it", "de": "**Frostblitz** auf einen Spieler: unterbrechen", "verified": true}
       ]
     }
   ],
@@ -133,9 +133,9 @@
       "npcID": 7354,
       "level": 40,
       "mechanics": [
-        {"spellID": 7645, "spell": "Dominate Mind", "type": "dispel", "en": "Mind controls a player; CC or dispel", "de": "Uebernimmt einen Spieler; kontrollieren oder bannen", "verified": true},
+        {"spellID": 7645, "spell": "Dominate Mind", "type": "dispel", "en": "Mind controls a player; CC or dispel", "de": "Übernimmt einen Spieler; kontrollieren oder bannen", "verified": true},
         {"spellID": 12039, "spell": "Heal", "type": "interrupt", "en": "Heals himself; interrupt", "de": "Heilt sich; unterbrechen", "verified": true},
-        {"spellID": 10892, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden ueber Zeit: Magie auf dem Ziel bannen", "verified": true},
+        {"spellID": 10892, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden über Zeit: Magie auf dem Ziel bannen", "verified": true},
         {"spellID": 11659, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on a player: interrupt it", "de": "Schattenblitz auf einen Spieler: unterbrechen", "verified": true}
       ]
     }

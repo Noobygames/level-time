@@ -17,7 +17,6 @@ C_EncounterJournal = {
   ResetSlotFilter = function() end,
   SetSlotFilter = function() end,
 }
-function EJ_GetCurrentInstance() return current.instance end
 function EJ_SelectInstance(id) calls.selectInstance[#calls.selectInstance + 1] = id; current.instance = id end
 function EJ_SelectEncounter(id) calls.selectEncounter[#calls.selectEncounter + 1] = id; current.encounter = id end
 function EJ_GetEncounterInfoByIndex(index)
@@ -25,7 +24,7 @@ function EJ_GetEncounterInfoByIndex(index)
   if boss then return "Boss", "", boss[1], 0, "", 63, boss[2], 43 end
 end
 function EJ_GetNumLoot() reads.count = reads.count + 1; return #(loot[current.encounter] or {}) end
-EncounterJournal = { encounterID = 7, IsShown = function() return false end }
+EncounterJournal = { instanceID = 99, encounterID = 7, IsShown = function() return false end }
 
 wow.login({ level = 20, xp = 0, xpMax = 100000 })
 

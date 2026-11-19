@@ -17,9 +17,10 @@
       "npcID": 4831,
       "level": 24,
       "mechanics": [
-        {"spellID": 865, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots everyone close; ranged and healers keep range", "de": "Frostnova friert Nahe ein; Fernkämpfer und Heiler halten Abstand", "verified": true},
-        {"spellID": 8435, "spell": "Forked Lightning", "type": "avoid", "en": "Forked lightning hits several players in front: stand behind or spread", "de": "Gabelblitz trifft mehrere Spieler vor ihr: dahinter stehen oder verteilen", "verified": true},
-        {"spellID": 246, "spell": "Slow", "type": "dispel", "en": "Slows a player's movement: dispel magic if needed", "de": "Verlangsamt einen Spieler: Magie bannen, falls nötig", "verified": true}
+        {"spellID": 865, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots everyone close; ranged and healers keep range", "de": "**Frostnova** friert Spieler in der Nähe ein; Fernkämpfer und Heiler halten Abstand", "verified": true},
+        {"spellID": 8435, "spell": "Forked Lightning", "type": "avoid", "en": "Forked lightning hits several players in front: stand behind or spread", "de": "**Gabelblitz** trifft mehrere Spieler vor ihr: dahinter stehen oder verteilen", "verified": true},
+        {"spellID": 246, "spell": "Slow", "type": "dispel", "en": "Slows a player's movement: dispel magic if needed", "de": "Verlangsamt einen Spieler: Magie bannen, falls nötig", "verified": true},
+        {"spellID": 6660, "spell": "Shoot", "type": "survive", "en": "Shoots a player from range: heal through it", "de": "Schießt aus der Ferne auf einen Spieler: gegenheilen", "verified": true}
       ]
     },
     {
@@ -27,7 +28,7 @@
       "npcID": 6243,
       "level": 25,
       "mechanics": [
-        {"spellID": 6533, "spell": "Net", "type": "tank", "en": "Nets a player for 2 sec; fleeing murlocs run to him, snare them", "de": "Netz hält 2 Sek fest; fliehende Murlocs laufen zu ihm, verlangsamen", "verified": true}
+        {"spellID": 6533, "spell": "Net", "type": "tank", "en": "Nets a player for 2 sec; fleeing murlocs run to him, snare them", "de": "Netz hält 2 Sek. lang fest; fliehende Murlocs laufen zu ihm, verlangsamen", "verified": true}
       ]
     },
     {
@@ -35,7 +36,7 @@
       "npcID": 12902,
       "level": 26,
       "mechanics": [
-        {"spellID": 12550, "spell": "Lightning Shield", "type": "dispel", "en": "Purge his Lightning Shield or melee get zapped on every hit", "de": "Blitzschlagschild reinigen, sonst werden Nahkämpfer beim Treffen geschockt", "verified": true},
+        {"spellID": 12550, "spell": "Lightning Shield", "type": "dispel", "en": "Purge his Lightning Shield or melee get zapped on every hit", "de": "**Blitzschlagschild** reinigen, sonst werden Nahkämpfer beim Treffen geschockt", "verified": true},
         {"spellID": 12167, "spell": "Lightning Bolt", "type": "interrupt", "en": "Interrupt Lightning Bolt", "de": "Blitzschlag unterbrechen", "verified": true}
       ]
     },
@@ -45,7 +46,7 @@
       "level": 24,
       "mechanics": [
         {"spellID": 15043, "spell": "Frostbolt", "type": "interrupt", "en": "Interrupt Frostbolt, it hits hard and slows", "de": "Frostblitz unterbrechen, trifft hart und verlangsamt", "verified": true},
-        {"spellID": 15531, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots players nearby; ranged stay back", "de": "Frostnova friert Nahe ein; Fernkämpfer bleiben zurück", "verified": true}
+        {"spellID": 15531, "spell": "Frost Nova", "type": "avoid", "en": "Frost Nova roots players nearby; ranged stay back", "de": "**Frostnova** friert Spieler in der Nähe ein; Fernkämpfer bleiben zurück", "verified": true}
       ]
     },
     {
@@ -53,7 +54,7 @@
       "npcID": 4830,
       "level": 26,
       "mechanics": [
-        {"spellID": 8433, "spell": "Leech Pulse", "type": "survive", "en": "Underwater fight: Leech Pulse drains everyone near him; watch breath", "de": "Unterwasserkampf: Blutegelpuls entzieht allen Nahen Leben; Atem beachten"}
+        {"spellID": 8433, "spell": "Leech Pulse", "type": "survive", "en": "Underwater fight: Leech Pulse drains everyone near him; watch breath", "de": "Unterwasserkampf: **Blutegelpuls** entzieht allen Spielern in der Nähe Leben; Atem beachten"}
       ]
     },
     {
@@ -70,8 +71,8 @@
       "npcID": 4829,
       "level": 28,
       "mechanics": [
-        {"spellID": 3815, "spell": "Poison Cloud", "type": "avoid", "en": "Poison Cloud ticks nature damage around her; cure poison", "de": "Giftwolke macht Naturschaden um sie herum; Gift entfernen", "verified": true},
-        {"spellID": 3490, "spell": "Frenzied Rage", "type": "tank", "en": "Frenzied Rage speeds her attacks a lot; tank uses cooldowns", "de": "Rasende Wut erhöht ihr Angriffstempo stark; Tank nutzt Cooldowns", "verified": true}
+        {"spellID": 3815, "spell": "Poison Cloud", "type": "avoid", "en": "Poison Cloud ticks nature damage around her; cure poison", "de": "**Giftwolke** verursacht Naturschaden um sie herum; Gift entfernen", "verified": true},
+        {"spellID": 3490, "spell": "Frenzied Rage", "type": "tank", "en": "Frenzied Rage speeds her attacks a lot; tank uses cooldowns", "de": "**Rasende Wut** erhöht ihr Angriffstempo stark; Tank nutzt Abklingzeiten", "verified": true}
       ]
     }
   ],

@@ -91,6 +91,7 @@ end
 -- Schuss im Munitionsplatz; nil, wenn der Charakter keine Munition nutzt
 local function ammoCount()
   if not GearWarnings.HasAmmo() or not usesAmmo() then return nil end
+  if not GetInventoryItemTexture("player", AMMO_SLOT) then return 0 end  -- leerer Platz meldet sonst 1
   return GetInventoryItemCount("player", AMMO_SLOT)
 end
 

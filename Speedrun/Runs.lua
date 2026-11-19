@@ -22,9 +22,9 @@ function Runs.IsValidLevel(level)
   return type(level) == "number" and level >= 1 and level <= Runs.MAX_LEVEL and level == math.floor(level)
 end
 
--- Level-Zeit von außen: > 0 und unter MAX_LEVEL_SECONDS (schließt auch inf und NaN aus)
+-- Level-Zeit von außen: >= 0 (zwei Level im selben Frame ergeben 0 s) und unter MAX_LEVEL_SECONDS (schließt auch inf und NaN aus)
 function Runs.IsValidSeconds(seconds)
-  return type(seconds) == "number" and seconds > 0 and seconds <= Runs.MAX_LEVEL_SECONDS
+  return type(seconds) == "number" and seconds >= 0 and seconds <= Runs.MAX_LEVEL_SECONDS
 end
 
 local function store()
@@ -273,7 +273,7 @@ end
 
 -- Alter Versuch eines neu erstellten Charakters gleichen Namens: bleibt als importierter Lauf zum
 -- Vergleichen erhalten (Database.OnCharacterReplaced, vor dem Neubeginn der Daten)
-ns.Database.OnCharacterReplaced(function(data)
+ns.Database.OnCharacterReplaced(function(data, key)
   local times = {}
   for level, record in pairs(data.levelHistory or {}) do
     if record.seconds then times[level] = record.seconds end
@@ -283,6 +283,11 @@ ns.Database.OnCharacterReplaced(function(data)
     name = data.name, realm = data.realm, class = data.class,
     times = times, reachedLevel = data.currentLevel.level,
   })
+  -- Gewählter Vergleich und Favorit zeigen weiter auf den alten Versuch, nicht auf den neuen Charakter
+  local importId = IMPORT_PREFIX .. #store().importedRuns
+  if ns.db and ns.db.splitReference and ns.db.splitReference.id == key then ns.db.splitReference.id = importId end
+  local favorites = store().runFavorites
+  if favorites[key] ~= nil then favorites[importId], favorites[key] = favorites[key], nil end
 end)
 
 -- Text mit einem Lauf oder allen Läufen importieren. Rückgabe: Zahl neuer Läufe, nil bei ungültigem Text

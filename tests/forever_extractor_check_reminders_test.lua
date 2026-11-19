@@ -51,4 +51,12 @@ expect("Schadensmesser und Recap offen", names(Reminders.Pending("bossKill")),
 wow.logout()
 wow.login()
 expectTrue("nach Reload noch gezeigt", panelShown())
+
+-- Manuell abschaltbar: /lte todo off blendet aus, Situation bleibt gemerkt, /lte todo on zeigt sie wieder
+SlashCmdList.LEVELTIMEREXTRACTOR("todo off")
+expect("aus: Fenster weg", panelShown(), false)
+wow.fire("PLAYER_ENTERING_WORLD")
+expect("aus: Auslöser zeigt nichts", panelShown(), false)
+SlashCmdList.LEVELTIMEREXTRACTOR("todo on")
+expectTrue("an: Fenster wieder da", panelShown())
 expect("keine Lua-Fehler", #wow.errors, 0)

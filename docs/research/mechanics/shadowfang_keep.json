@@ -9,7 +9,7 @@
       "npcID": 3914,
       "level": 20,
       "mechanics": [
-        {"spellID": 7295, "spell": "Soul Drain", "type": "survive", "en": "Roots a player for 10 sec and drains health: heal them", "de": "Fesselt einen Spieler 10 Sek. und saugt Leben: gegenheilen", "verified": true}
+        {"spellID": 7295, "spell": "Soul Drain", "type": "survive", "en": "Roots a player for 10 sec and drains health: heal them", "de": "Fesselt einen Spieler 10 Sek. lang und saugt Leben: gegenheilen", "verified": true}
       ]
     },
     {
@@ -25,7 +25,7 @@
       "npcID": 3887,
       "level": 24,
       "mechanics": [
-        {"spellID": 7068, "spell": "Veil of Shadow", "type": "dispel", "en": "Cuts healing taken by 75% for 15 sec: remove the curse", "de": "Senkt erhaltene Heilung 15 Sek. um 75 %: Fluch entfernen", "verified": true}
+        {"spellID": 7068, "spell": "Veil of Shadow", "type": "dispel", "en": "Cuts healing taken by 75% for 15 sec: remove the curse", "de": "Senkt 15 Sek. lang die erhaltene Heilung um 75 %: Fluch entfernen", "verified": true}
       ]
     },
     {
@@ -33,8 +33,8 @@
       "npcID": 4278,
       "level": 24,
       "mechanics": [
-        {"spellID": 1026, "spell": "Holy Light", "type": "interrupt", "en": "Heals himself with Holy Light: interrupt it", "de": "Heilt sich mit Heiligem Licht: unterbrechen", "verified": true},
-        {"spellID": 5588, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player for 4 sec", "de": "Betäubt einen Spieler 4 Sek.", "verified": true}
+        {"spellID": 1026, "spell": "Holy Light", "type": "interrupt", "en": "Heals himself with Holy Light: interrupt it", "de": "Heilt sich mit **Heiligem Licht**: unterbrechen", "verified": true},
+        {"spellID": 5588, "spell": "Hammer of Justice", "type": "survive", "en": "Stuns a player for 4 sec", "de": "Betäubt einen Spieler 4 Sek. lang", "verified": true}
       ]
     },
     {
@@ -50,7 +50,7 @@
       "npcID": 4274,
       "level": 21,
       "mechanics": [
-        {"spellID": 7125, "spell": "Toxic Saliva", "type": "dispel", "en": "Poison drains mana and deals nature damage: cure poison", "de": "Gift entzieht Mana und macht Naturschaden: Gift heilen", "verified": true}
+        {"spellID": 7125, "spell": "Toxic Saliva", "type": "dispel", "en": "Poison drains mana and deals nature damage: cure poison", "de": "Gift entzieht Mana und verursacht Naturschaden: Gift entfernen", "verified": true}
       ]
     },
     {
@@ -68,8 +68,8 @@
       "npcID": 4275,
       "level": 26,
       "mechanics": [
-        {"spellID": 7621, "spell": "Arugal's Curse", "type": "survive", "en": "Turns a player into a worgen for 10 sec: avoid hitting them", "de": "Verwandelt einen Spieler 10 Sek. in einen Worgen: nicht angreifen", "verified": true},
-        {"spellID": 7803, "spell": "Thundershock", "type": "avoid", "en": "Nature burst stuns nearby players: keep distance", "de": "Naturstoß betäubt Nahe: Abstand halten", "verified": true},
+        {"spellID": 7621, "spell": "Arugal's Curse", "type": "survive", "en": "Turns a player into a worgen for 10 sec: avoid hitting them", "de": "Verwandelt einen Spieler 10 Sek. lang in einen Worgen: nicht angreifen", "verified": true},
+        {"spellID": 7803, "spell": "Thundershock", "type": "avoid", "en": "Nature burst stuns nearby players: keep distance", "de": "Naturstoß betäubt Spieler in der Nähe: Abstand halten", "verified": true},
         {"spellID": 22709, "spell": "Void Bolt", "type": "interrupt", "en": "Heavy shadow bolt: interrupt or heal the target", "de": "Starker Schattenblitz: unterbrechen oder Ziel heilen", "verified": true},
         {"spellID": 7587, "spell": "Shadow Port", "type": "positioning", "en": "Teleports around the room: move to keep him in range", "de": "Teleportiert sich im Raum: nachrücken und in Reichweite bleiben", "verified": true}
       ]
@@ -81,7 +81,7 @@
       "npcID": 2529,
       "elite": true,
       "mechanics": [
-        {"spellID": 7124, "spell": "Arugal's Gift", "type": "survive", "en": "Big shadow hit every minute for 5 min: healers watch it", "de": "Starker Schattentreffer jede Minute für 5 Min.: Heiler aufpassen"}
+        {"spellID": 7124, "spell": "Arugal's Gift", "type": "survive", "en": "Big shadow hit every minute for 5 min: healers watch it", "de": "Starker Schattentreffer jede Minute, 5 Min. lang: Heiler aufpassen"}
       ]
     },
     {
@@ -97,7 +97,7 @@
       "npcID": 3855,
       "elite": true,
       "mechanics": [
-        {"spellID": 8140, "spell": "Befuddlement", "type": "dispel", "en": "Halves casting speed for 15 sec: dispel healers", "de": "Halbiert Zaubertempo 15 Sek.: bei Heilern bannen"},
+        {"spellID": 8140, "spell": "Befuddlement", "type": "dispel", "en": "Halves casting speed for 15 sec: dispel healers", "de": "Halbiert 15 Sek. lang das Zaubertempo: bei Heilern bannen"},
         {"spellID": 970, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel or heal through", "de": "Schattenschaden über Zeit: bannen oder gegenheilen"}
       ]
     },
@@ -122,7 +122,7 @@
       "npcID": 3877,
       "elite": true,
       "mechanics": [
-        {"spellID": 7074, "spell": "Screams of the Past", "type": "survive", "en": "Area silence for a few seconds: casters stay out of range", "de": "Flächenstille für einige Sek.: Zauberer halten Abstand", "verified": true}
+        {"spellID": 7074, "spell": "Screams of the Past", "type": "survive", "en": "Area silence for a few seconds: casters stay out of range", "de": "Flächenstille für einige Sek. lang: Zauberer halten Abstand", "verified": true}
       ]
     },
     {
@@ -130,7 +130,23 @@
       "npcID": 3864,
       "elite": true,
       "mechanics": [
-        {"spellID": 7139, "spell": "Fel Stomp", "type": "avoid", "en": "Stomp stuns nearby players for 3 sec: ranged stay back", "de": "Stampfen betäubt Nahe 3 Sek.: Fernkämpfer bleiben hinten", "verified": true}
+        {"spellID": 7139, "spell": "Fel Stomp", "type": "avoid", "en": "Stomp stuns nearby players for 3 sec: ranged stay back", "de": "Stampfen betäubt Spieler in der Nähe 3 Sek. lang: Fernkämpfer bleiben hinten", "verified": true}
+      ]
+    },
+    {
+      "name": "Shadow Charger",
+      "npcID": 3865,
+      "elite": true,
+      "mechanics": [
+        {"spellID": 7139, "spell": "Fel Stomp", "type": "avoid", "en": "Stomp stuns nearby players for 3 sec: ranged stay back", "de": "Stampfen betäubt Spieler in der Nähe 3 Sek. lang: Fernkämpfer bleiben hinten", "verified": true}
+      ]
+    },
+    {
+      "name": "Vile Bat",
+      "npcID": 3866,
+      "mechanics": [
+        {"spellID": 6713, "spell": "Disarm", "type": "survive", "en": "Disarms a player for 6 sec: melee wait it out or switch target", "de": "Entwaffnet einen Spieler 6 Sek. lang: Nahkämpfer abwarten oder Ziel wechseln", "verified": true},
+        {"spellID": 7145, "spell": "Diving Sweep", "type": "avoid", "en": "Sweep hits the target and up to 2 neighbours: stand apart from the tank", "de": "**Sturzflug** trifft das Ziel und bis zu 2 Nachbarn: vom Tank etwas Abstand halten", "verified": true}
       ]
     }
   ],
@@ -139,7 +155,8 @@
       "name": "Deathsworn Captain",
       "npcID": 3872,
       "mechanics": [
-        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true}
+        {"spellID": 15496, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true},
+        {"spellID": 9080, "spell": "Hamstring", "type": "survive", "en": "Hamstring slows his target by 60% for 10 sec: reposition after it ends", "de": "Kniesehne verlangsamt sein Ziel 10 Sek. um 60%: danach neu positionieren", "verified": true}
       ]
     }
   ],

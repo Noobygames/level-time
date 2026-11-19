@@ -9,8 +9,8 @@
       "npcID": 1696,
       "level": 24,
       "mechanics": [
-        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Thrash grants extra attacks; spiky tank damage", "de": "Dreschen gibt Extraangriffe; Tankschaden kommt in Spitzen", "verified": true},
-        {"spellID": 8599, "spell": "Enrage", "type": "tank", "en": "Enrage raises his damage and attack speed; heal the tank harder", "de": "Wutanfall erhöht Schaden und Tempo; Tank stärker heilen", "verified": true}
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Thrash grants extra attacks; spiky tank damage", "de": "**Dreschen** gibt Extraangriffe; Tankschaden kommt in Spitzen", "verified": true},
+        {"spellID": 8599, "spell": "Enrage", "type": "tank", "en": "Enrage raises his damage and attack speed; heal the tank harder", "de": "**Wutanfall** erhöht Schaden und Tempo; Tank stärker heilen", "verified": true}
       ]
     },
     {
@@ -18,8 +18,10 @@
       "npcID": 1666,
       "level": 25,
       "mechanics": [
-        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Shield Slam stuns the tank for 2 sec", "de": "Schildschlag betäubt den Tank 2 Sek", "verified": true},
-        {"spellID": 871, "spell": "Shield Wall", "type": "survive", "en": "Shield Wall cuts his damage taken by 60% for 12 sec; hold burst", "de": "Schildwall senkt erlittenen Schaden 12 Sek um 60 %; Burst aufheben"}
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Shield Slam stuns the tank for 2 sec", "de": "**Schildschlag** betäubt den Tank 2 Sek. lang", "verified": true},
+        {"spellID": 871, "spell": "Shield Wall", "type": "survive", "en": "Shield Wall cuts his damage taken by 60% for 12 sec; hold burst", "de": "**Schildwall** senkt 12 Sek. lang den erlittenen Schaden um 60 %; Burst-Schaden aufheben"},
+        {"spellID": 7164, "spell": "Defensive Stance", "type": "tank", "en": "Defensive stance: he takes longer to bring down, expect a longer fight", "de": "Verteidigungshaltung: er hält mehr aus, der Kampf dauert länger", "verified": true},
+        {"spellID": 3419, "spell": "Improved Blocking", "type": "tank", "en": "Blocks much more for 6 sec: hits on him are partly blocked", "de": "Blockt 6 Sek. lang deutlich öfter: Treffer auf ihn werden teils geblockt", "verified": true}
       ]
     },
     {
@@ -27,8 +29,8 @@
       "npcID": 1717,
       "level": 25,
       "mechanics": [
-        {"spellID": 421, "spell": "Chain Lightning", "type": "interrupt", "en": "Interrupt Chain Lightning, it jumps to three players", "de": "Kettenblitz unterbrechen, springt auf drei Spieler", "verified": true},
-        {"spellID": 6742, "spell": "Bloodlust", "type": "dispel", "en": "Purge Bloodlust from him or his allies", "de": "Kampfrausch von ihm oder Verbündeten reinigen", "verified": true}
+        {"spellID": 421, "spell": "Chain Lightning", "type": "interrupt", "en": "Interrupt Chain Lightning, it jumps to three players", "de": "**Kettenblitz** unterbrechen, springt auf drei Spieler", "verified": true},
+        {"spellID": 6742, "spell": "Bloodlust", "type": "dispel", "en": "Purge Bloodlust from him or his allies", "de": "**Kampfrausch** von ihm oder Verbündeten reinigen", "verified": true}
       ]
     },
     {
@@ -36,8 +38,8 @@
       "npcID": 1716,
       "level": 25,
       "mechanics": [
-        {"spellID": 7964, "spell": "Smoke Bomb", "type": "avoid", "en": "Smoke Bomb stuns everyone near him for 4 sec", "de": "Rauchbombe betäubt alle in seiner Nähe 4 Sek", "verified": true},
-        {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout boosts nearby allies' attack power", "de": "Schlachtruf erhöht die Angriffskraft naher Verbündeter", "verified": true}
+        {"spellID": 7964, "spell": "Smoke Bomb", "type": "avoid", "en": "Smoke Bomb stuns everyone near him for 4 sec", "de": "**Rauchbombe** betäubt alle in seiner Nähe 4 Sek. lang", "verified": true},
+        {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "Battle Shout boosts nearby allies' attack power", "de": "**Schlachtruf** erhöht die Angriffskraft naher Verbündeter", "verified": true}
       ]
     },
     {
@@ -45,8 +47,9 @@
       "npcID": 1663,
       "level": 26,
       "mechanics": [
-        {"spellID": 19134, "spell": "Frightening Shout", "type": "survive", "en": "Frightening Shout fears nearby players for 6 sec; avoid extra pulls", "de": "Furchterregender Ruf: 6 Sek Furcht für Nahe; Zusatzpulls vermeiden"},
-        {"spellID": 5246, "spell": "Intimidating Shout", "type": "survive", "en": "Shout fears nearby players: use fear protection", "de": "Schrei lässt Spieler fliehen: Furchtschutz nutzen", "verified": true}
+        {"spellID": 19134, "spell": "Frightening Shout", "type": "survive", "en": "Frightening Shout fears nearby players for 6 sec; avoid extra pulls", "de": "**Furchterregender Ruf**: 6 Sek. lang Furcht für Spieler in der Nähe; Zusatzpulls vermeiden"},
+        {"spellID": 5246, "spell": "Intimidating Shout", "type": "survive", "en": "Shout fears nearby players: use fear protection", "de": "Schrei lässt Spieler fliehen: Furchtschutz nutzen", "verified": true},
+        {"spellID": 11976, "spell": "Strike", "type": "tank", "en": "Hard weapon strikes on the tank: keep healing steady", "de": "Harte Waffenschläge auf den Tank: gleichmäßig heilen", "verified": true}
       ]
     },
     {

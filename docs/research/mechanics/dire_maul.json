@@ -10,7 +10,7 @@
       "level": 57,
       "wing": "East",
       "mechanics": [
-        {"spellID": 17145, "spell": "Blast Wave", "type": "avoid", "en": "Fire nova around him slows; ranged stay out of melee range", "de": "Feuernova um ihn verlangsamt; Fernkämpfer nicht in Nahkampfreichweite", "verified": true},
+        {"spellID": 17145, "spell": "Blast Wave", "type": "avoid", "en": "Fire nova around him slows; ranged stay out of melee range", "de": "Feuernova um ihn verlangsamt Spieler; Fernkämpfer nicht in Nahkampfreichweite", "verified": true},
         {"spellID": 22735, "spell": "Spirit of Runn Tum", "type": "survive", "en": "Grows and reflects spells at the end; melee and physical damage are safer", "de": "Wächst am Ende und reflektiert Zauber; Nahkampf und physischer Schaden sicherer", "verified": true},
         {"spellID": 14145, "spell": "Fire Blast", "type": "interrupt", "en": "Fire blast on a player: interrupt when you can", "de": "Feuerschlag auf einen Spieler: wenn möglich unterbrechen", "verified": true},
         {"spellID": 15242, "spell": "Fireball", "type": "interrupt", "en": "Fireball on a player: interrupt it", "de": "Feuerball auf einen Spieler: unterbrechen", "verified": true}
@@ -23,7 +23,7 @@
       "wing": "East",
       "mechanics": [
         {"spellID": 22651, "spell": "Sacrifice", "type": "survive", "en": "Ports a player to the altar and drains health; heal them through it", "de": "Holt einen Spieler auf den Altar und saugt Leben ab; durchheilen", "verified": true},
-        {"spellID": 22478, "spell": "Intense Pain", "type": "survive", "en": "Shadow damage over time on everyone within 20 yards", "de": "Schattenschaden über Zeit auf alle im Umkreis von 20 Metern", "verified": true},
+        {"spellID": 22478, "spell": "Intense Pain", "type": "survive", "en": "Shadow damage over time on everyone within 20 yards", "de": "Schattenschaden über Zeit auf alle im 20-m-Umkreis", "verified": true},
         {"spellID": 10894, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden über Zeit: Magie auf dem Ziel bannen", "verified": true}
       ]
     },
@@ -34,7 +34,7 @@
       "wing": "East",
       "mechanics": [
         {"spellID": 22419, "spell": "Riptide", "type": "positioning", "en": "Knockback with short disarm; keep your back to a wall, clear trash first", "de": "Rückstoß mit kurzer Entwaffnung; Rücken zur Wand, vorher Trash räumen", "verified": true},
-        {"spellID": 22714, "spell": "Summon Hydroling", "type": "adds", "en": "Two Hydrolings at 50%; their hits knock back and wipe threat", "de": "Zwei Hydrolinge bei 50%; ihre Treffer stoßen zurück und löschen Bedrohung", "verified": true},
+        {"spellID": 22714, "spell": "Summon Hydroling", "type": "adds", "en": "Two Hydrolings at 50%; their hits knock back and wipe threat", "de": "Zwei Hydrolinge bei 50 %; ihre Treffer stoßen zurück und löschen Bedrohung", "verified": true},
         {"spellID": 22420, "spell": "Submersion", "type": "positioning", "en": "Submerges and moves: be ready to pick him up again", "de": "Taucht ab und wandert: bereit sein, ihn wieder aufzunehmen", "verified": true},
         {"spellID": 22421, "spell": "Massive Geyser", "type": "avoid", "en": "Geyser throws players up: stay spread and heal the fall", "de": "Geysir schleudert Spieler hoch: verteilt stehen, Fall gegenheilen", "verified": true}
       ]
@@ -59,7 +59,7 @@
       "wing": "East",
       "mechanics": [
         {"spellID": 22662, "spell": "Wither", "type": "dispel", "en": "Nature damage over time that lowers strength", "de": "Naturschaden über Zeit, senkt Stärke", "verified": true},
-        {"spellID": 22689, "spell": "Mangle", "type": "tank", "en": "Wolf form: bleed-like damage and 50% slow on the tank", "de": "Wolfsform: Schaden über Zeit und 50% Verlangsamung am Tank", "verified": true},
+        {"spellID": 22689, "spell": "Mangle", "type": "tank", "en": "Wolf form: bleed-like damage and 50% slow on the tank", "de": "Wolfsform: Schaden über Zeit und 50 % Verlangsamung am Tank", "verified": true},
         {"spellID": 0, "spell": "Come Minions!", "type": "adds", "unverified": true, "en": "Midway the wall breaks and imps swarm in; AoE them down", "de": "Mitten im Kampf bricht die Wand, Wichtel strömen herein; flächig töten"},
         {"spellID": 22661, "spell": "Enervate", "type": "survive", "en": "Enervate drains a player: heal the target", "de": "Entkräften saugt einen Spieler aus: Ziel heilen", "verified": true},
         {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true},
@@ -73,7 +73,7 @@
       "wing": "West",
       "mechanics": [
         {"spellID": 0, "spell": "Intruder Alert", "type": "adds", "unverified": true, "en": "Calls living Ironbark Protectors; kill them before the pull", "de": "Ruft lebende Eisenborkenbeschützer; diese vor dem Pull töten"},
-        {"spellID": 22924, "spell": "Grasping Vines", "type": "avoid", "en": "Knocks down and roots nearby players for 10 sec", "de": "Wirft Spieler in der Nähe um und wurzelt sie 10 Sek. fest", "verified": true},
+        {"spellID": 22924, "spell": "Grasping Vines", "type": "avoid", "en": "Knocks down and roots nearby players for 10 sec", "de": "Wirft Spieler in der Nähe um und wurzelt sie 10 Sek. lang fest", "verified": true},
         {"spellID": 22994, "spell": "Entangle", "type": "dispel", "en": "Roots one target with nature damage over time", "de": "Wurzelt ein Ziel fest, Naturschaden über Zeit", "verified": true},
         {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true},
         {"spellID": 22916, "spell": "Uppercut", "type": "tank", "en": "Uppercut knocks the tank back: tank against a wall", "de": "Aufwärtshaken schleudert den Tank zurück: an der Wand tanken", "verified": true}
@@ -85,7 +85,7 @@
       "level": 60,
       "wing": "West",
       "mechanics": [
-        {"spellID": 22908, "spell": "Volley", "type": "avoid", "en": "Arcane rain over an area for 6 sec; move out", "de": "Arkaner Regen auf eine Fläche für 6 Sek.; herausgehen", "verified": true},
+        {"spellID": 22908, "spell": "Volley", "type": "avoid", "en": "Arcane rain over an area for 6 sec; move out", "de": "Arkaner Regen auf eine Fläche, 6 Sek. lang; herausgehen", "verified": true},
         {"spellID": 22910, "spell": "Immolation Trap", "type": "avoid", "en": "Lays fire traps; do not walk over them", "de": "Legt Feuerfallen; nicht darüberlaufen", "verified": true},
         {"spellID": 0, "spell": "Charge", "type": "adds", "unverified": true, "en": "Her bear Ferra charges and stuns; tank it separately", "de": "Ihr Bär Ferra stürmt und betäubt; separat tanken"},
         {"spellID": 20904, "spell": "Aimed Shot", "type": "survive", "en": "Aimed shot hits a player hard: heal the target", "de": "Gezielter Schuss trifft hart: Ziel heilen", "verified": true}
@@ -97,9 +97,9 @@
       "level": 60,
       "wing": "West",
       "mechanics": [
-        {"spellID": 7645, "spell": "Dominate Mind", "type": "survive", "en": "Mind-controls a player for 10 sec; crowd control them", "de": "Übernimmt 10 Sek. einen Spieler; diesen kontrollieren", "verified": true},
+        {"spellID": 7645, "spell": "Dominate Mind", "type": "survive", "en": "Mind-controls a player for 10 sec; crowd control them", "de": "Übernimmt einen Spieler 10 Sek. lang; diesen kontrollieren", "verified": true},
         {"spellID": 15654, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time on a player; dispel magic", "de": "Schattenschaden über Zeit auf einem Spieler; Magie bannen", "verified": true},
-        {"spellID": 22917, "spell": "Shadowform", "type": "survive", "en": "At 50% his shadow damage rises 40%; burn him fast", "de": "Ab 50% steigt sein Schattenschaden um 40%; schnell töten", "verified": true},
+        {"spellID": 22917, "spell": "Shadowform", "type": "survive", "en": "At 50% his shadow damage rises 40%; burn him fast", "de": "Ab 50 % steigt sein Schattenschaden um 40 %; schnell töten", "verified": true},
         {"spellID": 15587, "spell": "Mind Blast", "type": "interrupt", "en": "Mind blast on a player: interrupt it", "de": "Gedankenschlag auf einen Spieler: unterbrechen", "verified": true},
         {"spellID": 22919, "spell": "Mind Flay", "type": "interrupt", "en": "Mind flay slows and hurts a player: interrupt the channel", "de": "Gedankenschinden verlangsamt und schadet: Kanalisierung unterbrechen", "verified": true}
       ]
@@ -110,7 +110,7 @@
       "level": 61,
       "wing": "West",
       "mechanics": [
-        {"spellID": 22950, "spell": "Portal of Immol'thar", "type": "tank", "en": "Teleports a random player and drops threat; keep him taunted", "de": "Teleportiert zufälligen Spieler; Bedrohung halten, ggf. spotten", "verified": true},
+        {"spellID": 22950, "spell": "Portal of Immol'thar", "type": "tank", "en": "Teleports a random player and drops threat; keep him taunted", "de": "Teleportiert einen zufälligen Spieler; Bedrohung halten, ggf. spotten", "verified": true},
         {"spellID": 16128, "spell": "Infected Bite", "type": "tank", "en": "Nature damage over time and more physical damage taken", "de": "Naturschaden über Zeit, erhöht erlittenen physischen Schaden", "verified": true},
         {"spellID": 22899, "spell": "Eye of Immol'thar", "type": "adds", "en": "Eyes spawn and slow a player's actions; kill them quickly", "de": "Augen erscheinen und verlangsamen einen Spieler; schnell töten", "verified": true},
         {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
@@ -122,8 +122,8 @@
       "level": 61,
       "wing": "West",
       "mechanics": [
-        {"spellID": 15589, "spell": "Whirlwind", "type": "avoid", "en": "Spins hitting everyone within 8 yards; melee step back", "de": "Wirbelt, trifft alle im Umkreis von 8 Metern; Nahkämpfer zurück", "verified": true},
-        {"spellID": 20537, "spell": "Counterspell", "type": "survive", "en": "Locks out a caster for 15 sec; spread healer duty", "de": "Sperrt einen Zauberer 15 Sek.; Heilung aufteilen", "verified": true},
+        {"spellID": 15589, "spell": "Whirlwind", "type": "avoid", "en": "Spins hitting everyone within 8 yards; melee step back", "de": "Wirbelt, trifft alle im 8-m-Umkreis; Nahkämpfer zurück", "verified": true},
+        {"spellID": 20537, "spell": "Counterspell", "type": "survive", "en": "Locks out a caster for 15 sec; spread healer duty", "de": "Sperrt einen Zauberer 15 Sek. lang; Heilung aufteilen", "verified": true},
         {"spellID": 22920, "spell": "Arcane Blast", "type": "positioning", "en": "Arcane hit with knockback; tank with back to a wall", "de": "Arkantreffer mit Rückstoß; Tank mit Rücken zur Wand", "verified": true},
         {"spellID": 22995, "spell": "Summon", "type": "adds", "en": "Summons a player to him: healers stay ready", "de": "Holt einen Spieler zu sich: Heiler bereit halten", "verified": true}
       ]
@@ -134,10 +134,12 @@
       "level": 0,
       "wing": "North",
       "mechanics": [
-        {"spellID": 11972, "spell": "Shield Bash", "type": "survive", "en": "Interrupts casters in melee range for 3 sec", "de": "Unterbricht Zauberer im Nahkampf für 3 Sek.", "verified": true},
-        {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "unverified": true, "en": "At 50% frenzies and calls nearby dogs; clear them first", "de": "Bei 50% Raserei, ruft Hunde in der Nähe; diese vorher räumen"},
+        {"spellID": 11972, "spell": "Shield Bash", "type": "survive", "en": "Interrupts casters in melee range for 3 sec", "de": "Unterbricht Zauberer im Nahkampf 3 Sek. lang", "verified": true},
+        {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "unverified": true, "en": "At 50% frenzies and calls nearby dogs; clear them first", "de": "Bei 50 % Raserei, ruft Hunde in der Nähe; diese vorher räumen"},
         {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true},
-        {"spellID": 15749, "spell": "Shield Charge", "type": "positioning", "en": "Shield charge stuns a player: stay close to the tank", "de": "Schildansturm betäubt einen Spieler: nah am Tank bleiben", "verified": true}
+        {"spellID": 15749, "spell": "Shield Charge", "type": "positioning", "en": "Shield charge stuns a player: stay close to the tank", "de": "Schildansturm betäubt einen Spieler: nah am Tank bleiben", "verified": true},
+        {"spellID": 22818, "spell": "Mol'dar's Moxie", "type": "survive", "en": "Raises his stamina by 15% for the whole group of guards", "de": "Erhöht seine Ausdauer um 15 % für die ganze Wächtergruppe", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrage speeds up his attacks: tank needs steady healing", "de": "Wut beschleunigt seine Angriffe: Tank braucht gleichmäßige Heilung", "verified": true}
       ]
     },
     {
@@ -146,10 +148,11 @@
       "level": 59,
       "wing": "North",
       "mechanics": [
-        {"spellID": 22833, "spell": "Booze Spit", "type": "positioning", "en": "Frontal cone cuts hit chance by 75%; only the tank in front", "de": "Kegel nach vorn senkt Trefferchance um 75%; nur Tank vorne", "verified": true},
-        {"spellID": 15577, "spell": "Whirlwind", "type": "avoid", "en": "Spins hitting all within 8 yards", "de": "Wirbelt, trifft alle im Umkreis von 8 Metern", "verified": true},
-        {"spellID": 22835, "spell": "Drunken Rage", "type": "tank", "en": "From 50% his threat resets on each hit; he roams", "de": "Ab 50% setzt jeder Treffer die Bedrohung zurück; er wandert", "verified": true},
-        {"spellID": 16740, "spell": "War Stomp", "type": "positioning", "en": "War stomp stuns nearby players: ranged stay back", "de": "Kriegsdonner betäubt Spieler in der Nähe: Fernkämpfer bleiben hinten", "verified": true}
+        {"spellID": 22833, "spell": "Booze Spit", "type": "positioning", "en": "Frontal cone cuts hit chance by 75%; only the tank in front", "de": "Kegel nach vorn senkt Trefferchance um 75 %; nur Tank vorne", "verified": true},
+        {"spellID": 15577, "spell": "Whirlwind", "type": "avoid", "en": "Spins hitting all within 8 yards", "de": "Wirbelt, trifft alle im 8-m-Umkreis", "verified": true},
+        {"spellID": 22835, "spell": "Drunken Rage", "type": "tank", "en": "From 50% his threat resets on each hit; he roams", "de": "Ab 50 % setzt jeder Treffer die Bedrohung zurück; er wandert", "verified": true},
+        {"spellID": 16740, "spell": "War Stomp", "type": "positioning", "en": "War stomp stuns nearby players: ranged stay back", "de": "Kriegsdonner betäubt Spieler in der Nähe: Fernkämpfer bleiben hinten", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrage speeds up his attacks: tank needs steady healing", "de": "Wut beschleunigt seine Angriffe: Tank braucht gleichmäßige Heilung", "verified": true}
       ]
     },
     {
@@ -159,8 +162,10 @@
       "wing": "North",
       "mechanics": [
         {"spellID": 15749, "spell": "Shield Charge", "type": "positioning", "en": "Random charge with knockback into other packs", "de": "Zufälliger Ansturm mit Rückstoß in andere Gruppen", "verified": true},
-        {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "unverified": true, "en": "Frenzies and calls help at 50%", "de": "Raserei und Hilferuf bei 50%"},
-        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true}
+        {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "unverified": true, "en": "Frenzies and calls help at 50%", "de": "Raserei und Hilferuf bei 50 %"},
+        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Enrage speeds up his attacks: tank needs steady healing", "de": "Wut beschleunigt seine Angriffe: Tank braucht gleichmäßige Heilung", "verified": true},
+        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "Shield bash interrupts a cast: casters keep distance or time casts", "de": "Schildschlag unterbricht einen Zauber: Zauberer Abstand halten oder Zauber abpassen", "verified": true}
       ]
     },
     {
@@ -170,8 +175,9 @@
       "wing": "North",
       "mechanics": [
         {"spellID": 15749, "spell": "Shield Charge", "type": "positioning", "en": "Charge with knockback; skip him with frost oil in the trap", "de": "Ansturm mit Rückstoß; mit Frostöl in der Falle umgehbar", "verified": true},
-        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "At 50% attacks 60% faster and calls help", "de": "Bei 50% 60% schnellere Angriffe und Hilferuf", "verified": true},
-        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true}
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "At 50% attacks 60% faster and calls help", "de": "Bei 50 % Leben 60 % schnellere Angriffe und Hilferuf", "verified": true},
+        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true},
+        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "Shield bash interrupts a cast: casters keep distance or time casts", "de": "Schildschlag unterbricht einen Zauber: Zauberer Abstand halten oder Zauber abpassen", "verified": true}
       ]
     },
     {
@@ -180,9 +186,9 @@
       "level": 61,
       "wing": "North",
       "mechanics": [
-        {"spellID": 0, "spell": "Frightening Shout", "type": "survive", "unverified": true, "en": "Fears nearby players for 6 sec", "de": "Lässt Spieler in der Nähe 6 Sek. fliehen"},
+        {"spellID": 0, "spell": "Frightening Shout", "type": "survive", "unverified": true, "en": "Fears nearby players for 6 sec", "de": "Lässt Spieler in der Nähe 6 Sek. lang fliehen"},
         {"spellID": 0, "spell": "Intruder Alert!", "type": "adds", "unverified": true, "en": "Summons two Gordok Reavers; crowd control or kill fast", "de": "Ruft zwei Gordok-Häscher; kontrollieren oder schnell töten"},
-        {"spellID": 22857, "spell": "Retaliation", "type": "tank", "en": "At 25% strikes back at melee for 8 sec; melee pause", "de": "Ab 25% 8 Sek. Vergeltung gegen Nahkampf; Nahkämpfer pausieren", "verified": true},
+        {"spellID": 22857, "spell": "Retaliation", "type": "tank", "en": "At 25% strikes back at melee for 8 sec; melee pause", "de": "Ab 25 % 8 Sek. lang Vergeltung gegen Nahkämpfer; Nahkämpfer pausieren", "verified": true},
         {"spellID": 22860, "spell": "Call Reavers", "type": "adds", "en": "Calls reavers as helpers: kill or control the adds", "de": "Ruft Plünderer zur Hilfe: Begleiter töten oder kontrollieren", "verified": true},
         {"spellID": 8599, "spell": "Enrage", "type": "tank", "en": "Enrages at low health: save cooldowns for the end", "de": "Wütet bei wenig Leben: Abklingzeiten fürs Ende aufheben", "verified": true},
         {"spellID": 19134, "spell": "Intimidating Shout", "type": "survive", "en": "Shout fears nearby players: use fear protection", "de": "Schrei lässt Spieler fliehen: Furchtschutz nutzen", "verified": true},
@@ -196,7 +202,7 @@
       "wing": "North",
       "mechanics": [
         {"spellID": 11642, "spell": "Heal", "type": "interrupt", "en": "Heals himself and King Gordok; interrupt and kill him first", "de": "Heilt sich und König Gordok; unterbrechen, zuerst töten", "verified": true},
-        {"spellID": 22884, "spell": "Psychic Scream", "type": "survive", "en": "Fears players within 8 yards", "de": "Furcht auf Spieler im Umkreis von 8 Metern", "verified": true},
+        {"spellID": 22884, "spell": "Psychic Scream", "type": "survive", "en": "Fears players within 8 yards", "de": "Furcht auf Spieler im 8-m-Umkreis", "verified": true},
         {"spellID": 17194, "spell": "Mind Blast", "type": "interrupt", "en": "Mind blast on a player: interrupt when possible", "de": "Gedankenschlag auf einen Spieler: wenn möglich unterbrechen", "verified": true},
         {"spellID": 17139, "spell": "Power Word: Shield", "type": "dispel", "en": "Shields himself: dispel the shield", "de": "Schildet sich selbst: Schild bannen", "verified": true}
       ]
@@ -207,9 +213,9 @@
       "level": 62,
       "wing": "North",
       "mechanics": [
-        {"spellID": 22886, "spell": "Berserk Charge", "type": "survive", "en": "Charges a random player and tosses them up", "de": "Stürmt auf zufälligen Spieler und schleudert ihn hoch", "verified": true},
+        {"spellID": 22886, "spell": "Berserk Charge", "type": "survive", "en": "Charges a random player and tosses them up", "de": "Stürmt auf einen zufälligen Spieler und schleudert ihn hoch", "verified": true},
         {"spellID": 15708, "spell": "Mortal Strike", "type": "tank", "en": "Big hit that halves healing on the tank", "de": "Starker Schlag, halbiert Heilung am Tank", "verified": true},
-        {"spellID": 16727, "spell": "War Stomp", "type": "avoid", "en": "Stuns all within 5 yards for 4 sec", "de": "Betäubt alle im Umkreis von 5 Metern für 4 Sek.", "verified": true},
+        {"spellID": 16727, "spell": "War Stomp", "type": "avoid", "en": "Stuns all within 5 yards for 4 sec", "de": "Betäubt alle im 5-m-Umkreis 4 Sek. lang", "verified": true},
         {"spellID": 15572, "spell": "Sunder Armor", "type": "tank", "en": "Sunder stacks lower the tank's armor: swap or heal harder", "de": "Rüstung zerreißen senkt Tankrüstung: wechseln oder stärker heilen", "verified": true}
       ]
     }
@@ -270,7 +276,7 @@
       "npcID": 11466,
       "elite": true,
       "mechanics": [
-        {"spellID": 15063, "spell": "Frost Nova", "type": "positioning", "en": "Roots nearby players for up to 8 sec", "de": "Wurzelt Spieler in der Nähe bis zu 8 Sek. fest"}
+        {"spellID": 15063, "spell": "Frost Nova", "type": "positioning", "en": "Roots nearby players for up to 8 sec", "de": "Wurzelt Spieler in der Nähe bis zu 8 Sek. lang fest"}
       ]
     },
     {
@@ -280,7 +286,7 @@
       "mechanics": [
         {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Sheeps a player; dispel it", "de": "Verwandelt einen Spieler in ein Schaf; bannen"},
         {"spellID": 18399, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar burns an area over time", "de": "Flammensäule brennt eine Fläche über Zeit"},
-        {"spellID": 16170, "spell": "Bloodlust", "type": "dispel", "en": "Speeds an ally's attacks by 60%; purge it", "de": "Beschleunigt Angriffe eines Verbündeten um 60%; reinigen"}
+        {"spellID": 16170, "spell": "Bloodlust", "type": "dispel", "en": "Speeds an ally's attacks by 60%; purge it", "de": "Beschleunigt Angriffe eines Verbündeten um 60 %; reinigen"}
       ]
     },
     {

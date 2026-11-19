@@ -9,8 +9,8 @@
       "npcID": 8580,
       "level": 50,
       "mechanics": [
-        {"spellID": 12887, "spell": "Sweeping Slam", "type": "positioning", "en": "Sweeping Slam knocks back players in front; melee behind", "de": "Fegender Schlag stößt vorn zurück; Nahkampf hinter ihn", "verified": true},
-        {"spellID": 6524, "spell": "Ground Tremor", "type": "survive", "en": "Ground Tremor stuns players close to him", "de": "Erdbeben betäubt Spieler in seiner Nähe"}
+        {"spellID": 12887, "spell": "Sweeping Slam", "type": "positioning", "en": "**Sweeping Slam** knocks back players in front; melee behind", "de": "**Fegender Schlag** stößt Spieler vor ihm zurück; Nahkampf hinter ihn", "verified": true},
+        {"spellID": 6524, "spell": "Ground Tremor", "type": "survive", "en": "**Ground Tremor** stuns players close to him", "de": "**Erdbeben** betäubt Spieler in seiner Nähe"}
       ]
     },
     {
@@ -19,7 +19,7 @@
       "level": 51,
       "wing": "Troll balcony",
       "mechanics": [
-        {"spellID": 12058, "spell": "Chain Lightning", "type": "interrupt", "en": "Chain Lightning jumps between players; interrupt it", "de": "Kettenblitz springt zwischen Spielern; unterbrechen"},
+        {"spellID": 12058, "spell": "Chain Lightning", "type": "interrupt", "en": "**Chain Lightning** jumps between players; interrupt it", "de": "**Kettenblitz** springt zwischen Spielern; unterbrechen"},
         {"spellID": 12506, "spell": "Atal'ai Skeleton Totem", "type": "adds", "en": "Drops a skeleton totem; destroy it", "de": "Stellt ein Skeletttotem; zerstören"}
       ]
     },
@@ -39,7 +39,7 @@
       "wing": "Troll balcony",
       "mechanics": [
         {"spellID": 9205, "spell": "Hate to Zero", "type": "tank", "en": "Wipes his threat list; tank must taunt back fast", "de": "Setzt seine Bedrohung zurück; Tank schnell zurückspotten"},
-        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Shield Slam hits the tank hard", "de": "Schildschlag trifft den Tank hart"}
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "**Shield Slam** hits the tank hard", "de": "**Schildschlag** trifft den Tank hart"}
       ]
     },
     {
@@ -49,8 +49,8 @@
       "wing": "Troll balcony",
       "mechanics": [
         {"spellID": 12790, "spell": "Hukku's Guardians", "type": "adds", "en": "Summons demon pets; kill the pets", "de": "Beschwört Dämonen; Begleiter töten"},
-        {"spellID": 9081, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Shadow Bolt Volley hits the group; interrupt", "de": "Schattenblitzsalve trifft die Gruppe; unterbrechen"},
-        {"spellID": 12279, "spell": "Curse of Blood", "type": "dispel", "en": "Curse of Blood raises damage taken; decurse", "de": "Fluch des Blutes erhöht erlittenen Schaden; entfluchen"}
+        {"spellID": 9081, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "**Shadow Bolt Volley** hits the group; interrupt", "de": "**Schattenblitzsalve** trifft die Gruppe; unterbrechen"},
+        {"spellID": 12279, "spell": "Curse of Blood", "type": "dispel", "en": "**Curse of Blood** raises damage taken; decurse", "de": "**Fluch des Blutes** erhöht erlittenen Schaden; entfluchen"}
       ]
     },
     {
@@ -60,7 +60,7 @@
       "wing": "Troll balcony",
       "mechanics": [
         {"spellID": 15584, "spell": "Cleave", "type": "positioning", "en": "Cleaves in front; only the tank faces him", "de": "Spaltet nach vorn; nur der Tank steht vor ihm"},
-        {"spellID": 12530, "spell": "Frailty", "type": "dispel", "en": "Frailty curse weakens players; decurse", "de": "Gebrechlichkeit schwächt Spieler; entfluchen"}
+        {"spellID": 12530, "spell": "Frailty", "type": "dispel", "en": "**Frailty** curse weakens players; decurse", "de": "**Gebrechlichkeit** schwächt Spieler; entfluchen"}
       ]
     },
     {
@@ -70,7 +70,7 @@
       "wing": "Troll balcony",
       "mechanics": [
         {"spellID": 11899, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it right away", "de": "Stellt einen Heilungszauberschutz; sofort zerstören"},
-        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with Healing Wave; interrupt", "de": "Heilt mit Welle der Heilung; unterbrechen"}
+        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with **Healing Wave**; interrupt", "de": "Heilt mit **Welle der Heilung**; unterbrechen"}
       ]
     },
     {
@@ -78,9 +78,9 @@
       "npcID": 5710,
       "level": 54,
       "mechanics": [
-        {"spellID": 12480, "spell": "Hex of Jammal'an", "type": "dispel", "en": "Hex turns a player against the group; dispel or CC", "de": "Verhexung wendet einen Spieler gegen die Gruppe; bannen oder CC"},
-        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with Healing Wave; interrupt", "de": "Heilt mit Welle der Heilung; unterbrechen"},
-        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "adds", "en": "Earthgrab Totem roots players; destroy it", "de": "Totem des Erdgriffs wurzelt fest; zerstören"}
+        {"spellID": 12480, "spell": "Hex of Jammal'an", "type": "dispel", "en": "Hex turns a player against the group; dispel or CC", "de": "**Verhexung** wendet einen Spieler gegen die Gruppe; bannen oder kontrollieren"},
+        {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with **Healing Wave**; interrupt", "de": "Heilt mit **Welle der Heilung**; unterbrechen"},
+        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "adds", "en": "**Earthgrab Totem** roots players; destroy it", "de": "**Totem des Erdgriffs** wurzelt fest; zerstören"}
       ]
     },
     {
@@ -88,8 +88,8 @@
       "npcID": 5711,
       "level": 53,
       "mechanics": [
-        {"spellID": 11660, "spell": "Shadow Bolt", "type": "interrupt", "en": "Casts Shadow Bolts; interrupt", "de": "Wirkt Schattenblitze; unterbrechen", "verified": true},
-        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse of Weakness on melee; decurse", "de": "Fluch der Schwäche auf Nahkämpfern; entfluchen", "verified": true},
+        {"spellID": 11660, "spell": "Shadow Bolt", "type": "interrupt", "en": "Casts Shadow Bolts; interrupt", "de": "Wirkt **Schattenblitze**; unterbrechen", "verified": true},
+        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "**Curse of Weakness** on melee; decurse", "de": "**Fluch der Schwäche** auf Nahkämpfern; entfluchen", "verified": true},
         {"spellID": 23952, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over time: dispel magic on the target", "de": "Schattenschaden über Zeit: Magie auf dem Ziel bannen", "verified": true}
       ]
     },
@@ -98,8 +98,8 @@
       "npcID": 5721,
       "level": 53,
       "mechanics": [
-        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg", "verified": true},
-        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand", "verified": true}
+        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "**Acid Breath** cone; tank turns the dragon away", "de": "**Säureatem** im Kegel; Tank dreht den Drachen weg", "verified": true},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "**Wing Flap** knocks players back; tank near a wall", "de": "**Flügelschlag** stößt zurück; Tank an einer Wand", "verified": true}
       ]
     },
     {
@@ -107,8 +107,8 @@
       "npcID": 5720,
       "level": 51,
       "mechanics": [
-        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg", "verified": true},
-        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand", "verified": true}
+        {"spellID": 12533, "spell": "Acid Breath", "type": "avoid", "en": "**Acid Breath** cone; tank turns the dragon away", "de": "**Säureatem** im Kegel; Tank dreht den Drachen weg", "verified": true},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "**Wing Flap** knocks players back; tank near a wall", "de": "**Flügelschlag** stößt zurück; Tank an einer Wand", "verified": true}
       ]
     },
     {
@@ -116,8 +116,8 @@
       "npcID": 5719,
       "level": 52,
       "mechanics": [
-        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg"},
-        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand"}
+        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "**Acid Breath** cone; tank turns the dragon away", "de": "**Säureatem** im Kegel; Tank dreht den Drachen weg"},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "**Wing Flap** knocks players back; tank near a wall", "de": "**Flügelschlag** stößt zurück; Tank an einer Wand"}
       ]
     },
     {
@@ -125,8 +125,8 @@
       "npcID": 5722,
       "level": 53,
       "mechanics": [
-        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns the dragon away", "de": "Säureatem im Kegel; Tank dreht den Drachen weg"},
-        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Wing Flap knocks players back; tank near a wall", "de": "Flügelschlag stößt zurück; Tank an einer Wand"}
+        {"spellID": 12884, "spell": "Acid Breath", "type": "avoid", "en": "**Acid Breath** cone; tank turns the dragon away", "de": "**Säureatem** im Kegel; Tank dreht den Drachen weg"},
+        {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "**Wing Flap** knocks players back; tank near a wall", "de": "**Flügelschlag** stößt zurück; Tank an einer Wand"}
       ]
     },
     {
@@ -134,9 +134,9 @@
       "npcID": 8443,
       "level": 50,
       "mechanics": [
-        {"spellID": 12888, "spell": "Cause Insanity", "type": "survive", "en": "Cause Insanity takes control of a player; CC them", "de": "Wahnsinn verursachen übernimmt einen Spieler; per CC sichern", "verified": true},
-        {"spellID": 12889, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse of Tongues slows casting; decurse", "de": "Fluch der Sprachen verlangsamt Zauber; entfluchen", "verified": true},
-        {"spellID": 25852, "spell": "Lash", "type": "positioning", "en": "Lash knocks players back: tank against a wall", "de": "Peitschen schleudert zurück: an der Wand tanken", "verified": true}
+        {"spellID": 12888, "spell": "Cause Insanity", "type": "survive", "en": "**Cause Insanity** takes control of a player; CC them", "de": "**Wahnsinn verursachen** übernimmt einen Spieler; kontrollieren", "verified": true},
+        {"spellID": 12889, "spell": "Curse of Tongues", "type": "dispel", "en": "**Curse of Tongues** slows casting; decurse", "de": "**Fluch der Sprachen** verlangsamt Zauber; entfluchen", "verified": true},
+        {"spellID": 25852, "spell": "Lash", "type": "positioning", "en": "**Lash** knocks players back: tank against a wall", "de": "**Peitschen** schleudert zurück: an der Wand tanken", "verified": true}
       ]
     },
     {
@@ -144,9 +144,9 @@
       "npcID": 5709,
       "level": 55,
       "mechanics": [
-        {"spellID": 12890, "spell": "Deep Slumber", "type": "survive", "en": "Deep Slumber puts players to sleep; keep healers spread", "de": "Tiefer Schlummer schläfert Spieler ein; Heiler verteilen", "verified": true},
-        {"spellID": 12891, "spell": "Acid Breath", "type": "avoid", "en": "Acid Breath cone; tank turns him away", "de": "Säureatem im Kegel; Tank dreht ihn weg"},
-        {"spellID": 16740, "spell": "War Stomp", "type": "survive", "en": "War Stomp stuns everyone close", "de": "Kriegsdonner betäubt alle in der Nähe", "verified": true},
+        {"spellID": 12890, "spell": "Deep Slumber", "type": "survive", "en": "**Deep Slumber** puts players to sleep; keep healers spread", "de": "**Tiefer Schlummer** schläfert Spieler ein; Heiler verteilen", "verified": true},
+        {"spellID": 12891, "spell": "Acid Breath", "type": "avoid", "en": "**Acid Breath** cone; tank turns him away", "de": "**Säureatem** im Kegel; Tank dreht ihn weg"},
+        {"spellID": 16740, "spell": "War Stomp", "type": "survive", "en": "**War Stomp** stuns everyone close", "de": "**Kriegsdonner** betäubt alle in der Nähe", "verified": true},
         {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Extra swings: heavy hits on the tank", "de": "Extraschläge: schwere Treffer auf dem Tank", "verified": true}
       ]
     }
@@ -175,7 +175,7 @@
       "npcID": 5259,
       "elite": true,
       "mechanics": [
-        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Hex disables a player; dispel", "de": "Verhexung schaltet einen Spieler aus; bannen"},
+        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "**Hex** disables a player; dispel", "de": "**Verhexung** schaltet einen Spieler aus; bannen"},
         {"spellID": 11986, "spell": "Healing Wave", "type": "interrupt", "en": "Heals allies; interrupt", "de": "Heilt Verbündete; unterbrechen"}
       ]
     },
@@ -200,7 +200,7 @@
       "npcID": 8497,
       "elite": true,
       "mechanics": [
-        {"spellID": 11672, "spell": "Corruption", "type": "dispel", "en": "Corruption damage over time; dispel", "de": "Verderbnis als Schaden über Zeit; bannen"}
+        {"spellID": 11672, "spell": "Corruption", "type": "dispel", "en": "**Corruption** damage over time; dispel", "de": "**Verderbnis** als Schaden über Zeit; bannen"}
       ]
     },
     {
@@ -216,7 +216,7 @@
       "npcID": 8336,
       "elite": true,
       "mechanics": [
-        {"spellID": 11981, "spell": "Mana Burn", "type": "interrupt", "en": "Mana Burn drains casters; interrupt", "de": "Manabrand entzieht Zauberern Mana; unterbrechen"}
+        {"spellID": 11981, "spell": "Mana Burn", "type": "interrupt", "en": "**Mana Burn** drains casters; interrupt", "de": "**Manabrand** entzieht Zauberern Mana; unterbrechen"}
       ]
     },
     {
@@ -224,8 +224,8 @@
       "npcID": 5291,
       "elite": true,
       "mechanics": [
-        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Frostbolt Volley hits the group; interrupt", "de": "Frostblitzsalve trifft die Gruppe; unterbrechen"},
-        {"spellID": 9915, "spell": "Frost Nova", "type": "survive", "en": "Frost Nova freezes players nearby", "de": "Frostnova friert Spieler in der Nähe ein"}
+        {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "**Frostbolt Volley** hits the group; interrupt", "de": "**Frostblitzsalve** trifft die Gruppe; unterbrechen"},
+        {"spellID": 9915, "spell": "Frost Nova", "type": "survive", "en": "**Frost Nova** freezes players nearby", "de": "**Frostnova** friert Spieler in der Nähe ein"}
       ]
     },
     {
@@ -233,7 +233,7 @@
       "npcID": 5708,
       "elite": true,
       "mechanics": [
-        {"spellID": 12280, "spell": "Acid of Hakkar", "type": "survive", "en": "Spits Acid of Hakkar on players; heal through", "de": "Spuckt Säure Hakkars auf Spieler; durchheilen"}
+        {"spellID": 12280, "spell": "Acid of Hakkar", "type": "survive", "en": "Spits **Acid of Hakkar** on players; heal through", "de": "Spuckt **Säure Hakkars** auf Spieler; durchheilen"}
       ]
     }
   ],

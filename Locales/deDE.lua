@@ -2539,4 +2539,6 @@ ns.locales.deDE = {
   CLASS_NAME_SHAMAN = "Schamane",
   CLASS_NAME_WARLOCK = "Hexenmeister",
   CLASS_NAME_WARRIOR = "Krieger",
+  CARD_CLOSE = "Schließen",
+  CARD_CLOSE_TIP = "Blendet die Anzeige bis zum nächsten Mal aus. Ganz abschalten: Rechtsklick auf die Anzeige öffnet ihre Einstellungen.",
 }

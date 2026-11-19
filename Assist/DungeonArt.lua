@@ -43,7 +43,8 @@ local function collect()
     collectTier(false)
     collectTier(true)
   end
-  if previous then EJ_SelectTier(previous) end
+  -- 0 = noch keine Erweiterung gewählt (Kompendium nie geöffnet); EJ_SelectTier(0) wirft einen Fehler
+  if previous and previous > 0 then EJ_SelectTier(previous) end
 end
 
 -- Bild einer Instanz für ein Banner der Größe width x height: mittiger Streifen über die volle Breite

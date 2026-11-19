@@ -23,7 +23,7 @@
       "npcID": 9217,
       "level": 58,
       "mechanics": [
-        {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Sheeps a player; dispel the polymorph", "de": "Verwandelt Spieler in Schaf; Verwandlung bannen"},
+        {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Sheeps a player; dispel the polymorph", "de": "Verwandelt Spieler in ein Schaf; Verwandlung bannen"},
         {"spellID": 16170, "spell": "Bloodlust", "type": "dispel", "en": "Hastes an ally ogre; purge or kill him first", "de": "Beschleunigt einen Oger; reinigen oder Magus zuerst töten"}
       ],
       "rare": true
@@ -33,8 +33,8 @@
       "npcID": 10263,
       "level": 0,
       "mechanics": [
-        {"spellID": 16046, "spell": "Blast Wave", "type": "avoid", "en": "Fire blast around him slows; casters keep distance", "de": "Feuerwelle um ihn verlangsamt; Zauberer auf Abstand"},
-        {"spellID": 15548, "spell": "Thunderclap", "type": "tank", "en": "AoE slows attack and movement of melee nearby", "de": "Flächenschlag verlangsamt Angriff und Tempo im Nahkampf"}
+        {"spellID": 16046, "spell": "Blast Wave", "type": "avoid", "en": "Fire blast around him slows; casters keep distance", "de": "Feuerwelle um ihn verlangsamt Spieler; Zauberer auf Abstand"},
+        {"spellID": 15548, "spell": "Thunderclap", "type": "tank", "en": "AoE slows attack and movement of melee nearby", "de": "Flächenschlag verlangsamt Angriffs- und Lauftempo im Nahkampf"}
       ],
       "rare": true
     },
@@ -43,8 +43,8 @@
       "npcID": 9196,
       "level": 0,
       "mechanics": [
-        {"spellID": 18945, "spell": "Knock Away", "type": "positioning", "en": "Tank with back to a wall to avoid being knocked into adds", "de": "Tank mit Rücken zur Wand, sonst in Adds geschleudert", "verified": true},
-        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Hits much harder when enraged; save cooldowns", "de": "Wütend schlägt er viel härter; Abklingzeiten aufheben", "verified": true},
+        {"spellID": 18945, "spell": "Knock Away", "type": "positioning", "en": "Tank with back to a wall to avoid being knocked into adds", "de": "Tank mit dem Rücken zur Wand, sonst wird er in Adds geschleudert", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Hits much harder when enraged; save cooldowns", "de": "Wütend: schlägt viel härter; Abklingzeiten aufheben", "verified": true},
         {"spellID": 5532, "spell": "Cleave", "type": "positioning", "en": "Cleaves the front: only the tank stands in front", "de": "Spaltet nach vorn: nur der Tank steht vorne", "verified": true}
       ]
     },
@@ -63,7 +63,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 5532, "spell": "Cleave", "type": "positioning", "en": "Frontal cleave; only the tank in front of him", "de": "Frontaler Spalter; nur der Tank steht vor ihm", "verified": true},
-        {"spellID": 0, "spell": "Throw Axe", "type": "survive", "en": "Throws an axe at a random player and stuns briefly", "de": "Wirft Axt auf zufälligen Spieler, kurze Betäubung", "unverified": true}
+        {"spellID": 0, "spell": "Throw Axe", "type": "survive", "en": "Throws an axe at a random player and stuns briefly", "de": "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "unverified": true}
       ]
     },
     {
@@ -82,7 +82,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 13737, "spell": "Mortal Strike", "type": "tank", "en": "Cuts healing on the tank; heal through the debuff", "de": "Senkt Heilung am Tank; gegen den Debuff anheilen"},
-        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks a target to take more fire damage", "de": "Markiert ein Ziel, es erleidet mehr Feuerschaden"}
+        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks a target to take more fire damage", "de": "Markiert ein Ziel: es erleidet mehr Feuerschaden"}
       ],
       "rare": true
     },
@@ -92,8 +92,8 @@
       "level": 0,
       "mechanics": [
         {"spellID": 16468, "spell": "Mother's Milk", "type": "dispel", "en": "Poison roots players; cure poison quickly", "de": "Gift fesselt Spieler; Gift schnell entfernen", "verified": true},
-        {"spellID": 16104, "spell": "Crystallize", "type": "survive", "en": "Stuns players for a few seconds", "de": "Betäubt Spieler für einige Sekunden", "verified": true},
-        {"spellID": 16103, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Releases spiderlings on death; AoE them down", "de": "Setzt beim Tod Spinnchen frei; per Fläche töten"}
+        {"spellID": 16104, "spell": "Crystallize", "type": "survive", "en": "Stuns players for a few seconds", "de": "Betäubt Spieler einige Sek. lang", "verified": true},
+        {"spellID": 16103, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Releases spiderlings on death; AoE them down", "de": "Setzt beim Tod kleine Spinnen frei; mit Flächenschaden töten"}
       ]
     },
     {
@@ -101,7 +101,7 @@
       "npcID": 10376,
       "level": 0,
       "mechanics": [
-        {"spellID": 16416, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Calls spiderlings; kill them before they swarm healers", "de": "Ruft Spinnchen; töten, bevor sie Heiler angreifen"}
+        {"spellID": 16416, "spell": "Summon Spire Spiderling", "type": "adds", "en": "Calls spiderlings; kill them before they swarm healers", "de": "Ruft kleine Spinnen; töten, bevor sie Heiler angreifen"}
       ],
       "rare": true
     },
@@ -110,9 +110,9 @@
       "npcID": 10584,
       "level": 0,
       "mechanics": [
-        {"spellID": 16508, "spell": "Intimidating Roar", "type": "survive", "en": "Fears nearby players for 8 sec; use fear wards", "de": "Fürchtet Spieler 8 Sek.; Furchtschutz nutzen", "verified": true},
+        {"spellID": 16508, "spell": "Intimidating Roar", "type": "survive", "en": "Fears nearby players for 8 sec; use fear wards", "de": "Versetzt Spieler 8 Sek. lang in Furcht; Furchtschutz nutzen", "verified": true},
         {"spellID": 0, "spell": "Ogre waves", "type": "adds", "en": "Ogre waves come before Urok; crowd control and kill", "de": "Oger-Wellen vor Urok; kontrollieren und töten", "unverified": true},
-        {"spellID": 13443, "spell": "Rend", "type": "tank", "en": "Rend bleeds the tank: keep healing steady", "de": "Verwunden lässt den Tank bluten: gleichmäßig heilen", "verified": true}
+        {"spellID": 13443, "spell": "Rend", "type": "tank", "en": "**Rend** bleeds the tank: keep healing steady", "de": "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "verified": true}
       ]
     },
     {
@@ -122,7 +122,7 @@
       "mechanics": [
         {"spellID": 16497, "spell": "Stun Bomb", "type": "avoid", "en": "Fire bomb stuns players in a small area; spread out", "de": "Bombe betäubt im kleinen Bereich; verteilen"},
         {"spellID": 15504, "spell": "Drink Healing Potion", "type": "interrupt", "en": "Drinks a healing potion; burst or stun him", "de": "Trinkt Heiltrank; schnell Schaden oder betäuben"},
-        {"spellID": 15609, "spell": "Hooked Net", "type": "survive", "en": "Nets a random player in place for 3 sec", "de": "Fesselt zufälligen Spieler 3 Sek. mit Netz"}
+        {"spellID": 15609, "spell": "Hooked Net", "type": "survive", "en": "Nets a random player in place for 3 sec", "de": "Fesselt einen zufälligen Spieler 3 Sek. lang in einem Netz"}
       ]
     },
     {
@@ -140,7 +140,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 20539, "spell": "Fatal Bite", "type": "tank", "en": "Drains health and heals himself", "de": "Saugt Leben ab und heilt sich selbst", "verified": true},
-        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzies for faster attacks; soothe or cooldown", "de": "Raserei, schnellere Angriffe; besänftigen oder Abklingzeit", "verified": true},
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Frenzies for faster attacks; soothe or cooldown", "de": "**Raserei**, schnellere Angriffe; besänftigen oder Abklingzeit", "verified": true},
         {"spellID": 16128, "spell": "Infected Bite", "type": "dispel", "en": "Disease raises physical damage taken; cure it", "de": "Krankheit erhöht erlittenen Schaden; heilen", "verified": true}
       ]
     },
@@ -149,7 +149,7 @@
       "npcID": 9718,
       "level": 0,
       "mechanics": [
-        {"spellID": 11972, "spell": "Shield Bash", "type": "survive", "en": "Interrupts casters; healers stay out of melee", "de": "Unterbricht Zauber; Heiler nicht in Nahkampfreichweite"},
+        {"spellID": 11972, "spell": "Shield Bash", "type": "survive", "en": "Interrupts casters; healers stay out of melee", "de": "Unterbricht Zauber; Heiler außerhalb der Nahkampfreichweite"},
         {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Attack speed boost; save tank cooldowns", "de": "Angriffstempo steigt; Tank-Abklingzeiten aufheben"}
       ],
       "rare": true
@@ -187,7 +187,7 @@
       "npcID": 9258,
       "elite": true,
       "mechanics": [
-        {"spellID": 14030, "spell": "Hooked Net", "type": "survive", "en": "Roots a player in a net for 3 sec", "de": "Fesselt Spieler 3 Sek. im Netz"}
+        {"spellID": 14030, "spell": "Hooked Net", "type": "survive", "en": "Roots a player in a net for 3 sec", "de": "Fesselt Spieler 3 Sek. lang im Netz"}
       ]
     },
     {
@@ -195,7 +195,7 @@
       "npcID": 9240,
       "elite": true,
       "mechanics": [
-        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Turns a player into a frog; dispel", "de": "Verwandelt Spieler in Frosch; bannen"},
+        {"spellID": 11641, "spell": "Hex", "type": "dispel", "en": "Turns a player into a frog; dispel", "de": "Verwandelt Spieler in einen Frosch; bannen"},
         {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Drains caster mana; interrupt", "de": "Entzieht Mana; unterbrechen"}
       ]
     },
@@ -212,7 +212,7 @@
       "npcID": 9263,
       "elite": true,
       "mechanics": [
-        {"spellID": 16071, "spell": "Curse of the Firebrand", "type": "dispel", "en": "Fire damage curse; decurse", "de": "Feuerschaden-Fluch; entfluchen"}
+        {"spellID": 16071, "spell": "Curse of the Firebrand", "type": "dispel", "en": "Fire damage curse; decurse", "de": "Fluch mit Feuerschaden; entfluchen"}
       ]
     },
     {

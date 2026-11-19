@@ -12,7 +12,7 @@
      "spell": "Flame Breath",
      "type": "positioning",
      "en": "Frontal fire breath; only the tank stands at her head",
-     "de": "Feueratem nach vorn; nur der Tank steht am Kopf"
+     "de": "**Feueratem** nach vorn; nur der Tank steht am Kopf"
     },
     {
      "spellID": 15847,
@@ -25,8 +25,8 @@
      "spellID": 17086,
      "spell": "Breath",
      "type": "avoid",
-     "en": "Phase 2 Deep Breath across the room; leave its path",
-     "de": "Phase 2: Tiefer Atem quer durch den Raum; Bahn verlassen"
+     "en": "Phase 2 Deep **Breath** across the room; leave its path",
+     "de": "Phase 2: **Tiefer Atem** quer durch den Raum; Bahn verlassen"
     },
     {
      "spellID": 18431,
@@ -48,15 +48,15 @@
      "spellID": 20203,
      "spell": "Fire Nova",
      "type": "positioning",
-     "en": "Fire nova around it; casters and healers keep range",
-     "de": "Feuernova um ihn; Zauberer und Heiler auf Abstand"
+     "en": "**Fire nova** around it; casters and healers keep range",
+     "de": "**Feuernova** um ihn; Zauberer und Heiler auf Abstand"
     },
     {
      "spellID": 18958,
      "spell": "Flame Lash",
      "type": "tank",
      "en": "Fire lash on its target",
-     "de": "Flammenpeitsche auf sein Ziel"
+     "de": "**Flammenpeitsche** auf sein Ziel"
     },
     {
      "spellID": 12097,

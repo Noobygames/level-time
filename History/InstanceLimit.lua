@@ -166,3 +166,5 @@ local function onSystemMessage(message)
 end
 
 ns.RegisterEvent("CHAT_MSG_SYSTEM", onSystemMessage)
+-- Welcher Weg den Abbruchtext zeigt (Systemchat oder Fehlerzeile), ist ungeklärt: beide Wege lauschen
+ns.RegisterEvent("UI_ERROR_MESSAGE", function(_, message) onSystemMessage(message) end)

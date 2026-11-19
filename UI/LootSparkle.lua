@@ -52,17 +52,14 @@ local GLINT_EXTRAS = {
 }
 local GLINT_SIZE = 30      -- Pixel bei Größe 1
 local SPREAD_X, SPREAD_Y = 40, 28  -- Halbachsen der Fläche, in der Funken erscheinen
-local OFFSET_OBJECT_Y = -80       -- von der Plakette nach unten zum Boden-Objekt (Erz, Kraut)
-local OFFSET_CHEST_Y = -180       -- von der Plakette (über der Truhe) nach unten zum Fuß der Kiste
+local OFFSET_OBJECT_Y = -80       -- von der Plakette nach unten zum Boden-Objekt (Erz, Kraut, Kiste, Quest-Objekt)
 local OFFSET_CORPSE_Y = -140      -- von der Plakette (Kopfhöhe) nach unten zur Leiche
 
 function LootSparkle.OffsetY(target, targetKind)
   if target == UIParent then return 0 end
   local LT = ns.LootTarget
   local corpseKind = LT and LT.CORPSE or "corpse"
-  local chestKind = LT and LT.CHEST or "chest"
   if targetKind == corpseKind then return OFFSET_CORPSE_Y end
-  if targetKind == chestKind then return OFFSET_CHEST_Y end
   return OFFSET_OBJECT_Y
 end
 

@@ -29,8 +29,8 @@ Declines.KINDS = {
   -- Einladungen mit Rollenwahl zeigen in Retail/Forever statt des Dialogs LFGInvitePopup
   { setting = "declineGroupInvites", event = "PARTY_INVITE_REQUEST", decline = function() DeclineGroup() end,
     popup = "PARTY_INVITE", message = "DECLINED_GROUP",
-    -- PARTY_INVITE_REQUEST(name, isTank, isHealer, isDamage, isNativeRealm, allowMultipleRoles, inviterGUID, ...)
-    keep = function(name, ...) return ns.Social.TrustsInviter(name, (select(6, ...))) end,
+    -- PARTY_INVITE_REQUEST(name, isTank, isHealer, isDamage, isNativeRealm, [isCrossShard (Forever),] allowMultipleRoles, inviterGUID, ...)
+    keep = function(name, ...) return ns.Social.TrustsInviter(name, ns.Social.InviterGUID(...)) end,
     hide = function()
       if LFGInvitePopup and StaticPopupSpecial_Hide then StaticPopupSpecial_Hide(LFGInvitePopup) end
     end },

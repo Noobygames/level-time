@@ -273,6 +273,7 @@ function CheckList.Command(argument)
   if not store then return X.Print(L.TODO_NOT_READY) end
   if argument == "off" or argument == "on" then
     store.checkList.hintsOff = argument == "off" or nil
+    X.CheckReminders.Refresh()  -- Fenster "Offene Prüfungen" folgt dem Schalter
     return X.Print(argument == "off" and L.TODO_HINTS_OFF or L.TODO_HINTS_ON)
   end
   CheckList.Show()

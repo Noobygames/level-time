@@ -119,7 +119,8 @@ local function readJournal(mapID, encounterID)
   if EncounterJournal and EncounterJournal:IsShown() then return nil end
   local journalInstanceID = C_EncounterJournal.GetInstanceForGameMap(mapID)
   if not journalInstanceID then return NO_DROPS end
-  local previousInstance = EJ_GetCurrentInstance and EJ_GetCurrentInstance() or 0
+  -- EJ_GetCurrentInstance gibt es seit 8.0.1 nicht mehr; die Auswahl steckt im Journal-Frame
+  local previousInstance = EncounterJournal and EncounterJournal.instanceID or 0
   local previousEncounter = EncounterJournal and EncounterJournal.encounterID
   EJ_SelectInstance(journalInstanceID)
   local journalID = findJournalEncounter(journalInstanceID, encounterID)

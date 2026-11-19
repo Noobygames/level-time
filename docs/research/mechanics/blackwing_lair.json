@@ -18,8 +18,8 @@
      "spellID": 22425,
      "spell": "Fireball Volley",
      "type": "avoid",
-     "en": "Phase 2 fireball volley; hide behind pillars",
-     "de": "Phase 2 Feuerballsalve; hinter Säulen verstecken"
+     "en": "Phase 2 **fireball volley**; hide behind pillars",
+     "de": "In Phase 2 **Feuerballsalve**; hinter Säulen verstecken"
     },
     {
      "spellID": 23023,
@@ -73,14 +73,14 @@
      "spell": "Mortal Strike",
      "type": "tank",
      "en": "Big hit that cuts healing on the tank",
-     "de": "Harter Schlag senkt Heilung am Tank"
+     "de": "**Harter Schlag** senkt Heilung am Tank"
     },
     {
      "spellID": 23331,
      "spell": "Blast Wave",
      "type": "positioning",
      "en": "Fire AoE around him; casters keep range",
-     "de": "Feuer-AoE um ihn; Zauberer auf Abstand"
+     "de": "Feuerschaden im Umkreis um ihn; Zauberer auf Abstand"
     },
     {
      "spellID": 18670,
@@ -114,7 +114,7 @@
      "spell": "Shadow Flame",
      "type": "tank",
      "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
-     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+     "de": "**Schattenflamme** nach vorn; Tank braucht Onyxiaschuppenumhang"
     }
    ]
   },
@@ -134,7 +134,7 @@
      "spell": "Shadow Flame",
      "type": "tank",
      "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
-     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+     "de": "**Schattenflamme** nach vorn; Tank braucht Onyxiaschuppenumhang"
     },
     {
      "spellID": 23339,
@@ -153,15 +153,15 @@
      "spellID": 23342,
      "spell": "Frenzy",
      "type": "tank",
-     "en": "Frenzy; hunters remove it with Tranquilizing Shot",
-     "de": "Raserei; Jäger entfernen sie per Einlullender Schuss"
+     "en": "**Frenzy**; hunters remove it with Tranquilizing Shot",
+     "de": "**Raserei**; Jäger entfernen sie per **Einlullender Schuss**"
     },
     {
      "spellID": 22539,
      "spell": "Shadow Flame",
      "type": "tank",
      "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
-     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+     "de": "**Schattenflamme** nach vorn; Tank braucht Onyxiaschuppenumhang"
     },
     {
      "spellID": 23339,
@@ -201,8 +201,8 @@
      "spellID": 23128,
      "spell": "Frenzy",
      "type": "tank",
-     "en": "Frenzy; remove with Tranquilizing Shot",
-     "de": "Raserei; per Einlullender Schuss entfernen"
+     "en": "**Frenzy**; remove with Tranquilizing Shot",
+     "de": "**Raserei**; per **Einlullender Schuss** entfernen"
     }
    ]
   },
@@ -215,14 +215,14 @@
      "spell": "Shadow Flame",
      "type": "tank",
      "en": "Frontal shadowflame; tank needs Onyxia Scale Cloak",
-     "de": "Schattenflamme nach vorn; Tank braucht Onyxiaschuppenumhang"
+     "de": "**Schattenflamme** nach vorn; Tank braucht Onyxiaschuppenumhang"
     },
     {
      "spellID": 22686,
      "spell": "Bellowing Roar",
      "type": "survive",
      "en": "Raid fear; Fear Ward or Tremor Totem",
-     "de": "Raidfurcht; Furchtzauberschutz oder Erdstoßtotem"
+     "de": "Furcht auf den ganzen Raid; Furchtzauberschutz oder Erdstoßtotem"
     },
     {
      "spellID": 22687,
@@ -337,8 +337,8 @@
      "spellID": 22275,
      "spell": "Flamestrike",
      "type": "avoid",
-     "en": "Flamestrike on the ground; step out",
-     "de": "Flammenstoß am Boden; heraustreten"
+     "en": "**Flamestrike** on the ground; step out",
+     "de": "**Flammenstoß** am Boden; heraustreten"
     }
    ]
   },
@@ -376,8 +376,8 @@
      "spellID": 22428,
      "spell": "Frenzy",
      "type": "tank",
-     "en": "Frenzy; remove with Tranquilizing Shot",
-     "de": "Raserei; per Einlullender Schuss entfernen"
+     "en": "**Frenzy**; remove with Tranquilizing Shot",
+     "de": "**Raserei**; per **Einlullender Schuss** entfernen"
     },
     {
      "spellID": 22433,

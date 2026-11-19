@@ -9,7 +9,7 @@
       "npcID": 644,
       "level": 19,
       "mechanics": [
-        {"spellID": 6304, "spell": "Rhahk'Zor Slam", "type": "tank", "en": "Slam stuns the tank for 3 sec: keep the tank topped up", "de": "Hieb betäubt den Tank 3 Sek.: Tank voll geheilt halten", "verified": true}
+        {"spellID": 6304, "spell": "Rhahk'Zor Slam", "type": "tank", "en": "Slam stuns the tank for 3 sec: keep the tank topped up", "de": "Hieb betäubt den Tank 3 Sek. lang: Tank voll geheilt halten", "verified": true}
       ]
     },
     {
@@ -17,7 +17,7 @@
       "npcID": 642,
       "level": 20,
       "mechanics": [
-        {"spellID": 7399, "spell": "Terrify", "type": "survive", "en": "Fears a player for 4 sec: avoid running into extra mobs", "de": "Furcht 4 Sek.: nicht in weitere Gegner laufen", "verified": true},
+        {"spellID": 7399, "spell": "Terrify", "type": "survive", "en": "Fears a player for 4 sec: avoid running into extra mobs", "de": "Furcht 4 Sek. lang: nicht in weitere Gegner laufen", "verified": true},
         {"spellID": 3603, "spell": "Distracting Pain", "type": "survive", "en": "Slows a caster's casting by 35%: plan longer casts", "de": "Verlangsamt Zauber um 35 %: mit längeren Zaubern rechnen", "verified": true},
         {"spellID": 5141, "spell": "Eject Sneed", "type": "adds", "en": "Sneed jumps out when the shredder dies: kill him next", "de": "Sneed springt beim Tod des Schredders heraus: als Nächstes töten"}
       ]
@@ -36,7 +36,7 @@
       "level": 20,
       "mechanics": [
         {"spellID": 5213, "spell": "Molten Metal", "type": "dispel", "en": "Burns and slows a player: heal through it", "de": "Verbrennt und verlangsamt einen Spieler: gegenheilen", "verified": true},
-        {"spellID": 5159, "spell": "Melt Ore", "type": "avoid", "en": "Molten ore on nearby players stacks: ranged stay back", "de": "Geschmolzenes Erz auf Nahen stapelt: Fernkämpfer bleiben hinten"}
+        {"spellID": 5159, "spell": "Melt Ore", "type": "avoid", "en": "Molten ore on nearby players stacks: ranged stay back", "de": "Geschmolzenes Erz auf Spielern in der Nähe stapelt sich: Fernkämpfer bleiben hinten"}
       ]
     },
     {
@@ -46,7 +46,9 @@
       "mechanics": [
         {"spellID": 6432, "spell": "Smite Stomp", "type": "survive", "en": "Stuns the whole group at 75% and 50%: heal up before", "de": "Betäubt bei 75 % und 50 % die Gruppe: vorher hochheilen", "verified": true},
         {"spellID": 0, "spell": "Defias Blackguard", "type": "adds", "en": "Clear the stealthed guards at the ramp before the pull", "de": "Getarnte Wachen an der Rampe vor dem Pull beseitigen", "unverified": true},
-        {"spellID": 6435, "spell": "Smite Slam", "type": "tank", "en": "Slam stuns the tank: keep the tank topped up", "de": "Hieb betäubt den Tank: Tank voll geheilt halten", "verified": true}
+        {"spellID": 6435, "spell": "Smite Slam", "type": "tank", "en": "Slam stuns the tank: keep the tank topped up", "de": "Hieb betäubt den Tank: Tank voll geheilt halten", "verified": true},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Gives him two extra attacks now and then: expect bursts on the tank", "de": "Gibt ihm ab und zu zwei Zusatzangriffe: Schadensspitzen auf dem Tank", "verified": true},
+        {"spellID": 6264, "spell": "Nimble Reflexes", "type": "tank", "en": "Parries much more for 8 sec: hits on him fail more often, keep healing steady", "de": "Pariert 8 Sek. lang deutlich öfter: Angriffe misslingen häufiger, gleichmäßig heilen", "verified": true}
       ]
     },
     {
@@ -83,8 +85,8 @@
       "npcID": 1729,
       "elite": true,
       "mechanics": [
-        {"spellID": 11829, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar on the ground: step out, kill evokers first", "de": "Flammensäule am Boden: herausgehen, Beschwörer zuerst töten"},
-        {"spellID": 12544, "spell": "Frost Armor", "type": "tank", "en": "Frost armor slows melee attackers", "de": "Frostrüstung verlangsamt Nahkämpfer"}
+        {"spellID": 11829, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillar on the ground: step out, kill evokers first", "de": "**Flammensäule** am Boden: herausgehen, Beschwörer zuerst töten"},
+        {"spellID": 12544, "spell": "Frost Armor", "type": "tank", "en": "Frost armor slows melee attackers", "de": "**Frostrüstung** verlangsamt Nahkämpfer"}
       ]
     },
     {

@@ -170,7 +170,7 @@ function InstanceBosses.ShiftRares(text, offset)
   local shifted = {}
   for entry in string.gmatch(text, "[^" .. RARE_SEPARATOR .. "]+") do
     local npcID, seconds, rest = entry:match("^(%d+):(%d+)(.*)$")
-    if npcID then shifted[#shifted + 1] = npcID .. ":" .. (tonumber(seconds) + offset) .. rest end
+    if npcID then shifted[#shifted + 1] = npcID .. ":" .. math.max(0, math.floor(tonumber(seconds) + offset + 0.5)) .. rest end
   end
   return table.concat(shifted, RARE_SEPARATOR)
 end

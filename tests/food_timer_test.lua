@@ -145,6 +145,16 @@ wow.state.buffs = { eating(18) }
 FoodTimer.Check()
 expect("Essen läuft", Display.ShownKind(), "countdown")
 expect("Essen sichtbar", food:IsShown(), true)
+-- v3.0.2: X schließt die Karte, sie bleibt aus, solange derselbe Countdown läuft
+food.closeButton._scripts.OnClick(food.closeButton)
+expect("X: ausgeblendet", food:IsShown(), false)
+FoodTimer.Check()
+expect("X: bleibt aus", food:IsShown(), false)
+wow.state.buffs = {}
+FoodTimer.Check()
+wow.state.buffs = { eating(18) }
+FoodTimer.Check()
+expect("neues Essen: wieder da", food:IsShown(), true)
 wow.state.inCombat = true
 wow.state.aurasSecret = true
 FoodTimer.Check()

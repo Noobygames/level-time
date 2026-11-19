@@ -26,7 +26,7 @@
      "spell": "Psychic Scream",
      "type": "survive",
      "en": "Fears players close to her",
-     "de": "Fürchtet Spieler in ihrer Nähe"
+     "de": "Versetzt Spieler in ihrer Nähe in Furcht"
     }
    ]
   },
@@ -38,8 +38,8 @@
      "spellID": 23860,
      "spell": "Holy Fire",
      "type": "interrupt",
-     "en": "Holy Fire on a player; interrupt or dispel",
-     "de": "Heiliges Feuer auf Spieler; unterbrechen oder bannen"
+     "en": "**Holy Fire** on a player; interrupt or dispel",
+     "de": "**Heiliges Feuer** auf Spieler; unterbrechen oder bannen"
     },
     {
      "spellID": 23861,
@@ -73,14 +73,14 @@
      "spell": "Corrosive Poison",
      "type": "dispel",
      "en": "Poison on players; cure poison",
-     "de": "Gift auf Spielern; Gift heilen"
+     "de": "Gift auf Spielern; Gift entfernen"
     },
     {
      "spellID": 24300,
      "spell": "Drain Life",
      "type": "interrupt",
      "en": "Drains life from a player; interrupt",
-     "de": "Saugt Leben von Spieler; unterbrechen"
+     "de": "Saugt einem Spieler Leben ab; unterbrechen"
     }
    ]
   },
@@ -93,7 +93,7 @@
      "spell": "Great Heal",
      "type": "interrupt",
      "en": "Heals; interrupt; kill all three priests near together",
-     "de": "Heilt; unterbrechen; alle drei Priester fast gleichzeitig töten"
+     "de": "Heilt; unterbrechen. Alle drei Priester fast gleichzeitig töten"
     },
     {
      "spellID": 24183,
@@ -154,7 +154,7 @@
      "spell": "Mortal Strike",
      "type": "tank",
      "en": "Big hit that cuts healing on the tank",
-     "de": "Harter Schlag senkt Heilung am Tank"
+     "de": "**Harter Schlag** senkt Heilung am Tank"
     }
    ]
   },
@@ -234,8 +234,8 @@
      "spellID": 16099,
      "spell": "Frost Breath",
      "type": "positioning",
-     "en": "Frontal frost breath; stand at his sides",
-     "de": "Frostatem nach vorn; seitlich stehen"
+     "en": "Frontal **frost breath**; stand at his sides",
+     "de": "**Frostatem** nach vorn; seitlich stehen"
     }
    ]
   },
@@ -248,7 +248,7 @@
      "spell": "Avatar",
      "type": "positioning",
      "en": "Grows and chases a random player; that player kites",
-     "de": "Wächst und jagt zufälligen Spieler; dieser kitet"
+     "de": "Wächst und jagt einen zufälligen Spieler; dieser kitet"
     },
     {
      "spellID": 24648,
@@ -282,7 +282,7 @@
      "spell": "Chain Burn",
      "type": "survive",
      "en": "Chained mana burn on casters",
-     "de": "Kettenmanabrand auf Zauberer"
+     "de": "**Kettenmanabrand** auf Zauberer"
     }
    ]
   },
@@ -302,7 +302,7 @@
      "spell": "Thousand Blades",
      "type": "survive",
      "en": "Blade flurry on nearby players",
-     "de": "Klingenwirbel auf nahe Spieler"
+     "de": "**Klingenwirbel** auf nahe Spieler"
     }
    ]
   },
@@ -314,15 +314,15 @@
      "spellID": 24683,
      "spell": "Lightning Cloud",
      "type": "avoid",
-     "en": "Lightning cloud on the ground; step out",
-     "de": "Blitzwolke am Boden; heraustreten"
+     "en": "**Lightning cloud** on the ground; step out",
+     "de": "**Blitzwolke** am Boden; heraustreten"
     },
     {
      "spellID": 24680,
      "spell": "Chain Lightning",
      "type": "positioning",
-     "en": "Chain lightning jumps; spread out",
-     "de": "Kettenblitz springt; verteilen"
+     "en": "**Chain lightning** jumps; spread out",
+     "de": "**Kettenblitz** springt; verteilen"
     }
    ]
   }
@@ -376,8 +376,8 @@
      "spellID": 20741,
      "spell": "Shadow Bolt Volley",
      "type": "interrupt",
-     "en": "Shadow bolt volley on the group; interrupt",
-     "de": "Schattenblitzsalve auf Gruppe; unterbrechen"
+     "en": "**Shadow bolt volley** on the group; interrupt",
+     "de": "**Schattenblitzsalve** auf Gruppe; unterbrechen"
     },
     {
      "spellID": 22947,
@@ -397,7 +397,7 @@
      "spell": "Drain Life",
      "type": "interrupt",
      "en": "Drains life; interrupt",
-     "de": "Saugt Leben; unterbrechen"
+     "de": "Saugt Leben ab; unterbrechen"
     }
    ]
   },

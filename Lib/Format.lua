@@ -83,7 +83,7 @@ end
 
 -- Große Zahlen kürzen: 950, 12.3k, 1.2M
 function Format.Number(value)
-  if value >= 1000000 then
+  if value >= 999950 then  -- ab hier rundet %.1f der k-Stufe auf 1000.0k
     return string.format("%.1f%s", value / 1000000, unit("UNIT_MILLION_SHORT"))
   elseif value >= 1000 then
     return string.format("%.1f%s", value / 1000, unit("UNIT_THOUSAND_SHORT"))
@@ -139,6 +139,18 @@ end
 -- Nur volles Gold, für schmale Tabellenspalten
 function Format.Gold(copper)
   return string.format("%d%s", math.floor(copper / COPPER_PER_GOLD), unit("UNIT_GOLD_SHORT"))
+end
+
+-- Fähigkeitsnamen in Guide-Texten stehen als **Name**; WoW-Schrift kennt kein Fett, darum Hervorhebung per Farbe
+local HIGHLIGHT_PATTERN = "%*%*(.-)%*%*"
+
+function Format.Highlight(text)
+  return (text:gsub(HIGHLIGHT_PATTERN, ns.Theme.Hex("gold") .. "%1|r"))
+end
+
+-- Dieselben Texte ohne Markierung (Chat, Export, alles ohne Farbe)
+function Format.StripHighlight(text)
+  return (text:gsub(HIGHLIGHT_PATTERN, "%1"))
 end
 
 -- Text ohne Farbcodes und Link-Markup (z.B. Item-Links), für Suche und Export
