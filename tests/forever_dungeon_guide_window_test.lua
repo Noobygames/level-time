@@ -66,3 +66,9 @@ expect("Dungeon gewechselt", select(4, Window.Current()), 36)
 SlashCmdList.LEVELTIMER("guide Verlies")
 expect("/lt guide Name", select(3, Window.Current()), "Das Verlies")
 addon.Dropdown.Close()
+
+-- Tooltip nur mit Titel (Blättern-Knöpfe): Mauskontakt ohne Lua-Fehler
+local titleOnly = CreateFrame("Button")
+addon.Widgets.AttachTooltip(titleOnly, function() return "Titel" end)
+titleOnly._scripts.OnEnter(titleOnly)
+expect("Tooltip nur mit Titel ohne Fehler", #wow.errors, 0)

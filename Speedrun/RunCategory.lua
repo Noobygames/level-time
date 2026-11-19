@@ -87,6 +87,7 @@ local function highestMemberLevel()
 end
 
 local function checkGroup()
+  if not ns.character then return end  -- Gruppen-Ereignis nach /reload kommt vor PLAYER_LOGIN
   if not IsInGroup or IsInGroup() ~= true then return end
   downgrade(RunCategory.GROUP)
   local highest = highestMemberLevel()

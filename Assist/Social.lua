@@ -93,7 +93,8 @@ end
 
 -- Alle offenen Anfragen ablehnen; rückwärts, weil die Liste beim Ablehnen schrumpft
 local function declineFriendRequests()
-  if not ns.db.blockFriendRequests or not Social.CanBlockFriendRequests() then return end
+  -- die Battle.net-Anfrageliste meldet sich beim Einloggen, ns.db gibt es erst ab PLAYER_LOGIN
+  if not ns.db or not ns.db.blockFriendRequests or not Social.CanBlockFriendRequests() then return end
   for index = BNGetNumFriendInvites() or 0, 1, -1 do
     local inviteID, accountName = friendInvite(index)
     if inviteID then

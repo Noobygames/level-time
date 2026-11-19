@@ -122,6 +122,7 @@ end
 local COUNTED_SCOPES = { Stats.LEVEL, Stats.SESSION }
 
 function Stats.Increment(counter, amount)
+  if not ns.character then return end  -- XP-/PvP-Ereignisse können vor PLAYER_LOGIN kommen
   amount = amount or 1
   ns.Debug("stats", "%s +%s", counter, amount)
   for index = 1, #COUNTED_SCOPES do

@@ -294,6 +294,7 @@ local function difficultySettled(key)
 end
 
 local function onWorldChanged()
+  if not ns.character then return end  -- Instanz-Ereignisse nach /reload kommen vor PLAYER_LOGIN
   local key, name, instanceType, difficultyID = trackedInstance()
   if key == (inside and inside.key) then return end
   if inside and key and name == inside.name then

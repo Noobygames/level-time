@@ -124,14 +124,14 @@ function Widgets.SetDefaultBackground(panel, alpha)
 end
 
 -- Tooltip bei Mauskontakt. title() und text() liefern die Texte in der aktuellen Sprache;
--- liefert text() nil, erscheint kein Tooltip. HookScript, damit vorhandene Handler bleiben.
+-- liefert text() nil, erscheint kein Tooltip; ohne text nur der Titel. HookScript, damit vorhandene Handler bleiben.
 function Widgets.AttachTooltip(frame, title, text)
   frame:HookScript("OnEnter", function(self)
-    local body = text()
-    if not body then return end
+    local body = text and text()
+    if text and not body then return end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText(title(), unpack(Widgets.COLORS.highlight))
-    GameTooltip:AddLine(body, 1, 1, 1, true)  -- true = umbrechen
+    if body then GameTooltip:AddLine(body, 1, 1, 1, true) end  -- true = umbrechen
     GameTooltip:Show()
   end)
   frame:HookScript("OnLeave", function() GameTooltip:Hide() end)

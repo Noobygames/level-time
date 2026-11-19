@@ -17,7 +17,7 @@
       {"spellID": 0, "spell": "Shadow Staff", "type": "tank", "en": "Charges his staff with shadow damage: more damage on the tank", "de": "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "version": "forever"}
     ]},
     {"name": "War Handler Ashka", "npcID": 259281, "mechanics": [
-      {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"}
+      {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"}, {"spellID": 0, "spell": "Wolf howl", "type": "survive", "en": "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "de": "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"}
     ]},
     {"name": "Overlord Mugg", "npcID": 258968, "mechanics": [
       {"spellID": 0, "spell": "Weapon swap", "type": "tank", "en": "Swaps maces for mauls and hits harder with each set", "de": "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "version": "forever"},
