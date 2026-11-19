@@ -240,7 +240,9 @@ C_Item = {
     local itemID = type(item) == "string" and tonumber(item:match("item:(%d+)")) or item
     local icon = state.itemIcons[itemID]
     if not icon then return nil end
-    return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, 4, 2
+    -- Klasse/Unterklasse je itemID: state.itemClasses[itemID] = { classID, subClassID }; sonst Rüstung/Leder
+    local class = (state.itemClasses or {})[itemID] or { 4, 2 }
+    return itemID, "Rüstung", "Leder", (state.equipLocs or {})[itemID] or "INVTYPE_FEET", icon, class[1], class[2]
   end,
   GetItemIconByID = function(itemID) return state.itemIcons[itemID] end,
   -- Zauber eines benutzbaren Items: state.itemSpells[itemID] = { name, id }; sonst nichts

@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-19",
     entries = {
+      { kind = "change",
+        deDE = "Taschen voll: Angeln, Kürschnermesser, Spitzhacke und Schmiedehammer werden nie mehr zum Löschen angeboten.",
+        enUS = "Bags full: fishing poles, skinning knives, mining picks and blacksmith hammers are never offered for deletion anymore.",
+        frFR = "Sacs pleins : les cannes à pêche, couteaux à dépecer, pioches de mineur et marteaux de forgeron ne sont plus jamais proposés à la suppression.",
+        esES = "Bolsas llenas: las cañas de pescar, cuchillos de desollar, picos de minero y martillos de herrero ya nunca se ofrecen para borrar." },
       { kind = "new",
         deDE = "Dungeon-Guide Feste Krol'dok: eigene Seite für Bossmann Toof und neue Hinweise zu Nar'gurk, Ashkas Wölfen und Aufseher Mugg.",
         enUS = "Dungeon guide Krol'dok Stronghold: own page for Bossman Toof and new tips for Nar'gurk, Ashka's wolves and Overlord Mugg.",

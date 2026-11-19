@@ -73,4 +73,15 @@ wow.fire("BAG_UPDATE_DELAYED")
 wow.state.freeSlots = { [0] = { 0, 0 } }
 wow.fire("BAG_UPDATE_DELAYED")
 expect("nach freiem Platz wieder da", CheapestJunk.IsShown(), true)
+
+-- Berufswerkzeuge nie anbieten: Kürschnermesser (per ID) und jede Angel (Unterklasse)
+wow.state.itemIcons = { [7005] = 135003, [6365] = 135004 }
+wow.state.itemClasses = { [6365] = { 2, 20 } }
+wow.state.sellPrices = { [7005] = 1, [6365] = 1 }
+wow.state.bags = { [0] = {
+  { itemID = 7005, stackCount = 1, quality = 1 },  -- Kürschnermesser
+  { itemID = 6365, stackCount = 1, quality = 1 },  -- Kräftige Angelrute
+} }
+wow.fire("BAG_UPDATE_DELAYED")
+expect("keine Werkzeuge angeboten", #CheapestJunk.FindAll(), 0)
 expect("keine Fehler", #wow.errors, 0)

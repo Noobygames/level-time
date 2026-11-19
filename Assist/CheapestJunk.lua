@@ -5,7 +5,8 @@
 -- Qualität der billigste vorn.
 -- Grau: mit bekanntem Verkaufswert, nicht gesperrt, nie ein Quest-Gegenstand. Weiß zusätzlich nur Waffen, Rüstung und
 -- Verschiedenes (keine Reagenzien, Verbrauchsgüter, Handwerkswaren, Munition, Taschen, Schlüssel), nie ein
--- Klassen-Reagenz (Reagents.CLASSES) und nur, wenn der Stapel höchstens WHITE_VALUE_PER_LEVEL × Stufe wert ist.
+-- Klassen-Reagenz (Reagents.CLASSES), nie ein Berufswerkzeug (Angel, Kürschnermesser, ...) und nur, wenn der Stapel
+-- höchstens WHITE_VALUE_PER_LEVEL × Stufe wert ist.
 -- Das X schließt das Fenster, bis die Taschen wieder Platz hatten. Verschiebbar wie die anderen Anzeigen
 -- (Frames.Register).
 local _, ns = ...
@@ -26,6 +27,9 @@ local WHITE_VALUE_PER_LEVEL = 10  -- Kupfer je Spielerstufe: Stufe 40 = 4 Silber
 -- Gegenstandsklassen, aus denen weiße Gegenstände angeboten werden (Enum.ItemClass: Waffe, Rüstung, Verschiedenes)
 local WHITE_CLASSES = { [2] = true, [4] = true, [15] = true }
 local MISC_REAGENT_SUBCLASS = 1  -- Verschiedenes > Reagenz
+local WEAPON_CLASS, FISHING_POLE_SUBCLASS = 2, 20  -- Enum.ItemWeaponSubclass.Fishingpole: jede Angel
+-- Berufswerkzeuge, die nie angeboten werden: Kürschnermesser, Spitzhacke, Schmiedehammer
+local PROFESSION_TOOLS = { [7005] = true, [2901] = true, [5956] = true }
 local BUTTON_MIN_WIDTH, BUTTON_HEIGHT = 200, 24
 local DEFAULT_POSITION = { "BOTTOM", "BOTTOM", 0, 240 }
 local CHECK_SECONDS = 2
@@ -59,13 +63,14 @@ local function isClassReagent(itemID)
   return classReagents[itemID] == true
 end
 
--- Weißer Gegenstand, der als Müll gelten darf: Waffe, Rüstung oder Verschiedenes, kein Reagenz
+-- Weißer Gegenstand, der als Müll gelten darf: Waffe, Rüstung oder Verschiedenes, kein Reagenz, kein Berufswerkzeug
 local function isJunkClass(itemID)
-  if isClassReagent(itemID) then return false end
+  if isClassReagent(itemID) or PROFESSION_TOOLS[itemID] then return false end
   local getInstant = (C_Item and C_Item.GetItemInfoInstant) or GetItemInfoInstant
   if not getInstant then return false end
   local classID, subClassID = select(6, getInstant(itemID))
   if not WHITE_CLASSES[classID] then return false end
+  if classID == WEAPON_CLASS and subClassID == FISHING_POLE_SUBCLASS then return false end
   return not (classID == 15 and subClassID == MISC_REAGENT_SUBCLASS)
 end
 
