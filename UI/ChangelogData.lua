@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-19",
     entries = {
+      { kind = "fix",
+        deDE = "Gruppensuche: Beim Anmelden erscheint kein Lua-Fehler mehr durch die Filter-Auswahlliste.",
+        enUS = "Group finder: the filter dropdown no longer causes a Lua error on login.",
+        frFR = "Recherche de groupe : la liste déroulante des filtres ne provoque plus d'erreur Lua à la connexion.",
+        esES = "Buscador de grupos: la lista desplegable de filtros ya no provoca un error de Lua al iniciar sesión." },
       { kind = "new",
         deDE = "Dungeon-Guide: zusätzliche Boss- und Gegner-Hinweise für Todesminen, Burg Schattenfang, Kral der Klingenhauer, das Verlies, Gnomeregan, Scharlachrotes Kloster, Düsterbruch-Nord, Stratholme und weitere Dungeons.",
         enUS = "Dungeon guide: additional boss and enemy tips for The Deadmines, Shadowfang Keep, Razorfen Kraul, The Stockade, Gnomeregan, Scarlet Monastery, Dire Maul North, Stratholme and more dungeons.",

@@ -27,6 +27,8 @@ end
 
 -- Gespeicherte Filter; fehlende Felder (ältere Stände) mit dem Standard ergänzt
 function LFGFilters.Get()
+  -- Auswahllisten fragen schon beim Laden der Datei ab (SetupMenu); ns.db gibt es erst ab PLAYER_LOGIN
+  if not ns.db then return defaults() end
   local filters = ns.db.lfgFilters
   if type(filters) ~= "table" then
     filters = defaults()

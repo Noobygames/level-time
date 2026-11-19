@@ -5,6 +5,12 @@ local L = addon.L
 local LFGWindow = addon.LFGWindow
 local LFGFilters = addon.LFGFilters
 
+-- vor PLAYER_LOGIN (Auswahlliste beim Laden): Standard statt Fehler
+local savedDb = addon.db
+addon.db = nil
+expect("Filter vor Login", LFGFilters.Get().kind, LFGFilters.KIND_ALL)
+addon.db = savedDb
+
 wow.login({ level = 22 })
 wow.state.lfgActivities = {
   [900] = { mapID = 36, maxNumPlayers = 5, fullName = "Die Todesminen", shortName = "Todesminen", categoryID = 2,
