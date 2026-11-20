@@ -17,27 +17,31 @@ button,input{font-family:inherit}
 </style>
 </helmet>
 <div style="width: 760px; height: 600px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: flex; flex-direction: column; gap: 8px">
-  <span style="font-size: 12px; color: #9fb3a8">Dungeon-Recap nach dem Endboss (öffnet automatisch, /lt recap run, Knopf „Recap“ im Run-Fenster; verschiebbar, Esc schließt)</span>
+  <span style="font-size: 12px; color: #9fb3a8">Dungeon-Recap nach dem Endboss (öffnet automatisch, /lt recap run, Knopf „Recap“ im Run-Fenster, Linksklick auf den Live-Tracker = Zwischenstand; verschiebbar, Esc schließt)</span>
   <div style="width: 640px; height: 520px; box-sizing: border-box; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 6px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
 
     <!-- Kopf: Endboss-Porträt (live als 3D-Modell), Name, Status, Close -->
     <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #333; padding-bottom: 8px; height: 40px; box-sizing: content-box">
-      <span title="Endboss als 3D-Porträt (CreatureModel)" style="width: 40px; height: 40px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #555; border-radius: 4px; flex: none"></span>
+      <span title="{{head.portraitTip}}" style="width: 40px; height: 40px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #555; border-radius: 4px; flex: none"></span>
       <div style="display: flex; flex-direction: column; min-width: 0; flex: 1">
-        <span style="font-size: 16px; font-weight: 700; color: #ffd100; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Die Todesminen: Edwin VanCleef besiegt</span>
-        <span style="font-size: 12px; color: #c8c8c8">13.11. 20:14 · Level 21 · <span style="color: #40ff40">Abgeschlossen</span></span>
+        <span style="font-size: 16px; font-weight: 700; color: #ffd100; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{head.title}}</span>
+        <span style="font-size: 12px; color: #c8c8c8">{{head.date}} · Level {{head.level}} · <span style="color: {{head.statusColor}}">{{head.status}}</span></span>
       </div>
       <span style="display: flex; flex-direction: column; align-items: flex-end">
-        <span title="Laufzeit ab der ersten Bewegung. Grün ▲ = schneller, rot ▼ = langsamer als dein bester Lauf" style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">31:05</span>
-        <span style="font-size: 12px; font-weight: 600; color: {{deltaColor}}">{{deltaText}}</span>
+        <span title="Laufzeit ab der ersten Bewegung. Grün ▲ = schneller, rot ▼ = langsamer als dein bester Lauf" style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums">{{head.time}}</span>
+        <span style="font-size: 12px; font-weight: 600; color: {{head.deltaColor}}">{{head.deltaText}}</span>
       </span>
       <button type="button" style="width: 24px; height: 24px; border: 1px solid #555; background: #1d1d1d; color: #eee; border-radius: 4px; cursor: pointer">x</button>
     </div>
 
-    <!-- Reiter -->
-    <div style="display: flex; gap: 4px">
+    <!-- Reiter, rechts Zustandsumschalter des Clickdummys (Endstand / Zwischenstand) -->
+    <div style="display: flex; gap: 4px; align-items: center">
       <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
         <button type="button" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+      <span style="flex: 1"></span>
+      <sc-for list="{{states}}" as="v" hint-placeholder-count="2">
+        <button type="button" title="{{v.tip}}" onClick="{{v.pick}}" style="{{v.style}}">{{v.label}}</button>
       </sc-for>
     </div>
 
@@ -69,44 +73,60 @@ button,input{font-family:inherit}
       </sc-if>
 
       <sc-if value="{{isLoot}}" hint-placeholder-val="false">
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Würfe</span>
         <div style="display: flex; flex-direction: column; gap: 4px">
-          <sc-for list="{{loot}}" as="l" hint-placeholder-count="5">
-            <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{l.bg}}; border-radius: 4px">
+          <sc-for list="{{rolls}}" as="l" hint-placeholder-count="4">
+            <div title="{{l.tip}}" style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{l.bg}}; border-radius: 4px">
               <span style="width: 24px; height: 24px; background: #3a3020; border: 1px solid {{l.color}}; border-radius: 4px"></span>
               <span style="color: {{l.color}}; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{l.item}} <span style="color: #8a8a8a">{{l.boss}}</span></span>
-              <span style="font-size: 12px; color: {{l.resultColor}}">{{l.result}}</span>
+              <span style="font-size: 12px; color: {{l.resultColor}}; font-variant-numeric: tabular-nums">{{l.result}}</span>
             </div>
           </sc-for>
         </div>
-        <span style="font-size: 12px; color: #8a8a8a">Würfe und Beute des Laufs, Würfe zuerst</span>
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Erhalten</span>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <sc-for list="{{received}}" as="l" hint-placeholder-count="3">
+            <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{l.bg}}; border-radius: 4px">
+              <span style="width: 24px; height: 24px; background: #3a3020; border: 1px solid {{l.color}}; border-radius: 4px"></span>
+              <span style="color: {{l.color}}; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{l.item}} <span style="color: #8a8a8a">{{l.boss}}</span></span>
+              <span style="font-size: 12px; color: #c8c8c8">{{l.result}}</span>
+            </div>
+          </sc-for>
+        </div>
       </sc-if>
 
       <sc-if value="{{isGroup}}" hint-placeholder-val="false">
         <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; font-size: 12px; font-weight: 600; color: #ffd100; padding: 0 8px 4px; border-bottom: 1px solid #333">
           <span>Spieler</span><span style="text-align: right">Schaden</span><span style="text-align: right">Heilung</span><span style="text-align: right">Unterbr.</span><span style="text-align: right">Tode</span>
         </div>
-        <sc-for list="{{players}}" as="p" hint-placeholder-count="5">
-          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; align-items: center; min-height: 32px; font-size: 13px; padding: 0 8px; border-radius: 4px; background: {{p.bg}}; font-variant-numeric: tabular-nums">
-            <span style="display: flex; align-items: center; gap: 8px; min-width: 0"><span title="Porträt live (SetPortraitTexture), sonst Klassensymbol" style="width: 24px; height: 24px; background: {{p.color}}; border-radius: 4px; flex: none; opacity: 0.8"></span><span style="color: {{p.color}}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{p.name}}</span><span title="MVP" style="color: #ffd100">{{p.mvp}}</span></span>
-            <span style="text-align: right">{{p.damage}}</span><span style="text-align: right">{{p.healing}}</span><span style="text-align: right">{{p.interrupts}}</span><span style="text-align: right; color: {{p.deathColor}}">{{p.deaths}}</span>
-          </div>
-        </sc-for>
-        <span style="font-size: 12px; color: #8a8a8a">Zahlen aus dem Schadensmesser des Spiels, ganzer Lauf</span>
+        <div style="display: flex; flex-direction: column">
+          <sc-for list="{{players}}" as="p" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; align-items: center; min-height: 32px; font-size: 13px; padding: 0 8px; border-radius: 4px; background: {{p.bg}}; font-variant-numeric: tabular-nums">
+              <span style="display: flex; align-items: center; gap: 8px; min-width: 0"><span title="Porträt live (SetPortraitTexture), sonst Klassensymbol" style="width: 24px; height: 24px; background: {{p.color}}; border-radius: 4px; flex: none; opacity: 0.8"></span><span style="color: {{p.color}}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{p.name}}</span><span style="font-size: 12px; color: #8a8a8a">{{p.cls}}</span><span title="MVP: meiste Wertung aus Schaden, Heilung und Unterbrechungen" style="color: #ffd100">{{p.mvp}}</span></span>
+              <span style="text-align: right">{{p.damage}}</span><span style="text-align: right">{{p.healing}}</span><span style="text-align: right">{{p.interrupts}}</span><span style="text-align: right; color: {{p.deathColor}}">{{p.deaths}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 12px; color: #8a8a8a">{{groupNote}}</span>
       </sc-if>
 
       <sc-if value="{{isEnemies}}" hint-placeholder-val="false">
         <span style="font-size: 13px; font-weight: 600; color: #ffd100">Gefährlichste Gegner</span>
-        <sc-for list="{{mobs}}" as="m" hint-placeholder-count="3">
-          <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) 90px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{m.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
-            <span style="text-align: center">☠</span><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{m.name}}</span><span style="text-align: right">{{m.damage}}</span>
-          </div>
-        </sc-for>
-        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Bosse</span>
-        <sc-for list="{{bosses}}" as="b" hint-placeholder-count="4">
-          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 70px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{b.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.name}} <span style="color: #ffd100">{{b.tag}}</span></span><span style="text-align: right">{{b.split}}</span><span style="text-align: right; color: {{b.diffColor}}">{{b.diff}}</span>
-          </div>
-        </sc-for>
+        <div style="display: flex; flex-direction: column">
+          <sc-for list="{{mobs}}" as="m" hint-placeholder-count="4">
+            <div title="{{m.tip}}" style="display: grid; grid-template-columns: 24px minmax(0, 1fr) 90px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{m.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
+              <span style="text-align: center">☠</span><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{m.name}} <span style="color: #8a8a8a; font-size: 12px">{{m.extra}}</span></span><span style="text-align: right">{{m.damage}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #ffd100">Bosse <span style="color: #8a8a8a; font-weight: 400; font-size: 12px">{{bossNote}}</span></span>
+        <div style="display: flex; flex-direction: column">
+          <sc-for list="{{bosses}}" as="b" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 70px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{b.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: {{b.nameColor}}">{{b.name}} <span style="color: #ffd100">{{b.tag}}</span></span><span style="text-align: right">{{b.split}}</span><span style="text-align: right; color: {{b.diffColor}}">{{b.diff}}</span>
+            </div>
+          </sc-for>
+        </div>
       </sc-if>
     </div>
 
@@ -121,53 +141,120 @@ button,input{font-family:inherit}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { tab: 'overview' };
+    this.state = { tab: 'overview', live: false };
   }
   renderVals() {
     const s = this.state;
-    const GOOD = '#40ff40', BAD = '#ff5050', NOTE = '#c8c8c8', GOLD = '#ffd100';
-    const tab = (on) => 'height: 28px; padding: 0 12px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid ' +
+    const GOOD = '#40ff40', BAD = '#ff5050', NOTE = '#c8c8c8', GOLD = '#ffd100', ORANGE = '#ff9a3c', TEXT = '#f2f2f2', MUTED = '#8a8a8a';
+    // Gegenstandsqualität: grün = selten, blau = rar, lila = episch
+    const Q = { green: '#40ff40', blue: '#5fa8ff', epic: '#a335ee' };
+    const pill = (on) => 'height: 28px; padding: 0 12px; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid ' +
       (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
-    const CLASS = { Krieger: '#c79c6e', Priester: '#ffffff', Magier: '#69ccf0', Schurke: '#fff569', Jäger: '#abd473' };
-    const PLAYERS = [
-      ['Thorgrim', 'Krieger', '412.300', '0', '2', '0'], ['Lunaria', 'Priester', '98.400', '361.200', '0', '1'],
-      ['Frostbyte', 'Magier', '655.800', '0', '4', '0'], ['Shadowstep', 'Schurke', '701.900', '0', '6', '0'],
-      ['Eagleeye', 'Jäger', '589.100', '0', '1', '2']
-    ];
-    const AWARDS = [
-      { icon: '⚡', label: 'Schnellster Boss', who: 'Rhahk\'Zor', what: 'nach 3:12', tip: 'Kürzeste Zeit zwischen zwei Boss-Kills', nameColor: '#f2f2f2' },
-      { icon: '☠', label: 'Die meisten Tode', who: 'Eagleeye', what: '2 Tode', tip: 'Tode im Lauf je Spieler', nameColor: CLASS['Jäger'] },
-      { icon: '⚔', label: 'Gefährlichster Gegner', who: 'Kapitän Grünhaut', what: '48.200 Schaden', tip: 'Gegner mit dem meisten Schaden an der Gruppe', nameColor: '#f2f2f2' },
-      { icon: '✦', label: 'Unterbrechungen', who: 'Shadowstep', what: '6', tip: 'Meiste Unterbrechungen', nameColor: CLASS['Schurke'] },
-      { icon: '✚', label: 'Heilung', who: 'Lunaria', what: '361.200', tip: 'Meiste Heilung', nameColor: CLASS['Priester'] },
-      { icon: '🎲', label: 'Würfelglück', who: 'Frostbyte', what: '3 Würfe gewonnen', tip: 'Wer die meisten Gruppenwürfe gewonnen hat', nameColor: CLASS['Magier'] }
-    ];
+    const zebra = (i) => (i % 2 ? 'transparent' : '#141414');
+    const CLASS = { Krieger: '#c79c6e', Priester: '#ffffff', Magier: '#69ccf0', Schurke: '#fff569', 'Jäger': '#abd473' };
+
+    // Endstand nach VanCleef und Zwischenstand vor Kapitän Grünhaut
+    const DATA = {
+      final: {
+        head: { title: 'Die Todesminen: Edwin VanCleef besiegt', date: '13.11. 20:14', level: 21, status: 'Abgeschlossen', statusColor: GOOD,
+          time: '31:05', deltaText: '▲ -3:00 zur Bestzeit', deltaColor: GOOD, portraitTip: 'Endboss Edwin VanCleef als 3D-Porträt (CreatureModel)' },
+        tiles: [
+          ['Bosse', '7 / 7', '+1 Rare', GOLD], ['Tode', '3', '▲ -2 zum letzten Run', GOOD], ['Kills', '93', 'alle Gegner', NOTE],
+          ['XP', '14.380', '27.700 XP/h', NOTE], ['Geld', '4g 12s', 'Beute + Verkauf', NOTE], ['Gruppe', '5', 'Ø Level 21', NOTE]
+        ],
+        awards: [
+          ['⚡', 'Schnellster Boss', 'Rhahk\'Zor', 'nach 3:12', 'Kürzeste Zeit zwischen zwei Boss-Kills', TEXT],
+          ['☠', 'Die meisten Tode', 'Eagleeye', '2 Tode', 'Tode im Lauf je Spieler', CLASS['Jäger']],
+          ['⚔', 'Gefährlichster Gegner', 'Kapitän Grünhaut', '48.200 Schaden', 'Gegner mit dem meisten Schaden an der Gruppe', TEXT],
+          ['✦', 'Unterbrechungen', 'Shadowstep', '6', 'Meiste Unterbrechungen', CLASS.Schurke],
+          ['✚', 'Heilung', 'Lunaria', '361.200', 'Meiste Heilung', CLASS.Priester],
+          ['🎲', 'Würfelglück', 'Frostbyte', '3 Würfe gewonnen', 'Wer die meisten Gruppenwürfe gewonnen hat', CLASS['Magier']]
+        ],
+        rolls: [
+          ['[Kapitänsmantel]', 'Kapitän Grünhaut', Q.blue, true, 'Bedarf gewonnen (87)', 'Thorgrim 54, Eagleeye 12'],
+          ['[Schmieds Hammer]', 'Mr. Smite', Q.blue, false, 'Bedarf verloren (41 gegen 92)', 'Gewinner: Thorgrim 92'],
+          ['[Grausamer Widerhaken]', 'Edwin VanCleef', Q.epic, false, 'Gier verloren (23 gegen 71)', 'Gewinner: Frostbyte 71 (Gier)'],
+          ['[Kobaltkrallen]', 'Sneed', Q.blue, true, 'Gier gewonnen (96)', 'Lunaria 33, Shadowstep 8']
+        ],
+        received: [
+          ['[Kapitänsmantel]', 'Kapitän Grünhaut', Q.blue, 'Wurf, Bedarf 87'],
+          ['[Kobaltkrallen]', 'Sneed', Q.blue, 'Wurf, Gier 96'],
+          ['[Gürtel des Defias-Schurken]', 'Defias-Schurke', Q.green, 'Beute, 2 Plätze'],
+          ['[Schwere Wollstoffe] x7', 'Trash', TEXT, 'Beute']
+        ],
+        players: [
+          ['Thorgrim', 'Krieger', '412.300', '0', '2', '0'], ['Lunaria', 'Priester', '98.400', '361.200', '0', '1'],
+          ['Frostbyte', 'Magier', '655.800', '0', '4', '0'], ['Shadowstep', 'Schurke', '701.900', '0', '6', '0'],
+          ['Eagleeye', 'Jäger', '589.100', '0', '1', '2']
+        ],
+        mvp: 'Shadowstep',
+        groupNote: 'Zahlen aus dem Schadensmesser des Spiels, ganzer Lauf',
+        mobs: [['Kapitän Grünhaut', 'Boss', '48.200', '1 Tod (Eagleeye)'], ['Edwin VanCleef', 'Boss', '41.900', '1 Tod (Eagleeye)'],
+          ['Defias-Schwarzwache', 'Trash, 6x', '18.700', 'Getarnt, Hinterhalt'], ['Verteidias-Feuerwache', 'Trash, 4x', '12.300', '1 Tod (Lunaria)']],
+        bossNote: 'Split und Diff zur Bestzeit',
+        bosses: [['Rhahk\'Zor', '3:12', -28], ['Sneed', '9:48', -43], ['Gilnid', '14:20', -42], ['Mr. Smite', '19:57', -137], ['Edwin VanCleef', '29:40', -218, 'Endboss']]
+      },
+      live: {
+        head: { title: 'Die Todesminen: Zwischenstand (4 von 7 Bossen)', date: '20.11. 19:48', level: 22, status: 'Läuft', statusColor: ORANGE,
+          time: '24:18', deltaText: '▲ -1:12 zum besten Split', deltaColor: GOOD, portraitTip: 'Nächster Boss Kapitän Grünhaut als 3D-Porträt (CreatureModel)' },
+        tiles: [
+          ['Bosse', '4 / 7', 'nächster: Grünhaut', GOLD], ['Tode', '1', '▲ -1 zum letzten Run', GOOD], ['Kills', '58', 'bis jetzt', NOTE],
+          ['XP', '9.120', '21.400 XP/h', NOTE], ['Geld', '2g 40s', 'Beute + Verkauf', NOTE], ['Gruppe', '5', 'Ø Level 22', NOTE]
+        ],
+        awards: [
+          ['⚡', 'Schnellster Boss', 'Rhahk\'Zor', 'nach 3:12', 'Kürzeste Zeit zwischen zwei Boss-Kills', TEXT],
+          ['☠', 'Die meisten Tode', 'Lunaria', '1 Tod', 'Tode im Lauf je Spieler', CLASS.Priester],
+          ['⚔', 'Gefährlichster Gegner', 'Mr. Smite', '29.400 Schaden', 'Gegner mit dem meisten Schaden an der Gruppe', TEXT],
+          ['✦', 'Unterbrechungen', 'Frostbyte', '3', 'Meiste Unterbrechungen', CLASS['Magier']],
+          ['✚', 'Heilung', 'Lunaria', '214.900', 'Meiste Heilung', CLASS.Priester],
+          ['🎲', 'Würfelglück', 'Thorgrim', '2 Würfe gewonnen', 'Wer die meisten Gruppenwürfe gewonnen hat', CLASS.Krieger]
+        ],
+        rolls: [
+          ['[Schmieds Hammer]', 'Mr. Smite', Q.blue, false, 'Bedarf verloren (41 gegen 92)', 'Gewinner: Thorgrim 92'],
+          ['[Kobaltkrallen]', 'Sneed', Q.blue, true, 'Gier gewonnen (96)', 'Lunaria 33, Shadowstep 8'],
+          ['[Gilnids Zahnrad]', 'Gilnid', Q.green, false, 'Gier verloren (17 gegen 64)', 'Gewinner: Thorgrim 64']
+        ],
+        received: [
+          ['[Kobaltkrallen]', 'Sneed', Q.blue, 'Wurf, Gier 96'],
+          ['[Gürtel des Defias-Schurken]', 'Defias-Schurke', Q.green, 'Beute, 2 Plätze'],
+          ['[Schwere Wollstoffe] x4', 'Trash', TEXT, 'Beute']
+        ],
+        players: [
+          ['Thorgrim', 'Krieger', '268.700', '0', '1', '0'], ['Lunaria', 'Priester', '61.200', '214.900', '0', '1'],
+          ['Frostbyte', 'Magier', '402.300', '0', '3', '0'], ['Shadowstep', 'Schurke', '388.500', '0', '2', '0'],
+          ['Eagleeye', 'Jäger', '351.000', '0', '0', '0']
+        ],
+        mvp: 'Frostbyte',
+        groupNote: 'Zahlen aus dem Schadensmesser des Spiels, Lauf bis jetzt',
+        mobs: [['Mr. Smite', 'Boss', '29.400', '1 Tod (Lunaria)'], ['Defias-Schwarzwache', 'Trash, 4x', '14.100', 'Getarnt, Hinterhalt'],
+          ['Sneeds Schredder', 'Boss', '11.800', 'Furcht'], ['Goblin-Ingenieur', 'Trash, 5x', '7.600', 'Ruft Golems']],
+        bossNote: 'Split und Diff zum besten Split bisher',
+        bosses: [['Rhahk\'Zor', '2:44', -28], ['Sneed', '9:05', -43], ['Gilnid', '13:38', -42], ['Mr. Smite', '17:40', -137], ['Kapitän Grünhaut', '', null, 'läuft']]
+      }
+    };
+    const d = s.live ? DATA.live : DATA.final;
+    const fmt = (sec) => Math.floor(Math.abs(sec) / 60) + ':' + String(Math.abs(sec) % 60).padStart(2, '0');
     const tabs = [['overview', 'Übersicht'], ['loot', 'Beute'], ['group', 'Gruppe'], ['enemies', 'Gegner']];
+    const states = [[false, 'Abgeschlossen', 'Endstand nach dem Endboss'], [true, 'Läuft', 'Zwischenstand während des Laufs (Linksklick auf den Live-Tracker)']];
     return {
-      deltaText: '▲ -4:47 zur Bestzeit', deltaColor: GOOD,
-      tabs: tabs.map(([id, label]) => ({ label, style: tab(s.tab === id), pick: () => this.setState({ tab: id }) })),
+      head: d.head,
+      tabs: tabs.map(([id, label]) => ({ label, style: pill(s.tab === id), pick: () => this.setState({ tab: id }) })),
+      states: states.map(([live, label, tip]) => ({ label, tip, style: pill(s.live === live), pick: () => this.setState({ live }) })),
       isOverview: s.tab === 'overview', isLoot: s.tab === 'loot', isGroup: s.tab === 'group', isEnemies: s.tab === 'enemies',
-      tiles: [
-        { label: 'Bosse', value: '7 / 7', note: '+1 Rare', noteColor: GOLD },
-        { label: 'Tode', value: '3', note: '▼ +2 zum letzten Run', noteColor: BAD },
-        { label: 'Kills', value: '93', note: 'alle Gegner', noteColor: NOTE },
-        { label: 'XP', value: '14.380', note: '27.700 XP/h', noteColor: NOTE },
-        { label: 'Geld', value: '4g 12s', note: 'Beute + Verkauf', noteColor: NOTE },
-        { label: 'Gruppe', value: '5', note: 'Ø Level 21', noteColor: NOTE }
-      ],
-      awards: AWARDS,
-      loot: [
-        { item: '[Kapitänsmantel]', boss: 'Kapitän Grünhaut', color: '#5fa8ff', result: 'Bedarf gewonnen (87)', resultColor: GOOD },
-        { item: '[Schmieds Hammer]', boss: 'Mr. Smite', color: '#5fa8ff', result: 'Bedarf verloren (41)', resultColor: BAD },
-        { item: '[Grausamer Widerhaken]', boss: 'Edwin VanCleef', color: '#a335ee', result: 'Gier verloren', resultColor: BAD },
-        { item: '[Zuchtmeisteraxt]', boss: 'Sneed', color: '#5fa8ff', result: 'an Thorgrim', resultColor: NOTE }
-      ].map((l, i) => ({ ...l, bg: i % 2 ? 'transparent' : '#141414' })),
-      players: PLAYERS.map(([name, cls, damage, healing, interrupts, deaths], i) => ({ name, color: CLASS[cls], damage, healing, interrupts, deaths,
-        deathColor: deaths !== '0' ? BAD : '#f2f2f2', mvp: name === 'Shadowstep' ? '★' : '', bg: i % 2 ? 'transparent' : '#141414' })),
-      mobs: [['Kapitän Grünhaut', '48.200'], ['Edwin VanCleef', '41.900'], ['Verteidias-Feuerwache', '12.300']]
-        .map(([name, damage], i) => ({ name, damage, bg: i % 2 ? 'transparent' : '#141414' })),
-      bosses: [['Rhahk\'Zor', '3:12', '-0:28', ''], ['Sneed', '9:48', '-0:43', ''], ['Mr. Smite', '19:57', '-2:17', ''], ['Edwin VanCleef', '29:40', '-3:38', ' Endboss']]
-        .map(([name, split, diff, tag], i) => ({ name, split, diff: '▲ ' + diff, tag, diffColor: GOOD, bg: i % 2 ? 'transparent' : '#141414' }))
+      tiles: d.tiles.map(([label, value, note, noteColor]) => ({ label, value, note, noteColor })),
+      awards: d.awards.map(([icon, label, who, what, tip, nameColor]) => ({ icon, label, who, what, tip, nameColor })),
+      rolls: d.rolls.map(([item, boss, color, won, result, tip], i) => ({ item, boss, color, tip,
+        result: (won ? '✓ ' : '✗ ') + result, resultColor: won ? GOOD : BAD, bg: zebra(i) })),
+      received: d.received.map(([item, boss, color, result], i) => ({ item, boss, color, result, bg: zebra(i) })),
+      players: d.players.map(([name, cls, damage, healing, interrupts, deaths], i) => ({ name, cls, color: CLASS[cls], damage, healing, interrupts, deaths,
+        deathColor: deaths !== '0' ? BAD : TEXT, mvp: name === d.mvp ? '★ MVP' : '', bg: zebra(i) })),
+      groupNote: d.groupNote,
+      mobs: d.mobs.map(([name, extra, damage, tip], i) => ({ name, extra, damage, tip, bg: zebra(i) })),
+      bossNote: d.bossNote,
+      bosses: d.bosses.map(([name, split, delta, tag], i) => ({ name, tag: tag || '', split: split || '…',
+        nameColor: split ? TEXT : GOLD,
+        diff: delta === null ? '' : (delta <= 0 ? '▲ -' : '▼ +') + fmt(delta),
+        diffColor: delta !== null && delta <= 0 ? GOOD : BAD, bg: zebra(i) }))
     };
   }
 }

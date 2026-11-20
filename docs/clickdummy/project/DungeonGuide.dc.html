@@ -14,6 +14,8 @@
 <style>
 body{margin:0}
 button{font-family:inherit}
+a.spell{color:#ffd100;text-decoration:none;cursor:pointer}
+a.spell:hover{text-decoration:underline;color:#fff1a8}
 </style>
 </helmet>
 <div style="width: 1000px; height: 560px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: flex; gap: 32px; align-items: start">
@@ -24,48 +26,48 @@ button{font-family:inherit}
     <sc-if value="{{open}}" hint-placeholder-val="true">
       <div style="width: 440px; height: 520px; position: relative; box-sizing: border-box; background: rgba(8,8,10,0.94); border: 1px solid #555; border-radius: 4px; display: flex; flex-direction: column">
         <div style="height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 8px 0 12px; border-bottom: 1px solid #333">
-          <span style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #ffd100"><span style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; background: #1d1d1d; font-size: 12px">📜</span>Dungeon Guide: Die Todesminen</span>
-          <button type="button" onclick="{{close}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+          <span style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #ffd100; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; background: #1d1d1d; font-size: 12px; flex: none">📜</span>Dungeon Guide: {{dungeon.name}}</span>
+          <button type="button" onClick="{{close}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer; flex: none">×</button>
         </div>
         <!-- Dungeonwahl: Knopf mit gezeigtem Dungeon, Liste nach Levelbereich sortiert, vorausgewählt: passender/nächster Dungeon -->
         <div style="padding: 4px 12px 0">
-          <button type="button" onclick="{{togglePick}}" style="width: 100%; height: 24px; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer"><span>{{dungeon.name}}</span><span style="color: #8a8a8a">▾</span></button>
+          <button type="button" onClick="{{togglePick}}" title="Dungeon wählen (nach Levelbereich sortiert)" style="width: 100%; height: 24px; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer"><span>{{dungeon.name}} <span style="color: #8a8a8a">{{dungeon.range}}</span></span><span style="color: #8a8a8a">▾</span></button>
         </div>
         <sc-if value="{{pickOpen}}" hint-placeholder-val="false">
           <div style="position: absolute; top: 72px; left: 12px; right: 12px; z-index: 2; background: rgba(8,8,10,0.98); border: 1px solid #555; border-radius: 3px; padding: 6px; display: flex; flex-direction: column; gap: 2px; font-size: 12px">
-            <sc-for list="{{dungeons}}" as="d" hint-placeholder-count="5">
-              <button type="button" onclick="{{d.pick}}" style="display: flex; justify-content: space-between; height: 20px; align-items: center; padding: 0 6px; background: {{d.bg}}; border: 0; color: #eee; cursor: pointer"><span>{{d.name}}</span><span style="color: #8a8a8a">{{d.range}}</span></button>
+            <sc-for list="{{dungeons}}" as="d" hint-placeholder-count="10">
+              <button type="button" onClick="{{d.pick}}" style="display: flex; justify-content: space-between; height: 22px; align-items: center; padding: 0 6px; background: {{d.bg}}; border: 0; border-radius: 3px; color: {{d.color}}; cursor: pointer"><span>{{d.name}}</span><span style="color: #8a8a8a">{{d.range}}</span></button>
             </sc-for>
           </div>
         </sc-if>
         <div style="display: flex; align-items: center; gap: 12px; padding: 4px 12px">
-          <button type="button" onclick="{{prev}}" style="width: 28px; height: 26px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: {{prevColor}}; cursor: pointer">&lt;</button>
+          <button type="button" onClick="{{prev}}" title="Vorherige Seite" style="width: 28px; height: 26px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: {{prevColor}}; cursor: pointer">&lt;</button>
           <span style="flex: 1; text-align: center; font-weight: 700; color: #ffd100">{{page.title}} <span style="color: #8a8a8a; font-weight: 400">{{pageNo}}</span></span>
-          <button type="button" onclick="{{next}}" style="width: 28px; height: 26px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: {{nextColor}}; cursor: pointer">&gt;</button>
+          <button type="button" onClick="{{next}}" title="Nächste Seite" style="width: 28px; height: 26px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: {{nextColor}}; cursor: pointer">&gt;</button>
         </div>
         <!-- Seite mit Bildlauf: je Gegner Porträt mit Goldrahmen (Boss 96 px, Trash 48 px), Name, Level/besiegt, Zeilen mit Zaubersymbol -->
         <div style="flex: 1; overflow-y: auto; padding: 6px 12px; display: flex; flex-direction: column; gap: 14px">
           <sc-for list="{{page.units}}" as="u" hint-placeholder-count="3">
             <div style="display: flex; gap: 16px; align-items: flex-start">
               <span style="flex: none; width: {{u.size}}px; height: {{u.size}}px; background: #0d0d0d; border: 3px solid #b8872b; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px">👤</span>
-              <div style="display: flex; flex-direction: column; gap: 4px; font-size: 14px">
+              <div style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; min-width: 0">
                 <span style="font-weight: 700; font-size: 16px; color: #ffd100">{{u.name}}</span>
-                <span style="color: #8a8a8a; font-size: 14px">{{u.detail}}</span>
+                <span style="color: #8a8a8a; font-size: 14px">{{u.detail}} <span style="color: #40ff40">{{u.killed}}</span></span>
                 <sc-for list="{{u.lines}}" as="l" hint-placeholder-count="2">
-                  <span><span style="display: inline-block; width: 14px; height: 14px; background: #555; vertical-align: -2px"></span> <span style="color: {{l.color}}">{{l.kind}}:</span> <span style="color: #ccc">{{l.text}}</span></span>
+                  <span><span style="display: inline-block; width: 14px; height: 14px; background: #555; vertical-align: -2px"></span> <span style="color: {{l.color}}">{{l.kind}}:</span> <span style="color: #ccc">{{l.pre}}<a class="spell" title="Zauber-Tooltip beim Überfahren">{{l.spell}}</a>{{l.post}}</span></span>
                 </sc-for>
               </div>
             </div>
           </sc-for>
         </div>
         <div style="height: 28px; display: flex; justify-content: space-between; align-items: center; padding: 0 12px 8px">
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px"><input type="checkbox">Nicht mehr automatisch anzeigen</label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px"><input type="checkbox" />Nicht mehr automatisch anzeigen</label>
           <span style="color: #8a8a8a; font-size: 11px">/lt guide</span>
         </div>
       </div>
     </sc-if>
-    <sc-if value="{{!open}}" hint-placeholder-val="false">
-      <button type="button" onclick="{{reopen}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">/lt guide</button>
+    <sc-if value="{{closed}}" hint-placeholder-val="false">
+      <button type="button" onClick="{{reopen}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">/lt guide</button>
     </sc-if>
   </section>
 
@@ -76,6 +78,7 @@ button{font-family:inherit}
     <span>1. Trash: alle Gegner der Instanz mit Tipps (auch Rare), kleines Porträt je Gegner</span>
     <span>2.–n. je Boss der Bossliste (mit erkanntem Flügel nur dessen Bosse), großes Porträt, Level, „besiegt“</span>
     <span>Bosse ohne eigenen Encounter (Sneeds Schredder) stehen auf der Seite des zugehörigen Bosses</span>
+    <span>Typen: <span style="color: #5fa8ff">Unterbrechen</span>, <span style="color: #ff9a3c">Ausweichen</span>, <span style="color: #bf80ff">Bannen</span>, <span style="color: #cca673">Tank</span>, <span style="color: #ff4040">Überleben</span>, <span style="color: #ffd933">Adds</span>, <span style="color: #40ff40">Position</span>; Zaubernamen in Gold zeigen beim Überfahren den Zauber-Tooltip</span>
     <span>Boss ohne Daten: „Noch keine Infos zu diesem Gegner.“</span>
     <span>Start: erste Seite mit Infos, die noch nicht besiegt ist</span>
     <span style="color: #9d9d9d">* aus Classic übernommen, für Forever unbestätigt (Fußzeile der Seite)</span>
@@ -87,40 +90,112 @@ button{font-family:inherit}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { open: true, index: 0, pickOpen: false, dungeon: 0 };
+    this.state = { open: true, index: 0, pickOpen: false, dungeon: 'Die Todesminen' };
   }
   renderVals() {
     const s = this.state;
-    const C = { avoid: '#ff9900', interrupt: '#4aa3ff', tank: '#ccA673', adds: '#ffd933', survive: '#ff4040' };
-    const line = (kind, label, text) => ({ kind: label, color: C[kind], text });
-    const PAGES = [
-      { title: 'Trash', units: [
-        { size: 48, name: 'Goblin Engineer', detail: '', lines: [line('adds', 'Adds', 'Beschwört einen Golem: Ingenieur schnell töten'), line('survive', 'Überleben', 'Betäubt einen Spieler: auf den Heiler achten')] },
-        { size: 48, name: 'Defias Blackguard', detail: '', lines: [line('adds', 'Adds', 'Getarnte Elite: auf versteckte Gegner bei Bossen achten *')] }
-      ] },
-      { title: "Rhahk'Zor", units: [
-        { size: 96, name: "Rhahk'Zor", detail: 'Stufe 19  ·  besiegt', lines: [line('tank', 'Tank', 'Hieb betäubt den Tank 3 Sek.: Tank voll geheilt halten')] }
-      ] },
-      { title: 'Sneed', units: [
-        { size: 96, name: "Sneed's Shredder", detail: '', lines: [line('survive', 'Überleben', 'Furcht 4 Sek.: nicht in weitere Gegner laufen')] },
-        { size: 96, name: 'Sneed', detail: 'Stufe 20', lines: [line('tank', 'Tank', 'Entwaffnet den Tank: kurz weniger Bedrohung einplanen')] }
-      ] },
-      { title: 'Edwin VanCleef', units: [
-        { size: 96, name: 'Edwin VanCleef', detail: 'Stufe 21', lines: [line('adds', 'Adds', 'Ruft bei wenig Leben zwei Schwarzwachen: kontrollieren oder töten'), line('tank', 'Tank', 'Erhält Extraangriffe: Schadensspitzen auf dem Tank')] }
-      ] }
-    ];
+    // Typfarben wie Assist/MechanicTips.lua (COLORS)
+    const T = {
+      i: ['Unterbrechen', '#5fa8ff'], a: ['Ausweichen', '#ff9a3c'], d: ['Bannen', '#bf80ff'], t: ['Tank', '#cca673'],
+      s: ['Überleben', '#ff4040'], x: ['Adds', '#ffd933'], p: ['Position', '#40ff40']
+    };
+    // Zeile: [Typ, Text vor dem Zauber, Zauber, Text danach]
+    const line = ([k, pre, spell, post]) => ({ kind: T[k][0], color: T[k][1], pre, spell: spell || '', post: post || '' });
+    // Gegner: [Name, Level, besiegt, Zeilen]; Bosse 96 px, Trash 48 px
+    const boss = (name, level, killed, lines) => ({ size: 96, name, detail: level ? 'Stufe ' + level : '', killed: killed ? '·  besiegt' : '', lines: lines.map(line) });
+    const mob = (name, level, lines) => ({ size: 48, name, detail: 'Stufe ' + level, killed: '', lines: lines.map(line) });
+    const page = (title, units) => ({ title, units });
+
+    const GUIDES = {
+      'Die Todesminen': [
+        page('Trash', [
+          mob('Goblin-Ingenieur', '18-19', [['x', 'Beschwört einen ', 'Erntegolem', ': Ingenieur zuerst töten'], ['s', '', 'Netzwerfer', ' hält einen Spieler fest: auf den Heiler achten']]),
+          mob('Defias-Schwarzwache', '20-21', [['x', 'Getarnt durch ', 'Verstohlenheit', ': bei Bossen versteckte Gegner einplanen *'], ['t', '', 'Hinterhalt', ' trifft hart: Tank zuerst angreifen lassen']]),
+          mob('Defias-Zauberer', '19', [['i', '', 'Frostblitz', ' unterbrechen'], ['d', '', 'Frostrüstung', ' bannen oder stehlen']]),
+          mob('Minenarbeiter Johnson', '19 (Rare)', [['t', '', 'Rüstung zerreißen', ' stapelt auf dem Tank'], ['p', 'Läuft den Gang auf und ab: außer Sicht ziehen']])
+        ]),
+        page('Rhahk\'Zor', [boss('Rhahk\'Zor', 19, true, [['t', '', 'Rhahk\'Zors Hieb', ' betäubt den Tank 3 Sek.: Tank voll geheilt halten'], ['p', 'Steht am Eingang: Wachen davor einzeln ziehen']])]),
+        page('Sneed', [
+          boss('Sneeds Schredder', 20, true, [['s', '', 'Ohrenbetäubendes Kreischen', ' fürchtet 4 Sek.: nicht in weitere Gegner laufen'], ['a', 'Weg von ', 'Sägeblätter', ' vor dem Schredder']]),
+          boss('Sneed', 20, true, [['t', '', 'Entwaffnen', ': kurz weniger Bedrohung einplanen'], ['x', 'Springt beim Tod des Schredders heraus: sofort angreifen']])
+        ]),
+        page('Gilnid', [boss('Gilnid', 20, true, [['i', '', 'Geschmolzenes Metall', ' unterbrechen'], ['x', 'Ruft ', 'Schmelzer', ' aus der Grube: Fernkämpfer übernehmen']])]),
+        page('Mr. Smite', [boss('Mr. Smite', 20, true, [['s', '', 'Schmetterstampfen', ' betäubt die Gruppe bei 66 % und 33 %'], ['t', 'Wechselt die Waffe: danach ', 'Doppelschlag', ' auf dem Tank'], ['p', 'Nach jedem Wechsel zur Truhe laufen: Gruppe zusammenhalten']])]),
+        page('Kapitän Grünhaut', [boss('Kapitän Grünhaut', 20, false, [['d', '', 'Vergifteter Harpunenschuss', ': Gift entfernen'], ['t', '', 'Spalten', ' trifft neben dem Tank: niemand davor'], ['x', 'Zwei Matrosen helfen: zuerst kontrollieren']])]),
+        page('Edwin VanCleef', [boss('Edwin VanCleef', 21, false, [['x', 'Ruft bei wenig Leben zwei ', 'Defias-Schwarzwachen', ': kontrollieren oder töten'], ['t', 'Erhält ', 'Extraangriffe', ': Schadensspitzen auf dem Tank'], ['p', 'Auf dem Schiffsdeck kämpfen, nicht an der Reling *']])])
+      ],
+      'Burg Schattenfang': [
+        page('Trash', [
+          mob('Schattenfang-Mondwandler', '22-23', [['i', '', 'Schattenblitz', ' unterbrechen'], ['d', '', 'Fluch der Schwäche', ' entfluchen']]),
+          mob('Worgen-Rasender', '24', [['t', '', 'Wutanfall', ' bei wenig Leben: schnell töten'], ['s', '', 'Grausamer Biss', ' blutet: Verband bereithalten']]),
+          mob('Gequälter Offizier', '25', [['d', '', 'Seelenqual', ' bannen'], ['a', 'Bei ', 'Gequälter Schrei', ' kurz Abstand nehmen']]),
+          mob('Bleicher Seelenfresser', '24-25', [['x', 'Erscheinen in Gruppen von drei: Flächenschaden *'], ['i', '', 'Seelenentzug', ' unterbrechen']])
+        ]),
+        page('Rethilgore', [boss('Rethilgore', 20, true, [['t', '', 'Seelenentzug', ' verringert Ausdauer: Tank voll heilen'], ['p', 'Gefangene im Kerker nach dem Kampf ansprechen']])]),
+        page('Klingenklaue der Schlächter', [boss('Klingenklaue der Schlächter', 22, true, [['t', '', 'Raserei', ' bei wenig Leben: Abklingzeiten nutzen'], ['a', 'Nicht vor ihm stehen: ', 'Zerfleischen']])]),
+        page('Baron Silberlein', [boss('Baron Silberlein', 24, true, [['i', '', 'Dunkler Schleier', ' unterbrechen'], ['d', '', 'Schattenschild', ' bannen, sonst kaum Schaden']])]),
+        page('Kommandant Frühlingstal', [boss('Kommandant Frühlingstal', 24, true, [['i', '', 'Heiliges Licht', ' unterbrechen'], ['x', 'Zwei Todeswachen eilen herbei: getrennt ziehen'], ['d', '', 'Göttlicher Schutz', ': warten statt Zauber verschwenden']])]),
+        page('Odo der Blindseher', [boss('Odo der Blindseher', 24, false, [['s', '', 'Heulende Wut', ' stapelt Angriffstempo: zügig töten'], ['p', 'Läuft auf der Brücke: von der Tür aus ziehen']])]),
+        page('Fenrus der Verschlinger', [boss('Fenrus der Verschlinger', 25, false, [['d', '', 'Giftiger Speichel', ': Gift entfernen'], ['t', 'Nach dem Kill erscheint Vorgren: Tank bleibt stehen *']])]),
+        page('Wolfmeister Nandos', [boss('Wolfmeister Nandos', 25, false, [['x', 'Ruft ', 'Lupines Schreckenswolf', ' und Worgen: Wölfe zuerst'], ['p', 'Im Raum hinten an der Wand kämpfen']])]),
+        page('Erzmagier Arugal', [boss('Erzmagier Arugal', 26, false, [['i', '', 'Schattenblitz', ' unterbrechen'], ['s', '', 'Arugals Fluch', ' verwandelt in einen Worgen: Gruppe nicht angreifen'], ['p', 'Teleportiert auf Vorsprünge: in der Mitte bleiben']])])
+      ],
+      'Maraudon': [
+        page('Trash', [
+          mob('Verderbter Treant', '45-46', [['d', '', 'Verderbnis', ' bannen'], ['s', 'Wurzeln fesseln: Fernkämpfer verteilen']]),
+          mob('Kolkar-Geisterreiter', '46', [['i', '', 'Kettenblitz', ' unterbrechen'], ['x', 'Reitet mit zwei Kriegern: Geisterreiter zuerst']]),
+          mob('Primordialer Behemoth', '48-49', [['t', '', 'Schmettern', ' wirft zurück: Rücken zur Wand'], ['a', '', 'Erdbeben', ' wegrennen']]),
+          mob('Gequälter Erdgeist', '47', [['x', 'Teilt sich beim Tod in zwei kleinere Geister *'], ['a', '', 'Erdstoß', ': aus dem Ring treten']])
+        ]),
+        page('Noxxion', [boss('Noxxion', 48, false, [['x', 'Teilt sich in ', 'Noxxion-Brut', ': Adds mit Flächenschaden töten'], ['d', '', 'Giftwolke', ': Gift entfernen']])]),
+        page('Klingenpeitsche', [boss('Klingenpeitsche', 47, false, [['a', '', 'Wirbelwind', ': aus der Nahkampfreichweite gehen'], ['t', '', 'Hieb', ' trifft hart: Tank voll halten']])]),
+        page('Lord Schlangenzunge', [boss('Lord Schlangenzunge', 47, false, [['i', '', 'Rauchbombe', ' unterbrechen'], ['p', 'Blinzelt durch den Raum: Tank zieht ihn zurück']])]),
+        page('Meshlok der Ernter', [boss('Meshlok der Ernter', 48, false, [['t', '', 'Kriegsdonner', ' betäubt Nahkämpfer'], ['s', '', 'Schlag', ': Abklingzeiten einplanen *']])]),
+        page('Celebras der Verfluchte', [boss('Celebras der Verfluchte', 49, false, [['i', '', 'Wirbelwind', ' unterbrechen'], ['x', 'Beschwört Wurzeln: schnell zerstören'], ['p', 'Nach dem Kill Celebras den Erlösten ansprechen']])]),
+        page('Erdrutsch', [boss('Erdrutsch', 50, false, [['x', 'Ruft bei 50 % ', 'Steinwächter', ': Adds kontrollieren'], ['a', '', 'Erdrutsch', ': aus dem Kegel gehen']])]),
+        page('Tüftler Gizlock', [boss('Tüftler Gizlock', 50, false, [['a', '', 'Bombe', ' werfen: nicht zusammenstehen'], ['p', 'Hält Abstand: Nahkämpfer folgen, Fernkämpfer bleiben']])]),
+        page('Faulgriff', [boss('Faulgriff', 51, false, [['t', '', 'Gefräßiges Beißen', ' blutet: Tank-Abklingzeiten'], ['p', 'Im Wasser kämpfen, nicht in die Höhle ziehen *']])]),
+        page('Prinzessin Theradras', [boss('Prinzessin Theradras', 51, false, [['a', '', 'Steinschlag', ' meiden'], ['s', '', 'Gewaltiger Hieb', ' wirft zurück: Rücken zur Wand'], ['x', 'Nach dem Kill erscheint Zaetars Geist']])])
+      ]
+    };
+    // Kurzführer: Trash + zwei Bosse, damit jede Auswahl Inhalt zeigt
+    const short = (trash, b1, b2) => [page('Trash', [mob(trash[0], trash[1], trash[2])]), page(b1[0], [boss(b1[0], b1[1], false, b1[2])]), page(b2[0], [boss(b2[0], b2[1], false, b2[2])])];
+    GUIDES['Der Flammenschlund'] = short(['Wüterich der Brennenden Klinge', '13-14', [['i', '', 'Feuerblitz', ' unterbrechen']]],
+      ['Oggleflint', 14, [['t', '', 'Spalten', ': niemand vor dem Boss']]], ['Taragaman der Hungerleider', 16, [['a', '', 'Feuernova', ': Nahkämpfer kurz raus']]]);
+    GUIDES['Die Höhlen des Wehklagens'] = short(['Druide des Giftzahns', '18-19', [['i', '', 'Heilende Berührung', ' unterbrechen'], ['d', '', 'Schlaf', ' bannen']]],
+      ['Lady Anacondra', 20, [['i', '', 'Schlaf', ' unterbrechen'], ['d', '', 'Dornenaura', ' bannen']]], ['Mutanus der Verschlinger', 22, [['s', '', 'Schreckliches Geheul', ' fürchtet: Furchtschutz']]]);
+    GUIDES['Die Tiefschwarze Grotte'] = short(['Naga der Tiefschwarzen Grotte', '24-25', [['i', '', 'Frostblitz', ' unterbrechen']]],
+      ['Ghamoo-ra', 25, [['t', '', 'Panzer', ': Tank hält die Bedrohung']]], ['Aku\'mai', 29, [['a', '', 'Giftige Wolke', ' meiden'], ['s', '', 'Raserei', ' bei wenig Leben']]]);
+    GUIDES['Das Verlies'] = short(['Defias-Gefangener', '24-26', [['x', 'Gruppen von vier: zwei kontrollieren']]],
+      ['Hamhock', 28, [['i', '', 'Kettenblitz', ' unterbrechen']]], ['Bazil Thredd', 29, [['a', '', 'Rauchbombe', ': aus der Wolke gehen']]]);
+    GUIDES['Gnomeregan'] = short(['Verstrahlter Plünderer', '29-30', [['d', '', 'Strahlung', ': Krankheit entfernen']]],
+      ['Grubbis', 32, [['x', 'Kommt mit Höhlenkrabblern: Flächenschaden']]], ['Robogenieur Thermaplugg', 34, [['x', 'Bomben aus den Rohren: Knöpfe drücken'], ['a', '', 'Kettenschlag', ' meiden']]]);
+    GUIDES['Scharlachrotes Kloster'] = short(['Scharlachroter Wahrsager', '32-34', [['i', '', 'Heiliges Licht', ' unterbrechen']]],
+      ['Blutmagier Thalnos', 34, [['i', '', 'Flammenschock', ' unterbrechen']]], ['Hochinquisitor Weißsträhne', 42, [['i', '', 'Auferstehung', ' von Mograine unterbrechen'], ['d', '', 'Göttliches Schild', ' bannen']]]);
+    GUIDES['Uldaman'] = short(['Steinbewahrer', '41-43', [['t', 'Erwachen nacheinander: einzeln tanken']]],
+      ['Revelosh', 40, [['i', '', 'Kettenblitz', ' unterbrechen']]], ['Archaedas', 47, [['x', 'Weckt Wächter: Zwerge zuerst'], ['s', '', 'Erdschock', ' betäubt']]]);
+
     const DUNGEONS = [
-      { name: 'Die Todesminen', range: 'Level 15-25' }, { name: 'Das Verlies', range: 'Level 22-30' },
-      { name: 'Der Schattenfang', range: 'Level 18-23' }, { name: 'Kloster', range: 'Level 28-38' }
-    ].sort((a, b) => parseInt(a.range.slice(6)) - parseInt(b.range.slice(6)));
-    const index = s.index;
+      { name: 'Der Flammenschlund', range: 'Level 13-18' }, { name: 'Die Todesminen', range: 'Level 17-26' },
+      { name: 'Die Höhlen des Wehklagens', range: 'Level 17-24' }, { name: 'Burg Schattenfang', range: 'Level 22-30' },
+      { name: 'Die Tiefschwarze Grotte', range: 'Level 24-32' }, { name: 'Das Verlies', range: 'Level 24-32' },
+      { name: 'Gnomeregan', range: 'Level 29-38' }, { name: 'Scharlachrotes Kloster', range: 'Level 34-45' },
+      { name: 'Uldaman', range: 'Level 41-51' }, { name: 'Maraudon', range: 'Level 46-55' }
+    ];
+    // Nach Levelbereich sortiert: erst Mindest-, dann Höchstlevel
+    const lvl = (d) => d.range.slice(6).split('-').map(Number);
+    DUNGEONS.sort((a, b) => lvl(a)[0] - lvl(b)[0] || lvl(a)[1] - lvl(b)[1]);
+    const pages = GUIDES[s.dungeon];
+    const index = Math.min(s.index, pages.length - 1);
     return {
-      open: s.open, pickOpen: s.pickOpen, dungeon: DUNGEONS.find(d => d.name === 'Die Todesminen'),
-      dungeons: DUNGEONS.map((d, i) => ({ ...d, bg: d.name === 'Die Todesminen' ? '#333' : 'transparent', pick: () => this.setState({ pickOpen: false, index: 0 }) })),
-      togglePick: () => this.setState({ pickOpen: !s.pickOpen }), page: PAGES[index], pageNo: (index + 1) + '/' + PAGES.length,
-      prevColor: index > 0 ? '#ffd100' : '#555', nextColor: index < PAGES.length - 1 ? '#ffd100' : '#555',
+      open: s.open, closed: !s.open, pickOpen: s.pickOpen,
+      dungeon: DUNGEONS.find((d) => d.name === s.dungeon),
+      dungeons: DUNGEONS.map((d) => ({ ...d, bg: d.name === s.dungeon ? '#3a2e0c' : 'transparent', color: d.name === s.dungeon ? '#ffd100' : '#eee',
+        pick: () => this.setState({ pickOpen: false, index: 0, dungeon: d.name }) })),
+      togglePick: () => this.setState({ pickOpen: !s.pickOpen }), page: pages[index], pageNo: (index + 1) + '/' + pages.length,
+      prevColor: index > 0 ? '#ffd100' : '#555', nextColor: index < pages.length - 1 ? '#ffd100' : '#555',
       prev: () => this.setState({ index: Math.max(0, index - 1) }),
-      next: () => this.setState({ index: Math.min(PAGES.length - 1, index + 1) }),
+      next: () => this.setState({ index: Math.min(pages.length - 1, index + 1) }),
       close: () => this.setState({ open: false }),
       reopen: () => this.setState({ open: true })
     };
