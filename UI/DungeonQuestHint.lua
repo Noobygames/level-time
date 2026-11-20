@@ -10,6 +10,9 @@
 -- Knöpfe unter der Liste setzen alle / entfernen alle. Wo es ihn gibt, folgt Blizzards Wegpunkt dem zuletzt gesetzten Punkt
 -- (C_Map.CanSetUserWaypointOnMap/SetUserWaypoint mit UiMapPoint; laut Blizzard-Doku nur Retail, in Classic Era fehlen
 -- sie); beim Setzen öffnet die Weltkarte auf der Zone (OpenWorldMap(mapID), auch in Classic Era: Blizzard_WorldMap/Vanilla).
+-- Blizzards Wegpunkt kann nur einen Punkt; die eigenen Punkte erscheinen alle, auch auf Kontinent- und Nachbarkarten
+-- (MapPins mapIDs). "Alle markieren" öffnet die Karte einmal: liegen die Punkte in mehreren Zonen, auf der
+-- übergeordneten Karte der ersten (C_Map.GetMapInfo parentMapID, alle Clients).
 local _, ns = ...
 local L = ns.L
 local Widgets = ns.Widgets
@@ -81,6 +84,17 @@ local waypointLayer = ns.MapPins.Create({
     return list
   end,
   revision = function() return pinRevision end,
+  -- Zonen aller Punkte: so erscheinen sie auch auf der Kontinentkarte und am Rand von Nachbarzonen
+  mapIDs = function()
+    local list, seen = {}, {}
+    for _, pin in ipairs(pins) do
+      if not seen[pin.uiMapID] then
+        seen[pin.uiMapID] = true
+        table.insert(list, pin.uiMapID)
+      end
+    end
+    return list
+  end,
   onEnter = function(pin, point)
     GameTooltip:SetOwner(pin, "ANCHOR_RIGHT")
     GameTooltip:SetText(point and point.text or "")
@@ -109,8 +123,12 @@ local function pinsChanged()
   updatePinMarks()
 end
 
--- Kartenpunkt zum Eintrag setzen (Blizzards Wegpunkt folgt ihm) und die Karte auf seiner Zone öffnen
-function DungeonQuestHint.SetWaypoint(entry)
+local function openMap(uiMapID)
+  if OpenWorldMap then OpenWorldMap(uiMapID) end
+end
+
+-- Kartenpunkt zum Eintrag setzen (Blizzards Wegpunkt folgt ihm) und die Karte auf seiner Zone öffnen (keepMap: nicht)
+function DungeonQuestHint.SetWaypoint(entry, keepMap)
   local place = entry.place
   local key = pinKey(entry)
   if not findPin(key) then
@@ -118,7 +136,7 @@ function DungeonQuestHint.SetWaypoint(entry)
   end
   pinsChanged()
   setBlizzardWaypoint(place)
-  if OpenWorldMap then OpenWorldMap(place.uiMapID) end
+  if not keepMap then openMap(place.uiMapID) end
   ns.Debug("dungeonquests", "waypoint %s %s %s", place.uiMapID, place.x, place.y)
 end
 
@@ -143,9 +161,18 @@ end
 
 -- Alle Einträge mit Ort im Fenster markieren / alle Kartenpunkte entfernen
 function DungeonQuestHint.MarkAll()
+  local first, zones, seen = nil, 0, {}
   for _, entry in ipairs(shownEntries) do
-    if entry.place and not findPin(pinKey(entry)) then DungeonQuestHint.SetWaypoint(entry) end
+    if entry.place then
+      if not findPin(pinKey(entry)) then DungeonQuestHint.SetWaypoint(entry, true) end
+      first = first or entry.place.uiMapID
+      if not seen[entry.place.uiMapID] then seen[entry.place.uiMapID], zones = true, zones + 1 end
+    end
   end
+  if not first then return end
+  local info = zones > 1 and C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(first)
+  openMap(info and info.parentMapID and info.parentMapID > 0 and info.parentMapID or first)
+  ns.Debug("dungeonquests", "mark all: %s pins in %s zones", #pins, zones)
 end
 
 function DungeonQuestHint.ClearAll()

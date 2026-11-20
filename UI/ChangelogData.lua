@@ -38,6 +38,11 @@ ns.CHANGELOG = {
         enUS = "New hint: when you enter an inn or a capital city, you see where your hearthstone is bound.",
         frFR = "Nouveau rappel : en entrant dans une auberge ou une capitale, vous voyez où votre pierre de foyer est liée.",
         esES = "Nuevo aviso: al entrar en una posada o una capital, ves dónde está vinculada tu piedra de hogar." },
+      { kind = "fix",
+        deDE = "Dungeonquests: „Alle markieren“ zeigt alle Kartenpunkte, auch über mehrere Zonen auf der Kontinentkarte.",
+        enUS = "Dungeon quests: “Mark all” shows every map point, also across several zones on the continent map.",
+        frFR = "Quêtes de donjon : « Tout marquer » affiche tous les points, y compris sur plusieurs zones sur la carte du continent.",
+        esES = "Misiones de mazmorra: «Marcar todo» muestra todos los puntos, también en varias zonas en el mapa del continente." },
     },
   },
   {

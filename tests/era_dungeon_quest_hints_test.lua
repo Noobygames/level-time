@@ -159,10 +159,28 @@ expectTrue("Markierung weg", not row.pinMark:IsShown())
 -- Alle markieren / Alle löschen
 Hint.ClearAll()
 expect("alle gelöscht", Hint.PinCount(), 0)
+local openedBefore = #opened
 Hint.MarkAll()
-local withPlace = 0
-for _, entry in ipairs(Hints.AcceptEntries(167)) do if entry.place then withPlace = withPlace + 1 end end
+local withPlace, zones = 0, {}
+for _, entry in ipairs(Hints.AcceptEntries(167)) do
+  if entry.place then withPlace, zones[entry.place.uiMapID] = withPlace + 1, true end
+end
 expect("alle mit Ort markiert", Hint.PinCount(), withPlace)
+expect("Karte nur einmal geöffnet", #opened, openedBefore + 1)
+if next(zones, next(zones)) == nil then expectTrue("eine Zone: Karte der Zone", zones[opened[#opened]]) end
+Hint.ClearAll()
+
+-- Punkte in zwei Zonen: alle gesetzt, Karte einmal auf der übergeordneten Karte (Kontinent)
+local realMapInfo = C_Map.GetMapInfo
+C_Map.GetMapInfo = function(mapID) return { mapID = mapID, parentMapID = 1415 } end
+Hint.Show("Zwei Zonen", { { text = "A", place = { uiMapID = 1436, x = 0.5, y = 0.5 } },
+  { text = "B", place = { uiMapID = 1453, x = 0.4, y = 0.6 } } })
+openedBefore = #opened
+Hint.MarkAll()
+expect("zwei Zonen: zwei Punkte", Hint.PinCount(), 2)
+expect("zwei Zonen: einmal geöffnet", #opened, openedBefore + 1)
+expect("zwei Zonen: Kontinentkarte", opened[#opened], 1415)
+C_Map.GetMapInfo = realMapInfo
 Hint.ClearAll()
 
 -- Mehr Zeilen als die Fensterhöhe: alle erreichbar (Bildlauf), kein "... weitere"
