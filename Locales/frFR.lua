@@ -2544,4 +2544,10 @@ ns.locales.frFR = {
   DUNGEON_RUN_TRACKER_CLICK_TIP = "Clic gauche : bilan de l'avancement de l'exécution (temps, butin, groupe, ennemis).",
   SETUP_DUNGEON_GUIDE_TOGGLE = "Ouvrir le guide de donjon en entrant",
   SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Affiche les monstres et les boss avec leurs techniques et quoi faire en entrant dans un donjon. À tout moment avec /lt guide.",
+  OLD_RANKS_UPGRADE_COMBAT = "Les barres d'action ne peuvent pas être modifiées en combat. Réessayez après le combat.",
+  OLD_RANKS_UPGRADE_TIP = "Améliorer maintenant : place le rang le plus élevé sur chaque emplacement d'action qui contient encore ce rang. Pas en combat.",
+  NOTICE_HEARTH = "Pierre de foyer",
+  REMIND_HEARTH = "Pierre de foyer liée à : %s",
+  REMIND_HEARTH_TOGGLE = "Lieu de la pierre de foyer",
+  REMIND_HEARTH_TOGGLE_TIP = "En entrant dans une auberge ou une capitale, indique où votre pierre de foyer est liée au cas où vous voudriez la relier ailleurs.",
 }

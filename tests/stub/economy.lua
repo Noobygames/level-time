@@ -220,4 +220,4 @@ function ClickSendMailItemButton()
   end
 end
 function CursorHasItem() return state.cursorItem ~= nil end
-function ClearCursor() state.cursorItem = nil end
+function ClearCursor() state.cursorItem, state.cursorSpell = nil, nil end

@@ -213,6 +213,7 @@ Assist\QuestCompleteAlert.lua
 Assist\RareAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
+Assist\HearthReminder.lua
 Assist\OldSpellRanks.lua
 Assist\BreakReminder.lua
 Assist\TrainAll.lua

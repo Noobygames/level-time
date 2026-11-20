@@ -2544,4 +2544,10 @@ ns.locales.esES = {
   DUNGEON_RUN_TRACKER_CLICK_TIP = "Clic izquierdo: resumen del progreso de la partida (tiempo, botín, grupo, enemigos).",
   SETUP_DUNGEON_GUIDE_TOGGLE = "Abrir la guía de mazmorra al entrar",
   SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Muestra los enemigos y jefes con sus habilidades y qué hacer al entrar en una mazmorra. En cualquier momento con /lt guide.",
+  OLD_RANKS_UPGRADE_COMBAT = "Las barras de acción no se pueden cambiar en combate. Inténtalo de nuevo tras el combate.",
+  OLD_RANKS_UPGRADE_TIP = "Mejorar ahora: coloca el rango más alto en cada casilla de acción que aún tiene este rango antiguo. No en combate.",
+  NOTICE_HEARTH = "Piedra de hogar",
+  REMIND_HEARTH = "Piedra de hogar vinculada a: %s",
+  REMIND_HEARTH_TOGGLE = "Lugar de la piedra de hogar",
+  REMIND_HEARTH_TOGGLE_TIP = "Al entrar en una posada o una capital, muestra dónde está vinculada tu piedra de hogar por si quieres vincularla de nuevo.",
 }

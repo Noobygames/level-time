@@ -280,6 +280,12 @@ local EVENT_PROBES = {
     return { results = count }
   end },
   { event = "LFG_LIST_SEARCH_FAILED" },
+  -- Ruhestein-Hinweis (LT-410): feuert PLAYER_UPDATE_RESTING beim Betreten von Gasthaus/Hauptstadt (auch per Portal/Flug),
+  -- und was liefert GetBindLocation in dieser Sprache?
+  { event = "PLAYER_UPDATE_RESTING", extra = function()
+    return { resting = IsResting(), bind = GetBindLocation and GetBindLocation(), zone = GetRealZoneText(),
+      subzone = GetSubZoneText and GetSubZoneText() }
+  end },
   { event = "ADDON_ACTION_BLOCKED" },
   { event = "ADDON_ACTION_FORBIDDEN" },
 }

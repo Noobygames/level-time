@@ -2544,4 +2544,10 @@ ns.locales.enUS = {
   DUNGEON_RUN_TRACKER_CLICK_TIP = "Left-click: recap with the run's progress so far (time, loot, group, enemies).",
   SETUP_DUNGEON_GUIDE_TOGGLE = "Open dungeon guide on entering",
   SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Shows trash and bosses with their abilities and what to do when you enter a dungeon. Anytime with /lt guide.",
+  OLD_RANKS_UPGRADE_COMBAT = "Action bars can't be changed in combat. Try again after the fight.",
+  OLD_RANKS_UPGRADE_TIP = "Upgrade now: puts the highest rank on every action slot that still holds this old rank. Not in combat.",
+  NOTICE_HEARTH = "Hearthstone",
+  REMIND_HEARTH = "Hearthstone bound to: %s",
+  REMIND_HEARTH_TOGGLE = "Hearthstone location",
+  REMIND_HEARTH_TOGGLE_TIP = "When you enter an inn or a capital city, shows where your hearthstone is bound in case you want to rebind it.",
 }

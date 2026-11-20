@@ -8,6 +8,8 @@
 -- Tabelle mit ausgerichteten Spalten unter die Zeile (Zaubersymbol mit Zaubertooltip, Name, Spalten); header =
 -- { Name-Kopf, Spaltenkopf, ... } ist ihre Kopfzeile. Eine Tabellenzeile mit onDismiss hat rechts einen eigenen
 -- Schließen-Knopf: er ruft onDismiss() und nimmt die Zeile heraus (ohne Zeilen fällt der ganze Eintrag weg).
+-- action = { tip, run } setzt links daneben einen grünen Pfeil-hoch-Knopf (z.B. Zauberrang upgraden, LT-409): Klick
+-- ruft run(); gibt es true zurück, verschwindet die Zeile (ohne onDismiss).
 -- text und title dürfen Funktionen sein: sie werden bei jedem Aufbau des Fensters ausgewertet, so folgt der Text einem
 -- Sprachwechsel (Alerts.Resolve). Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt).
 local _, ns = ...
@@ -38,6 +40,7 @@ local ICON_INSET = 8
 local TEXT_GAP = 6
 local COLUMN_GAP = 16
 local DISMISS_SIZE = 24  -- wie der Schließen-Knopf im Fensterkopf (DESIGN.md)
+local ACTION_ICON = "Interface\\Buttons\\Arrow-Up-Up"  -- Pfeil hoch, grün eingefärbt (Theme good)
 local ROW_PADDING = 8    -- Luft über und unter dem Text einer Zeile
 local TEXT_MAX_WIDTH = 360
 local FADE_OUT = 0.7
@@ -82,6 +85,19 @@ local function getRow(index)
   row.dismiss:ClearAllPoints()
   row.dismiss:SetPoint("RIGHT", -ICON_INSET / 2, 0)
   row.dismiss:SetScript("OnClick", function() Hints.DismissLine(row) end)
+  row.action = CreateFrame("Button", nil, row)
+  row.action:SetSize(DISMISS_SIZE, DISMISS_SIZE)
+  row.action:SetPoint("RIGHT", row.dismiss, "LEFT", 0, 0)
+  row.action.icon = row.action:CreateTexture(nil, "ARTWORK")
+  row.action.icon:SetAllPoints()
+  row.action.icon:SetTexture(ACTION_ICON)
+  row.action:SetHighlightTexture(ACTION_ICON, "ADD")
+  row.action:SetScript("OnClick", function()
+    if row.detail and row.detail.action and row.detail.action.run() then Hints.RemoveLine(row) end
+  end)
+  Widgets.AttachTooltip(row.action, function() return ns.DISPLAY_NAME end, function()
+    return row.detail and row.detail.action and row.detail.action.tip
+  end)
   Widgets.AttachTooltip(row.dismiss, function() return ns.DISPLAY_NAME end, function()
     return type(row.detail) == "table" and L.HINTS_DISMISS_RANK_TIP or L.HINTS_DISMISS_TIP
   end)
@@ -153,6 +169,8 @@ local function paintRow(row, line, y, nameWidth, columnWidths)
   if line.texture then row.icon:SetTexture(line.texture) end
   row.icon:SetShown(line.texture ~= nil)
   row.dismiss:SetShown(not line.isTable or (line.detail ~= nil and line.detail.onDismiss ~= nil))
+  row.action:SetShown(line.detail ~= nil and line.detail.action ~= nil)
+  row.action.icon:SetVertexColor(Theme.RGB("good"))  -- hier statt beim Anlegen: folgt dem Theme
   local x = ICON_INSET + ICON_SIZE + TEXT_GAP + nameWidth + COLUMN_GAP
   local columns = line.columns or {}
   for index, value in ipairs(columns) do
@@ -186,6 +204,12 @@ local function layout()
     for _, line in ipairs(lines) do
       if line.detail and line.detail.onDismiss then
         width = width + TEXT_GAP + DISMISS_SIZE
+        break
+      end
+    end
+    for _, line in ipairs(lines) do
+      if line.detail and line.detail.action then
+        width = width + DISMISS_SIZE
         break
       end
     end
@@ -240,10 +264,9 @@ function Hints.DismissKey(key)
 end
 
 -- X einer Zeile: bei einer Tabellenzeile mit onDismiss nur diese Zeile, sonst der ganze Eintrag
-function Hints.DismissLine(row)
+-- Tabellenzeile herausnehmen; ohne Zeilen fällt der ganze Eintrag weg
+function Hints.RemoveLine(row)
   local entry, detail = row.entry, row.detail
-  if type(detail) ~= "table" or not detail.onDismiss then return Hints.Dismiss(entry) end
-  detail.onDismiss()
   for index, shown in ipairs(entry.rows) do
     if shown == detail then
       table.remove(entry.rows, index)
@@ -251,6 +274,13 @@ function Hints.DismissLine(row)
     end
   end
   if #entry.rows == 0 then Hints.Dismiss(entry) else layout() end
+end
+
+function Hints.DismissLine(row)
+  local detail = row.detail
+  if type(detail) ~= "table" or not detail.onDismiss then return Hints.Dismiss(row.entry) end
+  detail.onDismiss()
+  Hints.RemoveLine(row)
 end
 
 -- Hinweis aufnehmen (Fenster öffnet sich oder wächst); gleicher key ersetzt den alten Eintrag

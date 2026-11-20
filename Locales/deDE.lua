@@ -2544,4 +2544,10 @@ ns.locales.deDE = {
   DUNGEON_RUN_TRACKER_CLICK_TIP = "Linksklick: Recap mit dem Zwischenstand des Laufs (Zeit, Beute, Gruppe, Gegner).",
   SETUP_DUNGEON_GUIDE_TOGGLE = "Dungeon Guide beim Betreten öffnen",
   SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Zeigt beim Betreten eines Dungeons Trash und Bosse mit ihren Fähigkeiten und was zu tun ist. Jederzeit mit /lt guide.",
+  OLD_RANKS_UPGRADE_COMBAT = "Im Kampf lassen sich die Aktionsleisten nicht ändern. Nach dem Kampf noch einmal versuchen.",
+  OLD_RANKS_UPGRADE_TIP = "Jetzt upgraden: legt den höchsten Rang auf alle Aktionsplätze, auf denen noch dieser alte Rang liegt. Nicht im Kampf.",
+  NOTICE_HEARTH = "Ruhestein",
+  REMIND_HEARTH = "Ruhestein gebunden an: %s",
+  REMIND_HEARTH_TOGGLE = "Ruhestein-Ort",
+  REMIND_HEARTH_TOGGLE_TIP = "Zeigt beim Betreten eines Gasthauses oder einer Hauptstadt, wo der Ruhestein gebunden ist, falls du ihn umbinden möchtest.",
 }
