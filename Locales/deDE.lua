@@ -2414,7 +2414,7 @@ ns.locales.deDE = {
   DUNGEON_RECAP_AWARD_TANK_TIP = "Wer im Lauf den meisten Schaden eingesteckt hat.",
   DUNGEON_RECAP_BOSSES = "Bosse",
   DUNGEON_RECAP_BUTTON = "Recap",
-  DUNGEON_RECAP_BUTTON_TIP = "Öffnet den Recap des gewählten abgeschlossenen Laufs: Zeit gegen die Bestzeit, Beute, Gruppe und Auszeichnungen. Geht auch mit /lt recap run.",
+  DUNGEON_RECAP_BUTTON_TIP = "Öffnet den Recap des gewählten Laufs, beim laufenden mit dem Zwischenstand: Zeit gegen die Bestzeit, Beute, Gruppe und Auszeichnungen. Geht auch mit /lt recap run.",
   DUNGEON_RECAP_CLOSE = "Schließen",
   DUNGEON_RECAP_COLUMN_DAMAGE = "Schaden",
   DUNGEON_RECAP_COLUMN_DEATHS = "Tode",
@@ -2541,4 +2541,7 @@ ns.locales.deDE = {
   CLASS_NAME_WARRIOR = "Krieger",
   CARD_CLOSE = "Schließen",
   CARD_CLOSE_TIP = "Blendet die Anzeige bis zum nächsten Mal aus. Ganz abschalten: Rechtsklick auf die Anzeige öffnet ihre Einstellungen.",
+  DUNGEON_RUN_TRACKER_CLICK_TIP = "Linksklick: Recap mit dem Zwischenstand des Laufs (Zeit, Beute, Gruppe, Gegner).",
+  SETUP_DUNGEON_GUIDE_TOGGLE = "Dungeon Guide beim Betreten öffnen",
+  SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Zeigt beim Betreten eines Dungeons Trash und Bosse mit ihren Fähigkeiten und was zu tun ist. Jederzeit mit /lt guide.",
 }

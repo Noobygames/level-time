@@ -2414,7 +2414,7 @@ ns.locales.esES = {
   DUNGEON_RECAP_AWARD_TANK_TIP = "Quién recibió más daño durante la partida.",
   DUNGEON_RECAP_BOSSES = "Jefes",
   DUNGEON_RECAP_BUTTON = "Resumen",
-  DUNGEON_RECAP_BUTTON_TIP = "Abre el resumen de la partida completada seleccionada: tiempo frente al mejor, botín, grupo y premios. También con /lt recap run.",
+  DUNGEON_RECAP_BUTTON_TIP = "Abre el resumen de la partida seleccionada, para la que está en curso con el progreso actual: tiempo frente al mejor, botín, grupo y premios. También con /lt recap run.",
   DUNGEON_RECAP_CLOSE = "Cerrar",
   DUNGEON_RECAP_COLUMN_DAMAGE = "Daño",
   DUNGEON_RECAP_COLUMN_DEATHS = "Muertes",
@@ -2541,4 +2541,7 @@ ns.locales.esES = {
   CLASS_NAME_WARRIOR = "Guerrero",
   CARD_CLOSE = "Cerrar",
   CARD_CLOSE_TIP = "Oculta este indicador hasta la próxima vez. Para desactivarlo del todo, haz clic derecho sobre él para abrir sus opciones.",
+  DUNGEON_RUN_TRACKER_CLICK_TIP = "Clic izquierdo: resumen del progreso de la partida (tiempo, botín, grupo, enemigos).",
+  SETUP_DUNGEON_GUIDE_TOGGLE = "Abrir la guía de mazmorra al entrar",
+  SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Muestra los enemigos y jefes con sus habilidades y qué hacer al entrar en una mazmorra. En cualquier momento con /lt guide.",
 }

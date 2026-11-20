@@ -7,7 +7,8 @@
 -- (Lib/CreatureModel.lua, nur mit NPC-ID). Vergleich = schnellster abgeschlossener Lauf derselben Instanz und Route;
 -- Zeiten ab der ersten Bewegung (InstanceRuns.lua).
 -- Position und Größe über Lib/Frames.lua (Id "dungeonRun", im Edit-Modus mit Beispiel-Lauf). Aktualisiert einmal je
--- Sekunde, solange die Einstellung an ist.
+-- Sekunde, solange die Einstellung an ist. Linksklick (ohne Ziehen) öffnet den Dungeon-Recap mit dem Zwischenstand
+-- (LT-405), der Tooltip sagt das.
 -- shortcut: die Bossliste ist ein Text ohne Spalten; bei Bedarf eigene Zeilen wie in der Split-Liste.
 local _, ns = ...
 local L = ns.L
@@ -194,6 +195,7 @@ end
 ns.Frames.Register({
   id = "dungeonRun", frame = card.frame, label = "EDIT_FRAME_DUNGEON_RUN", default = DEFAULT_POS,
   settingsPage = "OPTIONS_PAGE_DUNGEON_RUNS", clickable = true, dragWhenUnlocked = true,
+  actionsTip = function() return L.DUNGEON_RUN_TRACKER_CLICK_TIP end,
   preview = function(on)
     previewing = on and true or false
     InstanceRunTracker.Refresh()
@@ -202,6 +204,16 @@ ns.Frames.Register({
     ns.Set("showRunTracker", false)
   end,
 })
+
+-- Linksklick: Recap des offenen Laufs; nach Frames.Register, weil das OnDragStart setzt (ein Ziehen ist kein Klick)
+local dragged = false
+card.frame:HookScript("OnDragStart", function() dragged = true end)
+card.frame:HookScript("OnMouseUp", function(_, mouseButton)
+  local wasDragged = dragged
+  dragged = false
+  if mouseButton ~= "LeftButton" or wasDragged or previewing or (ns.EditMode and ns.EditMode.IsActive()) then return end
+  ns.DungeonRecapWindow.Show()
+end)
 
 ns.Every(1, InstanceRunTracker.Refresh, function(db) return db.showRunTracker end)
 ns.RegisterApply(InstanceRunTracker.Refresh)

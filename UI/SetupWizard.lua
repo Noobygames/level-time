@@ -92,6 +92,9 @@ local STEPS = {
     { label = "LFG_WINDOW_TOGGLE", keys = { "lfgMinimapButton" }, available = available("LFGSearch", "IsAvailable") },
     { label = "BOSS_LOOT_TOGGLE", keys = { "bossLoot" }, available = available("BossLoot", "IsAvailable") },
     { label = "TOOLTIP_MECHANICS_TOGGLE", keys = { "tooltipMechanics" }, available = available("MechanicTips", "IsAvailable") },
+    { label = "SETUP_DUNGEON_GUIDE_TOGGLE", keys = { "dungeonGuideAuto" }, available = available("DungeonGuide", "IsAvailable"),
+      preview = { label = "DUNGEON_GUIDE_SHOW", run = function() ns.DungeonGuide.Open() end } },
+    { label = "DUNGEON_RECAP_AUTO_OPEN_TOGGLE", keys = { "dungeonRecapAutoOpen" } },
   } },
   { id = "quests", icon = ICON .. "INV_Scroll_04", title = "SETUP_STEP_QUESTS", text = "SETUP_STEP_QUESTS_TEXT", toggles = {
     { label = "QUEST_MARKS_TOGGLE", keys = { "questMarks" } },

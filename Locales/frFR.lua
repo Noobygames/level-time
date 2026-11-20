@@ -2414,7 +2414,7 @@ ns.locales.frFR = {
   DUNGEON_RECAP_AWARD_TANK_TIP = "Qui a encaissé le plus de dégâts pendant l'exécution.",
   DUNGEON_RECAP_BOSSES = "Boss",
   DUNGEON_RECAP_BUTTON = "Bilan",
-  DUNGEON_RECAP_BUTTON_TIP = "Ouvre le bilan de l'exécution terminée sélectionnée : temps par rapport au meilleur, butin, groupe et récompenses. Aussi avec /lt recap run.",
+  DUNGEON_RECAP_BUTTON_TIP = "Ouvre le bilan de l'exécution sélectionnée, pour celle en cours avec l'avancement actuel : temps par rapport au meilleur, butin, groupe et récompenses. Aussi avec /lt recap run.",
   DUNGEON_RECAP_CLOSE = "Fermer",
   DUNGEON_RECAP_COLUMN_DAMAGE = "Dégâts",
   DUNGEON_RECAP_COLUMN_DEATHS = "Morts",
@@ -2541,4 +2541,7 @@ ns.locales.frFR = {
   CLASS_NAME_WARRIOR = "Guerrier",
   CARD_CLOSE = "Fermer",
   CARD_CLOSE_TIP = "Masque cet affichage jusqu'à la prochaine fois. Pour le désactiver définitivement, faites un clic droit dessus pour ouvrir ses paramètres.",
+  DUNGEON_RUN_TRACKER_CLICK_TIP = "Clic gauche : bilan de l'avancement de l'exécution (temps, butin, groupe, ennemis).",
+  SETUP_DUNGEON_GUIDE_TOGGLE = "Ouvrir le guide de donjon en entrant",
+  SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Affiche les monstres et les boss avec leurs techniques et quoi faire en entrant dans un donjon. À tout moment avec /lt guide.",
 }

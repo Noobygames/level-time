@@ -2414,7 +2414,7 @@ ns.locales.enUS = {
   DUNGEON_RECAP_AWARD_TANK_TIP = "Who took the most damage during the run.",
   DUNGEON_RECAP_BOSSES = "Bosses",
   DUNGEON_RECAP_BUTTON = "Recap",
-  DUNGEON_RECAP_BUTTON_TIP = "Opens the recap of the selected completed run: time against your best, loot, group and awards. Also available with /lt recap run.",
+  DUNGEON_RECAP_BUTTON_TIP = "Opens the recap of the selected run, for the running one with its progress so far: time against your best, loot, group and awards. Also available with /lt recap run.",
   DUNGEON_RECAP_CLOSE = "Close",
   DUNGEON_RECAP_COLUMN_DAMAGE = "Damage",
   DUNGEON_RECAP_COLUMN_DEATHS = "Deaths",
@@ -2541,4 +2541,7 @@ ns.locales.enUS = {
   CLASS_NAME_WARRIOR = "Warrior",
   CARD_CLOSE = "Close",
   CARD_CLOSE_TIP = "Hides this display until next time. To turn it off for good, right-click it to open its settings.",
+  DUNGEON_RUN_TRACKER_CLICK_TIP = "Left-click: recap with the run's progress so far (time, loot, group, enemies).",
+  SETUP_DUNGEON_GUIDE_TOGGLE = "Open dungeon guide on entering",
+  SETUP_DUNGEON_GUIDE_TOGGLE_TIP = "Shows trash and bosses with their abilities and what to do when you enter a dungeon. Anytime with /lt guide.",
 }
