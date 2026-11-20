@@ -121,6 +121,28 @@ function actions.perf(argument)
   X.Profiler.Command(argument)
 end
 
+-- LT-408: Wie streng ist C_LFGList.Search (HasRestrictions)? Aus dem Befehl (Tastendruck) zwei Suchen direkt
+-- hintereinander mit verschiedenen Sprachen, nach LFG_PROBE_DELAY Sekunden eine dritte aus einem Timer (ohne Klick).
+-- Ergebnis: Log-Zeilen "lfg.searchProbe" und die Ereignis-Proben LFG_LIST_SEARCH_* / ADDON_ACTION_* (Debug-Log an).
+local LFG_PROBE_DELAY = 3
+function actions.lfgsearch()
+  local lfg = C_LFGList
+  local categories = ns.LFGSearch and ns.LFGSearch.IsAvailable() and ns.LFGSearch.Categories() or {}
+  local languages = lfg and lfg.GetAvailableLanguageSearchFilter and lfg.GetAvailableLanguageSearchFilter() or {}
+  if not categories[1] or #languages < 2 then return out("lfg", "probe needs the group finder and two languages") end
+  local categoryID = categories[1].id
+  local function search(step, language)
+    local ok, err = pcall(lfg.Search, categoryID, 0, 0, { [language] = true }, false, nil,
+      lfg.GetAvailableActivities(categoryID) or {})
+    X.DebugLog.Write({ area = "lfg.searchProbe", step = step, language = language, ok = ok,
+      error = not ok and tostring(err) or nil })
+    out("lfg", "search %s (%s): %s", step, language, ok and "called" or tostring(err))
+  end
+  search("click1", languages[1])
+  search("click2", languages[2])
+  C_Timer.After(LFG_PROBE_DELAY, function() search("timer", languages[1]) end)
+end
+
 function actions.help()
   ns.Print(L.DEBUG_HELP)
 end

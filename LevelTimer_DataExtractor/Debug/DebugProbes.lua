@@ -273,6 +273,15 @@ local EVENT_PROBES = {
   { event = "SCREENSHOT_SUCCEEDED" },
   -- Bücher (LT-287): feuern alle Bücher ITEM_TEXT_BEGIN, und welche Einheit liefert das Buchobjekt
   { event = "ITEM_TEXT_BEGIN", extra = bookInfo },
+  -- Gruppensuche (LT-408): kommen Ergebnisse oder Fehler je Suche (auch aus /lt debug lfgsearch), blockt der Client
+  -- Suchen ohne Klick (ADDON_ACTION_*)?
+  { event = "LFG_LIST_SEARCH_RESULTS_RECEIVED", extra = function()
+    local count = C_LFGList and C_LFGList.GetFilteredSearchResults and C_LFGList.GetFilteredSearchResults()
+    return { results = count }
+  end },
+  { event = "LFG_LIST_SEARCH_FAILED" },
+  { event = "ADDON_ACTION_BLOCKED" },
+  { event = "ADDON_ACTION_FORBIDDEN" },
 }
 
 local function probeEvent(probe, ...)

@@ -1854,6 +1854,31 @@ check("LT404.guide.spellLinks", function()
   return { available = true, linked = linked, unknown = unknown, mismatch = mismatch }
 end)
 
+-- LT-408: Sprache je Gruppe über den Realm? Stehen Realms in den Leader-Namen der aktuellen Suchergebnisse (nach
+-- einer Suche ausführen), und welche? realms = Realm -> Anzahl Leader (höchstens REALM_SAMPLE), own = eigener Realm
+local REALM_SAMPLE = 15
+check("LT408.lfg.realms", function()
+  local lfg = C_LFGList
+  if not (lfg and lfg.GetFilteredSearchResults and lfg.GetSearchResultInfo) then return { available = false } end
+  local _, ids = lfg.GetFilteredSearchResults()
+  local total, withRealm, realms, distinct = 0, 0, {}, 0
+  for _, resultID in ipairs(ids or {}) do
+    local info = lfg.GetSearchResultInfo(resultID)
+    local leader = type(info) == "table" and info.leaderName
+    if leader and not ns.IsSecret(leader) then
+      total = total + 1
+      local realm = leader:match("%-(.+)$")
+      if realm then
+        withRealm = withRealm + 1
+        if not realms[realm] and distinct < REALM_SAMPLE then realms[realm], distinct = 0, distinct + 1 end
+        if realms[realm] then realms[realm] = realms[realm] + 1 end
+      end
+    end
+  end
+  return { available = true, leaders = total, withRealm = withRealm, realms = realms,
+    own = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName() }
+end)
+
 -- LT-335..338: Gruppen-Sync nur mit Gruppe/Gilde/Freunden. Gibt es die Gruppen-APIs (sonst bleiben Abgänger in der
 -- Peer-Liste), und erkennt UnitInParty/UnitInRaid die Absender im Format "Name-Realm" (inParty je Peer)?
 local SYNC_PEERS = 5
