@@ -43,6 +43,11 @@ ns.CHANGELOG = {
         enUS = "Dungeon quests: “Mark all” shows every map point, also across several zones on the continent map.",
         frFR = "Quêtes de donjon : « Tout marquer » affiche tous les points, y compris sur plusieurs zones sur la carte du continent.",
         esES = "Misiones de mazmorra: «Marcar todo» muestra todos los puntos, también en varias zonas en el mapa del continente." },
+      { kind = "change",
+        deDE = "Dungeon-Vorquests: NPCs mit einem Schritt einer Vorquest-Kette tragen jetzt ein gelbes Ausrufezeichen, auch bei grauen Quests.",
+        enUS = "Dungeon pre-quests: NPCs offering a step of a pre-quest chain now show a yellow exclamation mark, also for gray quests.",
+        frFR = "Quêtes préalables de donjon : les PNJ proposant une étape d'une chaîne affichent désormais un point d'exclamation jaune, même pour les quêtes grises.",
+        esES = "Misiones previas de mazmorra: los PNJ que ofrecen un paso de una cadena muestran ahora un signo de exclamación amarillo, también en misiones grises." },
     },
   },
   {

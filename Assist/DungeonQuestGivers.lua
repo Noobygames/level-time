@@ -3,7 +3,8 @@
 -- ein Dungeon-Symbol über der Namensplakette, am Zielfenster und auf der Minimap (Assist/DungeonQuestMinimap.lua) sowie je Angebot eine
 -- Tooltipzeile
 -- ("Dungeonquest: Titel (Instanz)", angehängt von Assist/Tooltip.lua). Schritte einer Vorquest-Kette zählen mit
--- ("Vorquest: Titel – führt zu Instanz (Schritt 2/7)"); bietet ein Geber nur solche an, ist das Symbol grau. Objekte haben weder Einheit
+-- ("Vorquest: Titel – führt zu Instanz (Schritt 2/7)"); bietet ein Geber nur solche an, steht statt des Dungeon-Symbols
+-- das gelbe Quest-Ausrufezeichen (auch bei grauen Quests). Objekte haben weder Einheit
 -- noch Plakette; sie
 -- und NPCs stehen mit ihrem Ort aus der DungeonDB als Punkt auf der Zonenkarte (Lib/MapPins.lua).
 -- NPC-ID aus UnitGUID (in Forever-Instanzen geheim: dann keine Markierung, Geber stehen fast alle draußen).
@@ -25,6 +26,8 @@ ns.DungeonQuestGivers = DungeonQuestGivers
 
 local ICON_ATLAS = "Dungeon"
 local ICON_TEXTURE = "Interface\\Icons\\INV_Misc_Rune_01"  -- Rückfall, falls der Client den Atlas nicht kennt
+-- Ausrufezeichen wie Blizzards Gossip-Fenster (Pfad in classic_era und forever vorhanden)
+local BANG_TEXTURE = "Interface\\GossipFrame\\AvailableQuestIcon"
 local PLATE_ICON_SIZE = 20
 local PLATE_GAP = 2
 local TARGET_ICON_SIZE = 22
@@ -57,6 +60,10 @@ function DungeonQuestGivers.NewMark(parent, size)
   mark.icon = mark:CreateTexture(nil, "OVERLAY")
   mark.icon:SetAllPoints()
   setIcon(mark.icon)
+  mark.bang = mark:CreateTexture(nil, "OVERLAY")
+  mark.bang:SetAllPoints()
+  mark.bang:SetTexture(BANG_TEXTURE)
+  mark.bang:Hide()
   return mark
 end
 
@@ -67,7 +74,7 @@ function DungeonQuestGivers.OfferLine(offer)
   return string.format(L.DUNGEON_QUEST_OFFER, title, instance)
 end
 
--- Nur Vorquests im Angebot: Symbol grau statt farbig
+-- Nur Vorquests im Angebot: Ausrufezeichen statt Dungeon-Symbol
 local function onlyChainSteps(offers)
   for _, offer in ipairs(offers) do
     if not offer.step then return false end
@@ -76,7 +83,9 @@ local function onlyChainSteps(offers)
 end
 
 function DungeonQuestGivers.ShowMark(mark, offers)
-  mark.icon:SetDesaturated(onlyChainSteps(offers))
+  local bang = onlyChainSteps(offers)
+  mark.icon:SetShown(not bang)
+  mark.bang:SetShown(bang)
   mark:Show()
 end
 
