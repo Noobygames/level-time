@@ -2550,4 +2550,10 @@ ns.locales.frFR = {
   REMIND_HEARTH = "Pierre de foyer liée à : %s",
   REMIND_HEARTH_TOGGLE = "Lieu de la pierre de foyer",
   REMIND_HEARTH_TOGGLE_TIP = "En entrant dans une auberge ou une capitale, indique où votre pierre de foyer est liée au cas où vous voudriez la relier ailleurs.",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE = "Afficher les prérequis grisés à proximité",
+  NOTICE_TRIVIAL_CHAIN_GIVER = "Quête préalable grisée à proximité",
+  TRIVIAL_CHAIN_GIVER_HINT = "%s (pour %s) : %s",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard masque les donneurs de quêtes grisées. Si le donneur d'une quête préalable ou d'une quête de donjon grisée est près de vous, vous recevez une fois par donneur et par quête un message avec la quête, le donjon et le PNJ.",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Afficher brièvement les quêtes grisées là-bas",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "À proximité d'un tel donneur, active temporairement le suivi des quêtes de bas niveau du jeu (suivi de la minicarte) puis le désactive ensuite, pour que Blizzard affiche le donneur. Désactivé : nous ne modifions rien dans vos réglages du jeu, la marque (!) au-dessus du donneur reste. Si vous avez changé le réglage vous-même, nous n'y touchons pas.",
 }

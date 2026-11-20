@@ -20,6 +20,8 @@ if ns.DungeonQuests.IsAvailable() then
     toggle("DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE", "dungeonQuestHintAutoClose"),
     toggle("INSTANCE_QUEST_CHECK_TOGGLE", "instanceQuestCheck", ns.InstanceQuestCheck.IsAvailable),
     toggle("DUNGEON_QUEST_GIVERS_TOGGLE", "dungeonQuestGivers", ns.DungeonQuestGivers.IsAvailable),
+    toggle("DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE", "dungeonQuestTrivialNearby", ns.TrivialChainGivers.IsAvailable),
+    toggle("DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE", "dungeonQuestTrivialTracking", ns.TrivialChainGivers.CanTrack),
     requires(toggle("DUNGEON_QUEST_MINIMAP_TOGGLE", "dungeonQuestMinimap", ns.DungeonQuestMinimap.IsAvailable),
       "dungeonQuestGivers"),
     advanced(requires(toggle("DUNGEON_QUEST_MINIMAP_EDGE_TOGGLE", "dungeonQuestMinimapEdge",

@@ -2550,4 +2550,10 @@ ns.locales.enUS = {
   REMIND_HEARTH = "Hearthstone bound to: %s",
   REMIND_HEARTH_TOGGLE = "Hearthstone location",
   REMIND_HEARTH_TOGGLE_TIP = "When you enter an inn or a capital city, shows where your hearthstone is bound in case you want to rebind it.",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE = "Show gray prequests nearby",
+  NOTICE_TRIVIAL_CHAIN_GIVER = "Gray prequest nearby",
+  TRIVIAL_CHAIN_GIVER_HINT = "%s (for %s): %s",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard hides quest givers of gray quests. When a giver of a gray prequest or dungeon quest is near you, you get a hint once per giver and quest with the quest name, dungeon and NPC.",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Briefly show gray quests there",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Near such a giver, temporarily switches the game's low-level quests tracking (minimap tracking) on and back off afterwards so that Blizzard shows the giver. Off: we change nothing in your game settings, the (!) mark above the giver remains. If you toggled the setting yourself, we leave it alone.",
 }

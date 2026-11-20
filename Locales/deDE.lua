@@ -2550,4 +2550,10 @@ ns.locales.deDE = {
   REMIND_HEARTH = "Ruhestein gebunden an: %s",
   REMIND_HEARTH_TOGGLE = "Ruhestein-Ort",
   REMIND_HEARTH_TOGGLE_TIP = "Zeigt beim Betreten eines Gasthauses oder einer Hauptstadt, wo der Ruhestein gebunden ist, falls du ihn umbinden möchtest.",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE = "Graue Vorquests in der Nähe zeigen",
+  NOTICE_TRIVIAL_CHAIN_GIVER = "Graue Vorquest in der Nähe",
+  TRIVIAL_CHAIN_GIVER_HINT = "%s (für %s): %s",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard blendet Questgeber grauer Quests aus. Steht ein Geber einer grauen Vorquest oder Dungeonquest in deiner Nähe, bekommst du einmal je Geber und Quest einen Hinweis mit Questname, Dungeon und NPC.",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Graue Quests dort kurz einblenden",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Schaltet in der Nähe eines solchen Gebers die Spieleinstellung für Quests niedriger Stufe (Minimap-Verfolgung) vorübergehend ein und danach wieder aus, damit Blizzard den Geber anzeigt. Aus: wir ändern nichts an deinen Spieleinstellungen, die Markierung (!) über dem Geber bleibt. Hast du die Einstellung selbst umgeschaltet, lassen wir sie in Ruhe.",
 }

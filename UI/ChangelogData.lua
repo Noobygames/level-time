@@ -48,6 +48,11 @@ ns.CHANGELOG = {
         enUS = "Dungeon pre-quests: NPCs offering a step of a pre-quest chain now show a yellow exclamation mark, also for gray quests.",
         frFR = "Quêtes préalables de donjon : les PNJ proposant une étape d'une chaîne affichent désormais un point d'exclamation jaune, même pour les quêtes grises.",
         esES = "Misiones previas de mazmorra: los PNJ que ofrecen un paso de una cadena muestran ahora un signo de exclamación amarillo, también en misiones grises." },
+      { kind = "new",
+        deDE = "Graue Dungeon-Vorquests in der Nähe: Hinweis mit Quest und NPC; auf Wunsch blendet das Spiel dort kurz niedrigstufige Quests ein.",
+        enUS = "Gray dungeon pre-quests nearby: a hint names quest and NPC; optionally the game briefly shows low-level quests there.",
+        frFR = "Quêtes préalables de donjon grises à proximité : un rappel indique la quête et le PNJ ; en option, le jeu affiche brièvement les quêtes de bas niveau.",
+        esES = "Misiones previas de mazmorra grises cerca: un aviso indica misión y PNJ; opcionalmente el juego muestra un momento las misiones de nivel bajo." },
     },
   },
   {

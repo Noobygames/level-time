@@ -413,3 +413,27 @@ check("LT287.books.collected", function()
   end
   return { extractorBooks = count, rows = rows, readByPlayer = ns.LibraryBooks and ns.LibraryBooks.Count() }
 end)
+
+-- LT-412: Minimap-Filter "Triviale Quests": gibt es die API, welcher Index, lässt sich SetTracking aus Addon-Code rufen
+-- (Umschalten und sofort zurück, gesichert mit pcall)
+check("LT412.trivialTracking.api", function()
+  local map = _G.C_Minimap
+  local filterID = _G.Enum and _G.Enum.MinimapTrackingFilter and _G.Enum.MinimapTrackingFilter.TrivialQuests
+  local result = { filterID = filterID, getNum = type(map and map.GetNumTrackingTypes),
+    getFilter = type(map and map.GetTrackingFilter), set = type(map and map.SetTracking),
+    isFilteredOut = type(map and map.IsFilteredOut), settings = settings("dungeonQuestTrivialNearby",
+      "dungeonQuestTrivialTracking") }
+  if not (result.getNum == "function" and result.getFilter == "function" and filterID) then return result end
+  for index = 1, map.GetNumTrackingTypes() do
+    local filter = map.GetTrackingFilter(index)
+    if type(filter) == "table" and filter.filterID == filterID then result.index = index end
+  end
+  if not (result.index and result.set == "function" and result.isFilteredOut == "function") then return result end
+  local before = map.IsFilteredOut(filterID)
+  result.filteredBefore = before
+  result.setOk, result.setError = pcall(map.SetTracking, result.index, before)  -- gefiltert -> einschalten
+  result.filteredAfter = map.IsFilteredOut(filterID)
+  pcall(map.SetTracking, result.index, not before)  -- zurück
+  result.filteredRestored = map.IsFilteredOut(filterID)
+  return result
+end)

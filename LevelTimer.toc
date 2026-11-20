@@ -260,6 +260,7 @@ Assist\DungeonQuestGivers.lua
 Assist\MechanicTips.lua
 Assist\DungeonQuestMinimap.lua
 Assist\DungeonQuestStarters.lua
+Assist\TrivialChainGivers.lua
 Assist\QuestLevels.lua
 Assist\DungeonQuestTags.lua
 UI\DungeonQuestHint.lua

@@ -2550,4 +2550,10 @@ ns.locales.esES = {
   REMIND_HEARTH = "Piedra de hogar vinculada a: %s",
   REMIND_HEARTH_TOGGLE = "Lugar de la piedra de hogar",
   REMIND_HEARTH_TOGGLE_TIP = "Al entrar en una posada o una capital, muestra dónde está vinculada tu piedra de hogar por si quieres vincularla de nuevo.",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE = "Mostrar misiones previas grises cercanas",
+  NOTICE_TRIVIAL_CHAIN_GIVER = "Misión previa gris cerca",
+  TRIVIAL_CHAIN_GIVER_HINT = "%s (para %s): %s",
+  DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard oculta a los dadores de misiones grises. Si cerca de ti hay un dador de una misión previa o de mazmorra gris, recibes una vez por dador y misión un aviso con la misión, la mazmorra y el PNJ.",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Mostrar brevemente las misiones grises allí",
+  DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Cerca de un dador así, activa temporalmente el seguimiento de misiones de bajo nivel del juego (seguimiento del minimapa) y lo desactiva después, para que Blizzard muestre al dador. Desactivado: no cambiamos nada de tus ajustes del juego, la marca (!) sobre el dador permanece. Si cambiaste el ajuste tú mismo, no lo tocamos.",
 }
