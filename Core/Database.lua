@@ -495,15 +495,17 @@ local function upgradeCharacter(data)
   end, geterrorhandler())
 end
 
--- Gespeicherter Realm des Eintrags mit derselben GUID und demselben Namen; nil, wenn keiner passt
+-- Gespeicherter Realm: Eintrag mit derselben GUID und demselben Namen; sonst (ältere Einträge ohne GUID) der einzige
+-- Eintrag dieses Namens ohne GUID. nil, wenn keiner oder mehrere passen
 local function storedRealm(stats, name, guid)
-  if not guid then return nil end
+  local withoutGuid, count = nil, 0
   for _, data in pairs(stats.characters) do
-    if type(data) == "table" and data.guid == guid and data.name == name
-        and type(data.realm) == "string" and data.realm ~= "" then
-      return data.realm
+    if type(data) == "table" and data.name == name and type(data.realm) == "string" and data.realm ~= "" then
+      if guid and data.guid == guid then return data.realm end
+      if data.guid == nil then withoutGuid, count = data.realm, count + 1 end
     end
   end
+  return count == 1 and withoutGuid or nil
 end
 
 -- Realm des eingeloggten Charakters: aus dem Client, sonst der gespeicherte. WoW Forever liefert seit Build 71037
@@ -532,6 +534,12 @@ local function loadCharacter(stats)
   -- WoW Forever: zweiter Rückgabewert von UnitName ist der Nachname (Blizzard NameUtil, Camelot)
   local surname = ns.Client.IsForever() and select(2, UnitName("player")) or nil
   local key = Database.CharacterKey(name, realm)
+  -- Ohne Realm teilen sich gleichnamige Charaktere den Schlüssel "Name-": ein anderer (andere GUID) bekommt einen
+  -- eigenen, statt den vorhandenen Eintrag als ersetzten Charakter zu überschreiben
+  local existing = stats.characters[key]
+  if realm == "" and guid and type(existing) == "table" and existing.guid and existing.guid ~= guid then
+    key = Database.CharacterKey(name, guid)
+  end
 
   local data = stats.characters[key]
   local inherited

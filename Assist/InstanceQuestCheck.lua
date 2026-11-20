@@ -67,10 +67,27 @@ local function reportKey(mapID)
   return table.concat(ids, ",")
 end
 
-local function check()
+-- Fehlt einem Titel die Spielsprache, fragt QuestLog.Title ihn beim Client an; die Zeile wartet dann einmal kurz,
+-- sonst stünde der englische Name aus der DungeonDB darin (und gleiche Listen meldet es nicht noch einmal)
+local TITLE_WAIT_SECONDS = 1
+
+local function titlesMissing(mapID)
+  if not (C_QuestLog and C_QuestLog.RequestLoadQuestByID) then return false end  -- Classic Era: nichts zu holen
+  local missing = false
+  for _, quest in ipairs(InstanceQuestCheck.Missing(mapID)) do
+    if not ns.QuestLog.Title(quest.questID) then missing = true end  -- jeder Aufruf fordert seinen Titel an
+  end
+  return missing
+end
+
+local function check(waited)
   if not ns.db.instanceQuestCheck or not InstanceQuestCheck.IsAvailable() then return end
   local mapID = select(8, GetInstanceInfo())  -- 8. Rückgabe: Instanz-Karten-ID
   if not mapID then return end
+  if waited ~= true and C_Timer and titlesMissing(mapID) then
+    C_Timer.After(TITLE_WAIT_SECONDS, function() ns.SafeCall(check, true) end)
+    return
+  end
   local text = InstanceQuestCheck.Text(mapID)
   ns.Debug("instance", "quest check %s: %s", mapID, text or "complete")
   local key = reportKey(mapID)
@@ -79,4 +96,4 @@ local function check()
   if text then ns.Print(text) end
 end
 
-ns.InstanceCopy.OnEnter(check)
+ns.InstanceCopy.OnEnter(function() check() end)
