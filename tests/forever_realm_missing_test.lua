@@ -1,6 +1,6 @@
 -- WoW Forever ab Build 71037: GetRealmName liefert "". Der Charakter landet über die GUID wieder in seinem
--- gespeicherten Eintrag "Name-Realm", nicht in einem neuen "Name-"; ein schon entstandener "Name-"-Eintrag bleibt
--- unangetastet (keine Daten löschen). Neuer Charakter ohne gespeicherten Realm: Schlüssel "Name-".
+-- gespeicherten Eintrag "Name-Realm", nicht in einem neuen "Name-"; ein schon entstandener "Name-"-Eintrag desselben
+-- Charakters kommt aus der Liste unter splitCharacters (nichts gelöscht). Neuer Charakter ohne Realm: "Name-".
 local GUID = "Player-6937-00064C3C"
 local KEY = "Testchar-CAMWOW EU4 Realm 3 PvE"
 
@@ -13,7 +13,8 @@ wow.login({ level = 45, guid = GUID })
 expect("gespeicherter Eintrag", addon.characterKey, KEY)
 expect("Daten des Eintrags", addon.character.marker, "alt")
 expect("Realm bleibt gespeichert", addon.character.realm, "CAMWOW EU4 Realm 3 PvE")
-expect("verwaister Eintrag bleibt", LevelTimerStatsDB.characters["Testchar-"].marker, "verwaist")
+expect("Doppel-Eintrag aus der Liste", LevelTimerStatsDB.characters["Testchar-"], nil)
+expect("Doppel-Eintrag aufgehoben", LevelTimerStatsDB.splitCharacters[GUID].marker, "verwaist")
 expect("Realm für andere Module", addon.Database.RealmName(), "CAMWOW EU4 Realm 3 PvE")
 
 -- Realm kommt zurück: derselbe Eintrag
@@ -22,8 +23,10 @@ wow.state.realm = "CAMWOW EU4 Realm 3 PvE"
 wow.login({ level = 45, guid = GUID })
 expect("mit Realm derselbe Eintrag", addon.characterKey, KEY)
 
--- Gleichnamiger Charakter auf einem anderen Realm, alter Eintrag ohne GUID: der einzige Name ohne GUID passt
+-- Gleichnamiger Charakter auf einem anderen Realm, alter Eintrag ohne GUID: der einzige Name ohne GUID passt.
+-- Ein "Name-"-Eintrag eines anderen Charakters (andere GUID) bleibt in der Liste
 wow.logout()
+LevelTimerStatsDB.characters["Testchar-"] = { guid = "Player-6937-ANDERER", name = "Testchar", realm = "", marker = "verwaist" }
 LevelTimerStatsDB.characters["Testchar-Realm 1"] = { name = "Testchar", realm = "Realm 1", marker = "realm1" }
 wow.state.realm = ""
 wow.login({ level = 20, guid = "Player-6937-REALM1" })

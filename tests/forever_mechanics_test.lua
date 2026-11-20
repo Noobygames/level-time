@@ -63,6 +63,14 @@ expect("Highlight mit Link: nur erste Markierung", addon.Format.Highlight("**Feu
 -- Zauber-Link nur auf Wunsch (Dungeon Guide) und nur mit Zauber-ID
 local volley = { 9081, "interrupt", "**Schattenblitzsalve** trifft alle", "**Shadow Bolt Volley** hits all" }
 expectTrue("Guide-Zeile verlinkt", Tips.LineText(volley, true):find("|Hspell:9081|hSchattenblitzsalve|h", 1, true) ~= nil)
+-- Linktext = Clientname des Zaubers (wie im Tooltip), auch wenn der Guide ihn anders nennt; % im Namen bleibt
+wow.state.spellNames[8269] = "Raserei"
+local frenzy = { 8269, "dispel", "**Wutanfall** macht ihn schneller", "**Frenzy** makes him faster" }
+expectTrue("Clientname als Linktext", Tips.LineText(frenzy, true):find("|Hspell:8269|hRaserei|h", 1, true) ~= nil)
+expect("Guide-Name ersetzt", Tips.LineText(frenzy, true):find("Wutanfall", 1, true), nil)
+expectTrue("ohne Link Guide-Name", Tips.LineText(frenzy):find("Wutanfall", 1, true) ~= nil)
+expect("Prozent im Namen", addon.Format.Highlight("**X** wirkt", "spell:1", "50% Schaden"),
+  addon.Theme.Hex("gold") .. "|Hspell:1|h50% Schaden|h|r wirkt")
 expect("Einheiten-Tooltip ohne Link", Tips.LineText(volley):find("|H", 1, true), nil)
 expect("ohne Zauber-ID kein Link", Tips.LineText({ 0, "avoid", "**Feuer** meiden", "Avoid **fire**" }, true):find("|H", 1, true), nil)
 for _, list in pairs(addon.Mechanics) do

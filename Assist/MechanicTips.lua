@@ -70,7 +70,13 @@ function MechanicTips.LineText(mechanic, linkSpell)
   local spellID = TYPE_SPELLS[mechanic[KIND]] or (mechanic[SPELL_ID] > 0 and mechanic[SPELL_ID])
   local icon = spellID and ns.Widgets.SpellTexture(spellID) or FALLBACK_ICON
   local text = ns.Language() == "deDE" and mechanic[TEXT_DE] or mechanic[TEXT_EN]
-  text = ns.Format.Highlight(text, linkSpell and mechanic[SPELL_ID] > 0 and "spell:" .. mechanic[SPELL_ID] or nil)
+  local link, linkName = linkSpell and mechanic[SPELL_ID] > 0 and "spell:" .. mechanic[SPELL_ID] or nil, nil
+  if link then
+    -- Linktext = Zaubername des Clients: die Guide-Texte nennen Zauber teils anders als der Tooltip (LT-415)
+    local name = C_Spell.GetSpellName(mechanic[SPELL_ID])
+    if type(name) == "string" and not ns.IsSecret(name) and name ~= "" then linkName = name end
+  end
+  text = ns.Format.Highlight(text, link, linkName)
   return string.format("|T%s:0|t |cff%02x%02x%02x%s:|r %s", icon, math.floor(color[1] * 255),
     math.floor(color[2] * 255), math.floor(color[3] * 255), L["MECHANIC_" .. mechanic[KIND]:upper()], text)
 end

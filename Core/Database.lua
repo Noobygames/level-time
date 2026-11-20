@@ -517,6 +517,19 @@ local function loginRealm(stats, name, guid)
   return storedRealm(stats, name, guid) or ""
 end
 
+-- Doppel-Eintrag "Name-" desselben Charakters (gleiche GUID; entstand, bevor es den Realm-Rückfall gab): aus der
+-- Charakterliste nehmen, damit History und Alts ihn nur einmal zeigen. Nichts wird gelöscht: die Daten liegen unter
+-- LevelTimerStatsDB.splitCharacters[GUID] (LT-414).
+local function setAsideSplitEntry(stats, name, key, guid)
+  local splitKey = Database.CharacterKey(name, "")
+  local split = stats.characters[splitKey]
+  if key == splitKey or not guid or type(split) ~= "table" or split.guid ~= guid then return end
+  stats.splitCharacters = stats.splitCharacters or {}
+  if stats.splitCharacters[guid] == nil then stats.splitCharacters[guid] = split end
+  stats.characters[splitKey] = nil
+  ns.Debug("core", "split entry %s set aside", splitKey)
+end
+
 -- Realm für andere Module (Schlüssel je Realm, eigene Absender): Client, sonst der gespeicherte des Charakters
 function Database.RealmName()
   local realm = GetRealmName and GetRealmName()
@@ -540,6 +553,8 @@ local function loadCharacter(stats)
   if realm == "" and guid and type(existing) == "table" and existing.guid and existing.guid ~= guid then
     key = Database.CharacterKey(name, guid)
   end
+
+  setAsideSplitEntry(stats, name, key, guid)
 
   local data = stats.characters[key]
   local inherited
