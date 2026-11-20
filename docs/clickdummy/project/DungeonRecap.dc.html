@@ -44,7 +44,7 @@ button,input{font-family:inherit}
     <!-- Inhalt -->
     <div style="flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 8px">
 
-      <sc-if test="{{isOverview}}">
+      <sc-if value="{{isOverview}}" hint-placeholder-val="true">
         <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
           <sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
             <div style="background: #161616; border: 1px solid #333; border-radius: 4px; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px">
@@ -68,7 +68,7 @@ button,input{font-family:inherit}
         </div>
       </sc-if>
 
-      <sc-if test="{{isLoot}}">
+      <sc-if value="{{isLoot}}" hint-placeholder-val="false">
         <div style="display: flex; flex-direction: column; gap: 4px">
           <sc-for list="{{loot}}" as="l" hint-placeholder-count="5">
             <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{l.bg}}; border-radius: 4px">
@@ -81,7 +81,7 @@ button,input{font-family:inherit}
         <span style="font-size: 12px; color: #8a8a8a">Würfe und Beute des Laufs, Würfe zuerst</span>
       </sc-if>
 
-      <sc-if test="{{isGroup}}">
+      <sc-if value="{{isGroup}}" hint-placeholder-val="false">
         <div style="display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px 64px 48px; gap: 8px; font-size: 12px; font-weight: 600; color: #ffd100; padding: 0 8px 4px; border-bottom: 1px solid #333">
           <span>Spieler</span><span style="text-align: right">Schaden</span><span style="text-align: right">Heilung</span><span style="text-align: right">Unterbr.</span><span style="text-align: right">Tode</span>
         </div>
@@ -94,7 +94,7 @@ button,input{font-family:inherit}
         <span style="font-size: 12px; color: #8a8a8a">Zahlen aus dem Schadensmesser des Spiels, ganzer Lauf</span>
       </sc-if>
 
-      <sc-if test="{{isEnemies}}">
+      <sc-if value="{{isEnemies}}" hint-placeholder-val="false">
         <span style="font-size: 13px; font-weight: 600; color: #ffd100">Gefährlichste Gegner</span>
         <sc-for list="{{mobs}}" as="m" hint-placeholder-count="3">
           <div style="display: grid; grid-template-columns: 24px minmax(0, 1fr) 90px; gap: 8px; align-items: center; min-height: 32px; padding: 0 8px; background: {{m.bg}}; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums">

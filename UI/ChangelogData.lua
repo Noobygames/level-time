@@ -23,6 +23,11 @@ ns.CHANGELOG = {
         enUS = "Setup wizard: the dungeon guide and dungeon recap can now be set in the dungeons step, the guide with a preview.",
         frFR = "Assistant de configuration : le guide de donjon et le bilan du donjon se règlent dans l'étape Donjons, le guide avec un aperçu.",
         esES = "Asistente de configuración: la guía de mazmorra y el resumen de la mazmorra se ajustan en el paso Mazmorras, la guía con vista previa." },
+      { kind = "fix",
+        deDE = "Gruppensuche: Dungeons stehen nach Level aufsteigend und zeigen die Levelbereiche von WoW Forever.",
+        enUS = "Group finder: dungeons are sorted by level ascending and show the WoW Forever level ranges.",
+        frFR = "Recherche de groupe : les donjons sont triés par niveau croissant et affichent les tranches de niveau de WoW Forever.",
+        esES = "Buscador de grupos: las mazmorras se ordenan por nivel ascendente y muestran los rangos de nivel de WoW Forever." },
     },
   },
   {

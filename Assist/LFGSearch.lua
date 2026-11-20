@@ -47,21 +47,27 @@ function LFGSearch.Categories()
   return list
 end
 
--- Aktivitäten einer Kategorie nach Level aufsteigend (Mindestlevel, dann Höchstlevel; Höchstlevel 0 = offen nach oben
--- zählt als höchstes): { { id, name, fullName, minLevel, maxLevel, mapID }, ... }
+-- Aktivitäten einer Kategorie nach Level aufsteigend (Level aus InstanceInfo, sonst Blizzards Vorschlag; Mindestlevel,
+-- dann Höchstlevel; Höchstlevel 0 = offen nach oben zählt als höchstes; ohne Mindestlevel ganz am Ende):
+--   { { id, name, fullName, minLevel, maxLevel, mapID }, ... }
 function LFGSearch.Activities(categoryID)
   local list = {}
   for _, activityID in ipairs(api().GetAvailableActivities(categoryID) or {}) do
     local info = api().GetActivityInfoTable(activityID)
     if type(info) == "table" then
       local name = (info.shortName and info.shortName ~= "" and info.shortName) or info.fullName
+      -- Levelbereich aus den eigenen Instanzdaten (für Forever gepflegt), sonst Blizzards Vorschlag (Forever: oft Classic-Werte)
+      local known = ns.InstanceInfo.Get(info.mapID)
+      local minLevel = known and known.minLevel or info.minLevelSuggestion or 0
+      local maxLevel = known and known.maxLevel or info.maxLevelSuggestion or 0
       table.insert(list, { id = activityID, name = name, fullName = info.fullName, mapID = info.mapID,
-        minLevel = info.minLevelSuggestion or 0, maxLevel = info.maxLevelSuggestion or 0 })
+        minLevel = minLevel, maxLevel = maxLevel })
     end
   end
   local function upper(level) return level == 0 and math.huge or level end
   table.sort(list, function(a, b)
-    if a.minLevel ~= b.minLevel then return a.minLevel < b.minLevel end
+    -- Mindestlevel 0 = ohne Levelangabe: ans Ende
+    if a.minLevel ~= b.minLevel then return upper(a.minLevel) < upper(b.minLevel) end
     if a.maxLevel ~= b.maxLevel then return upper(a.maxLevel) < upper(b.maxLevel) end
     if a.name ~= b.name then return a.name < b.name end
     return a.id < b.id

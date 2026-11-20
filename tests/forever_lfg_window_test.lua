@@ -6,6 +6,8 @@ local LFGWindow = addon.LFGWindow
 
 wow.login({ level = 22 })
 wow.state.questTitles[167] = "Die Bruderschaft"
+-- minLevelSuggestion = Blizzards (Classic-)Vorschlag; Level-Spannen und Sortierung kommen aus den Forever-Daten
+-- (InstanceInfo): Todesminen 18-23, Schattenfang 22-30, Versunkener Tempel 50-60
 wow.state.lfgActivities = {
   [900] = { mapID = 36, maxNumPlayers = 5, fullName = "Die Todesminen", shortName = "Todesminen", categoryID = 2,
     minLevelSuggestion = 15, maxLevelSuggestion = 24 },
@@ -28,6 +30,15 @@ wow.state.lfgInfo = { [7] = { activityIDs = { 900 }, leaderName = "Brakkus", com
 wow.state.lfgMemberCounts = { [7] = { TANK = 1, HEALER = 0, DAMAGER = 1 } }
 wow.state.lfgWindow = { categories = { [2] = "Dungeons" }, activities = { [2] = { 900, 901, 902 } }, filtered = { 7, 8, 9 } }
 wow.state.lfgLanguages = { filter = { enUS = true, deDE = true }, available = { "enUS", "deDE" }, defaults = { enUS = true } }
+
+-- Dungeonliste nach Level aufsteigend, ohne Levelangabe ganz am Ende (unabhängig von der Reihenfolge der Blizzard-IDs)
+wow.state.lfgActivities[903] = { mapID = 1, fullName = "Ohne Level", shortName = "Ohne Level", categoryID = 2 }
+wow.state.lfgWindow.activities[2] = { 903, 902, 900, 901 }
+local order = {}
+for _, activity in ipairs(addon.LFGSearch.Activities(2)) do table.insert(order, activity.id) end
+expect("Dungeonliste aufsteigend nach Level", table.concat(order, ","), "900,901,902,903")
+wow.state.lfgActivities[903] = nil
+wow.state.lfgWindow.activities[2] = { 900, 901, 902 }
 
 local parts = LFGWindow.Parts()
 local function click(button) button._scripts.OnClick(button, "LeftButton") end
@@ -147,7 +158,7 @@ expect("Alle zuerst", activityEntries[1].key, 0)
 expect("niedrigste Spanne zuerst", activityEntries[2].key, 900)
 expect("dann nach Mindestlevel", activityEntries[3].key, 901)
 expect("höchste zuletzt", activityEntries[4].key, 902)
-expectTrue("Spanne im Text", activityEntries[4].text:find("(40 - 47)", 1, true) ~= nil)
+expectTrue("Spanne im Text", activityEntries[4].text:find("(50 - 60)", 1, true) ~= nil)
 -- LT-326: allein unterwegs zuerst der Abschnitt Gruppen, dann Einzelspieler (je neueste zuerst)
 expect("Kopf Gruppen", parts.rows[1].section, "groups")
 expect("Gruppen-Kopf mit Zahl", parts.rows[1].sectionLabel:GetText(), L.LFG_KIND_GROUPS .. " (1)")
@@ -190,14 +201,15 @@ parts.rows[3]._scripts.OnClick(parts.rows[3], "LeftButton")
 expect("aufgeklappt", parts.rows[4].resultID, 9)
 expect("aufgeklappt: Zeichen", parts.rows[3].collapsed, false)
 
--- "Passend für mich": Level 40 passt nicht zu Level 22; Aktivitäten nach Level-Spanne, Suche nur mit passenden
+-- "Passend für mich": Level 40 passt nicht zu Level 22; Aktivitäten nach Level-Spanne (Todesminen und Schattenfang),
+-- Suche nur mit passenden
 parts.fitCheck:SetChecked(true)
 parts.fitCheck._scripts.OnClick(parts.fitCheck)
-expect("Passend: nur Aktivitäten zum Level", #parts.activityDropdown.entriesFn(), 2)
+expect("Passend: nur Aktivitäten zum Level", #parts.activityDropdown.entriesFn(), 3)
 expect("Passend: Todesminen", parts.activityDropdown.entriesFn()[2].key, 900)
 wow.lfgCalls = {}
 click(parts.searchButton)
-expect("Passend: Suche nur mit passender Aktivität", #wow.lfgCalls[1][8], 1)
+expect("Passend: Suche nur mit passenden Aktivitäten", #wow.lfgCalls[1][8], 2)
 expect("Passend: Aktivität 900", wow.lfgCalls[1][8][1], 900)
 wow.fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 expect("Passend: Level 40 weg", parts.rows[4].resultID, 8)
@@ -300,11 +312,12 @@ expect("kein Eintrag", parts.listingStatus:GetText(), L.LFG_LISTING_NONE)
 expect("ohne Aktivität kein Eintragen", parts.postButton:IsEnabled(), false)
 expect("Kategorie vorbelegt", LFGWindow.State().listingCategoryID, 2)
 expect("Liste nur mit passender Aktivität", parts.activityRows[1].activityID, 900)
-expect("Liste: zweite Zeile leer", parts.activityRows[2]:IsShown(), false)
+expect("Liste: Schattenfang passt auch", parts.activityRows[2].activityID, 901)
+expect("Liste: dritte Zeile leer", parts.activityRows[3]:IsShown(), false)
 parts.allLevelsCheck:SetChecked(true)
 parts.allLevelsCheck._scripts.OnClick(parts.allLevelsCheck)
 expect("Alle Stufen: niedrigste Spanne zuerst", parts.activityRows[1].activityID, 900)
-expect("Alle Stufen: Spanne rechts", parts.activityRows[3].level:GetText(), "(40 - 47)")
+expect("Alle Stufen: Spanne rechts", parts.activityRows[3].level:GetText(), "(50 - 60)")
 expect("Alle Stufen: drei Zeilen", parts.activityRows[3].activityID, 902)
 parts.activityRows[1]._scripts.OnClick(parts.activityRows[1], "LeftButton")
 expect("Aktivität gewählt", LFGWindow.State().listingActivities[900], true)
