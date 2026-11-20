@@ -1831,12 +1831,12 @@ end)
 
 -- LT-404: Zauber-Links im Dungeon Guide verlinken den ersten **Namen** einer Mechanik-Zeile mit deren Zauber-ID. Passt
 -- der Clientname der ID zum Namen im Text (Text in Client-Sprache)? unknown = ID ohne Namen im Client, mismatch =
--- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE)
-local SPELL_LINK_SAMPLE = 10
+-- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE), mismatches = Anzahl aller Abweichungen
+local SPELL_LINK_SAMPLE = 80
 check("LT404.guide.spellLinks", function()
   if not ns.Mechanics then return { available = false } end
   local textIndex = GetLocale() == "deDE" and 3 or 4
-  local linked, unknown, mismatch = 0, 0, {}
+  local linked, unknown, mismatch, mismatches = 0, 0, {}, 0
   for _, list in pairs(ns.Mechanics) do
     for _, mechanic in ipairs(list) do
       local marked = mechanic[1] > 0 and mechanic[textIndex]:match("%*%*(.-)%*%*")
@@ -1845,13 +1845,14 @@ check("LT404.guide.spellLinks", function()
         local name = C_Spell.GetSpellName(mechanic[1])
         if not name or ns.IsSecret(name) then
           unknown = unknown + 1
-        elseif name:lower() ~= marked:lower() and #mismatch < SPELL_LINK_SAMPLE then
-          mismatch[#mismatch + 1] = mechanic[1] .. " " .. name .. " | " .. marked
+        elseif name:lower() ~= marked:lower() then
+          mismatches = mismatches + 1
+          if #mismatch < SPELL_LINK_SAMPLE then mismatch[#mismatch + 1] = mechanic[1] .. " " .. name .. " | " .. marked end
         end
       end
     end
   end
-  return { available = true, linked = linked, unknown = unknown, mismatch = mismatch }
+  return { available = true, linked = linked, unknown = unknown, mismatches = mismatches, mismatch = mismatch }
 end)
 
 -- LT-408: Sprache je Gruppe über den Realm? Stehen Realms in den Leader-Namen der aktuellen Suchergebnisse (nach
@@ -1877,6 +1878,17 @@ check("LT408.lfg.realms", function()
   end
   return { available = true, leaders = total, withRealm = withRealm, realms = realms,
     own = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName() }
+end)
+
+-- LT-413: Forever (Build 71037) liefert einen leeren Realmnamen. Welche Quelle kennt den Realm noch? used = Realm,
+-- den Level Time nutzt (Client oder gespeicherter Eintrag mit derselben GUID)
+check("LT413.realm.sources", function()
+  local fullName = api("UnitFullName")
+  local ok, _, fullRealm = false, nil, nil
+  if type(fullName) == "function" then ok, _, fullRealm = pcall(fullName, "player") end
+  return { realmName = read("GetRealmName"), normalized = read("GetNormalizedRealmName"),
+    fullRealm = ok and readable(fullRealm) or nil, realmID = read("GetRealmID"), guid = read("UnitGUID", "player"),
+    used = ns.Database.RealmName(), key = ns.characterKey }
 end)
 
 -- LT-335..338: Gruppen-Sync nur mit Gruppe/Gilde/Freunden. Gibt es die Gruppen-APIs (sonst bleiben Abgänger in der

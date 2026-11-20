@@ -495,15 +495,44 @@ local function upgradeCharacter(data)
   end, geterrorhandler())
 end
 
+-- Gespeicherter Realm des Eintrags mit derselben GUID und demselben Namen; nil, wenn keiner passt
+local function storedRealm(stats, name, guid)
+  if not guid then return nil end
+  for _, data in pairs(stats.characters) do
+    if type(data) == "table" and data.guid == guid and data.name == name
+        and type(data.realm) == "string" and data.realm ~= "" then
+      return data.realm
+    end
+  end
+end
+
+-- Realm des eingeloggten Charakters: aus dem Client, sonst der gespeicherte. WoW Forever liefert seit Build 71037
+-- einen leeren Realmnamen (GetRealmName und GetNormalizedRealmName, auch Minuten nach dem Login); ohne Rückfall
+-- entstünde ein neuer Eintrag "Name-" und die Statistik des Charakters wäre aufgespalten.
+local function loginRealm(stats, name, guid)
+  local realm = GetRealmName()
+  if type(realm) == "string" and realm ~= "" then return realm end
+  return storedRealm(stats, name, guid) or ""
+end
+
+-- Realm für andere Module (Schlüssel je Realm, eigene Absender): Client, sonst der gespeicherte des Charakters
+function Database.RealmName()
+  local realm = GetRealmName and GetRealmName()
+  if type(realm) == "string" and realm ~= "" then return realm end
+  return ns.character and ns.character.realm or ""
+end
+
 -- Daten des eingeloggten Charakters holen oder anlegen. Alte Daten aus
 -- LevelTimerCharDB werden dabei einmalig übernommen und durchlaufen dieselben Migrationen.
 local function loadCharacter(stats)
-  local name, realm = UnitName("player"), GetRealmName()
+  local guid = playerGuid()
+  local name = UnitName("player")
+  local realm = loginRealm(stats, name, guid)
+  ns.Debug("core", "realm client %s, used %s", GetRealmName(), realm)
   -- WoW Forever: zweiter Rückgabewert von UnitName ist der Nachname (Blizzard NameUtil, Camelot)
   local surname = ns.Client.IsForever() and select(2, UnitName("player")) or nil
   local key = Database.CharacterKey(name, realm)
 
-  local guid = playerGuid()
   local data = stats.characters[key]
   local inherited
   if data and isReplacedCharacter(data, guid) then
