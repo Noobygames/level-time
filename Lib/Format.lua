@@ -144,7 +144,9 @@ end
 -- Fähigkeitsnamen in Guide-Texten stehen als **Name**; WoW-Schrift kennt kein Fett, darum Hervorhebung per Farbe
 local HIGHLIGHT_PATTERN = "%*%*(.-)%*%*"
 
-function Format.Highlight(text)
+-- link (optional, z.B. "spell:9081"): die erste Markierung wird zusätzlich ein Link (Tooltip per Widgets.EnableItemLinks)
+function Format.Highlight(text, link)
+  if link then text = text:gsub(HIGHLIGHT_PATTERN, "**|H" .. link .. "|h%1|h**", 1) end
   return (text:gsub(HIGHLIGHT_PATTERN, ns.Theme.Hex("gold") .. "%1|r"))
 end
 

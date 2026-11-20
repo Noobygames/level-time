@@ -1,7 +1,8 @@
 -- Fenster des Dungeon Guides (Inhalt aus Assist/DungeonGuide.lua): Kopf mit Instanzname, Blätterzeile (zurück,
 -- "Seitentitel  2/6", vor), darunter die Seite mit Bildlauf: je Gegner ein Block aus Porträt (Lib/CreatureModel.lua,
 -- live gezeichnete Kreatur im Rahmen, ohne NPC-ID der Totenkopf), Name, Level/besiegt und den Mechanik-Zeilen mit Zaubersymbol
--- (MechanicTips.Lines). Boss-Seiten haben ein großes Porträt, die Trash-Seite ein kleines je Gegner. Fuß: Haken
+-- (MechanicTips.Lines, Zaubernamen als Links mit Tooltip). Boss-Seiten haben ein großes Porträt, die Trash-Seite ein
+-- kleines je Gegner. Fuß: Haken
 -- "Nicht mehr automatisch anzeigen" (Einstellung dungeonGuideAuto) und der Verweis auf /lt guide.
 -- Position über Lib/Frames.lua (Edit-Modus mit Beispielseite, ziehbar solange nicht gesperrt).
 --   DungeonGuideWindow.Show(instanceName, pages, mapID), pages wie DungeonGuide.Pages; unter dem Kopf wählt eine Auswahlliste
@@ -144,6 +145,7 @@ local function getBlock(index)
   block.text:SetJustifyH("LEFT")
   block.text:SetJustifyV("TOP")
   block.text:SetSpacing(LINE_GAP)
+  Widgets.EnableItemLinks(block)  -- Zaubernamen in den Mechanik-Zeilen: Tooltip beim Überfahren, Shift-Klick
   blocks[index] = block
   return block
 end
@@ -151,7 +153,7 @@ end
 -- Text eines Gegners: Mechanik-Zeilen (alle), ohne Mechaniken "keine Infos"; dazu ob eine Zeile unbestätigt ist
 local function unitText(unit)
   if not unit.mechanics then return Theme.Hex("muted") .. L.DUNGEON_GUIDE_NO_INFO .. "|r", false end
-  local lines, unverified = ns.MechanicTips.Lines(unit.mechanics)
+  local lines, unverified = ns.MechanicTips.Lines(unit.mechanics, nil, true)
   return table.concat(lines, "\n"), unverified
 end
 

@@ -63,23 +63,24 @@ function MechanicTips.NpcOf(unit)
   return ns.QuestBlocklist.NpcId(UnitGUID(unit))
 end
 
--- Tooltip-Text einer Mechanik: "|T...|t Typ: Text", Typ farbig
-function MechanicTips.LineText(mechanic)
+-- Tooltip-Text einer Mechanik: "|T...|t Typ: Text", Typ farbig; linkSpell: erster markierter Name wird Zauber-Link
+-- (nur wo Links überfahrbar sind, z.B. Dungeon Guide; die Zeile hat genau eine Zauber-ID)
+function MechanicTips.LineText(mechanic, linkSpell)
   local color = MechanicTips.COLORS[mechanic[KIND]] or TEXT_COLOR
   local spellID = TYPE_SPELLS[mechanic[KIND]] or (mechanic[SPELL_ID] > 0 and mechanic[SPELL_ID])
   local icon = spellID and ns.Widgets.SpellTexture(spellID) or FALLBACK_ICON
   local text = ns.Language() == "deDE" and mechanic[TEXT_DE] or mechanic[TEXT_EN]
-  text = ns.Format.Highlight(text)
+  text = ns.Format.Highlight(text, linkSpell and mechanic[SPELL_ID] > 0 and "spell:" .. mechanic[SPELL_ID] or nil)
   return string.format("|T%s:0|t |cff%02x%02x%02x%s:|r %s", icon, math.floor(color[1] * 255),
     math.floor(color[2] * 255), math.floor(color[3] * 255), L["MECHANIC_" .. mechanic[KIND]:upper()], text)
 end
 
 -- Zeilentexte der ersten maxLines Mechaniken (ohne maxLines alle) und ob eine davon für Forever unbestätigt ist
--- (ohne Kennung, nur im Forever-Client; solche Zeilen tragen das Sternchen). Auch für den Dungeon Guide.
-function MechanicTips.Lines(mechanics, maxLines)
+-- (ohne Kennung, nur im Forever-Client; solche Zeilen tragen das Sternchen). Auch für den Dungeon Guide (linkSpells).
+function MechanicTips.Lines(mechanics, maxLines, linkSpells)
   local forever, unverified, lines = ns.Client.IsForever(), false, {}
   for index = 1, math.min(#mechanics, maxLines or #mechanics) do
-    local text = MechanicTips.LineText(mechanics[index])
+    local text = MechanicTips.LineText(mechanics[index], linkSpells)
     if forever and mechanics[index][TAG] == nil then
       text = text .. " " .. ns.UnverifiedHint.Mark()
       unverified = true

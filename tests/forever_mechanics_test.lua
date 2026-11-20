@@ -58,6 +58,13 @@ addon.db.language = "deDE"
 expect("Highlight", addon.Format.Highlight("**Feuerball** trifft"), addon.Theme.Hex("gold") .. "Feuerball|r trifft")
 expect("StripHighlight", addon.Format.StripHighlight("**Feuerball** trifft **hart**"), "Feuerball trifft hart")
 expect("ohne Markierung", addon.Format.Highlight("Feuerball trifft"), "Feuerball trifft")
+expect("Highlight mit Link: nur erste Markierung", addon.Format.Highlight("**Feuerball** und **Frost**", "spell:133"),
+  addon.Theme.Hex("gold") .. "|Hspell:133|hFeuerball|h|r und " .. addon.Theme.Hex("gold") .. "Frost|r")
+-- Zauber-Link nur auf Wunsch (Dungeon Guide) und nur mit Zauber-ID
+local volley = { 9081, "interrupt", "**Schattenblitzsalve** trifft alle", "**Shadow Bolt Volley** hits all" }
+expectTrue("Guide-Zeile verlinkt", Tips.LineText(volley, true):find("|Hspell:9081|hSchattenblitzsalve|h", 1, true) ~= nil)
+expect("Einheiten-Tooltip ohne Link", Tips.LineText(volley):find("|H", 1, true), nil)
+expect("ohne Zauber-ID kein Link", Tips.LineText({ 0, "avoid", "**Feuer** meiden", "Avoid **fire**" }, true):find("|H", 1, true), nil)
 for _, list in pairs(addon.Mechanics) do
   for _, mechanic in ipairs(list) do
     expect("keine rohen Sternchen", Tips.LineText(mechanic):find("**", 1, true), nil)

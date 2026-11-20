@@ -6,6 +6,16 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-20",
+    entries = {
+      { kind = "new",
+        deDE = "Dungeon-Guide: Zaubernamen sind verlinkt; mit der Maus darüberfahren zeigt, was der Zauber macht.",
+        enUS = "Dungeon guide: spell names are now links; hover over one to see what the spell does.",
+        frFR = "Guide de donjon : les noms de sorts sont désormais des liens ; survolez-en un pour voir ce que fait le sort.",
+        esES = "Guía de mazmorra: los nombres de hechizos ahora son enlaces; pasa el ratón por encima para ver qué hace el hechizo." },
+    },
+  },
+  {
     date = "2026-11-19",
     entries = {
       { kind = "change",

@@ -137,7 +137,7 @@ function Widgets.AttachTooltip(frame, title, text)
   frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
--- Item-Links in den Texten eines Frames: Tooltip beim Überfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled,
+-- Links (Gegenstände, Zauber) in den Texten eines Frames: Tooltip beim Überfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled,
 -- SimpleFrameAPI in allen Zweigen). onLeave(frame) optional statt Tooltip ausblenden.
 function Widgets.EnableItemLinks(frame, onLeave)
   if not frame.SetHyperlinksEnabled then return end
