@@ -1,7 +1,9 @@
 -- Arten der großen Einblendungen (UI/Alerts.lua) für Stream-Momente: Level-Up, Rare- und Elite-Kill, epische Beute,
 -- Beinahe-Tod, Quest fertig. Jede Art ist einzeln schaltbar (Einstellungen alert*), alle aus.
 -- Quellen: LevelGains.OnReady und neue Journal-Einträge (Journal.OnAdd), kein eigenes Event-Parsing.
--- In Dungeons und Raids ist fast jeder Gegner Elite: dort keine Elite-Einblendung (IsInInstance).
+-- In Dungeons und Raids ist fast jeder Gegner Elite: dort keine Elite-Einblendung (IsInInstance). In einer Gruppe auch
+-- nicht (Elitegebiete wie Jintha'Alor: jeder Kill ein Banner, bis zu 19 in der Warteschlange); allein dieselbe
+-- Gegnerart höchstens alle ELITE_REPEAT_SECONDS.
 -- In Raids ist epische Beute normal: dort keine Beute-Einblendung.
 local _, ns = ...
 local L = ns.L
@@ -11,6 +13,8 @@ local Classification = ns.Classification
 
 local EPIC_QUALITY = 4
 local GROUP_INSTANCES = { party = true, raid = true }  -- Instanzarten von IsInInstance mit Elite-Gegnern
+local ELITE_REPEAT_SECONDS = 300
+local eliteShownAt = {}  -- Gegnername -> GetTime() der letzten Elite-Einblendung
 local COLORS = Alerts.COLORS
 
 -- Arten: Einstellung, inCombat ("hold" = im Kampf zurückhalten und danach zeigen), Farbe, Symbol (Alerts.ICONS), Text aus einem Wert
@@ -84,7 +88,11 @@ local handlers = {
     local name = entry.name or L.UNKNOWN_NAME
     if Classification.IsRare(entry.classification) and ns.db.alertRareKill then
       alert("rare", name)
-    elseif Classification.IsElite(entry.classification) and not GROUP_INSTANCES[instanceType()] then
+    elseif Classification.IsElite(entry.classification) and ns.db.alertEliteKill
+        and not GROUP_INSTANCES[instanceType()] and not IsInGroup() then
+      local now = GetTime()
+      if eliteShownAt[name] and now - eliteShownAt[name] < ELITE_REPEAT_SECONDS then return end
+      eliteShownAt[name] = now
       alert("elite", name)
     end
   end,

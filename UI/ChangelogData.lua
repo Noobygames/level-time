@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-20",
     entries = {
+      { kind = "change",
+        deDE = "Elite-Einblendung: In einer Gruppe keine mehr, allein dieselbe Gegnerart höchstens alle 5 Minuten (Elitegebiete wie Jintha'Alor fluteten den Bildschirm).",
+        enUS = "Elite alert: none while in a group, and solo the same enemy type at most every 5 minutes (elite areas like Jintha'Alor flooded the screen).",
+        frFR = "Alerte élite : plus aucune en groupe, et en solo le même type d'ennemi au plus toutes les 5 minutes (les zones d'élites comme Jintha'Alor inondaient l'écran).",
+        esES = "Aviso de élite: ninguno en grupo y, en solitario, el mismo tipo de enemigo como mucho cada 5 minutos (zonas de élites como Jintha'Alor llenaban la pantalla)." },
       { kind = "fix",
         deDE = "WoW Forever: Seit dem letzten Client-Update fehlt der Realmname; dein Charakter wird trotzdem wiedererkannt, seine Statistik nicht mehr aufgeteilt, und ein schon entstandener doppelter Eintrag verschwindet aus der Übersicht.",
         enUS = "WoW Forever: since the last client update the realm name is missing; your character is still recognized, its statistics are no longer split, and a duplicate entry created meanwhile disappears from the overview.",
