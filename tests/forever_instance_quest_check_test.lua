@@ -35,6 +35,20 @@ local line = lastLine()
 expectTrue("Kopf mit Anzahl", line:find(string.format(L.INSTANCE_QUEST_CHECK_MISSING, 2, ""), 1, true) ~= nil)
 expectTrue("Titel aus dem Client mit Startort", line:find("[15] Die ruhelosen Toten (Karte 1455 (33, 48))", 1, true) ~= nil)
 expectTrue("Rückfall-Name", line:find("[16] The Treaty of Understanding", 1, true) ~= nil)
+-- Unbekannter Titel: einmal beim Client angefordert, danach in der Spielsprache
+local function requests(questID)
+  local count = 0
+  for _, id in ipairs(wow.state.questLoadRequests or {}) do
+    if id == questID then count = count + 1 end
+  end
+  return count
+end
+expect("Titel angefordert", requests(98423), 1)
+Check.Text(3065)
+expect("nur einmal angefordert", requests(98423), 1)
+expect("bekannter Titel nicht angefordert", requests(96394), 0)
+wow.state.questTitles[98423] = "Der Vertrag"
+expectTrue("Titel nach dem Laden", Check.Text(3065):find("[16] Der Vertrag", 1, true) ~= nil)
 
 -- Wiedereintritt mit derselben Liste: keine neue Zeile
 leave()

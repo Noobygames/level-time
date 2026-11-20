@@ -9,8 +9,9 @@
 --     Zauberbuch (GetSpellTabInfo, GetSpellBookItemName wie Vanilla/SpellBookFrame.lua); niedrige Ränge stehen dort
 --     nur mit CVar ShowAllSpellRanks, der höchste immer. Der Knopf ist alt, wenn sein Rang darunter liegt.
 -- Upgrade (LT-409, Knopf je Zauber im Hinweisfenster): Überfahren hebt den nächsten Platz mit dem alten Rang auf der
--- Leiste hervor (ActionBars.HighlightSlot), ein Klick legt dort den höchsten Rang aus dem Zauberbuch ab (PickupSpell,
--- PlaceAction, ClearCursor; nicht im Kampf, dort sperrt der Client Aktionsleisten). Mehrere Plätze = mehrere Klicks.
+-- Leiste hervor (ActionBars.HighlightSlot), ein Klick legt dort den höchsten Rang aus dem Zauberbuch ab
+-- (C_Spell.PickupSpell, PlaceAction, ClearCursor; nicht im Kampf, dort sperrt der Client Aktionsleisten). Mehrere
+-- Plätze = mehrere Klicks.
 -- Retail kennt keine Ränge: nicht verfügbar, keine Einstellung.
 local _, ns = ...
 
@@ -156,10 +157,12 @@ function OldSpellRanks.UpgradeNext(spell)
   end
   local slot = spell.upgradeID and OldSpellRanks.NextSlot(spell)
   if slot then
-    PickupSpell(spell.upgradeID)
+    C_Spell.PickupSpell(spell.upgradeID)  -- das globale PickupSpell fehlt in WoW Forever
     PlaceAction(slot)
     ClearCursor()  -- der alte Rang landet beim Tauschen auf dem Mauszeiger
     ns.Debug("spellranks", "upgrade %s to %s on slot %s", spell.spellID, spell.upgradeID, slot)
+  else
+    ns.Debug("spellranks", "upgrade %s: no slot left (target %s)", spell.spellID, spell.upgradeID)
   end
   return OldSpellRanks.NextSlot(spell) == nil
 end

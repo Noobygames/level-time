@@ -213,6 +213,22 @@ wow.advance(3)
 wow.update(0.2)
 expect("Abgelaufen: Overlay ausgeblendet", testCd._ltText:IsShown(), false)
 
+-- Verbotene Frames (Namensplaketten in Forever): kein Overlay, kein IsShown-Aufruf (wirft dort einen Fehler)
+local function forbid(frame)
+  frame.IsForbidden = function() return true end
+  frame.IsShown = function() error("forbidden object") end
+end
+local forbiddenCd = CreateFrame("Frame")
+forbid(forbiddenCd)
+CooldownFrame_Set(forbiddenCd, GetTime(), 10, 1)
+expect("verbotener Frame: kein Overlay", rawget(forbiddenCd, "_ltText"), nil)
+local laterCd = CreateFrame("Frame")
+CooldownFrame_Set(laterCd, GetTime(), 10, 1)
+forbid(laterCd)
+wow.update(0.2)
+wow.update(0.2)
+expect("erst später verboten: keine Fehler", #wow.errors, 0)
+
 -- Ausschalten raeumt aktive Cooldowns ab
 local activeCd = CreateFrame("Frame")
 CooldownFrame_Set(activeCd, GetTime(), 30, 1)

@@ -78,7 +78,7 @@ read_globals = {
   "GetTitleText", "GetTotalAchievementPoints", "GetTrainerServiceCost", "GetTrainerServiceIcon",
   "GetTrainerServiceInfo", "GetTrainerServiceLevelReq", "GetTrainerServiceSkillReq", "GetUnitName",
   "GetWeaponEnchantInfo", "GetXPExhaustion", "GetZoneText", "GuildInviteFrame", "HandleModifiedItemClick",
-  "hooksecurefunc", "InitiateRolePoll", "issecurevariable", "InboxFrame", "InCombatLockdown", "PickupSpell", "PlaceAction", "InterfaceOptions_AddCategory", "InviteUnit", "INVSLOT_AMMO",
+  "hooksecurefunc", "InitiateRolePoll", "issecurevariable", "InboxFrame", "InCombatLockdown", "PlaceAction", "InterfaceOptions_AddCategory", "InviteUnit", "INVSLOT_AMMO",
   "INVSLOT_LAST_EQUIPPED", "INVSLOT_TABARD", "IsAddOnLoaded", "IsAltKeyDown", "IsControlKeyDown", "IsFalling",
   "IsIndoors", "IsInGroup", "IsInGuild", "IsInInstance", "IsInRaid", "IsModifiedClick",
   "IsPlayerAtEffectiveMaxLevel", "IsPlayerMoving", "IsPlayerSpell", "IsQuestCompletable", "IsQuestFlaggedCompleted",

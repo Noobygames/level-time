@@ -1,7 +1,8 @@
 -- Sammelfenster für Erinnerungen (Buffs, Lehrer, Taschen, alte Zauberränge, ...): Hinweise, die kurz nacheinander
 -- kommen, stehen als Liste in EINEM Fenster statt als mehrere Banner nacheinander (Alerts.Notify mit
 -- options.collect). Je Zeile Symbol und Text, ein X schließt sie, "Alle schließen" im Kopf. Das Fenster bleibt, bis es
--- geschlossen wird; mit hintsAutoClose (Standard an) schließt es nach hintsAutoCloseSeconds (Standard 10), unter der Maus bleibt es.
+-- geschlossen wird; mit hintsAutoClose (Standard an) schließt es nach hintsAutoCloseSeconds (Standard 10);
+-- unter der Maus hält die Zeit an und beginnt danach von vorn.
 -- Dringende Meldungen (Aggro, Atemnot, Rare/Elite, Notfall) bleiben sofortige Banner (UI/Alerts.lua).
 -- Hints.Add(entry): entry = { text, title, icon/texture (Alerts.ICONS), key, rows, header }. Gleicher key (Standard:
 -- der Text) ersetzt die Zeile statt sie zu verdoppeln. rows = { { spellID, name, columns = { ... } } } hängt eine
@@ -94,9 +95,11 @@ local function getRow(index)
   row.action.icon:SetTexture(ACTION_ICON)
   row.action:SetHighlightTexture(ACTION_ICON, "ADD")
   local function rowAction() return row.detail and row.detail.action end
-  row.action:SetScript("OnClick", function()
+  -- Über ns.SafeCall: ein Fehler in run() landet im Debug-Log statt nur im Fehlerfenster des Clients
+  local function runAction()
     if rowAction() and rowAction().run() then Hints.RemoveLine(row) end
-  end)
+  end
+  row.action:SetScript("OnClick", function() ns.SafeCall(runAction) end)
   row.action:HookScript("OnEnter", function() if rowAction() and rowAction().onEnter then rowAction().onEnter() end end)
   row.action:HookScript("OnLeave", function() if rowAction() and rowAction().onLeave then rowAction().onLeave() end end)
   Widgets.AttachTooltip(row.action, function() return ns.DISPLAY_NAME end, function()
@@ -312,12 +315,14 @@ function Hints.Rows() return rows end
 
 ns.SetUpdateScript(panel, "Hints", function(self)
   if editing or not shownAt or not (ns.db and ns.db.hintsAutoClose) then return end
+  -- Unter der Maus (Lesen, Knöpfe, Tooltips) läuft keine Zeit: nach dem Verlassen beginnt die volle Wartezeit neu
+  if self:IsMouseOver() then
+    shownAt = GetTime()
+    self:SetAlpha(1)
+    return
+  end
   local age = GetTime() - shownAt
   local hold = ns.db.hintsAutoCloseSeconds
-  if self:IsMouseOver() and age > hold then  -- unter der Maus bleibt es stehen
-    shownAt = GetTime() - hold
-    age = hold
-  end
   if age >= hold + FADE_OUT then
     Hints.Clear()
   elseif age > hold then

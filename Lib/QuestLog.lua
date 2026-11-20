@@ -201,10 +201,21 @@ end
 
 -- Questtitel aus dem Client (C_QuestLog.GetTitleForQuestID in Retail/Forever, C_QuestLog.GetQuestInfo in Classic Era;
 -- beide ohne Gewähr, wenn der Client die Quest noch nicht kennt), sonst aus dem Questlog, sonst nil
+-- Unbekannte Quests fordert der Client mit C_QuestLog.RequestLoadQuestByID an (Retail, Forever; nicht in Classic Era):
+-- danach liefert GetTitleForQuestID den Titel in der Spielsprache. Je Quest nur eine Anfrage pro Sitzung.
+local requestedTitles = {}
+
+local function requestTitle(questID)
+  if requestedTitles[questID] or not (C_QuestLog and C_QuestLog.RequestLoadQuestByID) then return end
+  requestedTitles[questID] = true
+  C_QuestLog.RequestLoadQuestByID(questID)
+end
+
 function QuestLog.Title(questID)
   if type(questID) ~= "number" then return nil end
   local title = clientTitle(questID, "GetTitleForQuestID") or clientTitle(questID, "GetQuestInfo")
   if title then return title end
+  requestTitle(questID)
   local entry = QuestLog.Find(questID)
   return entry and entry.title or nil
 end

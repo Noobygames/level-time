@@ -19,7 +19,7 @@ ns.InstanceQuestCheck = InstanceQuestCheck
 local MAX_LISTED = 6
 local SEPARATOR = ", "
 
--- Zuletzt gemeldeter Text je Instanz-Karten-ID
+-- Zuletzt gemeldete Liste (Quest-IDs) je Instanz-Karten-ID
 local lastReport = {}
 
 function InstanceQuestCheck.IsAvailable()
@@ -60,14 +60,22 @@ function InstanceQuestCheck.Text(mapID)
   return string.format(L.INSTANCE_QUEST_CHECK_MISSING, #missing, table.concat(parts, SEPARATOR))
 end
 
+-- Schlüssel der gemeldeten Liste: die Quest-IDs (ein nachgeladener Titel in der Spielsprache ist keine neue Liste)
+local function reportKey(mapID)
+  local ids = {}
+  for _, quest in ipairs(InstanceQuestCheck.Missing(mapID)) do table.insert(ids, quest.questID) end
+  return table.concat(ids, ",")
+end
+
 local function check()
   if not ns.db.instanceQuestCheck or not InstanceQuestCheck.IsAvailable() then return end
   local mapID = select(8, GetInstanceInfo())  -- 8. Rückgabe: Instanz-Karten-ID
   if not mapID then return end
   local text = InstanceQuestCheck.Text(mapID)
   ns.Debug("instance", "quest check %s: %s", mapID, text or "complete")
-  if text == lastReport[mapID] then return end
-  lastReport[mapID] = text
+  local key = reportKey(mapID)
+  if key == lastReport[mapID] then return end
+  lastReport[mapID] = key
   if text then ns.Print(text) end
 end
 

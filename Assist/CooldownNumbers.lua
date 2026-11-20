@@ -47,7 +47,17 @@ local function getTextOverlay(cooldown)
   return text
 end
 
+-- Verbotene Frames (z. B. Namensplaketten in Forever) dürfen wir nicht anfassen: IsShown wirft dort einen Fehler.
+-- IsForbidden selbst ist auf jedem Frame erlaubt; ein Frame kann es auch erst nach dem Hook werden.
+local function isForbidden(cooldown)
+  return cooldown.IsForbidden and cooldown:IsForbidden()
+end
+
 local function updateCooldown(cooldown, info, now)
+  if isForbidden(cooldown) then
+    activeCooldowns[cooldown] = nil
+    return
+  end
   local remaining = (info.start + info.duration) - now
   local overlay = rawget(cooldown, "_ltText")
   if remaining <= 0 then
@@ -79,7 +89,7 @@ local function onTick()
 end
 
 local function onCooldownSet(cooldown, start, duration, enable)
-  if not cooldown or not ns.db or not ns.db.cooldownNumbers then return end
+  if not cooldown or not ns.db or not ns.db.cooldownNumbers or isForbidden(cooldown) then return end
   if ns.IsSecret(start) or ns.IsSecret(duration) or ns.IsSecret(enable) then return end
   local isEnabled = enable == nil or enable == 1 or enable == true
   if not isEnabled or not start or not duration or duration <= 1.5 then

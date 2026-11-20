@@ -60,8 +60,8 @@ function GetActionInfo(slot)
   local action = (state.actions or {})[slot]
   if action then return action[1], action[2] end
 end
--- Zauber auf den Mauszeiger und auf einen Platz legen; wie im Client wandert der alte Inhalt auf den Mauszeiger
-function PickupSpell(spellID) state.cursorSpell = spellID end
+-- Zauber auf den Mauszeiger und auf einen Platz legen; wie im Client wandert der alte Inhalt auf den Mauszeiger.
+-- Nur C_Spell.PickupSpell: das globale PickupSpell fehlt in WoW Forever (Lua-Fehler beim Upgrade, LT-409)
 function PlaceAction(slot)
   if not state.cursorSpell then return end
   state.actions = state.actions or {}
@@ -79,6 +79,7 @@ function GetSpellBookItemName(slot)
 end
 C_Spell.GetSpellSubtext = function(spellID) return state.spellSubtexts[spellID] end
 C_Spell.GetSpellName = function(spellID) return state.spellNames[spellID] end
+C_Spell.PickupSpell = function(spellID) state.cursorSpell = spellID end
 if state.interface == 16001 then
   Enum = Enum or {}
   Enum.SpellBookSpellBank = { Player = 0, Pet = 1 }

@@ -35,6 +35,11 @@ if state.interface == 11509 then
   C_QuestLog.GetQuestInfo = questTitle
 else
   C_QuestLog.GetTitleForQuestID = questTitle
+  -- Angeforderte Quest-IDs (state.questLoadRequests); der Test setzt danach state.questTitles wie der Server
+  C_QuestLog.RequestLoadQuestByID = function(questID)
+    state.questLoadRequests = state.questLoadRequests or {}
+    table.insert(state.questLoadRequests, questID)
+  end
 end
 -- Questlog wie in Classic Era/TBC (GetQuestLogTitle: 2. Level, 3. suggestedGroup, 8. questID); C_QuestLog.GetInfo
 -- fehlt im Stub. Beobachtete Quests (Tracker): state.questWatches = { Log-Index, ... }

@@ -44,6 +44,25 @@ wow.advance(6)
 wow.update(0.1)
 expectTrue("schließt von selbst", not Hints.IsShown())
 expect("leer", #Hints.Entries(), 0)
+
+-- Unter der Maus: keine Zeit läuft, nach dem Verlassen beginnt die volle Wartezeit neu
+local panel = _G[addon.GlobalName("Hints")]
+Hints.Add({ text = "maus", title = "Maus" })
+wow.advance(20.2)  -- mitten im Ausblenden
+wow.update(0.1)
+panel.IsMouseOver = function() return true end
+wow.advance(100)
+wow.update(0.1)
+expectTrue("unter der Maus offen", Hints.IsShown())
+expect("unter der Maus voll sichtbar", panel:GetAlpha(), 1)
+panel.IsMouseOver = function() return false end
+wow.advance(15)
+wow.update(0.1)
+expectTrue("nach dem Verlassen volle Wartezeit", Hints.IsShown())
+wow.advance(6)
+wow.update(0.1)
+expectTrue("danach schließt es", not Hints.IsShown())
+panel.IsMouseOver = nil
 addon.Set("hintsAutoClose", false)
 
 -- Alle schließen
