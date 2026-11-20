@@ -1829,6 +1829,31 @@ check("LT395.icons.spells", function()
   return { spells = count, missing = missing }
 end)
 
+-- LT-404: Zauber-Links im Dungeon Guide verlinken den ersten **Namen** einer Mechanik-Zeile mit deren Zauber-ID. Passt
+-- der Clientname der ID zum Namen im Text (Text in Client-Sprache)? unknown = ID ohne Namen im Client, mismatch =
+-- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE)
+local SPELL_LINK_SAMPLE = 10
+check("LT404.guide.spellLinks", function()
+  if not ns.Mechanics then return { available = false } end
+  local textIndex = GetLocale() == "deDE" and 3 or 4
+  local linked, unknown, mismatch = 0, 0, {}
+  for _, list in pairs(ns.Mechanics) do
+    for _, mechanic in ipairs(list) do
+      local marked = mechanic[1] > 0 and mechanic[textIndex]:match("%*%*(.-)%*%*")
+      if marked then
+        linked = linked + 1
+        local name = C_Spell.GetSpellName(mechanic[1])
+        if not name or ns.IsSecret(name) then
+          unknown = unknown + 1
+        elseif name:lower() ~= marked:lower() and #mismatch < SPELL_LINK_SAMPLE then
+          mismatch[#mismatch + 1] = mechanic[1] .. " " .. name .. " | " .. marked
+        end
+      end
+    end
+  end
+  return { available = true, linked = linked, unknown = unknown, mismatch = mismatch }
+end)
+
 -- LT-335..338: Gruppen-Sync nur mit Gruppe/Gilde/Freunden. Gibt es die Gruppen-APIs (sonst bleiben Abgänger in der
 -- Peer-Liste), und erkennt UnitInParty/UnitInRaid die Absender im Format "Name-Realm" (inParty je Peer)?
 local SYNC_PEERS = 5

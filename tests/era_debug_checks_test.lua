@@ -28,6 +28,7 @@ local CHECKS = {
   "LT285.damageMeter.api",
   "LT334.recap.api", "LT334.recap.state", "LT334.recap.deaths",
   "LT352.lfg.filters", "LT387.guide.anytime", "LT338.sync.groupApi", "LT393.dungeonArt.coverage", "LT395.icons.spells",
+  "LT404.guide.spellLinks",
 }
 
 wow.login()
