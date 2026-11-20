@@ -8,8 +8,9 @@
 --   Classic Era/TBC: Rangzahl aus dem Untertext ("Rang 3", Widgets.SpellRank). Höchster Rang je Name aus dem
 --     Zauberbuch (GetSpellTabInfo, GetSpellBookItemName wie Vanilla/SpellBookFrame.lua); niedrige Ränge stehen dort
 --     nur mit CVar ShowAllSpellRanks, der höchste immer. Der Knopf ist alt, wenn sein Rang darunter liegt.
--- Upgrade (LT-409, Knopf je Zauber im Hinweisfenster): legt den höchsten Rang aus dem Zauberbuch auf jeden Platz mit
--- dem alten Rang (PickupSpell, PlaceAction, ClearCursor; nicht im Kampf, dort sperrt der Client Aktionsleisten).
+-- Upgrade (LT-409, Knopf je Zauber im Hinweisfenster): Überfahren hebt den nächsten Platz mit dem alten Rang auf der
+-- Leiste hervor (ActionBars.HighlightSlot), ein Klick legt dort den höchsten Rang aus dem Zauberbuch ab (PickupSpell,
+-- PlaceAction, ClearCursor; nicht im Kampf, dort sperrt der Client Aktionsleisten). Mehrere Plätze = mehrere Klicks.
 -- Retail kennt keine Ränge: nicht verfügbar, keine Einstellung.
 local _, ns = ...
 
@@ -138,26 +139,40 @@ function OldSpellRanks.Find()
   return found
 end
 
--- Höchsten Rang auf alle Plätze von spell (Eintrag aus Find) legen; false im Kampf oder ohne Upgrade-Ziel. Ein Platz,
--- auf dem inzwischen etwas anderes liegt, bleibt unberührt.
-function OldSpellRanks.Upgrade(spell)
+-- Nächster Platz von spell (Eintrag aus Find), auf dem noch der alte Rang liegt; nil, wenn keiner mehr
+function OldSpellRanks.NextSlot(spell)
+  for _, slot in ipairs(spell.slots) do
+    local actionType, id = GetActionInfo(slot)
+    if actionType == "spell" and id == spell.spellID then return slot end
+  end
+end
+
+-- Höchsten Rang auf den nächsten Platz von spell legen. true, wenn danach kein Platz mit dem alten Rang mehr übrig ist
+-- (die Zeile kann weg); im Kampf oder ohne Upgrade-Ziel bleibt alles, wie es ist.
+function OldSpellRanks.UpgradeNext(spell)
   if InCombatLockdown() then
     ns.Print(L.OLD_RANKS_UPGRADE_COMBAT)
     return false
   end
-  if not spell.upgradeID then return false end
-  local placed = 0
-  for _, slot in ipairs(spell.slots) do
-    local actionType, id = GetActionInfo(slot)
-    if actionType == "spell" and id == spell.spellID then
-      PickupSpell(spell.upgradeID)
-      PlaceAction(slot)
-      ClearCursor()  -- der alte Rang landet beim Tauschen auf dem Mauszeiger
-      placed = placed + 1
-    end
+  local slot = spell.upgradeID and OldSpellRanks.NextSlot(spell)
+  if slot then
+    PickupSpell(spell.upgradeID)
+    PlaceAction(slot)
+    ClearCursor()  -- der alte Rang landet beim Tauschen auf dem Mauszeiger
+    ns.Debug("spellranks", "upgrade %s to %s on slot %s", spell.spellID, spell.upgradeID, slot)
   end
-  ns.Debug("spellranks", "upgrade %s to %s on %s slots", spell.spellID, spell.upgradeID, placed)
-  return true
+  return OldSpellRanks.NextSlot(spell) == nil
+end
+
+-- Zeilen-Aktion fürs Hinweisfenster: Überfahren zeigt den nächsten Platz, Klick tauscht ihn
+local function upgradeAction(spell)
+  local function highlight() ns.ActionBars.HighlightSlot(OldSpellRanks.NextSlot(spell)) end
+  return { tip = L.OLD_RANKS_UPGRADE_TIP, onEnter = highlight, onLeave = ns.ActionBars.ClearHighlight,
+    run = function()
+      local done = OldSpellRanks.UpgradeNext(spell)
+      if done then ns.ActionBars.ClearHighlight() else highlight() end
+      return done
+    end }
 end
 
 local function rankText(rank)
@@ -181,7 +196,7 @@ function OldSpellRanks.Check()
     table.insert(rows, { spellID = spell.spellID, name = spell.name,
       columns = { rankText(spell.barRank), rankText(spell.bookRank) },
       onDismiss = function() OldSpellRanks.Ignore(spell.spellID) end,
-      action = spell.upgradeID and { tip = L.OLD_RANKS_UPGRADE_TIP, run = function() return OldSpellRanks.Upgrade(spell) end } })
+      action = spell.upgradeID and upgradeAction(spell) })
   end
   ns.Alerts.Notify({ title = L.NOTICE_OLD_SPELL_RANKS,
     text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(names, ", ")),

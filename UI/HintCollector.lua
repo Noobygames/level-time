@@ -8,8 +8,9 @@
 -- Tabelle mit ausgerichteten Spalten unter die Zeile (Zaubersymbol mit Zaubertooltip, Name, Spalten); header =
 -- { Name-Kopf, Spaltenkopf, ... } ist ihre Kopfzeile. Eine Tabellenzeile mit onDismiss hat rechts einen eigenen
 -- Schließen-Knopf: er ruft onDismiss() und nimmt die Zeile heraus (ohne Zeilen fällt der ganze Eintrag weg).
--- action = { tip, run } setzt links daneben einen grünen Pfeil-hoch-Knopf (z.B. Zauberrang upgraden, LT-409): Klick
--- ruft run(); gibt es true zurück, verschwindet die Zeile (ohne onDismiss).
+-- action = { tip, run, onEnter, onLeave } setzt links daneben einen grünen Pfeil-hoch-Knopf (z.B. Zauberrang upgraden,
+-- LT-409): Überfahren ruft onEnter/onLeave (optional), Klick ruft run(); gibt es true zurück, verschwindet die Zeile
+-- (ohne onDismiss).
 -- text und title dürfen Funktionen sein: sie werden bei jedem Aufbau des Fensters ausgewertet, so folgt der Text einem
 -- Sprachwechsel (Alerts.Resolve). Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt).
 local _, ns = ...
@@ -92,9 +93,12 @@ local function getRow(index)
   row.action.icon:SetAllPoints()
   row.action.icon:SetTexture(ACTION_ICON)
   row.action:SetHighlightTexture(ACTION_ICON, "ADD")
+  local function rowAction() return row.detail and row.detail.action end
   row.action:SetScript("OnClick", function()
-    if row.detail and row.detail.action and row.detail.action.run() then Hints.RemoveLine(row) end
+    if rowAction() and rowAction().run() then Hints.RemoveLine(row) end
   end)
+  row.action:HookScript("OnEnter", function() if rowAction() and rowAction().onEnter then rowAction().onEnter() end end)
+  row.action:HookScript("OnLeave", function() if rowAction() and rowAction().onLeave then rowAction().onLeave() end end)
   Widgets.AttachTooltip(row.action, function() return ns.DISPLAY_NAME end, function()
     return row.detail and row.detail.action and row.detail.action.tip
   end)
