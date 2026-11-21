@@ -386,6 +386,22 @@ expect("Mausrad scrollt drei Zeilen", LFGWindow.State().offset, 3)
 searchFrame._scripts.OnMouseWheel(searchFrame, -10)
 expect("Mausrad endet am Listenende", LFGWindow.State().offset, #LFGWindow.State().lines - 5)  -- in Gruppe: 3 Karten, Kopf Gruppen, 1 Karte
 
+-- Flüster-Verlauf (LT-389): nur angeflüsterte Leiter, neueste zuerst, Obergrenze, Klick öffnet den Chat
+local Whispers = addon.LFGWhispers
+wow.fire("CHAT_MSG_WHISPER", "Fremder Text", "Fremder-Realm")
+expect("Verlauf: Fremde nicht", #Whispers.GetEntries(), 0)
+wow.fire("CHAT_MSG_WHISPER_INFORM", sent.message, "Brakkus")
+wow.fire("CHAT_MSG_WHISPER", "Ja, komm mit", "Brakkus-Realm")
+expect("Verlauf: Senden und Antwort", #Whispers.GetEntries(), 2)
+expect("Verlauf: neueste zuerst", Whispers.GetEntries()[1].text, "Ja, komm mit")
+LFGWindow.SetTab(LFGWindow.TAB_WHISPERS)
+expect("Reiter Flüstern zeigt Zeilen", parts.whisperRows[2]:IsShown(), true)
+expect("Reiter: Kopf der Antwort", parts.whisperRows[1].head:GetText():find("Von Brakkus-Realm", 1, true) ~= nil, true)
+click(parts.whisperRows[1])
+expect("Klick öffnet den Chat", wow.socialActions[#wow.socialActions][2], "Brakkus-Realm")
+for i = 1, Whispers.MAX_ENTRIES + 3 do wow.fire("CHAT_MSG_WHISPER", "x" .. i, "Brakkus") end
+expect("Verlauf: Obergrenze", #Whispers.GetEntries(), Whispers.MAX_ENTRIES)
+expect("Prüfung: alle Ereignisse lesbar", Whispers.Stats().readable, Whispers.Stats().seen)
 -- Zurück wechselt zur Suche, Seitenfenster gehört zur Suche
 LFGWindow.State().selected = 7
 LFGWindow.SetTab(1)

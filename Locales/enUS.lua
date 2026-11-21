@@ -2566,4 +2566,9 @@ ns.locales.enUS = {
   SPLIT_MERGE = "Merge old entry",
   SPLIT_MERGE_CONFIRM = "Merge the old duplicate entry into %s (play time: %s)? This cannot be undone.",
   SPLIT_MERGE_TIP = "This character has a duplicate entry from the WoW Forever realm bug. Merging adds its play time, counters and journals to this entry.",
+  LFG_TAB_WHISPERS = "Whispers",
+  LFG_WHISPERS_EMPTY = "No whispers yet. Whispers sent from the search and the replies appear here (until you log out).",
+  LFG_WHISPERS_ROW_TIP = "Click to open the chat to this player and whisper again.",
+  LFG_WHISPER_FROM = "From %s",
+  LFG_WHISPER_TO = "To %s",
 }

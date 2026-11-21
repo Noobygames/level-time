@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "new",
+        deDE = "Gruppensuche: neuer Reiter Flüstern zeigt deine Flüster an Gruppenleiter und deren Antworten.",
+        enUS = "Group finder: new Whispers tab shows your whispers to group leaders and their replies.",
+        frFR = "Recherche de groupe : nouvel onglet Chuchotements avec tes chuchotements aux chefs de groupe et leurs réponses.",
+        esES = "Buscador de grupos: nueva pestaña Susurros con tus susurros a los líderes de grupo y sus respuestas." },
       { kind = "change",
         deDE = "Dungeon-Guide: Schwarzfelstiefen zeigt mehr Boss- und Trash-Fähigkeiten, darunter die Sieben Zwerge und Verek.",
         enUS = "Dungeon guide: Blackrock Depths shows more boss and trash abilities, including the Seven dwarves and Verek.",

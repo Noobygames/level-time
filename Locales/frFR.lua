@@ -2566,4 +2566,9 @@ ns.locales.frFR = {
   SPLIT_MERGE = "Fusionner l'ancienne entrée",
   SPLIT_MERGE_CONFIRM = "Fusionner l'ancienne entrée en double dans %s (temps de jeu : %s) ? Cette action est irréversible.",
   SPLIT_MERGE_TIP = "Ce personnage a une entrée en double issue du bug de royaume de WoW Forever. La fusion ajoute son temps de jeu, ses compteurs et ses journaux à cette entrée.",
+  LFG_TAB_WHISPERS = "Chuchotements",
+  LFG_WHISPERS_EMPTY = "Aucun chuchotement pour l'instant. Les chuchotements envoyés depuis la recherche et les réponses apparaissent ici (jusqu'à la déconnexion).",
+  LFG_WHISPERS_ROW_TIP = "Cliquer ouvre le chat vers ce joueur pour chuchoter de nouveau.",
+  LFG_WHISPER_FROM = "De %s",
+  LFG_WHISPER_TO = "À %s",
 }

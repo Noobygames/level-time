@@ -2566,4 +2566,9 @@ ns.locales.deDE = {
   SPLIT_MERGE = "Alten Eintrag zusammenführen",
   SPLIT_MERGE_CONFIRM = "Alten Doppel-Eintrag in %s zusammenführen (Spielzeit: %s)? Das lässt sich nicht rückgängig machen.",
   SPLIT_MERGE_TIP = "Dieser Charakter hat einen Doppel-Eintrag aus der Zeit des Realm-Fehlers von WoW Forever. Zusammenführen addiert Spielzeit, Zähler und Journale in diesen Eintrag.",
+  LFG_TAB_WHISPERS = "Flüstern",
+  LFG_WHISPERS_EMPTY = "Noch nichts geflüstert. Flüstern aus der Suche und die Antworten erscheinen hier (nur bis zum Ausloggen).",
+  LFG_WHISPERS_ROW_TIP = "Klick öffnet den Chat an diesen Spieler, um erneut zu flüstern.",
+  LFG_WHISPER_FROM = "Von %s",
+  LFG_WHISPER_TO = "An %s",
 }

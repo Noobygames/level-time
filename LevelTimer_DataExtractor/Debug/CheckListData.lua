@@ -279,4 +279,10 @@ X.CheckListData = {
       "Schamane mit Wasserschild: Buffleiste ausgeklappt ansehen und Tooltip der Option lesen; Leiste einklappen; dann einen Übungsdummy angreifen.",
       "Erwartung: ausgeklappt keine eigene Anzeige (Tooltip sagt warum), eingeklappt Wasserschild mit Ladungen und Restzeit hinter dem letzten Buff, auch im Kampf.",
     } },
+  { id = "LT-389", client = "forever", triggers = { "lfg" },
+    title = "Gruppensuche: Flüster-Verlauf",
+    steps = {
+      "Gruppensuche öffnen, Gruppe wählen, Flüstern klicken, Antwort des Leiters abwarten (auch realmübergreifend); Reiter Flüstern öffnen, eine Zeile anklicken.",
+      "Erwartung: Reiter zeigt 'An <Leiter>' und 'Von <Leiter>', neueste zuerst; Klick öffnet den Chat an den Leiter; fremde Flüster erscheinen nicht.",
+    } },
 }

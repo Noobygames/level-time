@@ -37,6 +37,7 @@ local CHECKS = {
   "LT390.lfg.templates",
   "LT414.realm.orphans",
   "LT349.waterShield.display",
+  "LT389.lfg.whisperLog",
 }
 
 wow.login()

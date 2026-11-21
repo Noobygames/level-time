@@ -2566,4 +2566,9 @@ ns.locales.esES = {
   SPLIT_MERGE = "Fusionar entrada antigua",
   SPLIT_MERGE_CONFIRM = "¿Fusionar la entrada duplicada antigua en %s (tiempo de juego: %s)? No se puede deshacer.",
   SPLIT_MERGE_TIP = "Este personaje tiene una entrada duplicada del error de reino de WoW Forever. Al fusionar se suman su tiempo de juego, contadores y diarios a esta entrada.",
+  LFG_TAB_WHISPERS = "Susurros",
+  LFG_WHISPERS_EMPTY = "Aún no hay susurros. Los susurros enviados desde la búsqueda y las respuestas aparecen aquí (hasta que cierres sesión).",
+  LFG_WHISPERS_ROW_TIP = "Haz clic para abrir el chat con este jugador y susurrar de nuevo.",
+  LFG_WHISPER_FROM = "De %s",
+  LFG_WHISPER_TO = "Para %s",
 }

@@ -326,3 +326,18 @@ check("LT390.lfg.templates", function()
     sendChatMessage = type(C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage), roleApi = type(UnitGroupRolesAssigned),
     role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or nil }
 end)
+
+-- LT389: Flüster-Verlauf der Gruppensuche: Einträge, letzte Beispiele und ob Flüster-Ereignisse lesbare Namen liefern
+check("LT389.lfg.whisperLog", function()
+  local LFGWhispers = ns.LFGWhispers
+  if not LFGWhispers then return { available = false } end
+  local entries = LFGWhispers.GetEntries()
+  local last = {}
+  for index = 1, math.min(3, #entries) do
+    local entry = entries[index]
+    last[index] = { name = entry.name, outgoing = entry.outgoing, length = #entry.text }
+  end
+  local stats = LFGWhispers.Stats()
+  return { entries = #entries, max = LFGWhispers.MAX_ENTRIES, last = last, eventsSeen = stats.seen,
+    eventsReadable = stats.readable, contacted = stats.contacted }
+end)

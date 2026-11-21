@@ -271,6 +271,7 @@ function LFGSearch.Whisper(summary)
   local text = LFGSearch.WhisperText(summary)
   if text == "" then return false end
   local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+  if ns.LFGWhispers then ns.LFGWhispers.Contact(summary.leaderName) end
   send(text, "WHISPER", nil, summary.leaderName)
   ns.Debug("lfg", "whisper template sent to %s", summary.leaderName)
   return true
