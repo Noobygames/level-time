@@ -755,6 +755,11 @@ ns.Mechanics = {
   [8929] = { -- Princess Moira Bronzebeard (Blackrock Depths)
     { 15586, "interrupt", "Heilt den Imperator; unterbrechen oder kontrollieren", "Heals the emperor; interrupt or crowd control her", "v" },
     { 15587, "survive", "Schattenzauber auf einen Spieler", "Shadow nuke on one player", "v" },
+    { 10929, "dispel", "Heilung über Zeit auf den Imperator; bannen", "Heal over time on the emperor; dispel it", "v" },
+    { 10901, "dispel", "Schild auf einen Verbündeten absorbiert Schaden; reinigen", "Shield on an ally that absorbs damage; purge it", "v" },
+    { 15654, "dispel", "18 Sek. lang Schattenschaden auf einem Spieler; Magie bannen", "Shadow damage over 18 sec on one player; dispel magic", "v" },
+    { 10934, "survive", "Heiligschaden auf einen Spieler", "Holy damage on one player", "v" },
+    { 15537, "interrupt", "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "Shadow bolt on one player; interrupt when you can", "v" },
   },
   [8983] = { -- Golem Lord Argelmach (Blackrock Depths)
     { 15305, "interrupt", "Blitz springt auf bis zu 5 Spieler; verteilen, unterbrechen", "Lightning jumps up to 5 players; spread and interrupt", "v" },
@@ -769,20 +774,24 @@ ns.Mechanics = {
   [9017] = { -- Lord Incendius (Blackrock Depths)
     { 13899, "avoid", "**Flammensäule** hinterlässt 30 Sek. Feuerboden; rausgehen", "Flame pillar leaves burning ground for 30 sec; move out", "v" },
     { 14099, "positioning", "Stößt den Tank zurück; Rücken nicht zur Lava", "Knocks the tank back; keep his back away from lava", "v" },
+    { 13900, "avoid", "Feuerstoß auf ein Gebiet; herausgehen", "Fire burst on a marked area; step out", "v" },
     { 26977, "dispel", "Senkt den Feuerwiderstand 1 Min. lang um 100; entfluchen", "Cuts fire resistance by 100 for 1 min; decurse", "v" },
   },
   [9018] = { -- High Interrogator Gerstahn (Blackrock Depths)
     { 13704, "survive", "Versetzt bis zu 5 Spieler in der Nähe 6 Sek. lang in Furcht; Zusatzgruppen meiden", "Fears up to 5 nearby players for 6 sec; watch for extra pulls", "v" },
     { 14033, "interrupt", "Verbrennt viel Mana eines Zauberers; unterbrechen", "Burns a lot of mana from one caster; interrupt it", "v" },
     { 12040, "dispel", "Schild absorbiert Schaden; reinigen oder wegschlagen", "Self shield that absorbs damage; purge or burn it down", "v" },
+    { 14032, "dispel", "18 Sek. lang Schattenschaden auf einem Spieler; Magie bannen", "Shadow damage over 18 sec on one player; dispel magic", "v" },
   },
   [9019] = { -- Emperor Dagran Thaurissan (Blackrock Depths)
     { 15636, "survive", "10 Sek. lang immun gegen Magie; Treffer verursachen Feuerschaden", "Immune to magic for 10 sec, melee hits add fire", "v" },
     { 17492, "dispel", "Feuertreffer betäubt einen Spieler 5 Sek. lang", "Fire hit that stuns a player for 5 sec", "v" },
+    { 15642, "tank", "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt", "Summons a weapon that adds extra strikes on the tank" },
     { 0, "positioning", "Ob Moira verschont wird, ändert die Belohnung", "Keep Moira alive (or not) - killing her changes rewards" },
   },
   [9024] = { -- Pyromancer Loregrain (Blackrock Depths)
     { 15038, "adds", "Setzt ein Feuertotem, das angreift; schnell zerstören", "Drops a fire totem that attacks; kill it quickly", "v" },
+    { 15041, "dispel", "Schild absorbiert 1 Min. lang Feuerschaden; reinigen", "Shield that absorbs fire damage for 1 min; purge it", "v" },
     { 15095, "interrupt", "Feuerzauber auf einen Spieler; unterbrechen", "Fire nuke on one player; interrupt it", "v" },
     { 15616, "dispel", "Feuerschock mit Brand auf einem Spieler: bannen oder gegenheilen", "Fire shock plus burn on a player: dispel or heal through", "v" },
   },
@@ -792,47 +801,102 @@ ns.Mechanics = {
     { 13728, "interrupt", "Naturschock auf einen Spieler: wenn möglich unterbrechen", "Nature shock on a player: interrupt when you can", "v" },
   },
   [9027] = { -- Gorosh the Dervish (Blackrock Depths)
+    { 21049, "dispel", "Erhöht 30 Sek. lang sein Angriffstempo; reinigen", "Speeds up his attacks for 30 sec; purge it", "v" },
     { 13736, "avoid", "Wirbelt und trifft alle in 8 m; Nahkämpfer raus", "Spins and hits all within 8 yards; melee step out" },
     { 16856, "tank", "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank", "Heavy hit that halves healing on the tank for 5 sec" },
   },
   [9028] = { -- Grizzle (Blackrock Depths)
     { 8269, "tank", "Greift unter 50 % Leben viel schneller an", "Attacks much faster below 50% health", "v" },
+    { 15579, "tank", "Trifft den Tank und bis zu zwei weitere Ziele daneben; verteilen", "Hits the tank and up to two more targets next to him; spread out", "v" },
     { 6524, "positioning", "Kurze Flächenbetäubung im 20-m-Umkreis", "Short AoE stun within 20 yards" },
   },
   [9029] = { -- Eviscerator (Blackrock Depths)
     { 7121, "positioning", "6 Sek. lang immun gegen Magie; Zauberer warten, Nahkampf weiter", "Immune to magic for 6 sec; casters pause, melee keep going", "v" },
+    { 16095, "dispel", "15 Sek. lang Blutung auf einem Spieler; gegenheilen", "Bleed on one player for 15 sec; heal through it", "v" },
     { 15245, "survive", "Schattenschaden auf alle im 30-m-Umkreis", "Shadow damage on everyone within 30 yards" },
   },
   [9030] = { -- Ok'thor the Breaker (Blackrock Depths)
     { 13747, "dispel", "Verlangsamt Angriffs-, Zauber- und Lauftempo im 20-m-Umkreis", "Slows attacks, casts and movement within 20 yards", "v" },
+    { 25055, "interrupt", "Arkanblitz auf einen Spieler; unterbrechen", "Arcane bolt on one player; interrupt it", "v" },
     { 13323, "dispel", "Verwandelt einen Spieler 6 Sek. lang in ein Schaf", "Turns a player into a sheep for 6 sec" },
     { 15453, "avoid", "Arkanstoß auf alle im 30-m-Umkreis", "Arcane burst on everyone within 30 yards" },
   },
   [9031] = { -- Anub'shiah (Blackrock Depths)
     { 15470, "dispel", "Zauberer im 30-m-Umkreis wirken 50 % langsamer; entfluchen", "Casters in 30 yards cast 50% slower; decurse", "v" },
     { 15471, "survive", "Wurzelt einen Spieler und bringt ihn 4 Sek. lang zum Schweigen", "Roots and silences one player for 4 sec", "v" },
+    { 15472, "interrupt", "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "Shadow bolt on one player; interrupt when you can", "v" },
+    { 12493, "dispel", "Senkt 2 Min. lang den körperlichen Schaden eines Spielers; entfluchen", "Cuts a player's physical damage for 2 min; decurse", "v" },
+    { 13787, "dispel", "Rüstungsbonus auf sich selbst, 30 Min.; reinigen", "Self armor buff for 30 min; purge it", "v" },
     { 8994, "survive", "Nimmt einen Spieler eine Weile aus dem Kampf", "Removes one player from the fight for a while" },
   },
   [9032] = { -- Hedrum the Creeper (Blackrock Depths)
     { 3609, "dispel", "Gift betäubt einen Spieler; Gift entfernen", "Poison that stuns one player; cure poison", "v" },
     { 15474, "survive", "Fesselt alle im 30-m-Umkreis 5 Sek. lang", "Roots everyone within 30 yards for 5 sec", "v" },
+    { 15475, "dispel", "Gift auf Spieler in der Nähe, 2 Min.; Gift entfernen", "Poison on nearby players for 2 min; cure it", "v" },
   },
   [9033] = { -- General Angerforge (Blackrock Depths)
     { 15572, "tank", "Stapelt Rüstungsverringerung auf dem Tank", "Stacks armor reduction on the tank", "v" },
     { 0, "adds", "Ruft bei ca. 40 % Leben Wachen und Sanitäter", "Calls a wave of guards and medics at about 40% health" },
   },
+  [9034] = { -- Hate'rel (Blackrock Depths)
+    { 14033, "interrupt", "Verbrennt Mana eines Zauberers; unterbrechen", "Burns mana from one caster; interrupt it", "v" },
+    { 15232, "interrupt", "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "Shadow bolt on one player; interrupt when you can", "v" },
+    { 12040, "dispel", "Schwacher Schadensschild; reinigen oder ignorieren", "Weak damage shield; purge or ignore", "v" },
+  },
+  [9035] = { -- Anger'rel (Blackrock Depths)
+    { 12169, "tank", "Blockt kurz einen Angriff", "Briefly blocks one attack", "v" },
+    { 15062, "tank", "Erleidet 10 Sek. lang 75 % weniger Schaden; abwarten", "Takes 75% less damage for 10 sec; wait it out", "v" },
+    { 11971, "tank", "Stapelt Rüstungsverringerung auf dem Tank", "Stacks armor reduction on the tank", "v" },
+  },
+  [9036] = { -- Vile'rel (Blackrock Depths)
+    { 15586, "interrupt", "Heilt einen Verbündeten; unterbrechen", "Heals an ally; interrupt it", "v" },
+    { 15587, "survive", "Schattenzauber auf einen Spieler", "Shadow nuke on one player", "v" },
+    { 11974, "dispel", "Schild auf einen Verbündeten absorbiert Schaden; reinigen", "Shield on an ally that absorbs damage; purge it", "v" },
+  },
+  [9037] = { -- Gloom'rel (Blackrock Depths)
+    { 15584, "tank", "Trifft den Tank und bis zu zwei weitere Ziele daneben", "Hits the tank and up to two more targets next to him", "v" },
+    { 9080, "dispel", "Verlangsamt einen Spieler 10 Sek. lang um 60 %", "Slows one player by 60% for 10 sec", "v" },
+    { 13737, "tank", "Harter Schlag, halbiert 5 Sek. lang die Heilung am Tank", "Heavy hit that halves healing on the tank for 5 sec", "v" },
+    { 13847, "tank", "Kämpft eine Weile rücksichtslos; Tank gleichmäßig heilen", "Fights recklessly for a while; heal the tank steadily", "v" },
+  },
+  [9038] = { -- Seeth'rel (Blackrock Depths)
+    { 15244, "avoid", "Frostkegel vor ihm, verlangsamt; nicht hineinstehen", "Frost cone in front of him that slows; stay out of it", "v" },
+    { 12544, "dispel", "Frostrüstung verlangsamt Nahkämpfer; reinigen", "Frost armor slows melee attackers; purge it", "v" },
+    { 12674, "positioning", "Frostschaden und fesselt Spieler in der Nähe bis zu 8 Sek.", "Frost damage and roots nearby players up to 8 sec", "v" },
+    { 15044, "dispel", "Schild absorbiert 1 Min. lang Frostschaden; reinigen", "Shield that absorbs frost damage for 1 min; purge it", "v" },
+    { 12675, "interrupt", "Frostblitz mit Verlangsamung; unterbrechen", "Frost bolt that slows; interrupt", "v" },
+  },
   [9039] = { -- The Seven (Blackrock Depths)
+    { 15245, "interrupt", "Doom'rel wirkt Schattensalve und ruft Leerwandler", "Doom'rel casts a shadow volley and summons voidwalkers", "v" },
+    { 15092, "adds", "Ruft Leerwandler zu Hilfe; töten", "Calls voidwalkers to help; kill them", "v" },
+    { 8994, "survive", "Nimmt einen Spieler bis zu 15 Sek. aus dem Kampf", "Removes one player from the fight for up to 15 sec", "v" },
+    { 12742, "dispel", "21 Sek. lang Feuerschaden; Magie bannen", "Fire damage over 21 sec; dispel magic", "v" },
+    { 12493, "dispel", "Senkt 2 Min. lang den körperlichen Schaden; entfluchen", "Cuts physical damage for 2 min; decurse", "v" },
+    { 13787, "dispel", "Rüstungsbonus auf sich selbst; reinigen", "Self armor buff; purge it", "v" },
     { 0, "adds", "Sieben Zwerge greifen nacheinander an; zuletzt Doom'rel", "Seven dwarves attack one after another; last one is Doom'rel" },
-    { 0, "interrupt", "Doom'rel wirkt Schattensalve und ruft Leerwandler", "Doom'rel casts a shadow volley and summons voidwalkers" },
+  },
+  [9040] = { -- Dope'rel (Blackrock Depths)
+    { 15582, "tank", "Trifft von hinten hart; ihn zum Tank gedreht halten", "Hits hard from behind; keep him facing the tank", "v" },
+    { 15087, "tank", "Weicht 15 Sek. lang häufiger aus", "Dodges more attacks for 15 sec", "v" },
+    { 12540, "survive", "Betäubt das Ziel bis zu 4 Sek.", "Stuns the target up to 4 sec", "v" },
+    { 15583, "dispel", "10 Sek. lang Blutung; gegenheilen", "Bleed over 10 sec; heal through it", "v" },
+    { 15581, "tank", "Zusätzlicher Nahkampftreffer auf den Tank", "Extra melee hit on the tank", "v" },
   },
   [9041] = { -- Warder Stilgiss (Blackrock Depths)
     { 12674, "positioning", "Verursacht Frostschaden und fesselt Spieler in der Nähe bis zu 8 Sek. lang", "Frost damage and roots nearby players up to 8 sec", "v" },
     { 12675, "interrupt", "Frostblitz mit Verlangsamung; unterbrechen", "Frost bolt that slows; interrupt", "v" },
+    { 12544, "dispel", "Frostrüstung verlangsamt Nahkämpfer; reinigen", "Frost armor slows melee attackers; purge it", "v" },
+    { 15044, "dispel", "Schild absorbiert 1 Min. lang Frostschaden; reinigen", "Shield that absorbs frost damage for 1 min; purge it", "v" },
     { 15042, "dispel", "Sein Hund Verek verflucht: mehr erlittener körperlicher Schaden", "His dog Verek curses targets to take more physical damage" },
+  },
+  [9042] = { -- Verek (Blackrock Depths)
+    { 15042, "dispel", "Verflucht ein Ziel: mehr erlittener körperlicher Schaden; entfluchen", "Curses a target to take more physical damage; decurse", "v" },
   },
   [9056] = { -- Fineous Darkvire (Blackrock Depths)
     { 15493, "interrupt", "Heilt sich oder Verbündete; Zauber unterbrechen", "Heals himself or allies; interrupt the cast", "v" },
     { 13953, "tank", "**Heiliger Stoß** trifft den Tank hart: gleichmäßig heilen", "**Holy strike** hits the tank hard: keep healing steady", "v" },
+    { 8258, "dispel", "Rüstungsaura auf ihn und Verbündete; reinigen", "Armor aura on himself and allies; purge it", "v" },
+    { 15346, "dispel", "Siegel, das den Träger bei jedem Treffer heilt; bannen", "Seal that heals the bearer on each strike; dispel it", "v" },
     { 11978, "tank", "Tritt Zauberer neben ihm: Heiler halten Abstand", "Kicks casters next to him: healers keep their distance", "v" },
     { 0, "adds", "Wenig Schaden, viel Leben; zuerst seine Helfer töten", "Low damage, lots of health; kill his helpers first" },
   },
@@ -901,7 +965,9 @@ ns.Mechanics = {
     { 0, "survive", "Hexer: verbannt, verflucht; Ärger zieht die ganze Bar", "Warlock: banishes and curses; angering him pulls the bar" },
   },
   [9502] = { -- Phalanx (Blackrock Depths)
-    { 0, "positioning", "Stößt Spieler zurück; mit Wand im Rücken kämpfen", "Knocks players back; fight with walls behind you" },
+    { 14099, "positioning", "Stößt Spieler zurück; mit Wand im Rücken kämpfen", "Knocks players back; fight with walls behind you", "v" },
+    { 15588, "survive", "Naturschaden in der Nähe; verlangsamt Angriffe und Bewegung", "Nature damage nearby; slows attacks and movement", "v" },
+    { 15285, "survive", "Feuersalve auf alle in der Nähe", "Fire volley on everyone nearby", "v" },
   },
   [9537] = { -- Hurley Blackbreath (Blackrock Depths)
     { 14872, "tank", "Raserei: 15 Sek. lang schnellere, härtere Nahkampfschläge", "Enrages: much faster and harder melee for 15 sec" },
@@ -2389,7 +2455,7 @@ ns.MechanicGuide = {
   },
   [230] = {
     bosses = { { 9025, "Lord Roccor" }, { 9018, "High Interrogator Gerstahn" }, { 9319, "Houndmaster Grebmar" }, { 9027, "Gorosh the Dervish" }, { 9028, "Grizzle" }, { 9029, "Eviscerator" }, { 9030, "Ok'thor the Breaker" }, { 9031, "Anub'shiah" }, { 9032, "Hedrum the Creeper" }, { 9024, "Pyromancer Loregrain" }, { 9041, "Warder Stilgiss" }, { 9476, "Watchman Doomgrip" }, { 9056, "Fineous Darkvire" }, { 9017, "Lord Incendius" }, { 9016, "Bael'Gar" }, { 9033, "General Angerforge" }, { 8983, "Golem Lord Argelmach" }, { 9537, "Hurley Blackbreath" }, { 9502, "Phalanx" }, { 9499, "Plugger Spazzring" }, { 9156, "Ambassador Flamelash" }, { 9039, "The Seven" }, { 9938, "Magmus" }, { 8929, "Princess Moira Bronzebeard" }, { 9019, "Emperor Dagran Thaurissan" }, },
-    trash = { { 8923, "Panzor the Invincible" }, { 8894, "Anvilrage Medic" }, { 8900, "Doomforge Arcanasmith" }, { 8911, "Fireguard Destroyer" }, { 8913, "Twilight Emissary" }, { 8912, "Twilight's Hammer Torturer" }, { 8922, "Bloodhound Mastiff" }, { 8908, "Molten War Golem" }, { 8906, "Ragereaver Golem" }, },
+    trash = { { 8923, "Panzor the Invincible" }, { 8894, "Anvilrage Medic" }, { 8900, "Doomforge Arcanasmith" }, { 8911, "Fireguard Destroyer" }, { 8913, "Twilight Emissary" }, { 8912, "Twilight's Hammer Torturer" }, { 8922, "Bloodhound Mastiff" }, { 8908, "Molten War Golem" }, { 8906, "Ragereaver Golem" }, { 9034, "Hate'rel" }, { 9035, "Anger'rel" }, { 9036, "Vile'rel" }, { 9037, "Gloom'rel" }, { 9038, "Seeth'rel" }, { 9040, "Dope'rel" }, { 9042, "Verek" }, },
   },
   [249] = {
     bosses = { { 10184, "Onyxia" }, },

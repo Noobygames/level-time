@@ -101,4 +101,6 @@ Alcaz Prison (LT-376, 2026-11-21): boss and trash spell IDs and abilities from o
 
 Dire Maul East (LT-380, 2026-11-21): boss abilities of Lethtendris, Hydrospawn, Alzzin and the optional boss Isalien (NPC 16097) with spell IDs from the Wowhead WoW Forever dungeon journal notes, descriptions in our own words, marked unverified; Isalien level and loot not known.
 
+Blackrock Depths (LT-377, 2026-11-21): journal spell lines missing from our research added in our own words (Ring of the Law bosses, Gerstahn, Fineous, Loregrain, Incendius, Phalanx, Seven dwarves, Moira, Stilgiss, Verek); journal rank IDs that differ from the guide table (Whirlwind, Mortal Strike, Shadow Bolt Volley, Polymorph, Arcane Explosion, Magma Splash, Burning Spirit) not taken over; Ironfoe tip paraphrased, unverified. Quests and NPC levels checked against the notes, no change.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
