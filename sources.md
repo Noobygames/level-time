@@ -115,4 +115,6 @@ Scholomance (LT-383, 2026-11-21): missing boss abilities and the Argent Dawn key
 
 The Temple of Atal'Hakkar (LT-375, 2026-11-21): Shield Spike, Renew, Thorns Aura and Flamestrike plus the Revantusk quests 7845-7847, 7849, 7850, 7861, 7862 (levels, chain, givers 14736/14741/14757, kill targets of 7861/7862) from the Wowhead WoW Forever notes (2026-11-17), our own wording, guide table IDs kept; faction set to Horde (Revantusk Village); unverified: Renew/Thorns Aura effects, minimum levels (set to quest level), giver of 7861/7862, objectives of 7846/7849/7850, coordinates.
 
+Uldaman (LT-372, 2026-11-21): Intercept, Harsh Winds and Lightning Bolt spell IDs, quests 2203, 2501, 2439, 2440 with factions, givers 6868 and 1470, and Ironaya level 40 from the Wowhead WoW Forever notes, our own wording; unverified: minimum levels of the new quests (copied from their predecessors), givers of 2439/2440, ability effects; quest 2431 missing (no data).
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

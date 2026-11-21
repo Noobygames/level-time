@@ -398,6 +398,7 @@ ns.Mechanics = {
     { 7289, "dispel", "**Schrumpfen** ist ein Fluch, der schwächt; entfluchen", "**Shrink** is a curse that weakens a player; decurse it", "v" },
     { 8292, "interrupt", "**Kettenblitz** und **Blitzschlag** unterbrechen", "Interrupt his **Chain Bolt** and Lightning Bolt casts", "v" },
     { 6742, "dispel", "**Kampfrausch** von ihm oder seinem Basilisken bannen", "Purge **Bloodlust** from him or his basilisk", "v" },
+    { 9532, "interrupt", "**Blitzschlag** unterbrechen, um den Schaden zu senken", "Interrupt his **Lightning Bolt** to cut his damage" },
   },
   [4863] = { -- Jadespine Basilisk (Uldaman)
     { 3636, "interrupt", "**Kristallschlummer** betäubt 3 Sek. lang; unterbrechen", "**Crystalline Slumber** stuns 3 sec; interrupt it" },
@@ -563,6 +564,7 @@ ns.Mechanics = {
     { 6268, "tank", "Eric stürmt auf einen Spieler, sein nächster Schlag trifft härter", "Eric charges a player and his next hit lands harder" },
     { 8242, "tank", "Olaf betäubt sein Ziel mit **Schildschlag** 2 Sek. lang", "Olaf stuns his target for 2 sec with **Shield Slam**" },
     { 15620, "adds", "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer", "Three dwarves at once; Baelog also shoots casters at range" },
+    { 20252, "tank", "Erics **Abfangen** stürmt auf einen Spieler und betäubt 3 Sek.; ihn zuerst töten", "Eric's **Intercept** charges a player and stuns for 3 sec; kill him first" },
   },
   [6910] = { -- Revelosh (Uldaman)
     { 16033, "interrupt", "**Kettenblitz** unterbrechen, er springt zwischen nahen Spielern", "Kick his **Chain Lightning**, it jumps between grouped players", "v" },
@@ -581,6 +583,7 @@ ns.Mechanics = {
   },
   [7206] = { -- Ancient Stone Keeper (Uldaman)
     { 10094, "adds", "Beschwört 30 Sek. lang **Sandstürme**; aus dem Weg gehen", "Summons **Sand Storms** that fight for 30 sec; move away", "v" },
+    { 10093, "avoid", "Der beschworene Sandsturm verstummt Spieler in der Nähe; Zauberer und Heiler halten Abstand", "The summoned Sand Storm silences nearby players; casters and healers keep their distance" },
   },
   [7228] = { -- Ironaya (Uldaman)
     { 45, "survive", "**Kriegsdonner** betäubt alle in ihrer Nähe", "**War Stomp** stuns everyone close to her", "v" },
