@@ -1000,7 +1000,7 @@ ns.Mechanics = {
   [9816] = { -- Pyroguard Emberseer (Upper Blackrock Spire)
     { 0, "adds", "Zuerst die Kerkermeister töten; sie betäuben Spieler", "Kill the Incarcerators first; they stun random players" },
     { 17366, "avoid", "**Feuernova** trifft Nahkampf; Fernkampf auf Abstand", "**Fire nova** hits melee; ranged keep distance" },
-    { 0, "survive", "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "Stacking fire damage taken debuff; fire resist helps" },
+    { 16536, "survive", "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "Stacking fire damage taken debuff; fire resist helps" },
   },
   [9817] = { -- Blackhand Dreadweaver (Upper Blackrock Spire)
     { 6909, "dispel", "Fluch schadet beim Angreifen; entfluchen", "Curse deals damage when the victim attacks; decurse", "v" },
@@ -1065,6 +1065,9 @@ ns.Mechanics = {
     { 16805, "tank", "Verbrennt und lähmt ein Ziel; zweiter Tank spottet", "Burns and panics a target; second tank taunts", "v" },
     { 0, "adds", "Zwei Elitewachen helfen; töten oder ihn wegziehen", "Two elite guards join; kill them or pull him away" },
     { 0, "avoid", "**Feuersäulen** am Boden; herausgehen", "Fire pillars on the ground; step out" },
+    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc" },
+    { 9573, "positioning", "Feuerkegel nach vorn: von der Gruppe wegdrehen", "Fire cone in front: face him away from the group" },
+    { 8078, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks" },
   },
   [10371] = { -- Rage Talon Captain (Upper Blackrock Spire)
     { 15708, "tank", "Halbiert 5 Sek. lang die Heilung am Tank", "Healing on the tank halved for 5 sec" },
@@ -1117,11 +1120,16 @@ ns.Mechanics = {
     { 13736, "avoid", "Rend wirbelt nach Absteigen; Nahkampf zurücktreten", "Rend whirlwinds after dismount; melee step back", "v" },
     { 0, "adds", "Viele Wellen in der Arena, dann kommen Rend und Gyth", "Many add waves in the arena before Rend and Gyth jump in" },
     { 20712, "positioning", "Gyth speit Kegel; von der Gruppe wegdrehen", "Gyth breathes cones; face him away from the group" },
+    { 15588, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks" },
+    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc" },
   },
   [10430] = { -- The Beast (Upper Blackrock Spire)
     { 16785, "positioning", "Rückstoß-Feuer; Tank mit Rücken zur Wand", "Knockback AoE; tank with back to a wall", "v" },
     { 19471, "tank", "Stürmt einen zufälligen Spieler an; Tank holt Aggro zurück", "Charges a random player; tanks re-grab aggro", "v" },
-    { 0, "survive", "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "Fears players nearby; ranged stay at max range" },
+    { 14100, "survive", "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "Fears players nearby; ranged stay at max range" },
+    { 15570, "survive", "Feuerschaden über Zeit auf einen Spieler", "Fire damage over time on a player" },
+    { 16144, "survive", "Direkter Feuerschaden auf einen Spieler", "Direct fire hit on a player" },
+    { 16788, "survive", "Feuerball auf einen Spieler", "Fire bolt on a player" },
   },
   [10432] = { -- Vectus (Scholomance)
     { 10216, "avoid", "**Flammenstoß**-Fläche sofort verlassen", "Leave the **Flamestrike** area at once", "v" },
@@ -1239,6 +1247,11 @@ ns.Mechanics = {
     { 8398, "interrupt", "**Frostblitzsalven** unterbrechen", "Interrupt the frostbolt volleys", "v" },
     { 16350, "dispel", "Friert einen Spieler ein: Magie bannen", "Freezes a player in place: dispel magic", "v" },
   },
+  [10509] = { -- Jed Runewatcher (Upper Blackrock Spire)
+    { 15749, "tank", "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand", "Charges a player and knocks them back; tank keeps him at a wall" },
+    { 11972, "interrupt", "Schlägt zu und unterbricht Zauberer; Zauberer auf Abstand", "Bashes and silences a caster; keep casters at range" },
+    { 14516, "tank", "Kräftiger Nahkampfschlag auf den Tank", "Heavy melee strike on the tank" },
+  },
   [10516] = { -- The Unforgiven (Stratholme)
     { 14907, "positioning", "Frostnova fesselt Nahkämpfer, Fernkämpfer auf Abstand", "Frost Nova roots melee in place, ranged keep distance" },
   },
@@ -1291,6 +1304,7 @@ ns.Mechanics = {
   [10899] = { -- Goraluk Anvilcrack (Upper Blackrock Spire)
     { 6253, "tank", "Betäubt den Tank; Zweittank spottet währenddessen", "Stuns the tank; off-tank taunts during the stun", "v" },
     { 3148, "tank", "Senkt die Ausdauer des Tanks für einige Zeit", "Lowers the tank's stamina for a while", "v" },
+    { 25710, "tank", "Harter Nahkampfschlag mit erhöhter Bedrohung", "Hard melee hit that builds extra threat" },
   },
   [10901] = { -- Lorekeeper Polkelt (Scholomance)
     { 3586, "positioning", "Infizierter schadet Verbündeten in der Nähe; weggehen", "Infected player hurts nearby allies; move away", "v" },
@@ -2463,7 +2477,7 @@ ns.MechanicGuide = {
   },
   [229] = {
     bosses = { { 9196, "Highlord Omokk" }, { 9236, "Shadow Hunter Vosh'gajin" }, { 9237, "War Master Voone" }, { 16080, "Mor Grayhoof" }, { 10596, "Mother Smolderweb" }, { 10584, "Urok Doomhowl" }, { 9736, "Quartermaster Zigris" }, { 10220, "Halycon" }, { 10268, "Gizrul the Slavener" }, { 9568, "Overlord Wyrmthalak" }, { 9816, "Pyroguard Emberseer" }, { 10264, "Solakar Flamewreath" }, { 10899, "Goraluk Anvilcrack" }, { 10429, "Warchief Rend Blackhand" }, { 10339, "Gyth" }, { 10430, "The Beast" }, { 16042, "Lord Valthalak" }, { 10363, "General Drakkisath" }, },
-    trash = { { 9217, "Spirestone Lord Magus" }, { 10263, "Burning Felguard" }, { 9596, "Bannok Grimaxe" }, { 10376, "Crystal Fang" }, { 9718, "Ghok Bashguud" }, { 9257, "Scarshield Warlock" }, { 9098, "Scarshield Spellbinder" }, { 9258, "Scarshield Raider" }, { 9240, "Smolderthorn Shadow Priest" }, { 9266, "Smolderthorn Witch Doctor" }, { 9263, "Firebrand Dreadweaver" }, { 9264, "Firebrand Pyromancer" }, { 9693, "Bloodaxe Evoker" }, { 9717, "Bloodaxe Summoner" }, { 9198, "Spirestone Mystic" }, { 9201, "Spirestone Ogre Magus" }, { 10374, "Spire Spider" }, { 9818, "Blackhand Summoner" }, { 9817, "Blackhand Dreadweaver" }, { 9819, "Blackhand Veteran" }, { 10316, "Blackhand Incarcerator" }, { 10318, "Blackhand Assassin" }, { 10742, "Blackhand Dragon Handler" }, { 10372, "Rage Talon Fire Tongue" }, { 10083, "Rage Talon Flamescale" }, { 10371, "Rage Talon Captain" }, { 10683, "Rookery Hatcher" }, { 10814, "Chromatic Elite Guard" }, { 9096, "Rage Talon Dragonspawn" }, },
+    trash = { { 9217, "Spirestone Lord Magus" }, { 10263, "Burning Felguard" }, { 9596, "Bannok Grimaxe" }, { 10376, "Crystal Fang" }, { 9718, "Ghok Bashguud" }, { 9257, "Scarshield Warlock" }, { 9098, "Scarshield Spellbinder" }, { 9258, "Scarshield Raider" }, { 9240, "Smolderthorn Shadow Priest" }, { 9266, "Smolderthorn Witch Doctor" }, { 9263, "Firebrand Dreadweaver" }, { 9264, "Firebrand Pyromancer" }, { 9693, "Bloodaxe Evoker" }, { 9717, "Bloodaxe Summoner" }, { 9198, "Spirestone Mystic" }, { 9201, "Spirestone Ogre Magus" }, { 10374, "Spire Spider" }, { 10509, "Jed Runewatcher" }, { 9818, "Blackhand Summoner" }, { 9817, "Blackhand Dreadweaver" }, { 9819, "Blackhand Veteran" }, { 10316, "Blackhand Incarcerator" }, { 10318, "Blackhand Assassin" }, { 10742, "Blackhand Dragon Handler" }, { 10372, "Rage Talon Fire Tongue" }, { 10083, "Rage Talon Flamescale" }, { 10371, "Rage Talon Captain" }, { 10683, "Rookery Hatcher" }, { 10814, "Chromatic Elite Guard" }, { 9096, "Rage Talon Dragonspawn" }, },
   },
   [230] = {
     bosses = { { 9025, "Lord Roccor" }, { 9018, "High Interrogator Gerstahn" }, { 9319, "Houndmaster Grebmar" }, { 9027, "Gorosh the Dervish" }, { 9028, "Grizzle" }, { 9029, "Eviscerator" }, { 9030, "Ok'thor the Breaker" }, { 9031, "Anub'shiah" }, { 9032, "Hedrum the Creeper" }, { 9024, "Pyromancer Loregrain" }, { 9041, "Warder Stilgiss" }, { 9476, "Watchman Doomgrip" }, { 9056, "Fineous Darkvire" }, { 9017, "Lord Incendius" }, { 9016, "Bael'Gar" }, { 9033, "General Angerforge" }, { 8983, "Golem Lord Argelmach" }, { 9537, "Hurley Blackbreath" }, { 9502, "Phalanx" }, { 9499, "Plugger Spazzring" }, { 9156, "Ambassador Flamelash" }, { 9039, "The Seven" }, { 9938, "Magmus" }, { 8929, "Princess Moira Bronzebeard" }, { 9019, "Emperor Dagran Thaurissan" }, },

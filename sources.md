@@ -101,4 +101,6 @@ Blackrock Depths (LT-377, 2026-11-21): journal spell lines missing from our rese
 
 Dire Maul West (LT-381, 2026-11-21): Concussive Shot (Illyanna Ravenoak), Enrage (Immol'thar) and the abilities of the rares Tsu'zee and Lord Hel'nurath from the Wowhead WoW Forever dungeon journal notes (2026-11-17), described in our own words; guide table IDs kept.
 
+Upper Blackrock Spire (LT-379, 2026-11-21): boss abilities and spell IDs (Emberseer, Beast, Goraluk, Rend, Drakkisath, Jed Runewatcher) reconciled against the Wowhead WoW Forever journal notes, in our own words; guide table IDs kept where the journal differs (Fire Nova, Berserker Charge, Flame Breath). Levels of Rend, Drakkisath and Valthalak still unknown.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
