@@ -105,4 +105,6 @@ Upper Blackrock Spire (LT-379, 2026-11-21): boss abilities and spell IDs (Embers
 
 Lower Blackrock Spire (LT-378, 2026-11-21): journal and guide spell lines missing from our research added in our own words (Voone, Mor Grayhoof, Urok, Wyrmthalak, Firebrand Invoker), Throw Axe and Mark of Flames IDs filled, guide table IDs kept where the journal differs, unconfirmed effects marked unverified; Vosh'gajin and Voone level 59 and Seal of Ascension giver Vaelan (NPC 10296) from the same notes, not yet confirmed in game.
 
+Krol'dok Stronghold (LT-386, 2026-11-21): spell IDs, three trash entries (Twilight Outrider 258102, Krol'dok Shaman 257888, Krol'dok Centurion 257885) and quest 94877 Saving Sunnyglade with its giver from the offline Wowhead WoW Forever guide notes (krol-dok-stronghold.md, written after the LT-59 tips); unverified: quest level (copied from sibling quest 94881), NPC levels, Zarmok Sunder Armor ID, Ashka's wolf abilities.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

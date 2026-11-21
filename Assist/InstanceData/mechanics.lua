@@ -2302,9 +2302,18 @@ ns.Mechanics = {
     { 1271761, "survive", "**Garrotte** lässt einen zufälligen Spieler bluten, bis er über 90 % geheilt ist: schnell hochheilen", "**Grievous Garrote** makes a random player bleed until healed above 90%: top them up fast", "f" },
     { 3583, "dispel", "**Tödliches Gift** auf dem Hauptziel: sofort entgiften", "**Deadly Poison** on the main target: dispel it at once", "f" },
   },
+  [257885] = { -- Krol'dok Centurion (Krol'dok Stronghold)
+    { 16856, "tank", "**Tödlicher Stoß** senkt die Heilung auf dem Tank, dazu **Donnerknall** und **Demoralisierender Ruf** auf alle im Nahkampf", "**Mortal Strike** cuts healing on the tank, plus **Thunderclap** and **Demoralizing Shout** on everyone in melee range", "f" },
+  },
+  [257888] = { -- Krol'dok Shaman (Krol'dok Stronghold)
+    { 6742, "adds", "**Kampfrausch** beschleunigt den Schamanen und seine Verbündeten: Schamanen vor den Zenturios töten", "**Bloodlust** speeds up the shaman and its allies after Lightning Bolts: kill shamans before the centurions", "f" },
+  },
   [258042] = { -- Twilight Grunt (Krol'dok Stronghold)
     { 1307066, "positioning", "**Klingensturm** trifft alle im 8-m-Umkreis: Heiler und Fernkämpfer auf Abstand, Gruppenheilung nötig", "**Bladestorm** hits everyone within 8 yd: healers and ranged keep distance, group healing needed", "f" },
     { 15572, "tank", "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "f" },
+  },
+  [258102] = { -- Twilight Outrider (Krol'dok Stronghold)
+    { 14030, "tank", "**Hakennetz** hält den Tank 10 Sek. fest, sie patrouillieren zu dritt: per Sichtlinie wegziehen, ein Paladin kann den Tank befreien", "**Hooked Net** roots the tank for 10 sec and they patrol in packs of three: pull them away with line of sight, a Paladin can free the tank", "f" },
   },
   [258905] = { -- Zul'Alai (The Drowned City)
     { 0, "survive", "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "Enrages near death and hits the group hard: save cooldowns", "f" },
@@ -2314,8 +2323,8 @@ ns.Mechanics = {
     { 0, "adds", "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "Two priestesses heal him: control or kill them first", "f" },
   },
   [258964] = { -- Nar'gurk (Krol'dok Stronghold)
-    { 0, "survive", "Übernimmt einen Spieler: nicht den eigenen Mitspieler töten, mit Kontrolleffekten festhalten oder Sichtlinie brechen", "Mind-controls a player: do not kill your friend, use crowd control or break line of sight", "f" },
-    { 0, "interrupt", "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "**Shadow Bolt Volley** hits the whole group: interrupt it", "f" },
+    { 1280259, "survive", "**Bekehren** übernimmt einen Spieler, bis er auf die Hälfte seiner Gesundheit gefallen ist: festhalten oder auf 50 % herunterbringen, nie töten", "**Convert** takes over a player until they are down to half health: control or cleave them down to 50% to break it, never kill them", "f" },
+    { 1280356, "interrupt", "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "**Shadow Bolt Volley** hits the whole group: interrupt it", "f" },
     { 0, "tank", "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "Charges his staff with shadow damage: more damage on the tank", "f" },
   },
   [258966] = { -- Slavecrusher Grox (Krol'dok Stronghold)
@@ -2324,20 +2333,21 @@ ns.Mechanics = {
     { 11428, "tank", "Wirft den Tank 2 Sek. lang zu Boden", "**Knockdown** stuns the tank for 2 sec", "f" },
   },
   [258968] = { -- Overlord Mugg (Krol'dok Stronghold)
-    { 0, "tank", "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "Swaps maces for mauls and hits harder with each set", "f" },
-    { 0, "tank", "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "Each hit speeds up his attacks until he swaps weapons", "f" },
+    { 1282393, "tank", "Wechselt zu **Keulensatz** und später zu **Hammersatz**, der seinen Schaden um 50 % erhöht: seine Gesundheit nicht herunterbringen, bevor die Helfer tot sind", "Swaps to **Set of Maces** and later **Set of Mauls**, which raises his damage by 50%: do not push his health before the adds are dead", "f" },
+    { 1282387, "tank", "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "Each hit speeds up his attacks until he swaps weapons", "f" },
     { 0, "adds", "Zwei Zenturio-Helfer setzen **Tödlicher Stoß** ein (weniger Heilung auf dem Tank): zuerst töten, danach ist viel Heilung nötig", "Two Centurion adds use **Mortal Strike** (less healing on the tank): kill them first, then a lot of healing is needed", "f" },
-    { 0, "positioning", "Springt auf zufällige Spieler: Heiler im Blick auf alle, nicht nur auf den Tank", "Leaps onto random players: healers watch everyone, not just the tank", "f" },
+    { 1282397, "positioning", "Springt mit **Zerschmetternder Schlag** auf zufällige Spieler und schleudert alle in der Nähe zurück: Heiler im Blick auf alle, nicht nur auf den Tank", "Leaps onto random players with **Crushing Slam**, hurting and knocking back everyone near the landing: healers watch everyone, not just the tank", "f" },
   },
   [258972] = { -- Twilight Commander Zarmok (Krol'dok Stronghold)
     { 0, "positioning", "Mehrere Gegner patrouillieren um ihn herum: vor dem Pull freiräumen", "Several mobs patrol around him: clear them before the pull", "f" },
     { 1280011, "survive", "**Verwundender Wirbel** verursacht starke Blutung: gegenheilen, wenn möglich reinigen", "**Rending Whirl** causes a strong bleed: heal through it, cleanse if possible", "f" },
     { 0, "tank", "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "f" },
+    { 8599, "survive", "**Wutanfall** lässt ihn härter zuschlagen: Abklingzeiten nutzen und schnell besiegen", "**Enrage** makes him hit harder: use cooldowns and finish him quickly", "f" },
   },
   [259281] = { -- War Handler Ashka (Krol'dok Stronghold)
     { 0, "adds", "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "Fights alongside two wolves: kill the wolves first", "f" },
     { 0, "survive", "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "f" },
-    { 0, "tank", "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "f" },
+    { 1282076, "tank", "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "f" },
   },
   [259285] = { -- Terrorhowl (Krol'dok Stronghold)
     { 0, "survive", "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "f" },
@@ -2416,9 +2426,9 @@ ns.Mechanics = {
     { 0, "tank", "Schlägt hart, schnell: einzeln, Betäubung und Kontrolle nutzen", "Hits hard and moves fast: one at a time, use stuns and crowd control", "f" },
   },
   [264773] = { -- Bossman Toof (Krol'dok Stronghold)
-    { 0, "tank", "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "f" },
-    { 0, "positioning", "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "**Thunderclap** hits and slows players close by: ranged keep distance", "f" },
-    { 0, "tank", "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "**Demoralizing Shout** lowers the attack power of nearby players", "f" },
+    { 16856, "tank", "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "f" },
+    { 15548, "positioning", "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "**Thunderclap** hits and slows players close by: ranged keep distance", "f" },
+    { 16244, "tank", "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "**Demoralizing Shout** lowers the attack power of nearby players", "f" },
   },
   [269475] = { -- Mana Phantom (City of Dalaran)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "Burns mana from casters: interrupt or kill it first", "f" },

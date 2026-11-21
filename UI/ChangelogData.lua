@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "change",
+        deDE = "Dungeon-Guide Krol'dok: Boss- und Trash-Fähigkeiten verlinken jetzt ihre Zauber, Quest „Saving Sunnyglade“ ergänzt.",
+        enUS = "Krol'dok dungeon guide: boss and trash abilities now link their spells, quest \"Saving Sunnyglade\" added.",
+        frFR = "Guide de donjon Krol'dok : les capacités des boss et du trash renvoient à leurs sorts, quête « Saving Sunnyglade » ajoutée.",
+        esES = "Guía de mazmorra Krol'dok: las habilidades de jefes y bichos enlazan sus hechizos, misión «Saving Sunnyglade» añadida." },
       { kind = "new",
         deDE = "Gruppensuche: neuer Reiter Mitspieler merkt letzte Mitspieler, du bewertest sie mit + oder -, Abbrecher werden markiert, das Zeichen erscheint in der Suche.",
         enUS = "Group finder: new Players tab remembers recent group members, rate them + or -, leavers are marked, and the mark shows in search results.",
