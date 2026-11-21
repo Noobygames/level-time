@@ -1238,6 +1238,7 @@ ns.Mechanics = {
   [10503] = { -- Jandice Barov (Scholomance)
     { 8282, "dispel", "Fluch erhöht erlittenen körperlichen Schaden; entfernen", "Curse raises physical damage taken; remove it", "v" },
     { 17773, "adds", "Beschwört viele Trugbilder; echte Jandice markieren und angreifen", "Spawns many illusions; mark and focus the real Jandice" },
+    { 8994, "survive", "Verbannt einen Spieler kurz; abwarten", "Banishes one player for a short time; wait it out" },
   },
   [10504] = { -- Lord Alexei Barov (Scholomance)
     { 28340, "survive", "Schattenaura trifft die Gruppe; Heiler brauchen Mana", "Group-wide shadow aura; healers need mana for it", "v" },
@@ -1258,6 +1259,10 @@ ns.Mechanics = {
     { 18144, "positioning", "Gargoylegestalt: nicht vor ihm stehen, Kegel betäubt", "Gargoyle form: stay out of the frontal stun cone" },
     { 12882, "positioning", "Tank an die Wand, damit der Rückstoß nicht wegschleudert", "Tank against a wall so the knockback does not throw him" },
     { 12889, "dispel", "Menschengestalt verflucht; Zauberer schnell entfluchen", "Human form casts curses; decurse casters fast" },
+    { 8379, "tank", "Entwaffnet den Tank kurz; weniger Bedrohung einplanen", "Disarms the tank for a few seconds; expect less threat" },
+    { 14515, "interrupt", "Kann einen Spieler übernehmen; unterbrechen oder kontrollieren", "Can take over a player; interrupt or crowd-control" },
+    { 6016, "tank", "Senkt die Rüstung des Tanks eine Weile; Heiler achten auf den Tank", "Strips the tank armor for a while; healers watch the tank" },
+    { 17228, "interrupt", "Schattensalve trifft die Gruppe; unterbrechen", "Shadow volley hits the group; interrupt it" },
   },
   [10507] = { -- The Ravenian (Scholomance)
     { 11130, "positioning", "Rückstoß kann Spieler in nicht geräumte Gegner werfen", "Knockback can throw players into uncleared trash", "v" },
@@ -1270,6 +1275,7 @@ ns.Mechanics = {
     { 18099, "positioning", "**Frostnova** wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "Frost nova roots melee; ranged stay at max range", "v" },
     { 8398, "interrupt", "**Frostblitzsalven** unterbrechen", "Interrupt the frostbolt volleys", "v" },
     { 16350, "dispel", "Friert einen Spieler ein: Magie bannen", "Freezes a player in place: dispel magic", "v" },
+    { 18100, "dispel", "Frostrüstung verlangsamt Nahkämpfer; bannen oder reinigen", "Frost armor slows melee attackers; dispel or purge it" },
   },
   [10509] = { -- Jed Runewatcher (Upper Blackrock Spire)
     { 15749, "tank", "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand", "Charges a player and knocks them back; tank keeps him at a wall" },
@@ -1334,6 +1340,7 @@ ns.Mechanics = {
   [10901] = { -- Lorekeeper Polkelt (Scholomance)
     { 3586, "positioning", "Infizierter schadet Verbündeten in der Nähe; weggehen", "Infected player hurts nearby allies; move away", "v" },
     { 8245, "tank", "Säure senkt Rüstung; Zombie-Adds explodieren beim Tod", "Acid lowers armor; zombie adds explode on death", "v" },
+    { 5413, "survive", "Senkt Naturwiderstand; Naturschaden gering halten", "Lowers nature resistance; keep nature damage low" },
   },
   [10997] = { -- Cannon Master Willey (Stratholme)
     { 17279, "adds", "Ruft Scharlachrote Schützen, töten oder separat tanken", "Calls Crimson Riflemen, kill or off-tank them" },
@@ -1529,6 +1536,7 @@ ns.Mechanics = {
   [11622] = { -- Rattlegore (Scholomance)
     { 11876, "survive", "Flächenbetäubung um ihn; Nahkämpfer brauchen Heilung", "AoE stun around him; melee need heals ready", "v" },
     { 18945, "tank", "Schlägt den Tank weg; lässt den Schlüssel zum Sichtraum fallen", "Knocks the tank back; drops the Viewing Room Key", "v" },
+    { 18368, "tank", "Härterer Nahkampftreffer auf den Tank; vorausheilen", "Harder melee hit on the tank; heal ahead" },
   },
   [11658] = { -- Molten Giant (Molten Core)
     { 18944, "positioning", "Schwerer Flächenschlag; Nicht-Tanks halten Abstand", "Heavy AoE hit around it; non-tanks keep distance" },
@@ -1874,6 +1882,8 @@ ns.Mechanics = {
   },
   [14861] = { -- Blood Steward of Kirtonos (Scholomance)
     { 22371, "dispel", "Flüche entfernen; er lässt das Blut der Unschuldigen fallen", "Remove his curses; he drops the Blood of Innocents", "v" },
+    { 3609, "survive", "Gift betäubt einen Spieler kurz; Heiler überbrücken", "Poison stuns a player for a few seconds; healers cover the gap" },
+    { 11708, "dispel", "Fluch senkt Nahkampfschaden: entfernen", "Curse lowers melee damage: remove it" },
   },
   [15082] = { -- Gri'lek (Zul'Gurub)
     { 24646, "positioning", "Wächst und jagt einen zufälligen Spieler; dieser kitet", "Grows and chases a random player; that player kites" },
@@ -2161,6 +2171,8 @@ ns.Mechanics = {
   [16118] = { -- Kormok (Scholomance)
     { 27688, "positioning", "**Knochenschild** wirft Schaden auf Nahkämpfer zurück; pausieren", "**Bone shield** reflects damage to melee; melee pause" },
     { 27687, "adds", "Beschwört Skelettdiener und -magier; töten", "Summons skeleton minions and mages; kill them" },
+    { 27695, "adds", "Ruft auch Skelettmagier; zuerst töten", "Calls skeleton mages as well; kill them first" },
+    { 8269, "tank", "Beschleunigt seine Angriffe eine Weile; Tank nutzt Abklingzeiten", "Speeds up his attacks for a while; tank uses cooldowns" },
   },
   [16145] = { -- Death Knight Captain (Naxxramas)
     { 28335, "positioning", "**Wirbelwind** trifft alle Nahkämpfer; Zauberer Abstand halten", "**Whirlwind** hits all melee; casters keep distance" },

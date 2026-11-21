@@ -111,4 +111,6 @@ Zul'Farrak (LT-373, 2026-11-21): boss spell IDs and abilities (Antu'sul, Zum'rah
 
 Maraudon (LT-374, 2026-11-21): Tinkerer Gizlock Shoot (6660) and Meshlok the Harvester Strike (13446) from the Wowhead WoW Forever guide table notes, our own wording, unverified; journal-only rank IDs not used (guide table IDs kept).
 
+Scholomance (LT-383, 2026-11-21): missing boss abilities and the Argent Dawn key chain quests 5066, 5092, 5093, 5096, 5097, 5098, 5505, 5511 with givers and quest levels from the offline Wowhead WoW Forever notes, our own wording; ability effects unverified, minimum levels of the new quests estimated (50/55), giver of 5066/5093 unknown, variants 5090/5091/5094/5095 not added.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

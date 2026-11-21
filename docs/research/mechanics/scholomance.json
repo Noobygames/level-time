@@ -9,7 +9,9 @@
       "npcID": 14861,
       "level": 61,
       "mechanics": [
-        {"spellID": 22371, "spell": "Curse of Impotence", "type": "dispel", "en": "Remove his curses; he drops the Blood of Innocents", "de": "Flüche entfernen; er lässt das Blut der Unschuldigen fallen", "verified": true}
+        {"spellID": 22371, "spell": "Curse of Impotence", "type": "dispel", "en": "Remove his curses; he drops the Blood of Innocents", "de": "Flüche entfernen; er lässt das Blut der Unschuldigen fallen", "verified": true},
+        {"spellID": 3609, "spell": "Paralyzing Poison", "type": "survive", "en": "Poison stuns a player for a few seconds; healers cover the gap", "de": "Gift betäubt einen Spieler kurz; Heiler überbrücken", "unverified": true},
+        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse lowers melee damage: remove it", "de": "Fluch senkt Nahkampfschaden: entfernen", "unverified": true}
       ]
     },
     {
@@ -20,7 +22,11 @@
         {"spellID": 18144, "spell": "Swoop", "type": "positioning", "en": "Gargoyle form: stay out of the frontal stun cone", "de": "Gargoylegestalt: nicht vor ihm stehen, Kegel betäubt"},
         {"spellID": 12882, "spell": "Wing Flap", "type": "positioning", "en": "Tank against a wall so the knockback does not throw him", "de": "Tank an die Wand, damit der Rückstoß nicht wegschleudert"},
         {"spellID": 12889, "spell": "Curse of Tongues", "type": "dispel", "en": "Human form casts curses; decurse casters fast", "de": "Menschengestalt verflucht; Zauberer schnell entfluchen"},
-        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse lowers melee damage: remove the curse", "de": "Fluch senkt Nahkampfschaden: Fluch entfernen", "verified": true}
+        {"spellID": 11708, "spell": "Curse of Weakness", "type": "dispel", "en": "Curse lowers melee damage: remove the curse", "de": "Fluch senkt Nahkampfschaden: Fluch entfernen", "verified": true},
+        {"spellID": 8379, "spell": "Disarm", "type": "tank", "en": "Disarms the tank for a few seconds; expect less threat", "de": "Entwaffnet den Tank kurz; weniger Bedrohung einplanen", "unverified": true},
+        {"spellID": 14515, "spell": "Dominate Mind", "type": "interrupt", "en": "Can take over a player; interrupt or crowd-control", "de": "Kann einen Spieler übernehmen; unterbrechen oder kontrollieren", "unverified": true},
+        {"spellID": 6016, "spell": "Pierce Armor", "type": "tank", "en": "Strips the tank armor for a while; healers watch the tank", "de": "Senkt die Rüstung des Tanks eine Weile; Heiler achten auf den Tank", "unverified": true},
+        {"spellID": 17228, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Shadow volley hits the group; interrupt it", "de": "Schattensalve trifft die Gruppe; unterbrechen", "unverified": true}
       ]
     },
     {
@@ -29,7 +35,8 @@
       "level": 61,
       "mechanics": [
         {"spellID": 17773, "spell": "Summon Illusions", "type": "adds", "en": "Spawns many illusions; mark and focus the real Jandice", "de": "Beschwört viele Trugbilder; echte Jandice markieren und angreifen"},
-        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; remove it", "de": "Fluch erhöht erlittenen körperlichen Schaden; entfernen", "verified": true}
+        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; remove it", "de": "Fluch erhöht erlittenen körperlichen Schaden; entfernen", "verified": true},
+        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Banishes one player for a short time; wait it out", "de": "Verbannt einen Spieler kurz; abwarten", "unverified": true}
       ]
     },
     {
@@ -38,7 +45,8 @@
       "level": 61,
       "mechanics": [
         {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "AoE stun around him; melee need heals ready", "de": "Flächenbetäubung um ihn; Nahkämpfer brauchen Heilung", "verified": true},
-        {"spellID": 18945, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank back; drops the Viewing Room Key", "de": "Schlägt den Tank weg; lässt den Schlüssel zum Sichtraum fallen", "verified": true}
+        {"spellID": 18945, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank back; drops the Viewing Room Key", "de": "Schlägt den Tank weg; lässt den Schlüssel zum Sichtraum fallen", "verified": true},
+        {"spellID": 18368, "spell": "Strike", "type": "tank", "en": "Harder melee hit on the tank; heal ahead", "de": "Härterer Nahkampftreffer auf den Tank; vorausheilen", "unverified": true}
       ]
     },
     {
@@ -78,7 +86,8 @@
         {"spellID": 6215, "spell": "Fear", "type": "survive", "en": "Fears players; clear his adds first so no extra pulls", "de": "Furcht auf Spieler; vorher Adds töten, sonst Zusatzpulls", "verified": true},
         {"spellID": 18099, "spell": "Chill Nova", "type": "positioning", "en": "Frost nova roots melee; ranged stay at max range", "de": "**Frostnova** wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "verified": true},
         {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "Interrupt the frostbolt volleys", "de": "**Frostblitzsalven** unterbrechen", "verified": true},
-        {"spellID": 16350, "spell": "Freeze", "type": "dispel", "en": "Freezes a player in place: dispel magic", "de": "Friert einen Spieler ein: Magie bannen", "verified": true}
+        {"spellID": 16350, "spell": "Freeze", "type": "dispel", "en": "Freezes a player in place: dispel magic", "de": "Friert einen Spieler ein: Magie bannen", "verified": true},
+        {"spellID": 18100, "spell": "Frost Armor", "type": "dispel", "en": "Frost armor slows melee attackers; dispel or purge it", "de": "Frostrüstung verlangsamt Nahkämpfer; bannen oder reinigen", "unverified": true}
       ]
     },
     {
@@ -87,7 +96,9 @@
       "level": 60,
       "mechanics": [
         {"spellID": 27688, "spell": "Bone Shield", "type": "positioning", "en": "**Bone shield** reflects damage to melee; melee pause", "de": "**Knochenschild** wirft Schaden auf Nahkämpfer zurück; pausieren"},
-        {"spellID": 27687, "spell": "Summon Bone Minions", "type": "adds", "en": "Summons skeleton minions and mages; kill them", "de": "Beschwört Skelettdiener und -magier; töten"}
+        {"spellID": 27687, "spell": "Summon Bone Minions", "type": "adds", "en": "Summons skeleton minions and mages; kill them", "de": "Beschwört Skelettdiener und -magier; töten"},
+        {"spellID": 27695, "spell": "Summon Bone Mages", "type": "adds", "en": "Calls skeleton mages as well; kill them first", "de": "Ruft auch Skelettmagier; zuerst töten", "unverified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "tank", "en": "Speeds up his attacks for a while; tank uses cooldowns", "de": "Beschleunigt seine Angriffe eine Weile; Tank nutzt Abklingzeiten", "unverified": true}
       ],
       "summoned": true
     },
@@ -123,7 +134,8 @@
       "wing": "Barov vault",
       "mechanics": [
         {"spellID": 3586, "spell": "Volatile Infection", "type": "positioning", "en": "Infected player hurts nearby allies; move away", "de": "Infizierter schadet Verbündeten in der Nähe; weggehen", "verified": true},
-        {"spellID": 8245, "spell": "Corrosive Acid", "type": "tank", "en": "Acid lowers armor; zombie adds explode on death", "de": "Säure senkt Rüstung; Zombie-Adds explodieren beim Tod", "verified": true}
+        {"spellID": 8245, "spell": "Corrosive Acid", "type": "tank", "en": "Acid lowers armor; zombie adds explode on death", "de": "Säure senkt Rüstung; Zombie-Adds explodieren beim Tod", "verified": true},
+        {"spellID": 5413, "spell": "Noxious Catalyst", "type": "survive", "en": "Lowers nature resistance; keep nature damage low", "de": "Senkt Naturwiderstand; Naturschaden gering halten", "unverified": true}
       ]
     },
     {
