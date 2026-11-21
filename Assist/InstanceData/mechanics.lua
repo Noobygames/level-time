@@ -2351,11 +2351,14 @@ ns.Mechanics = {
     { 14030, "tank", "**Hakennetz** hält den Tank 10 Sek. fest, sie patrouillieren zu dritt: per Sichtlinie wegziehen, ein Paladin kann den Tank befreien", "**Hooked Net** roots the tank for 10 sec and they patrol in packs of three: pull them away with line of sight, a Paladin can free the tank", "f" },
   },
   [258905] = { -- Zul'Alai (The Drowned City)
-    { 0, "survive", "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "Enrages near death and hits the group hard: save cooldowns", "f" },
+    { 1282504, "avoid", "**Monströser Schlag** betäubt alle neben ihm 3 Sek. lang: Nahkämpfer treten während des Zaubers weg, er bewegt sich dabei nicht", "**Monstrous Slam** stuns everyone next to him for 3 sec: melee step away while he casts, he stands still", "f" },
+    { 1282519, "dispel", "**Verfaulter Schlag** verlangsamt Bewegung und Angriffstempo naher Spieler: zuerst den Tank entfluchen", "**Rotted Strike** slows movement and attack speed of nearby players: dispel the tank first", "f" },
+    { 1282511, "survive", "**Unsterblicher Schwur** unter 30 % Leben: schnellere Angriffe und er heilt sich, Abklingzeiten aufsparen", "**Undying Oath** below 30% health: faster attacks and he heals himself, save cooldowns", "f" },
   },
   [258924] = { -- Var'Taka (The Drowned City)
-    { 0, "survive", "Harpuniert einen zufälligen Spieler und zieht ihn heran", "Harpoons a random player and pulls them in", "f" },
-    { 0, "adds", "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "Two priestesses heal him: control or kill them first", "f" },
+    { 1282615, "survive", "**Harpune** spießt einen zufälligen Spieler auf und zieht ihn heran", "**Harpoon** spears a random player and pulls them to him", "f" },
+    { 15284, "positioning", "**Spalten** trifft vor ihm: nur der Tank steht dort, ihn von der Gruppe wegdrehen", "**Cleave** hits in front of him: only the tank stands there, face him away from the group", "f" },
+    { 0, "adds", "Zwei Priesterinnen heilen ihn und wirken Frostblitz: zuerst kontrollieren oder töten", "Two priestesses heal him and cast Frostbolt: control or kill them first", "f" },
   },
   [258964] = { -- Nar'gurk (Krol'dok Stronghold)
     { 1280259, "survive", "**Bekehren** übernimmt einen Spieler, bis er auf die Hälfte seiner Gesundheit gefallen ist: festhalten oder auf 50 % herunterbringen, nie töten", "**Convert** takes over a player until they are down to half health: control or cleave them down to 50% to break it, never kill them", "f" },
@@ -2386,6 +2389,17 @@ ns.Mechanics = {
   },
   [259285] = { -- Terrorhowl (Krol'dok Stronghold)
     { 0, "survive", "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "f" },
+  },
+  [260042] = { -- Captain Dreadrise (The Drowned City)
+    { 1282842, "survive", "**Einsalzen** sperrt einen zufälligen Spieler (auch den Tank) in eine Blase: zerstören, bevor er ertrinkt", "**Embrine** traps a random player (the tank too) in a bubble: break it before they drown", "f" },
+    { 1282860, "interrupt", "**Wasserblitzsalve** schadet der ganzen Gruppe: unterbrechen", "**Waterbolt Volley** damages the whole group: interrupt it", "f" },
+  },
+  [260274] = { -- Min'loth the Serpent (The Drowned City)
+    { 1283250, "tank", "**Durchnässen** (Trollform) trifft den Tank hart", "**Drench** (troll form) hits the tank hard", "f" },
+    { 1283233, "survive", "**Sintflut** ist ein Kanalzauber, der der ganzen Gruppe schadet: gegenheilen", "**Deluge** is a channel that damages the whole group: heal through it", "f" },
+    { 0, "survive", "Bei 0 % Leben kehrt er als Schlange mit vollem Leben zurück: Abklingzeiten für Phase 2 aufsparen", "At 0% health he returns at full health as a serpent: save cooldowns for phase 2", "f" },
+    { 1283313, "dispel", "**Giftblitzsalve** (Schlangenform) vergiftet die Gruppe: schnell reinigen", "**Poison Bolt Volley** (serpent form) poisons the group: cleanse it quickly", "f" },
+    { 1313471, "avoid", "**Furcht** (Schlangenform) trifft einen zufälligen Spieler: Abstand zu anderen Gegnern halten", "**Fear** (serpent form) hits a random player: stay clear of other groups", "f" },
   },
   [260322] = { -- Saltspine (Excavation Site: Wetlands)
     { 0, "positioning", "Läuft zwischen Elite-Krokilisken: diese räumen oder ihn weglocken", "Roams among elite crocolisks: clear them or pull him away", "f" },
@@ -2460,6 +2474,9 @@ ns.Mechanics = {
   [263466] = { -- Lesser Stone Golem (Hall of Thanes)
     { 0, "tank", "Schlägt hart, schnell: einzeln, Betäubung und Kontrolle nutzen", "Hits hard and moves fast: one at a time, use stuns and crowd control", "f" },
   },
+  [264177] = { -- Gill (The Drowned City)
+    { 1291692, "tank", "**Dynamit werfen** trifft das Hauptziel: nicht zusammen mit Gegnern in der Nähe ziehen", "**Throw Dynamite** hits the main target: don't pull him together with nearby trash", "f" },
+  },
   [264773] = { -- Bossman Toof (Krol'dok Stronghold)
     { 16856, "tank", "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "f" },
     { 15548, "positioning", "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "**Thunderclap** hits and slows players close by: ranged keep distance", "f" },
@@ -2467,6 +2484,15 @@ ns.Mechanics = {
   },
   [269475] = { -- Mana Phantom (City of Dalaran)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "Burns mana from casters: interrupt or kill it first", "f" },
+  },
+  [270885] = { -- Deathless Marrow (The Drowned City)
+    { 1283034, "survive", "**Blutblitz** schadet der ganzen Gruppe", "**Bloodbolt** damages the whole group", "f" },
+    { 0, "adds", "Immer neue Wächter und Zauberer: mit Flächenschaden vom Boss mitnehmen, Wächter zuerst", "Waves of guardians and sorcerers keep coming: cleave them off the boss, kill guardians first", "f" },
+    { 1283081, "adds", "Wächter betäuben Spieler mit **Schildschlag**: zuerst erledigen", "Guardians stun players with **Shield Slam**: kill them first", "f" },
+  },
+  [270887] = { -- Primeval Elemental (The Drowned City)
+    { 1290978, "tank", "**Wasserblitz** trifft das Hauptziel: wenn möglich unterbrechen", "**Waterbolt** hits the main target: interrupt if possible", "f" },
+    { 1290983, "survive", "**Wasser gefrieren** schadet der Gruppe: unter Wasser auf die Atemluft achten und rechtzeitig auftauchen", "**Freeze Water** damages the group: watch your breath underwater and surface in time", "f" },
   },
   [271784] = { -- Alcaz Jailer (Alcaz Prison)
     { 15496, "tank", "**Spalten** trifft alle vor ihm: vom Rest der Gruppe wegdrehen", "**Cleave** hits everyone in front: face him away from the group", "f" },

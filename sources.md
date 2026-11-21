@@ -119,4 +119,6 @@ Uldaman (LT-372, 2026-11-21): Intercept, Harsh Winds and Lightning Bolt spell ID
 
 Scarlet Monastery Graveyard (LT-368, 2026-11-21): abilities of Azshir, Fallen Champion, Ironspine and Thalnos' Flame Spike from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; Thalnos Shadow Bolt set to the guide table ID 9613.
 
+The Drowned City (LT-367, 2026-11-21): spell IDs and abilities of Zul'Alai, Var'Taka, Captain Dreadrise, Deathless Marrow, Primeval Elemental, Min'loth and Gill from the Wowhead WoW Forever guide notes (effects paraphrased, also using warcrafttavern notes), unverified; boss NPC IDs stay from our database (the guide lists 269586, 263886, 260243 for Marrow, Primeval Elemental, Min'loth).
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
