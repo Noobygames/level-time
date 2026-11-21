@@ -343,7 +343,8 @@ ns.Mechanics = {
   [4543] = { -- Bloodmage Thalnos (Scarlet Monastery: Graveyard)
     { 12470, "positioning", "**Feuerstoß** um ihn; Fernkampf und Heiler halten Abstand", "Fire burst around him; ranged and healer keep distance", "v" },
     { 23038, "survive", "Sofortiger Feuertreffer mit Brand auf sein Ziel", "Instant fire hit plus burn on his target" },
-    { 20825, "interrupt", "Wirkt **Schattenblitz**; unterbrechen spart Schaden", "Casts **Shadow Bolt**; kick it to cut damage" },
+    { 9613, "interrupt", "Wirkt **Schattenblitz**; unterbrechen spart Schaden", "Casts **Shadow Bolt**; kick it to cut damage" },
+    { 8814, "avoid", "Feuersäule auf einem Bereich mit Brand; aus der Fläche treten", "Fire pillar on an area with a burn; step out of it" },
   },
   [4799] = { -- Fallenroot Hellcaller (Blackfathom Deeps)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder früh töten", "Burns mana from casters: interrupt or kill it early", "v" },

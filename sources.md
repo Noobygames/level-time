@@ -117,4 +117,6 @@ The Temple of Atal'Hakkar (LT-375, 2026-11-21): Shield Spike, Renew, Thorns Aura
 
 Uldaman (LT-372, 2026-11-21): Intercept, Harsh Winds and Lightning Bolt spell IDs, quests 2203, 2501, 2439, 2440 with factions, givers 6868 and 1470, and Ironaya level 40 from the Wowhead WoW Forever notes, our own wording; unverified: minimum levels of the new quests (copied from their predecessors), givers of 2439/2440, ability effects; quest 2431 missing (no data).
 
+Scarlet Monastery Graveyard (LT-368, 2026-11-21): abilities of Azshir, Fallen Champion, Ironspine and Thalnos' Flame Spike from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; Thalnos Shadow Bolt set to the guide table ID 9613.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
