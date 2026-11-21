@@ -273,4 +273,10 @@ X.CheckListData = {
       "Nur wenn LT414.realm.orphans count > 0 meldet: /lt, Historie, den Charakter wählen; 'Alten Eintrag zusammenführen' klicken und bestätigen (fr/es: Knöpfe überlappen den Titel nicht).",
       "Erwartung: Spielzeit und Journale des Charakters wachsen um die Werte des alten Eintrags, die Knöpfe verschwinden, nach /reload keine Lua-Fehler.",
     } },
+  { id = "LT-349", client = "all", triggers = { "combat" },
+    title = "Wasserschild-Ladungen bei ein- und ausgeklappter Buffleiste",
+    steps = {
+      "Schamane mit Wasserschild: Buffleiste ausgeklappt ansehen und Tooltip der Option lesen; Leiste einklappen; dann einen Übungsdummy angreifen.",
+      "Erwartung: ausgeklappt keine eigene Anzeige (Tooltip sagt warum), eingeklappt Wasserschild mit Ladungen und Restzeit hinter dem letzten Buff, auch im Kampf.",
+    } },
 }

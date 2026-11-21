@@ -35,6 +35,7 @@ local CHECKS = {
   "LT321.bossKills.sources",
   "LT390.lfg.templates",
   "LT414.realm.orphans",
+  "LT349.waterShield.display",
 }
 
 wow.login()

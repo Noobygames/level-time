@@ -2057,3 +2057,21 @@ check("LT416.cleanup.leftoversTitles", function()
   end
   return result
 end)
+
+-- LT-349: Wasserschild-Anzeige nur bei eingeklappter Buffleiste; was sieht sie gerade?
+check("LT349.waterShield.display", function()
+  local CollapsedBuffs = ns.CollapsedBuffs
+  local point, relativeTo = CollapsedBuffs.Frame():GetPoint(1)
+  local shield
+  local aurasReadable = ns.Auras.ForEachBuff(function(aura)
+    if not shield and CollapsedBuffs.Matches(aura) then
+      shield = { name = readable(aura.name), applications = readable(aura.applications),
+        countText = readable(CollapsedBuffs.DisplayCount(aura)) }
+    end
+  end)
+  return {
+    barCollapsed = CollapsedBuffs.IsBarCollapsed(), aurasReadable = aurasReadable == true, aura = shield or "none",
+    restricted = ns.Auras.Restricted(), shown = CollapsedBuffs.ShownCount(),
+    anchor = point and { point = point, to = relativeTo and relativeTo.GetName and relativeTo:GetName() or "?" } or "none",
+  }
+end)
