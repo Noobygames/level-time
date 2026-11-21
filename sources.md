@@ -121,4 +121,6 @@ Scarlet Monastery Graveyard (LT-368, 2026-11-21): abilities of Azshir, Fallen Ch
 
 The Drowned City (LT-367, 2026-11-21): spell IDs and abilities of Zul'Alai, Var'Taka, Captain Dreadrise, Deathless Marrow, Primeval Elemental, Min'loth and Gill from the Wowhead WoW Forever guide notes (effects paraphrased, also using warcrafttavern notes), unverified; boss NPC IDs stay from our database (the guide lists 269586, 263886, 260243 for Marrow, Primeval Elemental, Min'loth).
 
+City of Dalaran (LT-366, 2026-11-21): quest giver Rexxie Copperclutch (268743, Horde, inside the instance, no coordinates) for 96987 and the boss abilities Strike, Arcing Smash, Arcane Explosion, Slow and Raise Dead (Lyn) from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; guide table IDs kept over journal IDs.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

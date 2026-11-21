@@ -2227,6 +2227,8 @@ ns.Mechanics = {
   [246017] = { -- Unstable Sentinel (City of Dalaran)
     { 1241329, "avoid", "**Fehlfunktion**: nach 2 Sek. Zauberzeit Arkanpulse im 25-m-Umkreis; rausgehen", "**Malfunction**: after a 2 sec cast, arcane pulses within 25 yd; get out", "f" },
     { 0, "adds", "Wütende Folianten auf dem Weg: vor dem Pull töten", "Angry Tomes on the way: kill them before the pull", "f" },
+    { 16169, "avoid", "**Bogenschlag** trifft einen Kegel vor ihm: von der Gruppe wegdrehen", "**Arcing Smash** hits a cone in front of him: face him away from the group", "f" },
+    { 1241325, "avoid", "**Arkanexplosion** pulsiert um ihn: Abstand halten", "**Arcane Explosion** pulses around him: stay out of range", "f" },
   },
   [246020] = { -- Shade of the Archmage (City of Dalaran)
     { 0, "survive", "Verlässt ein Spieler den Raum, hat der Boss wieder volles Leben", "Leaving the room resets him to full health", "f" },
@@ -2235,6 +2237,7 @@ ns.Mechanics = {
     { 1303599, "interrupt", "**Hervorrufung** füllt sein Mana: unterbrechen oder schnell Schaden machen", "**Evocation** refills his mana: interrupt or burst him down", "f" },
     { 15230, "interrupt", "**Arkanblitz** auf einen Spieler: unterbrechen", "**Arcane bolt** on a player: interrupt it", "f" },
     { 28450, "avoid", "**Arkanexplosion** um ihn: Fernkämpfer halten Abstand", "Arcane burst around him: ranged keep their distance", "f" },
+    { 1303350, "survive", "**Verlangsamen** senkt Angriffs-, Lauf- und Zaubertempo 3 Sek. lang: einplanen", "**Slow** cuts attack, move and cast speed for 3 sec: expect it", "f" },
   },
   [247001] = { -- Saturated Remnant (City of Dalaran)
     { 1449, "avoid", "**Arkanexplosion** um ihn: Fernkämpfer bleiben aus dem Nahkampf", "Arcane burst around it: ranged stay out of melee range", "f" },
@@ -2243,13 +2246,14 @@ ns.Mechanics = {
   [247032] = { -- Lyn the Ignored (City of Dalaran)
     { 1304473, "dispel", "**Dornenfluch**: Fluch entfernen", "**Curse of Thorns**: remove the curse", "f" },
     { 17228, "survive", "**Schattenblitzsalve** trifft alle im 30-m-Umkreis", "**Shadow Bolt Volley** hits everyone within 30 yd", "f" },
-    { 0, "adds", "Skelette kämpfen mit: töten", "Skeletons fight beside her: kill them", "f" },
+    { 1303266, "adds", "**Tote erwecken** ruft zwei Skelette: töten", "**Raise Dead** summons two skeletons: kill them", "f" },
   },
   [247126] = { -- Atrexis the Grave Knight (City of Dalaran)
     { 1303264, "dispel", "**Unheilige Raserei**: +75 % Angriffstempo 20 Sek. lang, reinigen", "**Unholy Frenzy**: +75% attack speed for 20 sec, purge it", "f" },
     { 1303266, "adds", "Skelette erheben sich laufend: sofort töten", "Skeletons keep rising: kill them as they come", "f" },
     { 3391, "tank", "Extraschläge: schwere Treffer auf dem Tank", "Extra swings: heavy hits on the tank", "f" },
     { 6713, "tank", "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "Disarms the tank: expect less threat for a few seconds", "f" },
+    { 12057, "tank", "Einfache Waffenschläge: Schild bereithalten", "Plain weapon strikes: keep the shield up", "f" },
   },
   [247195] = { -- Withermaw (Blackmaw Hold)
     { 0, "positioning", "Der faulende Bär hinterlässt Lavapfützen: Kampf davon wegziehen", "Rotting bear leaves lava pools: drag the fight away from them", "f" },
