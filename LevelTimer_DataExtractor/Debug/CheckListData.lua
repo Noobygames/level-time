@@ -249,4 +249,10 @@ X.CheckListData = {
       "Allein einen Elite-Gegner töten, danach dieselbe Art erneut innerhalb von 5 Minuten; in einer Gruppe und in einem Dungeon Elites töten; /lte check LT416.alerts.eliteGate. Außerdem Maus über ein Hinweisfenster halten und Namensplaketten mit Abklingzeit-Zahlen ansehen (Forever).",
       "Erwartung: Elite-Banner nur allein und je Gegnerart höchstens alle 5 Minuten; das Hinweisfenster bleibt unter der Maus stehen; keine Lua-Fehler durch Abklingzeit-Zahlen an Plaketten; Questreste enthalten keine Handwerkswaren (/lte check LT416.cleanup.leftoversTitles).",
     } },
+  { id = "LT-401", client = "all", triggers = { "instance", "raid" },
+    title = "Dungeon-Tracker: Porträtrahmen, Zeilenabstand, Bosse ausgeklappt",
+    steps = {
+      "Dungeon mit 7-8 Bossen betreten, Tracker ansehen; danach einen Schlachtzug mit mehr als 8 Bossen (z. B. Geschmolzener Kern).",
+      "Erwartung: goldener Rahmen ums Boss-Porträt, sichtbar mehr Zeilenabstand, im Dungeon alle Bosse gelistet; im Schlachtzug nur besiegte und der nächste plus '+N weitere'.",
+    } },
 }

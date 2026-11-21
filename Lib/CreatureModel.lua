@@ -9,6 +9,7 @@
 -- SetCreature lädt das Modell neu). Als Kind des Aufrufers verschwindet es mit dessen Fenster.
 --   local portrait = CreatureModel.Create(parent, size)
 --   CreatureModel.Set(portrait, npcID)   -- nil = Symbol
+--   CreatureModel.AddBorder(portrait)    -- Rahmen (portrait.border)
 --   portrait.npcID = gezeigte NPC-ID (false = Symbol), portrait.model = Modellrahmen (false = noch keiner)
 local _, ns = ...
 
@@ -18,6 +19,8 @@ ns.CreatureModel = CreatureModel
 local FALLBACK_ICON = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull"
 CreatureModel.FALLBACK_ICON = FALLBACK_ICON
 local BACKGROUND_COLOR = { 0.05, 0.05, 0.05, 1 }  -- deckend: im Live-Tracker liegt das Porträt über dem Kartensymbol
+local BORDER_TEXTURE = "Interface\\Buttons\\WHITE8X8"
+local BORDER_SIZE = 2
 local PORTRAIT_ZOOM = 1        -- 1 = Kopf und Schultern, 0 = ganze Figur
 local CAM_DISTANCE_SCALE = 1
 local RETRY_SECONDS = 0.5      -- Abstand der Ladeversuche bei leerem Modell
@@ -101,6 +104,17 @@ function CreatureModel.Create(parent, size)
   portrait.icon:SetTexture(FALLBACK_ICON)
   portrait.npcID, portrait.model = false, false  -- immer gesetzt: im Test-Stub liefern unbekannte Felder eine Funktion
   return portrait
+end
+
+-- Dünner Rahmen in Theme-Randfarbe um das Porträt (eigener Rahmen über dem Modell)
+function CreatureModel.AddBorder(portrait)
+  if portrait.border then return end
+  local border = CreateFrame("Frame", nil, portrait, "BackdropTemplate")
+  border:SetAllPoints()
+  border:SetFrameLevel(portrait:GetFrameLevel() + 2)
+  border:SetBackdrop({ edgeFile = BORDER_TEXTURE, edgeSize = BORDER_SIZE })
+  border:SetBackdropBorderColor(unpack(ns.Theme.COLORS.border))
+  portrait.border = border
 end
 
 function CreatureModel.Set(portrait, npcID)

@@ -26,14 +26,14 @@ a.tracker:hover>div{border-color:#ffd100}
     <a class="tracker" href="DungeonRecap.dc.html" title="Linksklick: Recap mit dem Zwischenstand des Laufs (Zeit, Beute, Gruppe, Gegner). Rechtsklick: Einstellungen. Ziehen: verschieben.">
     <div style="cursor: pointer; background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
       <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
-        <span style="display: flex; align-items: center; gap: 8px"><span title="3D-Porträt des nächsten Bosses (Modell, kein Bild)" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #444; border-radius: 3px; flex: none"></span><span style="font-size: 14px; font-weight: 700; color: #ffd100">Die Todesminen</span></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span title="3D-Porträt des nächsten Bosses (Modell, kein Bild)" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 2px solid #b8872b; border-radius: 3px; flex: none"></span><span style="font-size: 14px; font-weight: 700; color: #ffd100">Die Todesminen</span></span>
         <span style="font-size: 12px; color: #c8c8c8">Gruppe</span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: baseline">
         <span style="font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums">24:18</span>
         <span style="font-size: 14px; font-weight: 600; color: #5fa8ff">-1:12 zur Bestzeit</span>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 2px; font-size: 13px; font-variant-numeric: tabular-nums">
+      <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
         <sc-for list="{{trackerBosses}}" as="b" hint-placeholder-count="5">
           <div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 6px; align-items: center; {{b.rowStyle}}">
             <span style="color: {{b.markColor}}">{{b.mark}}</span>
@@ -42,7 +42,7 @@ a.tracker:hover>div{border-color:#ffd100}
             <span style="color: {{b.diffColor}}; min-width: 40px; text-align: right">{{b.diff}}</span>
           </div>
         </sc-for>
-        <span style="color: #8a8a8a; padding-left: 22px">+2 weitere</span>
+        <span title="Nur bei mehr als 8 Bossen eingeklappt (dann: Rest als +N weitere); sonst stehen alle Bosse da" style="color: #8a8a8a; padding-left: 22px; display: none">+N weitere</span>
       </div>
       <div title="Beute-Symbole des nächsten Bosses (ab rar, max. 6); Drüberfahren = Gegenstandsinfo, ein * (aus Classic übernommen) wird dort erklärt" style="display: flex; gap: 4px">
         <sc-for list="{{nextLoot}}" as="i" hint-placeholder-count="2">
@@ -226,7 +226,7 @@ class Component extends DCLogic {
     const rows = run.bosses.slice(0, MAX_BOSS_ROWS);
     const live = RUNS[0];
     return {
-      trackerBosses: live.bosses.slice(0, 5).map(([name, split, best], i) => {
+      trackerBosses: live.bosses.map(([name, split, best], i) => {
         const current = split === '…';
         const diff = current ? '' : fmt(toSec(split) - toSec(best));
         return { name, time: split, diff, mark: current ? '›' : '✓', markColor: current ? GOLD : GOOD,

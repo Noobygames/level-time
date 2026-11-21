@@ -530,3 +530,9 @@ ns.RegisterEvent("PLAYER_ENTERING_WORLD", function()
     if mapID then write({ area = "event", event = "instance.questCheck", extra = safe(questState, mapID) }) end
   end)
 end)
+
+-- LT-401: Live-Tracker-Aufbau: Bossanzahl, ausgeklappt (bis COLLAPSE_ABOVE_BOSSES Bosse), Reihenabstand, Porträtrahmen
+check("LT401.tracker.layout", function()
+  ns.InstanceRunTracker.Refresh()
+  return ns.InstanceRunTracker.Layout()
+end)

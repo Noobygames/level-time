@@ -33,6 +33,7 @@ local CHECKS = {
   "LT404.guide.spellLinks", "LT408.lfg.realms", "LT412.trivialTracking.api", "LT413.realm.sources",
   "LT405.recap.run", "LT407.lfg.levelOrder", "LT409.oldRanks.upgrade", "LT410.hearth.bind", "LT411.dungeonQuests.markAll",
   "LT412.trivialChain.state", "LT414.realm.splitEntries", "LT416.alerts.eliteGate", "LT416.cleanup.leftoversTitles",
+  "LT401.tracker.layout",
 }
 
 wow.login()
