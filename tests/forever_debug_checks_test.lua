@@ -38,6 +38,7 @@ local CHECKS = {
   "LT414.realm.orphans",
   "LT349.waterShield.display",
   "LT389.lfg.whisperLog",
+  "LT278.spells.casts",
 }
 
 wow.login()

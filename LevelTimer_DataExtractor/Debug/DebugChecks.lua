@@ -2075,3 +2075,23 @@ check("LT349.waterShield.display", function()
     anchor = point and { point = point, to = relativeTo and relativeTo.GetName and relativeTo:GetName() or "?" } or "none",
   }
 end)
+
+-- LT-278 (/lt debug check nach ein paar Kämpfen in einem Dungeon, Forever): Gegner-Zauber aus UNIT_SPELLCAST_* ohne
+-- Kampflog: Ereignisse gesehen (castEvents), Zauber-IDs lesbar oder geheim, NPCs mit Zaubern, Beispiel
+check("LT278.spells.casts", function()
+  local status = X.CombatSpells.Status()
+  local npcs, sample = 0, nil
+  for _, instance in pairs((X.db and X.db.instances) or {}) do
+    for npcID, spells in pairs(instance.spells or {}) do
+      npcs = npcs + 1
+      if not sample then
+        for key, spell in pairs(spells) do
+          if key ~= "count" then sample = { npc = npcID, spell = key, count = spell.count } break end
+        end
+      end
+    end
+  end
+  return { unitCasts = status.unitCasts, castEvents = status.castEvents, spellIDReadable = status.spellIDReadable,
+    spellIDSecret = status.spellIDSecret, secretGuids = status.secretGuids, npcsWithSpells = npcs,
+    sample = sample or "none" }
+end)
