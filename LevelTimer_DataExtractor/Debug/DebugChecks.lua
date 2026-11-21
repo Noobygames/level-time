@@ -1789,7 +1789,10 @@ check("LT393.dungeonArt.coverage", function()
       missing[#missing + 1] = dungeon.mapID .. " " .. tostring(dungeon.name)
     end
   end
-  return { journal = journal, total = total, found = found, missing = missing }
+  -- Rohwerte des Kompendiums, falls total 0 ist: Erweiterungen, gewählte, Instanzen je Erweiterung, erste Instanz
+  local raw = { tiers = call("EJ_GetNumTiers"), current = call("EJ_GetCurrentTier"),
+    loaded = call("C_AddOns.IsAddOnLoaded", "Blizzard_EncounterJournal"), first = { call("EJ_GetInstanceByIndex", 1, false) } }
+  return { journal = journal, total = total, found = found, missing = missing, raw = raw }
 end)
 
 -- LT-395: Symbole aus Zauber-IDs (UI/Options/Icons.lua, Mechanik-Typen): kennt der Client jeden Zauber und sein
@@ -1944,32 +1947,6 @@ check("LT407.lfg.levelOrder", function()
   return result
 end)
 
--- LT-409: alte Zauberränge auf den Leisten. Gibt es die Aufrufe fürs Tauschen (C_Spell.PickupSpell, PlaceAction), und
--- was findet Find (je Zauber: Rang auf der Leiste/im Buch, Ziel-ID, Plätze)? Tauscht nichts.
-check("LT409.oldRanks.upgrade", function()
-  if not (ns.OldSpellRanks and ns.OldSpellRanks.IsAvailable()) then return { available = false } end
-  local spells = {}
-  local found = ns.OldSpellRanks.Find()
-  for index = 1, math.min(#found, 8) do
-    local spell = found[index]
-    local slot = ns.OldSpellRanks.NextSlot(spell)
-    spells[index] = { id = spell.spellID, name = spell.name, barRank = spell.barRank, bookRank = spell.bookRank,
-      upgradeID = spell.upgradeID, slots = #spell.slots, nextSlot = slot,
-      button = slot and ns.ActionBars.ButtonForSlot(slot) ~= nil or false }
-  end
-  return { available = true, count = #found, spells = spells, ignored = ns.OldSpellRanks.IgnoredCount(),
-    api = { pickupSpell = type(C_Spell.PickupSpell), placeAction = type(PlaceAction), clearCursor = type(ClearCursor),
-      getActionInfo = type(GetActionInfo) }, buttons = #ns.ActionBars.Buttons(),
-    highlighted = ns.ActionBars.HighlightedSlot() }
-end)
-
--- LT-410: Ruhestein-Hinweis beim Betreten von Gasthaus/Hauptstadt: ist der Bindeort lesbar, meldet IsResting den Zustand
-check("LT410.hearth.bind", function()
-  local location = GetBindLocation and GetBindLocation()
-  return { setting = ns.db.remindHearth, bindLocation = readable(location), resting = IsResting and IsResting() or nil,
-    module = ns.HearthReminder ~= nil }
-end)
-
 -- LT-411: Dungeonquests "alle markieren": Zustand des Hinweisfensters (Einträge mit Ort, deren Zonen mit Elternkarte,
 -- gesetzte Kartenpunkte)
 check("LT411.dungeonQuests.markAll", function()
@@ -1989,22 +1966,6 @@ check("LT411.dungeonQuests.markAll", function()
   end
   return { available = true, shown = hint.IsShown(), rows = #(rows or {}), withPlace = withPlace, zones = zones,
     pins = hint.PinCount(), getMapInfo = type(C_Map and C_Map.GetMapInfo) }
-end)
-
--- LT-414: Doppel-Eintrag "Name-" ohne Realm. split = beiseitegelegte Einträge (nach GUID), emptyRealm = noch in der
--- Charakterliste stehende Schlüssel mit leerem Realm, own = Schlüssel und Realm des eingeloggten Charakters
-check("LT414.realm.splitEntries", function()
-  local stats = _G.LevelTimerStatsDB
-  if not stats then return { available = false } end
-  local split, emptyRealm = {}, {}
-  for guid, entry in pairs(stats.splitCharacters or {}) do
-    if #split < 5 then split[#split + 1] = { guid = guid, level = type(entry) == "table" and entry.level or nil } end
-  end
-  for key in pairs(stats.characters or {}) do
-    if key:match("%-$") and #emptyRealm < 5 then emptyRealm[#emptyRealm + 1] = key end
-  end
-  return { available = true, split = split, emptyRealm = emptyRealm, own = ns.characterKey,
-    ownRealm = ns.character and ns.character.realm }
 end)
 
 -- Elite-Einblendung: nur allein und je Gegnerart höchstens alle 5 Minuten. Zustand, auf den der Code prüft

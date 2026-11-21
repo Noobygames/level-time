@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "fix",
+        deDE = "Gruppensuche: Die Flüstervorlage lässt leere Klammern weg, wenn keine Rolle gewählt ist.",
+        enUS = "Group finder: the whisper template drops empty brackets when no role is set.",
+        frFR = "Recherche de groupe : le modèle de chuchotement supprime les parenthèses vides si aucun rôle n’est choisi.",
+        esES = "Buscador de grupo: la plantilla de susurro quita los paréntesis vacíos si no hay rol elegido." },
       { kind = "change",
         deDE = "Die Versunkene Stadt: Boss-Tipps mit Fähigkeiten für alle Bosse, auch Urtümlicher Elementar und Min'loth die Schlange.",
         enUS = "The Drowned City: boss tips with abilities for all bosses, including the Primeval Elemental and Min'loth.",

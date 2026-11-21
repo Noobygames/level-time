@@ -257,7 +257,9 @@ function LFGSearch.WhisperText(summary)
   local values = { role = roleKey and ns.L[roleKey] or "", class = UnitClass("player") or "",
     level = tostring(UnitLevel("player") or ""), dungeon = summary and summary.activityNames and summary.activityNames[1] or "" }
   local text = LFGSearch.WhisperTemplate():gsub("{(%a+)}", function(key) return values[key] end)
-  text = strtrim((text:gsub("%s+", " ")))
+  -- Leere Platzhalter in Klammern ("Schamane ()" ohne Rolle) samt Klammern weg, Leerzeichen vor Satzzeichen auch
+  text = text:gsub("%(%s*%)", ""):gsub("%[%s*%]", "")
+  text = strtrim((text:gsub("%s+", " "):gsub(" ([,.!?;:])", "%1")))
   if #text > CHAT_LIMIT then  -- Bytegrenze; nicht mitten in einem UTF-8-Zeichen kappen
     -- shortcut: kappt bei sauberer Grenze ein ganzes Zeichen mehr, harmlos
     text = strtrim((text:sub(1, CHAT_LIMIT):gsub("[\192-\255][\128-\191]*$", "")))

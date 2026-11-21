@@ -57,18 +57,6 @@ X.CheckListData = {
       "In einem Dungeon mit laufendem Tracker links auf den Tracker klicken (ohne Ziehen), dann /lt recap run, dann im Run-Fenster den Knopf Recap; /lte check LT405.recap.run.",
       "Erwartung: jedes Mal öffnet sich der Recap mit dem Zwischenstand des laufenden Laufs; Ziehen des Trackers öffnet ihn nicht; im Setup-Assistent gibt es die Schalter für Dungeon-Guide und Recap.",
     } },
-  { id = "LT-409", client = "all", triggers = { "anywhere" },
-    title = "Alte Zauberränge: Upgrade-Knopf, Überfahren markiert den Platz, Klick tauscht einen Platz",
-    steps = {
-      "Zauber niedrigen Ranges auf mehrere Aktionsleisten-Plätze legen, höheren Rang lernen, Hinweisfenster abwarten; Maus über den Upgrade-Knopf, dann klicken (auch in Forever); /lte check LT409.oldRanks.upgrade.",
-      "Erwartung: Überfahren markiert den nächsten Platz auf der Leiste, jeder Klick ersetzt genau einen Platz durch den höchsten Rang, die Zeile verschwindet nach dem letzten; im Kampf passiert nichts.",
-    } },
-  { id = "LT-410", client = "all", triggers = { "anywhere" },
-    title = "Ruhestein-Hinweis beim Betreten eines Gasthauses oder einer Hauptstadt",
-    steps = {
-      "Ein Gasthaus oder eine Hauptstadt betreten (nicht per /reload darin); /lte check LT410.hearth.bind.",
-      "Erwartung: ein Hinweis nennt den Bindeort des Ruhesteins, einmal je Betreten, nicht nach /reload im Gasthaus.",
-    } },
   { id = "LT-411", client = "forever", triggers = { "worldmap" },
     title = "Dungeonquests: Alle markieren über mehrere Zonen, Karte öffnet einmal",
     steps = {
@@ -105,12 +93,6 @@ X.CheckListData = {
       "Einstellungen > Dungeons > Gruppensuche: Flüstertext ansehen/ändern (Platzhalter {role} {class} {level} {dungeon}); im Gruppensuche-Fenster eine Gruppe wählen und Flüstern klicken.",
       "Erwartung: genau eine Nachricht mit ersetzten Platzhaltern geht an den Leiter (im Chat sichtbar), nie ohne Klick; leerer Text = Standardtext; ohne gesetzte Rolle bleibt {role} leer.",
     } },
-  { id = "LT-414", client = "forever", triggers = { "history" },
-    title = "Doppel-Eintrag (leerer Realm) zusammenführen oder verwerfen",
-    steps = {
-      "Nur wenn LT414.realm.orphans count > 0 meldet: /lt, Historie, den Charakter wählen; 'Alten Eintrag zusammenführen' klicken und bestätigen (fr/es: Knöpfe überlappen den Titel nicht).",
-      "Erwartung: Spielzeit und Journale des Charakters wachsen um die Werte des alten Eintrags, die Knöpfe verschwinden, nach /reload keine Lua-Fehler.",
-    } },
   { id = "LT-349", client = "all", triggers = { "combat" },
     title = "Wasserschild-Ladungen bei ein- und ausgeklappter Buffleiste",
     steps = {
@@ -129,12 +111,6 @@ X.CheckListData = {
       "Mit 1-2 Spielern gruppieren, /lt lfg, Reiter Mitspieler: Klick wechselt + / - / leer. In einer Instanz verlässt ein Mitglied die Gruppe; zwischendurch einen Ladebildschirm durchlaufen. Reiter Suchen: Gruppe dieses Leiters ansehen.",
       "Erwartung: Namen erscheinen, nach dem Verlassen steht '!' und 'ging früh: 1 x', Ladebildschirme markieren niemanden, eigenes Verlassen auch nicht; das Zeichen steht in der Suche vor dem Leiternamen und bleibt nach /reload.",
     } },
-  { id = "LT-406", client = "all", triggers = { "options" },
-    title = "Einrichtungsassistent: Dungeon Guide und Dungeon-Recap",
-    steps = {
-      "/lt setup bis zum Schritt Dungeons, in allen vier Sprachen; 'Guide öffnen' klicken; Guide-Schalter aus und einen Dungeon betreten. Retail: Schritt Dungeons ansehen.",
-      "Erwartung: Forever 7 Schalter ohne Überlauf, 'Guide öffnen' öffnet den Guide, ausgeschaltet öffnet beim Betreten kein Guide; Retail zeigt nur den Recap-Schalter.",
-    } },
   { id = "LT-403", client = "forever", triggers = { "instance" },
     title = "Krol'dok: Bossmann Toof als Boss",
     steps = {
@@ -146,5 +122,11 @@ X.CheckListData = {
     steps = {
       "Einen Dungeon-Boss angreifen (Essen-/Lager-Hinweis an), Kampf zu Ende spielen.",
       "Erwartung: kein Lua-Fehler 'GetAuraDataByIndex(): Auras cannot be accessed when secret'.",
+    } },
+  { id = "LT-393", client = "forever", triggers = { "anywhere" },
+    title = "Dungeonbilder im Dungeon Guide",
+    steps = {
+      "Nach dem Login /lte check LT393.dungeonArt.coverage; dann das Dungeonkompendium einmal öffnen und schließen, /reload, Check erneut.",
+      "Erwartung: found > 0 und der Guide zeigt Banner-Bilder; sonst steht unter raw, ob Erweiterungen (tiers) und eine erste Instanz geliefert werden (Antwort ins Ticket).",
     } },
 }

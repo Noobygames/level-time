@@ -305,6 +305,8 @@ expectTrue("Flüstern: Level und Dungeon ersetzt", sent.message:find("22", 1, tr
 expectTrue("Flüstern: keine offenen Platzhalter", not sent.message:find("{", 1, true))
 addon.Set("lfgWhisperTemplate", "{level} {class}  {dungeon} {unbekannt}")
 expectTrue("Vorlage: eigener Text", addon.LFGSearch.WhisperText(addon.LFGSearch.Summary(7)):find("22 .+ Die Todesminen {unbekannt}") ~= nil)
+addon.Set("lfgWhisperTemplate", "Hallo! {class} ({role}), Level {level}.")
+expect("Vorlage: ohne Rolle keine leeren Klammern", addon.LFGSearch.WhisperText(addon.LFGSearch.Summary(7)):find("()", 1, true), nil)
 addon.Set("lfgWhisperTemplate", string.rep("ä", 200))
 local long = addon.LFGSearch.WhisperText()
 expectTrue("Vorlage: höchstens 255 Bytes, kein halbes Zeichen", #long <= 255 and #long % 2 == 0)
