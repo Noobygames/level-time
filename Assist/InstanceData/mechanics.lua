@@ -1667,6 +1667,7 @@ ns.Mechanics = {
   [12237] = { -- Meshlok the Harvester (Maraudon)
     { 11876, "survive", "**Kriegsdonner** betäubt alle in der Nähe; Zauberer Abstand halten", "**War Stomp** stuns everyone close; casters stay at range", "v" },
     { 15501, "interrupt", "**Erdschock** auf einen Spieler: wenn möglich unterbrechen", "**Earth shock** on a player: interrupt when you can", "v" },
+    { 13446, "tank", "Trifft den Tank mit einem härteren Nahkampfschlag; abseits der Gruppe tanken", "Hits the tank with a heavier melee strike; tank him away from the group" },
   },
   [12258] = { -- Razorlash (Maraudon)
     { 15284, "positioning", "Spaltet nach vorn; nur der Tank steht vor ihm", "Cleaves in front; only the tank faces him", "v" },
@@ -1758,6 +1759,7 @@ ns.Mechanics = {
   [13601] = { -- Tinkerer Gizlock (Maraudon)
     { 13183, "avoid", "Feuerkegel vor ihm; aus dem Kegel gehen", "Fire cone in front of him; step out of it", "v" },
     { 8858, "survive", "Wirft Bomben mit Flächenschaden", "Throws bombs that hit players in an area", "v" },
+    { 6660, "survive", "Beschießt einen Spieler auf Distanz mit einem normalen Fernangriff", "Shoots a player at range with a normal ranged attack" },
   },
   [13996] = { -- Blackwing Technician (Blackwing Lair)
     { 22334, "avoid", "Wirft Bomben auf den Raid; aus der Explosion gehen", "Throws bombs at the raid; step out of the blast" },

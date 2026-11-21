@@ -109,4 +109,6 @@ Krol'dok Stronghold (LT-386, 2026-11-21): spell IDs, three trash entries (Twilig
 
 Zul'Farrak (LT-373, 2026-11-21): boss spell IDs and abilities (Antu'sul, Zum'rah, Nekrum, Sezz'ziz, Bly, Velratha, Ukorz) from the Wowhead WoW Forever journal notes, in our own words and marked unverified; Shadow Bolt 15537 placed on Nekrum (notes list it for Nekrum and Sezz'ziz together); Healing Ward, zombie and Water Bolt IDs still open.
 
+Maraudon (LT-374, 2026-11-21): Tinkerer Gizlock Shoot (6660) and Meshlok the Harvester Strike (13446) from the Wowhead WoW Forever guide table notes, our own wording, unverified; journal-only rank IDs not used (guide table IDs kept).
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
