@@ -2560,4 +2560,10 @@ ns.locales.deDE = {
   LFG_WHISPER_TEMPLATE = "Flüstertext",
   LFG_WHISPER_TEMPLATE_TIP = "Text, den der Knopf Flüstern in der Gruppensuche an den Leiter sendet. Platzhalter: {role} Rolle, {class} Klasse, {level} Level, {dungeon} Dungeon. Leer = Standardtext. Höchstens 255 Zeichen, gesendet wird nur auf Klick. Mit Enter übernehmen.",
   SECTION_LFG_WHISPER = "Flüstervorlage",
+  SPLIT_DISCARD = "Alten Eintrag verwerfen",
+  SPLIT_DISCARD_CONFIRM = "Den alten Doppel-Eintrag von %s endgültig löschen? Das lässt sich nicht rückgängig machen.",
+  SPLIT_DISCARD_TIP = "Löscht den Doppel-Eintrag aus der Zeit des Realm-Fehlers endgültig, ohne ihn zusammenzuführen.",
+  SPLIT_MERGE = "Alten Eintrag zusammenführen",
+  SPLIT_MERGE_CONFIRM = "Alten Doppel-Eintrag in %s zusammenführen (Spielzeit: %s)? Das lässt sich nicht rückgängig machen.",
+  SPLIT_MERGE_TIP = "Dieser Charakter hat einen Doppel-Eintrag aus der Zeit des Realm-Fehlers von WoW Forever. Zusammenführen addiert Spielzeit, Zähler und Journale in diesen Eintrag.",
 }

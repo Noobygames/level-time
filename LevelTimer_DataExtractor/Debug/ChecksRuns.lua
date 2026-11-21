@@ -536,3 +536,12 @@ check("LT401.tracker.layout", function()
   ns.InstanceRunTracker.Refresh()
   return ns.InstanceRunTracker.Layout()
 end)
+
+-- LT-414: gibt es aufgehobene Doppel-Einträge "Name-" (leerer Realm nach WoW-Forever-Build 71037) mit passender GUID?
+check("LT414.realm.orphans", function()
+  local orphans = {}
+  for _, orphan in ipairs(ns.SplitEntry.List()) do
+    orphans[#orphans + 1] = { characterKey = orphan.characterKey, guidMatch = orphan.guid ~= nil, seconds = orphan.seconds }
+  end
+  return { count = #orphans, orphans = orphans, realm = ns.Database.RealmName() }
+end)

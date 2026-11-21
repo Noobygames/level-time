@@ -34,6 +34,7 @@ local CHECKS = {
   "LT401.tracker.layout",
   "LT321.bossKills.sources",
   "LT390.lfg.templates",
+  "LT414.realm.orphans",
 }
 
 wow.login()

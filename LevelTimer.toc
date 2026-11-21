@@ -68,6 +68,7 @@ Lib\TimerDisplay.lua
 Tracking\Stats.lua
 Tracking\Journal.lua
 Tracking\JournalArchive.lua
+Tracking\SplitEntry.lua
 Tracking\Classification.lua
 Assist\InstanceData\anniversary.lua
 Assist\MapCoordsData\anniversary.lua

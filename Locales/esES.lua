@@ -2560,4 +2560,10 @@ ns.locales.esES = {
   LFG_WHISPER_TEMPLATE = "Texto del susurro",
   LFG_WHISPER_TEMPLATE_TIP = "Texto que el botón Susurrar de la búsqueda de grupo envía al líder. Marcadores: {role}, {class}, {level}, {dungeon}. Vacío = texto por defecto. Máximo 255 caracteres, solo se envía al hacer clic. Confirma con Intro.",
   SECTION_LFG_WHISPER = "Plantilla de susurro",
+  SPLIT_DISCARD = "Descartar entrada antigua",
+  SPLIT_DISCARD_CONFIRM = "¿Eliminar definitivamente la entrada duplicada antigua de %s? No se puede deshacer.",
+  SPLIT_DISCARD_TIP = "Elimina definitivamente la entrada duplicada del error de reino sin fusionarla.",
+  SPLIT_MERGE = "Fusionar entrada antigua",
+  SPLIT_MERGE_CONFIRM = "¿Fusionar la entrada duplicada antigua en %s (tiempo de juego: %s)? No se puede deshacer.",
+  SPLIT_MERGE_TIP = "Este personaje tiene una entrada duplicada del error de reino de WoW Forever. Al fusionar se suman su tiempo de juego, contadores y diarios a esta entrada.",
 }

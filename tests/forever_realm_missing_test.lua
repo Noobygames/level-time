@@ -3,7 +3,6 @@
 -- Charakters kommt aus der Liste unter splitCharacters (nichts gelöscht). Neuer Charakter ohne Realm: "Name-".
 local GUID = "Player-6937-00064C3C"
 local KEY = "Testchar-CAMWOW EU4 Realm 3 PvE"
-
 LevelTimerStatsDB = { characters = {
   [KEY] = { guid = GUID, name = "Testchar", realm = "CAMWOW EU4 Realm 3 PvE", marker = "alt" },
   ["Testchar-"] = { guid = GUID, name = "Testchar", realm = "", marker = "verwaist" },
@@ -47,3 +46,38 @@ wow.state.name = "Neuling"
 wow.login({ level = 1, guid = "Player-6937-NEU2" })
 expect("neuer Charakter ohne Realm", addon.characterKey, "Neuling-")
 expect("keine Lua-Fehler", #wow.errors, 0)
+
+-- Zusammenführen (LT-414): Zähler addieren, Journale nach Zeit einsortieren, Doppel-Eintrag verschwindet
+wow.logout()
+LevelTimerStatsDB.splitCharacters = nil
+LevelTimerStatsDB.characters = {
+  [KEY] = { schemaVersion = addon.Database.CHARACTER_SCHEMA_VERSION, guid = GUID, name = "Testchar", realm = "CAMWOW EU4 Realm 3 PvE",
+    currentLevel = { level = 45, seconds = 100, xp = 10, counters = { pveKills = 5 } },
+    killLog = { { time = 10, name = "a" }, { time = 30, name = "c" } },
+    zoneStats = { Elwynn = { seconds = 50, kills = 2 } } },
+  ["Testchar-"] = { schemaVersion = addon.Database.CHARACTER_SCHEMA_VERSION, guid = GUID, name = "Testchar", realm = "",
+    currentLevel = { level = 45, seconds = 40, xp = 4, counters = { pveKills = 3 } },
+    levelHistory = { [44] = { level = 44, seconds = 60, xp = 6, counters = { pveKills = 2 } } },
+    killLog = { { time = 20, name = "b" }, { time = 40, name = "d" } },
+    zoneStats = { Elwynn = { seconds = 5, kills = 1 }, Durotar = { seconds = 7, kills = 0 } } },
+}
+wow.state.realm = ""
+wow.state.name = "Testchar"
+wow.login({ level = 45, guid = GUID })
+local orphans = addon.SplitEntry.List()
+expect("ein aufgehobener Eintrag", #orphans, 1)
+expect("Spielzeit des Eintrags", orphans[1].seconds, 100)
+local before = addon.Journal.EditRevision("killLog")
+expectTrue("zusammengeführt", addon.SplitEntry.Merge(KEY))
+expect("Zähler addiert", addon.character.currentLevel.counters.pveKills, 8)
+expect("Spielzeit addiert", addon.character.currentLevel.seconds, 140)
+expect("abgeschlossenes Level übernommen", addon.character.levelHistory[44].seconds, 60)
+expect("Zonen addiert", addon.character.zoneStats.Elwynn.seconds, 55)
+expect("neue Zone übernommen", addon.character.zoneStats.Durotar.seconds, 7)
+local names = {}
+for _, entry in ipairs(addon.character.killLog) do names[#names + 1] = entry.name end
+expect("Journal nach Zeit", table.concat(names), "abcd")
+expectTrue("Journal-Stand erhöht", addon.Journal.EditRevision("killLog") > before)
+expect("Doppel-Eintrag weg", LevelTimerStatsDB.splitCharacters[GUID], nil)
+expect("nichts mehr zu tun", #addon.SplitEntry.List(), 0)
+expect("zweites Mal nichts", addon.SplitEntry.Merge(KEY), false)

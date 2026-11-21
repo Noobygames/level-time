@@ -2560,4 +2560,10 @@ ns.locales.frFR = {
   LFG_WHISPER_TEMPLATE = "Texte du chuchotement",
   LFG_WHISPER_TEMPLATE_TIP = "Texte envoyé au chef par le bouton Chuchoter de la recherche de groupe. Variables : {role}, {class}, {level}, {dungeon}. Vide = texte par défaut. 255 caractères au maximum, envoyé uniquement au clic. Valider avec Entrée.",
   SECTION_LFG_WHISPER = "Modèle de chuchotement",
+  SPLIT_DISCARD = "Supprimer l'ancienne entrée",
+  SPLIT_DISCARD_CONFIRM = "Supprimer définitivement l'ancienne entrée en double de %s ? Cette action est irréversible.",
+  SPLIT_DISCARD_TIP = "Supprime définitivement l'entrée en double du bug de royaume sans la fusionner.",
+  SPLIT_MERGE = "Fusionner l'ancienne entrée",
+  SPLIT_MERGE_CONFIRM = "Fusionner l'ancienne entrée en double dans %s (temps de jeu : %s) ? Cette action est irréversible.",
+  SPLIT_MERGE_TIP = "Ce personnage a une entrée en double issue du bug de royaume de WoW Forever. La fusion ajoute son temps de jeu, ses compteurs et ses journaux à cette entrée.",
 }

@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "change",
+        deDE = "Doppel-Eintrag eines Charakters aus dem Realm-Fehler von WoW Forever lässt sich in der Historie zusammenführen oder verwerfen.",
+        enUS = "A character's duplicate entry from the WoW Forever realm bug can now be merged or discarded in the history window.",
+        frFR = "L'entrée en double d'un personnage issue du bug de royaume de WoW Forever peut être fusionnée ou supprimée dans l'historique.",
+        esES = "La entrada duplicada de un personaje del error de reino de WoW Forever se puede fusionar o descartar en el historial." },
       { kind = "new",
         deDE = "Gruppensuche: Flüstern sendet jetzt eine einstellbare Vorlage mit Rolle, Klasse, Level und Dungeon an den Leiter.",
         enUS = "Group finder: Whisper now sends an editable template with role, class, level and dungeon to the leader.",

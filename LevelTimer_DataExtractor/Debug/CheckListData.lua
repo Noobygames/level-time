@@ -267,4 +267,10 @@ X.CheckListData = {
       "Einstellungen > Dungeons > Gruppensuche: Flüstertext ansehen/ändern (Platzhalter {role} {class} {level} {dungeon}); im Gruppensuche-Fenster eine Gruppe wählen und Flüstern klicken.",
       "Erwartung: genau eine Nachricht mit ersetzten Platzhaltern geht an den Leiter (im Chat sichtbar), nie ohne Klick; leerer Text = Standardtext; ohne gesetzte Rolle bleibt {role} leer.",
     } },
+  { id = "LT-414", client = "forever", triggers = { "history" },
+    title = "Doppel-Eintrag (leerer Realm) zusammenführen oder verwerfen",
+    steps = {
+      "Nur wenn LT414.realm.orphans count > 0 meldet: /lt, Historie, den Charakter wählen; 'Alten Eintrag zusammenführen' klicken und bestätigen (fr/es: Knöpfe überlappen den Titel nicht).",
+      "Erwartung: Spielzeit und Journale des Charakters wachsen um die Werte des alten Eintrags, die Knöpfe verschwinden, nach /reload keine Lua-Fehler.",
+    } },
 }

@@ -242,6 +242,43 @@ local deleteButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUT
 end)
 deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
 
+-- Aufgehobener Doppel-Eintrag "Name-" des gewählten Charakters (Tracking/SplitEntry.lua, LT-414): zusammenführen oder
+-- verwerfen, beides mit Rückfrage; die Knöpfe erscheinen nur, wenn es so einen Eintrag gibt
+local SplitEntry = ns.SplitEntry
+local MERGE_POPUP = ns.PopupKey("MERGE_SPLIT_ENTRY")
+local DISCARD_POPUP = ns.PopupKey("DISCARD_SPLIT_ENTRY")
+local SPLIT_BUTTON_GAP = 6
+
+local confirmMerge = Widgets.ConfirmPopup(MERGE_POPUP, "SPLIT_MERGE_CONFIRM", function(characterKey)
+  SplitEntry.Merge(characterKey)
+  refresh()
+end)
+local confirmDiscard = Widgets.ConfirmPopup(DISCARD_POPUP, "SPLIT_DISCARD_CONFIRM", function(characterKey)
+  SplitEntry.Discard(characterKey)
+  refresh()
+end)
+
+local mergeButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT, function()
+  confirmMerge(History.DisplayName(selectedCharacter), selectedCharacter,
+    ns.Format.Duration(SplitEntry.Seconds(SplitEntry.Find(selectedCharacter))))
+end)
+mergeButton:SetPoint("TOPRIGHT", deleteButton, "TOPLEFT", -SPLIT_BUTTON_GAP, 0)
+Widgets.AttachTooltip(mergeButton, function() return L.SPLIT_MERGE end, function() return L.SPLIT_MERGE_TIP end)
+
+local discardButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT, function()
+  confirmDiscard(History.DisplayName(selectedCharacter), selectedCharacter)
+end)
+discardButton:SetPoint("TOPRIGHT", mergeButton, "TOPLEFT", -SPLIT_BUTTON_GAP, 0)
+Widgets.AttachTooltip(discardButton, function() return L.SPLIT_DISCARD end, function() return L.SPLIT_DISCARD_TIP end)
+
+local function showSplitButtons(characterKey, allCharacters)
+  local shown = not allCharacters and SplitEntry.Find(characterKey) ~= nil
+  mergeButton:SetShown(shown)
+  discardButton:SetShown(shown)
+  Widgets.SetButtonText(mergeButton, L.SPLIT_MERGE, DELETE_BUTTON_WIDTH)
+  Widgets.SetButtonText(discardButton, L.SPLIT_DISCARD, DELETE_BUTTON_WIDTH)
+end
+
 -- Ansicht über alle Charaktere: Name durch "Alle Charaktere" ersetzt, Pfeile, Liste und Löschen aus (die Auswahl
 -- bleibt für die anderen Ansichten erhalten)
 local function showCharacterName(characterKey, allCharacters)
@@ -290,6 +327,7 @@ function refresh()
   Widgets.SetButtonText(deleteButton, L.DELETE_CHARACTER, DELETE_BUTTON_WIDTH)
   local selectedView = selectedEntry.selected
   showCharacterName(selectedCharacter, selectedView.allCharacters)
+  showSplitButtons(selectedCharacter, selectedView.allCharacters)
 
   local selectionChanged = rendered.view ~= selectedView or rendered.character ~= selectedCharacter
   rendered.view, rendered.character = selectedView, selectedCharacter

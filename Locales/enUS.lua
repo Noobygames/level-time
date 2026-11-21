@@ -2560,4 +2560,10 @@ ns.locales.enUS = {
   LFG_WHISPER_TEMPLATE = "Whisper text",
   LFG_WHISPER_TEMPLATE_TIP = "Text the Whisper button in the group finder sends to the leader. Placeholders: {role}, {class}, {level}, {dungeon}. Empty = default text. At most 255 characters, sent only when you click. Confirm with Enter.",
   SECTION_LFG_WHISPER = "Whisper template",
+  SPLIT_DISCARD = "Discard old entry",
+  SPLIT_DISCARD_CONFIRM = "Permanently delete the old duplicate entry of %s? This cannot be undone.",
+  SPLIT_DISCARD_TIP = "Permanently deletes the duplicate entry from the realm bug without merging it.",
+  SPLIT_MERGE = "Merge old entry",
+  SPLIT_MERGE_CONFIRM = "Merge the old duplicate entry into %s (play time: %s)? This cannot be undone.",
+  SPLIT_MERGE_TIP = "This character has a duplicate entry from the WoW Forever realm bug. Merging adds its play time, counters and journals to this entry.",
 }
