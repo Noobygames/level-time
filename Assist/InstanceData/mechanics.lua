@@ -925,12 +925,17 @@ ns.Mechanics = {
     { 16170, "dispel", "Beschleunigt einen Oger; reinigen oder Magus zuerst töten", "Hastes an ally ogre; purge or kill him first" },
   },
   [9236] = { -- Shadow Hunter Vosh'gajin (Lower Blackrock Spire)
-    { 16097, "dispel", "Verwandelt Spieler in der Nähe in Frösche; bannen", "Turns nearby players into frogs; dispel or wait it out" },
-    { 16098, "dispel", "Fluch erhöht erlittenen Schaden; Tank entfluchen", "Curse raises physical damage taken; decurse the tank" },
+    { 22566, "dispel", "Verwandelt Spieler in der Nähe in Frösche; bannen", "Turns nearby players into frogs; dispel or wait it out" },
+    { 8282, "dispel", "Fluch erhöht erlittenen Schaden; Tank entfluchen", "Curse raises physical damage taken; decurse the tank" },
   },
   [9237] = { -- War Master Voone (Lower Blackrock Spire)
     { 5532, "positioning", "Frontaler Spalter; nur der Tank steht vor ihm", "Frontal cleave; only the tank in front of him", "v" },
-    { 0, "survive", "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "Throws an axe at a random player and stuns briefly" },
+    { 16075, "survive", "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "Throws an axe at a random player and stuns briefly" },
+    { 15708, "tank", "Halbiert kurz die Heilung am Tank; durchheilen", "Cuts healing on the tank by half for a few seconds; heal through it" },
+    { 10966, "positioning", "Harter Treffer mit Rückstoß; Tank mit dem Rücken zur Wand", "Hard hit that knocks the target back; tank with back to a wall" },
+    { 15618, "survive", "Kurze Betäubung seines Ziels", "Short stun on his target" },
+    { 15615, "survive", "Unterbricht einen Zauber; Zauberer außer Reichweite", "Interrupts a spell; casters stay out of his reach" },
+    { 3391, "tank", "Extra-Angriffe; Schadensspitzen am Tank", "Gains extra attacks; damage spikes on the tank" },
   },
   [9240] = { -- Smolderthorn Shadow Priest (Lower Blackrock Spire)
     { 11641, "dispel", "Verwandelt Spieler in einen Frosch; bannen", "Turns a player into a frog; dispel" },
@@ -942,11 +947,16 @@ ns.Mechanics = {
   [9258] = { -- Scarshield Raider (Lower Blackrock Spire)
     { 14030, "survive", "Fesselt Spieler 3 Sek. lang im Netz", "Roots a player in a net for 3 sec" },
   },
+  [9262] = { -- Firebrand Invoker (Lower Blackrock Spire)
+    { 11921, "interrupt", "Starker Feuerball; unterbrechen oder kontrolliert halten", "Strong fire bolt; interrupt or keep him crowd controlled" },
+    { 11829, "avoid", "Flächenfeuer an einer Stelle; aus den Flammen laufen", "Fire area damage at a spot; step out of the flames" },
+    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage" },
+  },
   [9263] = { -- Firebrand Dreadweaver (Lower Blackrock Spire)
     { 16071, "dispel", "Fluch mit Feuerschaden; entfluchen", "Fire damage curse; decurse" },
   },
   [9264] = { -- Firebrand Pyromancer (Lower Blackrock Spire)
-    { 0, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage" },
+    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage" },
   },
   [9266] = { -- Smolderthorn Witch Doctor (Lower Blackrock Spire)
     { 15869, "adds", "Stellt Heilzauberschutz auf; Totem zerstören", "Drops a healing ward; destroy the totem" },
@@ -977,6 +987,7 @@ ns.Mechanics = {
     { 25322, "positioning", "Kegel mit Rückstoß; Nahkampf hinter ihm", "Cone knockback; melee stand behind him", "v" },
     { 19983, "positioning", "Frontaler Spalter trifft bis zu zwei weitere", "Frontal cleave hits up to two others", "v" },
     { 0, "adds", "Bei 50 % kommen zwei Wachen; abtanken oder kontrollieren", "At 50% two guards join; off-tank or control them" },
+    { 23511, "survive", "Senkt die Nahkampf-Angriffskraft von Spielern in der Nähe", "Lowers melee attack power of nearby players for a while" },
   },
   [9596] = { -- Bannok Grimaxe (Lower Blackrock Spire)
     { 13737, "tank", "Senkt Heilung am Tank; gegen den Debuff anheilen", "Cuts healing on the tank; heal through the debuff" },
@@ -995,7 +1006,7 @@ ns.Mechanics = {
   [9736] = { -- Quartermaster Zigris (Lower Blackrock Spire)
     { 16497, "avoid", "Bombe betäubt im kleinen Bereich; verteilen", "Fire bomb stuns players in a small area; spread out" },
     { 15504, "interrupt", "Trinkt Heiltrank; schnell Schaden oder betäuben", "Drinks a healing potion; burst or stun him" },
-    { 15609, "survive", "Fesselt einen zufälligen Spieler 3 Sek. lang in einem Netz", "Nets a random player in place for 3 sec" },
+    { 15609, "survive", "Fesselt Spieler in der Nähe etwa 10 Sek. lang in einem Netz; Befreiungseffekte helfen", "Nets nearby players in place for about 10 sec; escape effects free you" },
   },
   [9816] = { -- Pyroguard Emberseer (Upper Blackrock Spire)
     { 0, "adds", "Zuerst die Kerkermeister töten; sie betäuben Spieler", "Kill the Incarcerators first; they stun random players" },
@@ -1262,7 +1273,8 @@ ns.Mechanics = {
   [10584] = { -- Urok Doomhowl (Lower Blackrock Spire)
     { 16508, "survive", "Versetzt Spieler 8 Sek. lang in Furcht; Furchtschutz nutzen", "Fears nearby players for 8 sec; use fear wards", "v" },
     { 13443, "tank", "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "**Rend** bleeds the tank: keep healing steady", "v" },
-    { 0, "adds", "Oger-Wellen vor Urok; kontrollieren und töten", "Ogre waves come before Urok; crowd control and kill" },
+    { 0, "adds", "Oger-Wellen vor Urok; die aufgestellte Pike tötet alle 30 Sek. einen Oger, den Rest kontrollieren", "Ogre waves come before Urok; the placed pike kills one ogre every 30 sec, crowd control the rest" },
+    { 13446, "tank", "Harter Nahkampfschlag auf den Tank", "Hard melee strike on the tank" },
   },
   [10596] = { -- Mother Smolderweb (Lower Blackrock Spire)
     { 16468, "dispel", "Gift fesselt Spieler; Gift schnell entfernen", "Poison roots players; cure poison quickly", "v" },
@@ -2119,6 +2131,9 @@ ns.Mechanics = {
     { 27527, "interrupt", "Große Selbstheilung; immer unterbrechen", "Big self heal; always interrupt it" },
     { 27532, "dispel", "Seine Heilung über Zeit reinigen", "Purge his heal-over-time buff" },
     { 27530, "avoid", "Kanalisierter Sturm um ihn; herauslaufen", "Channeled storm around him; move out of it" },
+    { 27543, "tank", "Wird zum Bären mit mehr Rüstung und Leben; tanken und durchheilen", "Turns into a bear with more armor and health; tank him and keep healing" },
+    { 27545, "survive", "Wird zur Katze mit schnellen Blutungsangriffen; Leben des Ziels beobachten", "Turns into a cat with fast bleeding strikes; watch the target's health" },
+    { 27546, "survive", "Wechselt in die Feendrachen-Gestalt; Wirkung nicht bestätigt", "Changes into a faerie dragon; effect not confirmed" },
   },
   [16097] = { -- Isalien (Dire Maul)
     { 27639, "adds", "Ruft ein Tier: Add töten, dann zurück auf Isalien", "Summons a pet: kill the add, then switch back to Isalien" },
@@ -2477,7 +2492,7 @@ ns.MechanicGuide = {
   },
   [229] = {
     bosses = { { 9196, "Highlord Omokk" }, { 9236, "Shadow Hunter Vosh'gajin" }, { 9237, "War Master Voone" }, { 16080, "Mor Grayhoof" }, { 10596, "Mother Smolderweb" }, { 10584, "Urok Doomhowl" }, { 9736, "Quartermaster Zigris" }, { 10220, "Halycon" }, { 10268, "Gizrul the Slavener" }, { 9568, "Overlord Wyrmthalak" }, { 9816, "Pyroguard Emberseer" }, { 10264, "Solakar Flamewreath" }, { 10899, "Goraluk Anvilcrack" }, { 10429, "Warchief Rend Blackhand" }, { 10339, "Gyth" }, { 10430, "The Beast" }, { 16042, "Lord Valthalak" }, { 10363, "General Drakkisath" }, },
-    trash = { { 9217, "Spirestone Lord Magus" }, { 10263, "Burning Felguard" }, { 9596, "Bannok Grimaxe" }, { 10376, "Crystal Fang" }, { 9718, "Ghok Bashguud" }, { 9257, "Scarshield Warlock" }, { 9098, "Scarshield Spellbinder" }, { 9258, "Scarshield Raider" }, { 9240, "Smolderthorn Shadow Priest" }, { 9266, "Smolderthorn Witch Doctor" }, { 9263, "Firebrand Dreadweaver" }, { 9264, "Firebrand Pyromancer" }, { 9693, "Bloodaxe Evoker" }, { 9717, "Bloodaxe Summoner" }, { 9198, "Spirestone Mystic" }, { 9201, "Spirestone Ogre Magus" }, { 10374, "Spire Spider" }, { 10509, "Jed Runewatcher" }, { 9818, "Blackhand Summoner" }, { 9817, "Blackhand Dreadweaver" }, { 9819, "Blackhand Veteran" }, { 10316, "Blackhand Incarcerator" }, { 10318, "Blackhand Assassin" }, { 10742, "Blackhand Dragon Handler" }, { 10372, "Rage Talon Fire Tongue" }, { 10083, "Rage Talon Flamescale" }, { 10371, "Rage Talon Captain" }, { 10683, "Rookery Hatcher" }, { 10814, "Chromatic Elite Guard" }, { 9096, "Rage Talon Dragonspawn" }, },
+    trash = { { 9217, "Spirestone Lord Magus" }, { 10263, "Burning Felguard" }, { 9596, "Bannok Grimaxe" }, { 10376, "Crystal Fang" }, { 9718, "Ghok Bashguud" }, { 9257, "Scarshield Warlock" }, { 9098, "Scarshield Spellbinder" }, { 9258, "Scarshield Raider" }, { 9240, "Smolderthorn Shadow Priest" }, { 9266, "Smolderthorn Witch Doctor" }, { 9263, "Firebrand Dreadweaver" }, { 9262, "Firebrand Invoker" }, { 9264, "Firebrand Pyromancer" }, { 9693, "Bloodaxe Evoker" }, { 9717, "Bloodaxe Summoner" }, { 9198, "Spirestone Mystic" }, { 9201, "Spirestone Ogre Magus" }, { 10374, "Spire Spider" }, { 10509, "Jed Runewatcher" }, { 9818, "Blackhand Summoner" }, { 9817, "Blackhand Dreadweaver" }, { 9819, "Blackhand Veteran" }, { 10316, "Blackhand Incarcerator" }, { 10318, "Blackhand Assassin" }, { 10742, "Blackhand Dragon Handler" }, { 10372, "Rage Talon Fire Tongue" }, { 10083, "Rage Talon Flamescale" }, { 10371, "Rage Talon Captain" }, { 10683, "Rookery Hatcher" }, { 10814, "Chromatic Elite Guard" }, { 9096, "Rage Talon Dragonspawn" }, },
   },
   [230] = {
     bosses = { { 9025, "Lord Roccor" }, { 9018, "High Interrogator Gerstahn" }, { 9319, "Houndmaster Grebmar" }, { 9027, "Gorosh the Dervish" }, { 9028, "Grizzle" }, { 9029, "Eviscerator" }, { 9030, "Ok'thor the Breaker" }, { 9031, "Anub'shiah" }, { 9032, "Hedrum the Creeper" }, { 9024, "Pyromancer Loregrain" }, { 9041, "Warder Stilgiss" }, { 9476, "Watchman Doomgrip" }, { 9056, "Fineous Darkvire" }, { 9017, "Lord Incendius" }, { 9016, "Bael'Gar" }, { 9033, "General Angerforge" }, { 8983, "Golem Lord Argelmach" }, { 9537, "Hurley Blackbreath" }, { 9502, "Phalanx" }, { 9499, "Plugger Spazzring" }, { 9156, "Ambassador Flamelash" }, { 9039, "The Seven" }, { 9938, "Magmus" }, { 8929, "Princess Moira Bronzebeard" }, { 9019, "Emperor Dagran Thaurissan" }, },
