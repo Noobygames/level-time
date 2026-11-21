@@ -7,7 +7,7 @@ local ns = X.LT
 if not ns then return end
 local DebugLog = X.DebugLog
 local Probe, H = DebugLog.Probe, DebugLog.Helpers
-local call, api = Probe.call, Probe.api
+local call = Probe.call
 local write = DebugLog.Write
 local check = DebugLog.AddCheck
 local frameState = H.frameState
@@ -229,68 +229,9 @@ check("LT177.map.questPoints", function()
     end) }
 end)
 
--- LT-330 (vorher LT-231): keine Geber über dem Levelbereich? Angebote von Mouseover und Ziel, Geber auf der aktuellen Zonenkarte
-check("LT330.dungeon.givers", function()
-  local units = {}
-  for _, unit in ipairs({ "mouseover", "target" }) do
-    units[unit] = { name = unitName(unit), offers = sample(ns.DungeonQuests.UnitOffers(unit), function(offer)
-      return { questID = offer.questID, title = ns.DungeonQuests.Title(offer.questID),
-        line = ns.DungeonQuestGivers.OfferLine(offer), step = offer.step, total = offer.total }
-    end) }
-  end
-  local mapID = currentMap()
-  local zone = mapID and ns.QuestLog.ZoneMapOf(mapID)
-  local points = zone and ns.DungeonQuests.OffersOnMap(zone) or {}
-  return { settings = settings("dungeonQuestGivers"), available = ns.DungeonQuests.IsAvailable(),
-    revision = ns.DungeonQuests.Revision(), units = units, mapID = mapID, zone = zone, mapPoints = #points,
-    firstPoint = points[1] and { x = points[1].x, y = points[1].y, offers = #points[1].offers } or nil }
-end)
-
--- LT-237: Kartenaddons, Weltkarte (Karte, Skalierung), Geber auf der angezeigten Karte
-check("LT237.map.pins", function()
-  local map = _G.WorldMapFrame
-  local mapID = type(map) == "table" and map.GetMapID and map:GetMapID() or nil
-  local canvas = type(map) == "table" and map.GetCanvas and map:GetCanvas() or nil
-  local addons = {}
-  for _, name in ipairs({ "OpenMap", "Leatrix_Maps", "Mapster", "SexyMap" }) do
-    addons[name] = call("C_AddOns.IsAddOnLoaded", name) or call("IsAddOnLoaded", name)
-  end
-  return { addons = addons, mapID = mapID, map = frameState(map), canvas = frameState(canvas),
-    canvasScale = type(canvas) == "table" and canvas.GetScale and canvas:GetScale() or nil,
-    givers = mapID and #ns.DungeonQuests.OffersOnMap(mapID) or nil,
-    settings = settings("dungeonQuestGivers", "dungeonEntrances", "deathMap") }
-end)
-
--- LT-238: Minimap (Sichtradius, Zoom, Drehen, drinnen) und Versatz dreier Beispielgeber
-check("LT238.minimap.givers", function()
-  local radius = ns.MinimapPins.Radius()
-  local facing = call("GetPlayerFacing") or 0
-  local function offset(east, north, square)
-    local x, y, edge = ns.MinimapPins.Offset(east, north, radius, facing, square, true)
-    return x and { x = x, y = y, edge = edge } or false
-  end
-  return { settings = settings("dungeonQuestMinimap", "dungeonQuestMinimapEdge", "minimapSquare"),
-    available = ns.DungeonQuestMinimap.IsAvailable(), radius = radius, zoom = Minimap and Minimap:GetZoom(),
-    indoors = call("IsIndoors"), rotateMinimap = call("C_CVar.GetCVar", "rotateMinimap"), facing = facing,
-    sample = { inside = offset(radius / 2, 0), outside = offset(radius * 1.5, 0), outsideSquare = offset(radius * 1.5, 0, true) } }
-end)
-
 ---------------------------------------------------------------------------
 -- Dungeonquests beim Betreten und nach der Annahme
 ---------------------------------------------------------------------------
--- LT-330 (vorher LT-235): Einträge des Zonen-Hinweises (keine Instanzen unter dem eigenen Level?): Geber, Titel,
--- schon im Log?, Ort gegen die Spielerposition
-check("LT330.dungeon.zone", function()
-  local mapID = currentMap()
-  local zone = mapID and ns.QuestLog.ZoneMapOf(mapID)
-  local x, y = H.readXY(mapID and call("C_Map.GetPlayerMapPosition", mapID, "player"))
-  local entries = zone and ns.DungeonQuestHints.ZoneEntries(zone) or {}
-  return { settings = settings("dungeonQuestZoneHint"), mapID = mapID, zone = zone, player = { x = x, y = y },
-    shown = ns.DungeonQuestHint.IsShown(), count = #entries, entries = sample(entries, function(entry)
-      return { questID = entry.questID, text = entry.text, detail = entry.detail, giver = ns.DungeonQuestHints.GiverName(entry.questID),
-        inLog = ns.QuestLog.Find(entry.questID) ~= nil, x = entry.place and entry.place.x, y = entry.place and entry.place.y }
-    end) }
-end)
 
 -- LT-330: beim Betreten einer Zone, nachdem die Module reagiert haben
 local function zoneProbe(event)
@@ -304,23 +245,6 @@ local function zoneProbe(event)
 end
 ns.RegisterEvent("PLAYER_ENTERING_WORLD", zoneProbe("PLAYER_ENTERING_WORLD"))
 ns.RegisterEvent("ZONE_CHANGED_NEW_AREA", zoneProbe("ZONE_CHANGED_NEW_AREA"))
-
--- LT-328 (vorher LT-236): Mindeststufe in Forever, übrige Quests der Instanz je Dungeonquest im Log (annehmbar/später), Wegpunkt-API
-check("LT328.dungeon.accept", function()
-  local rows = {}
-  for _, entry in ipairs(ns.QuestLog.Entries()) do
-    local entries = ns.DungeonQuestHints.AcceptEntries(entry.questID)
-    if entries and #rows < MAX_SAMPLE then
-      local later = 0
-      for _, item in ipairs(entries) do if item.muted then later = later + 1 end end
-      rows[#rows + 1] = { questID = entry.questID, entries = #entries, later = later,
-        first = entries[1] and { text = entries[1].text, detail = entries[1].detail } or nil }
-    end
-  end
-  return { settings = settings("dungeonQuestAcceptHint"), rows = rows, waypoint = ns.DungeonQuestHint.Waypoint(),
-    api = { setUserWaypoint = api("C_Map.SetUserWaypoint") ~= nil, canSet = api("C_Map.CanSetUserWaypointOnMap") ~= nil,
-      uiMapPoint = type(_G.UiMapPoint) }, hasUserWaypoint = call("C_Map.HasUserWaypoint"), inCombat = call("InCombatLockdown") }
-end)
 
 -- LT-236: Klick auf einen Eintrag (Kampf, Blizzard-Wegpunkt gesetzt?)
 hooksecurefunc(ns.DungeonQuestHint, "SetWaypoint", function(entry)
@@ -386,19 +310,6 @@ check("LT252.map.zoneLevels", function()
     end
   end
   return { withLevels = withLevels, zones = zones, withoutLevels = missing }
-end)
-
--- LT-234: Würfelkarte: Symbol-Textur je Wurf (im Wurf gemerkt und frisch aus dem Client) und Kartentext
-check("LT234.lootroll.icon", function()
-  local rows = {}
-  for _, roll in ipairs(ns.LootRolls.All()) do
-    if #rows < MAX_SAMPLE then
-      local itemID = type(roll.link) == "string" and tonumber((roll.link:match("item:(%d+)")))
-      rows[#rows + 1] = { name = roll.name, itemID = itemID, texture = roll.texture,
-        fresh = itemID and call("C_Item.GetItemIconByID", itemID), text = ns.LootRollDisplay.ItemText(roll) }
-    end
-  end
-  return { count = #rows, rows = rows }
 end)
 
 -- LT-287: gesammelte Bücher des Extractors (Anzahl, Beispiele mit Objekt-IDs und Orten) und gemerkte Bücher von Level Time

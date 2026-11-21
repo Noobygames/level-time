@@ -6,9 +6,8 @@ local function hasLine(text)
 end
 
 local CHECKS = {
-  "LT350.options.textFit", "LT350.options.pages",
   "LT223.dropdown.state", "LT147.history.textFit", "LT165.window.hints",
-  "LT85.welcome.state", "LT129.tooltip.state", "LT149.tooltip.api",
+  "LT129.tooltip.state", "LT149.tooltip.api",
   "LT219.screenBorders", "LT86.classicPlayerFrame", "LT87.dressUp",
 }
 

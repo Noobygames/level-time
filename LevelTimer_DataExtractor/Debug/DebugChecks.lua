@@ -1,10 +1,10 @@
--- Prüfungen und Ereignis-Proben für die offenen Punkte in ManualToCheck.md: was dort sonst ein Mensch im Spiel
+-- Prüfungen und Ereignis-Proben für offene Vikunja-Tickets (Label „Im Spiel prüfen“): was sonst ein Mensch im Spiel
 -- ablesen müsste (Werte, Zustände, Einstellungen, Entscheidungen der Module), steht nach /lt debug check bzw. mit
 -- laufendem /lt debug log im Debug-Log. Die Entscheidungen selbst schreiben die Module mit ns.Debug, Chatzeilen
 -- (ns.Print) stehen als Bereich "print" darin. Lädt nach allen Modulen; die Prüfungen lesen nur, ändern nichts und
 -- rufen keine geschützten Funktionen.
--- Namen: "<Roadmap>.<Bereich>.<Was>" (Nummer = Roadmap-Punkt), allgemeine ohne Nummer. ManualToCheck.md nennt je
--- Punkt die Namen, die ihn beantworten.
+-- Namen: "<Roadmap>.<Bereich>.<Was>" (Nummer = Roadmap-Punkt), allgemeine ohne Nummer. Das Ticket nennt die Namen,
+-- die es beantworten.
 local _, X = ...
 local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
 if not ns then return end
@@ -1774,29 +1774,6 @@ check("LT352.lfg.filters", function()
     binding = read("GetBindingKey", "LEVELTIMER_LFG_WINDOW") or false, classes = classes,
     playstyles = Enum ~= nil and Enum.LFGEntryGeneralPlaystyle ~= nil,
     activeEntry = ns.LFGSearch.ActiveEntry() ~= nil, windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false }
-end)
-
--- LT-387: Dungeon-Guide jederzeit. Welche Dungeons stehen in der Auswahl (Namen in der Client-Sprache? unnamed =
--- Karten ohne Namen, noRange = ohne Levelbereich, stehen am Ende), Vorauswahl nach Level und was das Fenster zeigt
-local GUIDE_SAMPLE = 5
-check("LT387.guide.anytime", function()
-  local list, sample, unnamed, noRange = ns.DungeonGuide.Dungeons(), {}, 0, 0
-  for index, dungeon in ipairs(list) do
-    if not dungeon.name or dungeon.name == "" then unnamed = unnamed + 1 end
-    local ranged = dungeon.minLevel ~= math.huge
-    if not ranged then noRange = noRange + 1 end
-    if index <= GUIDE_SAMPLE or index == #list then
-      sample[#sample + 1] = { index = index, mapID = dungeon.mapID, name = dungeon.name,
-        range = ranged and (dungeon.minLevel .. "-" .. dungeon.maxLevel) or "?" }
-    end
-  end
-  local suggested = ns.DungeonGuide.SuggestedMapID()
-  local pageIndex, pages, name, mapID = ns.DungeonGuideWindow.Current()
-  return { available = ns.DungeonGuide.IsAvailable(), level = read("UnitLevel", "player"), count = #list, unnamed = unnamed,
-    noRange = noRange, sample = sample, suggested = suggested,
-    suggestedName = suggested and ns.InstanceInfo.MapName(suggested) or false, auto = ns.db.dungeonGuideAuto,
-    shown = ns.DungeonGuideWindow.IsShown(), page = pageIndex, pages = type(pages) == "table" and #pages or 0,
-    shownName = name, shownMapID = mapID }
 end)
 
 -- LT-393: Liefert das Dungeonkompendium Bilder für die Guide-Dungeons? found/missing = Guide-Dungeons mit/ohne Bild

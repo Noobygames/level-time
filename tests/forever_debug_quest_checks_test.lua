@@ -9,9 +9,7 @@ end
 local CHECKS = {
   "LT152.quests.counters", "LT154.quests.targetButton",
   "LT174.quests.efficiency", "LT176.quests.itemTooltip", "LT179.quests.leftovers", "LT177.map.questPoints",
-  "LT330.dungeon.givers", "LT237.map.pins", "LT238.minimap.givers", "LT330.dungeon.zone",
-  "LT328.dungeon.accept", "LT84.ready.state",
-  "LT234.lootroll.icon",
+  "LT84.ready.state",
 }
 
 wow.login()

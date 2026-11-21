@@ -87,32 +87,6 @@ end
 -- Einstellungsfenster
 ---------------------------------------------------------------------------
 
--- LT-350 (auch LT-348 fr/es): Voreinstellungs-, Fußzeilen-, Reiter- und Seitenleisten-Knöpfe, deren Text nicht in
--- den Knopf passt, und Rahmen, die rechts über das Fenster ragen. Je Sprache einmal ausführen (Fenster offen oder zu).
-check("LT350.options.textFit", function()
-  return fitReport(ns.OptionsWindow.panel)
-end)
-
--- LT-350 (Einstellungen nach Themen): alle Reiter und Unterseiten in Fensterreihenfolge (Key, Text, Zahl der Standard-Werte), Klasse
--- (Munition nur Jäger) und wo feste Suchbegriffe stehen (zeigt, auf welcher Seite ein Baustein jetzt liegt)
-local PAGE_PROBES = { "Munition", "Lagerfeuer", "Level-Up", "Beute", "Blizzard", "Minimap", "Instanzbericht" }
-check("LT350.options.pages", function()
-  local builder, pages, hits = ns.OptionsWindow, {}, {}
-  for index, page in ipairs(builder.PageKeys()) do
-    pages[index] = { tab = page.tab, sub = page.sub, text = ns.L[page.sub or page.tab],
-      resets = page.sub and builder.ResetCount(page.sub) or nil }
-  end
-  for _, term in ipairs(PAGE_PROBES) do
-    hits[term] = {}
-    for index, entry in ipairs(builder.Search(term)) do
-      if index > 6 then break end
-      hits[term][index] = builder.WhereOf(entry)
-    end
-  end
-  return { class = select(2, UnitClass("player")), language = ns.db.language, tabsHidden = builder.TabsHidden(),
-    advanced = ns.db.optionsAdvanced, pages = chunked(pages), hits = hits }
-end)
-
 -- LT223: offene Auswahlliste (Lib/Dropdown.lua): Zeilen, gewählter und hervorgehobener Eintrag, Suchtext. Liste offen lassen.
 local MAX_DROPDOWN_ROWS = 12
 check("LT223.dropdown.state", function()
@@ -188,14 +162,6 @@ end
 hooksecurefunc(ns.Alerts, "Raise", function(kind, value, body) alertLine("ui.alert.raise", kind, value, body) end)
 hooksecurefunc(ns.Alerts, "ShowSampleMessage", function(message, _, _, sound) alertLine("ui.alert.sample", message, sound) end)
 
--- LT85: Einrichtungsassistent: sichtbar, Texte gegen die Fensterbreite (fr/es), Schritt und Layout
-check("LT85.welcome.state", function()
-  local SetupWizard = ns.SetupWizard
-  local card = _G[ns.GlobalName("Setup")]
-  local state = SetupWizard.State()
-  return { shown = SetupWizard.IsShown(), report = type(card) == "table" and fitReport(card) or nil,
-    cardWidth = number(method(card, "GetWidth")), step = state.step, steps = #state.steps, layout = ns.db.windowLayout }
-end)
 hooksecurefunc(ns.SetupWizard, "Show", function()
   if DebugLog.IsEnabled() then
     write({ area = "comfort", event = "ui.welcome",

@@ -10,7 +10,7 @@ local function toastShown() return _G.LevelTimerCheckListToast ~= nil and _G.Lev
 -- Client-Filter: Forever-Ticket offen
 local open = {}
 for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
-expectTrue("Forever-Ticket offen", open["LT-318"])
+expectTrue("Forever-Ticket offen", open["LT-321"])
 
 -- Instanz betreten: ein Hinweis, ein zweites Mal nicht
 wow.state.instance = { type = "party", name = "Test" }
@@ -25,23 +25,23 @@ SlashCmdList.LEVELTIMEREXTRACTOR("todo")
 expectTrue("Liste offen", _G.LevelTimerCheckList ~= nil and _G.LevelTimerCheckList:IsShown())
 
 -- OK markiert und schreibt ins Debug-Log
-CheckList.Mark("LT-318", "ok", "")
-local result = LevelTimerDebugLog.checkResults["LT-318"]
+CheckList.Mark("LT-321", "ok", "")
+local result = LevelTimerDebugLog.checkResults["LT-321"]
 expect("Status ok", result and result.status, "ok")
 local logged = false
 for _, line in ipairs(LevelTimerDebugLog.lines or {}) do
-  if line:find("checklist", 1, true) and line:find("LT-318 ok", 1, true) then logged = true end
+  if line:find("checklist", 1, true) and line:find("LT-321 ok", 1, true) then logged = true end
 end
 expectTrue("Debug-Log-Zeile", logged)
 open = {}
 for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
-expect("erledigt nicht mehr offen", open["LT-318"], nil)
+expect("erledigt nicht mehr offen", open["LT-321"], nil)
 
 -- Später bleibt offen
-CheckList.Mark("LT-322", "skip", "")
+CheckList.Mark("LT-390", "skip", "")
 open = {}
 for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
-expectTrue("Später bleibt offen", open["LT-322"])
+expectTrue("Später bleibt offen", open["LT-390"])
 
 -- off: keine Hinweise mehr
 SlashCmdList.LEVELTIMEREXTRACTOR("todo off")
