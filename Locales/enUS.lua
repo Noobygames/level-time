@@ -2571,4 +2571,8 @@ ns.locales.enUS = {
   LFG_WHISPERS_ROW_TIP = "Click to open the chat to this player and whisper again.",
   LFG_WHISPER_FROM = "From %s",
   LFG_WHISPER_TO = "To %s",
+  LFG_PLAYERS_EMPTY = "No players yet. Everyone you group with appears here and can be rated.",
+  LFG_PLAYERS_LEFT = "left early: %d x",
+  LFG_PLAYERS_ROW_TIP = "Click to change the rating: none, + (good), - (bad). The mark shows before the leader name in the search; ! = left a group inside an instance.",
+  LFG_TAB_PLAYERS = "Players",
 }

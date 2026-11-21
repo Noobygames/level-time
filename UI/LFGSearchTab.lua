@@ -371,7 +371,8 @@ local function fillCard(row, summary)
   setKind(row, true)
   local leader = summary.members[1]
   local name = summary.leaderName or "?"
-  row.title:SetText((summary.numMembers or 0) > 1 and (LEADER_ICON .. name) or name)
+  local marker = ns.LFGPlayers.Marker(summary.leaderName)  -- Bewertung/Abbrecher (LT-392)
+  row.title:SetText(marker .. ((summary.numMembers or 0) > 1 and (LEADER_ICON .. name) or name))
   if summary.delisted then
     row.title:SetTextColor(Theme.RGB("muted"))  -- RGB liefert drei Werte: nie in and/or
   else

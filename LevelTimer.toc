@@ -256,6 +256,7 @@ Assist\LFGLanguages.lua
 Assist\LFGTooltip.lua
 Assist\LFGFilters.lua
 Assist\LFGWhispers.lua
+Assist\LFGPlayers.lua
 Assist\LFGSearch.lua
 Assist\QuestTargets.lua
 Assist\DungeonQuestGivers.lua
@@ -353,6 +354,7 @@ UI\LFGFilterView.lua
 UI\LFGSearchTab.lua
 UI\LFGOwnGroupTab.lua
 UI\LFGWhisperTab.lua
+UI\LFGPlayersTab.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua

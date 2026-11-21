@@ -341,3 +341,17 @@ check("LT389.lfg.whisperLog", function()
   return { entries = #entries, max = LFGWhispers.MAX_ENTRIES, last = last, eventsSeen = stats.seen,
     eventsReadable = stats.readable, contacted = stats.contacted }
 end)
+
+-- LT392: Mitspieler der Gruppensuche: Anzahl bewertet/zuletzt/Abbrecher, Beispiele, ob Gruppenlisten-Namen lesbar sind
+check("LT392.lfg.players", function()
+  local LFGPlayers = ns.LFGPlayers
+  if not LFGPlayers then return { available = false } end
+  local stats = LFGPlayers.Stats()
+  local sample = {}
+  for index, entry in ipairs(LFGPlayers.GetList()) do
+    if index > 3 then break end
+    sample[index] = { name = entry.name, rating = entry.rating, leaves = entry.leaves }
+  end
+  return { recent = stats.total, rated = stats.rated, leavers = stats.leavers, sample = sample,
+    rosterNamesRead = stats.rosterReads, rosterNamesSecret = stats.rosterSecret }
+end)

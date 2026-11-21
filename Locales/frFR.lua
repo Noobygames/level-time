@@ -2571,4 +2571,8 @@ ns.locales.frFR = {
   LFG_WHISPERS_ROW_TIP = "Cliquer ouvre le chat vers ce joueur pour chuchoter de nouveau.",
   LFG_WHISPER_FROM = "De %s",
   LFG_WHISPER_TO = "À %s",
+  LFG_PLAYERS_EMPTY = "Aucun joueur pour l'instant. Tous ceux avec qui vous jouez en groupe apparaissent ici et peuvent être notés.",
+  LFG_PLAYERS_LEFT = "parti tôt : %d x",
+  LFG_PLAYERS_ROW_TIP = "Cliquez pour changer la note : aucune, + (bien), - (mal). Le signe apparaît devant le nom du chef dans la recherche ; ! = a quitté un groupe dans une instance.",
+  LFG_TAB_PLAYERS = "Joueurs",
 }

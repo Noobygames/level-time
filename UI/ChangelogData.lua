@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "new",
+        deDE = "Gruppensuche: neuer Reiter Mitspieler merkt letzte Mitspieler, du bewertest sie mit + oder -, Abbrecher werden markiert, das Zeichen erscheint in der Suche.",
+        enUS = "Group finder: new Players tab remembers recent group members, rate them + or -, leavers are marked, and the mark shows in search results.",
+        frFR = "Recherche de groupe : le nouvel onglet Joueurs retient vos derniers coéquipiers, notez-les + ou -, les joueurs partis tôt sont signalés et le signe apparaît dans les résultats.",
+        esES = "Buscador de grupos: la nueva pestaña Jugadores recuerda a tus últimos compañeros, valóralos con + o -, se marca a quien se va antes y el signo aparece en los resultados." },
       { kind = "change",
         deDE = "Dungeon-Guide Untere Schwarzfelsspitze: mehr Fähigkeiten bei Voone, Mor Grauhuf, Urok, Wyrmthalak und Feuerbrandbeschwörern; Questgeber für das Siegel des Aufstiegs korrigiert.",
         enUS = "Lower Blackrock Spire dungeon guide: more abilities for Voone, Mor Grayhoof, Urok, Wyrmthalak and Firebrand Invokers; Seal of Ascension quest giver corrected.",

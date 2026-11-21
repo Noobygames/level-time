@@ -104,7 +104,7 @@ read_globals = {
   "strtrim", "SubZoneTextFrame", "TakeInboxItem", "TakeInboxMoney", "TakeTaxiNode", "TargetFrame", "TaxiGetNodeSlot",
   "TaxiNodeGetType", "TaxiNodeName", "TaxiNodeOnButtonEnter", "TaxiNodePosition", "time", "TooltipDataProcessor",
   "TooltipUtil", "TRANSFER_ABORT_TOO_MANY_INSTANCES", "UIErrorsFrame", "UiMapPoint", "UIParent",
-  "UNIT_SKINNABLE_LEATHER", "UnitAffectingCombat", "UnitAttackSpeed", "UnitCanAssist", "UnitCanAttack",
+  "UNIT_SKINNABLE_LEATHER", "UNKNOWNOBJECT", "UnitAffectingCombat", "UnitAttackSpeed", "UnitCanAssist", "UnitCanAttack",
   "UnitChannelInfo", "UnitClass", "UnitClassification", "UnitCreatureFamily", "UnitCreatureType",
   "UnitDetailedThreatSituation", "UnitExists", "UnitFactionGroup", "UnitGroupRolesAssigned", "UnitGUID",
   "UnitHealth", "UnitHealthMax", "UnitIsAFK", "UnitIsDead", "UnitIsDeadOrGhost", "UnitIsFeignDeath",

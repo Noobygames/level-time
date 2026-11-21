@@ -210,6 +210,28 @@ button,input,textarea,select{font-family:inherit}
           </div>
         </div>
       </div>
+
+      <!-- C5 Reiter Mitspieler (LT-392): letzte Mitspieler bewerten, Abbrecher, Marker in der Suche -->
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 12px; color: #9fb3a8">Reiter Mitspieler: neueste zuerst, höchstens 20 Zeilen (gemerkt: 60), Klick wechselt keine / + / -</span>
+        <div style="position: relative; width: 480px; height: 600px; box-sizing: border-box; background: #14100c; border: 2px solid #6b5a2a; border-radius: 8px; font-size: 13px">
+          <div style="height: 25px; text-align: center; line-height: 25px; color: #ffd100; font-weight: 700">Gruppensuche</div>
+          <div style="position: absolute; left: -4px; top: -4px; width: 56px; height: 56px; border-radius: 50%; background: #1b3a1b; border: 3px solid #6b5a2a"></div>
+          <div style="position: absolute; top: 40px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 2px">
+            <div style="height: 22px; line-height: 22px; padding: 0 4px; background: rgba(255,255,255,0.08); color: #ffd100"><span style="color:#40ff40">+</span> Brakkus  21.11. 21:07</div>
+            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100"><span style="color:#ff9a3c">!</span> Lunaria  21.11. 20:58  ging früh: 1 x</div>
+            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100"><span style="color:#ff5050">-</span> Frostbyte  20.11. 19:30</div>
+            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100">Jaina  18.11. 18:02</div>
+            <span style="margin-top: 8px; font-size: 11px; color: #8a8a8a">Leer: „Noch keine Mitspieler …“ (muted). Zeichen: + gut, - schlecht (nur vom Spieler gesetzt), ! verließ eine Gruppe in einer Instanz. In der Suche steht das Zeichen vor dem Leiternamen (z. B. „+ Brakkus“). Account-weit gespeichert. Später: Notiz je Spieler.</span>
+          </div>
+          <div style="position: absolute; left: 19px; top: 100%; display: flex; gap: 2px; margin-top: -2px">
+            <span style="padding: 4px 12px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Eigene Gruppe</span>
+            <span style="padding: 4px 12px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Suchen</span>
+            <span style="padding: 4px 12px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Flüstern</span>
+            <span style="padding: 4px 12px; background: #3a2e0c; border: 1px solid #ffd100; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Mitspieler</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>

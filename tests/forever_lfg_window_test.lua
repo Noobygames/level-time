@@ -402,6 +402,49 @@ expect("Klick öffnet den Chat", wow.socialActions[#wow.socialActions][2], "Brak
 for i = 1, Whispers.MAX_ENTRIES + 3 do wow.fire("CHAT_MSG_WHISPER", "x" .. i, "Brakkus") end
 expect("Verlauf: Obergrenze", #Whispers.GetEntries(), Whispers.MAX_ENTRIES)
 expect("Prüfung: alle Ereignisse lesbar", Whispers.Stats().readable, Whispers.Stats().seen)
+-- Mitspieler (LT-392): Gruppenliste merkt sich Spieler, Abbrecher nur in einer Instanz, Klick bewertet, Marker in der Suche
+local Players = addon.LFGPlayers
+wow.state.units.party1 = { name = "Brakkus" }
+wow.state.units.party2 = { name = "Lunaria" }
+wow.state.inGroup, wow.state.groupSize = true, 3
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: zwei gemerkt", #Players.GetList(), 2)
+wow.state.units.party2 = nil
+wow.state.groupSize = 2
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: Gehen draußen ist kein Abbruch", Players.Stats().leavers, 0)
+wow.state.units.party2 = { name = "Lunaria" }
+wow.state.groupSize = 3
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.state.units.party2 = nil
+wow.state.groupSize = 2
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: Abbrecher in der Instanz", Players.Get("Lunaria").leaves, 1)
+-- Ladebildschirm: Name kurz "Unbekannt" -> niemand wird Abbrecher
+UNKNOWNOBJECT = "Unbekannt"
+wow.state.units.party1 = { name = UNKNOWNOBJECT }
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: unbekannter Name ist kein Abbruch", Players.Get("Brakkus").leaves, nil)
+wow.state.units.party1 = { name = "Brakkus" }
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.instance = nil
+LFGWindow.SetTab(LFGWindow.TAB_PLAYERS)
+expect("Reiter Mitspieler zeigt Zeilen", parts.playersRows[2]:IsShown(), true)
+local brakkusRow = parts.playersRows[1].entry.name == "Brakkus" and parts.playersRows[1] or parts.playersRows[2]
+click(brakkusRow)
+expect("Klick: Daumen hoch", Players.Get("Brakkus").rating, Players.UP)
+expect("Marker +", Players.Marker("Brakkus-Realm"):find("+", 1, true) ~= nil, true)
+expect("Marker Abbrecher", Players.Marker("Lunaria"):find("!", 1, true) ~= nil, true)
+click(brakkusRow)
+click(brakkusRow)
+expect("Klick: Bewertung wieder leer", Players.Get("Brakkus").rating, nil)
+Players.CycleRating("Brakkus")
+LFGWindow.SetTab(2)
+LFGWindow.State().selected = nil
+expect("Prüfung: Gruppenlisten-Namen lesbar", Players.Stats().rosterSecret, 0)
+wow.state.inGroup = false
+
 -- Zurück wechselt zur Suche, Seitenfenster gehört zur Suche
 LFGWindow.State().selected = 7
 LFGWindow.SetTab(1)

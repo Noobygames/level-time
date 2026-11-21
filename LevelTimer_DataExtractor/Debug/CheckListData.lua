@@ -285,4 +285,10 @@ X.CheckListData = {
       "Gruppensuche öffnen, Gruppe wählen, Flüstern klicken, Antwort des Leiters abwarten (auch realmübergreifend); Reiter Flüstern öffnen, eine Zeile anklicken.",
       "Erwartung: Reiter zeigt 'An <Leiter>' und 'Von <Leiter>', neueste zuerst; Klick öffnet den Chat an den Leiter; fremde Flüster erscheinen nicht.",
     } },
+  { id = "LT-392", client = "forever", triggers = { "lfg", "instance" },
+    title = "Gruppensuche: Mitspieler merken, bewerten, Abbrecher",
+    steps = {
+      "Mit 1-2 Spielern gruppieren, /lt lfg, Reiter Mitspieler: Klick wechselt + / - / leer. In einer Instanz verlässt ein Mitglied die Gruppe; zwischendurch einen Ladebildschirm durchlaufen. Reiter Suchen: Gruppe dieses Leiters ansehen.",
+      "Erwartung: Namen erscheinen, nach dem Verlassen steht '!' und 'ging früh: 1 x', Ladebildschirme markieren niemanden, eigenes Verlassen auch nicht; das Zeichen steht in der Suche vor dem Leiternamen und bleibt nach /reload.",
+    } },
 }

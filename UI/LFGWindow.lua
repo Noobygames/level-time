@@ -27,6 +27,7 @@ LFGWindow.WIDTH, LFGWindow.HEIGHT = WIDTH, HEIGHT
 LFGWindow.CONTROL_HEIGHT = 28
 LFGWindow.GAP = 8
 LFGWindow.TAB_WHISPERS = 3  -- eigener Reiter (LT-389), nicht bei Blizzard
+LFGWindow.TAB_PLAYERS = 4   -- eigener Reiter (LT-392)
 LFGWindow.TAB_SEARCH, LFGWindow.TAB_LISTING = 2, 1  -- wie Blizzards Reiter (LFGVanilla_ShowFrame(tab)): 1 Eintrag, 2 Suche
 LFGWindow.ROLE_ORDER = { "TANK", "HEALER", "DAMAGER" }
 -- Blizzards Rollen-Symbole der Gruppensuche (Atlanten)
@@ -78,6 +79,7 @@ end
 newTab(TAB_LISTING, "LFG_TAB_LISTING")
 newTab(TAB_SEARCH, "LFG_TAB_SEARCH", "SEARCH")
 newTab(TAB_WHISPERS, "LFG_TAB_WHISPERS")
+newTab(LFGWindow.TAB_PLAYERS, "LFG_TAB_PLAYERS")
 tabs[1]:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", TAB_X, TAB_Y)
 PanelTemplates_SetNumTabs(panel, #tabs)  -- reiht die weiteren Reiter an den ersten
 parts.tabs = tabs
@@ -88,7 +90,7 @@ local function newContainer()
   return frame
 end
 LFGWindow.searchContainer, LFGWindow.listingContainer = newContainer(), newContainer()
-LFGWindow.whisperContainer = newContainer()
+LFGWindow.whisperContainer, LFGWindow.playersContainer = newContainer(), newContainer()
 
 ---------------------------------------------------------------------------
 -- Gemeinsame Hilfen der Reiter
@@ -215,6 +217,7 @@ function LFGWindow.Refresh()
   LFGWindow.searchContainer:SetShown(state.tab == TAB_SEARCH)
   LFGWindow.listingContainer:SetShown(state.tab == TAB_LISTING)
   LFGWindow.whisperContainer:SetShown(state.tab == TAB_WHISPERS)
+  LFGWindow.playersContainer:SetShown(state.tab == LFGWindow.TAB_PLAYERS)
   if parts.detail and state.tab ~= TAB_SEARCH then parts.detail:Hide() end  -- Seitenfenster gehört zur Suche
   if tabModules[state.tab] then tabModules[state.tab]() end
   for _, fn in ipairs(afterRefresh) do fn() end

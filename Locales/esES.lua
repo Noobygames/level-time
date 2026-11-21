@@ -2571,4 +2571,8 @@ ns.locales.esES = {
   LFG_WHISPERS_ROW_TIP = "Haz clic para abrir el chat con este jugador y susurrar de nuevo.",
   LFG_WHISPER_FROM = "De %s",
   LFG_WHISPER_TO = "Para %s",
+  LFG_PLAYERS_EMPTY = "Aún no hay jugadores. Quienes estén en tu grupo aparecen aquí y se pueden valorar.",
+  LFG_PLAYERS_LEFT = "se fue antes: %d x",
+  LFG_PLAYERS_ROW_TIP = "Clic para cambiar la valoración: ninguna, + (bien), - (mal). La marca aparece antes del nombre del líder en la búsqueda; ! = dejó un grupo dentro de una instancia.",
+  LFG_TAB_PLAYERS = "Jugadores",
 }

@@ -2571,4 +2571,8 @@ ns.locales.deDE = {
   LFG_WHISPERS_ROW_TIP = "Klick öffnet den Chat an diesen Spieler, um erneut zu flüstern.",
   LFG_WHISPER_FROM = "Von %s",
   LFG_WHISPER_TO = "An %s",
+  LFG_PLAYERS_EMPTY = "Noch keine Mitspieler. Wer mit dir in einer Gruppe war, erscheint hier und kann bewertet werden.",
+  LFG_PLAYERS_LEFT = "ging früh: %d x",
+  LFG_PLAYERS_ROW_TIP = "Klick wechselt die Bewertung: keine, + (gut), - (schlecht). Das Zeichen steht in der Suche vor dem Leiternamen; ! = verließ eine Gruppe in einer Instanz.",
+  LFG_TAB_PLAYERS = "Mitspieler",
 }

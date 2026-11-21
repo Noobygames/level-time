@@ -40,6 +40,7 @@ local CHECKS = {
   "LT349.waterShield.display",
   "LT389.lfg.whisperLog",
   "LT278.spells.casts",
+  "LT392.lfg.players",
 }
 
 wow.login()
