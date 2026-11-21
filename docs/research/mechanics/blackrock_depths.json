@@ -46,7 +46,7 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 13736, "spell": "Whirlwind", "type": "avoid", "en": "Spins and hits all within 8 yards; melee step out", "de": "Wirbelt und trifft alle in 8 m; Nahkämpfer raus"},
-        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank"},
+        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank", "verified": true},
         {"spellID": 21049, "spell": "Bloodlust", "type": "dispel", "en": "Speeds up his attacks for 30 sec; purge it", "de": "Erhöht 30 Sek. lang sein Angriffstempo; reinigen", "verified": true}
       ]
     },
@@ -68,7 +68,7 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 7121, "spell": "Anti-Magic Shield", "type": "positioning", "en": "Immune to magic for 6 sec; casters pause, melee keep going", "de": "6 Sek. lang immun gegen Magie; Zauberer warten, Nahkampf weiter", "verified": true},
-        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow damage on everyone within 30 yards", "de": "Schattenschaden auf alle im 30-m-Umkreis"},
+        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow damage on everyone within 30 yards", "de": "Schattenschaden auf alle im 30-m-Umkreis", "verified": true},
         {"spellID": 16095, "spell": "Vicious Rend", "type": "dispel", "en": "Bleed on one player for 15 sec; heal through it", "de": "15 Sek. lang Blutung auf einem Spieler; gegenheilen", "verified": true}
       ]
     },
@@ -80,7 +80,7 @@
       "mechanics": [
         {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Turns a player into a sheep for 6 sec", "de": "Verwandelt einen Spieler 6 Sek. lang in ein Schaf"},
         {"spellID": 13747, "spell": "Slow", "type": "dispel", "en": "Slows attacks, casts and movement within 20 yards", "de": "Verlangsamt Angriffs-, Zauber- und Lauftempo im 20-m-Umkreis", "verified": true},
-        {"spellID": 15453, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone within 30 yards", "de": "Arkanstoß auf alle im 30-m-Umkreis"},
+        {"spellID": 15453, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone within 30 yards", "de": "Arkanstoß auf alle im 30-m-Umkreis", "verified": true},
         {"spellID": 25055, "spell": "Arcane Bolt", "type": "interrupt", "en": "Arcane bolt on one player; interrupt it", "de": "Arkanblitz auf einen Spieler; unterbrechen", "verified": true}
       ]
     },
@@ -92,7 +92,7 @@
       "mechanics": [
         {"spellID": 15470, "spell": "Curse of Tongues", "type": "dispel", "en": "Casters in 30 yards cast 50% slower; decurse", "de": "Zauberer im 30-m-Umkreis wirken 50 % langsamer; entfluchen", "verified": true},
         {"spellID": 15471, "spell": "Enveloping Web", "type": "survive", "en": "Roots and silences one player for 4 sec", "de": "Wurzelt einen Spieler und bringt ihn 4 Sek. lang zum Schweigen", "verified": true},
-        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for a while", "de": "Nimmt einen Spieler eine Weile aus dem Kampf"},
+        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for a while", "de": "Nimmt einen Spieler eine Weile aus dem Kampf", "verified": true},
         {"spellID": 15472, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on one player; interrupt when you can", "de": "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "verified": true},
         {"spellID": 12493, "spell": "Curse of Weakness", "type": "dispel", "en": "Cuts a player's physical damage for 2 min; decurse", "de": "Senkt 2 Min. lang den körperlichen Schaden eines Spielers; entfluchen", "verified": true},
         {"spellID": 13787, "spell": "Demon Armor", "type": "dispel", "en": "Self armor buff for 30 min; purge it", "de": "Rüstungsbonus auf sich selbst, 30 Min.; reinigen", "verified": true}
@@ -305,7 +305,7 @@
       "mechanics": [
         {"spellID": 15636, "spell": "Avatar of Flame", "type": "survive", "en": "Immune to magic for 10 sec, melee hits add fire", "de": "10 Sek. lang immun gegen Magie; Treffer verursachen Feuerschaden", "verified": true},
         {"spellID": 17492, "spell": "Hand of Thaurissan", "type": "dispel", "en": "Fire hit that stuns a player for 5 sec", "de": "Feuertreffer betäubt einen Spieler 5 Sek. lang", "verified": true},
-        {"spellID": 15642, "spell": "Ironfoe", "type": "tank", "en": "Summons a weapon that adds extra strikes on the tank", "de": "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt"},
+        {"spellID": 15642, "spell": "Ironfoe", "type": "tank", "en": "Summons a weapon that adds extra strikes on the tank", "de": "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt", "verified": true},
         {"spellID": 0, "spell": "", "type": "positioning", "en": "Keep Moira alive (or not) - killing her changes rewards", "de": "Ob Moira verschont wird, ändert die Belohnung", "unverified": true}
       ]
     }

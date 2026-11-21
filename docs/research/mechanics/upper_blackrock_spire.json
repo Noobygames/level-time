@@ -11,7 +11,7 @@
       "mechanics": [
         {"spellID": 0, "spell": "Encage", "type": "adds", "en": "Kill the Incarcerators first; they stun random players", "de": "Zuerst die Kerkermeister töten; sie betäuben Spieler", "unverified": true},
         {"spellID": 17366, "spell": "Fire Nova", "type": "avoid", "en": "**Fire nova** hits melee; ranged keep distance", "de": "**Feuernova** trifft Nahkampf; Fernkampf auf Abstand"},
-        {"spellID": 16536, "spell": "Flame Buffet", "type": "survive", "en": "Stacking fire damage taken debuff; fire resist helps", "de": "Stapelnder Feuer-Debuff; Feuerresistenz hilft"}
+        {"spellID": 16536, "spell": "Flame Buffet", "type": "survive", "en": "Stacking fire damage taken debuff; fire resist helps", "de": "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "verified": true}
       ]
     },
     {
@@ -29,9 +29,9 @@
       "npcID": 10509,
       "level": 59,
       "mechanics": [
-        {"spellID": 15749, "spell": "Shield Charge", "type": "tank", "en": "Charges a player and knocks them back; tank keeps him at a wall", "de": "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand"},
-        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "Bashes and silences a caster; keep casters at range", "de": "Schlägt zu und unterbricht Zauberer; Zauberer auf Abstand"},
-        {"spellID": 14516, "spell": "Strike", "type": "tank", "en": "Heavy melee strike on the tank", "de": "Kräftiger Nahkampfschlag auf den Tank"}
+        {"spellID": 15749, "spell": "Shield Charge", "type": "tank", "en": "Charges a player and knocks them back; tank keeps him at a wall", "de": "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand", "verified": true},
+        {"spellID": 11972, "spell": "Shield Bash", "type": "interrupt", "en": "Bashes and silences a caster; keep casters at range", "de": "Schlägt zu und unterbricht Zauberer; Zauberer auf Abstand", "verified": true},
+        {"spellID": 14516, "spell": "Strike", "type": "tank", "en": "Heavy melee strike on the tank", "de": "Kräftiger Nahkampfschlag auf den Tank", "verified": true}
       ],
       "rare": true
     },
@@ -42,7 +42,7 @@
       "mechanics": [
         {"spellID": 6253, "spell": "Backhand", "type": "tank", "en": "Stuns the tank; off-tank taunts during the stun", "de": "Betäubt den Tank; Zweittank spottet währenddessen", "verified": true},
         {"spellID": 3148, "spell": "Head Crack", "type": "tank", "en": "Lowers the tank's stamina for a while", "de": "Senkt die Ausdauer des Tanks für einige Zeit", "verified": true},
-        {"spellID": 25710, "spell": "Heroic Strike", "type": "tank", "en": "Hard melee hit that builds extra threat", "de": "Harter Nahkampfschlag mit erhöhter Bedrohung"}
+        {"spellID": 25710, "spell": "Heroic Strike", "type": "tank", "en": "Hard melee hit that builds extra threat", "de": "Harter Nahkampfschlag mit erhöhter Bedrohung", "verified": true}
       ]
     },
     {
@@ -53,8 +53,8 @@
         {"spellID": 0, "spell": "Arena waves", "type": "adds", "en": "Many add waves in the arena before Rend and Gyth jump in", "de": "Viele Wellen in der Arena, dann kommen Rend und Gyth", "unverified": true},
         {"spellID": 20712, "spell": "Flame Breath", "type": "positioning", "en": "Gyth breathes cones; face him away from the group", "de": "Gyth speit Kegel; von der Gruppe wegdrehen"},
         {"spellID": 13736, "spell": "Whirlwind", "type": "avoid", "en": "Rend whirlwinds after dismount; melee step back", "de": "Rend wirbelt nach Absteigen; Nahkampf zurücktreten", "verified": true},
-        {"spellID": 15588, "spell": "Thunderclap", "type": "avoid", "en": "Nature slam around him; slows movement and attacks", "de": "Naturschlag um ihn; verlangsamt Bewegung und Angriffe"},
-        {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Hits the tank and one more player; stay out of the front arc", "de": "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen"}
+        {"spellID": 15588, "spell": "Thunderclap", "type": "avoid", "en": "Nature slam around him; slows movement and attacks", "de": "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "verified": true},
+        {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Hits the tank and one more player; stay out of the front arc", "de": "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "verified": true}
       ]
     },
     {
@@ -73,11 +73,11 @@
       "level": 62,
       "mechanics": [
         {"spellID": 16785, "spell": "Flamebreak", "type": "positioning", "en": "Knockback AoE; tank with back to a wall", "de": "Rückstoß-Feuer; Tank mit Rücken zur Wand", "verified": true},
-        {"spellID": 14100, "spell": "Terrifying Roar", "type": "survive", "en": "Fears players nearby; ranged stay at max range", "de": "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz"},
+        {"spellID": 14100, "spell": "Terrifying Roar", "type": "survive", "en": "Fears players nearby; ranged stay at max range", "de": "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "verified": true},
         {"spellID": 19471, "spell": "Berserker Charge", "type": "tank", "en": "Charges a random player; tanks re-grab aggro", "de": "Stürmt einen zufälligen Spieler an; Tank holt Aggro zurück", "verified": true},
-        {"spellID": 15570, "spell": "Immolate", "type": "survive", "en": "Fire damage over time on a player", "de": "Feuerschaden über Zeit auf einen Spieler"},
-        {"spellID": 16144, "spell": "Fire Blast", "type": "survive", "en": "Direct fire hit on a player", "de": "Direkter Feuerschaden auf einen Spieler"},
-        {"spellID": 16788, "spell": "Fireball", "type": "survive", "en": "Fire bolt on a player", "de": "Feuerball auf einen Spieler"}
+        {"spellID": 15570, "spell": "Immolate", "type": "survive", "en": "Fire damage over time on a player", "de": "Feuerschaden über Zeit auf einen Spieler", "verified": true},
+        {"spellID": 16144, "spell": "Fire Blast", "type": "survive", "en": "Direct fire hit on a player", "de": "Direkter Feuerschaden auf einen Spieler", "verified": true},
+        {"spellID": 16788, "spell": "Fireball", "type": "survive", "en": "Fire bolt on a player", "de": "Feuerball auf einen Spieler", "verified": true}
       ]
     },
     {
@@ -98,9 +98,9 @@
         {"spellID": 16805, "spell": "Conflagration", "type": "tank", "en": "Burns and panics a target; second tank taunts", "de": "Verbrennt und lähmt ein Ziel; zweiter Tank spottet", "verified": true},
         {"spellID": 0, "spell": "Chromatic Elite Guard", "type": "adds", "en": "Two elite guards join; kill them or pull him away", "de": "Zwei Elitewachen helfen; töten oder ihn wegziehen", "unverified": true},
         {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "Fire pillars on the ground; step out", "de": "**Feuersäulen** am Boden; herausgehen", "unverified": true},
-        {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Hits the tank and one more player; stay out of the front arc", "de": "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen"},
-        {"spellID": 9573, "spell": "Flame Breath", "type": "positioning", "en": "Fire cone in front: face him away from the group", "de": "Feuerkegel nach vorn: von der Gruppe wegdrehen"},
-        {"spellID": 8078, "spell": "Thunderclap", "type": "avoid", "en": "Nature slam around him; slows movement and attacks", "de": "Naturschlag um ihn; verlangsamt Bewegung und Angriffe"}
+        {"spellID": 20569, "spell": "Cleave", "type": "positioning", "en": "Hits the tank and one more player; stay out of the front arc", "de": "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "verified": true},
+        {"spellID": 9573, "spell": "Flame Breath", "type": "positioning", "en": "Fire cone in front: face him away from the group", "de": "Feuerkegel nach vorn: von der Gruppe wegdrehen", "verified": true},
+        {"spellID": 8078, "spell": "Thunderclap", "type": "avoid", "en": "Nature slam around him; slows movement and attacks", "de": "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "verified": true}
       ]
     }
   ],

@@ -447,3 +447,20 @@ check("LT412.trivialChain.state", function()
     settings = settings("dungeonQuestTrivialNearby", "dungeonQuestTrivialTracking"),
     filteredOut = map and map.IsFilteredOut and filterID and map.IsFilteredOut(filterID) or nil }
 end)
+
+-- LT-353 (Abgleich 2026-11-21): von Hand ergänzte Dungeon-Quests. Kennt der Client die IDs (Titel in Client-Sprache,
+-- nil = unbekannt oder Titel noch nicht geladen; Check nach einer Weile wiederholen) und stimmt der Name in der DB?
+local ADDED_QUESTS = { 95264, 96335, 96369, 94877, 5066, 5092, 5093, 5096, 5097, 5098, 5505, 5511, 7845, 7846, 7847,
+  7849, 7850, 7861, 7862, 2203, 2501, 2439, 2440 }
+check("LT353.quests.added", function()
+  local titleOf = C_QuestLog and C_QuestLog.GetTitleForQuestID
+  if not titleOf or not ns.DungeonDB then return { available = false } end
+  local quests, unknown = {}, 0
+  for _, questID in ipairs(ADDED_QUESTS) do
+    local info = ns.DungeonDB.questInfo and ns.DungeonDB.questInfo[questID]
+    local title = H.readable(titleOf(questID))
+    if not title then unknown = unknown + 1 end
+    quests[#quests + 1] = questID .. " " .. tostring(title) .. " | " .. tostring(info and info.name)
+  end
+  return { available = true, unknown = unknown, quests = quests }
+end)

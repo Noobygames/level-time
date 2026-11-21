@@ -53,8 +53,8 @@
       "npcID": 9236,
       "level": 0,
       "mechanics": [
-        {"spellID": 22566, "spell": "Hex", "type": "dispel", "en": "Turns nearby players into frogs; dispel or wait it out", "de": "Verwandelt Spieler in der Nähe in Frösche; bannen"},
-        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; decurse the tank", "de": "Fluch erhöht erlittenen Schaden; Tank entfluchen"}
+        {"spellID": 22566, "spell": "Hex", "type": "dispel", "en": "Turns nearby players into frogs; dispel or wait it out", "de": "Verwandelt Spieler in der Nähe in Frösche; bannen", "verified": true},
+        {"spellID": 8282, "spell": "Curse of Blood", "type": "dispel", "en": "Curse raises physical damage taken; decurse the tank", "de": "Fluch erhöht erlittenen Schaden; Tank entfluchen", "verified": true}
       ]
     },
     {
@@ -63,12 +63,12 @@
       "level": 0,
       "mechanics": [
         {"spellID": 5532, "spell": "Cleave", "type": "positioning", "en": "Frontal cleave; only the tank in front of him", "de": "Frontaler Spalter; nur der Tank steht vor ihm", "verified": true},
-        {"spellID": 16075, "spell": "Throw Axe", "type": "survive", "en": "Throws an axe at a random player and stuns briefly", "de": "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "unverified": true},
-        {"spellID": 15708, "spell": "Mortal Strike", "type": "tank", "en": "Cuts healing on the tank by half for a few seconds; heal through it", "de": "Halbiert kurz die Heilung am Tank; durchheilen", "unverified": true},
-        {"spellID": 10966, "spell": "Uppercut", "type": "positioning", "en": "Hard hit that knocks the target back; tank with back to a wall", "de": "Harter Treffer mit Rückstoß; Tank mit dem Rücken zur Wand", "unverified": true},
-        {"spellID": 15618, "spell": "Snap Kick", "type": "survive", "en": "Short stun on his target", "de": "Kurze Betäubung seines Ziels", "unverified": true},
-        {"spellID": 15615, "spell": "Pummel", "type": "survive", "en": "Interrupts a spell; casters stay out of his reach", "de": "Unterbricht einen Zauber; Zauberer außer Reichweite", "unverified": true},
-        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Gains extra attacks; damage spikes on the tank", "de": "Extra-Angriffe; Schadensspitzen am Tank", "unverified": true}
+        {"spellID": 16075, "spell": "Throw Axe", "type": "survive", "en": "Throws an axe at a random player and stuns briefly", "de": "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "unverified": true, "verified": true},
+        {"spellID": 15708, "spell": "Mortal Strike", "type": "tank", "en": "Cuts healing on the tank by half for a few seconds; heal through it", "de": "Halbiert kurz die Heilung am Tank; durchheilen", "unverified": true, "verified": true},
+        {"spellID": 10966, "spell": "Uppercut", "type": "positioning", "en": "Hard hit that knocks the target back; tank with back to a wall", "de": "Harter Treffer mit Rückstoß; Tank mit dem Rücken zur Wand", "unverified": true, "verified": true},
+        {"spellID": 15618, "spell": "Snap Kick", "type": "survive", "en": "Short stun on his target", "de": "Kurze Betäubung seines Ziels", "unverified": true, "verified": true},
+        {"spellID": 15615, "spell": "Pummel", "type": "survive", "en": "Interrupts a spell; casters stay out of his reach", "de": "Unterbricht einen Zauber; Zauberer außer Reichweite", "unverified": true, "verified": true},
+        {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Gains extra attacks; damage spikes on the tank", "de": "Extra-Angriffe; Schadensspitzen am Tank", "unverified": true, "verified": true}
       ]
     },
     {
@@ -78,10 +78,10 @@
       "mechanics": [
         {"spellID": 27527, "spell": "Healing Touch", "type": "interrupt", "en": "Big self heal; always interrupt it", "de": "Große Selbstheilung; immer unterbrechen"},
         {"spellID": 27532, "spell": "Rejuvenation", "type": "dispel", "en": "Purge his heal-over-time buff", "de": "Seine Heilung über Zeit reinigen"},
-        {"spellID": 27530, "spell": "Hurricane", "type": "avoid", "en": "Channeled storm around him; move out of it", "de": "Kanalisierter Sturm um ihn; herauslaufen"},
-        {"spellID": 27543, "spell": "Bear Form", "type": "tank", "en": "Turns into a bear with more armor and health; tank him and keep healing", "de": "Wird zum Bären mit mehr Rüstung und Leben; tanken und durchheilen", "unverified": true},
-        {"spellID": 27545, "spell": "Cat Form", "type": "survive", "en": "Turns into a cat with fast bleeding strikes; watch the target's health", "de": "Wird zur Katze mit schnellen Blutungsangriffen; Leben des Ziels beobachten", "unverified": true},
-        {"spellID": 27546, "spell": "Faerie Dragon Form", "type": "survive", "en": "Changes into a faerie dragon; effect not confirmed", "de": "Wechselt in die Feendrachen-Gestalt; Wirkung nicht bestätigt", "unverified": true}
+        {"spellID": 27530, "spell": "Hurricane", "type": "avoid", "en": "Channeled storm around him; move out of it", "de": "Kanalisierter Sturm um ihn; herauslaufen", "verified": true},
+        {"spellID": 27543, "spell": "Bear Form", "type": "tank", "en": "Turns into a bear with more armor and health; tank him and keep healing", "de": "Wird zum Bären mit mehr Rüstung und Leben; tanken und durchheilen", "unverified": true, "verified": true},
+        {"spellID": 27545, "spell": "Cat Form", "type": "survive", "en": "Turns into a cat with fast bleeding strikes; watch the target's health", "de": "Wird zur Katze mit schnellen Blutungsangriffen; Leben des Ziels beobachten", "unverified": true, "verified": true},
+        {"spellID": 27546, "spell": "Faerie Dragon Form", "type": "survive", "en": "Changes into a faerie dragon; effect not confirmed", "de": "Wechselt in die Feendrachen-Gestalt; Wirkung nicht bestätigt", "unverified": true, "verified": true}
       ]
     },
     {
@@ -121,7 +121,7 @@
         {"spellID": 16508, "spell": "Intimidating Roar", "type": "survive", "en": "Fears nearby players for 8 sec; use fear wards", "de": "Versetzt Spieler 8 Sek. lang in Furcht; Furchtschutz nutzen", "verified": true},
         {"spellID": 0, "spell": "Ogre waves", "type": "adds", "en": "Ogre waves come before Urok; the placed pike kills one ogre every 30 sec, crowd control the rest", "de": "Oger-Wellen vor Urok; die aufgestellte Pike tötet alle 30 Sek. einen Oger, den Rest kontrollieren"},
         {"spellID": 13443, "spell": "Rend", "type": "tank", "en": "**Rend** bleeds the tank: keep healing steady", "de": "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "verified": true},
-        {"spellID": 13446, "spell": "Strike", "type": "tank", "en": "Hard melee strike on the tank", "de": "Harter Nahkampfschlag auf den Tank", "unverified": true}
+        {"spellID": 13446, "spell": "Strike", "type": "tank", "en": "Hard melee strike on the tank", "de": "Harter Nahkampfschlag auf den Tank", "unverified": true, "verified": true}
       ]
     },
     {
@@ -131,7 +131,7 @@
       "mechanics": [
         {"spellID": 16497, "spell": "Stun Bomb", "type": "avoid", "en": "Fire bomb stuns players in a small area; spread out", "de": "Bombe betäubt im kleinen Bereich; verteilen"},
         {"spellID": 15504, "spell": "Drink Healing Potion", "type": "interrupt", "en": "Drinks a healing potion; burst or stun him", "de": "Trinkt Heiltrank; schnell Schaden oder betäuben"},
-        {"spellID": 15609, "spell": "Hooked Net", "type": "survive", "en": "Nets nearby players in place for about 10 sec; escape effects free you", "de": "Fesselt Spieler in der Nähe etwa 10 Sek. lang in einem Netz; Befreiungseffekte helfen"}
+        {"spellID": 15609, "spell": "Hooked Net", "type": "survive", "en": "Nets nearby players in place for about 10 sec; escape effects free you", "de": "Fesselt Spieler in der Nähe etwa 10 Sek. lang in einem Netz; Befreiungseffekte helfen", "verified": true}
       ]
     },
     {
@@ -171,7 +171,7 @@
         {"spellID": 25322, "spell": "Sweeping Slam", "type": "positioning", "en": "Cone knockback; melee stand behind him", "de": "Kegel mit Rückstoß; Nahkampf hinter ihm", "verified": true},
         {"spellID": 19983, "spell": "Cleave", "type": "positioning", "en": "Frontal cleave hits up to two others", "de": "Frontaler Spalter trifft bis zu zwei weitere", "verified": true},
         {"spellID": 0, "spell": "The Overlord's Defense", "type": "adds", "en": "At 50% two guards join; off-tank or control them", "de": "Bei 50 % kommen zwei Wachen; abtanken oder kontrollieren", "unverified": true},
-        {"spellID": 23511, "spell": "Demoralizing Shout", "type": "survive", "en": "Lowers melee attack power of nearby players for a while", "de": "Senkt die Nahkampf-Angriffskraft von Spielern in der Nähe", "unverified": true}
+        {"spellID": 23511, "spell": "Demoralizing Shout", "type": "survive", "en": "Lowers melee attack power of nearby players for a while", "de": "Senkt die Nahkampf-Angriffskraft von Spielern in der Nähe", "unverified": true, "verified": true}
       ]
     }
   ],
@@ -230,9 +230,9 @@
       "npcID": 9262,
       "elite": true,
       "mechanics": [
-        {"spellID": 11921, "spell": "Fireball", "type": "interrupt", "en": "Strong fire bolt; interrupt or keep him crowd controlled", "de": "Starker Feuerball; unterbrechen oder kontrolliert halten", "unverified": true},
-        {"spellID": 11829, "spell": "Flamestrike", "type": "avoid", "en": "Fire area damage at a spot; step out of the flames", "de": "Flächenfeuer an einer Stelle; aus den Flammen laufen", "unverified": true},
-        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks targets to take more fire damage", "de": "Markiert Ziele für mehr Feuerschaden", "unverified": true}
+        {"spellID": 11921, "spell": "Fireball", "type": "interrupt", "en": "Strong fire bolt; interrupt or keep him crowd controlled", "de": "Starker Feuerball; unterbrechen oder kontrolliert halten", "unverified": true, "verified": true},
+        {"spellID": 11829, "spell": "Flamestrike", "type": "avoid", "en": "Fire area damage at a spot; step out of the flames", "de": "Flächenfeuer an einer Stelle; aus den Flammen laufen", "unverified": true, "verified": true},
+        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks targets to take more fire damage", "de": "Markiert Ziele für mehr Feuerschaden", "unverified": true, "verified": true}
       ]
     },
     {
@@ -240,7 +240,7 @@
       "npcID": 9264,
       "elite": true,
       "mechanics": [
-        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks targets to take more fire damage", "de": "Markiert Ziele für mehr Feuerschaden", "unverified": true}
+        {"spellID": 15128, "spell": "Mark of Flames", "type": "survive", "en": "Marks targets to take more fire damage", "de": "Markiert Ziele für mehr Feuerschaden", "unverified": true, "verified": true}
       ]
     },
     {

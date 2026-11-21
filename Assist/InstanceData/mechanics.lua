@@ -398,8 +398,8 @@ ns.Mechanics = {
   [4854] = { -- Grimlok (Uldaman)
     { 7289, "dispel", "**Schrumpfen** ist ein Fluch, der schwächt; entfluchen", "**Shrink** is a curse that weakens a player; decurse it", "v" },
     { 8292, "interrupt", "**Kettenblitz** und **Blitzschlag** unterbrechen", "Interrupt his **Chain Bolt** and Lightning Bolt casts", "v" },
+    { 9532, "interrupt", "**Blitzschlag** unterbrechen, um den Schaden zu senken", "Interrupt his **Lightning Bolt** to cut his damage", "v" },
     { 6742, "dispel", "**Kampfrausch** von ihm oder seinem Basilisken bannen", "Purge **Bloodlust** from him or his basilisk", "v" },
-    { 9532, "interrupt", "**Blitzschlag** unterbrechen, um den Schaden zu senken", "Interrupt his **Lightning Bolt** to cut his damage" },
   },
   [4863] = { -- Jadespine Basilisk (Uldaman)
     { 3636, "interrupt", "**Kristallschlummer** betäubt 3 Sek. lang; unterbrechen", "**Crystalline Slumber** stuns 3 sec; interrupt it" },
@@ -451,10 +451,10 @@ ns.Mechanics = {
     { 12891, "avoid", "**Säureatem** im Kegel; Tank dreht ihn weg", "**Acid Breath** cone; tank turns him away" },
   },
   [5710] = { -- Jammal'an the Prophet (Sunken Temple)
+    { 8376, "adds", "**Totem des Erdgriffs** wurzelt fest; zerstören", "**Earthgrab Totem** roots players; destroy it", "v" },
+    { 20296, "avoid", "**Flammenstoß** brennt ein Gebiet mehrere Sekunden lang nieder; aus dem Feuer treten", "**Flamestrike** burns an area for several seconds; step out of the fire", "v" },
     { 12480, "dispel", "**Verhexung** wendet einen Spieler gegen die Gruppe; bannen oder kontrollieren", "Hex turns a player against the group; dispel or CC" },
     { 12492, "interrupt", "Heilt mit **Welle der Heilung**; unterbrechen", "Heals with **Healing Wave**; interrupt" },
-    { 8376, "adds", "**Totem des Erdgriffs** wurzelt fest; zerstören", "**Earthgrab Totem** roots players; destroy it" },
-    { 20296, "avoid", "**Flammenstoß** brennt ein Gebiet mehrere Sekunden lang nieder; aus dem Feuer treten", "**Flamestrike** burns an area for several seconds; step out of the fire" },
   },
   [5711] = { -- Ogom the Wretched (Sunken Temple)
     { 11660, "interrupt", "Wirkt **Schattenblitze**; unterbrechen", "Casts Shadow Bolts; interrupt", "v" },
@@ -469,9 +469,9 @@ ns.Mechanics = {
     { 15580, "tank", "Harte Nahkampfschläge auf den Tank", "Heavy melee strikes on the tank" },
   },
   [5714] = { -- Loro (Sunken Temple)
+    { 8242, "tank", "**Schildschlag** trifft den Tank hart", "**Shield Slam** hits the tank hard", "v" },
+    { 12782, "tank", "Stachelschild verletzt Nahkämpfer; beim Tanken mit Mehrschaden rechnen", "Spiked shield hurts melee attackers; expect extra damage while tanking", "v" },
     { 9205, "tank", "Setzt seine Bedrohung zurück; Tank schnell zurückspotten", "Wipes his threat list; tank must taunt back fast" },
-    { 8242, "tank", "**Schildschlag** trifft den Tank hart", "**Shield Slam** hits the tank hard" },
-    { 12782, "tank", "Stachelschild verletzt Nahkämpfer; beim Tanken mit Mehrschaden rechnen", "Spiked shield hurts melee attackers; expect extra damage while tanking" },
   },
   [5715] = { -- Hukku (Sunken Temple)
     { 12790, "adds", "Beschwört Dämonen; Begleiter töten", "Summons demon pets; kill the pets" },
@@ -483,10 +483,10 @@ ns.Mechanics = {
     { 12530, "dispel", "**Gebrechlichkeit** schwächt Spieler; entfluchen", "**Frailty** curse weakens players; decurse" },
   },
   [5717] = { -- Mijan (Sunken Temple)
+    { 8362, "dispel", "**Erneuerung** heilt über Zeit; Magie vom Ziel bannen", "**Renew** heals over time; dispel magic from the target", "v" },
+    { 8148, "survive", "**Dornenaura** schadet Nahkämpfern; durchheilen", "**Thorns Aura** hurts melee attackers; heal through", "v" },
     { 11899, "adds", "Stellt einen Heilungszauberschutz; sofort zerstören", "Drops a Healing Ward; destroy it right away" },
     { 12492, "interrupt", "Heilt mit **Welle der Heilung**; unterbrechen", "Heals with **Healing Wave**; interrupt" },
-    { 8362, "dispel", "**Erneuerung** heilt über Zeit; Magie vom Ziel bannen", "**Renew** heals over time; dispel magic from the target" },
-    { 8148, "survive", "**Dornenaura** schadet Nahkämpfern; durchheilen", "**Thorns Aura** hurts melee attackers; heal through" },
   },
   [5719] = { -- Morphaz (Sunken Temple)
     { 12884, "avoid", "**Säureatem** im Kegel; Tank dreht den Drachen weg", "**Acid Breath** cone; tank turns the dragon away" },
@@ -562,10 +562,10 @@ ns.Mechanics = {
     { 9433, "avoid", "**Arkane Druckwelle** trifft alle in der Nähe: Nahkämpfer treten raus oder gegenheilen", "Arcane blast hits everyone close: melee step out or heal through", "v" },
   },
   [6906] = { -- The Lost Dwarves (Uldaman)
+    { 15620, "adds", "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer", "Three dwarves at once; Baelog also shoots casters at range", "v" },
+    { 20252, "tank", "Erics **Abfangen** stürmt auf einen Spieler und betäubt 3 Sek.; ihn zuerst töten", "Eric's **Intercept** charges a player and stuns for 3 sec; kill him first", "v" },
     { 6268, "tank", "Eric stürmt auf einen Spieler, sein nächster Schlag trifft härter", "Eric charges a player and his next hit lands harder" },
     { 8242, "tank", "Olaf betäubt sein Ziel mit **Schildschlag** 2 Sek. lang", "Olaf stuns his target for 2 sec with **Shield Slam**" },
-    { 15620, "adds", "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer", "Three dwarves at once; Baelog also shoots casters at range" },
-    { 20252, "tank", "Erics **Abfangen** stürmt auf einen Spieler und betäubt 3 Sek.; ihn zuerst töten", "Eric's **Intercept** charges a player and stuns for 3 sec; kill him first" },
   },
   [6910] = { -- Revelosh (Uldaman)
     { 16033, "interrupt", "**Kettenblitz** unterbrechen, er springt zwischen nahen Spielern", "Kick his **Chain Lightning**, it jumps between grouped players", "v" },
@@ -584,7 +584,7 @@ ns.Mechanics = {
   },
   [7206] = { -- Ancient Stone Keeper (Uldaman)
     { 10094, "adds", "Beschwört 30 Sek. lang **Sandstürme**; aus dem Weg gehen", "Summons **Sand Storms** that fight for 30 sec; move away", "v" },
-    { 10093, "avoid", "Der beschworene Sandsturm verstummt Spieler in der Nähe; Zauberer und Heiler halten Abstand", "The summoned Sand Storm silences nearby players; casters and healers keep their distance" },
+    { 10093, "avoid", "Der beschworene Sandsturm verstummt Spieler in der Nähe; Zauberer und Heiler halten Abstand", "The summoned Sand Storm silences nearby players; casters and healers keep their distance", "v" },
   },
   [7228] = { -- Ironaya (Uldaman)
     { 45, "survive", "**Kriegsdonner** betäubt alle in ihrer Nähe", "**War Stomp** stuns everyone close to her", "v" },
@@ -601,15 +601,15 @@ ns.Mechanics = {
   [7267] = { -- Chief Ukorz Sandscalp (Zul'Farrak)
     { 11837, "positioning", "**Weiter Hieb** trifft vorne im Kegel; nur der Tank vorne", "**Wide Slash** hits a frontal cone; only the tank in front", "v" },
     { 15496, "positioning", "Spaltet; Nahkämpfer hinter ihm", "Cleaves; melee stay behind him", "v" },
+    { 7366, "tank", "Er nimmt die **Berserkerhaltung** ein; härtere Treffer", "He takes **Berserker Stance**; expect harder hits", "v" },
     { 8269, "tank", "**Raserei** erhöht Angriffstempo und Schaden", "**Frenzy** raises his attack speed and damage" },
-    { 7366, "tank", "Er nimmt die **Berserkerhaltung** ein; härtere Treffer", "He takes **Berserker Stance**; expect harder hits" },
   },
   [7271] = { -- Witch Doctor Zum'rah (Zul'Farrak)
     { 11086, "adds", "Zauberschutz zerstören, er ruft alle 5 Sek. ein Skelett", "Destroy his ward, it spawns a skeleton every 5 sec", "v" },
     { 15245, "interrupt", "**Schattenblitzsalve** und **Welle der Heilung** unterbrechen", "Interrupt **Shadow Bolt Volley** and Healing Wave", "v" },
+    { 12491, "interrupt", "Er heilt sich auch mit **Welle der Heilung**", "He also heals himself with **Healing Wave**", "v" },
+    { 12739, "interrupt", "**Schattenblitz** wenn möglich unterbrechen", "Interrupt **Shadow Bolt** when possible", "v" },
     { 0, "adds", "Erweckt Zombies aus Gräbern; von den Gräbern wegziehen", "Raises zombies from graves; pull him away from them" },
-    { 12491, "interrupt", "Er heilt sich auch mit **Welle der Heilung**", "He also heals himself with **Healing Wave**" },
-    { 12739, "interrupt", "**Schattenblitz** wenn möglich unterbrechen", "Interrupt **Shadow Bolt** when possible" },
   },
   [7272] = { -- Theka the Martyr (Zul'Farrak)
     { 8600, "dispel", "**Fiebrige Seuche** ist eine Krankheit; heilen oder unterbrechen", "**Fevered Plague** is a disease; cure it or interrupt", "v" },
@@ -625,9 +625,9 @@ ns.Mechanics = {
   },
   [7275] = { -- Shadowpriest Sezz'ziz (Zul'Farrak)
     { 12739, "interrupt", "**Schattenblitz** unterbrechen, wenn er nicht heilt", "Kick **Shadow Bolt** when no heal is being cast", "v" },
+    { 8362, "dispel", "Seine **Erneuerung** bannen", "Dispel his **Renew** heal over time", "v" },
     { 13704, "survive", "**Psychischer Schrei** versetzt bis zu 5 Spieler in Furcht; keine Adds ziehen", "**Psychic Scream** fears up to 5 players; avoid pulling more" },
     { 12039, "interrupt", "Heilen unterbrechen; **Erneuerung** bannen", "Interrupt **Heal**; dispel his Renew" },
-    { 8362, "dispel", "Seine **Erneuerung** bannen", "Dispel his **Renew** heal over time" },
   },
   [7291] = { -- Galgann Firehammer (Uldaman)
     { 11970, "survive", "**Feuernova** trifft alle um ihn; Nahkämpfer brauchen Heilung", "**Fire Nova** burns everyone around him; melee needs heals", "v" },
@@ -688,18 +688,18 @@ ns.Mechanics = {
   },
   [7604] = { -- Sergeant Bly (Zul'Farrak)
     { 11972, "interrupt", "**Schildhieb** unterbricht Zauberer: aus der Distanz heilen", "**Shield bash** interrupts casters: heal from range", "v" },
-    { 12170, "tank", "**Rache** folgt auf Blocken, Ausweichen oder Parieren; kleiner Tankschaden", "**Revenge** follows a block, dodge or parry; tank takes small hits" },
+    { 12170, "tank", "**Rache** folgt auf Blocken, Ausweichen oder Parieren; kleiner Tankschaden", "**Revenge** follows a block, dodge or parry; tank takes small hits", "v" },
   },
   [7795] = { -- Hydromancer Velratha (Zul'Farrak)
     { 12491, "interrupt", "**Welle der Heilung** unterbrechen", "Interrupt **Healing Wave**", "v" },
+    { 12739, "interrupt", "**Schattenblitz** unterbrechen", "Interrupt **Shadow Bolt**", "v" },
+    { 15245, "interrupt", "**Schattenblitzsalve** unterbrechen", "Interrupt **Shadow Bolt Volley**", "v" },
+    { 11086, "adds", "Zauberschutz zerstören, er ruft Skelette", "Destroy her ward, it spawns skeletons", "v" },
     { 0, "interrupt", "**Wasserblitz** unterbrechen, um Frostschaden zu senken", "Interrupt **Water Bolt** to reduce frost damage" },
-    { 12739, "interrupt", "**Schattenblitz** unterbrechen", "Interrupt **Shadow Bolt**" },
-    { 15245, "interrupt", "**Schattenblitzsalve** unterbrechen", "Interrupt **Shadow Bolt Volley**" },
-    { 11086, "adds", "Zauberschutz zerstören, er ruft Skelette", "Destroy her ward, it spawns skeletons" },
   },
   [7796] = { -- Nekrum Gutchewer (Zul'Farrak)
-    { 8600, "dispel", "**Fiebrige Seuche**; Krankheit heilen oder unterbrechen", "**Fevered Plague** disease; cure it or interrupt" },
-    { 15537, "interrupt", "Wirkt **Schattenblitz**; unterbrechen", "Casts **Shadow Bolt**; interrupt it" },
+    { 8600, "dispel", "**Fiebrige Seuche**; Krankheit heilen oder unterbrechen", "**Fevered Plague** disease; cure it or interrupt", "v" },
+    { 15537, "interrupt", "Wirkt **Schattenblitz**; unterbrechen", "Casts **Shadow Bolt**; interrupt it", "v" },
   },
   [7797] = { -- Ruuzlu (Zul'Farrak)
     { 0, "positioning", "Spaltet auch Nachbarn des Tanks; hinter ihm stehen", "Cleaves the tank's neighbour; stand behind" },
@@ -716,13 +716,13 @@ ns.Mechanics = {
     { 11020, "survive", "**Versteinern** betäubt einen Spieler 3 Sek. lang", "**Petrify** stuns a player for 3 sec" },
   },
   [8127] = { -- Antu'sul (Zul'Farrak)
+    { 11894, "adds", "Bei 75 % und 25 % kommen Basilisken, die versteinern", "At 75% and 25% basilisk servants join; they petrify", "v" },
+    { 11895, "interrupt", "Seine Selbstheilung unterbrechen", "Interrupt his self heal", "v" },
+    { 8376, "adds", "Das Totem hält Spieler in der Nähe fest; Nahkämpfer zerstören es", "The totem roots nearby players; melee burn it down", "v" },
+    { 10915, "interrupt", "Seine **Blitzheilung** unterbrechen", "Interrupt his **Flash Heal**", "v" },
+    { 2860, "positioning", "**Kettenblitzschlag** springt zwischen Spielern; verteilen", "**Chain Lightning** jumps between players; spread out", "v" },
+    { 10413, "interrupt", "**Erdschock** sperrt eine Zauberschule; Zauberwirker nicht bündeln", "**Earth Shock** locks a spell school; keep casters apart", "v" },
     { 0, "adds", "Heilungszauberschutz und Erdgriff-Totem schnell zerstören", "Kill his Healing Ward and Earthgrab Totem fast" },
-    { 11894, "adds", "Bei 75 % und 25 % kommen Basilisken, die versteinern", "At 75% and 25% basilisk servants join; they petrify" },
-    { 11895, "interrupt", "Seine Selbstheilung unterbrechen", "Interrupt his self heal" },
-    { 8376, "adds", "Das Totem hält Spieler in der Nähe fest; Nahkämpfer zerstören es", "The totem roots nearby players; melee burn it down" },
-    { 10915, "interrupt", "Seine **Blitzheilung** unterbrechen", "Interrupt his **Flash Heal**" },
-    { 2860, "positioning", "**Kettenblitzschlag** springt zwischen Spielern; verteilen", "**Chain Lightning** jumps between players; spread out" },
-    { 10413, "interrupt", "**Erdschock** sperrt eine Zauberschule; Zauberwirker nicht bündeln", "**Earth Shock** locks a spell school; keep casters apart" },
   },
   [8336] = { -- Hakkari Sapper (Sunken Temple)
     { 11981, "interrupt", "**Manabrand** entzieht Zauberern Mana; unterbrechen", "**Mana Burn** drains casters; interrupt" },
@@ -807,7 +807,7 @@ ns.Mechanics = {
   [9019] = { -- Emperor Dagran Thaurissan (Blackrock Depths)
     { 15636, "survive", "10 Sek. lang immun gegen Magie; Treffer verursachen Feuerschaden", "Immune to magic for 10 sec, melee hits add fire", "v" },
     { 17492, "dispel", "Feuertreffer betäubt einen Spieler 5 Sek. lang", "Fire hit that stuns a player for 5 sec", "v" },
-    { 15642, "tank", "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt", "Summons a weapon that adds extra strikes on the tank" },
+    { 15642, "tank", "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt", "Summons a weapon that adds extra strikes on the tank", "v" },
     { 0, "positioning", "Ob Moira verschont wird, ändert die Belohnung", "Keep Moira alive (or not) - killing her changes rewards" },
   },
   [9024] = { -- Pyromancer Loregrain (Blackrock Depths)
@@ -822,9 +822,9 @@ ns.Mechanics = {
     { 13728, "interrupt", "Naturschock auf einen Spieler: wenn möglich unterbrechen", "Nature shock on a player: interrupt when you can", "v" },
   },
   [9027] = { -- Gorosh the Dervish (Blackrock Depths)
+    { 16856, "tank", "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank", "Heavy hit that halves healing on the tank for 5 sec", "v" },
     { 21049, "dispel", "Erhöht 30 Sek. lang sein Angriffstempo; reinigen", "Speeds up his attacks for 30 sec; purge it", "v" },
     { 13736, "avoid", "Wirbelt und trifft alle in 8 m; Nahkämpfer raus", "Spins and hits all within 8 yards; melee step out" },
-    { 16856, "tank", "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank", "Heavy hit that halves healing on the tank for 5 sec" },
   },
   [9028] = { -- Grizzle (Blackrock Depths)
     { 8269, "tank", "Greift unter 50 % Leben viel schneller an", "Attacks much faster below 50% health", "v" },
@@ -833,22 +833,22 @@ ns.Mechanics = {
   },
   [9029] = { -- Eviscerator (Blackrock Depths)
     { 7121, "positioning", "6 Sek. lang immun gegen Magie; Zauberer warten, Nahkampf weiter", "Immune to magic for 6 sec; casters pause, melee keep going", "v" },
+    { 15245, "survive", "Schattenschaden auf alle im 30-m-Umkreis", "Shadow damage on everyone within 30 yards", "v" },
     { 16095, "dispel", "15 Sek. lang Blutung auf einem Spieler; gegenheilen", "Bleed on one player for 15 sec; heal through it", "v" },
-    { 15245, "survive", "Schattenschaden auf alle im 30-m-Umkreis", "Shadow damage on everyone within 30 yards" },
   },
   [9030] = { -- Ok'thor the Breaker (Blackrock Depths)
     { 13747, "dispel", "Verlangsamt Angriffs-, Zauber- und Lauftempo im 20-m-Umkreis", "Slows attacks, casts and movement within 20 yards", "v" },
+    { 15453, "avoid", "Arkanstoß auf alle im 30-m-Umkreis", "Arcane burst on everyone within 30 yards", "v" },
     { 25055, "interrupt", "Arkanblitz auf einen Spieler; unterbrechen", "Arcane bolt on one player; interrupt it", "v" },
     { 13323, "dispel", "Verwandelt einen Spieler 6 Sek. lang in ein Schaf", "Turns a player into a sheep for 6 sec" },
-    { 15453, "avoid", "Arkanstoß auf alle im 30-m-Umkreis", "Arcane burst on everyone within 30 yards" },
   },
   [9031] = { -- Anub'shiah (Blackrock Depths)
     { 15470, "dispel", "Zauberer im 30-m-Umkreis wirken 50 % langsamer; entfluchen", "Casters in 30 yards cast 50% slower; decurse", "v" },
     { 15471, "survive", "Wurzelt einen Spieler und bringt ihn 4 Sek. lang zum Schweigen", "Roots and silences one player for 4 sec", "v" },
+    { 8994, "survive", "Nimmt einen Spieler eine Weile aus dem Kampf", "Removes one player from the fight for a while", "v" },
     { 15472, "interrupt", "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "Shadow bolt on one player; interrupt when you can", "v" },
     { 12493, "dispel", "Senkt 2 Min. lang den körperlichen Schaden eines Spielers; entfluchen", "Cuts a player's physical damage for 2 min; decurse", "v" },
     { 13787, "dispel", "Rüstungsbonus auf sich selbst, 30 Min.; reinigen", "Self armor buff for 30 min; purge it", "v" },
-    { 8994, "survive", "Nimmt einen Spieler eine Weile aus dem Kampf", "Removes one player from the fight for a while" },
   },
   [9032] = { -- Hedrum the Creeper (Blackrock Depths)
     { 3609, "dispel", "Gift betäubt einen Spieler; Gift entfernen", "Poison that stuns one player; cure poison", "v" },
@@ -946,17 +946,17 @@ ns.Mechanics = {
     { 16170, "dispel", "Beschleunigt einen Oger; reinigen oder Magus zuerst töten", "Hastes an ally ogre; purge or kill him first" },
   },
   [9236] = { -- Shadow Hunter Vosh'gajin (Lower Blackrock Spire)
-    { 22566, "dispel", "Verwandelt Spieler in der Nähe in Frösche; bannen", "Turns nearby players into frogs; dispel or wait it out" },
-    { 8282, "dispel", "Fluch erhöht erlittenen Schaden; Tank entfluchen", "Curse raises physical damage taken; decurse the tank" },
+    { 22566, "dispel", "Verwandelt Spieler in der Nähe in Frösche; bannen", "Turns nearby players into frogs; dispel or wait it out", "v" },
+    { 8282, "dispel", "Fluch erhöht erlittenen Schaden; Tank entfluchen", "Curse raises physical damage taken; decurse the tank", "v" },
   },
   [9237] = { -- War Master Voone (Lower Blackrock Spire)
     { 5532, "positioning", "Frontaler Spalter; nur der Tank steht vor ihm", "Frontal cleave; only the tank in front of him", "v" },
-    { 16075, "survive", "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "Throws an axe at a random player and stuns briefly" },
-    { 15708, "tank", "Halbiert kurz die Heilung am Tank; durchheilen", "Cuts healing on the tank by half for a few seconds; heal through it" },
-    { 10966, "positioning", "Harter Treffer mit Rückstoß; Tank mit dem Rücken zur Wand", "Hard hit that knocks the target back; tank with back to a wall" },
-    { 15618, "survive", "Kurze Betäubung seines Ziels", "Short stun on his target" },
-    { 15615, "survive", "Unterbricht einen Zauber; Zauberer außer Reichweite", "Interrupts a spell; casters stay out of his reach" },
-    { 3391, "tank", "Extra-Angriffe; Schadensspitzen am Tank", "Gains extra attacks; damage spikes on the tank" },
+    { 16075, "survive", "Wirft eine Axt auf einen zufälligen Spieler, kurze Betäubung", "Throws an axe at a random player and stuns briefly", "v" },
+    { 15708, "tank", "Halbiert kurz die Heilung am Tank; durchheilen", "Cuts healing on the tank by half for a few seconds; heal through it", "v" },
+    { 10966, "positioning", "Harter Treffer mit Rückstoß; Tank mit dem Rücken zur Wand", "Hard hit that knocks the target back; tank with back to a wall", "v" },
+    { 15618, "survive", "Kurze Betäubung seines Ziels", "Short stun on his target", "v" },
+    { 15615, "survive", "Unterbricht einen Zauber; Zauberer außer Reichweite", "Interrupts a spell; casters stay out of his reach", "v" },
+    { 3391, "tank", "Extra-Angriffe; Schadensspitzen am Tank", "Gains extra attacks; damage spikes on the tank", "v" },
   },
   [9240] = { -- Smolderthorn Shadow Priest (Lower Blackrock Spire)
     { 11641, "dispel", "Verwandelt Spieler in einen Frosch; bannen", "Turns a player into a frog; dispel" },
@@ -969,15 +969,15 @@ ns.Mechanics = {
     { 14030, "survive", "Fesselt Spieler 3 Sek. lang im Netz", "Roots a player in a net for 3 sec" },
   },
   [9262] = { -- Firebrand Invoker (Lower Blackrock Spire)
-    { 11921, "interrupt", "Starker Feuerball; unterbrechen oder kontrolliert halten", "Strong fire bolt; interrupt or keep him crowd controlled" },
-    { 11829, "avoid", "Flächenfeuer an einer Stelle; aus den Flammen laufen", "Fire area damage at a spot; step out of the flames" },
-    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage" },
+    { 11921, "interrupt", "Starker Feuerball; unterbrechen oder kontrolliert halten", "Strong fire bolt; interrupt or keep him crowd controlled", "v" },
+    { 11829, "avoid", "Flächenfeuer an einer Stelle; aus den Flammen laufen", "Fire area damage at a spot; step out of the flames", "v" },
+    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage", "v" },
   },
   [9263] = { -- Firebrand Dreadweaver (Lower Blackrock Spire)
     { 16071, "dispel", "Fluch mit Feuerschaden; entfluchen", "Fire damage curse; decurse" },
   },
   [9264] = { -- Firebrand Pyromancer (Lower Blackrock Spire)
-    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage" },
+    { 15128, "survive", "Markiert Ziele für mehr Feuerschaden", "Marks targets to take more fire damage", "v" },
   },
   [9266] = { -- Smolderthorn Witch Doctor (Lower Blackrock Spire)
     { 15869, "adds", "Stellt Heilzauberschutz auf; Totem zerstören", "Drops a healing ward; destroy the totem" },
@@ -1007,8 +1007,8 @@ ns.Mechanics = {
   [9568] = { -- Overlord Wyrmthalak (Lower Blackrock Spire)
     { 25322, "positioning", "Kegel mit Rückstoß; Nahkampf hinter ihm", "Cone knockback; melee stand behind him", "v" },
     { 19983, "positioning", "Frontaler Spalter trifft bis zu zwei weitere", "Frontal cleave hits up to two others", "v" },
+    { 23511, "survive", "Senkt die Nahkampf-Angriffskraft von Spielern in der Nähe", "Lowers melee attack power of nearby players for a while", "v" },
     { 0, "adds", "Bei 50 % kommen zwei Wachen; abtanken oder kontrollieren", "At 50% two guards join; off-tank or control them" },
-    { 23511, "survive", "Senkt die Nahkampf-Angriffskraft von Spielern in der Nähe", "Lowers melee attack power of nearby players for a while" },
   },
   [9596] = { -- Bannok Grimaxe (Lower Blackrock Spire)
     { 13737, "tank", "Senkt Heilung am Tank; gegen den Debuff anheilen", "Cuts healing on the tank; heal through the debuff" },
@@ -1025,14 +1025,14 @@ ns.Mechanics = {
     { 8269, "tank", "Angriffstempo steigt; Tank-Abklingzeiten aufheben", "Attack speed boost; save tank cooldowns" },
   },
   [9736] = { -- Quartermaster Zigris (Lower Blackrock Spire)
+    { 15609, "survive", "Fesselt Spieler in der Nähe etwa 10 Sek. lang in einem Netz; Befreiungseffekte helfen", "Nets nearby players in place for about 10 sec; escape effects free you", "v" },
     { 16497, "avoid", "Bombe betäubt im kleinen Bereich; verteilen", "Fire bomb stuns players in a small area; spread out" },
     { 15504, "interrupt", "Trinkt Heiltrank; schnell Schaden oder betäuben", "Drinks a healing potion; burst or stun him" },
-    { 15609, "survive", "Fesselt Spieler in der Nähe etwa 10 Sek. lang in einem Netz; Befreiungseffekte helfen", "Nets nearby players in place for about 10 sec; escape effects free you" },
   },
   [9816] = { -- Pyroguard Emberseer (Upper Blackrock Spire)
+    { 16536, "survive", "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "Stacking fire damage taken debuff; fire resist helps", "v" },
     { 0, "adds", "Zuerst die Kerkermeister töten; sie betäuben Spieler", "Kill the Incarcerators first; they stun random players" },
     { 17366, "avoid", "**Feuernova** trifft Nahkampf; Fernkampf auf Abstand", "**Fire nova** hits melee; ranged keep distance" },
-    { 16536, "survive", "Stapelnder Feuer-Debuff; Feuerresistenz hilft", "Stacking fire damage taken debuff; fire resist helps" },
   },
   [9817] = { -- Blackhand Dreadweaver (Upper Blackrock Spire)
     { 6909, "dispel", "Fluch schadet beim Angreifen; entfluchen", "Curse deals damage when the victim attacks; decurse", "v" },
@@ -1095,11 +1095,11 @@ ns.Mechanics = {
   },
   [10363] = { -- General Drakkisath (Upper Blackrock Spire)
     { 16805, "tank", "Verbrennt und lähmt ein Ziel; zweiter Tank spottet", "Burns and panics a target; second tank taunts", "v" },
+    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc", "v" },
+    { 9573, "positioning", "Feuerkegel nach vorn: von der Gruppe wegdrehen", "Fire cone in front: face him away from the group", "v" },
+    { 8078, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks", "v" },
     { 0, "adds", "Zwei Elitewachen helfen; töten oder ihn wegziehen", "Two elite guards join; kill them or pull him away" },
     { 0, "avoid", "**Feuersäulen** am Boden; herausgehen", "Fire pillars on the ground; step out" },
-    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc" },
-    { 9573, "positioning", "Feuerkegel nach vorn: von der Gruppe wegdrehen", "Fire cone in front: face him away from the group" },
-    { 8078, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks" },
   },
   [10371] = { -- Rage Talon Captain (Upper Blackrock Spire)
     { 15708, "tank", "Halbiert 5 Sek. lang die Heilung am Tank", "Healing on the tank halved for 5 sec" },
@@ -1150,18 +1150,18 @@ ns.Mechanics = {
   },
   [10429] = { -- Warchief Rend Blackhand (Upper Blackrock Spire)
     { 13736, "avoid", "Rend wirbelt nach Absteigen; Nahkampf zurücktreten", "Rend whirlwinds after dismount; melee step back", "v" },
+    { 15588, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks", "v" },
+    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc", "v" },
     { 0, "adds", "Viele Wellen in der Arena, dann kommen Rend und Gyth", "Many add waves in the arena before Rend and Gyth jump in" },
     { 20712, "positioning", "Gyth speit Kegel; von der Gruppe wegdrehen", "Gyth breathes cones; face him away from the group" },
-    { 15588, "avoid", "Naturschlag um ihn; verlangsamt Bewegung und Angriffe", "Nature slam around him; slows movement and attacks" },
-    { 20569, "positioning", "Trifft Tank und einen weiteren Spieler; nicht vor ihm stehen", "Hits the tank and one more player; stay out of the front arc" },
   },
   [10430] = { -- The Beast (Upper Blackrock Spire)
     { 16785, "positioning", "Rückstoß-Feuer; Tank mit Rücken zur Wand", "Knockback AoE; tank with back to a wall", "v" },
+    { 14100, "survive", "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "Fears players nearby; ranged stay at max range", "v" },
     { 19471, "tank", "Stürmt einen zufälligen Spieler an; Tank holt Aggro zurück", "Charges a random player; tanks re-grab aggro", "v" },
-    { 14100, "survive", "Versetzt Spieler in Furcht; Fernkampf auf maximale Distanz", "Fears players nearby; ranged stay at max range" },
-    { 15570, "survive", "Feuerschaden über Zeit auf einen Spieler", "Fire damage over time on a player" },
-    { 16144, "survive", "Direkter Feuerschaden auf einen Spieler", "Direct fire hit on a player" },
-    { 16788, "survive", "Feuerball auf einen Spieler", "Fire bolt on a player" },
+    { 15570, "survive", "Feuerschaden über Zeit auf einen Spieler", "Fire damage over time on a player", "v" },
+    { 16144, "survive", "Direkter Feuerschaden auf einen Spieler", "Direct fire hit on a player", "v" },
+    { 16788, "survive", "Feuerball auf einen Spieler", "Fire bolt on a player", "v" },
   },
   [10432] = { -- Vectus (Scholomance)
     { 10216, "avoid", "**Flammenstoß**-Fläche sofort verlassen", "Leave the **Flamestrike** area at once", "v" },
@@ -1245,8 +1245,8 @@ ns.Mechanics = {
   },
   [10503] = { -- Jandice Barov (Scholomance)
     { 8282, "dispel", "Fluch erhöht erlittenen körperlichen Schaden; entfernen", "Curse raises physical damage taken; remove it", "v" },
+    { 8994, "survive", "Verbannt einen Spieler kurz; abwarten", "Banishes one player for a short time; wait it out", "v" },
     { 17773, "adds", "Beschwört viele Trugbilder; echte Jandice markieren und angreifen", "Spawns many illusions; mark and focus the real Jandice" },
-    { 8994, "survive", "Verbannt einen Spieler kurz; abwarten", "Banishes one player for a short time; wait it out" },
   },
   [10504] = { -- Lord Alexei Barov (Scholomance)
     { 28340, "survive", "Schattenaura trifft die Gruppe; Heiler brauchen Mana", "Group-wide shadow aura; healers need mana for it", "v" },
@@ -1264,13 +1264,13 @@ ns.Mechanics = {
   },
   [10506] = { -- Kirtonos the Herald (Scholomance)
     { 11708, "dispel", "Fluch senkt Nahkampfschaden: Fluch entfernen", "Curse lowers melee damage: remove the curse", "v" },
+    { 8379, "tank", "Entwaffnet den Tank kurz; weniger Bedrohung einplanen", "Disarms the tank for a few seconds; expect less threat", "v" },
+    { 14515, "interrupt", "Kann einen Spieler übernehmen; unterbrechen oder kontrollieren", "Can take over a player; interrupt or crowd-control", "v" },
+    { 6016, "tank", "Senkt die Rüstung des Tanks eine Weile; Heiler achten auf den Tank", "Strips the tank armor for a while; healers watch the tank", "v" },
+    { 17228, "interrupt", "Schattensalve trifft die Gruppe; unterbrechen", "Shadow volley hits the group; interrupt it", "v" },
     { 18144, "positioning", "Gargoylegestalt: nicht vor ihm stehen, Kegel betäubt", "Gargoyle form: stay out of the frontal stun cone" },
     { 12882, "positioning", "Tank an die Wand, damit der Rückstoß nicht wegschleudert", "Tank against a wall so the knockback does not throw him" },
     { 12889, "dispel", "Menschengestalt verflucht; Zauberer schnell entfluchen", "Human form casts curses; decurse casters fast" },
-    { 8379, "tank", "Entwaffnet den Tank kurz; weniger Bedrohung einplanen", "Disarms the tank for a few seconds; expect less threat" },
-    { 14515, "interrupt", "Kann einen Spieler übernehmen; unterbrechen oder kontrollieren", "Can take over a player; interrupt or crowd-control" },
-    { 6016, "tank", "Senkt die Rüstung des Tanks eine Weile; Heiler achten auf den Tank", "Strips the tank armor for a while; healers watch the tank" },
-    { 17228, "interrupt", "Schattensalve trifft die Gruppe; unterbrechen", "Shadow volley hits the group; interrupt it" },
   },
   [10507] = { -- The Ravenian (Scholomance)
     { 11130, "positioning", "Rückstoß kann Spieler in nicht geräumte Gegner werfen", "Knockback can throw players into uncleared trash", "v" },
@@ -1283,12 +1283,12 @@ ns.Mechanics = {
     { 18099, "positioning", "**Frostnova** wurzelt Nahkämpfer; Fernkämpfer auf Maximaldistanz", "Frost nova roots melee; ranged stay at max range", "v" },
     { 8398, "interrupt", "**Frostblitzsalven** unterbrechen", "Interrupt the frostbolt volleys", "v" },
     { 16350, "dispel", "Friert einen Spieler ein: Magie bannen", "Freezes a player in place: dispel magic", "v" },
-    { 18100, "dispel", "Frostrüstung verlangsamt Nahkämpfer; bannen oder reinigen", "Frost armor slows melee attackers; dispel or purge it" },
+    { 18100, "dispel", "Frostrüstung verlangsamt Nahkämpfer; bannen oder reinigen", "Frost armor slows melee attackers; dispel or purge it", "v" },
   },
   [10509] = { -- Jed Runewatcher (Upper Blackrock Spire)
-    { 15749, "tank", "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand", "Charges a player and knocks them back; tank keeps him at a wall" },
-    { 11972, "interrupt", "Schlägt zu und unterbricht Zauberer; Zauberer auf Abstand", "Bashes and silences a caster; keep casters at range" },
-    { 14516, "tank", "Kräftiger Nahkampfschlag auf den Tank", "Heavy melee strike on the tank" },
+    { 15749, "tank", "Stürmt einen Spieler an und stößt ihn zurück; Tank hält ihn an der Wand", "Charges a player and knocks them back; tank keeps him at a wall", "v" },
+    { 11972, "interrupt", "Schlägt zu und unterbricht Zauberer; Zauberer auf Abstand", "Bashes and silences a caster; keep casters at range", "v" },
+    { 14516, "tank", "Kräftiger Nahkampfschlag auf den Tank", "Heavy melee strike on the tank", "v" },
   },
   [10516] = { -- The Unforgiven (Stratholme)
     { 14907, "positioning", "Frostnova fesselt Nahkämpfer, Fernkämpfer auf Abstand", "Frost Nova roots melee in place, ranged keep distance" },
@@ -1300,8 +1300,8 @@ ns.Mechanics = {
   [10584] = { -- Urok Doomhowl (Lower Blackrock Spire)
     { 16508, "survive", "Versetzt Spieler 8 Sek. lang in Furcht; Furchtschutz nutzen", "Fears nearby players for 8 sec; use fear wards", "v" },
     { 13443, "tank", "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "**Rend** bleeds the tank: keep healing steady", "v" },
+    { 13446, "tank", "Harter Nahkampfschlag auf den Tank", "Hard melee strike on the tank", "v" },
     { 0, "adds", "Oger-Wellen vor Urok; die aufgestellte Pike tötet alle 30 Sek. einen Oger, den Rest kontrollieren", "Ogre waves come before Urok; the placed pike kills one ogre every 30 sec, crowd control the rest" },
-    { 13446, "tank", "Harter Nahkampfschlag auf den Tank", "Hard melee strike on the tank" },
   },
   [10596] = { -- Mother Smolderweb (Lower Blackrock Spire)
     { 16468, "dispel", "Gift fesselt Spieler; Gift schnell entfernen", "Poison roots players; cure poison quickly", "v" },
@@ -1343,12 +1343,12 @@ ns.Mechanics = {
   [10899] = { -- Goraluk Anvilcrack (Upper Blackrock Spire)
     { 6253, "tank", "Betäubt den Tank; Zweittank spottet währenddessen", "Stuns the tank; off-tank taunts during the stun", "v" },
     { 3148, "tank", "Senkt die Ausdauer des Tanks für einige Zeit", "Lowers the tank's stamina for a while", "v" },
-    { 25710, "tank", "Harter Nahkampfschlag mit erhöhter Bedrohung", "Hard melee hit that builds extra threat" },
+    { 25710, "tank", "Harter Nahkampfschlag mit erhöhter Bedrohung", "Hard melee hit that builds extra threat", "v" },
   },
   [10901] = { -- Lorekeeper Polkelt (Scholomance)
     { 3586, "positioning", "Infizierter schadet Verbündeten in der Nähe; weggehen", "Infected player hurts nearby allies; move away", "v" },
     { 8245, "tank", "Säure senkt Rüstung; Zombie-Adds explodieren beim Tod", "Acid lowers armor; zombie adds explode on death", "v" },
-    { 5413, "survive", "Senkt Naturwiderstand; Naturschaden gering halten", "Lowers nature resistance; keep nature damage low" },
+    { 5413, "survive", "Senkt Naturwiderstand; Naturschaden gering halten", "Lowers nature resistance; keep nature damage low", "v" },
   },
   [10997] = { -- Cannon Master Willey (Stratholme)
     { 17279, "adds", "Ruft Scharlachrote Schützen, töten oder separat tanken", "Calls Crimson Riflemen, kill or off-tank them" },
@@ -1488,11 +1488,11 @@ ns.Mechanics = {
     { 22661, "survive", "Entkräften saugt einen Spieler aus: Ziel heilen", "Enervate drains a player: heal the target", "v" },
     { 10101, "tank", "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "Knocks the tank away: tank with the back to a wall", "v" },
     { 22660, "tank", "Wird zum Wolf mit schnelleren Schlägen: Tank stärker heilen", "Turns into a wolf with faster hits: heal the tank harder", "v" },
+    { 22128, "survive", "Er stärkt sich mit Dornen: Nahkämpfer erleiden bei jedem Schlag Naturschaden", "He buffs himself with thorns: melee take nature damage per hit", "v" },
+    { 22691, "tank", "Entwaffnet den Tank für einige Sekunden: weniger Tankschaden einplanen", "Disarms the tank for a few seconds: expect lower tank damage", "v" },
+    { 7948, "survive", "Heilt sich in Wolfsform über Zeit: Schaden hochhalten", "Heals himself over time in wolf form: keep up damage", "v" },
+    { 19319, "tank", "Biss trifft den Tank mit physischem Schaden: durchheilen", "Bite hits the tank for physical damage: heal through", "v" },
     { 0, "adds", "Mitten im Kampf bricht die Wand, Wichtel strömen herein; flächig töten", "Midway the wall breaks and imps swarm in; AoE them down" },
-    { 22128, "survive", "Er stärkt sich mit Dornen: Nahkämpfer erleiden bei jedem Schlag Naturschaden", "He buffs himself with thorns: melee take nature damage per hit" },
-    { 22691, "tank", "Entwaffnet den Tank für einige Sekunden: weniger Tankschaden einplanen", "Disarms the tank for a few seconds: expect lower tank damage" },
-    { 7948, "survive", "Heilt sich in Wolfsform über Zeit: Schaden hochhalten", "Heals himself over time in wolf form: keep up damage" },
-    { 19319, "tank", "Biss trifft den Tank mit physischem Schaden: durchheilen", "Bite hits the tank for physical damage: heal through" },
   },
   [11496] = { -- Immol'thar (Dire Maul)
     { 22950, "tank", "Teleportiert einen zufälligen Spieler; Bedrohung halten, ggf. spotten", "Teleports a random player and drops threat; keep him taunted", "v" },
@@ -1544,7 +1544,7 @@ ns.Mechanics = {
   [11622] = { -- Rattlegore (Scholomance)
     { 11876, "survive", "Flächenbetäubung um ihn; Nahkämpfer brauchen Heilung", "AoE stun around him; melee need heals ready", "v" },
     { 18945, "tank", "Schlägt den Tank weg; lässt den Schlüssel zum Sichtraum fallen", "Knocks the tank back; drops the Viewing Room Key", "v" },
-    { 18368, "tank", "Härterer Nahkampftreffer auf den Tank; vorausheilen", "Harder melee hit on the tank; heal ahead" },
+    { 18368, "tank", "Härterer Nahkampftreffer auf den Tank; vorausheilen", "Harder melee hit on the tank; heal ahead", "v" },
   },
   [11658] = { -- Molten Giant (Molten Core)
     { 18944, "positioning", "Schwerer Flächenschlag; Nicht-Tanks halten Abstand", "Heavy AoE hit around it; non-tanks keep distance" },
@@ -1683,7 +1683,7 @@ ns.Mechanics = {
   [12237] = { -- Meshlok the Harvester (Maraudon)
     { 11876, "survive", "**Kriegsdonner** betäubt alle in der Nähe; Zauberer Abstand halten", "**War Stomp** stuns everyone close; casters stay at range", "v" },
     { 15501, "interrupt", "**Erdschock** auf einen Spieler: wenn möglich unterbrechen", "**Earth shock** on a player: interrupt when you can", "v" },
-    { 13446, "tank", "Trifft den Tank mit einem härteren Nahkampfschlag; abseits der Gruppe tanken", "Hits the tank with a heavier melee strike; tank him away from the group" },
+    { 13446, "tank", "Trifft den Tank mit einem härteren Nahkampfschlag; abseits der Gruppe tanken", "Hits the tank with a heavier melee strike; tank him away from the group", "v" },
   },
   [12258] = { -- Razorlash (Maraudon)
     { 15284, "positioning", "Spaltet nach vorn; nur der Tank steht vor ihm", "Cleaves in front; only the tank faces him", "v" },
@@ -1756,7 +1756,7 @@ ns.Mechanics = {
     { 22714, "adds", "Zwei Hydrolinge bei 50 %; ihre Treffer stoßen zurück und löschen Bedrohung", "Two Hydrolings at 50%; their hits knock back and wipe threat", "v" },
     { 22420, "positioning", "Taucht ab und wandert: bereit sein, ihn wieder aufzunehmen", "Submerges and moves: be ready to pick him up again", "v" },
     { 22421, "avoid", "Geysir schleudert Spieler hoch: verteilt stehen, Fall gegenheilen", "Geyser throws players up: stay spread and heal the fall", "v" },
-    { 22715, "positioning", "Stößt Spieler in der Nähe weg und verlangsamt sie: mit dem Rücken zur Wand stehen", "Pushes nearby players away and slows them: stand with your back to a wall" },
+    { 22715, "positioning", "Stößt Spieler in der Nähe weg und verlangsamt sie: mit dem Rücken zur Wand stehen", "Pushes nearby players away and slows them: stand with your back to a wall", "v" },
   },
   [13282] = { -- Noxxion (Maraudon)
     { 21687, "dispel", "**Giftsalve** trifft die Gruppe; Gifte entfernen", "Poison volley hits the whole group; cure poisons", "v" },
@@ -1775,7 +1775,7 @@ ns.Mechanics = {
   [13601] = { -- Tinkerer Gizlock (Maraudon)
     { 13183, "avoid", "Feuerkegel vor ihm; aus dem Kegel gehen", "Fire cone in front of him; step out of it", "v" },
     { 8858, "survive", "Wirft Bomben mit Flächenschaden", "Throws bombs that hit players in an area", "v" },
-    { 6660, "survive", "Beschießt einen Spieler auf Distanz mit einem normalen Fernangriff", "Shoots a player at range with a normal ranged attack" },
+    { 6660, "survive", "Beschießt einen Spieler auf Distanz mit einem normalen Fernangriff", "Shoots a player at range with a normal ranged attack", "v" },
   },
   [13996] = { -- Blackwing Technician (Blackwing Lair)
     { 22334, "avoid", "Wirft Bomben auf den Raid; aus der Explosion gehen", "Throws bombs at the raid; step out of the blast" },
@@ -1835,7 +1835,7 @@ ns.Mechanics = {
     { 22710, "adds", "Stärkt ihren Wichtel Pimgib; den schwachen Wichtel zuerst töten", "Buffs her imp Pimgib; kill the frail imp first", "v" },
     { 14887, "survive", "Schattensalve trifft die ganze Gruppe: Heiler alle voll halten", "Shadow volley hits the whole group: healers top everyone off", "v" },
     { 20787, "dispel", "Feuerschaden über Zeit auf Spieler: bannen oder gegenheilen", "Fire damage over time on a player: dispel or heal through", "v" },
-    { 16247, "dispel", "Fluch verletzt Angreifer zeitweise: Betroffene entfluchen", "Curse makes attackers take damage sometimes: decurse the affected" },
+    { 16247, "dispel", "Fluch verletzt Angreifer zeitweise: Betroffene entfluchen", "Curse makes attackers take damage sometimes: decurse the affected", "v" },
   },
   [14354] = { -- Pusillin (Dire Maul)
     { 17145, "avoid", "Feuernova um ihn verlangsamt Spieler; Fernkämpfer nicht in Nahkampfreichweite", "Fire nova around him slows; ranged stay out of melee range", "v" },
@@ -1890,8 +1890,8 @@ ns.Mechanics = {
   },
   [14861] = { -- Blood Steward of Kirtonos (Scholomance)
     { 22371, "dispel", "Flüche entfernen; er lässt das Blut der Unschuldigen fallen", "Remove his curses; he drops the Blood of Innocents", "v" },
-    { 3609, "survive", "Gift betäubt einen Spieler kurz; Heiler überbrücken", "Poison stuns a player for a few seconds; healers cover the gap" },
-    { 11708, "dispel", "Fluch senkt Nahkampfschaden: entfernen", "Curse lowers melee damage: remove it" },
+    { 3609, "survive", "Gift betäubt einen Spieler kurz; Heiler überbrücken", "Poison stuns a player for a few seconds; healers cover the gap", "v" },
+    { 11708, "dispel", "Fluch senkt Nahkampfschaden: entfernen", "Curse lowers melee damage: remove it", "v" },
   },
   [15082] = { -- Gri'lek (Zul'Gurub)
     { 24646, "positioning", "Wächst und jagt einen zufälligen Spieler; dieser kitet", "Grows and chases a random player; that player kites" },
@@ -2161,26 +2161,26 @@ ns.Mechanics = {
     { 28883, "positioning", "**Heiliger Zorn** von Zeliek springt; um ihn verteilen", "Zeliek's **Holy Wrath** chains; spread out around him" },
   },
   [16080] = { -- Mor Grayhoof (Lower Blackrock Spire)
+    { 27530, "avoid", "Kanalisierter Sturm um ihn; herauslaufen", "Channeled storm around him; move out of it", "v" },
+    { 27543, "tank", "Wird zum Bären mit mehr Rüstung und Leben; tanken und durchheilen", "Turns into a bear with more armor and health; tank him and keep healing", "v" },
+    { 27545, "survive", "Wird zur Katze mit schnellen Blutungsangriffen; Leben des Ziels beobachten", "Turns into a cat with fast bleeding strikes; watch the target's health", "v" },
+    { 27546, "survive", "Wechselt in die Feendrachen-Gestalt; Wirkung nicht bestätigt", "Changes into a faerie dragon; effect not confirmed", "v" },
     { 27527, "interrupt", "Große Selbstheilung; immer unterbrechen", "Big self heal; always interrupt it" },
     { 27532, "dispel", "Seine Heilung über Zeit reinigen", "Purge his heal-over-time buff" },
-    { 27530, "avoid", "Kanalisierter Sturm um ihn; herauslaufen", "Channeled storm around him; move out of it" },
-    { 27543, "tank", "Wird zum Bären mit mehr Rüstung und Leben; tanken und durchheilen", "Turns into a bear with more armor and health; tank him and keep healing" },
-    { 27545, "survive", "Wird zur Katze mit schnellen Blutungsangriffen; Leben des Ziels beobachten", "Turns into a cat with fast bleeding strikes; watch the target's health" },
-    { 27546, "survive", "Wechselt in die Feendrachen-Gestalt; Wirkung nicht bestätigt", "Changes into a faerie dragon; effect not confirmed" },
   },
   [16097] = { -- Isalien (Dire Maul)
-    { 27639, "adds", "Ruft ein Tier: Add töten, dann zurück auf Isalien", "Summons a pet: kill the add, then switch back to Isalien" },
-    { 14443, "survive", "Salve trifft bis zu drei Spieler: heilen", "Volley hits up to three players: heal them" },
-    { 12024, "dispel", "Wurzelt einen Spieler 5 Sek. lang", "Roots a player for 5 sec" },
-    { 27637, "interrupt", "Heilt sich selbst: Zauber unterbrechen", "Heals herself: interrupt the cast" },
-    { 27636, "survive", "Arkanschaden über 6 Sek. auf einen Spieler: durchheilen", "Arcane damage over 6 sec on a player: heal through" },
-    { 25164, "survive", "Erhöht ihr Angriffs- und Lauftempo: schnell töten", "Raises her attack and movement speed: burst her down" },
+    { 27639, "adds", "Ruft ein Tier: Add töten, dann zurück auf Isalien", "Summons a pet: kill the add, then switch back to Isalien", "v" },
+    { 14443, "survive", "Salve trifft bis zu drei Spieler: heilen", "Volley hits up to three players: heal them", "v" },
+    { 12024, "dispel", "Wurzelt einen Spieler 5 Sek. lang", "Roots a player for 5 sec", "v" },
+    { 27637, "interrupt", "Heilt sich selbst: Zauber unterbrechen", "Heals herself: interrupt the cast", "v" },
+    { 27636, "survive", "Arkanschaden über 6 Sek. auf einen Spieler: durchheilen", "Arcane damage over 6 sec on a player: heal through", "v" },
+    { 25164, "survive", "Erhöht ihr Angriffs- und Lauftempo: schnell töten", "Raises her attack and movement speed: burst her down", "v" },
   },
   [16118] = { -- Kormok (Scholomance)
+    { 27687, "adds", "Beschwört Skelettdiener und -magier; töten", "Summons skeleton minions and mages; kill them", "v" },
+    { 27695, "adds", "Ruft auch Skelettmagier; zuerst töten", "Calls skeleton mages as well; kill them first", "v" },
+    { 8269, "tank", "Beschleunigt seine Angriffe eine Weile; Tank nutzt Abklingzeiten", "Speeds up his attacks for a while; tank uses cooldowns", "v" },
     { 27688, "positioning", "**Knochenschild** wirft Schaden auf Nahkämpfer zurück; pausieren", "**Bone shield** reflects damage to melee; melee pause" },
-    { 27687, "adds", "Beschwört Skelettdiener und -magier; töten", "Summons skeleton minions and mages; kill them" },
-    { 27695, "adds", "Ruft auch Skelettmagier; zuerst töten", "Calls skeleton mages as well; kill them first" },
-    { 8269, "tank", "Beschleunigt seine Angriffe eine Weile; Tank nutzt Abklingzeiten", "Speeds up his attacks for a while; tank uses cooldowns" },
   },
   [16145] = { -- Death Knight Captain (Naxxramas)
     { 28335, "positioning", "**Wirbelwind** trifft alle Nahkämpfer; Zauberer Abstand halten", "**Whirlwind** hits all melee; casters keep distance" },

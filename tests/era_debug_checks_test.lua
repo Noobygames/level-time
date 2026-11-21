@@ -39,6 +39,7 @@ local CHECKS = {
   "LT389.lfg.whisperLog",
   "LT278.spells.casts",
   "LT392.lfg.players",
+  "LT353.quests.added",
 }
 
 wow.login()

@@ -20,8 +20,8 @@
       "mechanics": [
         {"spellID": 6268, "spell": "Rushing Charge", "type": "tank", "en": "Eric charges a player and his next hit lands harder", "de": "Eric stürmt auf einen Spieler, sein nächster Schlag trifft härter"},
         {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "Olaf stuns his target for 2 sec with **Shield Slam**", "de": "Olaf betäubt sein Ziel mit **Schildschlag** 2 Sek. lang"},
-        {"spellID": 15620, "spell": "Shoot", "type": "adds", "en": "Three dwarves at once; Baelog also shoots casters at range", "de": "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer"},
-        {"spellID": 20252, "spell": "Intercept", "type": "tank", "en": "Eric's **Intercept** charges a player and stuns for 3 sec; kill him first", "de": "Erics **Abfangen** stürmt auf einen Spieler und betäubt 3 Sek.; ihn zuerst töten"}
+        {"spellID": 15620, "spell": "Shoot", "type": "adds", "en": "Three dwarves at once; Baelog also shoots casters at range", "de": "Drei Zwerge zugleich; Baelog beschießt auch Fernkämpfer", "verified": true},
+        {"spellID": 20252, "spell": "Intercept", "type": "tank", "en": "Eric's **Intercept** charges a player and stuns for 3 sec; kill him first", "de": "Erics **Abfangen** stürmt auf einen Spieler und betäubt 3 Sek.; ihn zuerst töten", "verified": true}
       ]
     },
     {
@@ -50,7 +50,7 @@
       "level": 0,
       "mechanics": [
         {"spellID": 10094, "spell": "Sand Storms", "type": "adds", "en": "Summons **Sand Storms** that fight for 30 sec; move away", "de": "Beschwört 30 Sek. lang **Sandstürme**; aus dem Weg gehen", "verified": true},
-        {"spellID": 10093, "spell": "Harsh Winds", "type": "avoid", "en": "The summoned Sand Storm silences nearby players; casters and healers keep their distance", "de": "Der beschworene Sandsturm verstummt Spieler in der Nähe; Zauberer und Heiler halten Abstand"}
+        {"spellID": 10093, "spell": "Harsh Winds", "type": "avoid", "en": "The summoned Sand Storm silences nearby players; casters and healers keep their distance", "de": "Der beschworene Sandsturm verstummt Spieler in der Nähe; Zauberer und Heiler halten Abstand", "verified": true}
       ]
     },
     {
@@ -72,7 +72,7 @@
       "mechanics": [
         {"spellID": 7289, "spell": "Shrink", "type": "dispel", "en": "**Shrink** is a curse that weakens a player; decurse it", "de": "**Schrumpfen** ist ein Fluch, der schwächt; entfluchen", "verified": true},
         {"spellID": 8292, "spell": "Chain Bolt", "type": "interrupt", "en": "Interrupt his **Chain Bolt** and Lightning Bolt casts", "de": "**Kettenblitz** und **Blitzschlag** unterbrechen", "verified": true},
-        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Interrupt his **Lightning Bolt** to cut his damage", "de": "**Blitzschlag** unterbrechen, um den Schaden zu senken"},
+        {"spellID": 9532, "spell": "Lightning Bolt", "type": "interrupt", "en": "Interrupt his **Lightning Bolt** to cut his damage", "de": "**Blitzschlag** unterbrechen, um den Schaden zu senken", "verified": true},
         {"spellID": 6742, "spell": "Bloodlust", "type": "dispel", "en": "Purge **Bloodlust** from him or his basilisk", "de": "**Kampfrausch** von ihm oder seinem Basilisken bannen", "verified": true}
       ]
     },

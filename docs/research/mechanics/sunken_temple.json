@@ -39,8 +39,8 @@
       "wing": "Troll balcony",
       "mechanics": [
         {"spellID": 9205, "spell": "Hate to Zero", "type": "tank", "en": "Wipes his threat list; tank must taunt back fast", "de": "Setzt seine Bedrohung zurück; Tank schnell zurückspotten"},
-        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "**Shield Slam** hits the tank hard", "de": "**Schildschlag** trifft den Tank hart"},
-        {"spellID": 12782, "spell": "Shield Spike", "type": "tank", "en": "Spiked shield hurts melee attackers; expect extra damage while tanking", "de": "Stachelschild verletzt Nahkämpfer; beim Tanken mit Mehrschaden rechnen"}
+        {"spellID": 8242, "spell": "Shield Slam", "type": "tank", "en": "**Shield Slam** hits the tank hard", "de": "**Schildschlag** trifft den Tank hart", "verified": true},
+        {"spellID": 12782, "spell": "Shield Spike", "type": "tank", "en": "Spiked shield hurts melee attackers; expect extra damage while tanking", "de": "Stachelschild verletzt Nahkämpfer; beim Tanken mit Mehrschaden rechnen", "verified": true}
       ]
     },
     {
@@ -72,8 +72,8 @@
       "mechanics": [
         {"spellID": 11899, "spell": "Healing Ward", "type": "adds", "en": "Drops a Healing Ward; destroy it right away", "de": "Stellt einen Heilungszauberschutz; sofort zerstören"},
         {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with **Healing Wave**; interrupt", "de": "Heilt mit **Welle der Heilung**; unterbrechen"},
-        {"spellID": 8362, "spell": "Renew", "type": "dispel", "en": "**Renew** heals over time; dispel magic from the target", "de": "**Erneuerung** heilt über Zeit; Magie vom Ziel bannen"},
-        {"spellID": 8148, "spell": "Thorns Aura", "type": "survive", "en": "**Thorns Aura** hurts melee attackers; heal through", "de": "**Dornenaura** schadet Nahkämpfern; durchheilen"}
+        {"spellID": 8362, "spell": "Renew", "type": "dispel", "en": "**Renew** heals over time; dispel magic from the target", "de": "**Erneuerung** heilt über Zeit; Magie vom Ziel bannen", "verified": true},
+        {"spellID": 8148, "spell": "Thorns Aura", "type": "survive", "en": "**Thorns Aura** hurts melee attackers; heal through", "de": "**Dornenaura** schadet Nahkämpfern; durchheilen", "verified": true}
       ]
     },
     {
@@ -83,8 +83,8 @@
       "mechanics": [
         {"spellID": 12480, "spell": "Hex of Jammal'an", "type": "dispel", "en": "Hex turns a player against the group; dispel or CC", "de": "**Verhexung** wendet einen Spieler gegen die Gruppe; bannen oder kontrollieren"},
         {"spellID": 12492, "spell": "Healing Wave", "type": "interrupt", "en": "Heals with **Healing Wave**; interrupt", "de": "Heilt mit **Welle der Heilung**; unterbrechen"},
-        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "adds", "en": "**Earthgrab Totem** roots players; destroy it", "de": "**Totem des Erdgriffs** wurzelt fest; zerstören"},
-        {"spellID": 20296, "spell": "Flamestrike", "type": "avoid", "en": "**Flamestrike** burns an area for several seconds; step out of the fire", "de": "**Flammenstoß** brennt ein Gebiet mehrere Sekunden lang nieder; aus dem Feuer treten"}
+        {"spellID": 8376, "spell": "Earthgrab Totem", "type": "adds", "en": "**Earthgrab Totem** roots players; destroy it", "de": "**Totem des Erdgriffs** wurzelt fest; zerstören", "verified": true},
+        {"spellID": 20296, "spell": "Flamestrike", "type": "avoid", "en": "**Flamestrike** burns an area for several seconds; step out of the fire", "de": "**Flammenstoß** brennt ein Gebiet mehrere Sekunden lang nieder; aus dem Feuer treten", "verified": true}
       ]
     },
     {
