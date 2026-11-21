@@ -452,6 +452,7 @@ ns.Mechanics = {
     { 12480, "dispel", "**Verhexung** wendet einen Spieler gegen die Gruppe; bannen oder kontrollieren", "Hex turns a player against the group; dispel or CC" },
     { 12492, "interrupt", "Heilt mit **Welle der Heilung**; unterbrechen", "Heals with **Healing Wave**; interrupt" },
     { 8376, "adds", "**Totem des Erdgriffs** wurzelt fest; zerstören", "**Earthgrab Totem** roots players; destroy it" },
+    { 20296, "avoid", "**Flammenstoß** brennt ein Gebiet mehrere Sekunden lang nieder; aus dem Feuer treten", "**Flamestrike** burns an area for several seconds; step out of the fire" },
   },
   [5711] = { -- Ogom the Wretched (Sunken Temple)
     { 11660, "interrupt", "Wirkt **Schattenblitze**; unterbrechen", "Casts Shadow Bolts; interrupt", "v" },
@@ -468,6 +469,7 @@ ns.Mechanics = {
   [5714] = { -- Loro (Sunken Temple)
     { 9205, "tank", "Setzt seine Bedrohung zurück; Tank schnell zurückspotten", "Wipes his threat list; tank must taunt back fast" },
     { 8242, "tank", "**Schildschlag** trifft den Tank hart", "**Shield Slam** hits the tank hard" },
+    { 12782, "tank", "Stachelschild verletzt Nahkämpfer; beim Tanken mit Mehrschaden rechnen", "Spiked shield hurts melee attackers; expect extra damage while tanking" },
   },
   [5715] = { -- Hukku (Sunken Temple)
     { 12790, "adds", "Beschwört Dämonen; Begleiter töten", "Summons demon pets; kill the pets" },
@@ -481,6 +483,8 @@ ns.Mechanics = {
   [5717] = { -- Mijan (Sunken Temple)
     { 11899, "adds", "Stellt einen Heilungszauberschutz; sofort zerstören", "Drops a Healing Ward; destroy it right away" },
     { 12492, "interrupt", "Heilt mit **Welle der Heilung**; unterbrechen", "Heals with **Healing Wave**; interrupt" },
+    { 8362, "dispel", "**Erneuerung** heilt über Zeit; Magie vom Ziel bannen", "**Renew** heals over time; dispel magic from the target" },
+    { 8148, "survive", "**Dornenaura** schadet Nahkämpfern; durchheilen", "**Thorns Aura** hurts melee attackers; heal through" },
   },
   [5719] = { -- Morphaz (Sunken Temple)
     { 12884, "avoid", "**Säureatem** im Kegel; Tank dreht den Drachen weg", "**Acid Breath** cone; tank turns the dragon away" },
