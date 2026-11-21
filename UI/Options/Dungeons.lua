@@ -115,6 +115,12 @@ if ns.Client.IsForever() then
   end
   addToggles(languageToggles)
   addButton("LFG_LANGUAGES_RESTORE", function() ns.LFGLanguages.Restore() end)
+  addSection("SECTION_LFG_WHISPER")
+  O.builder.AddTextInput({
+    label = "LFG_WHISPER_TEMPLATE", width = 320,
+    get = function(db) return db.lfgWhisperTemplate end,
+    set = function(text) ns.Set("lfgWhisperTemplate", strtrim(text)) end,
+  })
   addSection("SECTION_LFG_WINDOW")
   addToggles({ toggle("LFG_WINDOW_TOGGLE", "lfgMinimapButton", ns.LFGSearch.IsAvailable) })
 end

@@ -2223,7 +2223,7 @@ ns.locales.frFR = {
   LFG_UPDATE = "Mettre à jour",
   LFG_VOICE = "Chat vocal : %s",
   LFG_WHISPER = "Chuchoter",
-  LFG_WHISPER_TIP = "Ouvre le chat vers le chef du groupe. On rejoint un groupe de plusieurs membres en écrivant au chef.",
+  LFG_WHISPER_TIP = "Envoie votre modèle de chuchotement (options, recherche de groupe) au chef du groupe. On rejoint un groupe de plusieurs membres en écrivant au chef.",
   LFG_WINDOW_TOGGLE = "Icône de minicarte pour la recherche de groupe Level Time",
   LFG_WINDOW_TOGGLE_TIP = "Affiche une icône de minicarte distincte qui ouvre la recherche de groupe Level Time : une fenêtre plus grande avec liste et détails (niveau adapté, membres, boss vaincus, tes quêtes de donjon en cours). La recherche de groupe de Blizzard reste inchangée ; son bouton « Level Time » en haut à droite ouvre notre fenêtre, tout comme /lt lfg.",
   LFG_WIN_TITLE = "Recherche de groupe",
@@ -2556,4 +2556,8 @@ ns.locales.frFR = {
   DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard masque les donneurs de quêtes grisées. Si le donneur d'une quête préalable ou d'une quête de donjon grisée est près de vous, vous recevez une fois par donneur et par quête un message avec la quête, le donjon et le PNJ.",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Afficher brièvement les quêtes grisées là-bas",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "À proximité d'un tel donneur, active temporairement le suivi des quêtes de bas niveau du jeu (suivi de la minicarte) puis le désactive ensuite, pour que Blizzard affiche le donneur. Désactivé : nous ne modifions rien dans vos réglages du jeu, la marque (!) au-dessus du donneur reste. Si vous avez changé le réglage vous-même, nous n'y touchons pas.",
+  LFG_WHISPER_DEFAULT = "Salut ! {class} ({role}), niveau {level}, intéressé par {dungeon}. Reste-t-il une place ?",
+  LFG_WHISPER_TEMPLATE = "Texte du chuchotement",
+  LFG_WHISPER_TEMPLATE_TIP = "Texte envoyé au chef par le bouton Chuchoter de la recherche de groupe. Variables : {role}, {class}, {level}, {dungeon}. Vide = texte par défaut. 255 caractères au maximum, envoyé uniquement au clic. Valider avec Entrée.",
+  SECTION_LFG_WHISPER = "Modèle de chuchotement",
 }

@@ -2223,7 +2223,7 @@ ns.locales.esES = {
   LFG_UPDATE = "Actualizar",
   LFG_VOICE = "Chat de voz: %s",
   LFG_WHISPER = "Susurrar",
-  LFG_WHISPER_TIP = "Abre el chat con el líder del grupo. A los grupos con varios miembros se entra escribiendo al líder.",
+  LFG_WHISPER_TIP = "Envía tu plantilla de susurro (opciones, búsqueda de grupo) al líder del grupo. A un grupo con varios miembros se entra escribiendo al líder.",
   LFG_WINDOW_TOGGLE = "Icono del minimapa para el buscador de grupo de Level Time",
   LFG_WINDOW_TOGGLE_TIP = "Muestra un icono propio en el minimapa que abre el buscador de grupo de Level Time: una ventana más grande con lista y detalles (nivel adecuado, miembros, jefes derrotados, tus misiones de mazmorra pendientes). El buscador de grupo de Blizzard no cambia; su botón «Level Time» arriba a la derecha abre nuestra ventana, igual que /lt lfg.",
   LFG_WIN_TITLE = "Buscador de grupos",
@@ -2556,4 +2556,8 @@ ns.locales.esES = {
   DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard oculta a los dadores de misiones grises. Si cerca de ti hay un dador de una misión previa o de mazmorra gris, recibes una vez por dador y misión un aviso con la misión, la mazmorra y el PNJ.",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Mostrar brevemente las misiones grises allí",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Cerca de un dador así, activa temporalmente el seguimiento de misiones de bajo nivel del juego (seguimiento del minimapa) y lo desactiva después, para que Blizzard muestre al dador. Desactivado: no cambiamos nada de tus ajustes del juego, la marca (!) sobre el dador permanece. Si cambiaste el ajuste tú mismo, no lo tocamos.",
+  LFG_WHISPER_DEFAULT = "¡Hola! {class} ({role}), nivel {level}, interesado en {dungeon}. ¿Queda sitio?",
+  LFG_WHISPER_TEMPLATE = "Texto del susurro",
+  LFG_WHISPER_TEMPLATE_TIP = "Texto que el botón Susurrar de la búsqueda de grupo envía al líder. Marcadores: {role}, {class}, {level}, {dungeon}. Vacío = texto por defecto. Máximo 255 caracteres, solo se envía al hacer clic. Confirma con Intro.",
+  SECTION_LFG_WHISPER = "Plantilla de susurro",
 }

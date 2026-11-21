@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "new",
+        deDE = "Gruppensuche: Flüstern sendet jetzt eine einstellbare Vorlage mit Rolle, Klasse, Level und Dungeon an den Leiter.",
+        enUS = "Group finder: Whisper now sends an editable template with role, class, level and dungeon to the leader.",
+        frFR = "Recherche de groupe : Chuchoter envoie désormais un modèle modifiable avec rôle, classe, niveau et donjon au chef.",
+        esES = "Búsqueda de grupo: Susurrar ahora envía una plantilla editable con rol, clase, nivel y mazmorra al líder." },
       { kind = "fix",
         deDE = "Boss-Kills werden in WoW-Forever-Dungeons wieder erkannt.",
         enUS = "Boss kills are detected again in WoW Forever dungeons.",

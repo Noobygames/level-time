@@ -14,6 +14,7 @@ ns.RegisterDefaults({
   settings = {
     lfgMinimapButton = true,   -- Minikarten-Icon des eigenen Fensters (UI/LFGWindowLaunchers.lua)
     lfgMinimapAngle = 200,
+    lfgWhisperTemplate = "",  -- Flüstertext mit {role} {class} {level} {dungeon}; leer = Standardtext der Sprache
     lfgLanguageChips = false,  -- { [Sprache] = true }; false = Blizzards Filter beim ersten Öffnen übernehmen
   },
 })
@@ -240,4 +241,37 @@ end
 
 function LFGSearch.Unlist()
   api().RemoveListing()
+end
+
+-- Flüstervorlage (LT-390): {role} {class} {level} {dungeon} aus Spieler und Gruppe; unbekannte Platzhalter bleiben stehen
+local CHAT_LIMIT = 255
+local ROLE_KEYS = { TANK = "LFG_ROLE_TANK", HEALER = "LFG_ROLE_HEALER", DAMAGER = "LFG_ROLE_DAMAGER" }
+
+function LFGSearch.WhisperTemplate()
+  local text = ns.db.lfgWhisperTemplate
+  return (type(text) == "string" and strtrim(text) ~= "") and text or ns.L.LFG_WHISPER_DEFAULT
+end
+
+function LFGSearch.WhisperText(summary)
+  local roleKey = UnitGroupRolesAssigned and ROLE_KEYS[UnitGroupRolesAssigned("player")]
+  local values = { role = roleKey and ns.L[roleKey] or "", class = UnitClass("player") or "",
+    level = tostring(UnitLevel("player") or ""), dungeon = summary and summary.activityNames and summary.activityNames[1] or "" }
+  local text = LFGSearch.WhisperTemplate():gsub("{(%a+)}", function(key) return values[key] end)
+  text = strtrim((text:gsub("%s+", " ")))
+  if #text > CHAT_LIMIT then  -- Bytegrenze; nicht mitten in einem UTF-8-Zeichen kappen
+    -- shortcut: kappt bei sauberer Grenze ein ganzes Zeichen mehr, harmlos
+    text = strtrim((text:sub(1, CHAT_LIMIT):gsub("[\192-\255][\128-\191]*$", "")))
+  end
+  return text
+end
+
+-- Nur aus dem Klick auf Flüstern: sendet die Vorlage an den Leiter
+function LFGSearch.Whisper(summary)
+  if not (summary and summary.leaderName) or ns.IsSecret(summary.leaderName) then return false end
+  local text = LFGSearch.WhisperText(summary)
+  if text == "" then return false end
+  local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+  send(text, "WHISPER", nil, summary.leaderName)
+  ns.Debug("lfg", "whisper template sent to %s", summary.leaderName)
+  return true
 end

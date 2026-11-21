@@ -2223,7 +2223,7 @@ ns.locales.enUS = {
   LFG_UPDATE = "Update",
   LFG_VOICE = "Voice chat: %s",
   LFG_WHISPER = "Whisper",
-  LFG_WHISPER_TIP = "Opens the chat box to the group leader. You join groups with several members by messaging the leader.",
+  LFG_WHISPER_TIP = "Sends your whisper template (settings, group finder) to the group's leader. Groups with several members are joined by messaging the leader.",
   LFG_WINDOW_TOGGLE = "Minimap icon for the Level Time group finder",
   LFG_WINDOW_TOGGLE_TIP = "Shows a separate minimap icon that opens the Level Time group finder: a larger window with list and details (level fit, members, killed bosses, your open dungeon quests). Blizzard's group finder stays unchanged; its \"Level Time\" button at the top right opens our window, as does /lt lfg.",
   LFG_WIN_TITLE = "Group Finder",
@@ -2556,4 +2556,8 @@ ns.locales.enUS = {
   DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard hides quest givers of gray quests. When a giver of a gray prequest or dungeon quest is near you, you get a hint once per giver and quest with the quest name, dungeon and NPC.",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Briefly show gray quests there",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Near such a giver, temporarily switches the game's low-level quests tracking (minimap tracking) on and back off afterwards so that Blizzard shows the giver. Off: we change nothing in your game settings, the (!) mark above the giver remains. If you toggled the setting yourself, we leave it alone.",
+  LFG_WHISPER_DEFAULT = "Hi! {class} ({role}), level {level}, interested in {dungeon}. Is there still a spot?",
+  LFG_WHISPER_TEMPLATE = "Whisper text",
+  LFG_WHISPER_TEMPLATE_TIP = "Text the Whisper button in the group finder sends to the leader. Placeholders: {role}, {class}, {level}, {dungeon}. Empty = default text. At most 255 characters, sent only when you click. Confirm with Enter.",
+  SECTION_LFG_WHISPER = "Whisper template",
 }

@@ -2223,7 +2223,7 @@ ns.locales.deDE = {
   LFG_UPDATE = "Aktualisieren",
   LFG_VOICE = "Sprachchat: %s",
   LFG_WHISPER = "Flüstern",
-  LFG_WHISPER_TIP = "Öffnet das Chatfeld an den Leiter der Gruppe. Gruppen mit mehreren Mitgliedern betritt man über eine Nachricht an den Leiter.",
+  LFG_WHISPER_TIP = "Sendet deine Flüstervorlage (Einstellungen, Gruppensuche) an den Leiter der Gruppe. Gruppen mit mehreren Mitgliedern betritt man über eine Nachricht an den Leiter.",
   LFG_WINDOW_TOGGLE = "Minikarten-Icon für die Level-Time-Gruppensuche",
   LFG_WINDOW_TOGGLE_TIP = "Zeigt ein eigenes Minikarten-Icon, das die Level-Time-Gruppensuche öffnet: ein größeres Fenster mit Liste und Detail (Level-Passung, Mitglieder, besiegte Bosse, deine offenen Dungeonquests). Blizzards Gruppensuche bleibt unverändert; dort öffnet der Knopf „Level Time“ oben rechts unser Fenster, ebenso /lt lfg.",
   LFG_WIN_TITLE = "Gruppensuche",
@@ -2556,4 +2556,8 @@ ns.locales.deDE = {
   DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE_TIP = "Blizzard blendet Questgeber grauer Quests aus. Steht ein Geber einer grauen Vorquest oder Dungeonquest in deiner Nähe, bekommst du einmal je Geber und Quest einen Hinweis mit Questname, Dungeon und NPC.",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE = "Graue Quests dort kurz einblenden",
   DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE_TIP = "Schaltet in der Nähe eines solchen Gebers die Spieleinstellung für Quests niedriger Stufe (Minimap-Verfolgung) vorübergehend ein und danach wieder aus, damit Blizzard den Geber anzeigt. Aus: wir ändern nichts an deinen Spieleinstellungen, die Markierung (!) über dem Geber bleibt. Hast du die Einstellung selbst umgeschaltet, lassen wir sie in Ruhe.",
+  LFG_WHISPER_DEFAULT = "Hallo! {class} ({role}), Level {level}, hätte Lust auf {dungeon}. Ist noch ein Platz frei?",
+  LFG_WHISPER_TEMPLATE = "Flüstertext",
+  LFG_WHISPER_TEMPLATE_TIP = "Text, den der Knopf Flüstern in der Gruppensuche an den Leiter sendet. Platzhalter: {role} Rolle, {class} Klasse, {level} Level, {dungeon} Dungeon. Leer = Standardtext. Höchstens 255 Zeichen, gesendet wird nur auf Klick. Mit Enter übernehmen.",
+  SECTION_LFG_WHISPER = "Flüstervorlage",
 }

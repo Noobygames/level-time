@@ -261,4 +261,10 @@ X.CheckListData = {
       "Einen Forever-5er (z. B. Scharlachrotes Kloster) spielen, Bosse anvisieren, nach jedem Boss die Fortschrittsanzeige prüfen; am Ende /lte check.",
       "Erwartung: Fortschritt zählt jeden Boss genau einmal, Splits sind gefüllt; LT321.bossKills.sources zeigt die zählende Quelle und ob encounterStart/encounterEnd/bossKill > 0 sind.",
     } },
+  { id = "LT-390", client = "forever", triggers = { "lfg", "options" },
+    title = "Gruppensuche: Flüstervorlage",
+    steps = {
+      "Einstellungen > Dungeons > Gruppensuche: Flüstertext ansehen/ändern (Platzhalter {role} {class} {level} {dungeon}); im Gruppensuche-Fenster eine Gruppe wählen und Flüstern klicken.",
+      "Erwartung: genau eine Nachricht mit ersetzten Platzhaltern geht an den Leiter (im Chat sichtbar), nie ohne Klick; leerer Text = Standardtext; ohne gesetzte Rolle bleibt {role} leer.",
+    } },
 }

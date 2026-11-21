@@ -35,6 +35,7 @@ local CHECKS = {
   "LT412.trivialChain.state", "LT414.realm.splitEntries", "LT416.alerts.eliteGate", "LT416.cleanup.leftoversTitles",
   "LT401.tracker.layout",
   "LT321.bossKills.sources",
+  "LT390.lfg.templates",
 }
 
 wow.login()

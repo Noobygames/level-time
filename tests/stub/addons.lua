@@ -54,7 +54,9 @@ C_ChatInfo = {
     table.insert(wow.addonMessages, { prefix = prefix, message = message, chatType = chatType, target = target })
     return 0
   end,
-  SendChatMessage = function(message, chatType) table.insert(wow.sentChat, { message = message, chatType = chatType }) end,
+  SendChatMessage = function(message, chatType, _, target)
+    table.insert(wow.sentChat, { message = message, chatType = chatType, target = target })
+  end,
   InChatMessagingLockdown = function() return state.chatLockdown end,
   -- Emotes wie /schlafen (Token "SLEEP"): wow.emotes zählt mit
   PerformEmote = function(token) table.insert(wow.emotes, token); return true end,

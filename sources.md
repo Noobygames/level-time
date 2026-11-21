@@ -60,9 +60,9 @@ Classic data and unconfirmed for WoW Forever (marked in game).
 ## 4. Dungeon database
 
 `Assist/InstanceData/dungeon_db.lua` (`ns.DungeonDB`: dungeon quests, instance NPCs, boss loot, quest objectives) and the boss NPC IDs in
-`Assist/InstanceData/boss_npcs.lua` were imported once on 2026-11-14 from WTFPL-licensed sources and are maintained by
-hand since. Item qualities come from the DB2 table `ItemSparse` on wago.tools (section 2); WoW Forever loot was
-confirmed against the Wowhead WoW Forever dungeon guides (2026-11-14, section 5); the quest assignment of the new Forever dungeons was checked against the same guides (2026-11-16) and the Alcaz Prison quest chains were added by hand.
+`Assist/InstanceData/boss_npcs.lua` are maintained by + using the data Level Time Data Extractor, which logs everything while playing.
+
+Item qualities come from the DB2 table `ItemSparse` on wago.tools (section 2); WoW Forever loot was confirmed against the Wowhead WoW Forever dungeon guides (2026-11-14, section 5); the quest assignment of the new Forever dungeons was checked against the same guides (2026-11-16) and the Alcaz Prison quest chains were added by hand.
 
 ## 5. Guide research (boss and trash mechanics)
 
@@ -99,4 +99,4 @@ Forever-own dungeons without Wowhead guide (LT-59, 2026-11-16): boss tips for Al
 
 Alcaz Prison (LT-376, 2026-11-21): boss and trash spell IDs and abilities from our offline extraction of the Wowhead WoW Forever Alcaz Prison guide 35355 (2026-11-17), tactics in our own words; quests 95264, 96335, 96369 and the trash NPC IDs from the same guide and its quest pages. Trash NPC levels (49-54) are the dungeon's recommended range, not confirmed. Katerina's Backstab stays a single-source, unverified report.
 
-`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites imported once on 2026-11-16 from the same WTFPL quest database as section 4, bag names/slots and the seven enemy drops from Wowhead (2026-11-15); maintained by hand since.
+`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor, bag names/slots and the seven enemy drops from Wowhead (2026-11-15); maintained by hand since.

@@ -489,10 +489,7 @@ parts.detailText = detailText
 
 -- Aktionen unten im Fenster wie Blizzards SendMessageButton / GroupInviteButton, wirken auf die gewählte Karte
 local whisperButton = newButton(searchTab, 100, "LFG_WHISPER", function()
-  local summary = state.selected and LFGSearch.Summary(state.selected)
-  if not (summary and summary.leaderName) then return end
-  if ChatFrameUtil and ChatFrameUtil.SendTell then ChatFrameUtil.SendTell(summary.leaderName)
-  elseif ChatFrame_SendTell then ChatFrame_SendTell(summary.leaderName) end
+  LFGSearch.Whisper(state.selected and LFGSearch.Summary(state.selected))
 end, "SEND_MESSAGE")
 whisperButton:SetPoint("BOTTOMLEFT", PAD, PAD)
 local inviteButton = newButton(searchTab, 100, "LFG_INVITE", function()

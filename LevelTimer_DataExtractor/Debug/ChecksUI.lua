@@ -317,3 +317,12 @@ hooksecurefunc(ns.InfoCard, "Show", function()
   write({ area = "comfort", event = "ui.infoCard", extra = { subject = subject,
     url = subject and subject.id and ns.InfoCard.Url(subject.kind, subject.id) or nil } })
 end)
+
+-- LT390: Flüstervorlage der Gruppensuche: aktive Vorlage, ausgefüllter Beispieltext für den Spieler, Flüster-API da
+check("LT390.lfg.templates", function()
+  local LFGSearch = ns.LFGSearch
+  local text = LFGSearch.WhisperText({ activityNames = { "Sample Dungeon" }, leaderName = "Leader" })
+  return { template = LFGSearch.WhisperTemplate(), custom = ns.db.lfgWhisperTemplate, sample = text, sampleLength = #text,
+    sendChatMessage = type(C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage), roleApi = type(UnitGroupRolesAssigned),
+    role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or nil }
+end)
