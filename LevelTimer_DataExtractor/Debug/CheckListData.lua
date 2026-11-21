@@ -255,4 +255,10 @@ X.CheckListData = {
       "Dungeon mit 7-8 Bossen betreten, Tracker ansehen; danach einen Schlachtzug mit mehr als 8 Bossen (z. B. Geschmolzener Kern).",
       "Erwartung: goldener Rahmen ums Boss-Porträt, sichtbar mehr Zeilenabstand, im Dungeon alle Bosse gelistet; im Schlachtzug nur besiegte und der nächste plus '+N weitere'.",
     } },
+  { id = "LT-321", client = "forever", triggers = { "instance" },
+    title = "Forever-Dungeon: Boss-Kills werden gezählt",
+    steps = {
+      "Einen Forever-5er (z. B. Scharlachrotes Kloster) spielen, Bosse anvisieren, nach jedem Boss die Fortschrittsanzeige prüfen; am Ende /lte check.",
+      "Erwartung: Fortschritt zählt jeden Boss genau einmal, Splits sind gefüllt; LT321.bossKills.sources zeigt die zählende Quelle und ob encounterStart/encounterEnd/bossKill > 0 sind.",
+    } },
 }

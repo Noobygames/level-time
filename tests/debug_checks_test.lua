@@ -34,6 +34,7 @@ local CHECKS = {
   "LT405.recap.run", "LT407.lfg.levelOrder", "LT409.oldRanks.upgrade", "LT410.hearth.bind", "LT411.dungeonQuests.markAll",
   "LT412.trivialChain.state", "LT414.realm.splitEntries", "LT416.alerts.eliteGate", "LT416.cleanup.leftoversTitles",
   "LT401.tracker.layout",
+  "LT321.bossKills.sources",
 }
 
 wow.login()

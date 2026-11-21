@@ -1913,6 +1913,14 @@ check("LT338.sync.groupApi", function()
 end)
 
 -- Helfer für die Prüfungen nach Bereich (ChecksUI.lua, ChecksQuests.lua, ChecksRuns.lua, laden danach)
+-- LT-321 (/lt debug check nach einem Forever-Dungeon): welche Quelle hat welchen Boss gezählt (id:Quelle), und kamen
+-- ENCOUNTER_START/ENCOUNTER_END/BOSS_KILL überhaupt an (Zähler dieser Sitzung)?
+check("LT321.bossKills.sources", function()
+  local sources = ns.InstanceBosses.Sources()
+  return { counted = table.concat(sources.counted, ","), encounterStart = sources.encounterStart,
+    encounterEnd = sources.encounterEnd, bossKill = sources.bossKill, deathSource = ns.InstanceBosses.DeathSource() }
+end)
+
 DebugLog.Helpers = {
   plain = plain, chunked = chunked, method = method, frameName = frameName, pointOf = pointOf, frameState = frameState,
   framesByName = framesByName, recentEntries = recentEntries, readable = readable, read = read, readXY = readXY,

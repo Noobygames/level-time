@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "fix",
+        deDE = "Boss-Kills werden in WoW-Forever-Dungeons wieder erkannt.",
+        enUS = "Boss kills are detected again in WoW Forever dungeons.",
+        frFR = "Les boss tués sont de nouveau détectés dans les donjons de WoW Forever.",
+        esES = "Las muertes de jefes vuelven a detectarse en las mazmorras de WoW Forever." },
       { kind = "change",
         deDE = "Dungeon-Tracker: Rahmen um das Boss-Porträt, mehr Abstand zwischen den Zeilen, Bosse standardmäßig ausgeklappt (eingeklappt erst ab 9 Bossen).",
         enUS = "Dungeon tracker: frame around the boss portrait, more spacing between rows, bosses expanded by default (collapsed only with more than 8 bosses).",
