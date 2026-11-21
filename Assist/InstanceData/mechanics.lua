@@ -1383,6 +1383,12 @@ ns.Mechanics = {
   [11466] = { -- Highborne Summoner (Dire Maul)
     { 15063, "positioning", "Wurzelt Spieler in der Nähe bis zu 8 Sek. lang fest", "Roots nearby players for up to 8 sec" },
   },
+  [11467] = { -- Tsu'zee (Dire Maul)
+    { 21060, "dispel", "Blendet einen Spieler bis zu 10 Sek. lang; bannen", "Blinds a player for up to 10 sec; dispel it", "v" },
+    { 12540, "survive", "Betäubt das Ziel bis zu 4 Sek. lang: Tank muss sie halten", "Stuns the target for up to 4 sec: tank must hold her attention", "v" },
+    { 15657, "positioning", "Trifft von hinten hart: sie auf den Tank ausgerichtet halten", "Hits hard from behind: keep her facing the tank", "v" },
+    { 15667, "survive", "Nahkampfschlag mit Zusatzschaden auf das Ziel: durchheilen", "Extra-damage melee strike on the target: heal through", "v" },
+  },
   [11470] = { -- Eldreth Sorcerer (Dire Maul)
     { 0, "dispel", "Verwandelt einen Spieler in ein Schaf; bannen", "Turns a player into a sheep; dispel it" },
     { 0, "interrupt", "Blitz springt auf bis zu 3 Spieler", "Lightning jumps between up to 3 players" },
@@ -1407,6 +1413,7 @@ ns.Mechanics = {
     { 22908, "avoid", "Arkaner Regen auf eine Fläche, 6 Sek. lang; herausgehen", "Arcane rain over an area for 6 sec; move out", "v" },
     { 22910, "avoid", "Legt Feuerfallen; nicht darüberlaufen", "Lays fire traps; do not walk over them", "v" },
     { 20904, "survive", "Gezielter Schuss trifft hart: Ziel heilen", "Aimed shot hits a player hard: heal the target", "v" },
+    { 22914, "positioning", "Halbiert das Lauftempo eines Spielers 3 Sek. lang; im Nahkampf bleiben", "Slows a player's movement by half for 3 sec; stay in melee range of her", "v" },
     { 0, "adds", "Ihr Bär Ferra stürmt und betäubt; separat tanken", "Her bear Ferra charges and stuns; tank it separately" },
   },
   [11489] = { -- Tendris Warpwood (Dire Maul)
@@ -1438,6 +1445,7 @@ ns.Mechanics = {
     { 16128, "tank", "Naturschaden über Zeit, erhöht erlittenen physischen Schaden", "Nature damage over time and more physical damage taken", "v" },
     { 22899, "adds", "Augen erscheinen und verlangsamen einen Spieler; schnell töten", "Eyes spawn and slow a player's actions; kill them quickly", "v" },
     { 5568, "positioning", "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "Trample hits players next to the tank: melee spread a bit", "v" },
+    { 8269, "survive", "Bei 50 % Leben schlägt er 2 Min. lang 60 % schneller: Heilercooldowns aufheben", "At 50% health he attacks 60% faster for 2 min: save healing cooldowns", "v" },
   },
   [11501] = { -- King Gordok (Dire Maul)
     { 22886, "survive", "Stürmt auf einen zufälligen Spieler und schleudert ihn hoch", "Charges a random player and tosses them up", "v" },
@@ -1780,6 +1788,10 @@ ns.Mechanics = {
   },
   [14386] = { -- Wandering Eye of Kilrogg (Dire Maul)
     { 22876, "adds", "Entdeckt Eindringlinge, ruft Netherwandler; meiden oder schnell töten", "Spots intruders and summons Netherwalkers; avoid or kill fast" },
+  },
+  [14506] = { -- Lord Hel'nurath (Dire Maul)
+    { 20812, "dispel", "Halbiert Stärke und Bewegung eines Spielers und verlangsamt Angriffe 15 Sek. lang", "Halves a player's strength and movement and slows attacks for 15 sec", "v" },
+    { 22665, "survive", "Schattenblitze treffen alle in der Nähe: Gruppe heilen", "Shadow bolts hit everyone nearby: heal the group", "v" },
   },
   [14507] = { -- High Priest Venoxis (Zul'Gurub)
     { 23860, "interrupt", "**Heiliges Feuer** auf Spieler; unterbrechen oder bannen", "**Holy Fire** on a player; interrupt or dispel" },
@@ -2487,7 +2499,7 @@ ns.MechanicGuide = {
   },
   [429] = {
     bosses = { { 14354, "Pusillin" }, { 11490, "Zevrim Thornhoof" }, { 13280, "Hydrospawn" }, { 14327, "Lethtendris" }, { 11492, "Alzzin the Wildshaper" }, { 16097, "Isalien" }, { 11489, "Tendris Warpwood" }, { 11488, "Illyanna Ravenoak" }, { 11487, "Magister Kalendris" }, { 11496, "Immol'thar" }, { 11486, "Prince Tortheldrin" }, { 14326, "Guard Mol'dar" }, { 14322, "Stomper Kreeg" }, { 14321, "Guard Fengus" }, { 14323, "Guard Slip'kik" }, { 14325, "Captain Kromcrush" }, { 14324, "Cho'Rush the Observer" }, { 11501, "King Gordok" }, },
-    trash = { { 11457, "Wildspawn Hellcaller" }, { 11456, "Wildspawn Shadowstalker" }, { 11464, "Warpwood Tangler" }, { 11459, "Ironbark Protector" }, { 11480, "Arcane Aberration" }, { 11470, "Eldreth Sorcerer" }, { 11466, "Highborne Summoner" }, { 11444, "Gordok Mage-Lord" }, { 11448, "Gordok Warlock" }, { 14386, "Wandering Eye of Kilrogg" }, },
+    trash = { { 11467, "Tsu'zee" }, { 14506, "Lord Hel'nurath" }, { 11457, "Wildspawn Hellcaller" }, { 11456, "Wildspawn Shadowstalker" }, { 11464, "Warpwood Tangler" }, { 11459, "Ironbark Protector" }, { 11480, "Arcane Aberration" }, { 11470, "Eldreth Sorcerer" }, { 11466, "Highborne Summoner" }, { 11444, "Gordok Mage-Lord" }, { 11448, "Gordok Warlock" }, { 14386, "Wandering Eye of Kilrogg" }, },
   },
   [469] = {
     bosses = { { 12435, "Razorgore the Untamed" }, { 13020, "Vaelastrasz the Corrupt" }, { 12017, "Broodlord Lashlayer" }, { 11983, "Firemaw" }, { 14601, "Ebonroc" }, { 11981, "Flamegor" }, { 14020, "Chromaggus" }, { 11583, "Nefarian" }, },

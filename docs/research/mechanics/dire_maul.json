@@ -108,7 +108,8 @@
         {"spellID": 22908, "spell": "Volley", "type": "avoid", "en": "Arcane rain over an area for 6 sec; move out", "de": "Arkaner Regen auf eine Fläche, 6 Sek. lang; herausgehen", "verified": true},
         {"spellID": 22910, "spell": "Immolation Trap", "type": "avoid", "en": "Lays fire traps; do not walk over them", "de": "Legt Feuerfallen; nicht darüberlaufen", "verified": true},
         {"spellID": 0, "spell": "Charge", "type": "adds", "unverified": true, "en": "Her bear Ferra charges and stuns; tank it separately", "de": "Ihr Bär Ferra stürmt und betäubt; separat tanken"},
-        {"spellID": 20904, "spell": "Aimed Shot", "type": "survive", "en": "Aimed shot hits a player hard: heal the target", "de": "Gezielter Schuss trifft hart: Ziel heilen", "verified": true}
+        {"spellID": 20904, "spell": "Aimed Shot", "type": "survive", "en": "Aimed shot hits a player hard: heal the target", "de": "Gezielter Schuss trifft hart: Ziel heilen", "verified": true},
+        {"spellID": 22914, "spell": "Concussive Shot", "type": "positioning", "en": "Slows a player's movement by half for 3 sec; stay in melee range of her", "de": "Halbiert das Lauftempo eines Spielers 3 Sek. lang; im Nahkampf bleiben", "verified": true}
       ]
     },
     {
@@ -133,7 +134,8 @@
         {"spellID": 22950, "spell": "Portal of Immol'thar", "type": "tank", "en": "Teleports a random player and drops threat; keep him taunted", "de": "Teleportiert einen zufälligen Spieler; Bedrohung halten, ggf. spotten", "verified": true},
         {"spellID": 16128, "spell": "Infected Bite", "type": "tank", "en": "Nature damage over time and more physical damage taken", "de": "Naturschaden über Zeit, erhöht erlittenen physischen Schaden", "verified": true},
         {"spellID": 22899, "spell": "Eye of Immol'thar", "type": "adds", "en": "Eyes spawn and slow a player's actions; kill them quickly", "de": "Augen erscheinen und verlangsamen einen Spieler; schnell töten", "verified": true},
-        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true}
+        {"spellID": 5568, "spell": "Trample", "type": "positioning", "en": "Trample hits players next to the tank: melee spread a bit", "de": "Trampeln trifft Spieler neben dem Tank: Nahkämpfer verteilen", "verified": true},
+        {"spellID": 8269, "spell": "Enrage", "type": "survive", "en": "At 50% health he attacks 60% faster for 2 min: save healing cooldowns", "de": "Bei 50 % Leben schlägt er 2 Min. lang 60 % schneller: Heilercooldowns aufheben", "verified": true}
       ]
     },
     {
@@ -331,7 +333,20 @@
     {
       "name": "Tsu'zee",
       "npcID": 11467,
-      "mechanics": []
+      "mechanics": [
+        {"spellID": 21060, "spell": "Blind", "type": "dispel", "en": "Blinds a player for up to 10 sec; dispel it", "de": "Blendet einen Spieler bis zu 10 Sek. lang; bannen", "verified": true},
+        {"spellID": 12540, "spell": "Gouge", "type": "survive", "en": "Stuns the target for up to 4 sec: tank must hold her attention", "de": "Betäubt das Ziel bis zu 4 Sek. lang: Tank muss sie halten", "verified": true},
+        {"spellID": 15657, "spell": "Backstab", "type": "positioning", "en": "Hits hard from behind: keep her facing the tank", "de": "Trifft von hinten hart: sie auf den Tank ausgerichtet halten", "verified": true},
+        {"spellID": 15667, "spell": "Sinister Strike", "type": "survive", "en": "Extra-damage melee strike on the target: heal through", "de": "Nahkampfschlag mit Zusatzschaden auf das Ziel: durchheilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Lord Hel'nurath",
+      "npcID": 14506,
+      "mechanics": [
+        {"spellID": 20812, "spell": "Cripple", "type": "dispel", "en": "Halves a player's strength and movement and slows attacks for 15 sec", "de": "Halbiert Stärke und Bewegung eines Spielers und verlangsamt Angriffe 15 Sek. lang", "verified": true},
+        {"spellID": 22665, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow bolts hit everyone nearby: heal the group", "de": "Schattenblitze treffen alle in der Nähe: Gruppe heilen", "verified": true}
+      ]
     }
   ],
   "sources": [

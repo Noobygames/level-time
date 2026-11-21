@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-21",
     entries = {
+      { kind = "change",
+        deDE = "Dungeon-Guide Düsterbruch West: neue Fähigkeiten für Tsu'zee, Lord Hel'nurath, Illyanna Rabeneiche und Immol'thar.",
+        enUS = "Dungeon guide Dire Maul West: new abilities for Tsu'zee, Lord Hel'nurath, Illyanna Ravenoak and Immol'thar.",
+        frFR = "Guide de donjon Hache-Tripes Ouest : nouvelles capacités pour Tsu'zee, Seigneur Hel'nurath, Illyanna Corvichêne et Immol'thar.",
+        esES = "Guía de mazmorra La Masacre Oeste: nuevas habilidades para Tsu'zee, Lord Hel'nurath, Illyanna Roble Cuervo e Immol'thar." },
       { kind = "new",
         deDE = "Gruppensuche: neuer Reiter Flüstern zeigt deine Flüster an Gruppenleiter und deren Antworten.",
         enUS = "Group finder: new Whispers tab shows your whispers to group leaders and their replies.",

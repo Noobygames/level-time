@@ -84,11 +84,7 @@ against the newest Forever build's `SpellName` table on wago.tools (section 2). 
 Excavation Site: Wetlands, Hall of Thanes, Ruins of Lordaeron) are written in our own words from the boss notes on
 foreverchanges.pro, NPC IDs from the dungeon database (section 4); these files have no `instanceMapID`.
 
-Wowhead WoW Forever dungeon guides (LT-69, checked 2026-11-14; `https://www.wowhead.com/forever/guide/<dungeon>-dungeon-
-overview-location-rewards`, one page per dungeon or wing, linked from the guide "Dungeons Overview"): used as a fact
-source for boss and trash NPC IDs, ability spell IDs (a matching line gets `"verified": true`; where Wowhead names a
-different spell ID for the same ability of the same boss, the Wowhead ID is taken) and the per-boss loot tables (taken
-over into the dungeon database as Forever-confirmed drops). Tips for abilities added from these pages are written in our
+Wowhead WoW Forever dungeon guides tips for abilities added from these pages are written in our
 own words. The "Dungeon Levels" table of the overview page is the source of the level ranges in `forever_guide.lua`
 (widest wing range per map). No Wowhead guide existed for The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw
 Hold, Shaper's Terrace, and for the Scarlet Monastery wings other than the Cathedral.
@@ -102,5 +98,7 @@ Alcaz Prison (LT-376, 2026-11-21): boss and trash spell IDs and abilities from o
 Dire Maul East (LT-380, 2026-11-21): boss abilities of Lethtendris, Hydrospawn, Alzzin and the optional boss Isalien (NPC 16097) with spell IDs from the Wowhead WoW Forever dungeon journal notes, descriptions in our own words, marked unverified; Isalien level and loot not known.
 
 Blackrock Depths (LT-377, 2026-11-21): journal spell lines missing from our research added in our own words (Ring of the Law bosses, Gerstahn, Fineous, Loregrain, Incendius, Phalanx, Seven dwarves, Moira, Stilgiss, Verek); journal rank IDs that differ from the guide table (Whirlwind, Mortal Strike, Shadow Bolt Volley, Polymorph, Arcane Explosion, Magma Splash, Burning Spirit) not taken over; Ironfoe tip paraphrased, unverified. Quests and NPC levels checked against the notes, no change.
+
+Dire Maul West (LT-381, 2026-11-21): Concussive Shot (Illyanna Ravenoak), Enrage (Immol'thar) and the abilities of the rares Tsu'zee and Lord Hel'nurath from the Wowhead WoW Forever dungeon journal notes (2026-11-17), described in our own words; guide table IDs kept.
 
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
