@@ -3,22 +3,56 @@
   "kind": "dungeon",
   "bosses": [
     {"name": "Overseer Wrex", "npcID": 255391, "mechanics": [
-      {"spellID": 0, "spell": "Jailer room", "type": "adds", "en": "Pulls every jailer of his room: fight him out in the corridor", "de": "Zieht alle Wärter seines Raums mit: im Gang bekämpfen", "version": "forever"}
+      {"spellID": 0, "spell": "Jailer room", "type": "adds", "en": "Pulls every jailer of his room: fight him out in the corridor", "de": "Zieht alle Wärter seines Raums mit: im Gang bekämpfen", "version": "forever"},
+      {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "**Mortal Strike** hits the tank hard and halves healing on him for 5 sec: use cooldowns", "de": "**Tödlicher Stoß** trifft den Tank hart und halbiert 5 Sek. lang die Heilung auf ihm: Abklingzeiten nutzen", "version": "forever", "verified": true},
+      {"spellID": 9128, "spell": "Battle Shout", "type": "tank", "en": "**Battle Shout** buffs him and his allies at the start of the fight", "de": "**Schlachtruf** stärkt ihn und seine Verbündeten zu Kampfbeginn", "version": "forever", "verified": true}
     ]},
     {"name": "Tidemistress Ca'zass", "npcID": 255997, "mechanics": [
       {"spellID": 0, "spell": "Naga adds", "type": "interrupt", "en": "Her naga adds polymorph players and cast volleys: interrupt and control them", "de": "Ihre Naga-Helfer verwandeln Spieler und wirken Salven: unterbrechen und kontrollieren", "version": "forever"},
-      {"spellID": 0, "spell": "Blizzard", "type": "avoid", "en": "**Blizzard** on the group: step out of the snow", "de": "**Eissturm** auf der Gruppe: aus dem Schnee treten", "version": "forever"}
+      {"spellID": 1271375, "spell": "Blizzard", "type": "avoid", "en": "**Blizzard** on the group: step out of the snow", "de": "**Eissturm** auf der Gruppe: aus dem Schnee treten", "version": "forever", "verified": true},
+      {"spellID": 15532, "spell": "Frost Nova", "type": "dispel", "en": "**Frost Nova** roots players: dispel them quickly so nobody is stuck in the Blizzard", "de": "**Frostnova** hält Spieler fest: schnell reinigen, damit niemand im Eissturm festsitzt", "version": "forever", "verified": true},
+      {"spellID": 8398, "spell": "Frostbolt Volley", "type": "interrupt", "en": "**Frostbolt Volley** hits the whole group: interrupt it or heal through it", "de": "**Frostblitzsalve** trifft die ganze Gruppe: unterbrechen oder durchheilen", "version": "forever", "verified": true}
     ]},
     {"name": "Katerina the Cleaner", "npcID": 257016, "mechanics": [
-      {"spellID": 0, "spell": "Backstab", "type": "positioning", "en": "Teleports behind ranged players and stabs them: heal them up", "de": "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "version": "forever"}
+      {"spellID": 0, "spell": "Backstab", "type": "positioning", "en": "Teleports behind ranged players and stabs them: heal them up", "de": "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "version": "forever", "unverified": true},
+      {"spellID": 1271761, "spell": "Grievous Garrote", "type": "survive", "en": "**Grievous Garrote** makes a random player bleed until healed above 90%: top them up fast", "de": "**Garrotte** lässt einen zufälligen Spieler bluten, bis er über 90 % geheilt ist: schnell hochheilen", "version": "forever", "verified": true},
+      {"spellID": 3583, "spell": "Deadly Poison", "type": "dispel", "en": "**Deadly Poison** on the main target: dispel it at once", "de": "**Tödliches Gift** auf dem Hauptziel: sofort entgiften", "version": "forever", "verified": true}
     ]},
     {"name": "The Questioner", "npcID": 256236, "mechanics": [
-      {"spellID": 0, "spell": "Drain Life", "type": "interrupt", "en": "**Drain Life** heals him: interrupt it and kill his two casters", "de": "**Lebensentzug** heilt ihn: unterbrechen und seine zwei Zauberer töten", "version": "forever"}
+      {"spellID": 17620, "spell": "Drain Life", "type": "interrupt", "en": "**Drain Life** heals him: interrupt it and kill his two casters", "de": "**Lebensentzug** heilt ihn: unterbrechen und seine zwei Zauberer töten", "version": "forever", "verified": true},
+      {"spellID": 12054, "spell": "Rend", "type": "survive", "en": "**Rend** makes the tank bleed: heal through it", "de": "**Wunden** lässt den Tank bluten: gegenheilen", "version": "forever", "verified": true}
     ]},
     {"name": "Blazeroar", "npcID": 255702, "mechanics": [
-      {"spellID": 0, "spell": "Searing Scales", "type": "avoid", "en": "Turns into a dragon with burning scales: bring non-fire damage", "de": "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "version": "forever"},
-      {"spellID": 0, "spell": "Flamestrike", "type": "avoid", "en": "**Flamestrike** in the first phase: leave the fire", "de": "**Flammenstoß** in Phase 1: Feuer verlassen", "version": "forever"}
+      {"spellID": 1271604, "spell": "Searing Scales", "type": "avoid", "en": "Turns into a dragon with burning scales: bring non-fire damage", "de": "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "version": "forever", "verified": true},
+      {"spellID": 18399, "spell": "Flamestrike", "type": "avoid", "en": "**Flamestrike** in the first phase: leave the fire", "de": "**Flammenstoß** in Phase 1: Feuer verlassen", "version": "forever", "verified": true},
+      {"spellID": 12466, "spell": "Fireball", "type": "avoid", "en": "**Fireball** in the first phase: melee may have to take it", "de": "**Feuerball** in Phase 1: Nahkämpfer müssen ihn eventuell aushalten", "version": "forever", "verified": true},
+      {"spellID": 1275847, "spell": "Reveal Form", "type": "survive", "en": "**Reveal Form** at about 30% turns her into the dragon with full health: save cooldowns", "de": "**Wahre Gestalt** bei etwa 30 % verwandelt sie in den Drachen mit voller Gesundheit: Abklingzeiten aufsparen", "version": "forever", "verified": true},
+      {"spellID": 9573, "spell": "Flame Breath", "type": "tank", "en": "**Flame Breath** deals heavy fire damage to the tank: defensive cooldown or potion", "de": "**Flammenatem** verursacht hohen Feuerschaden am Tank: Verteidigungs-Abklingzeit oder Trank", "version": "forever", "verified": true},
+      {"spellID": 1271593, "spell": "Fear", "type": "survive", "en": "**Fear** hits everyone but the tank: Tremor Totem or Fear Ward", "de": "**Furcht** trifft alle außer dem Tank: Erdungstotem oder Furchtzauberschutz", "version": "forever", "verified": true},
+      {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "**Thrash** lets her hit the tank several times at once", "de": "**Dreschen** lässt sie den Tank mehrfach auf einmal treffen", "version": "forever", "verified": true}
     ]}
   ],
-  "sources": ["https://warcraftmaps.com/guides/alcaz-prison-guide (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "mobalytics.gg WoW Forever Alcaz Prison guide (search summary, 2026-11-16); Katerina, Questioner and Flamestrike are single-source reports"]
+  "trash": [
+    {"name": "Strashaz Enchantress", "npcID": 255373, "mechanics": [
+      {"spellID": 13323, "spell": "Polymorph", "type": "interrupt", "en": "**Polymorph** on random players: interrupt it or dispel the sheep", "de": "**Verwandlung** auf zufälligen Spielern: unterbrechen oder das Schaf entzaubern", "version": "forever", "verified": true},
+      {"spellID": 12737, "spell": "Frostbolt Volley", "type": "interrupt", "en": "**Frostbolt Volley** hits the group: interrupt it", "de": "**Frostblitzsalve** trifft die Gruppe: unterbrechen", "version": "forever", "verified": true}
+    ]},
+    {"name": "Strashaz Soldier", "npcID": 255995, "mechanics": [
+      {"spellID": 1270802, "spell": "Berserker Charge", "type": "positioning", "en": "**Berserker Charge** targets anyone 8 yd or more away: stay close to the pack", "de": "**Berserkeransturm** zielt auf alle ab 8 m Entfernung: nah am Pack bleiben", "version": "forever", "verified": true}
+    ]},
+    {"name": "Alcaz Chaplain", "npcID": 255262, "mechanics": [
+      {"spellID": 15586, "spell": "Heal", "type": "interrupt", "en": "**Heal** on himself or allies: kill or interrupt chaplains first", "de": "**Heilen** auf sich oder Verbündete: Kaplane zuerst töten oder unterbrechen", "version": "forever", "verified": true}
+    ]},
+    {"name": "Alcaz Jailer", "npcID": 271784, "mechanics": [
+      {"spellID": 15496, "spell": "Cleave", "type": "tank", "en": "**Cleave** hits everyone in front: face him away from the group", "de": "**Spalten** trifft alle vor ihm: vom Rest der Gruppe wegdrehen", "version": "forever", "verified": true}
+    ]},
+    {"name": "Defias Truthfinder", "npcID": 255271, "mechanics": [
+      {"spellID": 14032, "spell": "Shadow Word: Pain", "type": "dispel", "en": "**Shadow Word: Pain** on players: dispel it", "de": "**Schattenwort: Schmerz** auf Spielern: reinigen", "version": "forever", "verified": true},
+      {"spellID": 17165, "spell": "Mind Flay", "type": "dispel", "en": "**Mind Flay** channels on a player: dispel or interrupt it", "de": "**Gedankenschinden** auf einem Spieler: reinigen oder unterbrechen", "version": "forever", "verified": true}
+    ]},
+    {"name": "Renegade Conjurer", "npcID": 255364, "mechanics": [
+      {"spellID": 14034, "spell": "Fireball", "type": "interrupt", "en": "**Fireball** hurts: interrupt it, especially if no chaplains are around", "de": "**Feuerball** schmerzt: unterbrechen, besonders wenn keine Kaplane da sind", "version": "forever", "verified": true}
+    ]}
+  ],
+  "sources": ["https://warcraftmaps.com/guides/alcaz-prison-guide (2026-11-16)", "https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "mobalytics.gg WoW Forever Alcaz Prison guide (search summary, 2026-11-16); Katerina, Questioner and Flamestrike are single-source reports", "Wowhead WoW Forever Alcaz Prison guide 35355 (spell IDs and abilities, 2026-11-17)"]
 }

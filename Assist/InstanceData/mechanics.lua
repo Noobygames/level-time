@@ -2125,16 +2125,42 @@ ns.Mechanics = {
     { 0, "survive", "Furcht auf der Gruppe: Furchtzauberschutz oder Erdungstotem helfen", "Fears the group: Fear Ward or Tremor Totem help", "f" },
     { 0, "positioning", "Schwanz schleudert zurück: nicht hinter ihm stehen", "Tail knocks back: stay away from his rear", "f" },
   },
+  [255262] = { -- Alcaz Chaplain (Alcaz Prison)
+    { 15586, "interrupt", "**Heilen** auf sich oder Verbündete: Kaplane zuerst töten oder unterbrechen", "**Heal** on himself or allies: kill or interrupt chaplains first", "f" },
+  },
+  [255271] = { -- Defias Truthfinder (Alcaz Prison)
+    { 14032, "dispel", "**Schattenwort: Schmerz** auf Spielern: reinigen", "**Shadow Word: Pain** on players: dispel it", "f" },
+    { 17165, "dispel", "**Gedankenschinden** auf einem Spieler: reinigen oder unterbrechen", "**Mind Flay** channels on a player: dispel or interrupt it", "f" },
+  },
+  [255364] = { -- Renegade Conjurer (Alcaz Prison)
+    { 14034, "interrupt", "**Feuerball** schmerzt: unterbrechen, besonders wenn keine Kaplane da sind", "**Fireball** hurts: interrupt it, especially if no chaplains are around", "f" },
+  },
+  [255373] = { -- Strashaz Enchantress (Alcaz Prison)
+    { 13323, "interrupt", "**Verwandlung** auf zufälligen Spielern: unterbrechen oder das Schaf entzaubern", "**Polymorph** on random players: interrupt it or dispel the sheep", "f" },
+    { 12737, "interrupt", "**Frostblitzsalve** trifft die Gruppe: unterbrechen", "**Frostbolt Volley** hits the group: interrupt it", "f" },
+  },
   [255391] = { -- Overseer Wrex (Alcaz Prison)
     { 0, "adds", "Zieht alle Wärter seines Raums mit: im Gang bekämpfen", "Pulls every jailer of his room: fight him out in the corridor", "f" },
+    { 16856, "tank", "**Tödlicher Stoß** trifft den Tank hart und halbiert 5 Sek. lang die Heilung auf ihm: Abklingzeiten nutzen", "**Mortal Strike** hits the tank hard and halves healing on him for 5 sec: use cooldowns", "f" },
+    { 9128, "tank", "**Schlachtruf** stärkt ihn und seine Verbündeten zu Kampfbeginn", "**Battle Shout** buffs him and his allies at the start of the fight", "f" },
   },
   [255702] = { -- Blazeroar (Alcaz Prison)
-    { 0, "avoid", "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "Turns into a dragon with burning scales: bring non-fire damage", "f" },
-    { 0, "avoid", "**Flammenstoß** in Phase 1: Feuer verlassen", "**Flamestrike** in the first phase: leave the fire", "f" },
+    { 1271604, "avoid", "Wird zum Drachen mit brennenden Schuppen: kein Feuerschaden", "Turns into a dragon with burning scales: bring non-fire damage", "f" },
+    { 18399, "avoid", "**Flammenstoß** in Phase 1: Feuer verlassen", "**Flamestrike** in the first phase: leave the fire", "f" },
+    { 12466, "avoid", "**Feuerball** in Phase 1: Nahkämpfer müssen ihn eventuell aushalten", "**Fireball** in the first phase: melee may have to take it", "f" },
+    { 1275847, "survive", "**Wahre Gestalt** bei etwa 30 % verwandelt sie in den Drachen mit voller Gesundheit: Abklingzeiten aufsparen", "**Reveal Form** at about 30% turns her into the dragon with full health: save cooldowns", "f" },
+    { 9573, "tank", "**Flammenatem** verursacht hohen Feuerschaden am Tank: Verteidigungs-Abklingzeit oder Trank", "**Flame Breath** deals heavy fire damage to the tank: defensive cooldown or potion", "f" },
+    { 1271593, "survive", "**Furcht** trifft alle außer dem Tank: Erdungstotem oder Furchtzauberschutz", "**Fear** hits everyone but the tank: Tremor Totem or Fear Ward", "f" },
+    { 3391, "tank", "**Dreschen** lässt sie den Tank mehrfach auf einmal treffen", "**Thrash** lets her hit the tank several times at once", "f" },
+  },
+  [255995] = { -- Strashaz Soldier (Alcaz Prison)
+    { 1270802, "positioning", "**Berserkeransturm** zielt auf alle ab 8 m Entfernung: nah am Pack bleiben", "**Berserker Charge** targets anyone 8 yd or more away: stay close to the pack", "f" },
   },
   [255997] = { -- Tidemistress Ca'zass (Alcaz Prison)
     { 0, "interrupt", "Ihre Naga-Helfer verwandeln Spieler und wirken Salven: unterbrechen und kontrollieren", "Her naga adds polymorph players and cast volleys: interrupt and control them", "f" },
-    { 0, "avoid", "**Eissturm** auf der Gruppe: aus dem Schnee treten", "**Blizzard** on the group: step out of the snow", "f" },
+    { 1271375, "avoid", "**Eissturm** auf der Gruppe: aus dem Schnee treten", "**Blizzard** on the group: step out of the snow", "f" },
+    { 15532, "dispel", "**Frostnova** hält Spieler fest: schnell reinigen, damit niemand im Eissturm festsitzt", "**Frost Nova** roots players: dispel them quickly so nobody is stuck in the Blizzard", "f" },
+    { 8398, "interrupt", "**Frostblitzsalve** trifft die ganze Gruppe: unterbrechen oder durchheilen", "**Frostbolt Volley** hits the whole group: interrupt it or heal through it", "f" },
   },
   [256035] = { -- Viktor the Vile (Ruins of Lordaeron)
     { 0, "dispel", "Vergiftet sein Ziel: Gift entfernen, Leben im Blick behalten", "Poisons his target: cure poison, watch health bars", "f" },
@@ -2147,10 +2173,13 @@ ns.Mechanics = {
     { 1301635, "dispel", "Schild blockt Zauber: reinigen oder körperlichen Schaden nutzen", "Shield blocks spells: purge it or use physical damage", "f" },
   },
   [256236] = { -- The Questioner (Alcaz Prison)
-    { 0, "interrupt", "**Lebensentzug** heilt ihn: unterbrechen und seine zwei Zauberer töten", "**Drain Life** heals him: interrupt it and kill his two casters", "f" },
+    { 17620, "interrupt", "**Lebensentzug** heilt ihn: unterbrechen und seine zwei Zauberer töten", "**Drain Life** heals him: interrupt it and kill his two casters", "f" },
+    { 12054, "survive", "**Wunden** lässt den Tank bluten: gegenheilen", "**Rend** makes the tank bleed: heal through it", "f" },
   },
   [257016] = { -- Katerina the Cleaner (Alcaz Prison)
     { 0, "positioning", "Teleportiert sich hinter Fernkämpfer und sticht zu: diese heilen", "Teleports behind ranged players and stabs them: heal them up", "f" },
+    { 1271761, "survive", "**Garrotte** lässt einen zufälligen Spieler bluten, bis er über 90 % geheilt ist: schnell hochheilen", "**Grievous Garrote** makes a random player bleed until healed above 90%: top them up fast", "f" },
+    { 3583, "dispel", "**Tödliches Gift** auf dem Hauptziel: sofort entgiften", "**Deadly Poison** on the main target: dispel it at once", "f" },
   },
   [258042] = { -- Twilight Grunt (Krol'dok Stronghold)
     { 1307066, "positioning", "**Klingensturm** trifft alle im 8-m-Umkreis: Heiler und Fernkämpfer auf Abstand, Gruppenheilung nötig", "**Bladestorm** hits everyone within 8 yd: healers and ranged keep distance, group healing needed", "f" },
@@ -2272,6 +2301,9 @@ ns.Mechanics = {
   },
   [269475] = { -- Mana Phantom (City of Dalaran)
     { 20817, "interrupt", "Verbrennt Mana von Zauberern: unterbrechen oder zuerst töten", "Burns mana from casters: interrupt or kill it first", "f" },
+  },
+  [271784] = { -- Alcaz Jailer (Alcaz Prison)
+    { 15496, "tank", "**Spalten** trifft alle vor ihm: vom Rest der Gruppe wegdrehen", "**Cleave** hits everyone in front: face him away from the group", "f" },
   },
   [277611] = { -- Twilight Peon (Krol'dok Stronghold)
     { 0, "adds", "Läuft los, um Hilfe zu holen: betäuben, verlangsamen oder schnell töten", "Runs off to fetch help: stun, slow or kill quickly", "f" },

@@ -6,6 +6,16 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-21",
+    entries = {
+      { kind = "change",
+        deDE = "Gefängnis von Alcaz: Boss- und Trash-Tipps mit Zauber-Verweisen ergänzt, fehlende Quests der Allianz- und Horde-Kette hinzugefügt.",
+        enUS = "Alcaz Prison: boss and trash tips now link their spells, and missing quests of the Alliance and Horde chains were added.",
+        frFR = "Prison d'Alcaz : conseils de boss et de trash avec liens de sorts, quêtes manquantes des chaînes Alliance et Horde ajoutées.",
+        esES = "Prisión de Alcaz: consejos de jefes y bichos con enlaces a hechizos y misiones que faltaban en las cadenas de Alianza y Horda." },
+    },
+  },
+  {
     date = "2026-11-20",
     entries = {
       { kind = "change",
