@@ -36,7 +36,8 @@
         {"spellID": 22419, "spell": "Riptide", "type": "positioning", "en": "Knockback with short disarm; keep your back to a wall, clear trash first", "de": "Rückstoß mit kurzer Entwaffnung; Rücken zur Wand, vorher Trash räumen", "verified": true},
         {"spellID": 22714, "spell": "Summon Hydroling", "type": "adds", "en": "Two Hydrolings at 50%; their hits knock back and wipe threat", "de": "Zwei Hydrolinge bei 50 %; ihre Treffer stoßen zurück und löschen Bedrohung", "verified": true},
         {"spellID": 22420, "spell": "Submersion", "type": "positioning", "en": "Submerges and moves: be ready to pick him up again", "de": "Taucht ab und wandert: bereit sein, ihn wieder aufzunehmen", "verified": true},
-        {"spellID": 22421, "spell": "Massive Geyser", "type": "avoid", "en": "Geyser throws players up: stay spread and heal the fall", "de": "Geysir schleudert Spieler hoch: verteilt stehen, Fall gegenheilen", "verified": true}
+        {"spellID": 22421, "spell": "Massive Geyser", "type": "avoid", "en": "Geyser throws players up: stay spread and heal the fall", "de": "Geysir schleudert Spieler hoch: verteilt stehen, Fall gegenheilen", "verified": true},
+        {"spellID": 22715, "spell": "Hydrojet", "type": "positioning", "en": "Pushes nearby players away and slows them: stand with your back to a wall", "de": "Stößt Spieler in der Nähe weg und verlangsamt sie: mit dem Rücken zur Wand stehen", "unverified": true}
       ]
     },
     {
@@ -49,7 +50,8 @@
         {"spellID": 13338, "spell": "Curse of Tongues", "type": "dispel", "en": "Curse halves casting speed; decurse casters and healers", "de": "Fluch halbiert Zaubertempo; bei Zauberern und Heilern entfluchen", "verified": true},
         {"spellID": 22710, "spell": "Enlarge", "type": "adds", "en": "Buffs her imp Pimgib; kill the frail imp first", "de": "Stärkt ihren Wichtel Pimgib; den schwachen Wichtel zuerst töten", "verified": true},
         {"spellID": 14887, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow volley hits the whole group: healers top everyone off", "de": "Schattensalve trifft die ganze Gruppe: Heiler alle voll halten", "verified": true},
-        {"spellID": 20787, "spell": "Immolate", "type": "dispel", "en": "Fire damage over time on a player: dispel or heal through", "de": "Feuerschaden über Zeit auf Spieler: bannen oder gegenheilen", "verified": true}
+        {"spellID": 20787, "spell": "Immolate", "type": "dispel", "en": "Fire damage over time on a player: dispel or heal through", "de": "Feuerschaden über Zeit auf Spieler: bannen oder gegenheilen", "verified": true},
+        {"spellID": 16247, "spell": "Curse of Thorns", "type": "dispel", "en": "Curse makes attackers take damage sometimes: decurse the affected", "de": "Fluch verletzt Angreifer zeitweise: Betroffene entfluchen", "unverified": true}
       ]
     },
     {
@@ -63,8 +65,26 @@
         {"spellID": 0, "spell": "Come Minions!", "type": "adds", "unverified": true, "en": "Midway the wall breaks and imps swarm in; AoE them down", "de": "Mitten im Kampf bricht die Wand, Wichtel strömen herein; flächig töten"},
         {"spellID": 22661, "spell": "Enervate", "type": "survive", "en": "Enervate drains a player: heal the target", "de": "Entkräften saugt einen Spieler aus: Ziel heilen", "verified": true},
         {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "Knocks the tank away: tank with the back to a wall", "de": "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "verified": true},
-        {"spellID": 22660, "spell": "Dire Wolf Form", "type": "tank", "en": "Turns into a wolf with faster hits: heal the tank harder", "de": "Wird zum Wolf mit schnelleren Schlägen: Tank stärker heilen", "verified": true}
+        {"spellID": 22660, "spell": "Dire Wolf Form", "type": "tank", "en": "Turns into a wolf with faster hits: heal the tank harder", "de": "Wird zum Wolf mit schnelleren Schlägen: Tank stärker heilen", "verified": true},
+        {"spellID": 22128, "spell": "Thorns", "type": "survive", "en": "He buffs himself with thorns: melee take nature damage per hit", "de": "Er stärkt sich mit Dornen: Nahkämpfer erleiden bei jedem Schlag Naturschaden", "unverified": true},
+        {"spellID": 22691, "spell": "Disarm", "type": "tank", "en": "Disarms the tank for a few seconds: expect lower tank damage", "de": "Entwaffnet den Tank für einige Sekunden: weniger Tankschaden einplanen", "unverified": true},
+        {"spellID": 7948, "spell": "Wild Regeneration", "type": "survive", "en": "Heals himself over time in wolf form: keep up damage", "de": "Heilt sich in Wolfsform über Zeit: Schaden hochhalten", "unverified": true},
+        {"spellID": 19319, "spell": "Vicious Bite", "type": "tank", "en": "Bite hits the tank for physical damage: heal through", "de": "Biss trifft den Tank mit physischem Schaden: durchheilen", "unverified": true}
       ]
+    },
+    {
+      "name": "Isalien",
+      "npcID": 16097,
+      "wing": "East",
+      "mechanics": [
+        {"spellID": 27639, "spell": "Call Pet", "type": "adds", "en": "Summons a pet: kill the add, then switch back to Isalien", "de": "Ruft ein Tier: Add töten, dann zurück auf Isalien", "unverified": true},
+        {"spellID": 14443, "spell": "Multi-Shot", "type": "survive", "en": "Volley hits up to three players: heal them", "de": "Salve trifft bis zu drei Spieler: heilen", "unverified": true},
+        {"spellID": 12024, "spell": "Net", "type": "dispel", "en": "Roots a player for 5 sec", "de": "Wurzelt einen Spieler 5 Sek. lang", "unverified": true},
+        {"spellID": 27637, "spell": "Regrowth", "type": "interrupt", "en": "Heals herself: interrupt the cast", "de": "Heilt sich selbst: Zauber unterbrechen", "unverified": true},
+        {"spellID": 27636, "spell": "Starshards", "type": "survive", "en": "Arcane damage over 6 sec on a player: heal through", "de": "Arkanschaden über 6 Sek. auf einen Spieler: durchheilen", "unverified": true},
+        {"spellID": 25164, "spell": "Vengeance", "type": "survive", "en": "Raises her attack and movement speed: burst her down", "de": "Erhöht ihr Angriffs- und Lauftempo: schnell töten", "unverified": true}
+      ],
+      "rare": true
     },
     {
       "name": "Tendris Warpwood",

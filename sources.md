@@ -99,4 +99,6 @@ Forever-own dungeons without Wowhead guide (LT-59, 2026-11-16): boss tips for Al
 
 Alcaz Prison (LT-376, 2026-11-21): boss and trash spell IDs and abilities from our offline extraction of the Wowhead WoW Forever Alcaz Prison guide 35355 (2026-11-17), tactics in our own words; quests 95264, 96335, 96369 and the trash NPC IDs from the same guide and its quest pages. Trash NPC levels (49-54) are the dungeon's recommended range, not confirmed. Katerina's Backstab stays a single-source, unverified report.
 
-`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor, bag names/slots and the seven enemy drops from Wowhead (2026-11-15); maintained by hand since.
+Dire Maul East (LT-380, 2026-11-21): boss abilities of Lethtendris, Hydrospawn, Alzzin and the optional boss Isalien (NPC 16097) with spell IDs from the Wowhead WoW Forever dungeon journal notes, descriptions in our own words, marked unverified; Isalien level and loot not known.
+
+`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

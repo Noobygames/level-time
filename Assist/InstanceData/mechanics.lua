@@ -1362,6 +1362,10 @@ ns.Mechanics = {
     { 10101, "tank", "Schlägt den Tank weg: mit dem Rücken zur Wand tanken", "Knocks the tank away: tank with the back to a wall", "v" },
     { 22660, "tank", "Wird zum Wolf mit schnelleren Schlägen: Tank stärker heilen", "Turns into a wolf with faster hits: heal the tank harder", "v" },
     { 0, "adds", "Mitten im Kampf bricht die Wand, Wichtel strömen herein; flächig töten", "Midway the wall breaks and imps swarm in; AoE them down" },
+    { 22128, "survive", "Er stärkt sich mit Dornen: Nahkämpfer erleiden bei jedem Schlag Naturschaden", "He buffs himself with thorns: melee take nature damage per hit" },
+    { 22691, "tank", "Entwaffnet den Tank für einige Sekunden: weniger Tankschaden einplanen", "Disarms the tank for a few seconds: expect lower tank damage" },
+    { 7948, "survive", "Heilt sich in Wolfsform über Zeit: Schaden hochhalten", "Heals himself over time in wolf form: keep up damage" },
+    { 19319, "tank", "Biss trifft den Tank mit physischem Schaden: durchheilen", "Bite hits the tank for physical damage: heal through" },
   },
   [11496] = { -- Immol'thar (Dire Maul)
     { 22950, "tank", "Teleportiert einen zufälligen Spieler; Bedrohung halten, ggf. spotten", "Teleports a random player and drops threat; keep him taunted", "v" },
@@ -1622,6 +1626,7 @@ ns.Mechanics = {
     { 22714, "adds", "Zwei Hydrolinge bei 50 %; ihre Treffer stoßen zurück und löschen Bedrohung", "Two Hydrolings at 50%; their hits knock back and wipe threat", "v" },
     { 22420, "positioning", "Taucht ab und wandert: bereit sein, ihn wieder aufzunehmen", "Submerges and moves: be ready to pick him up again", "v" },
     { 22421, "avoid", "Geysir schleudert Spieler hoch: verteilt stehen, Fall gegenheilen", "Geyser throws players up: stay spread and heal the fall", "v" },
+    { 22715, "positioning", "Stößt Spieler in der Nähe weg und verlangsamt sie: mit dem Rücken zur Wand stehen", "Pushes nearby players away and slows them: stand with your back to a wall" },
   },
   [13282] = { -- Noxxion (Maraudon)
     { 21687, "dispel", "**Giftsalve** trifft die Gruppe; Gifte entfernen", "Poison volley hits the whole group; cure poisons", "v" },
@@ -1699,6 +1704,7 @@ ns.Mechanics = {
     { 22710, "adds", "Stärkt ihren Wichtel Pimgib; den schwachen Wichtel zuerst töten", "Buffs her imp Pimgib; kill the frail imp first", "v" },
     { 14887, "survive", "Schattensalve trifft die ganze Gruppe: Heiler alle voll halten", "Shadow volley hits the whole group: healers top everyone off", "v" },
     { 20787, "dispel", "Feuerschaden über Zeit auf Spieler: bannen oder gegenheilen", "Fire damage over time on a player: dispel or heal through", "v" },
+    { 16247, "dispel", "Fluch verletzt Angreifer zeitweise: Betroffene entfluchen", "Curse makes attackers take damage sometimes: decurse the affected" },
   },
   [14354] = { -- Pusillin (Dire Maul)
     { 17145, "avoid", "Feuernova um ihn verlangsamt Spieler; Fernkämpfer nicht in Nahkampfreichweite", "Fire nova around him slows; ranged stay out of melee range", "v" },
@@ -2021,6 +2027,14 @@ ns.Mechanics = {
     { 27527, "interrupt", "Große Selbstheilung; immer unterbrechen", "Big self heal; always interrupt it" },
     { 27532, "dispel", "Seine Heilung über Zeit reinigen", "Purge his heal-over-time buff" },
     { 27530, "avoid", "Kanalisierter Sturm um ihn; herauslaufen", "Channeled storm around him; move out of it" },
+  },
+  [16097] = { -- Isalien (Dire Maul)
+    { 27639, "adds", "Ruft ein Tier: Add töten, dann zurück auf Isalien", "Summons a pet: kill the add, then switch back to Isalien" },
+    { 14443, "survive", "Salve trifft bis zu drei Spieler: heilen", "Volley hits up to three players: heal them" },
+    { 12024, "dispel", "Wurzelt einen Spieler 5 Sek. lang", "Roots a player for 5 sec" },
+    { 27637, "interrupt", "Heilt sich selbst: Zauber unterbrechen", "Heals herself: interrupt the cast" },
+    { 27636, "survive", "Arkanschaden über 6 Sek. auf einen Spieler: durchheilen", "Arcane damage over 6 sec on a player: heal through" },
+    { 25164, "survive", "Erhöht ihr Angriffs- und Lauftempo: schnell töten", "Raises her attack and movement speed: burst her down" },
   },
   [16118] = { -- Kormok (Scholomance)
     { 27688, "positioning", "**Knochenschild** wirft Schaden auf Nahkämpfer zurück; pausieren", "**Bone shield** reflects damage to melee; melee pause" },
@@ -2406,7 +2420,7 @@ ns.MechanicGuide = {
     trash = { { 11671, "Core Hound" }, { 11673, "Ancient Core Hound" }, { 11668, "Firelord" }, { 11658, "Molten Giant" }, { 11659, "Molten Destroyer" }, { 11667, "Flameguard" }, { 11666, "Firewalker" }, { 12119, "Flamewaker Protector" }, },
   },
   [429] = {
-    bosses = { { 14354, "Pusillin" }, { 11490, "Zevrim Thornhoof" }, { 13280, "Hydrospawn" }, { 14327, "Lethtendris" }, { 11492, "Alzzin the Wildshaper" }, { 11489, "Tendris Warpwood" }, { 11488, "Illyanna Ravenoak" }, { 11487, "Magister Kalendris" }, { 11496, "Immol'thar" }, { 11486, "Prince Tortheldrin" }, { 14326, "Guard Mol'dar" }, { 14322, "Stomper Kreeg" }, { 14321, "Guard Fengus" }, { 14323, "Guard Slip'kik" }, { 14325, "Captain Kromcrush" }, { 14324, "Cho'Rush the Observer" }, { 11501, "King Gordok" }, },
+    bosses = { { 14354, "Pusillin" }, { 11490, "Zevrim Thornhoof" }, { 13280, "Hydrospawn" }, { 14327, "Lethtendris" }, { 11492, "Alzzin the Wildshaper" }, { 16097, "Isalien" }, { 11489, "Tendris Warpwood" }, { 11488, "Illyanna Ravenoak" }, { 11487, "Magister Kalendris" }, { 11496, "Immol'thar" }, { 11486, "Prince Tortheldrin" }, { 14326, "Guard Mol'dar" }, { 14322, "Stomper Kreeg" }, { 14321, "Guard Fengus" }, { 14323, "Guard Slip'kik" }, { 14325, "Captain Kromcrush" }, { 14324, "Cho'Rush the Observer" }, { 11501, "King Gordok" }, },
     trash = { { 11457, "Wildspawn Hellcaller" }, { 11456, "Wildspawn Shadowstalker" }, { 11464, "Warpwood Tangler" }, { 11459, "Ironbark Protector" }, { 11480, "Arcane Aberration" }, { 11470, "Eldreth Sorcerer" }, { 11466, "Highborne Summoner" }, { 11444, "Gordok Mage-Lord" }, { 11448, "Gordok Warlock" }, { 14386, "Wandering Eye of Kilrogg" }, },
   },
   [469] = {
