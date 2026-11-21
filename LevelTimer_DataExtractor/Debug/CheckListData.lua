@@ -1,5 +1,6 @@
 -- Daten der Spiel-Checkliste (Debug/CheckList.lua): offene Vikunja-Tickets mit Label "Im Spiel prüfen" (Projekt 5, LT).
--- Eintrag: { id, title, client = "all"|"forever"|"classic_era", triggers = { ... }, steps = { ... } }.
+-- Eintrag: { id, title, client = "all"|"forever"|"classic_era", triggers = { ... }, steps = { ... }, retry = "JJJJ-MM-TT" }
+-- (retry optional: nach einer Korrektur gelten ältere Ergebnisse, auch "fail", wieder als offen).
 -- Trigger (feste Menge, siehe CheckList.lua): login, instance, raid, levelup, questAccept, questTurnIn, lfg, worldmap,
 -- combat (nach dem Kampf), death, loot, flight, merchant, trainer, options, history, stream, anywhere.
 -- Client: Label "Client: Forever" allein -> forever, nur "Client: Classic Era" -> classic_era, beides oder keins -> all.
@@ -45,10 +46,10 @@ X.CheckListData = {
       "Maus auf den Schalter für eingeklappte Buffs; Wasser-/Blitzschlagschild wirken, Buffleiste ein- und ausklappen.",
       "Erwartung: Tooltip sagt, dass die Buffleiste eingeklappt sein muss; eingeklappt zeigt die Anzeige die Ladungen.",
     } },
-  { id = "LT-388", client = "forever", triggers = { "options" },
+  { id = "LT-388", client = "forever", triggers = { "options" }, retry = "2026-11-21",
     title = "Beyond Ultra Grafik: Wetter, Wasserwellen, Sonnenstrahlen, HDR, Pause in Instanzen",
     steps = {
-      "Beyond Ultra an, Wetter/Wellen/Sonnenstrahlen-Regler ändern (FPS beobachten), Seite aus; mit HDR-Monitor HDR an/aus; 'Pause in Instanzen' an, Dungeon betreten/verlassen; /lte check LT388.graphics.cvars.",
+      "Einstellungen > Oberfläche > Unterseite Grafik & Ton, ganz unten (nur Forever): Beyond Ultra an, Wetter/Wasserwellen/Sonnenstrahlen-Regler ändern (FPS beobachten), Seite aus; mit HDR-Monitor HDR an/aus; 'Pause in Instanzen' an, Dungeon betreten/verlassen; /lte check LT388.graphics.cvars.",
       "Erwartung: Änderung sichtbar, aus = Originalwerte zurück; im Dungeon Standardwerte, draußen wieder die eigenen; Check: missing leer.",
     } },
   { id = "LT-405", client = "all", triggers = { "instance", "options" },

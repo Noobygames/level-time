@@ -43,6 +43,16 @@ open = {}
 for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
 expectTrue("Später bleibt offen", open["LT-390"])
 
+-- retry: nachgebesserter Eintrag, älteres "fail" ist wieder offen, neues Ergebnis nicht
+LevelTimerDebugLog.checkResults["LT-388"] = { status = "fail", t = "2026-11-17 16:05:51", note = "" }
+open = {}
+for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
+expectTrue("altes fail nach retry offen", open["LT-388"])
+CheckList.Mark("LT-388", "fail", "")
+open = {}
+for _, item in ipairs(CheckList.Open()) do open[item.entry.id] = true end
+expect("neues fail bleibt zu", open["LT-388"], nil)
+
 -- off: keine Hinweise mehr
 SlashCmdList.LEVELTIMEREXTRACTOR("todo off")
 expect("Hinweise aus", CheckList.Enabled(), false)
