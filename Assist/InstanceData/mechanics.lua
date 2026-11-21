@@ -594,11 +594,14 @@ ns.Mechanics = {
     { 11837, "positioning", "**Weiter Hieb** trifft vorne im Kegel; nur der Tank vorne", "**Wide Slash** hits a frontal cone; only the tank in front", "v" },
     { 15496, "positioning", "Spaltet; Nahkämpfer hinter ihm", "Cleaves; melee stay behind him", "v" },
     { 8269, "tank", "**Raserei** erhöht Angriffstempo und Schaden", "**Frenzy** raises his attack speed and damage" },
+    { 7366, "tank", "Er nimmt die **Berserkerhaltung** ein; härtere Treffer", "He takes **Berserker Stance**; expect harder hits" },
   },
   [7271] = { -- Witch Doctor Zum'rah (Zul'Farrak)
     { 11086, "adds", "Zauberschutz zerstören, er ruft alle 5 Sek. ein Skelett", "Destroy his ward, it spawns a skeleton every 5 sec", "v" },
     { 15245, "interrupt", "**Schattenblitzsalve** und **Welle der Heilung** unterbrechen", "Interrupt **Shadow Bolt Volley** and Healing Wave", "v" },
     { 0, "adds", "Erweckt Zombies aus Gräbern; von den Gräbern wegziehen", "Raises zombies from graves; pull him away from them" },
+    { 12491, "interrupt", "Er heilt sich auch mit **Welle der Heilung**", "He also heals himself with **Healing Wave**" },
+    { 12739, "interrupt", "**Schattenblitz** wenn möglich unterbrechen", "Interrupt **Shadow Bolt** when possible" },
   },
   [7272] = { -- Theka the Martyr (Zul'Farrak)
     { 8600, "dispel", "**Fiebrige Seuche** ist eine Krankheit; heilen oder unterbrechen", "**Fevered Plague** is a disease; cure it or interrupt", "v" },
@@ -616,6 +619,7 @@ ns.Mechanics = {
     { 12739, "interrupt", "**Schattenblitz** unterbrechen, wenn er nicht heilt", "Kick **Shadow Bolt** when no heal is being cast", "v" },
     { 13704, "survive", "**Psychischer Schrei** versetzt bis zu 5 Spieler in Furcht; keine Adds ziehen", "**Psychic Scream** fears up to 5 players; avoid pulling more" },
     { 12039, "interrupt", "Heilen unterbrechen; **Erneuerung** bannen", "Interrupt **Heal**; dispel his Renew" },
+    { 8362, "dispel", "Seine **Erneuerung** bannen", "Dispel his **Renew** heal over time" },
   },
   [7291] = { -- Galgann Firehammer (Uldaman)
     { 11970, "survive", "**Feuernova** trifft alle um ihn; Nahkämpfer brauchen Heilung", "**Fire Nova** burns everyone around him; melee needs heals", "v" },
@@ -676,13 +680,18 @@ ns.Mechanics = {
   },
   [7604] = { -- Sergeant Bly (Zul'Farrak)
     { 11972, "interrupt", "**Schildhieb** unterbricht Zauberer: aus der Distanz heilen", "**Shield bash** interrupts casters: heal from range", "v" },
+    { 12170, "tank", "**Rache** folgt auf Blocken, Ausweichen oder Parieren; kleiner Tankschaden", "**Revenge** follows a block, dodge or parry; tank takes small hits" },
   },
   [7795] = { -- Hydromancer Velratha (Zul'Farrak)
     { 12491, "interrupt", "**Welle der Heilung** unterbrechen", "Interrupt **Healing Wave**", "v" },
     { 0, "interrupt", "**Wasserblitz** unterbrechen, um Frostschaden zu senken", "Interrupt **Water Bolt** to reduce frost damage" },
+    { 12739, "interrupt", "**Schattenblitz** unterbrechen", "Interrupt **Shadow Bolt**" },
+    { 15245, "interrupt", "**Schattenblitzsalve** unterbrechen", "Interrupt **Shadow Bolt Volley**" },
+    { 11086, "adds", "Zauberschutz zerstören, er ruft Skelette", "Destroy her ward, it spawns skeletons" },
   },
   [7796] = { -- Nekrum Gutchewer (Zul'Farrak)
     { 8600, "dispel", "**Fiebrige Seuche**; Krankheit heilen oder unterbrechen", "**Fevered Plague** disease; cure it or interrupt" },
+    { 15537, "interrupt", "Wirkt **Schattenblitz**; unterbrechen", "Casts **Shadow Bolt**; interrupt it" },
   },
   [7797] = { -- Ruuzlu (Zul'Farrak)
     { 0, "positioning", "Spaltet auch Nachbarn des Tanks; hinter ihm stehen", "Cleaves the tank's neighbour; stand behind" },
@@ -700,8 +709,12 @@ ns.Mechanics = {
   },
   [8127] = { -- Antu'sul (Zul'Farrak)
     { 0, "adds", "Heilungszauberschutz und Erdgriff-Totem schnell zerstören", "Kill his Healing Ward and Earthgrab Totem fast" },
-    { 0, "adds", "Bei 75 % und 25 % kommen Basilisken, die versteinern", "At 75% and 25% basilisk servants join; they petrify" },
-    { 0, "interrupt", "Seine Selbstheilung unterbrechen", "Interrupt his self heal" },
+    { 11894, "adds", "Bei 75 % und 25 % kommen Basilisken, die versteinern", "At 75% and 25% basilisk servants join; they petrify" },
+    { 11895, "interrupt", "Seine Selbstheilung unterbrechen", "Interrupt his self heal" },
+    { 8376, "adds", "Das Totem hält Spieler in der Nähe fest; Nahkämpfer zerstören es", "The totem roots nearby players; melee burn it down" },
+    { 10915, "interrupt", "Seine **Blitzheilung** unterbrechen", "Interrupt his **Flash Heal**" },
+    { 2860, "positioning", "**Kettenblitzschlag** springt zwischen Spielern; verteilen", "**Chain Lightning** jumps between players; spread out" },
+    { 10413, "interrupt", "**Erdschock** sperrt eine Zauberschule; Zauberwirker nicht bündeln", "**Earth Shock** locks a spell school; keep casters apart" },
   },
   [8336] = { -- Hakkari Sapper (Sunken Temple)
     { 11981, "interrupt", "**Manabrand** entzieht Zauberern Mana; unterbrechen", "**Mana Burn** drains casters; interrupt" },

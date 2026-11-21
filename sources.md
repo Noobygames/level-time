@@ -107,4 +107,6 @@ Lower Blackrock Spire (LT-378, 2026-11-21): journal and guide spell lines missin
 
 Krol'dok Stronghold (LT-386, 2026-11-21): spell IDs, three trash entries (Twilight Outrider 258102, Krol'dok Shaman 257888, Krol'dok Centurion 257885) and quest 94877 Saving Sunnyglade with its giver from the offline Wowhead WoW Forever guide notes (krol-dok-stronghold.md, written after the LT-59 tips); unverified: quest level (copied from sibling quest 94881), NPC levels, Zarmok Sunder Armor ID, Ashka's wolf abilities.
 
+Zul'Farrak (LT-373, 2026-11-21): boss spell IDs and abilities (Antu'sul, Zum'rah, Nekrum, Sezz'ziz, Bly, Velratha, Ukorz) from the Wowhead WoW Forever journal notes, in our own words and marked unverified; Shadow Bolt 15537 placed on Nekrum (notes list it for Nekrum and Sezz'ziz together); Healing Ward, zombie and Water Bolt IDs still open.
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
