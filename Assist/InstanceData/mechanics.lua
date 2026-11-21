@@ -2413,6 +2413,7 @@ ns.Mechanics = {
   [260325] = { -- Shadetooth (Excavation Site: Wetlands)
     { 0, "adds", "Raptorwelle vor seiner Ankunft töten", "Kill the raptor wave before he arrives", "f" },
     { 0, "survive", "Versetzt den Tank mehrfach in Furcht: Totem des Erdstoßes hilft", "Fears the tank repeatedly: a Tremor Totem helps", "f" },
+    { 3427, "dispel", "Seine zwei Dickichtjäger wirken **Infizierte Wunde**, die erlittenen physischen Schaden erhöht: schnell bannen (ungeprüft)", "His two Thicket Hunters apply **Infected Wound**, raising physical damage taken: dispel it quickly (unverified)", "f" },
     { 12054, "tank", "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "**Rend** bleeds the tank: keep healing steady", "f" },
     { 14100, "survive", "Gebrüll lässt Spieler fliehen: Furchtschutz nutzen", "Roar fears nearby players: use fear protection", "f" },
     { 18501, "tank", "Wütet bei wenig Leben: Abklingzeiten fürs Ende aufheben", "Enrages at low health: save cooldowns for the end", "f" },
@@ -2420,6 +2421,9 @@ ns.Mechanics = {
   [260326] = { -- Relic Guardian (Excavation Site: Wetlands)
     { 0, "tank", "Setzt Bedrohung zurück und wechselt Ziel: Schaden drosseln, Tank holt ihn zurück", "Drops threat and swaps targets: damage slows down, tank takes him back", "f" },
     { 15588, "positioning", "**Donnerknall** verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "**Thunderclap** slows nearby players: ranged keep distance", "f" },
+    { 8374, "positioning", "**Bogenschlag** trifft einen Kegel vor ihm: Tank steht abseits der Gruppe", "**Arcing Smash** hits a cone in front of him: tank stands apart from the group", "f" },
+    { 10101, "tank", "**Wegschlagen** schleudert den Tank zurück: Nahkontakt geht kurz verloren", "**Knock Away** throws the tank back: expect to lose melee contact", "f" },
+    { 11876, "survive", "**Kriegsdonner** betäubt und stößt Spieler in der Nähe 5 Sekunden zurück: Heilung bereithalten", "**War Stomp** stuns and knocks back nearby players for 5 seconds: save stun breaks and healing", "f" },
   },
   [260808] = { -- Highland Horror (Excavation Site: Wetlands)
     { 0, "dispel", "Wurzelt einen Spieler: bannen oder befreien", "Roots a player: dispel or free them", "f" },

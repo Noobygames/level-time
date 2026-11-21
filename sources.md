@@ -123,4 +123,6 @@ The Drowned City (LT-367, 2026-11-21): spell IDs and abilities of Zul'Alai, Var'
 
 City of Dalaran (LT-366, 2026-11-21): quest giver Rexxie Copperclutch (268743, Horde, inside the instance, no coordinates) for 96987 and the boss abilities Strike, Arcing Smash, Arcane Explosion, Slow and Raise Dead (Lyn) from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; guide table IDs kept over journal IDs.
 
+Excavation Site: Wetlands (LT-365, 2026-11-21): Infected Wound (Shadetooth adds), Arcing Smash, Knock Away and War Stomp (Relic Guardian) from the Wowhead WoW Forever journal and guide notes, our own wording, effects unverified; guide table IDs kept (Enrage, Thunderclap). Open: whether quest 469 Daily Delivery is a prerequisite of Highland Hides (98815).
+
 `Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.
