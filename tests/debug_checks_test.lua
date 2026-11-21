@@ -31,6 +31,8 @@ local CHECKS = {
   "LT334.recap.api", "LT334.recap.state", "LT334.recap.deaths",
   "LT352.lfg.filters", "LT387.guide.anytime", "LT338.sync.groupApi", "LT393.dungeonArt.coverage", "LT395.icons.spells",
   "LT404.guide.spellLinks", "LT408.lfg.realms", "LT412.trivialTracking.api", "LT413.realm.sources",
+  "LT405.recap.run", "LT407.lfg.levelOrder", "LT409.oldRanks.upgrade", "LT410.hearth.bind", "LT411.dungeonQuests.markAll",
+  "LT412.trivialChain.state", "LT414.realm.splitEntries", "LT416.alerts.eliteGate", "LT416.cleanup.leftoversTitles",
 }
 
 wow.login()

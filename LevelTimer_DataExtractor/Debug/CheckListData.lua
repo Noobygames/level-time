@@ -3,8 +3,9 @@
 -- Trigger (feste Menge, siehe CheckList.lua): login, instance, raid, levelup, questAccept, questTurnIn, lfg, worldmap,
 -- combat (nach dem Kampf), death, loot, flight, merchant, trainer, options, history, stream, anywhere.
 -- Client: Label "Client: Forever" allein -> forever, nur "Client: Classic Era" -> classic_era, beides oder keins -> all.
--- Umfang: nur Tickets, die in Release v2.39 stecken (Commits von main..v2.39); alle übrigen offenen Tickets bleiben in Vikunja (Label 8).
--- Stand 2026-11-17: Schritte und Trigger je Eintrag von Hand aus den Vikunja-Ticketbeschreibungen abgeleitet (konkrete
+-- Umfang: Tickets und Änderungen, die in Release v3.4.0 stecken (Commits von main..v3.4.0), dazu ältere offene Einträge;
+-- alle übrigen offenen Tickets bleiben in Vikunja (Label 8). Automatisch prüfbares steht als Debug-Check (/lt debug check).
+-- Stand 2026-11-21 (Einträge bis LT-388: 2026-11-17): Schritte und Trigger je Eintrag von Hand aus den Vikunja-Ticketbeschreibungen abgeleitet (konkrete
 -- Handlung und Erwartung). Tickets ohne Spieltest (reine Daten-, Code- oder Planungsaufgaben) haben den einen Schritt
 -- "Kein Spieltest nötig: im Ticket abschließen" und den Trigger anywhere.
 -- Aktualisieren: Tickets mit `project = 5 && done = false && labels in 8` in kleinen Seiten neu lesen (sonst kommen die
@@ -211,5 +212,41 @@ X.CheckListData = {
     steps = {
       "Beyond Ultra an, Wetter/Wellen/Sonnenstrahlen-Regler ändern (FPS beobachten), Seite aus; mit HDR-Monitor HDR an/aus; 'Pause in Instanzen' an, Dungeon betreten/verlassen; /lte check LT388.graphics.cvars.",
       "Erwartung: Änderung sichtbar, aus = Originalwerte zurück; im Dungeon Standardwerte, draußen wieder die eigenen; Check: missing leer.",
+    } },
+  { id = "LT-405", client = "all", triggers = { "instance", "options" },
+    title = "Dungeon-Recap während des Laufs und Setup-Assistent-Schalter",
+    steps = {
+      "In einem Dungeon mit laufendem Tracker links auf den Tracker klicken (ohne Ziehen), dann /lt recap run, dann im Run-Fenster den Knopf Recap; /lte check LT405.recap.run.",
+      "Erwartung: jedes Mal öffnet sich der Recap mit dem Zwischenstand des laufenden Laufs; Ziehen des Trackers öffnet ihn nicht; im Setup-Assistent gibt es die Schalter für Dungeon-Guide und Recap.",
+    } },
+  { id = "LT-409", client = "all", triggers = { "anywhere" },
+    title = "Alte Zauberränge: Upgrade-Knopf, Überfahren markiert den Platz, Klick tauscht einen Platz",
+    steps = {
+      "Zauber niedrigen Ranges auf mehrere Aktionsleisten-Plätze legen, höheren Rang lernen, Hinweisfenster abwarten; Maus über den Upgrade-Knopf, dann klicken (auch in Forever); /lte check LT409.oldRanks.upgrade.",
+      "Erwartung: Überfahren markiert den nächsten Platz auf der Leiste, jeder Klick ersetzt genau einen Platz durch den höchsten Rang, die Zeile verschwindet nach dem letzten; im Kampf passiert nichts.",
+    } },
+  { id = "LT-410", client = "all", triggers = { "anywhere" },
+    title = "Ruhestein-Hinweis beim Betreten eines Gasthauses oder einer Hauptstadt",
+    steps = {
+      "Ein Gasthaus oder eine Hauptstadt betreten (nicht per /reload darin); /lte check LT410.hearth.bind.",
+      "Erwartung: ein Hinweis nennt den Bindeort des Ruhesteins, einmal je Betreten, nicht nach /reload im Gasthaus.",
+    } },
+  { id = "LT-411", client = "forever", triggers = { "worldmap" },
+    title = "Dungeonquests: Alle markieren über mehrere Zonen, Karte öffnet einmal",
+    steps = {
+      "Hinweisfenster für Dungeonquests öffnen (Quests aus mehreren Zonen), 'Alle markieren' klicken; /lte check LT411.dungeonQuests.markAll.",
+      "Erwartung: Kartenpunkte für alle Einträge in allen Zonen, die Weltkarte öffnet genau einmal (Elternkarte bei mehreren Zonen).",
+    } },
+  { id = "LT-412", client = "forever", triggers = { "anywhere" },
+    title = "Dungeon-Vorquests: gelbes Ausrufezeichen bei Kettengebern, graue Quests in der Nähe",
+    steps = {
+      "In die Nähe eines Gebers einer Dungeon-Vorquest (auch graue Quest) laufen, Optionen 'Graue Quests in der Nähe' und 'kurz einblenden' einmal an/aus; /lte check LT412.trivialChain.state.",
+      "Erwartung: gelbes Ausrufezeichen über dem Geber, Hinweis zur grauen Quest, Quest lässt sich annehmen; der Minimap-Filter geht danach wieder zurück.",
+    } },
+  { id = "LT-416", client = "all", triggers = { "combat", "options" },
+    title = "Elite-Einblendung, Hinweisfenster unter der Maus, Abklingzeit-Zahlen",
+    steps = {
+      "Allein einen Elite-Gegner töten, danach dieselbe Art erneut innerhalb von 5 Minuten; in einer Gruppe und in einem Dungeon Elites töten; /lte check LT416.alerts.eliteGate. Außerdem Maus über ein Hinweisfenster halten und Namensplaketten mit Abklingzeit-Zahlen ansehen (Forever).",
+      "Erwartung: Elite-Banner nur allein und je Gegnerart höchstens alle 5 Minuten; das Hinweisfenster bleibt unter der Maus stehen; keine Lua-Fehler durch Abklingzeit-Zahlen an Plaketten; Questreste enthalten keine Handwerkswaren (/lte check LT416.cleanup.leftoversTitles).",
     } },
 }

@@ -1831,12 +1831,14 @@ end)
 
 -- LT-404: Zauber-Links im Dungeon Guide verlinken den ersten **Namen** einer Mechanik-Zeile mit deren Zauber-ID. Passt
 -- der Clientname der ID zum Namen im Text (Text in Client-Sprache)? unknown = ID ohne Namen im Client, mismatch =
--- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE), mismatches = Anzahl aller Abweichungen
+-- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE), mismatches = Anzahl aller Abweichungen,
+-- unknownIDs = Beispiel-IDs ohne Clientnamen (höchstens UNKNOWN_ID_SAMPLE)
 local SPELL_LINK_SAMPLE = 80
+local UNKNOWN_ID_SAMPLE = 40  -- Beispiele für unknownIDs
 check("LT404.guide.spellLinks", function()
   if not ns.Mechanics then return { available = false } end
   local textIndex = GetLocale() == "deDE" and 3 or 4
-  local linked, unknown, mismatch, mismatches = 0, 0, {}, 0
+  local linked, unknown, mismatch, mismatches, unknownIDs = 0, 0, {}, 0, {}
   for _, list in pairs(ns.Mechanics) do
     for _, mechanic in ipairs(list) do
       local marked = mechanic[1] > 0 and mechanic[textIndex]:match("%*%*(.-)%*%*")
@@ -1845,6 +1847,7 @@ check("LT404.guide.spellLinks", function()
         local name = C_Spell.GetSpellName(mechanic[1])
         if not name or ns.IsSecret(name) then
           unknown = unknown + 1
+          if #unknownIDs < UNKNOWN_ID_SAMPLE then unknownIDs[#unknownIDs + 1] = mechanic[1] end
         elseif name:lower() ~= marked:lower() then
           mismatches = mismatches + 1
           if #mismatch < SPELL_LINK_SAMPLE then mismatch[#mismatch + 1] = mechanic[1] .. " " .. name .. " | " .. marked end
@@ -1852,7 +1855,8 @@ check("LT404.guide.spellLinks", function()
       end
     end
   end
-  return { available = true, linked = linked, unknown = unknown, mismatches = mismatches, mismatch = mismatch }
+  return { available = true, linked = linked, unknown = unknown, unknownIDs = unknownIDs, mismatches = mismatches,
+    mismatch = mismatch }
 end)
 
 -- LT-408: Sprache je Gruppe über den Realm? Stehen Realms in den Leader-Namen der aktuellen Suchergebnisse (nach
@@ -1914,3 +1918,134 @@ DebugLog.Helpers = {
   framesByName = framesByName, recentEntries = recentEntries, readable = readable, read = read, readXY = readXY,
   fieldsOf = fieldsOf,
 }
+
+-- LT-405/406: Recap während des Laufs. Gibt es einen offenen Lauf (isCurrent), baut der Recap daraus Spieler und Gegner?
+-- Einstellungen der Setup-Assistent-Schalter für Guide und Recap
+check("LT405.recap.run", function()
+  if not (ns.DungeonRecapWindow and ns.InstanceRecap) then return { available = false } end
+  local log = ns.History.GetInstanceLog(ns.characterKey)
+  local record = log[1]
+  local result = { available = true, runs = #log, current = record and record.isCurrent or false,
+    windowShown = ns.DungeonRecapWindow.IsShown(),
+    settings = { recapAutoOpen = ns.db.dungeonRecapAutoOpen, guideAuto = ns.db.dungeonGuideAuto,
+      runTracker = ns.db.showRunTracker } }
+  if record then
+    result.players, result.mobs = #ns.InstanceRecap.Players(record), #ns.InstanceRecap.Mobs(record)
+    result.completed = ns.InstanceRuns.IsCompleted(record)
+  end
+  return result
+end)
+
+-- LT-407: Gruppensuche-Dungeons nach Level aufsteigend (Mindestlevel, dann Höchstlevel; ohne Mindestlevel am Ende)?
+-- unsorted = Beispiele "Name min-max" an Stellen, wo die Reihenfolge bricht; levels = erste Einträge
+check("LT407.lfg.levelOrder", function()
+  if not (ns.LFGSearch and ns.LFGSearch.IsAvailable()) then return { available = false } end
+  local result = { available = true, categories = {} }
+  for _, category in ipairs(ns.LFGSearch.Categories()) do
+    local list = ns.LFGSearch.Activities(category.id)
+    local unsorted, levels, noMin = {}, {}, 0
+    for index, activity in ipairs(list) do
+      if activity.minLevel == 0 then noMin = noMin + 1 end
+      if #levels < 6 then levels[#levels + 1] = activity.name .. " " .. activity.minLevel .. "-" .. activity.maxLevel end
+      local previous = list[index - 1]
+      if previous and previous.minLevel > 0 and activity.minLevel > 0 and activity.minLevel < previous.minLevel
+          and #unsorted < 5 then
+        unsorted[#unsorted + 1] = activity.name .. " " .. activity.minLevel .. "-" .. activity.maxLevel
+      end
+    end
+    result.categories[#result.categories + 1] = { id = category.id, name = category.name, count = #list,
+      noMinLevel = noMin, unsorted = unsorted, levels = levels }
+  end
+  return result
+end)
+
+-- LT-409: alte Zauberränge auf den Leisten. Gibt es die Aufrufe fürs Tauschen (C_Spell.PickupSpell, PlaceAction), und
+-- was findet Find (je Zauber: Rang auf der Leiste/im Buch, Ziel-ID, Plätze)? Tauscht nichts.
+check("LT409.oldRanks.upgrade", function()
+  if not (ns.OldSpellRanks and ns.OldSpellRanks.IsAvailable()) then return { available = false } end
+  local spells = {}
+  local found = ns.OldSpellRanks.Find()
+  for index = 1, math.min(#found, 8) do
+    local spell = found[index]
+    local slot = ns.OldSpellRanks.NextSlot(spell)
+    spells[index] = { id = spell.spellID, name = spell.name, barRank = spell.barRank, bookRank = spell.bookRank,
+      upgradeID = spell.upgradeID, slots = #spell.slots, nextSlot = slot,
+      button = slot and ns.ActionBars.ButtonForSlot(slot) ~= nil or false }
+  end
+  return { available = true, count = #found, spells = spells, ignored = ns.OldSpellRanks.IgnoredCount(),
+    api = { pickupSpell = type(C_Spell.PickupSpell), placeAction = type(PlaceAction), clearCursor = type(ClearCursor),
+      getActionInfo = type(GetActionInfo) }, buttons = #ns.ActionBars.Buttons(),
+    highlighted = ns.ActionBars.HighlightedSlot() }
+end)
+
+-- LT-410: Ruhestein-Hinweis beim Betreten von Gasthaus/Hauptstadt: ist der Bindeort lesbar, meldet IsResting den Zustand
+check("LT410.hearth.bind", function()
+  local location = GetBindLocation and GetBindLocation()
+  return { setting = ns.db.remindHearth, bindLocation = readable(location), resting = IsResting and IsResting() or nil,
+    module = ns.HearthReminder ~= nil }
+end)
+
+-- LT-411: Dungeonquests "alle markieren": Zustand des Hinweisfensters (Einträge mit Ort, deren Zonen mit Elternkarte,
+-- gesetzte Kartenpunkte)
+check("LT411.dungeonQuests.markAll", function()
+  local hint = ns.DungeonQuestHint
+  if not hint then return { available = false } end
+  local rows, entries = hint.Rows()
+  local zones, withPlace = {}, 0
+  for _, entry in pairs(entries or {}) do
+    if entry.place then
+      withPlace = withPlace + 1
+      local id = entry.place.uiMapID
+      if id and zones[id] == nil then
+        local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(id)
+        zones[id] = info and { name = info.name, parent = info.parentMapID } or false
+      end
+    end
+  end
+  return { available = true, shown = hint.IsShown(), rows = #(rows or {}), withPlace = withPlace, zones = zones,
+    pins = hint.PinCount(), getMapInfo = type(C_Map and C_Map.GetMapInfo) }
+end)
+
+-- LT-414: Doppel-Eintrag "Name-" ohne Realm. split = beiseitegelegte Einträge (nach GUID), emptyRealm = noch in der
+-- Charakterliste stehende Schlüssel mit leerem Realm, own = Schlüssel und Realm des eingeloggten Charakters
+check("LT414.realm.splitEntries", function()
+  local stats = _G.LevelTimerStatsDB
+  if not stats then return { available = false } end
+  local split, emptyRealm = {}, {}
+  for guid, entry in pairs(stats.splitCharacters or {}) do
+    if #split < 5 then split[#split + 1] = { guid = guid, level = type(entry) == "table" and entry.level or nil } end
+  end
+  for key in pairs(stats.characters or {}) do
+    if key:match("%-$") and #emptyRealm < 5 then emptyRealm[#emptyRealm + 1] = key end
+  end
+  return { available = true, split = split, emptyRealm = emptyRealm, own = ns.characterKey,
+    ownRealm = ns.character and ns.character.realm }
+end)
+
+-- Elite-Einblendung: nur allein und je Gegnerart höchstens alle 5 Minuten. Zustand, auf den der Code prüft
+check("LT416.alerts.eliteGate", function()
+  local inInstance, kind = IsInInstance()
+  return { setting = ns.db.alertEliteKill, inGroup = IsInGroup(), instanceType = inInstance and kind or nil,
+    wouldShow = ns.db.alertEliteKill and not IsInGroup() and not (inInstance and (kind == "party" or kind == "raid")) }
+end)
+
+-- Debug-Log-Aufräumen: Handwerkswaren sind keine Questreste (class 7 darf nicht vorkommen), Dungeonquest-Titel der
+-- aktuellen Instanz in Spielsprache (untitled = Platzhalter "#id")
+check("LT416.cleanup.leftoversTitles", function()
+  local result = { available = true, leftovers = {}, untitled = {} }
+  if ns.QuestLeftovers then
+    for _, entry in ipairs(ns.QuestLeftovers.InBags()) do
+      if #result.leftovers < 8 then
+        result.leftovers[#result.leftovers + 1] = { id = entry.itemID, name = entry.name,
+          class = C_Item and C_Item.GetItemInfoInstant and select(6, C_Item.GetItemInfoInstant(entry.itemID)) }
+      end
+    end
+  end
+  local mapID = select(8, GetInstanceInfo())
+  if mapID and ns.DungeonQuests and ns.DungeonQuests.IsAvailable() then
+    for _, quest in ipairs(ns.DungeonQuests.OwnQuests(mapID)) do
+      if quest.title:match("^#") and #result.untitled < 8 then result.untitled[#result.untitled + 1] = quest.questID end
+    end
+  end
+  return result
+end)

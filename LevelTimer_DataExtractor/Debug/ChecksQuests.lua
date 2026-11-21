@@ -437,3 +437,13 @@ check("LT412.trivialTracking.api", function()
   result.filteredRestored = map.IsFilteredOut(filterID)
   return result
 end)
+
+-- LT-412 (Rest): Geber-Marker und Hinweis für graue Vor-Quests. Zustand des Moduls und der Optionen
+check("LT412.trivialChain.state", function()
+  local module = ns.TrivialChainGivers
+  if not module then return { available = false } end
+  local map, filterID = _G.C_Minimap, _G.Enum and _G.Enum.MinimapTrackingFilter and _G.Enum.MinimapTrackingFilter.TrivialQuests
+  return { available = true, isAvailable = module.IsAvailable(), canTrack = module.CanTrack(),
+    settings = settings("dungeonQuestTrivialNearby", "dungeonQuestTrivialTracking"),
+    filteredOut = map and map.IsFilteredOut and filterID and map.IsFilteredOut(filterID) or nil }
+end)
