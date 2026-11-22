@@ -6,6 +6,16 @@ local _, ns = ...
 
 ns.CHANGELOG = {
   {
+    date = "2026-11-22",
+    entries = {
+      { kind = "fix",
+        deDE = "Quest-Gegenstand im Tooltip: Nur noch ganze Namen zählen, „Salz“ gilt nicht mehr als Teil von „Salziger Meeresfrüchteeintopf“.",
+        enUS = "Quest item tooltip: only whole words count, a short item name no longer matches longer names that merely contain it.",
+        frFR = "Objet de quête dans l’infobulle : seuls les mots entiers comptent, un nom court ne correspond plus à un nom plus long qui le contient.",
+        esES = "Objeto de misión en el tooltip: solo cuentan palabras completas, un nombre corto ya no coincide con nombres más largos que lo contienen." },
+    },
+  },
+  {
     date = "2026-11-21",
     entries = {
       { kind = "fix",
