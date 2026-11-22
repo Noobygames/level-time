@@ -24,10 +24,11 @@ function Bags.ForEachItem(fn)
   end
 end
 
--- Freie Plätze in normalen Taschen
+-- Freie Plätze in normalen Taschen. Nur bis NUM_BAG_SLOTS: die Reagenzientasche (Retail, Platz dahinter) nimmt nur
+-- Reagenzien auf und zählt wie bei Blizzards Taschenzähler nicht mit
 function Bags.GetFreeSlots()
   local free = 0
-  for bag = BACKPACK, Bags.LastBag() do
+  for bag = BACKPACK, NUM_BAG_SLOTS or DEFAULT_BAG_SLOTS do
     local slots, family = C_Container.GetContainerNumFreeSlots(bag)
     if family == GENERAL_BAG_FAMILY then free = free + (slots or 0) end
   end

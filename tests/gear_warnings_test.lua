@@ -16,8 +16,11 @@ wow.login()
 ---------------------------------------------------------------------------
 -- Taschen fast voll
 ---------------------------------------------------------------------------
-wow.state.freeSlots = { [0] = { 1, 0 }, [1] = { 20, 4 } }  -- Tasche 1 = Köcher o.ä., zählt nicht
+-- Tasche 1 = Köcher o.ä., Tasche 5 = Reagenzientasche (Retail): beide zählen nicht
+wow.state.freeSlots = { [0] = { 1, 0 }, [1] = { 20, 4 }, [5] = { 30, 0 } }
+NUM_BAG_SLOTS, NUM_TOTAL_EQUIPPED_BAG_SLOTS = 4, 5
 expect("freie Plätze", addon.Bags.GetFreeSlots(), 1)
+NUM_BAG_SLOTS, NUM_TOTAL_EQUIPPED_BAG_SLOTS = nil, nil
 GearWarnings.Check()
 expect("aus: still", count(L.WARN_BAGS_FULL), 0)
 
