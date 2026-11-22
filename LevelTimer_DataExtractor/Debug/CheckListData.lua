@@ -124,4 +124,10 @@ X.CheckListData = {
       "Nach dem Login /lte check LT393.dungeonArt.coverage; dann das Dungeonkompendium einmal öffnen und schließen, /reload, Check erneut.",
       "Erwartung: found > 0 und der Guide zeigt Banner-Bilder; sonst steht unter raw, ob Erweiterungen (tiers) und eine erste Instanz geliefert werden (Antwort ins Ticket).",
     } },
+  { id = "LT-419", client = "all", triggers = { "anywhere" },
+    title = "Freie Taschenplätze am Rucksack und auf der Reagenzientasche",
+    steps = {
+      "Reagenzientasche ausrüsten (Retail/Forever), Taschen teilweise füllen; Einstellungen > Oberfläche > 'Freie Taschenplätze' an und aus.",
+      "Erwartung: an = Rucksack zeigt '(n)' nur für normale Taschen, Reagenzientasche ihre eigene Zahl unten, keine doppelte Zahl; aus = Blizzards Zahl zurück.",
+    } },
 }

@@ -2575,4 +2575,6 @@ ns.locales.deDE = {
   LFG_PLAYERS_LEFT = "ging früh: %d x",
   LFG_PLAYERS_ROW_TIP = "Klick wechselt die Bewertung: keine, + (gut), - (schlecht). Das Zeichen steht in der Suche vor dem Leiternamen; ! = verließ eine Gruppe in einer Instanz.",
   LFG_TAB_PLAYERS = "Mitspieler",
+  BAG_FREE_SLOTS = "Freie Taschenplätze",
+  BAG_FREE_SLOTS_TIP = "Ersetzt Blizzards Zahl am Rucksack durch die freien Plätze der normalen Taschen und zeigt auf der Reagenzientasche deren eigene freie Plätze. Folgt Blizzards Einstellung, ob freie Taschenplätze angezeigt werden.",
 }

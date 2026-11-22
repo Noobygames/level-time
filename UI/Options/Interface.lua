@@ -112,6 +112,7 @@ addToggles({
   toggle("HIDE_MACRO_TEXT", "hideMacroText"),
   toggle("RANGE_COLOR", "rangeColor"),
   toggle("COMFORT_COOLDOWN_NUMBERS", "cooldownNumbers"),
+  toggle("BAG_FREE_SLOTS", "bagFreeSlots"),
 })
 addSubPage("COMFORT_PAGE_HIDE")
 addSection("SECTION_BLIZZARD_FRAMES")

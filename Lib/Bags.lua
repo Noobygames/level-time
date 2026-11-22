@@ -35,6 +35,14 @@ function Bags.GetFreeSlots()
   return free
 end
 
+-- Freie Plätze der Reagenzientasche (Retail und Forever: Enum.BagIndex.ReagentBag); nil, wenn der Client keine kennt
+-- oder keine ausgerüstet ist
+function Bags.GetReagentFreeSlots()
+  local bag = Enum and Enum.BagIndex and Enum.BagIndex.ReagentBag
+  if not bag or C_Container.GetContainerNumSlots(bag) <= 0 then return nil end
+  return (C_Container.GetContainerNumFreeSlots(bag))
+end
+
 -- Gegenstand eines Taschenplatzes an den Mauszeiger nehmen (C_Container in neueren Clients, sonst global)
 function Bags.Pickup(bag, slot)
   if C_Container and C_Container.PickupContainerItem then

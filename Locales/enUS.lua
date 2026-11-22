@@ -2575,4 +2575,6 @@ ns.locales.enUS = {
   LFG_PLAYERS_LEFT = "left early: %d x",
   LFG_PLAYERS_ROW_TIP = "Click to change the rating: none, + (good), - (bad). The mark shows before the leader name in the search; ! = left a group inside an instance.",
   LFG_TAB_PLAYERS = "Players",
+  BAG_FREE_SLOTS = "Free bag slots",
+  BAG_FREE_SLOTS_TIP = "Replaces Blizzard's number on the backpack with the free slots of your normal bags and shows the reagent bag's own free slots on it. Follows Blizzard's setting for showing free bag slots.",
 }

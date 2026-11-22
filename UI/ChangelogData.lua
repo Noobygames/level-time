@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-22",
     entries = {
+      { kind = "new",
+        deDE = "Taschenleiste: Der Rucksack zeigt die freien Plätze ohne Reagenzientasche, die Reagenzientasche ihre eigenen.",
+        enUS = "Bag bar: the backpack shows free slots without the reagent bag, the reagent bag shows its own.",
+        frFR = "Barre de sacs : le sac à dos affiche les emplacements libres sans le sac de composants, celui-ci affiche les siens.",
+        esES = "Barra de bolsas: la mochila muestra los huecos libres sin la bolsa de componentes, y esta muestra los suyos." },
       { kind = "fix",
         deDE = "Taschen fast voll: Freie Plätze der Reagenzientasche zählen nicht mehr mit.",
         enUS = "Bags almost full: free slots in the reagent bag no longer count.",

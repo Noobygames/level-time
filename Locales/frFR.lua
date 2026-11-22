@@ -2575,4 +2575,6 @@ ns.locales.frFR = {
   LFG_PLAYERS_LEFT = "parti tôt : %d x",
   LFG_PLAYERS_ROW_TIP = "Cliquez pour changer la note : aucune, + (bien), - (mal). Le signe apparaît devant le nom du chef dans la recherche ; ! = a quitté un groupe dans une instance.",
   LFG_TAB_PLAYERS = "Joueurs",
+  BAG_FREE_SLOTS = "Emplacements de sac libres",
+  BAG_FREE_SLOTS_TIP = "Remplace le nombre de Blizzard sur le sac à dos par les emplacements libres de vos sacs normaux et affiche ceux du sac de composants sur celui-ci. Suit le réglage de Blizzard pour afficher les emplacements libres.",
 }

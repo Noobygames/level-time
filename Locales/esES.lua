@@ -2575,4 +2575,6 @@ ns.locales.esES = {
   LFG_PLAYERS_LEFT = "se fue antes: %d x",
   LFG_PLAYERS_ROW_TIP = "Clic para cambiar la valoración: ninguna, + (bien), - (mal). La marca aparece antes del nombre del líder en la búsqueda; ! = dejó un grupo dentro de una instancia.",
   LFG_TAB_PLAYERS = "Jugadores",
+  BAG_FREE_SLOTS = "Huecos libres en bolsas",
+  BAG_FREE_SLOTS_TIP = "Sustituye el número de Blizzard en la mochila por los huecos libres de tus bolsas normales y muestra en la bolsa de componentes sus propios huecos libres. Sigue el ajuste de Blizzard para mostrar los huecos libres.",
 }
