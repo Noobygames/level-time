@@ -225,7 +225,7 @@ local EVENT_PROBES = {
   { event = "QUEST_GREETING", extra = greetingInfo },
   { event = "GOSSIP_SHOW", extra = gossipInfo },
   { event = "UI_INFO_MESSAGE" },
-  { event = "UI_ERROR_MESSAGE" },
+  { event = "UI_ERROR_MESSAGE" },  -- auch: Zu-viele-Instanzen-Abbruch (Systemchat oder Fehlerzeile?)
   -- Tod, Zonen, Instanzen, Bosse (280, 282, 287, 302, 307, 322)
   { event = "PLAYER_DEAD", state = true },
   { event = "PLAYER_ALIVE" },
@@ -237,7 +237,6 @@ local EVENT_PROBES = {
   { event = "ENCOUNTER_END", state = true },
   { event = "BOSS_KILL" },
   { event = "CHAT_MSG_SYSTEM" },
-  { event = "UI_ERROR_MESSAGE" },  -- Zu-viele-Instanzen-Abbruch: Systemchat oder Fehlerzeile?
   -- Beute, Geld, Berufe, Ruf, Ehre, Erfolge (254, 262, 276, 278, 295, 297, 303, 309)
   { event = "LOOT_READY", extra = lootSlots },
   { event = "LOOT_BIND_CONFIRM" },

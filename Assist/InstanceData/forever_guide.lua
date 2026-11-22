@@ -422,8 +422,8 @@ ns.InstanceGuide = {
   },
   -- Übliche Laufreihenfolge, wo der OrderIndex der Spieldaten nicht passt (gleiche IDs wie ns.BossData)
   bossOrder = {
-    -- Zul'Farrak: Antu'sul und Velratha zuerst, Gahz'rilla (mit dem Schlaghammer beschworen) zum Schluss
-    [209] = { 595, 593, 596, 597, 598, 599, 600, 594 },
+    -- Zul'Farrak: Antu'sul zuerst, Velratha und Gahz'rilla (mit dem Schlaghammer beschworen) zum Schluss
+    [209] = { 595, 596, 597, 598, 599, 600, 593, 594 },
   },
   -- Endbosse, die durch bossOrder nicht mehr am Ende der Liste stehen
   endBosses = {

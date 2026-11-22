@@ -42,7 +42,7 @@ expectTrue("Endboss kein Rar-Boss", not Bosses.IsRare(3479))
 expect("Endboss der Versunkenen Stadt", Bosses.EndBoss(Bosses.List(2970, 1)), 3479)
 -- Zul'Farrak: übliche Laufreihenfolge statt OrderIndex, Ukorz bleibt Endboss, obwohl Gahz'rilla am Ende steht
 expect("ZF beginnt mit Antu'sul", Bosses.List(209, 1)[1], 595)
-expect("ZF: Velratha als zweiter", Bosses.List(209, 1)[2], 593)
+expect("ZF: Velratha als vorletzter", Bosses.List(209, 1)[7], 593)
 expect("ZF endet mit Gahz'rilla", Bosses.List(209, 1)[8], 594)
 expect("ZF: Endboss Ukorz", Bosses.EndBoss(Bosses.List(209, 1)), 600)
 wow.state.instance = { name = "Versunkene Stadt", type = "party", difficulty = 1, mapID = 2970, maxPlayers = 5 }
