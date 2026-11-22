@@ -65,9 +65,14 @@ function BagFreeSlots.Update()
 end
 
 local events = ns.NewEventGroup()
-for _, event in ipairs({ "BAG_UPDATE_DELAYED", "PLAYER_ENTERING_WORLD", "CVAR_UPDATE" }) do
+for _, event in ipairs({ "BAG_UPDATE_DELAYED", "PLAYER_ENTERING_WORLD" }) do
   events.Add(event, nil, BagFreeSlots.Update)
 end
+-- Nur unsere CVar; Classic Era meldet sie als "DISPLAY_FREE_BAG_SLOTS" (Blizzards MainMenuBarBagButtons.lua)
+local CVAR_EVENT_NAMES = { displayfreebagslots = true, display_free_bag_slots = true }
+events.Add("CVAR_UPDATE", nil, function(name)
+  if type(name) == "string" and not ns.IsSecret(name) and CVAR_EVENT_NAMES[name:lower()] then BagFreeSlots.Update() end
+end)
 
 ns.RegisterApply(function(db)
   events.SetActive(db.bagFreeSlots == true)
