@@ -14,23 +14,26 @@
 body{margin:0}
 a{color:#ffd100}a:hover{color:#fff1a8}
 button,input{font-family:inherit}
+a.tracker,a.tracker:hover{color:inherit;text-decoration:none}
+a.tracker:hover>div{border-color:#ffd100}
 </style>
 </helmet>
-<div style="width: 1300px; height: 760px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start">
+<div style="width: 1300px; height: 800px; box-sizing: border-box; background: #22302a; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #f2f2f2; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start">
 
   <!-- Live-Tracker im Dungeon (kompakt, verschiebbar über Frames.Register) -->
   <section style="display: flex; flex-direction: column; gap: 8px">
-    <span style="font-size: 12px; color: #9fb3a8">Live-Tracker (nur in Instanzen, verschiebbar, Standard an)</span>
-    <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 12px; color: #9fb3a8">Live-Tracker (nur in Instanzen, verschiebbar, Standard an; Linksklick = Recap mit Zwischenstand)</span>
+    <a class="tracker" href="DungeonRecap.dc.html" title="Linksklick: Recap mit dem Zwischenstand des Laufs (Zeit, Beute, Gruppe, Gegner). Rechtsklick: Einstellungen. Ziehen: verschieben.">
+    <div style="cursor: pointer; background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
       <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
-        <span style="display: flex; align-items: center; gap: 8px"><span title="3D-Porträt des nächsten Bosses (Modell, kein Bild)" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #444; border-radius: 3px; flex: none"></span><span style="font-size: 14px; font-weight: 700; color: #ffd100">Die Todesminen</span></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span title="3D-Porträt des nächsten Bosses (Modell, kein Bild)" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 2px solid #b8872b; border-radius: 3px; flex: none"></span><span style="font-size: 14px; font-weight: 700; color: #ffd100">Die Todesminen</span></span>
         <span style="font-size: 12px; color: #c8c8c8">Gruppe</span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: baseline">
         <span style="font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums">24:18</span>
         <span style="font-size: 14px; font-weight: 600; color: #5fa8ff">-1:12 zur Bestzeit</span>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 2px; font-size: 13px; font-variant-numeric: tabular-nums">
+      <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-variant-numeric: tabular-nums">
         <sc-for list="{{trackerBosses}}" as="b" hint-placeholder-count="5">
           <div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 6px; align-items: center; {{b.rowStyle}}">
             <span style="color: {{b.markColor}}">{{b.mark}}</span>
@@ -39,7 +42,7 @@ button,input{font-family:inherit}
             <span style="color: {{b.diffColor}}; min-width: 40px; text-align: right">{{b.diff}}</span>
           </div>
         </sc-for>
-        <span style="color: #8a8a8a; padding-left: 22px">+3 weitere</span>
+        <span title="Nur bei mehr als 8 Bossen eingeklappt (dann: Rest als +N weitere); sonst stehen alle Bosse da" style="color: #8a8a8a; padding-left: 22px; display: none">+N weitere</span>
       </div>
       <div title="Beute-Symbole des nächsten Bosses (ab rar, max. 6); Drüberfahren = Gegenstandsinfo, ein * (aus Classic übernommen) wird dort erklärt" style="display: flex; gap: 4px">
         <sc-for list="{{nextLoot}}" as="i" hint-placeholder-count="2">
@@ -50,6 +53,7 @@ button,input{font-family:inherit}
         <span>Kills 58</span><span>Tode 1</span><span>XP/h 21.400</span>
       </div>
     </div>
+    </a>
     <span style="font-size: 12px; color: #9fb3a8; line-height: 1.5">Splits gegen die eigene Bestzeit dieses Dungeons (blau = schneller, orange = langsamer). Fällt der Endboss: Chat „Dungeon abgeschlossen in 31:05 (neue Bestzeit!)“.</span>
   </section>
 
@@ -65,7 +69,7 @@ button,input{font-family:inherit}
             <button type="button" onClick="{{f.pick}}" style="{{f.style}}">{{f.label}}</button>
           </sc-for>
         </div>
-        <sc-for list="{{runs}}" as="r" hint-placeholder-count="5">
+        <sc-for list="{{runs}}" as="r" hint-placeholder-count="6">
           <button type="button" onClick="{{r.pick}}" style="{{r.style}}">
             <span style="display: flex; justify-content: space-between; gap: 6px; font-size: 13px; font-weight: 600; color: #ffd100"><span>{{r.name}}</span><span style="color: {{r.badgeColor}}; font-weight: 500">{{r.badge}}</span></span>
             <span style="display: flex; justify-content: space-between; font-size: 12px; color: #c8c8c8; font-variant-numeric: tabular-nums"><span>{{r.date}}</span><span>{{r.time}}</span></span>
@@ -76,7 +80,7 @@ button,input{font-family:inherit}
       <!-- Details des gewählten Runs -->
       <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap">
-          <div style="display: flex; gap: 10px; align-items: center"><span title="Endboss als 3D-Porträt (im Spiel rechts im Kopf)" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #444; border-radius: 3px; flex: none"></span><div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="display: flex; gap: 10px; align-items: center"><span title="{{run.portraitTip}}" style="width: 36px; height: 36px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #444; border-radius: 3px; flex: none"></span><div style="display: flex; flex-direction: column; gap: 2px">
             <span style="font-size: 20px; font-weight: 700; color: #ffd100">{{run.name}}</span>
             <span style="font-size: 12px; color: #c8c8c8">{{run.date}} · Level {{run.level}} · <span style="color: {{run.statusColor}}">{{run.status}}</span></span>
           </div></div>
@@ -85,6 +89,7 @@ button,input{font-family:inherit}
             <sc-for list="{{compares}}" as="c" hint-placeholder-count="2">
               <button type="button" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
             </sc-for>
+            <a href="DungeonRecap.dc.html" title="{{run.recapTip}}" style="height: 28px; box-sizing: border-box; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 4px; font-size: 12px; border: 1px solid #555; background: #1d1d1d; color: #eee; text-decoration: none; margin-left: 6px">Recap</a>
           </div>
         </div>
 
@@ -100,12 +105,12 @@ button,input{font-family:inherit}
 
         <div style="display: flex; flex-direction: column; gap: 2px">
           <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 70px 70px 70px; gap: 8px; font-size: 12px; color: #c8c8c8; padding: 0 8px 4px; border-bottom: 1px solid #333">
-            <span>Boss</span><span style="text-align: right">Split</span><span style="text-align: right">{{compareLabel}}</span><span style="text-align: right">Diff</span><span style="text-align: right">XP</span>
+            <span>Boss <span style="color: #8a8a8a">{{moreBosses}}</span></span><span style="text-align: right">Split</span><span style="text-align: right">{{compareLabel}}</span><span style="text-align: right">Diff</span><span style="text-align: right">XP</span>
           </div>
           <sc-for list="{{bosses}}" as="b" hint-placeholder-count="8">
             <div title="{{b.lootTip}}" style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 70px 70px 70px; gap: 8px; align-items: center; font-size: 13px; padding: 5px 8px; border-radius: 3px; background: {{b.bg}}; font-variant-numeric: tabular-nums">
               <span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="width: 22px; height: 22px; background: radial-gradient(circle at 50% 40%, #6b5a48, #1a1410 70%); border: 1px solid #444; border-radius: 3px; flex: none"></span><span style="color: {{b.nameColor}}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.name}}<span style="color: #ffd100; font-size: 11px">{{b.tag}}</span></span><span style="margin-left: auto; display: flex; gap: 3px; flex: none"><sc-for list="{{b.icons}}" as="i" hint-placeholder-count="0"><span title="{{i.name}}" style="width: 16px; height: 16px; background: #3a3020; border: 1px solid {{i.color}}; border-radius: 2px"></span></sc-for></span></span>
-              <span style="text-align: right">{{b.split}}</span>
+              <span style="text-align: right; color: {{b.splitColor}}">{{b.split}}</span>
               <span style="text-align: right; color: #c8c8c8">{{b.ref}}</span>
               <span style="text-align: right; color: {{b.diffColor}}">{{b.diff}}</span>
               <span style="text-align: right; color: #c8c8c8">{{b.xp}}</span>
@@ -116,8 +121,8 @@ button,input{font-family:inherit}
         <div style="display: flex; flex-direction: column; gap: 6px">
           <span style="font-size: 13px; font-weight: 600; color: #ddd">Beute und Würfe</span>
           <div style="display: flex; gap: 8px; flex-wrap: wrap">
-            <sc-for list="{{loot}}" as="l" hint-placeholder-count="3">
-              <span style="font-size: 12px; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background: #161616"><span style="color: {{l.color}}">{{l.item}}</span> <span style="color: {{l.resultColor}}">{{l.result}}</span></span>
+            <sc-for list="{{loot}}" as="l" hint-placeholder-count="4">
+              <span title="{{l.tip}}" style="font-size: 12px; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background: #161616"><span style="color: {{l.color}}">{{l.item}}</span> <span style="color: {{l.resultColor}}">{{l.result}}</span></span>
             </sc-for>
           </div>
         </div>
@@ -126,76 +131,134 @@ button,input{font-family:inherit}
   </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1300,"height":760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1300,"height":800}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { run: 0, filter: 'Alle', compare: 'best' };
+    this.state = { run: 1, filter: 'Alle', compare: 'best' };
   }
   renderVals() {
     const s = this.state;
     const pill = (on) => 'height: 28px; padding: 0 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: 1px solid ' +
       (on ? '#ffd100; background: #2b2410; color: #ffd100' : '#555; background: #1d1d1d; color: #eee');
-    const GOOD = '#5fa8ff', BAD = '#ff9a3c', MUTED = '#8a8a8a';
+    const GOOD = '#5fa8ff', BAD = '#ff9a3c', MUTED = '#8a8a8a', NOTE = '#c8c8c8', GOLD = '#ffd100', TEXT = '#f2f2f2', RAID = '#c8a2ff';
+    const RARE = '#5fa8ff', EPIC = '#a335ee', GREEN = '#40ff40';
+    const MAX_BOSS_ROWS = 8;
+    // Episch markierte Beute (alles andere in den Boss-Tooltips ist rar)
+    const EPICS = new Set(['[Grausamer Widerhaken]', '[Schattenfangs Klinge]', '[Arugals Stab]', '[Mutanus\' Halskette]', '[Helm der Wut]', '[Brustplatte der Wut]', '[Sulfuron-Hammer-Rezept]', '[Gesicht des Todes]']);
+    const DM_TIPS = { 'Rhahk\'Zor': ['[Rhahk\'Zors Hammer]'], 'Sneed': ['[Zuchtmeisteraxt]', '[Kobaltkrallen]'], 'Gilnid': ['[Gilnids Zahnrad]'],
+      'Mr. Smite': ['[Schmieds Hammer]', '[Thermaplugg-Hose]'], 'Kapitän Grünhaut': ['[Kapitänsmantel]', '[Kiellatte]'],
+      'Edwin VanCleef': ['[Grausamer Widerhaken]', '[Schmelzhose]', '[Blauer Gürtel]', '[Wams des Schurken]'] };
+
+    // Bossreihe: [Name, Split, Bestzeit, Letzter Run, XP, Zusatz]; leerer Split = nicht getötet, '…' = läuft
     const RUNS = [
-      { name: 'Die Todesminen', kind: 'Dungeon', date: '13.11. 20:14', time: '31:05', badge: 'Bestzeit', badgeColor: GOOD, level: 21, status: 'Abgeschlossen', statusColor: GOOD },
-      { name: 'Die Todesminen', kind: 'Dungeon', date: '12.11. 18:40', time: '35:52', badge: '', badgeColor: '#ddd', level: 19, status: 'Abgeschlossen', statusColor: GOOD },
-      { name: 'Burg Schattenfang', kind: 'Dungeon', date: '12.11. 01:22', time: '1:39:41', badge: 'offen', badgeColor: BAD, level: 23, status: 'Nicht beendet (3/5 Bosse)', statusColor: BAD },
-      { name: 'Die Höhlen des Wehklagens', kind: 'Dungeon', date: '10.11. 21:03', time: '48:10', badge: '', badgeColor: '#ddd', level: 18, status: 'Abgeschlossen', statusColor: GOOD },
-      { name: 'Geschmolzener Kern', kind: 'Raid', date: '08.11. 20:00', time: '2:14:33', badge: 'Raid', badgeColor: '#c8a2ff', level: 60, status: 'Abgeschlossen', statusColor: GOOD }
+      { name: 'Die Todesminen', kind: 'Dungeon', date: '20.11. 19:48', time: '24:18', badge: 'läuft', badgeColor: GOLD, level: 22, status: 'Läuft (4/7 Bosse)', statusColor: GOLD,
+        live: true, tips: DM_TIPS,
+        tiles: [['Tode', '1', 'Mr. Smite'], ['Kills', '58', 'bis jetzt'], ['XP von Gegnern', '9.120', '21.400 XP/h'], ['Bosse', '4 / 7', 'nächster: Grünhaut', GOLD],
+          ['Geld', '2g 40s', 'Beute + Verkauf'], ['Quests', '1', 'in der Instanz abgegeben'], ['Gruppe', '5', 'Ø Level 22']],
+        bosses: [['Rhahk\'Zor', '2:44', '3:12', '3:12', '226'], ['Sneed', '9:05', '9:48', '9:48', '252'], ['Gilnid', '13:38', '14:20', '14:20', '252'],
+          ['Mr. Smite', '17:40', '19:57', '19:57', '265'], ['Kapitän Grünhaut', '…', '24:31', '24:31', ''], ['Edwin VanCleef', '', '29:40', '29:40', '', ' Endboss'], ['Krümel', '', '', '', '', ' optional']],
+        loot: [['[Schmieds Hammer]', RARE, false, 'Bedarf verloren (41)', 'Gewinner: Thorgrim 92'], ['[Kobaltkrallen]', RARE, true, 'Gier gewonnen (96)', 'Lunaria 33, Shadowstep 8'],
+          ['[Gilnids Zahnrad]', GREEN, false, 'Gier verloren (17)', 'Gewinner: Thorgrim 64']] },
+      { name: 'Die Todesminen', kind: 'Dungeon', date: '13.11. 20:14', time: '31:05', best: '34:05', last: '35:52', badge: 'Bestzeit', badgeColor: GOOD, level: 21, status: 'Abgeschlossen', statusColor: GOOD,
+        tips: DM_TIPS,
+        tiles: [['Tode', '3', 'Mr. Smite, Grünhaut'], ['Kills', '93', 'alle Gegner im Run'], ['XP von Gegnern', '14.380', '27.700 XP/h'], ['Bosse', '7 / 7', '+1 Rare', GOLD],
+          ['Geld', '4g 12s', 'Beute + Verkauf'], ['Quests', '4', 'in der Instanz abgegeben'], ['Gruppe', '5', 'Ø Level 21']],
+        bosses: [['Rhahk\'Zor', '3:12', '3:40', '4:01', '232'], ['Minenarbeiter Johnson', '5:05', '', '', '245', ' Rare'], ['Sneed', '9:48', '10:31', '11:20', '258'],
+          ['Gilnid', '14:20', '15:02', '16:45', '258'], ['Mr. Smite', '19:57', '22:14', '23:30', '271'], ['Kapitän Grünhaut', '24:31', '27:09', '28:50', '271'],
+          ['Edwin VanCleef', '29:40', '33:18', '35:02', '284', ' Endboss'], ['Krümel', '', '', '', '', ' optional']],
+        loot: [['[Kapitänsmantel]', RARE, true, 'Bedarf gewonnen (87)', 'Thorgrim 54, Eagleeye 12'], ['[Schmieds Hammer]', RARE, false, 'Bedarf verloren (41)', 'Gewinner: Thorgrim 92'],
+          ['[Grausamer Widerhaken]', EPIC, false, 'Gier verloren (23)', 'Gewinner: Frostbyte 71'], ['[Kobaltkrallen]', RARE, true, 'Gier gewonnen (96)', 'Lunaria 33, Shadowstep 8'],
+          ['[Gürtel des Defias-Schurken]', GREEN, true, 'erhalten', 'Beute von Defias-Schurke']] },
+      { name: 'Die Todesminen', kind: 'Dungeon', date: '12.11. 18:40', time: '35:52', best: '34:05', last: '38:12', badge: '', badgeColor: '#ddd', level: 19, status: 'Abgeschlossen', statusColor: GOOD,
+        tips: DM_TIPS,
+        tiles: [['Tode', '5', 'Kapitän Grünhaut (3)'], ['Kills', '101', 'alle Gegner im Run'], ['XP von Gegnern', '15.920', '26.600 XP/h'], ['Bosse', '6 / 7', 'Krümel ausgelassen', GOLD],
+          ['Geld', '3g 58s', 'Beute + Verkauf'], ['Quests', '3', 'in der Instanz abgegeben'], ['Gruppe', '5', 'Ø Level 19']],
+        bosses: [['Rhahk\'Zor', '4:01', '3:40', '4:20', '248'], ['Sneed', '11:20', '10:31', '12:05', '275'], ['Gilnid', '16:45', '15:02', '17:30', '275'],
+          ['Mr. Smite', '23:30', '22:14', '24:10', '289'], ['Kapitän Grünhaut', '28:50', '27:09', '30:02', '289'], ['Edwin VanCleef', '35:02', '33:18', '36:40', '302', ' Endboss'], ['Krümel', '', '', '', '', ' optional']],
+        loot: [['[Zuchtmeisteraxt]', RARE, false, 'Bedarf verloren (12)', 'Gewinner: Thorgrim 77'], ['[Wams des Schurken]', RARE, true, 'Bedarf gewonnen (68)', 'Shadowstep 51'],
+          ['[Kiellatte]', RARE, false, 'Gier verloren (34)', 'Gewinner: Eagleeye 88'], ['[Schwere Wollstoffe] x9', TEXT, true, 'erhalten', 'Trash']] },
+      { name: 'Burg Schattenfang', kind: 'Dungeon', date: '12.11. 01:22', time: '1:39:41', best: '58:20', last: '1:04:12', badge: 'offen', badgeColor: BAD, level: 23, status: 'Nicht beendet (4/8 Bosse)', statusColor: BAD,
+        tips: { 'Rethilgore': ['[Seelenfänger-Gürtel]'], 'Baron Silberlein': ['[Silberleins Stiefel]', '[Schattenfangs Klinge]'], 'Kommandant Frühlingstal': ['[Frühlingstals Schild]'],
+          'Erzmagier Arugal': ['[Arugals Stab]', '[Robe des Erzmagiers]', '[Meteorschuppe]'] },
+        tiles: [['Tode', '7', 'Kommandant Frühlingstal (4)'], ['Kills', '74', 'Gruppe aufgelöst'], ['XP von Gegnern', '13.050', '7.900 XP/h'], ['Bosse', '4 / 8', 'Arugal fehlt', BAD],
+          ['Geld', '2g 91s', 'Beute + Verkauf'], ['Quests', '1', 'in der Instanz abgegeben'], ['Gruppe', '5', 'Ø Level 22']],
+        bosses: [['Rethilgore', '6:40', '5:55', '6:12', '342'], ['Klingenklaue der Schlächter', '14:22', '12:10', '13:05', '355'], ['Baron Silberlein', '31:08', '19:44', '22:30', '369'],
+          ['Kommandant Frühlingstal', '1:12:45', '27:02', '30:18', '382'], ['Odo der Blindseher', '', '33:40', '37:55', ''], ['Fenrus der Verschlinger', '', '41:12', '45:20', ''],
+          ['Wolfmeister Nandos', '', '49:30', '54:02', ''], ['Erzmagier Arugal', '', '58:20', '1:04:12', '', ' Endboss']],
+        loot: [['[Seelenfänger-Gürtel]', RARE, true, 'Bedarf gewonnen (91)', 'Lunaria 40'], ['[Silberleins Stiefel]', RARE, false, 'Gier verloren (8)', 'Gewinner: Dornbart 55'],
+          ['[Frühlingstals Schild]', RARE, false, 'Bedarf verloren (63)', 'Gewinner: Thorgrim 99']] },
+      { name: 'Die Höhlen des Wehklagens', kind: 'Dungeon', date: '10.11. 21:03', time: '48:10', best: '45:32', last: '52:40', badge: '', badgeColor: '#ddd', level: 18, status: 'Abgeschlossen', statusColor: GOOD,
+        tips: { 'Lady Anacondra': ['[Sternenstab]'], 'Lord Kobrahn': ['[Drachenhautgürtel]'], 'Lord Pythas': ['[Schlangenkrallenhandschuhe]'], 'Lord Serpentis': ['[Schlangenhautstiefel]', '[Zahnkranz]'],
+          'Mutanus der Verschlinger': ['[Mutanus\' Halskette]', '[Albtraumwams]'] },
+        tiles: [['Tode', '2', 'Skum, Mutanus'], ['Kills', '138', 'alle Gegner im Run'], ['XP von Gegnern', '18.640', '23.200 XP/h'], ['Bosse', '8 / 8', '+1 Rare', GOLD],
+          ['Geld', '3g 05s', 'Beute + Verkauf'], ['Quests', '5', 'in der Instanz abgegeben'], ['Gruppe', '5', 'Ø Level 18']],
+        bosses: [['Lady Anacondra', '7:15', '6:50', '8:02', '190'], ['Lord Kobrahn', '13:40', '12:55', '14:58', '190'], ['Kresh', '16:02', '15:30', '17:44', '182'],
+          ['Lord Pythas', '22:18', '21:05', '24:30', '198'], ['Skum', '27:45', '26:10', '29:12', '190'], ['Lord Serpentis', '33:50', '32:02', '36:25', '198'],
+          ['Verdan der Ewiglebende', '40:12', '38:40', '43:55', '206'], ['Mutanus der Verschlinger', '47:30', '44:58', '51:50', '214', ' Endboss']],
+        loot: [['[Sternenstab]', RARE, true, 'Bedarf gewonnen (74)', 'Frostbyte 22'], ['[Mutanus\' Halskette]', EPIC, false, 'Bedarf verloren (55)', 'Gewinner: Lunaria 81'],
+          ['[Drachenhautgürtel]', RARE, true, 'Gier gewonnen (66)', 'Eagleeye 61'], ['[Schlangenhautstiefel]', RARE, false, 'Gier verloren (19)', 'Gewinner: Shadowstep 50']] },
+      { name: 'Geschmolzener Kern', kind: 'Raid', date: '08.11. 20:00', time: '2:14:33', best: '2:05:10', last: '2:31:48', badge: 'Raid', badgeColor: RAID, level: 60, status: 'Abgeschlossen', statusColor: GOOD,
+        tips: { 'Magmadar': ['[Helm der Wut]', '[Medaillon des Kerns]'], 'Golemagg der Verbrenner': ['[Brustplatte der Wut]', '[Sulfuron-Hammer-Rezept]'], 'Ragnaros': ['[Gesicht des Todes]', '[Band der Akkuranz]', '[Mantel des Feuerlords]'] },
+        tiles: [['Tode', '14', 'Baron Geddon (6)'], ['Kills', '212', 'mit Trash-Packs'], ['XP von Gegnern', '0', 'Höchststufe'], ['Bosse', '10 / 10', 'alle', GOLD],
+          ['Geld', '38g 20s', 'Beute + Verkauf'], ['Quests', '0', 'keine Raidquest'], ['Gruppe', '40', 'Schlachtzug']],
+        bosses: [['Lucifron', '14:20', '12:05', '16:40', ''], ['Magmadar', '27:55', '24:30', '31:02', ''], ['Gehennas', '41:10', '38:12', '45:30', ''],
+          ['Garr', '55:48', '51:40', '1:01:15', ''], ['Shazzrah', '1:04:30', '1:00:02', '1:10:44', ''], ['Baron Geddon', '1:18:12', '1:12:50', '1:26:30', ''],
+          ['Golemagg der Verbrenner', '1:32:40', '1:26:15', '1:42:02', ''], ['Sulfuronbote', '1:45:05', '1:38:30', '1:55:10', ''],
+          ['Majordomus Exekutus', '1:58:20', '1:50:44', '2:12:30', ''], ['Ragnaros', '2:12:10', '2:03:05', '2:29:40', '', ' Endboss']],
+        loot: [['[Helm der Wut]', EPIC, false, 'Bedarf verloren (37)', 'Gewinner: Thorgrim 88 (Plündermeister)'], ['[Medaillon des Kerns]', EPIC, true, 'Bedarf gewonnen (94)', 'Lunaria 60'],
+          ['[Band der Akkuranz]', EPIC, false, 'Bedarf verloren (52)', 'Gewinner: Eagleeye 97'], ['[Feuerkern] x3', RARE, true, 'erhalten', 'Trash'],
+          ['[Lavakern]', RARE, true, 'erhalten', 'Golemagg der Verbrenner']] }
     ];
-    const BOSSES = [
-      ['Rhahk\'Zor', '3:12', '3:40', '232'], ['Minenarbeiter Johnson', '5:05', '', '245', ' Rare'],
-      ['Sneed', '9:48', '10:31', '258'], ['Gilnid', '14:20', '15:02', '258'], ['Mr. Smite', '19:57', '22:14', '271'],
-      ['Kapitän Grünhaut', '24:31', '27:09', '271'], ['Edwin VanCleef', '29:40', '33:18', '284'], ['Krümel', '', '', '', ' optional']
-    ];
-    // Überfahren einer Bosszeile: bekannte Beute ab rar (episch zuerst, max. 6 Zeilen + "+X weitere")
-    const LOOT_TIPS = { 'Sneed': ['[Zuchtmeisteraxt]'], 'Mr. Smite': ['[Schmieds Hammer]', '[Thermaplugg-Hose]'],
-      'Kapitän Grünhaut': ['[Kapitänsmantel]', '[Kiellatte]'],
-      'Edwin VanCleef': ['[Grausamer Widerhaken]', '[Schmelzhose]', '[Kapitänsmantel]', '[Blauer Gürtel]', '[Wams des Schurken]', '[Kettenhemd]', '+3 weitere'] };
-    const LAST = ['4:01', '', '11:20', '16:45', '23:30', '28:50', '35:02', ''];
     const toSec = (t) => t.split(':').reduce((a, v) => a * 60 + Number(v), 0);
     const fmt = (d) => (d < 0 ? '-' : '+') + Math.floor(Math.abs(d) / 60) + ':' + String(Math.abs(d) % 60).padStart(2, '0');
     const visible = RUNS.map((r, i) => ({ ...r, i })).filter((r) => s.filter === 'Alle' || (s.filter === 'Raids') === (r.kind === 'Raid'));
     const run = RUNS[s.run];
+    const useBest = s.compare === 'best';
+    const tipsFor = (name) => run.tips[name];
+    const icon = (t) => ({ name: t, color: EPICS.has(t) ? EPIC : RARE });
+    // Zeit-Kachel hängt vom Vergleich ab; laufender Run vergleicht den letzten Split
+    const refTotal = useBest ? run.best : run.last;
+    const timeNote = run.live ? '-1:12 zum besten Split'
+      : run.status !== 'Abgeschlossen' ? 'abgebrochen'
+      : fmt(toSec(run.time) - toSec(refTotal)) + (useBest ? ' zur Bestzeit' : ' zum letzten Run');
+    const timeColor = run.live || timeNote.startsWith('-') ? GOOD : BAD;
+    const rows = run.bosses.slice(0, MAX_BOSS_ROWS);
+    const live = RUNS[0];
     return {
-      trackerBosses: [['Rhahk\'Zor', '3:12', '-0:28'], ['Sneed', '9:48', '-0:43'], ['Gilnid', '14:20', '-0:42'], ['Mr. Smite', '19:57', '-2:17'], ['Kapitän Grünhaut', '…', '']]
-        .map(([name, time, diff], i, all) => ({ name, time, diff, mark: i < all.length - 1 ? '✓' : '›', markColor: i < all.length - 1 ? GOOD : '#ffd100',
-          diffColor: diff.startsWith('-') ? GOOD : BAD, rowStyle: i === all.length - 1 ? 'color: #ffd100' : '' })),
-      nextLoot: LOOT_TIPS['Kapitän Grünhaut'].map((name) => ({ name, color: '#5fa8ff' })),
-      filters: ['Alle','Dungeons', 'Raids'].map((label) => ({ label, style: pill(s.filter === label), pick: () => this.setState({ filter: label }) })),
+      trackerBosses: live.bosses.map(([name, split, best], i) => {
+        const current = split === '…';
+        const diff = current ? '' : fmt(toSec(split) - toSec(best));
+        return { name, time: split, diff, mark: current ? '›' : '✓', markColor: current ? GOLD : GOOD,
+          diffColor: diff.startsWith('-') ? GOOD : BAD, rowStyle: current ? 'color: #ffd100' : '' };
+      }),
+      nextLoot: live.tips['Kapitän Grünhaut'].map(icon),
+      filters: ['Alle', 'Dungeons', 'Raids'].map((label) => ({ label, style: pill(s.filter === label), pick: () => this.setState({ filter: label }) })),
       runs: visible.map((r) => ({ ...r, pick: () => this.setState({ run: r.i }),
         style: 'display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 6px 8px; cursor: pointer; border-radius: 4px; border: 1px solid ' +
           (r.i === s.run ? '#ffd100; background: #2b2410' : 'transparent; background: transparent') })),
-      run,
+      run: { ...run,
+        portraitTip: run.live ? 'Nächster Boss als 3D-Porträt' : 'Endboss als 3D-Porträt (im Spiel rechts im Kopf)',
+        recapTip: run.live ? 'Recap mit dem Zwischenstand des laufenden Runs' : 'Recap dieses Runs: Übersicht, Beute, Gruppe, Gegner' },
       compares: [['best', 'Bestzeit'], ['last', 'Letzter Run']].map(([id, label]) => ({ label, style: pill(s.compare === id), pick: () => this.setState({ compare: id }) })),
-      compareLabel: s.compare === 'best' ? 'Bestzeit' : 'Letzter',
-      tiles: [
-        { label: 'Zeit', value: run.time, note: '-4:47 zum letzten Run', noteColor: GOOD },
-        { label: 'Tode', value: '1', note: 'Mr. Smite', noteColor: '#c8c8c8' },
-        { label: 'Kills', value: '93', note: 'alle Gegner im Run', noteColor: '#c8c8c8' },
-        { label: 'XP von Gegnern', value: '14.380', note: '27.700 XP/h', noteColor: '#c8c8c8' },
-        { label: 'Bosse', value: '7 / 7', note: '+1 Rare', noteColor: '#ffd100' },
-        { label: 'Geld', value: '4g 12s', note: 'Beute + Verkauf', noteColor: '#c8c8c8' },
-        { label: 'Quests', value: '4', note: 'in der Instanz abgegeben', noteColor: '#c8c8c8' },
-        { label: 'Gruppe', value: '5', note: 'Ø Level 21', noteColor: '#c8c8c8' }
-      ],
-      bosses: BOSSES.map(([name, split, best, xp, tag], i) => {
-        const ref = s.compare === 'best' ? best : LAST[i];
-        const killed = split !== '';
+      compareLabel: useBest ? 'Bestzeit' : 'Letzter',
+      moreBosses: run.bosses.length > MAX_BOSS_ROWS ? '(+' + (run.bosses.length - MAX_BOSS_ROWS) + ' weitere, Bildlauf)' : '',
+      tiles: [{ label: 'Zeit', value: run.time, note: timeNote, noteColor: timeColor }]
+        .concat(run.tiles.map(([label, value, note, noteColor]) => ({ label, value, note, noteColor: noteColor || NOTE }))),
+      bosses: rows.map(([name, split, best, last, xp, tag], i) => {
+        const ref = useBest ? best : last;
+        const killed = split !== '' && split !== '…';
         const d = killed && ref ? toSec(split) - toSec(ref) : null;
-        const tip = LOOT_TIPS[name];
+        const tip = tipsFor(name);
         // Beute-Symbole in der Zeile, jedes mit eigener Gegenstandsinfo
-        const icons = (tip || []).filter((t) => t.startsWith('[')).map((t) => ({ name: t, color: '#5fa8ff' }));
-        return { lootTip: tip ? [name, 'Bekannte Beute', ...tip].join('\n') : '', icons, name, tag: tag || '', split: killed ? split : 'nicht getötet', ref: ref || '–', xp: xp ? xp + ' XP' : '',
+        return { lootTip: tip ? [name, 'Bekannte Beute', ...tip].join('\n') : '', icons: (tip || []).map(icon), name, tag: tag || '',
+          split: split === '…' ? 'läuft' : killed ? split : 'nicht getötet', splitColor: split === '…' ? GOLD : killed ? TEXT : MUTED,
+          ref: ref || '–', xp: xp ? xp + ' XP' : '',
           diff: d === null ? '' : fmt(d), diffColor: d !== null && d <= 0 ? GOOD : BAD,
-          nameColor: killed ? '#f2f2f2' : MUTED, bg: i % 2 ? 'transparent' : '#141414' };
+          nameColor: killed ? TEXT : split === '…' ? GOLD : MUTED, bg: i % 2 ? 'transparent' : '#141414' };
       }),
-      loot: [
-        { item: '[Kapitänsmantel]', color: '#5fa8ff', result: 'Bedarf gewonnen (87)', resultColor: GOOD },
-        { item: '[Schmieds Hammer]', color: '#5fa8ff', result: 'Bedarf verloren (41)', resultColor: BAD },
-        { item: '[Grausamer Widerhaken]', color: '#a335ee', result: 'Gier verloren', resultColor: BAD }
-      ]
+      loot: run.loot.map(([item, color, won, result, tip]) => ({ item, color, tip,
+        result: (won ? '✓ ' : '✗ ') + result, resultColor: won ? GOOD : BAD }))
     };
   }
 }

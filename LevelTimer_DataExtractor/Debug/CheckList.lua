@@ -60,7 +60,9 @@ function CheckList.Open(trigger, includeSkipped)
   if not store then return list end
   for _, entry in ipairs(X.CheckListData or {}) do
     local result = store.checkResults[entry.id]
-    local open = result == nil or (includeSkipped ~= false and result.status == STATUS.skip)
+    -- retry = "JJJJ-MM-TT": Eintrag nachgebessert, ältere Ergebnisse (auch "fail") gelten wieder als offen
+    local stale = result ~= nil and entry.retry ~= nil and (result.t or "") < entry.retry
+    local open = result == nil or stale or (includeSkipped ~= false and result.status == STATUS.skip)
     if open and clientFits(entry) then
       for _, t in ipairs(entry.triggers) do
         if trigger == nil or t == trigger then list[#list + 1] = { entry = entry, trigger = t }; break end

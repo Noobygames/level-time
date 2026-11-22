@@ -495,15 +495,67 @@ local function upgradeCharacter(data)
   end, geterrorhandler())
 end
 
+-- Gespeicherter Realm: Eintrag mit derselben GUID und demselben Namen; sonst (ältere Einträge ohne GUID) der einzige
+-- Eintrag dieses Namens ohne GUID. nil, wenn keiner oder mehrere passen
+local function storedRealm(stats, name, guid)
+  local withoutGuid, count = nil, 0
+  for _, data in pairs(stats.characters) do
+    if type(data) == "table" and data.name == name and type(data.realm) == "string" and data.realm ~= "" then
+      if guid and data.guid == guid then return data.realm end
+      if data.guid == nil then withoutGuid, count = data.realm, count + 1 end
+    end
+  end
+  return count == 1 and withoutGuid or nil
+end
+
+-- Realm des eingeloggten Charakters: aus dem Client, sonst der gespeicherte. WoW Forever liefert seit Build 71037
+-- einen leeren Realmnamen (GetRealmName und GetNormalizedRealmName, auch Minuten nach dem Login); ohne Rückfall
+-- entstünde ein neuer Eintrag "Name-" und die Statistik des Charakters wäre aufgespalten.
+local function loginRealm(stats, name, guid)
+  local realm = GetRealmName()
+  if type(realm) == "string" and realm ~= "" then return realm end
+  return storedRealm(stats, name, guid) or ""
+end
+
+-- Doppel-Eintrag "Name-" desselben Charakters (gleiche GUID; entstand, bevor es den Realm-Rückfall gab): aus der
+-- Charakterliste nehmen, damit History und Alts ihn nur einmal zeigen. Nichts wird gelöscht: die Daten liegen unter
+-- LevelTimerStatsDB.splitCharacters[GUID] (LT-414).
+local function setAsideSplitEntry(stats, name, key, guid)
+  local splitKey = Database.CharacterKey(name, "")
+  local split = stats.characters[splitKey]
+  if key == splitKey or not guid or type(split) ~= "table" or split.guid ~= guid then return end
+  stats.splitCharacters = stats.splitCharacters or {}
+  if stats.splitCharacters[guid] == nil then stats.splitCharacters[guid] = split end
+  stats.characters[splitKey] = nil
+  ns.Debug("core", "split entry %s set aside", splitKey)
+end
+
+-- Realm für andere Module (Schlüssel je Realm, eigene Absender): Client, sonst der gespeicherte des Charakters
+function Database.RealmName()
+  local realm = GetRealmName and GetRealmName()
+  if type(realm) == "string" and realm ~= "" then return realm end
+  return ns.character and ns.character.realm or ""
+end
+
 -- Daten des eingeloggten Charakters holen oder anlegen. Alte Daten aus
 -- LevelTimerCharDB werden dabei einmalig übernommen und durchlaufen dieselben Migrationen.
 local function loadCharacter(stats)
-  local name, realm = UnitName("player"), GetRealmName()
+  local guid = playerGuid()
+  local name = UnitName("player")
+  local realm = loginRealm(stats, name, guid)
+  ns.Debug("core", "realm client %s, used %s", GetRealmName(), realm)
   -- WoW Forever: zweiter Rückgabewert von UnitName ist der Nachname (Blizzard NameUtil, Camelot)
   local surname = ns.Client.IsForever() and select(2, UnitName("player")) or nil
   local key = Database.CharacterKey(name, realm)
+  -- Ohne Realm teilen sich gleichnamige Charaktere den Schlüssel "Name-": ein anderer (andere GUID) bekommt einen
+  -- eigenen, statt den vorhandenen Eintrag als ersetzten Charakter zu überschreiben
+  local existing = stats.characters[key]
+  if realm == "" and guid and type(existing) == "table" and existing.guid and existing.guid ~= guid then
+    key = Database.CharacterKey(name, guid)
+  end
 
-  local guid = playerGuid()
+  setAsideSplitEntry(stats, name, key, guid)
+
   local data = stats.characters[key]
   local inherited
   if data and isReplacedCharacter(data, guid) then

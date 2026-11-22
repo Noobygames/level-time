@@ -124,8 +124,8 @@ expect("alter Timer stört fertige Suche nicht", LFGWindow.State().status, "done
 -- Eigener Eintrag: ausgelevelte Aktivität nach Level-up abgewählt
 LFGWindow.SetTab(LFGWindow.TAB_LISTING)
 LFGWindow.State().listingActivities = { [900] = true, [901] = true }
-wow.levelUp(23)
-expect("Todesminen (bis 22) abgewählt", LFGWindow.State().listingActivities[900], nil)
+wow.levelUp(24)
+expect("Todesminen (Forever bis 23) abgewählt", LFGWindow.State().listingActivities[900], nil)
 expect("Schattenfang bleibt", LFGWindow.State().listingActivities[901], true)
 
 -- Tastenbelegung schaltet das Fenster um

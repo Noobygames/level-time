@@ -8,6 +8,10 @@
 --   Classic Era/TBC: Rangzahl aus dem Untertext ("Rang 3", Widgets.SpellRank). Höchster Rang je Name aus dem
 --     Zauberbuch (GetSpellTabInfo, GetSpellBookItemName wie Vanilla/SpellBookFrame.lua); niedrige Ränge stehen dort
 --     nur mit CVar ShowAllSpellRanks, der höchste immer. Der Knopf ist alt, wenn sein Rang darunter liegt.
+-- Upgrade (LT-409, Knopf je Zauber im Hinweisfenster): Überfahren hebt den nächsten Platz mit dem alten Rang auf der
+-- Leiste hervor (ActionBars.HighlightSlot), ein Klick legt dort den höchsten Rang aus dem Zauberbuch ab
+-- (C_Spell.PickupSpell, PlaceAction, ClearCursor; nicht im Kampf, dort sperrt der Client Aktionsleisten). Mehrere
+-- Plätze = mehrere Klicks.
 -- Retail kennt keine Ränge: nicht verfügbar, keine Einstellung.
 local _, ns = ...
 
@@ -47,43 +51,49 @@ local function rankOf(spellID)
 end
 
 -- Prüffunktionen: spellID -> Rang im Zauberbuch (der höchste dieses Namens), wenn der Knopf einen niedrigeren hat,
--- sonst nil; false statt Zahl, wo der Rang nicht lesbar ist
+-- sonst nil; false statt Zahl, wo der Rang nicht lesbar ist. Zweiter Wert: Spell-ID des höchsten Rangs (Upgrade-Ziel)
 -- WoW Forever: Spell-IDs aller niedrigen Ränge im Zauberbuch, höchster Rang je Name aus allen Einträgen
 local function foreverLowRankCheck()
   local bank = Enum.SpellBookSpellBank.Player
-  local low, highest = {}, {}
+  local low, highest, best = {}, {}, {}  -- best: Name -> Spell-ID des Eintrags, der kein niedriger Rang ist
   for line = 1, C_SpellBook.GetNumSpellBookSkillLines() do
     local info = C_SpellBook.GetSpellBookSkillLineInfo(line)
     if info then
       for slot = info.itemIndexOffset + 1, info.itemIndexOffset + info.numSpellBookItems do
         local item = C_SpellBook.GetSpellBookItemInfo(slot, bank)
         if item and item.spellID then
-          if C_SpellBook.IsSpellBookItemLowRank(slot, bank) then low[item.spellID] = true end
           local name, rank = C_Spell.GetSpellName(item.spellID), rankOf(item.spellID)
+          if C_SpellBook.IsSpellBookItemLowRank(slot, bank) then
+            low[item.spellID] = true
+          elseif name then
+            best[name] = item.spellID
+          end
           if name and rank and rank > (highest[name] or 0) then highest[name] = rank end
         end
       end
     end
   end
   return function(spellID)
-    if low[spellID] then return highest[C_Spell.GetSpellName(spellID)] or false end
+    if not low[spellID] then return nil end
+    local name = C_Spell.GetSpellName(spellID)
+    return highest[name] or false, best[name]
   end
 end
 
 -- Classic Era/TBC: höchster bekannter Rang je Name, verglichen mit dem Rang des Knopfs
 local function legacyLowRankCheck()
-  local highest = {}
+  local highest, best = {}, {}  -- best: Name -> Spell-ID des höchsten Rangs
   for tab = 1, GetNumSpellTabs() do
     local _, _, offset, numSlots = GetSpellTabInfo(tab)
     for slot = offset + 1, offset + numSlots do
       local name, _, spellID = GetSpellBookItemName(slot, BOOKTYPE_SPELL)
       local rank = spellID and rankOf(spellID)
-      if name and rank and rank > (highest[name] or 0) then highest[name] = rank end
+      if name and rank and rank > (highest[name] or 0) then highest[name], best[name] = rank, spellID end
     end
   end
   return function(spellID)
     local name, rank = C_Spell.GetSpellName(spellID), rankOf(spellID)
-    if name ~= nil and rank ~= nil and rank < (highest[name] or 0) then return highest[name] end
+    if name ~= nil and rank ~= nil and rank < (highest[name] or 0) then return highest[name], best[name] end
   end
 end
 
@@ -108,22 +118,64 @@ function OldSpellRanks.ClearIgnored()
 end
 
 -- Zauber, die als niedriger Rang auf einem Aktionsplatz liegen (je Name einmal, ohne ausgeblendete Ränge):
--- { { spellID, name, barRank, bookRank }, ... }; ein Rang ist nil, wo er nicht lesbar ist
+-- { { spellID, name, barRank, bookRank, upgradeID, slots = { Platz, ... } }, ... }; ein Rang ist nil, wo er nicht
+-- lesbar ist, upgradeID nil, wo der höchste Rang im Zauberbuch fehlt
 function OldSpellRanks.Find()
   local bookRankOf = hasLowRankApi() and foreverLowRankCheck() or legacyLowRankCheck()
-  local found, seen = {}, {}
+  local found, byName = {}, {}
   for slot = 1, OldSpellRanks.MAX_ACTION_SLOT do
     local actionType, id = GetActionInfo(slot)
     if not ns.IsSecret(actionType) and actionType == "spell" and not ns.IsSecret(id) and type(id) == "number"
         and not (ignoredRanks() and ignoredRanks()[id]) and bookRankOf(id) ~= nil then
       local name = C_Spell.GetSpellName(id)
-      if name and not seen[name] then
-        seen[name] = true
-        table.insert(found, { spellID = id, name = name, barRank = rankOf(id), bookRank = bookRankOf(id) or nil })
+      if name and not byName[name] then
+        local bookRank, upgradeID = bookRankOf(id)
+        byName[name] = { spellID = id, name = name, barRank = rankOf(id), bookRank = bookRank or nil,
+          upgradeID = upgradeID, slots = {} }
+        table.insert(found, byName[name])
       end
+      if name then table.insert(byName[name].slots, slot) end
     end
   end
   return found
+end
+
+-- Nächster Platz von spell (Eintrag aus Find), auf dem noch der alte Rang liegt; nil, wenn keiner mehr
+function OldSpellRanks.NextSlot(spell)
+  for _, slot in ipairs(spell.slots) do
+    local actionType, id = GetActionInfo(slot)
+    if actionType == "spell" and id == spell.spellID then return slot end
+  end
+end
+
+-- Höchsten Rang auf den nächsten Platz von spell legen. true, wenn danach kein Platz mit dem alten Rang mehr übrig ist
+-- (die Zeile kann weg); im Kampf oder ohne Upgrade-Ziel bleibt alles, wie es ist.
+function OldSpellRanks.UpgradeNext(spell)
+  if InCombatLockdown() then
+    ns.Print(L.OLD_RANKS_UPGRADE_COMBAT)
+    return false
+  end
+  local slot = spell.upgradeID and OldSpellRanks.NextSlot(spell)
+  if slot then
+    C_Spell.PickupSpell(spell.upgradeID)  -- das globale PickupSpell fehlt in WoW Forever
+    PlaceAction(slot)
+    ClearCursor()  -- der alte Rang landet beim Tauschen auf dem Mauszeiger
+    ns.Debug("spellranks", "upgrade %s to %s on slot %s", spell.spellID, spell.upgradeID, slot)
+  else
+    ns.Debug("spellranks", "upgrade %s: no slot left (target %s)", spell.spellID, spell.upgradeID)
+  end
+  return OldSpellRanks.NextSlot(spell) == nil
+end
+
+-- Zeilen-Aktion fürs Hinweisfenster: Überfahren zeigt den nächsten Platz, Klick tauscht ihn
+local function upgradeAction(spell)
+  local function highlight() ns.ActionBars.HighlightSlot(OldSpellRanks.NextSlot(spell)) end
+  return { tip = L.OLD_RANKS_UPGRADE_TIP, onEnter = highlight, onLeave = ns.ActionBars.ClearHighlight,
+    run = function()
+      local done = OldSpellRanks.UpgradeNext(spell)
+      if done then ns.ActionBars.ClearHighlight() else highlight() end
+      return done
+    end }
 end
 
 local function rankText(rank)
@@ -146,7 +198,8 @@ function OldSpellRanks.Check()
     table.insert(names, spell.name)
     table.insert(rows, { spellID = spell.spellID, name = spell.name,
       columns = { rankText(spell.barRank), rankText(spell.bookRank) },
-      onDismiss = function() OldSpellRanks.Ignore(spell.spellID) end })
+      onDismiss = function() OldSpellRanks.Ignore(spell.spellID) end,
+      action = spell.upgradeID and upgradeAction(spell) })
   end
   ns.Alerts.Notify({ title = L.NOTICE_OLD_SPELL_RANKS,
     text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(names, ", ")),

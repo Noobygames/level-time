@@ -60,9 +60,9 @@ Classic data and unconfirmed for WoW Forever (marked in game).
 ## 4. Dungeon database
 
 `Assist/InstanceData/dungeon_db.lua` (`ns.DungeonDB`: dungeon quests, instance NPCs, boss loot, quest objectives) and the boss NPC IDs in
-`Assist/InstanceData/boss_npcs.lua` were imported once on 2026-11-14 from WTFPL-licensed sources and are maintained by
-hand since. Item qualities come from the DB2 table `ItemSparse` on wago.tools (section 2); WoW Forever loot was
-confirmed against the Wowhead WoW Forever dungeon guides (2026-11-14, section 5); the quest assignment of the new Forever dungeons was checked against the same guides (2026-11-16) and the Alcaz Prison quest chains were added by hand.
+`Assist/InstanceData/boss_npcs.lua` are maintained by + using the data Level Time Data Extractor, which logs everything while playing.
+
+Item qualities come from the DB2 table `ItemSparse` on wago.tools (section 2); WoW Forever loot was confirmed against the Wowhead WoW Forever dungeon guides (2026-11-14, section 5); the quest assignment of the new Forever dungeons was checked against the same guides (2026-11-16) and the Alcaz Prison quest chains were added by hand.
 
 ## 5. Guide research (boss and trash mechanics)
 
@@ -84,11 +84,7 @@ against the newest Forever build's `SpellName` table on wago.tools (section 2). 
 Excavation Site: Wetlands, Hall of Thanes, Ruins of Lordaeron) are written in our own words from the boss notes on
 foreverchanges.pro, NPC IDs from the dungeon database (section 4); these files have no `instanceMapID`.
 
-Wowhead WoW Forever dungeon guides (LT-69, checked 2026-11-14; `https://www.wowhead.com/forever/guide/<dungeon>-dungeon-
-overview-location-rewards`, one page per dungeon or wing, linked from the guide "Dungeons Overview"): used as a fact
-source for boss and trash NPC IDs, ability spell IDs (a matching line gets `"verified": true`; where Wowhead names a
-different spell ID for the same ability of the same boss, the Wowhead ID is taken) and the per-boss loot tables (taken
-over into the dungeon database as Forever-confirmed drops). Tips for abilities added from these pages are written in our
+Wowhead WoW Forever dungeon guides tips for abilities added from these pages are written in our
 own words. The "Dungeon Levels" table of the overview page is the source of the level ranges in `forever_guide.lua`
 (widest wing range per map). No Wowhead guide existed for The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw
 Hold, Shaper's Terrace, and for the Scarlet Monastery wings other than the Cathedral.
@@ -97,4 +93,36 @@ Wowhead Forever dungeon journal gap check (LT-354 to LT-385, 2026-11-18): spell 
 
 Forever-own dungeons without Wowhead guide (LT-59, 2026-11-16): boss tips for Alcaz Prison, Krol'dok Stronghold, The Drowned City, Shaper's Terrace and Blackmaw Hold are written in our own words from early-clear reports on warcraftmaps.com, conquestcapped.com, daybreakforever.com, wowclassicforever.info (and a mobalytics.gg search summary); boss NPC IDs come from `boss_npcs.lua` (section 4), none of these pages gives spell IDs, so all lines use spell ID 0 and are Forever-only without a Forever-confirmed mark. wowforevertalents.com lists no abilities for these dungeons. The Highland Horror NPC ID (260808) comes from its Wowhead WoW Forever NPC page, its two abilities from the Warcraft Wiki. Many encounters have no reported abilities yet and stay without a line.
 
-`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites imported once on 2026-11-16 from the same WTFPL quest database as section 4, bag names/slots and the seven enemy drops from Wowhead (2026-11-15); maintained by hand since.
+Alcaz Prison (LT-376, 2026-11-21): boss and trash spell IDs and abilities from our offline extraction of the Wowhead WoW Forever Alcaz Prison guide 35355 (2026-11-17), tactics in our own words; quests 95264, 96335, 96369 and the trash NPC IDs from the same guide and its quest pages. Trash NPC levels (49-54) are the dungeon's recommended range, not confirmed. Katerina's Backstab stays a single-source, unverified report.
+
+Dire Maul East (LT-380, 2026-11-21): boss abilities of Lethtendris, Hydrospawn, Alzzin and the optional boss Isalien (NPC 16097) with spell IDs from the Wowhead WoW Forever dungeon journal notes, descriptions in our own words, marked unverified; Isalien level and loot not known.
+
+Blackrock Depths (LT-377, 2026-11-21): journal spell lines missing from our research added in our own words (Ring of the Law bosses, Gerstahn, Fineous, Loregrain, Incendius, Phalanx, Seven dwarves, Moira, Stilgiss, Verek); journal rank IDs that differ from the guide table (Whirlwind, Mortal Strike, Shadow Bolt Volley, Polymorph, Arcane Explosion, Magma Splash, Burning Spirit) not taken over; Ironfoe tip paraphrased, unverified. Quests and NPC levels checked against the notes, no change.
+
+Dire Maul West (LT-381, 2026-11-21): Concussive Shot (Illyanna Ravenoak), Enrage (Immol'thar) and the abilities of the rares Tsu'zee and Lord Hel'nurath from the Wowhead WoW Forever dungeon journal notes (2026-11-17), described in our own words; guide table IDs kept.
+
+Upper Blackrock Spire (LT-379, 2026-11-21): boss abilities and spell IDs (Emberseer, Beast, Goraluk, Rend, Drakkisath, Jed Runewatcher) reconciled against the Wowhead WoW Forever journal notes, in our own words; guide table IDs kept where the journal differs (Fire Nova, Berserker Charge, Flame Breath). Levels of Rend, Drakkisath and Valthalak still unknown.
+
+Lower Blackrock Spire (LT-378, 2026-11-21): journal and guide spell lines missing from our research added in our own words (Voone, Mor Grayhoof, Urok, Wyrmthalak, Firebrand Invoker), Throw Axe and Mark of Flames IDs filled, guide table IDs kept where the journal differs, unconfirmed effects marked unverified; Vosh'gajin and Voone level 59 and Seal of Ascension giver Vaelan (NPC 10296) from the same notes, not yet confirmed in game.
+
+Krol'dok Stronghold (LT-386, 2026-11-21): spell IDs, three trash entries (Twilight Outrider 258102, Krol'dok Shaman 257888, Krol'dok Centurion 257885) and quest 94877 Saving Sunnyglade with its giver from the offline Wowhead WoW Forever guide notes (krol-dok-stronghold.md, written after the LT-59 tips); unverified: quest level (copied from sibling quest 94881), NPC levels, Zarmok Sunder Armor ID, Ashka's wolf abilities.
+
+Zul'Farrak (LT-373, 2026-11-21): boss spell IDs and abilities (Antu'sul, Zum'rah, Nekrum, Sezz'ziz, Bly, Velratha, Ukorz) from the Wowhead WoW Forever journal notes, in our own words and marked unverified; Shadow Bolt 15537 placed on Nekrum (notes list it for Nekrum and Sezz'ziz together); Healing Ward, zombie and Water Bolt IDs still open.
+
+Maraudon (LT-374, 2026-11-21): Tinkerer Gizlock Shoot (6660) and Meshlok the Harvester Strike (13446) from the Wowhead WoW Forever guide table notes, our own wording, unverified; journal-only rank IDs not used (guide table IDs kept).
+
+Scholomance (LT-383, 2026-11-21): missing boss abilities and the Argent Dawn key chain quests 5066, 5092, 5093, 5096, 5097, 5098, 5505, 5511 with givers and quest levels from the offline Wowhead WoW Forever notes, our own wording; ability effects unverified, minimum levels of the new quests estimated (50/55), giver of 5066/5093 unknown, variants 5090/5091/5094/5095 not added.
+
+The Temple of Atal'Hakkar (LT-375, 2026-11-21): Shield Spike, Renew, Thorns Aura and Flamestrike plus the Revantusk quests 7845-7847, 7849, 7850, 7861, 7862 (levels, chain, givers 14736/14741/14757, kill targets of 7861/7862) from the Wowhead WoW Forever notes (2026-11-17), our own wording, guide table IDs kept; faction set to Horde (Revantusk Village); unverified: Renew/Thorns Aura effects, minimum levels (set to quest level), giver of 7861/7862, objectives of 7846/7849/7850, coordinates.
+
+Uldaman (LT-372, 2026-11-21): Intercept, Harsh Winds and Lightning Bolt spell IDs, quests 2203, 2501, 2439, 2440 with factions, givers 6868 and 1470, and Ironaya level 40 from the Wowhead WoW Forever notes, our own wording; unverified: minimum levels of the new quests (copied from their predecessors), givers of 2439/2440, ability effects; quest 2431 missing (no data).
+
+Scarlet Monastery Graveyard (LT-368, 2026-11-21): abilities of Azshir, Fallen Champion, Ironspine and Thalnos' Flame Spike from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; Thalnos Shadow Bolt set to the guide table ID 9613.
+
+The Drowned City (LT-367, 2026-11-21): spell IDs and abilities of Zul'Alai, Var'Taka, Captain Dreadrise, Deathless Marrow, Primeval Elemental, Min'loth and Gill from the Wowhead WoW Forever guide notes (effects paraphrased, also using warcrafttavern notes), unverified; boss NPC IDs stay from our database (the guide lists 269586, 263886, 260243 for Marrow, Primeval Elemental, Min'loth).
+
+City of Dalaran (LT-366, 2026-11-21): quest giver Rexxie Copperclutch (268743, Horde, inside the instance, no coordinates) for 96987 and the boss abilities Strike, Arcing Smash, Arcane Explosion, Slow and Raise Dead (Lyn) from the Wowhead WoW Forever journal and guide notes, our own wording, unverified; guide table IDs kept over journal IDs.
+
+Excavation Site: Wetlands (LT-365, 2026-11-21): Infected Wound (Shadetooth adds), Arcing Smash, Knock Away and War Stomp (Relic Guardian) from the Wowhead WoW Forever journal and guide notes, our own wording, effects unverified; guide table IDs kept (Enrage, Thunderclap). Open: whether quest 469 Daily Delivery is a prerequisite of Highland Hides (98815).
+
+`Assist/InstanceData/bags.lua` (`ns.BagData`: quests with a bag reward and enemies that drop a bag): quest givers, coordinates and prerequisites are updated by hand aswell as recorded using the Data Extractor.

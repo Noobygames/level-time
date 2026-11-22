@@ -1,7 +1,62 @@
 {
-  "v": 3,
   "attachments": {},
   "boards": {
+    "Displays.dc.html": {
+      "h": 1060,
+      "is_interactive": true,
+      "title": "Weitere Anzeigen und Fenster",
+      "w": 1400,
+      "x": 0,
+      "y": 880
+    },
+    "DungeonGuide.dc.html": {
+      "h": 560,
+      "is_interactive": true,
+      "title": "Dungeon Guide (Trash- und Bossseiten)",
+      "w": 1000,
+      "x": 5070,
+      "y": 1080
+    },
+    "DungeonQuestHints.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Dungeonquest-Hinweise (Zone, Annahme, Eingang)",
+      "w": 1450,
+      "x": 3540,
+      "y": 880
+    },
+    "DungeonRecap.dc.html": {
+      "h": 600,
+      "is_interactive": true,
+      "title": "Dungeon-Recap nach dem Endboss (Planung)",
+      "w": 760,
+      "x": 3540,
+      "y": 1740
+    },
+    "DungeonRun.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Dungeon- und Raid-Runs (Planung)",
+      "w": 1300,
+      "x": 2160,
+      "y": 880
+    },
+    "History.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "title": "Verlauf (Shift+Klick Minimap)",
+      "w": 1100,
+      "x": 2540,
+      "y": 0
+    },
+    "LFG.dc.html": {
+      "h": 1002,
+      "is_interactive": true,
+      "title": "Gruppensuche: Blizzard-Ergänzungen und eigenes Fenster (Planung)",
+      "w": 1800,
+      "x": 5070,
+      "y": 0
+    },
     "Main.dc.html": {
       "h": 760,
       "is_interactive": true,
@@ -17,62 +72,6 @@
       "w": 1100,
       "x": 1360,
       "y": 0
-    },
-    "History.dc.html": {
-      "h": 760,
-      "is_interactive": true,
-      "title": "Verlauf (Shift+Klick Minimap)",
-      "w": 1100,
-      "x": 2540,
-      "y": 0
-    },
-    "Displays.dc.html": {
-      "h": 1060,
-      "is_interactive": true,
-      "title": "Weitere Anzeigen und Fenster",
-      "w": 1400,
-      "x": 0,
-      "y": 880
-    },
-    "DungeonRun.dc.html": {
-      "h": 760,
-      "is_interactive": true,
-      "title": "Dungeon- und Raid-Runs (Planung)",
-      "w": 1300,
-      "x": 2160,
-      "y": 880
-    },
-    "DungeonQuestHints.dc.html": {
-      "h": 760,
-      "is_interactive": true,
-      "title": "Dungeonquest-Hinweise (Zone, Annahme, Eingang)",
-      "w": 1450,
-      "x": 3540,
-      "y": 880
-    },
-    "LFG.dc.html": {
-      "h": 1000,
-      "is_interactive": true,
-      "title": "Gruppensuche: Blizzard-Ergänzungen und eigenes Fenster (Planung)",
-      "w": 1800,
-      "x": 5070,
-      "y": 0
-    },
-    "DungeonGuide.dc.html": {
-      "h": 560,
-      "is_interactive": true,
-      "title": "Dungeon Guide (Trash- und Bossseiten)",
-      "w": 1000,
-      "x": 5070,
-      "y": 1080
-    },
-    "DungeonRecap.dc.html": {
-      "h": 600,
-      "is_interactive": true,
-      "title": "Dungeon-Recap nach dem Endboss (Planung)",
-      "w": 760,
-      "x": 3540,
-      "y": 1740
     }
   },
   "createdOnFiles": {
@@ -111,9 +110,12 @@
     "History.dc.html",
     "Displays.dc.html",
     "DungeonRun.dc.html",
+    "LFG.dc.html",
+    "DungeonGuide.dc.html",
     "DungeonRecap.dc.html",
-    "LFG.dc.html"
+    "DungeonQuestHints.dc.html"
   ],
   "pages": [],
-  "title": "Level Time Clickdummy"
+  "title": "Level Time Clickdummy",
+  "v": 3
 }

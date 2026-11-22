@@ -6,7 +6,7 @@
 -- QuestItem.Candidates, gemerkt in character.questSpecialItems, damit es auch nach /reload bekannt ist). Von den
 -- Taschen-Kandidaten zählen nur sichere Zuordnungen (OWNED_SOURCES: beim Annehmen erhalten, Questinfo des Clients);
 -- ein Namenstreffer im Zieltext macht einen Gegenstand nicht zum Questrest. Reagenzien der eigenen Klasse
--- (Reagents.IsClassReagent, z. B. Fischöl) sind nie Reste.
+-- (Reagents.IsClassReagent, z. B. Fischöl) und Handwerkswaren (Stoff, Fleisch) sind nie Reste.
 -- Ereignisse: QUEST_TURNED_IN, QUEST_REMOVED (Abbruch; Retail/Forever auch bei Abgabe), MERCHANT_SHOW;
 -- Taschen über Lib/Bags.lua. Reste stehen je Charakter in character.questLeftovers[itemID] = { questID, name }
 -- und verschwinden, sobald sie nicht mehr in den Taschen sind.
@@ -102,6 +102,15 @@ local function onQuestGone(questID)
   specialItems()[questID] = nil
 end
 
+-- Handwerkswaren (Itemklasse Tradegoods: Stoff, Fleisch, Erz, ...) brauchen Berufe weiter, auch wenn eine Quest sie
+-- verlangt hat (z. B. Stoffabgaben): nie ein Rest. Klasse aus C_Item.GetItemInfoInstant (alle Clients laut Doku).
+local TRADEGOODS_CLASS = Enum and Enum.ItemClass and Enum.ItemClass.Tradegoods or 7
+
+local function isTradeGood(itemID)
+  local getInstant = C_Item and C_Item.GetItemInfoInstant
+  return getInstant ~= nil and readable(select(6, getInstant(itemID))) == TRADEGOODS_CLASS
+end
+
 -- Reste und markierte Gegenstände, die noch in den Taschen sind: Liste { itemID, name, count }; vergisst
 -- Questreste, die nicht mehr da sind (Markierungen bleiben, der Gegenstand kann wiederkommen)
 function QuestLeftovers.InBags()
@@ -115,8 +124,8 @@ function QuestLeftovers.InBags()
   end)
   local found = {}
   for itemID, entry in pairs(list) do
-    if ns.Reagents.IsClassReagent(itemID) and not marks[itemID] then
-      list[itemID] = nil  -- z. B. Fischöl aus einer Quest ist für Schamanen Reagenz, kein Rest
+    if (ns.Reagents.IsClassReagent(itemID) or isTradeGood(itemID)) and not marks[itemID] then
+      list[itemID] = nil  -- z. B. Fischöl (Schamanen-Reagenz) oder Seidenstoff aus einer Quest ist kein Rest
     elseif counts[itemID] then
       local name = entry.name or ns.Items.GetName(itemID) or tostring(itemID)
       table.insert(found, { itemID = itemID, name = name, count = counts[itemID] })

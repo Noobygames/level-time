@@ -137,7 +137,7 @@ function Widgets.AttachTooltip(frame, title, text)
   frame:HookScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
--- Item-Links in den Texten eines Frames: Tooltip beim Überfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled,
+-- Links (Gegenstände, Zauber) in den Texten eines Frames: Tooltip beim Überfahren, Shift-Klick wie überall (Frame:SetHyperlinksEnabled,
 -- SimpleFrameAPI in allen Zweigen). onLeave(frame) optional statt Tooltip ausblenden.
 function Widgets.EnableItemLinks(frame, onLeave)
   if not frame.SetHyperlinksEnabled then return end
@@ -149,7 +149,11 @@ function Widgets.EnableItemLinks(frame, onLeave)
   end)
   frame:SetScript("OnHyperlinkLeave", onLeave or function() GameTooltip:Hide() end)
   frame:SetScript("OnHyperlinkClick", function(_, link, text, button)
-    if HandleModifiedItemClick and HandleModifiedItemClick(text) then return end
+    -- Selbst gebaute Zauber-Links (Format.Highlight) haben nicht die Form des Clients: für den Chat dessen Link nehmen
+    local spellID = link:match("^spell:(%d+)")
+    local chatLink = text
+    if spellID then chatLink = C_Spell and C_Spell.GetSpellLink and C_Spell.GetSpellLink(tonumber(spellID)) end
+    if chatLink and HandleModifiedItemClick and HandleModifiedItemClick(chatLink) then return end
     if SetItemRef then SetItemRef(link, text, button) end
   end)
 end

@@ -31,3 +31,11 @@ expect("Wurf-Start", spell.events.SPELL_CAST_START, 2)
 expect("Wurf-Erfolg", spell.events.SPELL_CAST_SUCCESS, 1)
 expect("Status: Zauber aus UNIT_SPELLCAST", X.CombatSpells.Status().unitCasts, true)
 expect("keine Lua-Fehler 2", #wow.errors, 0)
+
+-- LT-278: Mouseover zählt, Zähler lesbar/geheim
+wow.state.units.mouseover = { guid = COOKIE }
+wow.fire("UNIT_SPELLCAST_START", "mouseover", "Cast-9", 5174)
+local st = X.CombatSpells.Status()
+expect("Mouseover gezählt", LevelTimerExtractorDB.instances[36].spells[645][5174].count, 4)
+expect("Zauber-ID geheim gezählt", st.spellIDSecret, 1)
+expect("Zauber-ID lesbar gezählt", st.spellIDReadable > 0, true)

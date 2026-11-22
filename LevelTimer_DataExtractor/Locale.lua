@@ -13,7 +13,8 @@ local TEXTS = {
     DEBUG_HELP = "/lt debug: logging on/off | state: internal state | levelup: test level-up summary, announcement and alert | alert " ..
       "<kind>: test an alert | remind: check buff reminders | death: check death cause | splits: reference times | log " ..
       "[off/clear/status]: persistent debug log on (off: off) | check: run every check once and write it to the debug log | " ..
-      "pending: unconfirmed checks | " ..
+      "pending: unconfirmed checks | lfgsearch: group finder search probe (debug log on, may show a blocked-action " ..
+      "message) | " ..
       "perf " ..
       "[on/off/report/reset]: CPU usage per handler",
     DEBUG_LOG_ON = "Debug log on: debug lines, errors and event probes are saved (also across /reload). File: " ..
@@ -79,7 +80,8 @@ local TEXTS = {
     DEBUG_HELP = "/lt debug: Logging an/aus | state: Zustand | levelup: Level-Up-Zusammenfassung, Ansage und Einblendung testen | alert " ..
       "<art>: Einblendung testen | remind: Buff-Hinweise prüfen | death: Todesursache prüfen | splits: Vergleichszeiten | log " ..
       "[off/clear/status]: dauerhaftes Debug-Log an (off: aus) | check: alles einmal prüfen und ins Debug-Log schreiben | " ..
-      "pending: unbestätigte Prüfungen | " ..
+      "pending: unbestätigte Prüfungen | lfgsearch: Probe der Gruppensuche (Debug-Log an, kann eine Meldung " ..
+      "„Aktion blockiert“ zeigen) | " ..
       "perf " ..
       "[on/off/report/reset]: CPU-Messung je Handler",
     DEBUG_LOG_ON = "Debug-Log an: Debug-Zeilen, Fehler und Ereignis-Proben werden gespeichert (auch nach /reload). Datei: " ..

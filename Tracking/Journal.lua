@@ -140,6 +140,21 @@ function Journal.DropOldest(list, count)
   for i = size, size - count + 1, -1 do list[i] = nil end
 end
 
+-- Einträge eines anderen Eintrags desselben Charakters (SplitEntry.lua) in den Eingang von characterKey einsortieren:
+-- nach Zeit, bei gleicher Zeit bleibt die alte Reihenfolge
+function Journal.MergeEntries(characterKey, logName, extra)
+  local log = LevelTimerStatsDB.characters[characterKey][logName]
+  if #extra == 0 then return end
+  for _, entry in ipairs(extra) do table.insert(log, entry) end
+  local order = {}
+  for position, entry in ipairs(log) do order[entry] = position end
+  table.sort(log, function(a, b)
+    if (a.time or 0) ~= (b.time or 0) then return (a.time or 0) < (b.time or 0) end
+    return order[a] < order[b]
+  end)
+  edited(logName)
+end
+
 -- Neuen Eintrag an den Eingang character[logName] anhängen. Über INBOX_LIMIT + INBOX_SLACK (nur ohne Archiv) fallen
 -- die ältesten bis auf INBOX_LIMIT weg: ein Kürzen je INBOX_SLACK Einträge statt ein Verschieben des ganzen Eingangs
 -- bei jedem Kill

@@ -21,7 +21,10 @@ local recentByName = {}     -- Name -> { id, level, time }
 Units.lastKill = nil        -- { id, time } für Quests und Beute
 local partyKillAt = {}      -- npcID -> GetTime() des letzten gezählten PARTY_KILL
 -- Zähler dieser Sitzung für die Prüfung LT279.kills.events
-local killStatus = { partyKills = 0, npcKills = 0, unitDied = 0, secretGuids = 0, unnamed = 0 }
+local killStatus = { partyKills = 0, npcKills = 0, unitDied = 0, secretGuids = 0, unnamed = 0, unitToken = 0,
+  secretSkipped = 0 }
+local countedGuids = {}     -- GUID -> true: dieser Kill ist schon gezählt (PARTY_KILL und Einheiten-Token doppelt)
+local DEAD_CHECK_UNITS = { "target", "focus", "mouseover", "boss1", "boss2", "boss3", "boss4", "boss5" }
 
 local function readUnit(fn, unit)
   if type(fn) ~= "function" then return nil end
@@ -89,7 +92,7 @@ X.On("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
     if id then X.Record("npcs", id).boss = true end
   end
 end)
-X.On("PLAYER_ENTERING_WORLD", function() observedAt = {} end)
+X.On("PLAYER_ENTERING_WORLD", function() observedAt = {}; countedGuids = {} end)
 
 ---------------------------------------------------------------------------
 -- Kill-XP
@@ -128,23 +131,51 @@ end
 
 -- Kills über PARTY_KILL (eigener oder Gruppen-Kill; Ersatz für den Kampflog in WoW Forever). Der Name steht im
 -- Datensatz, wenn der NPC vorher als Ziel/Namensplakette gesehen wurde, sonst bleibt es bei der NPC-ID.
--- UNIT_DIED (auch fremde Weltkills) zählt nur für die Prüfung.
+-- UNIT_DIED (auch fremde Weltkills) zählt nur für die Prüfung. Ist die GUID geheim, zählt der Einheiten-Token-Weg
+-- (countDeadUnits). Gespeichert wird wie bei der XP-Zeile: npcs[npcID].kills (Ausfuhr: tools/extractor/instances.go).
+local function countKill(id, guid, now)
+  local record = X.Record("npcs", id)
+  X.Increment(record, "kills")
+  if not record.names then killStatus.unnamed = killStatus.unnamed + 1 end
+  killStatus.npcKills = killStatus.npcKills + 1
+  partyKillAt[id] = now
+  Units.lastKill = { id = id, time = now }
+  if guid then countedGuids[guid] = true end
+end
+
+-- Geheime PARTY_KILL-GUID (Instanzen, LT-321): tote Einheiten über Token suchen (lesbare UnitGUID, UnitIsDead) und je
+-- GUID einmal zählen. Rückgabe: Anzahl neu gezählter Kills.
+local function countDeadUnits(now)
+  local tokens = { unpack(DEAD_CHECK_UNITS) }
+  local plates = C_NamePlate and C_NamePlate.GetNamePlates and C_NamePlate.GetNamePlates() or {}
+  for _, plate in ipairs(plates) do tokens[#tokens + 1] = plate.namePlateUnitToken end
+  local counted = 0
+  for _, unit in ipairs(tokens) do
+    local exists, dead = readUnit(UnitExists, unit), readUnit(UnitIsDead, unit)
+    local guid = exists and dead and readUnit(UnitGUID, unit)
+    local kind, id = X.ParseGuid(guid)
+    if kind == "Creature" and id and not countedGuids[guid] then
+      countKill(id, guid, now)
+      killStatus.unitToken = killStatus.unitToken + 1
+      counted = counted + 1
+    end
+  end
+  return counted
+end
+
 if not X.GET_COMBAT_EVENT then
   X.On("PARTY_KILL", function(_, targetGUID)
     killStatus.partyKills = killStatus.partyKills + 1
+    if not X.db then return end
+    local now = GetTime()
     if X.IsSecret(targetGUID) then
       killStatus.secretGuids = killStatus.secretGuids + 1
+      if countDeadUnits(now) == 0 then killStatus.secretSkipped = killStatus.secretSkipped + 1 end
       return
     end
     local kind, id = X.ParseGuid(targetGUID)
-    if kind ~= "Creature" or not id or not X.db then return end
-    local now = GetTime()
-    local record = X.Record("npcs", id)
-    X.Increment(record, "kills")
-    if not record.names then killStatus.unnamed = killStatus.unnamed + 1 end
-    killStatus.npcKills = killStatus.npcKills + 1
-    partyKillAt[id] = now
-    Units.lastKill = { id = id, time = now }
+    if kind ~= "Creature" or not id or countedGuids[targetGUID] then return end
+    countKill(id, targetGUID, now)
   end)
   X.On("UNIT_DIED", function() killStatus.unitDied = killStatus.unitDied + 1 end)
 end
@@ -152,5 +183,6 @@ end
 -- Für die Prüfung: Zähler dieser Sitzung (partyKills = Ereignisse, npcKills = davon gezählte NPCs)
 function Units.KillStatus()
   return { partyKills = killStatus.partyKills, npcKills = killStatus.npcKills, unitDied = killStatus.unitDied,
-    secretGuids = killStatus.secretGuids, unnamed = killStatus.unnamed, active = X.GET_COMBAT_EVENT == nil }
+    secretGuids = killStatus.secretGuids, unnamed = killStatus.unnamed, unitToken = killStatus.unitToken,
+    secretSkipped = killStatus.secretSkipped, active = X.GET_COMBAT_EVENT == nil }
 end

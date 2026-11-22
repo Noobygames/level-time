@@ -25,47 +25,67 @@ button{font-family:inherit}
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
           <span style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #ffd100"><span style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; background: #1d1d1d; font-size: 12px">🗝</span>Dungeonquests in Westfall</span>
           <span style="display: flex; gap: 6px; align-items: center">
-            <button type="button" onclick="{{closeZone}}" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+            <button type="button" onClick="{{closeZone}}" title="Schließen" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
           </span>
         </div>
-        <!-- Alle Quests, Mausrad-Bildlauf ab 8 Zeilen; markierte Zeile = Kartenpunkt gesetzt -->
-        <div style="max-height: 256px; overflow-y: auto; display: flex; flex-direction: column">
-        <sc-for list="{{zoneRows}}" as="r" hint-placeholder-count="3">
-          <button type="button" onclick="{{r.pick}}" style="text-align: left; background: none; border: 0; padding: 2px 0; color: #f2f2f2; cursor: pointer; font-size: 13px; display: flex; flex-direction: column">
-            <span>{{r.title}} <span style="color: #9fd0ff">({{r.instance}})</span> <span style="color: #ffd100">&#128205;</span></span>
-            <span style="color: #bbb; font-size: 12px">{{r.giver}} – {{r.place}}</span>
+        <!-- Alle Quests, Mausrad-Bildlauf ab 8 Zeilen; markierte Zeile = Kartenpunkt gesetzt (◆ statt ◇, Farbe nie allein) -->
+        <div style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column">
+        <sc-for list="{{zoneRows}}" as="r" hint-placeholder-count="8">
+          <button type="button" onClick="{{r.pick}}" title="{{r.tip}}" style="text-align: left; background: {{r.bg}}; border: 0; border-radius: 3px; padding: 2px 4px; color: {{r.color}}; cursor: pointer; font-size: 13px; display: grid; grid-template-columns: minmax(0, 1fr) 16px; gap: 8px; align-items: center">
+            <span style="display: flex; flex-direction: column; min-width: 0">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.title}} <span style="color: #9fd0ff">({{r.instance}})</span></span>
+              <span style="color: #bbb; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.giver}} – {{r.place}}{{r.stepText}}</span>
+            </span>
+            <span style="color: {{r.markColor}}; text-align: center">{{r.mark}}</span>
           </button>
         </sc-for>
         </div>
-        <span style="color: #888; font-size: 11px">Klick: Kartenpunkt setzen oder entfernen</span>
+        <span style="color: #888; font-size: 11px">Klick: Kartenpunkt setzen oder entfernen · {{zoneCount}}</span>
         <!-- Knöpfe unter der Liste: der Titel behält die volle Breite -->
         <div style="display: flex; justify-content: flex-end; gap: 6px">
-          <button type="button" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle markieren</button>
-          <button type="button" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle löschen</button>
+          <button type="button" onClick="{{zoneAll}}" title="Für alle Quests der Liste einen Kartenpunkt setzen" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle markieren</button>
+          <button type="button" onClick="{{zoneNone}}" title="Alle Kartenpunkte dieser Liste entfernen" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle löschen</button>
         </div>
       </div>
     </sc-if>
-    <sc-if value="{{!zoneOpen}}" hint-placeholder-val="false">
-      <button type="button" onclick="{{openZone}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Zone erneut betreten</button>
+    <sc-if value="{{zoneClosed}}" hint-placeholder-val="false">
+      <button type="button" onClick="{{openZone}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Zone erneut betreten</button>
     </sc-if>
   </section>
 
   <!-- Nach der Annahme (Assist/DungeonQuestHints.lua) -->
   <section style="display: flex; flex-direction: column; gap: 8px">
     <span style="font-size: 12px; color: #9fb3a8">Nach Annahme einer Dungeonquest oder eines Kettenschritts</span>
-    <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
-        <span style="font-weight: 700; color: #ffd100">Weitere Quests für Die Todesminen</span>
-        <span style="width: 22px; height: 22px; border: 1px solid #555; border-radius: 3px; text-align: center">×</span>
+    <sc-if value="{{acceptOpen}}" hint-placeholder-val="true">
+      <div style="background: rgba(8,8,10,0.92); border: 1px solid #555; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; max-width: 420px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+          <span style="font-weight: 700; color: #ffd100">Weitere Quests für Maraudon</span>
+          <button type="button" onClick="{{closeAccept}}" title="Schließen" style="width: 22px; height: 22px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #eee; cursor: pointer">×</button>
+        </div>
+        <div style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column">
+        <sc-for list="{{acceptRows}}" as="r" hint-placeholder-count="8">
+          <button type="button" onClick="{{r.pick}}" title="{{r.tip}}" style="text-align: left; background: {{r.bg}}; border: 0; border-radius: 3px; padding: 2px 4px; color: {{r.color}}; cursor: pointer; font-size: 13px; display: grid; grid-template-columns: minmax(0, 1fr) 16px; gap: 8px; align-items: center">
+            <span style="display: flex; flex-direction: column; min-width: 0">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.title}}</span>
+              <span style="color: #bbb; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.giver}} – {{r.place}}{{r.stepText}}</span>
+            </span>
+            <span style="color: {{r.markColor}}; text-align: center">{{r.mark}}</span>
+          </button>
+        </sc-for>
+        </div>
+        <span style="color: #888; font-size: 11px">Grau = später verfügbar (Level oder Vorquest fehlt) · {{acceptCount}}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap">
+          <label title="Diesen Hinweis für Maraudon nicht mehr zeigen (Einstellungen: Dungeonquest-Hinweise)" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #c8c8c8; cursor: pointer"><input type="checkbox" />Für diesen Dungeon nicht mehr anzeigen</label>
+          <span style="display: flex; gap: 6px">
+            <button type="button" onClick="{{acceptAll}}" title="Für alle Quests der Liste einen Kartenpunkt setzen" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle markieren</button>
+            <button type="button" onClick="{{acceptNone}}" title="Alle Kartenpunkte dieser Liste entfernen" style="height: 22px; padding: 0 8px; background: #1d1d1d; border: 1px solid #555; border-radius: 3px; color: #ffd100; cursor: pointer; font-size: 11px">Alle löschen</button>
+          </span>
+        </div>
       </div>
-      <sc-for list="{{acceptRows}}" as="r" hint-placeholder-count="4">
-        <button type="button" onclick="{{r.pick}}" style="text-align: left; background: none; border: 0; padding: 2px 0; color: {{r.color}}; cursor: pointer; font-size: 13px; display: flex; flex-direction: column">
-          <span>{{r.title}}</span>
-          <span style="color: #bbb; font-size: 12px">{{r.giver}} – {{r.place}}</span>
-        </button>
-      </sc-for>
-      <span style="color: #888; font-size: 11px">Grau = später verfügbar (Level oder Vorquest fehlt)</span>
-    </div>
+    </sc-if>
+    <sc-if value="{{acceptClosed}}" hint-placeholder-val="false">
+      <button type="button" onClick="{{openAccept}}" style="align-self: flex-start; height: 32px; padding: 0 12px; background: #1d1d1d; border: 1px solid #555; border-radius: 4px; color: #eee">Dungeonquest annehmen</button>
+    </sc-if>
     <span style="font-size: 12px; color: #ffd100">{{picked}}</span>
   </section>
 
@@ -118,28 +138,59 @@ button{font-family:inherit}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { zoneOpen: true, picked: '' };
+    this.state = { zoneOpen: true, acceptOpen: true, picked: '', zonePins: { 2: true }, acceptPins: { 0: true } };
   }
   renderVals() {
     const s = this.state;
-    const pick = (place) => () => this.setState({ picked: 'Kartenpunkt gesetzt: ' + place });
+    const WHITE = '#f2f2f2', GRAY = '#9d9d9d', GOLD = '#ffd100', MUTED = '#8a8a8a';
+    // Zeile: [Titel, Instanz, Kettenschritt, Questgeber, Ort, verfügbar]
     const ZONE = [
-      ['Die Bruderschaft', 'Die Todesminen', 'Wilder Klippenschmied', 'Westfall (56, 47)'],
-      ['Rote Seidenkopftücher', 'Die Todesminen', 'Späher Riell', 'Westfall (56, 47)'],
-      ['Die Verteidigung des Königreichs – Schritt 6/7', 'Die Todesminen', 'Gryan Starkmantel', 'Westfall (56, 47)']
+      ['Die Defias-Bruderschaft', 'Die Todesminen', 'Schritt 5/5', 'Gryan Starkmantel', 'Westfall (56, 47)', true],
+      ['Rote Seidenkopftücher', 'Die Todesminen', '', 'Späher Riell', 'Westfall (56, 47)', true],
+      ['Die Verteidigung des Königreichs', 'Die Todesminen', 'Schritt 6/7', 'Gryan Starkmantel', 'Westfall (56, 47)', true],
+      ['Gesucht: Kapitän Grünhaut', 'Die Todesminen', '', 'Steckbrief', 'Westfall (56, 49)', true],
+      ['Gilnids Vermächtnis', 'Die Todesminen', 'Schritt 3/7', 'Grimbart Flimmerdraht', 'Westfall (61, 19)', true],
+      ['Die Schmelze von Mondbrück', 'Die Todesminen', 'Schritt 2/3', 'Bauer Saldean', 'Westfall (56, 31)', true],
+      ['Gefangene Defias', 'Das Verlies', 'Schritt 1/4', 'Wachhauptmann Danuvin', 'Westfall (54, 52)', true],
+      ['Das Herz der Bruderschaft (ab Level 22)', 'Die Todesminen', 'Schritt 7/7', 'Gryan Starkmantel', 'Westfall (56, 47)', false]
     ];
+    // Zeile: [Titel, Kettenschritt, Questgeber, Ort, verfügbar]
     const ACCEPT = [
-      ['Gesammelte Erinnerungen', 'Wilder Klippenschmied', 'Sturmwind (70, 41)', '#f2f2f2'],
-      ['Die Verteidigung des Königreichs – Schritt 7/7', 'Gryan Starkmantel', 'Westfall (56, 47)', '#f2f2f2'],
-      ['Ein Mittel gegen die Verwesung (ab Level 18)', 'Gegenstand', 'Rotkammgebirge (26, 44)', '#9d9d9d'],
-      ['Oh Bruder…', 'Questgeber', 'Sturmwind (65, 21)', '#9d9d9d']
+      ['Die verderbten Wurzeln', 'Schritt 2/7', 'Weidenbaum', 'Desolace (62, 39)', true],
+      ['Legenden von Maraudon', 'Schritt 1/3', 'Cavindra', 'Desolace (29, 62)', true],
+      ['Das Zepter von Celebras', 'Schritt 3/7', 'Celebras der Erlöste', 'Maraudon (52, 48)', true],
+      ['Schattensplitter', '', 'Erzmagier Tervosh', 'Düstermarschen (66, 49)', true],
+      ['Verderbte Stäbe', '', 'Vark Schlachtnarbe', 'Desolace (35, 30)', true],
+      ['Unrecht wiedergutmachen', 'Schritt 1/2', 'Talendria', 'Desolace (65, 10)', true],
+      ['Ein Bündnis mit den Zentauren (ab Level 45)', 'Schritt 1/4', 'Smeed Narbenbart', 'Desolace (56, 59)', false],
+      ['Der Fluch der Theradras (Vorquest fehlt)', 'Schritt 4/7', 'Questgeber', 'Desolace (29, 62)', false]
     ];
+    // Zeilenklick schaltet den Kartenpunkt, Alle markieren/löschen setzen die ganze Liste
+    const toggle = (key, i, place) => () => {
+      const pins = { ...s[key] };
+      const on = !pins[i];
+      if (on) pins[i] = true; else delete pins[i];
+      this.setState({ [key]: pins, picked: (on ? 'Kartenpunkt gesetzt: ' : 'Kartenpunkt entfernt: ') + place });
+    };
+    const all = (key, list) => () => this.setState({ [key]: Object.fromEntries(list.map((_, i) => [i, true])), picked: list.length + ' Kartenpunkte gesetzt' });
+    const none = (key) => () => this.setState({ [key]: {}, picked: 'Alle Kartenpunkte entfernt' });
+    const row = (key, i, giver, place, available, step) => {
+      const on = !!s[key][i];
+      return { giver, place, pick: toggle(key, i, place), stepText: step ? ' · ' + step : '', mark: on ? '◆' : '◇', markColor: on ? GOLD : MUTED,
+        color: available ? WHITE : GRAY, bg: on ? '#3a2e0c' : 'transparent',
+        tip: on ? 'Kartenpunkt gesetzt, Klick entfernt ihn' : 'Klick setzt einen Kartenpunkt' };
+    };
+    const count = (key) => Object.keys(s[key]).length + ' markiert';
     return {
-      zoneOpen: s.zoneOpen, picked: s.picked,
+      zoneOpen: s.zoneOpen, zoneClosed: !s.zoneOpen, acceptOpen: s.acceptOpen, acceptClosed: !s.acceptOpen, picked: s.picked,
       closeZone: () => this.setState({ zoneOpen: false }),
       openZone: () => this.setState({ zoneOpen: true }),
-      zoneRows: ZONE.map(([title, instance, giver, place]) => ({ title, instance, giver, place, pick: pick(place) })),
-      acceptRows: ACCEPT.map(([title, giver, place, color]) => ({ title, giver, place, color, pick: pick(place) }))
+      closeAccept: () => this.setState({ acceptOpen: false }),
+      openAccept: () => this.setState({ acceptOpen: true }),
+      zoneRows: ZONE.map(([title, instance, step, giver, place, ok], i) => ({ title, instance, step, ...row('zonePins', i, giver, place, ok, step) })),
+      acceptRows: ACCEPT.map(([title, step, giver, place, ok], i) => ({ title, step, ...row('acceptPins', i, giver, place, ok, step) })),
+      zoneAll: all('zonePins', ZONE), zoneNone: none('zonePins'), zoneCount: count('zonePins'),
+      acceptAll: all('acceptPins', ACCEPT), acceptNone: none('acceptPins'), acceptCount: count('acceptPins')
     };
   }
 }

@@ -5,7 +5,8 @@
 -- langsamer als der beste eigene Lauf derselben Instanz (Farbe nie allein). Zahlen und Auszeichnungen liefern
 -- Tracking/RunMeter.lua und History/InstanceRecap.lua; fehlen die Messerzahlen (Client ohne Schadensmesser), zeigt das
 -- Fenster nur, was das Journal weiß. Öffnet nach dem Endboss von selbst (Einstellung dungeonRecapAutoOpen), sonst über
--- /lt recap run oder den Knopf "Recap" im Run-Fenster. Beute und Würfe kommen erst nach dem Kill: das Fenster rechnet
+-- /lt recap run, den Knopf "Recap" im Run-Fenster oder Linksklick auf den Live-Tracker; im laufenden Lauf mit dem
+-- Zwischenstand (LT-405). Beute und Würfe kommen erst nach dem Kill: das Fenster rechnet
 -- deshalb alle UPDATE_INTERVAL Sekunden neu, solange es offen ist.
 -- shortcut: die Gruppen-Tabelle zeigt höchstens MAX_PLAYERS Spieler (Raids: die mit dem meisten Schaden).
 local _, ns = ...
@@ -550,12 +551,21 @@ refresh = function()
 end
 
 -- Fenster öffnen: characterKey (Standard: eingeloggter Charakter), recordTime = Lauf (time des Eintrags; Standard: der
--- jüngste abgeschlossene). false, wenn es keinen abgeschlossenen Lauf gibt.
+-- offene Lauf, sonst der jüngste abgeschlossene). false, wenn es keinen solchen Lauf gibt.
 function DungeonRecapWindow.Show(characterKey, recordTime)
   if not ns.db then return false end
   state.characterKey = characterKey or ns.characterKey
   local records = ns.History.GetInstanceLog(state.characterKey)
-  local record = recordTime and findRecord(records, recordTime) or latestCompleted(records)
+  local record
+  if recordTime then
+    record = findRecord(records, recordTime)
+  elseif records[1] and records[1].isCurrent then
+    record = records[1]
+  else
+    record = latestCompleted(records)
+  end
+  ns.Debug("recap", "dungeon recap show: requested %s, current %s, found %s", recordTime,
+    records[1] and records[1].isCurrent and true or false, record and record.time)
   if not record then return false end
   state.time, state.tab = record.time, TAB_OVERVIEW
   refresh()

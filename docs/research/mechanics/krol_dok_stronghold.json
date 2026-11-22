@@ -10,28 +10,29 @@
     {"name": "Twilight Commander Zarmok", "npcID": 258972, "mechanics": [
       {"spellID": 0, "spell": "Patrols", "type": "positioning", "en": "Several mobs patrol around him: clear them before the pull", "de": "Mehrere Gegner patrouillieren um ihn herum: vor dem Pull freiräumen", "version": "forever"},
       {"spellID": 1280011, "spell": "Rending Whirl", "type": "survive", "en": "**Rending Whirl** causes a strong bleed: heal through it, cleanse if possible", "de": "**Verwundender Wirbel** verursacht starke Blutung: gegenheilen, wenn möglich reinigen", "version": "forever"},
-      {"spellID": 0, "spell": "Sunder Armor", "type": "tank", "en": "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "de": "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "version": "forever"}
+      {"spellID": 0, "spell": "Sunder Armor", "type": "tank", "en": "**Sunder Armor** increases damage taken by the tank: keep the tank alive", "de": "**Rüstung zerreißen** erhöht den Schaden auf dem Tank: Tank am Leben halten", "version": "forever"},
+      {"spellID": 8599, "spell": "Enrage", "type": "survive", "en": "**Enrage** makes him hit harder: use cooldowns and finish him quickly", "de": "**Wutanfall** lässt ihn härter zuschlagen: Abklingzeiten nutzen und schnell besiegen", "version": "forever"}
     ]},
     {"name": "Nar'gurk", "npcID": 258964, "mechanics": [
-      {"spellID": 0, "spell": "Mind Control", "type": "survive", "en": "Mind-controls a player: do not kill your friend, use crowd control or break line of sight", "de": "Übernimmt einen Spieler: nicht den eigenen Mitspieler töten, mit Kontrolleffekten festhalten oder Sichtlinie brechen", "version": "forever"},
-      {"spellID": 0, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "**Shadow Bolt Volley** hits the whole group: interrupt it", "de": "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "version": "forever"},
+      {"spellID": 1280259, "spell": "Convert", "type": "survive", "en": "**Convert** takes over a player until they are down to half health: control or cleave them down to 50% to break it, never kill them", "de": "**Bekehren** übernimmt einen Spieler, bis er auf die Hälfte seiner Gesundheit gefallen ist: festhalten oder auf 50 % herunterbringen, nie töten", "version": "forever"},
+      {"spellID": 1280356, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "**Shadow Bolt Volley** hits the whole group: interrupt it", "de": "**Schattenblitzsalve** trifft die ganze Gruppe: unterbrechen", "version": "forever"},
       {"spellID": 0, "spell": "Shadow Staff", "type": "tank", "en": "Charges his staff with shadow damage: more damage on the tank", "de": "Lädt seinen Stab mit Schattenschaden: mehr Schaden auf dem Tank", "version": "forever"}
     ]},
     {"name": "War Handler Ashka", "npcID": 259281, "mechanics": [
       {"spellID": 0, "spell": "Wolves", "type": "adds", "en": "Fights alongside two wolves: kill the wolves first", "de": "Kämpft mit zwei Wölfen: zuerst die Wölfe töten", "version": "forever"},
       {"spellID": 0, "spell": "Wolf howl", "type": "survive", "en": "Her wolf Terrorhowl fears the group with a howl: Tremor Totem, interrupt the howl if possible, clear the area before the pull", "de": "Ihr Wolf Terrorheuler versetzt die Gruppe mit Heulen in Furcht: Totem des Erdstoßes, Heulen wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"},
-      {"spellID": 0, "spell": "Kill Command", "type": "tank", "en": "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "de": "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "version": "forever"}
+      {"spellID": 1282076, "spell": "Command: Kill!", "type": "tank", "en": "Her second wolf focuses one player with **Kill Command** and cannot be taunted: peel it with crowd control or kill it fast", "de": "Ihr zweiter Wolf Fletschfang fokussiert mit **Befehl: Töten** einen Spieler und ist nicht spottbar: mit Kontrolleffekten abfangen oder schnell töten", "version": "forever"}
     ]},
     {"name": "Bossman Toof", "npcID": 264773, "mechanics": [
-      {"spellID": 0, "spell": "Mortal Strike", "type": "tank", "en": "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "de": "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "version": "forever"},
-      {"spellID": 0, "spell": "Thunderclap", "type": "positioning", "en": "**Thunderclap** hits and slows players close by: ranged keep distance", "de": "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"},
-      {"spellID": 0, "spell": "Demoralizing Shout", "type": "tank", "en": "**Demoralizing Shout** lowers the attack power of nearby players", "de": "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "version": "forever"}
+      {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "**Mortal Strike** cuts healing on the tank by 50%: save cooldowns, heal ahead", "de": "**Tödlicher Stoß** senkt die Heilung auf dem Tank um 50 %: Abklingzeiten bereithalten, vorausheilen", "version": "forever"},
+      {"spellID": 15548, "spell": "Thunderclap", "type": "positioning", "en": "**Thunderclap** hits and slows players close by: ranged keep distance", "de": "**Donnerknall** trifft und verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"},
+      {"spellID": 16244, "spell": "Demoralizing Shout", "type": "tank", "en": "**Demoralizing Shout** lowers the attack power of nearby players", "de": "**Demoralisierender Ruf** senkt die Angriffskraft von Spielern in der Nähe", "version": "forever"}
     ]},
     {"name": "Overlord Mugg", "npcID": 258968, "mechanics": [
-      {"spellID": 0, "spell": "Weapon swap", "type": "tank", "en": "Swaps maces for mauls and hits harder with each set", "de": "Wechselt von Keulen zu Hämmern und schlägt mit jedem Satz härter", "version": "forever"},
-      {"spellID": 0, "spell": "Mugg's Fury", "type": "tank", "en": "Each hit speeds up his attacks until he swaps weapons", "de": "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "version": "forever"},
+      {"spellID": 1282393, "spell": "Set of Maces", "type": "tank", "en": "Swaps to **Set of Maces** and later **Set of Mauls**, which raises his damage by 50%: do not push his health before the adds are dead", "de": "Wechselt zu **Keulensatz** und später zu **Hammersatz**, der seinen Schaden um 50 % erhöht: seine Gesundheit nicht herunterbringen, bevor die Helfer tot sind", "version": "forever"},
+      {"spellID": 1282387, "spell": "Mugg's Fury", "type": "tank", "en": "Each hit speeds up his attacks until he swaps weapons", "de": "Jeder Treffer beschleunigt seine Angriffe bis zum Waffenwechsel", "version": "forever"},
       {"spellID": 0, "spell": "Centurions", "type": "adds", "en": "Two Centurion adds use **Mortal Strike** (less healing on the tank): kill them first, then a lot of healing is needed", "de": "Zwei Zenturio-Helfer setzen **Tödlicher Stoß** ein (weniger Heilung auf dem Tank): zuerst töten, danach ist viel Heilung nötig", "version": "forever"},
-      {"spellID": 0, "spell": "Leap", "type": "positioning", "en": "Leaps onto random players: healers watch everyone, not just the tank", "de": "Springt auf zufällige Spieler: Heiler im Blick auf alle, nicht nur auf den Tank", "version": "forever"}
+      {"spellID": 1282397, "spell": "Crushing Slam", "type": "positioning", "en": "Leaps onto random players with **Crushing Slam**, hurting and knocking back everyone near the landing: healers watch everyone, not just the tank", "de": "Springt mit **Zerschmetternder Schlag** auf zufällige Spieler und schleudert alle in der Nähe zurück: Heiler im Blick auf alle, nicht nur auf den Tank", "version": "forever"}
     ]}
   ],
   "trash": [
@@ -41,6 +42,15 @@
     ]},
     {"name": "Twilight Peon", "npcID": 277611, "mechanics": [
       {"spellID": 0, "spell": "Alert", "type": "adds", "en": "Runs off to fetch help: stun, slow or kill quickly", "de": "Läuft los, um Hilfe zu holen: betäuben, verlangsamen oder schnell töten", "version": "forever"}
+    ]},
+    {"name": "Twilight Outrider", "npcID": 258102, "mechanics": [
+      {"spellID": 14030, "spell": "Hooked Net", "type": "tank", "en": "**Hooked Net** roots the tank for 10 sec and they patrol in packs of three: pull them away with line of sight, a Paladin can free the tank", "de": "**Hakennetz** hält den Tank 10 Sek. fest, sie patrouillieren zu dritt: per Sichtlinie wegziehen, ein Paladin kann den Tank befreien", "version": "forever"}
+    ]},
+    {"name": "Krol'dok Shaman", "npcID": 257888, "mechanics": [
+      {"spellID": 6742, "spell": "Bloodlust", "type": "adds", "en": "**Bloodlust** speeds up the shaman and its allies after Lightning Bolts: kill shamans before the centurions", "de": "**Kampfrausch** beschleunigt den Schamanen und seine Verbündeten: Schamanen vor den Zenturios töten", "version": "forever"}
+    ]},
+    {"name": "Krol'dok Centurion", "npcID": 257885, "mechanics": [
+      {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "**Mortal Strike** cuts healing on the tank, plus **Thunderclap** and **Demoralizing Shout** on everyone in melee range", "de": "**Tödlicher Stoß** senkt die Heilung auf dem Tank, dazu **Donnerknall** und **Demoralisierender Ruf** auf alle im Nahkampf", "version": "forever"}
     ]},
     {"name": "Terrorhowl", "npcID": 259285, "mechanics": [
       {"spellID": 0, "spell": "Howl", "type": "survive", "en": "Howl fears the group: Tremor Totem, interrupt if possible, clear the area before the pull", "de": "Heulen versetzt in Furcht: Totem des Erdstoßes, wenn möglich unterbrechen, Umgebung vor dem Pull freiräumen", "version": "forever"}

@@ -29,18 +29,15 @@ local LFG_FRAMES = { "LFGParentFrame", "PVEFrame" }
 
 -- Situationen der bestehenden Prüfungen (Prüfungen ohne Situation brauchen keine)
 local SITUATIONS = {
-  ["LT318.wings.state"] = { trigger = "instance" },
   ["LT273.questmarks.instance"] = { trigger = "instance" },
   ["LT285.damageMeter.api"] = { trigger = "bossKill" },
+  ["LT321.bossKills.sources"] = { trigger = "bossKill" },
   ["LT271.lfg.finder"] = { trigger = "lfgOpen" },
   ["LT271.lfg.encounters"] = { trigger = "lfgOpen" },
   ["LT271.lfg.languages"] = { trigger = "lfgOpen" },
   ["LT272.lfg.window"] = { trigger = "lfgOpen" },
   ["LT351.lfg.sidetab"] = { trigger = "lfgOpen" },
   ["LT352.lfg.filters"] = { trigger = "lfgOpen" },
-  ["LT334.recap.api"] = { trigger = "bossKill" },
-  ["LT334.recap.state"] = { trigger = "bossKill" },
-  ["LT334.recap.deaths"] = { trigger = "bossKill" },
   ["LT287.books.collected"] = { trigger = "bookRead" },
   ["LT279.kills.events"] = { trigger = "afterCombat", instance = true },
   ["LT267.combatlog.api"] = { trigger = "afterCombat" },

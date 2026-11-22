@@ -101,7 +101,7 @@ local queue = {}
 -- Speicher
 ---------------------------------------------------------------------------
 local function realmKey()
-  return (GetRealmName and GetRealmName() or ""):gsub("%s", "")
+  return (ns.Database.RealmName():gsub("%s", ""))
 end
 
 function Transports.Data()

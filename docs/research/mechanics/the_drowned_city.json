@@ -3,11 +3,37 @@
   "kind": "dungeon",
   "bosses": [
     {"name": "Zul'Alai", "npcID": 258905, "mechanics": [
-      {"spellID": 0, "spell": "Enrage", "type": "survive", "en": "Enrages near death and hits the group hard: save cooldowns", "de": "Wütet kurz vor dem Tod und trifft die Gruppe hart: Abklingzeiten aufsparen", "version": "forever"}
+      {"spellID": 1282504, "spell": "Monstrous Slam", "type": "avoid", "en": "**Monstrous Slam** stuns everyone next to him for 3 sec: melee step away while he casts, he stands still", "de": "**Monströser Schlag** betäubt alle neben ihm 3 Sek. lang: Nahkämpfer treten während des Zaubers weg, er bewegt sich dabei nicht", "version": "forever"},
+      {"spellID": 1282519, "spell": "Rotted Strike", "type": "dispel", "en": "**Rotted Strike** slows movement and attack speed of nearby players: dispel the tank first", "de": "**Verfaulter Schlag** verlangsamt Bewegung und Angriffstempo naher Spieler: zuerst den Tank entfluchen", "version": "forever"},
+      {"spellID": 1282511, "spell": "Undying Oath", "type": "survive", "en": "**Undying Oath** below 30% health: faster attacks and he heals himself, save cooldowns", "de": "**Unsterblicher Schwur** unter 30 % Leben: schnellere Angriffe und er heilt sich, Abklingzeiten aufsparen", "version": "forever"}
     ]},
     {"name": "Var'Taka", "npcID": 258924, "mechanics": [
-      {"spellID": 0, "spell": "Harpoon", "type": "survive", "en": "Harpoons a random player and pulls them in", "de": "Harpuniert einen zufälligen Spieler und zieht ihn heran", "version": "forever"},
-      {"spellID": 0, "spell": "Priestesses", "type": "adds", "en": "Two priestesses heal him: control or kill them first", "de": "Zwei Priesterinnen heilen ihn: zuerst kontrollieren oder töten", "version": "forever"}
+      {"spellID": 1282615, "spell": "Harpoon", "type": "survive", "en": "**Harpoon** spears a random player and pulls them to him", "de": "**Harpune** spießt einen zufälligen Spieler auf und zieht ihn heran", "version": "forever"},
+      {"spellID": 15284, "spell": "Cleave", "type": "positioning", "en": "**Cleave** hits in front of him: only the tank stands there, face him away from the group", "de": "**Spalten** trifft vor ihm: nur der Tank steht dort, ihn von der Gruppe wegdrehen", "version": "forever"},
+      {"spellID": 0, "spell": "Priestesses", "type": "adds", "en": "Two priestesses heal him and cast Frostbolt: control or kill them first", "de": "Zwei Priesterinnen heilen ihn und wirken Frostblitz: zuerst kontrollieren oder töten", "version": "forever"}
+    ]},
+    {"name": "Captain Dreadrise", "npcID": 260042, "mechanics": [
+      {"spellID": 1282842, "spell": "Embrine", "type": "survive", "en": "**Embrine** traps a random player (the tank too) in a bubble: break it before they drown", "de": "**Einsalzen** sperrt einen zufälligen Spieler (auch den Tank) in eine Blase: zerstören, bevor er ertrinkt", "version": "forever"},
+      {"spellID": 1282860, "spell": "Waterbolt Volley", "type": "interrupt", "en": "**Waterbolt Volley** damages the whole group: interrupt it", "de": "**Wasserblitzsalve** schadet der ganzen Gruppe: unterbrechen", "version": "forever"}
+    ]},
+    {"name": "Deathless Marrow", "npcID": 270885, "mechanics": [
+      {"spellID": 1283034, "spell": "Bloodbolt", "type": "survive", "en": "**Bloodbolt** damages the whole group", "de": "**Blutblitz** schadet der ganzen Gruppe", "version": "forever"},
+      {"spellID": 0, "spell": "Summon Adds", "type": "adds", "en": "Waves of guardians and sorcerers keep coming: cleave them off the boss, kill guardians first", "de": "Immer neue Wächter und Zauberer: mit Flächenschaden vom Boss mitnehmen, Wächter zuerst", "version": "forever"},
+      {"spellID": 1283081, "spell": "Shield Slam", "type": "adds", "en": "Guardians stun players with **Shield Slam**: kill them first", "de": "Wächter betäuben Spieler mit **Schildschlag**: zuerst erledigen", "version": "forever"}
+    ]},
+    {"name": "Primeval Elemental", "npcID": 270887, "mechanics": [
+      {"spellID": 1290978, "spell": "Waterbolt", "type": "tank", "en": "**Waterbolt** hits the main target: interrupt if possible", "de": "**Wasserblitz** trifft das Hauptziel: wenn möglich unterbrechen", "version": "forever"},
+      {"spellID": 1290983, "spell": "Freeze Water", "type": "survive", "en": "**Freeze Water** damages the group: watch your breath underwater and surface in time", "de": "**Wasser gefrieren** schadet der Gruppe: unter Wasser auf die Atemluft achten und rechtzeitig auftauchen", "version": "forever"}
+    ]},
+    {"name": "Min'loth the Serpent", "npcID": 260274, "mechanics": [
+      {"spellID": 1283250, "spell": "Drench", "type": "tank", "en": "**Drench** (troll form) hits the tank hard", "de": "**Durchnässen** (Trollform) trifft den Tank hart", "version": "forever"},
+      {"spellID": 1283233, "spell": "Deluge", "type": "survive", "en": "**Deluge** is a channel that damages the whole group: heal through it", "de": "**Sintflut** ist ein Kanalzauber, der der ganzen Gruppe schadet: gegenheilen", "version": "forever"},
+      {"spellID": 0, "spell": "Serpent Form", "type": "survive", "en": "At 0% health he returns at full health as a serpent: save cooldowns for phase 2", "de": "Bei 0 % Leben kehrt er als Schlange mit vollem Leben zurück: Abklingzeiten für Phase 2 aufsparen", "version": "forever"},
+      {"spellID": 1283313, "spell": "Poison Bolt Volley", "type": "dispel", "en": "**Poison Bolt Volley** (serpent form) poisons the group: cleanse it quickly", "de": "**Giftblitzsalve** (Schlangenform) vergiftet die Gruppe: schnell reinigen", "version": "forever"},
+      {"spellID": 1313471, "spell": "Fear", "type": "avoid", "en": "**Fear** (serpent form) hits a random player: stay clear of other groups", "de": "**Furcht** (Schlangenform) trifft einen zufälligen Spieler: Abstand zu anderen Gegnern halten", "version": "forever"}
+    ]},
+    {"name": "Gill", "npcID": 264177, "mechanics": [
+      {"spellID": 1291692, "spell": "Throw Dynamite", "type": "tank", "en": "**Throw Dynamite** hits the main target: don't pull him together with nearby trash", "de": "**Dynamit werfen** trifft das Hauptziel: nicht zusammen mit Gegnern in der Nähe ziehen", "version": "forever"}
     ]}
   ],
   "sources": ["https://daybreakforever.com/blog/launch-day-dungeon-bosses (2026-11-16)", "https://conquestcapped.com/guides/wow-forever/wow-forever-the-drowned-city-guide/ (2026-11-16; its NPC IDs differ from our dungeon database, which was used)"]

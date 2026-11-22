@@ -26,8 +26,18 @@ local CHECKS = {
   "LT271.lfg.finder", "LT271.lfg.encounters", "LT271.lfg.languages", "LT272.lfg.window", "LT351.lfg.sidetab",
   "LT273.questmarks.instance",
   "LT285.damageMeter.api",
-  "LT334.recap.api", "LT334.recap.state", "LT334.recap.deaths",
-  "LT352.lfg.filters", "LT387.guide.anytime", "LT338.sync.groupApi", "LT393.dungeonArt.coverage", "LT395.icons.spells",
+  "LT352.lfg.filters", "LT338.sync.groupApi", "LT393.dungeonArt.coverage", "LT395.icons.spells",
+  "LT404.guide.spellLinks", "LT408.lfg.realms", "LT412.trivialTracking.api", "LT413.realm.sources",
+  "LT405.recap.run", "LT407.lfg.levelOrder", "LT411.dungeonQuests.markAll",
+  "LT412.trivialChain.state", "LT416.alerts.eliteGate", "LT416.cleanup.leftoversTitles",
+  "LT401.tracker.layout",
+  "LT321.bossKills.sources",
+  "LT390.lfg.templates",
+  "LT349.waterShield.display",
+  "LT389.lfg.whisperLog",
+  "LT278.spells.casts",
+  "LT392.lfg.players",
+  "LT353.quests.added",
 }
 
 wow.login()

@@ -23,7 +23,8 @@
       "mechanics": [
         {"spellID": 13704, "spell": "Psychic Scream", "type": "survive", "en": "Fears up to 5 nearby players for 6 sec; watch for extra pulls", "de": "Versetzt bis zu 5 Spieler in der Nähe 6 Sek. lang in Furcht; Zusatzgruppen meiden", "verified": true},
         {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Burns a lot of mana from one caster; interrupt it", "de": "Verbrennt viel Mana eines Zauberers; unterbrechen", "verified": true},
-        {"spellID": 12040, "spell": "Shadow Shield", "type": "dispel", "en": "Self shield that absorbs damage; purge or burn it down", "de": "Schild absorbiert Schaden; reinigen oder wegschlagen", "verified": true}
+        {"spellID": 12040, "spell": "Shadow Shield", "type": "dispel", "en": "Self shield that absorbs damage; purge or burn it down", "de": "Schild absorbiert Schaden; reinigen oder wegschlagen", "verified": true},
+        {"spellID": 14032, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over 18 sec on one player; dispel magic", "de": "18 Sek. lang Schattenschaden auf einem Spieler; Magie bannen", "verified": true}
       ]
     },
     {
@@ -45,7 +46,8 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 13736, "spell": "Whirlwind", "type": "avoid", "en": "Spins and hits all within 8 yards; melee step out", "de": "Wirbelt und trifft alle in 8 m; Nahkämpfer raus"},
-        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank"}
+        {"spellID": 16856, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "**Harter Schlag**, halbiert 5 Sek. lang die Heilung am Tank", "verified": true},
+        {"spellID": 21049, "spell": "Bloodlust", "type": "dispel", "en": "Speeds up his attacks for 30 sec; purge it", "de": "Erhöht 30 Sek. lang sein Angriffstempo; reinigen", "verified": true}
       ]
     },
     {
@@ -55,7 +57,8 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 6524, "spell": "Ground Tremor", "type": "positioning", "en": "Short AoE stun within 20 yards", "de": "Kurze Flächenbetäubung im 20-m-Umkreis"},
-        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Attacks much faster below 50% health", "de": "Greift unter 50 % Leben viel schneller an", "verified": true}
+        {"spellID": 8269, "spell": "Frenzy", "type": "tank", "en": "Attacks much faster below 50% health", "de": "Greift unter 50 % Leben viel schneller an", "verified": true},
+        {"spellID": 15579, "spell": "Cleave", "type": "tank", "en": "Hits the tank and up to two more targets next to him; spread out", "de": "Trifft den Tank und bis zu zwei weitere Ziele daneben; verteilen", "verified": true}
       ]
     },
     {
@@ -65,7 +68,8 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 7121, "spell": "Anti-Magic Shield", "type": "positioning", "en": "Immune to magic for 6 sec; casters pause, melee keep going", "de": "6 Sek. lang immun gegen Magie; Zauberer warten, Nahkampf weiter", "verified": true},
-        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow damage on everyone within 30 yards", "de": "Schattenschaden auf alle im 30-m-Umkreis"}
+        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "survive", "en": "Shadow damage on everyone within 30 yards", "de": "Schattenschaden auf alle im 30-m-Umkreis", "verified": true},
+        {"spellID": 16095, "spell": "Vicious Rend", "type": "dispel", "en": "Bleed on one player for 15 sec; heal through it", "de": "15 Sek. lang Blutung auf einem Spieler; gegenheilen", "verified": true}
       ]
     },
     {
@@ -76,7 +80,8 @@
       "mechanics": [
         {"spellID": 13323, "spell": "Polymorph", "type": "dispel", "en": "Turns a player into a sheep for 6 sec", "de": "Verwandelt einen Spieler 6 Sek. lang in ein Schaf"},
         {"spellID": 13747, "spell": "Slow", "type": "dispel", "en": "Slows attacks, casts and movement within 20 yards", "de": "Verlangsamt Angriffs-, Zauber- und Lauftempo im 20-m-Umkreis", "verified": true},
-        {"spellID": 15453, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone within 30 yards", "de": "Arkanstoß auf alle im 30-m-Umkreis"}
+        {"spellID": 15453, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst on everyone within 30 yards", "de": "Arkanstoß auf alle im 30-m-Umkreis", "verified": true},
+        {"spellID": 25055, "spell": "Arcane Bolt", "type": "interrupt", "en": "Arcane bolt on one player; interrupt it", "de": "Arkanblitz auf einen Spieler; unterbrechen", "verified": true}
       ]
     },
     {
@@ -87,7 +92,10 @@
       "mechanics": [
         {"spellID": 15470, "spell": "Curse of Tongues", "type": "dispel", "en": "Casters in 30 yards cast 50% slower; decurse", "de": "Zauberer im 30-m-Umkreis wirken 50 % langsamer; entfluchen", "verified": true},
         {"spellID": 15471, "spell": "Enveloping Web", "type": "survive", "en": "Roots and silences one player for 4 sec", "de": "Wurzelt einen Spieler und bringt ihn 4 Sek. lang zum Schweigen", "verified": true},
-        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for a while", "de": "Nimmt einen Spieler eine Weile aus dem Kampf"}
+        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for a while", "de": "Nimmt einen Spieler eine Weile aus dem Kampf", "verified": true},
+        {"spellID": 15472, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on one player; interrupt when you can", "de": "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "verified": true},
+        {"spellID": 12493, "spell": "Curse of Weakness", "type": "dispel", "en": "Cuts a player's physical damage for 2 min; decurse", "de": "Senkt 2 Min. lang den körperlichen Schaden eines Spielers; entfluchen", "verified": true},
+        {"spellID": 13787, "spell": "Demon Armor", "type": "dispel", "en": "Self armor buff for 30 min; purge it", "de": "Rüstungsbonus auf sich selbst, 30 Min.; reinigen", "verified": true}
       ]
     },
     {
@@ -97,7 +105,8 @@
       "wing": "Ring of Law",
       "mechanics": [
         {"spellID": 3609, "spell": "Paralyzing Poison", "type": "dispel", "en": "Poison that stuns one player; cure poison", "de": "Gift betäubt einen Spieler; Gift entfernen", "verified": true},
-        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone within 30 yards for 5 sec", "de": "Fesselt alle im 30-m-Umkreis 5 Sek. lang", "verified": true}
+        {"spellID": 15474, "spell": "Web Explosion", "type": "survive", "en": "Roots everyone within 30 yards for 5 sec", "de": "Fesselt alle im 30-m-Umkreis 5 Sek. lang", "verified": true},
+        {"spellID": 15475, "spell": "Baneful Poison", "type": "dispel", "en": "Poison on nearby players for 2 min; cure it", "de": "Gift auf Spieler in der Nähe, 2 Min.; Gift entfernen", "verified": true}
       ]
     },
     {
@@ -107,6 +116,7 @@
       "wing": "Shrine of Thaurissan",
       "mechanics": [
         {"spellID": 15038, "spell": "Scorching Totem", "type": "adds", "en": "Drops a fire totem that attacks; kill it quickly", "de": "Setzt ein Feuertotem, das angreift; schnell zerstören", "verified": true},
+        {"spellID": 15041, "spell": "Fire Ward", "type": "dispel", "en": "Shield that absorbs fire damage for 1 min; purge it", "de": "Schild absorbiert 1 Min. lang Feuerschaden; reinigen", "verified": true},
         {"spellID": 15095, "spell": "Molten Blast", "type": "interrupt", "en": "Fire nuke on one player; interrupt it", "de": "Feuerzauber auf einen Spieler; unterbrechen", "verified": true},
         {"spellID": 15616, "spell": "Flame Shock", "type": "dispel", "en": "Fire shock plus burn on a player: dispel or heal through", "de": "Feuerschock mit Brand auf einem Spieler: bannen oder gegenheilen", "verified": true}
       ]
@@ -119,6 +129,8 @@
       "mechanics": [
         {"spellID": 12674, "spell": "Frost Nova", "type": "positioning", "en": "Frost damage and roots nearby players up to 8 sec", "de": "Verursacht Frostschaden und fesselt Spieler in der Nähe bis zu 8 Sek. lang", "verified": true},
         {"spellID": 12675, "spell": "Frostbolt", "type": "interrupt", "en": "Frost bolt that slows; interrupt", "de": "Frostblitz mit Verlangsamung; unterbrechen", "verified": true},
+        {"spellID": 12544, "spell": "Frost Armor", "type": "dispel", "en": "Frost armor slows melee attackers; purge it", "de": "Frostrüstung verlangsamt Nahkämpfer; reinigen", "verified": true},
+        {"spellID": 15044, "spell": "Frost Ward", "type": "dispel", "en": "Shield that absorbs frost damage for 1 min; purge it", "de": "Schild absorbiert 1 Min. lang Frostschaden; reinigen", "verified": true},
         {"spellID": 15042, "spell": "Curse of Blood", "type": "dispel", "en": "His dog Verek curses targets to take more physical damage", "de": "Sein Hund Verek verflucht: mehr erlittener körperlicher Schaden"}
       ]
     },
@@ -141,6 +153,8 @@
         {"spellID": 15493, "spell": "Holy Light", "type": "interrupt", "en": "Heals himself or allies; interrupt the cast", "de": "Heilt sich oder Verbündete; Zauber unterbrechen", "verified": true},
         {"spellID": 0, "spell": "", "type": "adds", "en": "Low damage, lots of health; kill his helpers first", "de": "Wenig Schaden, viel Leben; zuerst seine Helfer töten"},
         {"spellID": 13953, "spell": "Holy Strike", "type": "tank", "en": "**Holy strike** hits the tank hard: keep healing steady", "de": "**Heiliger Stoß** trifft den Tank hart: gleichmäßig heilen", "verified": true},
+        {"spellID": 8258, "spell": "Devotion Aura", "type": "dispel", "en": "Armor aura on himself and allies; purge it", "de": "Rüstungsaura auf ihn und Verbündete; reinigen", "verified": true},
+        {"spellID": 15346, "spell": "Seal of Reckoning", "type": "dispel", "en": "Seal that heals the bearer on each strike; dispel it", "de": "Siegel, das den Träger bei jedem Treffer heilt; bannen", "verified": true},
         {"spellID": 11978, "spell": "Kick", "type": "tank", "en": "Kicks casters next to him: healers keep their distance", "de": "Tritt Zauberer neben ihm: Heiler halten Abstand", "verified": true}
       ]
     },
@@ -152,6 +166,7 @@
       "mechanics": [
         {"spellID": 13899, "spell": "Fire Storm", "type": "avoid", "en": "Flame pillar leaves burning ground for 30 sec; move out", "de": "**Flammensäule** hinterlässt 30 Sek. Feuerboden; rausgehen", "verified": true},
         {"spellID": 14099, "spell": "Mighty Blow", "type": "positioning", "en": "Knocks the tank back; keep his back away from lava", "de": "Stößt den Tank zurück; Rücken nicht zur Lava", "verified": true},
+        {"spellID": 13900, "spell": "Fiery Burst", "type": "avoid", "en": "Fire burst on a marked area; step out", "de": "Feuerstoß auf ein Gebiet; herausgehen", "verified": true},
         {"spellID": 26977, "spell": "Curse of the Elemental Lord", "type": "dispel", "en": "Cuts fire resistance by 100 for 1 min; decurse", "de": "Senkt den Feuerwiderstand 1 Min. lang um 100; entfluchen", "verified": true}
       ]
     },
@@ -203,7 +218,9 @@
       "level": 0,
       "wing": "Grim Guzzler",
       "mechanics": [
-        {"spellID": 0, "spell": "", "type": "positioning", "en": "Knocks players back; fight with walls behind you", "de": "Stößt Spieler zurück; mit Wand im Rücken kämpfen", "unverified": true}
+        {"spellID": 14099, "spell": "Mighty Blow", "type": "positioning", "en": "Knocks players back; fight with walls behind you", "de": "Stößt Spieler zurück; mit Wand im Rücken kämpfen", "verified": true},
+        {"spellID": 15588, "spell": "Thunderclap", "type": "survive", "en": "Nature damage nearby; slows attacks and movement", "de": "Naturschaden in der Nähe; verlangsamt Angriffe und Bewegung", "verified": true},
+        {"spellID": 15285, "spell": "Fireball Volley", "type": "survive", "en": "Fire volley on everyone nearby", "de": "Feuersalve auf alle in der Nähe", "verified": true}
       ]
     },
     {
@@ -247,7 +264,12 @@
       "wing": "Summoners' Tomb",
       "mechanics": [
         {"spellID": 0, "spell": "", "type": "adds", "en": "Seven dwarves attack one after another; last one is Doom'rel", "de": "Sieben Zwerge greifen nacheinander an; zuletzt Doom'rel"},
-        {"spellID": 0, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Doom'rel casts a shadow volley and summons voidwalkers", "de": "Doom'rel wirkt Schattensalve und ruft Leerwandler", "unverified": true}
+        {"spellID": 15245, "spell": "Shadow Bolt Volley", "type": "interrupt", "en": "Doom'rel casts a shadow volley and summons voidwalkers", "de": "Doom'rel wirkt Schattensalve und ruft Leerwandler", "verified": true},
+        {"spellID": 15092, "spell": "Summon Voidwalkers", "type": "adds", "en": "Calls voidwalkers to help; kill them", "de": "Ruft Leerwandler zu Hilfe; töten", "verified": true},
+        {"spellID": 8994, "spell": "Banish", "type": "survive", "en": "Removes one player from the fight for up to 15 sec", "de": "Nimmt einen Spieler bis zu 15 Sek. aus dem Kampf", "verified": true},
+        {"spellID": 12742, "spell": "Immolate", "type": "dispel", "en": "Fire damage over 21 sec; dispel magic", "de": "21 Sek. lang Feuerschaden; Magie bannen", "verified": true},
+        {"spellID": 12493, "spell": "Curse of Weakness", "type": "dispel", "en": "Cuts physical damage for 2 min; decurse", "de": "Senkt 2 Min. lang den körperlichen Schaden; entfluchen", "verified": true},
+        {"spellID": 13787, "spell": "Demon Armor", "type": "dispel", "en": "Self armor buff; purge it", "de": "Rüstungsbonus auf sich selbst; reinigen", "verified": true}
       ]
     },
     {
@@ -267,7 +289,12 @@
       "wing": "Imperial Seat",
       "mechanics": [
         {"spellID": 15586, "spell": "Heal", "type": "interrupt", "en": "Heals the emperor; interrupt or crowd control her", "de": "Heilt den Imperator; unterbrechen oder kontrollieren", "verified": true},
-        {"spellID": 15587, "spell": "Mind Blast", "type": "survive", "en": "Shadow nuke on one player", "de": "Schattenzauber auf einen Spieler", "verified": true}
+        {"spellID": 15587, "spell": "Mind Blast", "type": "survive", "en": "Shadow nuke on one player", "de": "Schattenzauber auf einen Spieler", "verified": true},
+        {"spellID": 10929, "spell": "Renew", "type": "dispel", "en": "Heal over time on the emperor; dispel it", "de": "Heilung über Zeit auf den Imperator; bannen", "verified": true},
+        {"spellID": 10901, "spell": "Power Word: Shield", "type": "dispel", "en": "Shield on an ally that absorbs damage; purge it", "de": "Schild auf einen Verbündeten absorbiert Schaden; reinigen", "verified": true},
+        {"spellID": 15654, "spell": "Shadow Word: Pain", "type": "dispel", "en": "Shadow damage over 18 sec on one player; dispel magic", "de": "18 Sek. lang Schattenschaden auf einem Spieler; Magie bannen", "verified": true},
+        {"spellID": 10934, "spell": "Smite", "type": "survive", "en": "Holy damage on one player", "de": "Heiligschaden auf einen Spieler", "verified": true},
+        {"spellID": 15537, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on one player; interrupt when you can", "de": "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "verified": true}
       ]
     },
     {
@@ -278,6 +305,7 @@
       "mechanics": [
         {"spellID": 15636, "spell": "Avatar of Flame", "type": "survive", "en": "Immune to magic for 10 sec, melee hits add fire", "de": "10 Sek. lang immun gegen Magie; Treffer verursachen Feuerschaden", "verified": true},
         {"spellID": 17492, "spell": "Hand of Thaurissan", "type": "dispel", "en": "Fire hit that stuns a player for 5 sec", "de": "Feuertreffer betäubt einen Spieler 5 Sek. lang", "verified": true},
+        {"spellID": 15642, "spell": "Ironfoe", "type": "tank", "en": "Summons a weapon that adds extra strikes on the tank", "de": "Beschwört eine Waffe, die dem Tank zusätzliche Schläge zufügt", "verified": true},
         {"spellID": 0, "spell": "", "type": "positioning", "en": "Keep Moira alive (or not) - killing her changes rewards", "de": "Ob Moira verschont wird, ändert die Belohnung", "unverified": true}
       ]
     }
@@ -348,6 +376,79 @@
       "elite": true,
       "mechanics": [
         {"spellID": 12795, "spell": "Frenzy", "type": "tank", "en": "Frenzies for more damage and attack speed", "de": "Raserei: mehr Schaden und Angriffstempo"}
+      ]
+    },
+    {
+      "name": "Hate'rel",
+      "npcID": 9034,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 14033, "spell": "Mana Burn", "type": "interrupt", "en": "Burns mana from one caster; interrupt it", "de": "Verbrennt Mana eines Zauberers; unterbrechen", "verified": true},
+    {"spellID": 15232, "spell": "Shadow Bolt", "type": "interrupt", "en": "Shadow bolt on one player; interrupt when you can", "de": "Schattenblitz auf einen Spieler; wenn möglich unterbrechen", "verified": true},
+    {"spellID": 12040, "spell": "Shadow Shield", "type": "dispel", "en": "Weak damage shield; purge or ignore", "de": "Schwacher Schadensschild; reinigen oder ignorieren", "verified": true}
+      ]
+    },
+    {
+      "name": "Anger'rel",
+      "npcID": 9035,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 12169, "spell": "Shield Block", "type": "tank", "en": "Briefly blocks one attack", "de": "Blockt kurz einen Angriff", "verified": true},
+    {"spellID": 15062, "spell": "Shield Wall", "type": "tank", "en": "Takes 75% less damage for 10 sec; wait it out", "de": "Erleidet 10 Sek. lang 75 % weniger Schaden; abwarten", "verified": true},
+    {"spellID": 11971, "spell": "Sunder Armor", "type": "tank", "en": "Stacks armor reduction on the tank", "de": "Stapelt Rüstungsverringerung auf dem Tank", "verified": true}
+      ]
+    },
+    {
+      "name": "Vile'rel",
+      "npcID": 9036,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 15586, "spell": "Heal", "type": "interrupt", "en": "Heals an ally; interrupt it", "de": "Heilt einen Verbündeten; unterbrechen", "verified": true},
+    {"spellID": 15587, "spell": "Mind Blast", "type": "survive", "en": "Shadow nuke on one player", "de": "Schattenzauber auf einen Spieler", "verified": true},
+    {"spellID": 11974, "spell": "Power Word: Shield", "type": "dispel", "en": "Shield on an ally that absorbs damage; purge it", "de": "Schild auf einen Verbündeten absorbiert Schaden; reinigen", "verified": true}
+      ]
+    },
+    {
+      "name": "Gloom'rel",
+      "npcID": 9037,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 15584, "spell": "Cleave", "type": "tank", "en": "Hits the tank and up to two more targets next to him", "de": "Trifft den Tank und bis zu zwei weitere Ziele daneben", "verified": true},
+    {"spellID": 9080, "spell": "Hamstring", "type": "dispel", "en": "Slows one player by 60% for 10 sec", "de": "Verlangsamt einen Spieler 10 Sek. lang um 60 %", "verified": true},
+    {"spellID": 13737, "spell": "Mortal Strike", "type": "tank", "en": "Heavy hit that halves healing on the tank for 5 sec", "de": "Harter Schlag, halbiert 5 Sek. lang die Heilung am Tank", "verified": true},
+    {"spellID": 13847, "spell": "Recklessness", "type": "tank", "en": "Fights recklessly for a while; heal the tank steadily", "de": "Kämpft eine Weile rücksichtslos; Tank gleichmäßig heilen", "verified": true}
+      ]
+    },
+    {
+      "name": "Seeth'rel",
+      "npcID": 9038,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 15244, "spell": "Cone of Cold", "type": "avoid", "en": "Frost cone in front of him that slows; stay out of it", "de": "Frostkegel vor ihm, verlangsamt; nicht hineinstehen", "verified": true},
+    {"spellID": 12544, "spell": "Frost Armor", "type": "dispel", "en": "Frost armor slows melee attackers; purge it", "de": "Frostrüstung verlangsamt Nahkämpfer; reinigen", "verified": true},
+    {"spellID": 12674, "spell": "Frost Nova", "type": "positioning", "en": "Frost damage and roots nearby players up to 8 sec", "de": "Frostschaden und fesselt Spieler in der Nähe bis zu 8 Sek.", "verified": true},
+    {"spellID": 15044, "spell": "Frost Ward", "type": "dispel", "en": "Shield that absorbs frost damage for 1 min; purge it", "de": "Schild absorbiert 1 Min. lang Frostschaden; reinigen", "verified": true},
+    {"spellID": 12675, "spell": "Frostbolt", "type": "interrupt", "en": "Frost bolt that slows; interrupt", "de": "Frostblitz mit Verlangsamung; unterbrechen", "verified": true}
+      ]
+    },
+    {
+      "name": "Dope'rel",
+      "npcID": 9040,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 15582, "spell": "Backstab", "type": "tank", "en": "Hits hard from behind; keep him facing the tank", "de": "Trifft von hinten hart; ihn zum Tank gedreht halten", "verified": true},
+    {"spellID": 15087, "spell": "Evasion", "type": "tank", "en": "Dodges more attacks for 15 sec", "de": "Weicht 15 Sek. lang häufiger aus", "verified": true},
+    {"spellID": 12540, "spell": "Gouge", "type": "survive", "en": "Stuns the target up to 4 sec", "de": "Betäubt das Ziel bis zu 4 Sek.", "verified": true},
+    {"spellID": 15583, "spell": "Rupture", "type": "dispel", "en": "Bleed over 10 sec; heal through it", "de": "10 Sek. lang Blutung; gegenheilen", "verified": true},
+    {"spellID": 15581, "spell": "Sinister Strike", "type": "tank", "en": "Extra melee hit on the tank", "de": "Zusätzlicher Nahkampftreffer auf den Tank", "verified": true}
+      ]
+    },
+    {
+      "name": "Verek",
+      "npcID": 9042,
+      "elite": true,
+      "mechanics": [
+    {"spellID": 15042, "spell": "Curse of Blood", "type": "dispel", "en": "Curses a target to take more physical damage; decurse", "de": "Verflucht ein Ziel: mehr erlittener körperlicher Schaden; entfluchen", "verified": true}
       ]
     }
   ],

@@ -49,6 +49,25 @@ for _, kind in ipairs({ "party", "raid" }) do
 end
 wow.state.instance = nil
 
+-- Dieselbe Gegnerart allein höchstens alle 5 Minuten, andere Art sofort
+addon.Alerts.Clear()
+Journal.AddKill(Journal.PVE, "Wächter", "elite")
+expect("gleiche Art gleich danach: keine Einblendung", shownText(), nil)
+Journal.AddKill(Journal.PVE, "Berserker", "elite")
+expect("andere Art", shownText(), string.format(L.ALERT_ELITE_KILL, "Berserker"))
+wow.advance(301)
+addon.Alerts.Clear()
+Journal.AddKill(Journal.PVE, "Wächter", "elite")
+expect("nach 5 Minuten wieder", shownText(), string.format(L.ALERT_ELITE_KILL, "Wächter"))
+
+-- In einer Gruppe keine Elite-Einblendung (Elitegebiete in der offenen Welt)
+wow.state.inGroup = true
+wow.advance(301)
+addon.Alerts.Clear()
+Journal.AddKill(Journal.PVE, "Späher", "elite")
+expect("in der Gruppe keine Elite", shownText(), nil)
+wow.state.inGroup = nil
+
 -- Nur epische Beute, seltene nicht
 addon.Alerts.Clear()
 Journal.AddLoot({ link = "[Blauer Ring]", quality = 3 })

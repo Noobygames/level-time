@@ -43,7 +43,8 @@
       "wing": "Purple",
       "mechanics": [
         {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "**War Stomp** stuns everyone close; casters stay at range", "de": "**Kriegsdonner** betäubt alle in der Nähe; Zauberer Abstand halten", "verified": true},
-        {"spellID": 15501, "spell": "Earth Shock", "type": "interrupt", "en": "**Earth shock** on a player: interrupt when you can", "de": "**Erdschock** auf einen Spieler: wenn möglich unterbrechen", "verified": true}
+        {"spellID": 15501, "spell": "Earth Shock", "type": "interrupt", "en": "**Earth shock** on a player: interrupt when you can", "de": "**Erdschock** auf einen Spieler: wenn möglich unterbrechen", "verified": true},
+        {"spellID": 13446, "spell": "Strike", "type": "tank", "en": "Hits the tank with a heavier melee strike; tank him away from the group", "de": "Trifft den Tank mit einem härteren Nahkampfschlag; abseits der Gruppe tanken", "verified": true}
       ]
     },
     {
@@ -77,7 +78,8 @@
       "wing": "Inner",
       "mechanics": [
         {"spellID": 13183, "spell": "Goblin Dragon Gun", "type": "avoid", "en": "Fire cone in front of him; step out of it", "de": "Feuerkegel vor ihm; aus dem Kegel gehen", "verified": true},
-        {"spellID": 8858, "spell": "Bomb", "type": "survive", "en": "Throws bombs that hit players in an area", "de": "Wirft Bomben mit Flächenschaden", "verified": true}
+        {"spellID": 8858, "spell": "Bomb", "type": "survive", "en": "Throws bombs that hit players in an area", "de": "Wirft Bomben mit Flächenschaden", "verified": true},
+        {"spellID": 6660, "spell": "Shoot", "type": "survive", "en": "Shoots a player at range with a normal ranged attack", "de": "Beschießt einen Spieler auf Distanz mit einem normalen Fernangriff", "verified": true}
       ]
     },
     {

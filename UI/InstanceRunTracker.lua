@@ -7,7 +7,8 @@
 -- (Lib/CreatureModel.lua, nur mit NPC-ID). Vergleich = schnellster abgeschlossener Lauf derselben Instanz und Route;
 -- Zeiten ab der ersten Bewegung (InstanceRuns.lua).
 -- Position und Größe über Lib/Frames.lua (Id "dungeonRun", im Edit-Modus mit Beispiel-Lauf). Aktualisiert einmal je
--- Sekunde, solange die Einstellung an ist.
+-- Sekunde, solange die Einstellung an ist. Linksklick (ohne Ziehen) öffnet den Dungeon-Recap mit dem Zwischenstand
+-- (LT-405), der Tooltip sagt das.
 -- shortcut: die Bossliste ist ein Text ohne Spalten; bei Bedarf eigene Zeilen wie in der Split-Liste.
 local _, ns = ...
 local L = ns.L
@@ -35,10 +36,12 @@ local LOOT_ICON_SIZE = 16
 local SAMPLE_MAP, SAMPLE_DIFFICULTY = 36, 1
 local SAMPLE_SECONDS = 1458
 
+local ROW_SPACING = 4  -- Abstand zwischen den Bossreihen (DESIGN.md: 4er-Raster)
+local COLLAPSE_ABOVE_BOSSES = 8  -- mehr Bosse: nur besiegte und der nächste, der Rest als "+N weitere"
 local PORTRAIT_SIZE = 48  -- Porträt des nächsten Bosses größer als das Standard-Symbol einer Karte
 -- X: diesen Lauf nicht mehr zeigen (dismissedRun = Startzeit des Laufs); ganz abschalten: showRunTracker
 local dismissedRun
-local card = ns.Card.Create(ns.GlobalName("DungeonRun"), { iconSize = PORTRAIT_SIZE, onClose = function()
+local card = ns.Card.Create(ns.GlobalName("DungeonRun"), { iconSize = PORTRAIT_SIZE, bodySpacing = ROW_SPACING, onClose = function()
   local records = ns.History and ns.characterKey and ns.History.GetInstanceLog(ns.characterKey)
   dismissedRun = records and records[1] and records[1].time
   ns.InstanceRunTracker.Refresh()
@@ -54,6 +57,7 @@ end)
 local previewing = false
 local cachedBest = {}  -- Bestzeit zum offenen Lauf: { key, record }
 local portrait  -- Porträt des nächsten Bosses, beim ersten Bedarf angelegt
+local bossCount, expanded = 0, true  -- zuletzt gezeigter Lauf (für Layout())
 
 -- Erste n Bosse der Liste als bosses/splits-Text (Beispiel-Lauf)
 local function sampleRecord(splits)
@@ -110,7 +114,7 @@ end
 -- Zeilen der Bossliste, Abstand zur Bestzeit beim zuletzt besiegten Boss (nil ohne Vergleich) und nächster Boss
 local function bossLines(record, best)
   local list = InstanceBosses.RunList(record)
-  if not list then return {}, nil, nil end
+  if not list then bossCount, expanded = 0, true return {}, nil, nil end
   local killed, splits = InstanceBosses.Killed(record), InstanceRuns.Splits(record)
   local bestSplits = best and InstanceRuns.Splits(best) or {}
   local lines, nextID, lastDelta, lastSplit = {}, nil, nil, -1
@@ -134,7 +138,8 @@ local function bossLines(record, best)
       lines[#lines + 1] = Theme.Hex("muted") .. "   " .. name .. "|r"
     end
   end
-  lines = compact(lines, nextID, list)
+  bossCount, expanded = #list, #list <= COLLAPSE_ABOVE_BOSSES
+  if not expanded then lines = compact(lines, nextID, list) end
   -- Rare ohne Encounter: nur besiegte, unter der Bossliste
   for _, rare in ipairs(InstanceBosses.Rares(record)) do
     lines[#lines + 1] = CHECK_MARK .. " " .. rareName(rare.name or tostring(rare.npcID)) .. "  "
@@ -149,6 +154,7 @@ local function showPortrait(npcID)
   if not portrait then
     portrait = CreatureModel.Create(card.frame, 1)
     portrait:SetAllPoints(card.frame.icon)
+    CreatureModel.AddBorder(portrait)
   end
   portrait:SetShown(npcID ~= nil)
   CreatureModel.Set(portrait, npcID)
@@ -186,6 +192,12 @@ function InstanceRunTracker.Refresh()
   card.frame:Show()
 end
 
+-- Aufbau des Trackers (Boss-Anzahl, ausgeklappt?, Reihenabstand, Porträtrahmen); für Tests und Checks
+function InstanceRunTracker.Layout()
+  return { bosses = bossCount, expanded = expanded, rowSpacing = ROW_SPACING,
+    collapseAbove = COLLAPSE_ABOVE_BOSSES, portraitBorder = portrait and portrait.border and true or false }
+end
+
 -- Test-Zugriff: die Karte (frame.title/.body/.time) und das Porträt des nächsten Bosses (nil = nie gebraucht)
 function InstanceRunTracker.Card()
   return card, portrait
@@ -194,6 +206,7 @@ end
 ns.Frames.Register({
   id = "dungeonRun", frame = card.frame, label = "EDIT_FRAME_DUNGEON_RUN", default = DEFAULT_POS,
   settingsPage = "OPTIONS_PAGE_DUNGEON_RUNS", clickable = true, dragWhenUnlocked = true,
+  actionsTip = function() return L.DUNGEON_RUN_TRACKER_CLICK_TIP end,
   preview = function(on)
     previewing = on and true or false
     InstanceRunTracker.Refresh()
@@ -202,6 +215,16 @@ ns.Frames.Register({
     ns.Set("showRunTracker", false)
   end,
 })
+
+-- Linksklick: Recap des offenen Laufs; nach Frames.Register, weil das OnDragStart setzt (ein Ziehen ist kein Klick)
+local dragged = false
+card.frame:HookScript("OnDragStart", function() dragged = true end)
+card.frame:HookScript("OnMouseUp", function(_, mouseButton)
+  local wasDragged = dragged
+  dragged = false
+  if mouseButton ~= "LeftButton" or wasDragged or previewing or (ns.EditMode and ns.EditMode.IsActive()) then return end
+  ns.DungeonRecapWindow.Show()
+end)
 
 ns.Every(1, InstanceRunTracker.Refresh, function(db) return db.showRunTracker end)
 ns.RegisterApply(InstanceRunTracker.Refresh)

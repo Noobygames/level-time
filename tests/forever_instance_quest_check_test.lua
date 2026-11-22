@@ -29,12 +29,29 @@ local ids = {}
 for _, quest in ipairs(Check.Missing(3065)) do table.insert(ids, quest.questID) end
 expect("fehlend: ohne abgegebene, Log und offene Vorquest", table.concat(ids, ","), "96394,98423")
 
--- Betreten: eine Zeile mit Anzahl, Level, Titel und Startort
+-- Betreten: unbekannter Titel wird angefordert, die Zeile wartet einmal kurz
+local function requests(questID)
+  local count = 0
+  for _, id in ipairs(wow.state.questLoadRequests or {}) do
+    if id == questID then count = count + 1 end
+  end
+  return count
+end
+local before = #wow.printed
 enter("Halle der Thanen", 3065)
+expect("wartet auf den Titel", #wow.printed, before)
+expect("Titel angefordert", requests(98423), 1)
+expect("bekannter Titel nicht angefordert", requests(96394), 0)
+-- Der Server antwortet nicht: nach der Wartezeit mit dem Rückfall-Namen
+wow.runTimers()
 local line = lastLine()
 expectTrue("Kopf mit Anzahl", line:find(string.format(L.INSTANCE_QUEST_CHECK_MISSING, 2, ""), 1, true) ~= nil)
 expectTrue("Titel aus dem Client mit Startort", line:find("[15] Die ruhelosen Toten (Karte 1455 (33, 48))", 1, true) ~= nil)
 expectTrue("Rückfall-Name", line:find("[16] The Treaty of Understanding", 1, true) ~= nil)
+expect("nur einmal angefordert", requests(98423), 1)
+-- Titel nachgeladen: Text in der Spielsprache, gleiche Liste trotzdem nicht neu gemeldet
+wow.state.questTitles[98423] = "Der Vertrag"
+expectTrue("Titel nach dem Laden", Check.Text(3065):find("[16] Der Vertrag", 1, true) ~= nil)
 
 -- Wiedereintritt mit derselben Liste: keine neue Zeile
 leave()
@@ -46,6 +63,7 @@ expect("gleiche Liste nicht wiederholen", #wow.printed, count)
 completed[96391] = true
 leave()
 enter("Halle der Thanen", 3065)
+wow.runTimers()  -- 96393 hat noch keinen Titel: kurze Wartezeit
 expectTrue("Vorquest erfüllt", lastLine():find(string.format(L.INSTANCE_QUEST_CHECK_MISSING, 3, ""), 1, true) ~= nil)
 
 -- Alles angenommen: keine Meldung

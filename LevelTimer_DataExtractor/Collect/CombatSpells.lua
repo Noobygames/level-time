@@ -6,7 +6,7 @@
 --   Schlüssel = Zauber-ID, ohne lesbare ID (Classic-Kampflog kennt teils nur 0) "name:<Zaubername>".
 -- Feldreihenfolge von C_CombatLog.GetCurrentEventInfo bzw. CombatLogGetCurrentEventInfo (wie
 -- History/InstanceBosses.lua): 2 Event, 4 Quell-GUID, 12 Zauber-ID, 13 Zaubername (SPELL_*-Präfix).
--- Ohne Kampflog (LT-278): UNIT_SPELLCAST_START/CHANNEL_START/SUCCEEDED von Ziel, Fokus, Namensplaketten und Bossrahmen
+-- Ohne Kampflog (LT-278): UNIT_SPELLCAST_START/CHANNEL_START/SUCCEEDED von Ziel, Fokus, Mouseover, Namensplaketten und Bossrahmen
 -- (nur sichtbare Einheiten, keine Auren und kein Schaden), gespeichert unter denselben Event-Schlüsseln wie der Kampflog.
 local _, X = ...
 
@@ -21,7 +21,8 @@ local getEventInfo = X.GET_COMBAT_EVENT
 local currentInstance  -- Karten-ID oder nil; bei jedem Zonenwechsel neu gelesen
 
 -- Zähler dieser Sitzung für die Prüfung LT52.combatlog.guid: sind Quell-GUIDs in Instanzen lesbar?
-local status = { events = 0, npcSources = 0, secretGuids = 0, otherSources = 0, nameKeys = 0 }
+local status = { events = 0, npcSources = 0, secretGuids = 0, otherSources = 0, nameKeys = 0, castEvents = 0,
+  spellIDReadable = 0, spellIDSecret = 0 }
 
 local function onWorld()
   currentInstance = X.InstanceMap()
@@ -90,9 +91,9 @@ local CAST_EVENTS = { UNIT_SPELLCAST_START = "SPELL_CAST_START", UNIT_SPELLCAST_
 local MAX_SEEN_CASTS = 200  -- gemerkte Zauberwürfe; danach neu anfangen
 local seenCasts, seenCount = {}, 0  -- "<Event>:<castGUID>": derselbe Wurf kommt über Ziel und Namensplakette doppelt
 
--- Gegnerische Einheit: Ziel, Fokus, Namensplakette, Bossrahmen (nicht der Spieler, nicht Gruppe)
+-- Gegnerische Einheit: Ziel, Fokus, Mouseover, Namensplakette, Bossrahmen (nicht der Spieler, nicht Gruppe)
 local function isEnemyToken(unit)
-  return unit == "target" or unit == "focus" or unit:find("^nameplate%d+$") ~= nil or unit:find("^boss%d+$") ~= nil
+  return unit == "target" or unit == "focus" or unit == "mouseover" or unit:find("^nameplate%d+$") ~= nil or unit:find("^boss%d+$") ~= nil
 end
 
 local function onUnitCast(event, unit, castGUID, spellID)
@@ -100,6 +101,9 @@ local function onUnitCast(event, unit, castGUID, spellID)
     return
   end
   status.events = status.events + 1
+  status.castEvents = status.castEvents + 1
+  if X.IsSecret(spellID) then status.spellIDSecret = status.spellIDSecret + 1
+  else status.spellIDReadable = status.spellIDReadable + 1 end
   local guid = X.Call("UnitGUID", unit)
   if not guid then
     status.secretGuids = status.secretGuids + 1
@@ -136,5 +140,6 @@ end
 function CombatSpells.Status()
   return { api = getEventInfo ~= nil, unitCasts = getEventInfo == nil, instance = currentInstance, events = status.events,
     npcSources = status.npcSources, secretGuids = status.secretGuids, otherSources = status.otherSources,
-    nameKeys = status.nameKeys, lastGuid = status.lastGuid }
+    nameKeys = status.nameKeys, castEvents = status.castEvents, spellIDReadable = status.spellIDReadable,
+    spellIDSecret = status.spellIDSecret, lastGuid = status.lastGuid }
 end

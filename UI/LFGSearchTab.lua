@@ -371,7 +371,8 @@ local function fillCard(row, summary)
   setKind(row, true)
   local leader = summary.members[1]
   local name = summary.leaderName or "?"
-  row.title:SetText((summary.numMembers or 0) > 1 and (LEADER_ICON .. name) or name)
+  local marker = ns.LFGPlayers.Marker(summary.leaderName)  -- Bewertung/Abbrecher (LT-392)
+  row.title:SetText(marker .. ((summary.numMembers or 0) > 1 and (LEADER_ICON .. name) or name))
   if summary.delisted then
     row.title:SetTextColor(Theme.RGB("muted"))  -- RGB liefert drei Werte: nie in and/or
   else
@@ -489,10 +490,7 @@ parts.detailText = detailText
 
 -- Aktionen unten im Fenster wie Blizzards SendMessageButton / GroupInviteButton, wirken auf die gewählte Karte
 local whisperButton = newButton(searchTab, 100, "LFG_WHISPER", function()
-  local summary = state.selected and LFGSearch.Summary(state.selected)
-  if not (summary and summary.leaderName) then return end
-  if ChatFrameUtil and ChatFrameUtil.SendTell then ChatFrameUtil.SendTell(summary.leaderName)
-  elseif ChatFrame_SendTell then ChatFrame_SendTell(summary.leaderName) end
+  LFGSearch.Whisper(state.selected and LFGSearch.Summary(state.selected))
 end, "SEND_MESSAGE")
 whisperButton:SetPoint("BOTTOMLEFT", PAD, PAD)
 local inviteButton = newButton(searchTab, 100, "LFG_INVITE", function()

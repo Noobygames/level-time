@@ -22,9 +22,10 @@ wow.runTimers()
 expect("danach da", LevelTimerSetup:IsShown(), true)
 expect("gemerkt", LevelTimerStatsDB.setupWizardSeen, true)
 
--- Retail: kein Dungeon-Schritt
+-- Retail: Dungeon-Schritt nur mit dem Recap-Schalter (LT-406)
 local state = Wizard.State()
-expect("Schritte", table.concat(state.steps, ","), "language,presets,window,quests,hints,timers,comfort,interface,finish")
+expect("Schritte", table.concat(state.steps, ","),
+  "language,presets,window,dungeons,quests,hints,timers,comfort,interface,finish")
 expect("Schritt 1", state.step, "language")
 wow.click(L.SETUP_BACK)  -- im ersten Schritt wirkungslos
 expect("noch Schritt 1", Wizard.State().step, "language")
@@ -61,7 +62,15 @@ addon.LauncherClicks.Handle("RightButton")
 expect("Rechtsklick holt es zurück", LevelTimerDB.showTimer, true)
 expect("Auswahl bleibt Kacheln", LevelTimerDB.windowLayout, "tiles")
 
--- Schritt 3: nur Schalter dieses Clients
+-- Dungeons: ohne Guide-Daten nur der Recap
+wow.click(L.SETUP_NEXT)
+local dungeonShown = {}
+for _, check in ipairs(Wizard.State().toggles) do
+  if check:IsShown() then dungeonShown[#dungeonShown + 1] = check.def.label end
+end
+expect("Retail: nur Recap", table.concat(dungeonShown, ","), "DUNGEON_RECAP_AUTO_OPEN_TOGGLE")
+
+-- Quests: nur Schalter dieses Clients
 wow.click(L.SETUP_NEXT)
 local toggles = Wizard.State().toggles
 local shown = {}

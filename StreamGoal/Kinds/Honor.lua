@@ -2,7 +2,7 @@
 -- COMBATLOG_HONORGAIN ("%s stirbt, ehrenhafter Sieg Rang: %s (Geschätzte Ehrenpunkte: %d)"),
 -- COMBATLOG_HONORGAIN_NO_RANK (ohne Rang) und COMBATLOG_HONORAWARD ("Euch wurden %d Ehrenpunkte zuerkannt.");
 -- gezählt wird die letzte Zahl der Meldung (geschätzte Ehre bei Siegen, Bonusehre bei Zielen und Siegen im
--- Schlachtfeld). Ob Retail die Ehre (dort eine Währung) noch so meldet, ist im Spiel zu prüfen (ManualToCheck 176).
+-- Schlachtfeld). Ob Retail die Ehre (dort eine Währung) noch so meldet, ist im Spiel zu prüfen (Ticket LT-97).
 -- params: keine
 local _, ns = ...
 local LT = ns.LT

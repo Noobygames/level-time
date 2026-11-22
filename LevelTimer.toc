@@ -68,6 +68,7 @@ Lib\TimerDisplay.lua
 Tracking\Stats.lua
 Tracking\Journal.lua
 Tracking\JournalArchive.lua
+Tracking\SplitEntry.lua
 Tracking\Classification.lua
 Assist\InstanceData\anniversary.lua
 Assist\MapCoordsData\anniversary.lua
@@ -213,6 +214,7 @@ Assist\QuestCompleteAlert.lua
 Assist\RareAlert.lua
 Assist\InstanceReport.lua
 Assist\TrainerReminder.lua
+Assist\HearthReminder.lua
 Assist\OldSpellRanks.lua
 Assist\BreakReminder.lua
 Assist\TrainAll.lua
@@ -253,12 +255,15 @@ Assist\LFGData.lua
 Assist\LFGLanguages.lua
 Assist\LFGTooltip.lua
 Assist\LFGFilters.lua
+Assist\LFGWhispers.lua
+Assist\LFGPlayers.lua
 Assist\LFGSearch.lua
 Assist\QuestTargets.lua
 Assist\DungeonQuestGivers.lua
 Assist\MechanicTips.lua
 Assist\DungeonQuestMinimap.lua
 Assist\DungeonQuestStarters.lua
+Assist\TrivialChainGivers.lua
 Assist\QuestLevels.lua
 Assist\DungeonQuestTags.lua
 UI\DungeonQuestHint.lua
@@ -348,6 +353,8 @@ UI\LFGWindow.lua
 UI\LFGFilterView.lua
 UI\LFGSearchTab.lua
 UI\LFGOwnGroupTab.lua
+UI\LFGWhisperTab.lua
+UI\LFGPlayersTab.lua
 UI\HistoryTables.lua
 UI\HistoryCharts.lua
 Speedrun\SpeedrunViews.lua

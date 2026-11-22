@@ -84,6 +84,7 @@ Alerts.ICONS = {
   ammo = iconPath("INV_Ammo_Arrow_02"),
   reagents = iconPath("Spell_Holy_Resurrection"),
   trainer = iconPath("INV_Misc_Book_09"),
+  hearthstone = iconPath("INV_Misc_Rune_01"),
   instanceLimit = iconPath("INV_Misc_PocketWatch_01"),
   levelUp = iconPath("Spell_Holy_HolyBolt"),
   rare = iconPath("INV_Misc_Eye_01"),

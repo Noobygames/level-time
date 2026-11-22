@@ -158,6 +158,7 @@ addSection("SECTION_REMINDERS")
 addToggles({
   toggle("REMIND_CHARGED_TOGGLE", "remindCharged", ns.BuffReminder.HasChargedSystem),
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
+  toggle("REMIND_HEARTH_TOGGLE", "remindHearth"),
   toggle("WARN_OLD_SPELL_RANKS_TOGGLE", "warnOldSpellRanks", ns.OldSpellRanks.IsAvailable),
   toggle("HINTS_AUTOCLOSE_TOGGLE", "hintsAutoClose"),
 })
@@ -222,6 +223,7 @@ addPreviewCycle("NOTIFICATION_TEST_REMINDERS", function()
   local steps = ns.BuffReminder.PreviewSteps()
   if ns.TrainerReminder.IsAvailable() then table.insert(steps, ns.TrainerReminder.Preview) end
   table.insert(steps, ns.BreakReminder.Preview)
+  table.insert(steps, ns.HearthReminder.Preview)
   return steps
 end)
 addSubPage("OPTIONS_PAGE_WARNINGS")

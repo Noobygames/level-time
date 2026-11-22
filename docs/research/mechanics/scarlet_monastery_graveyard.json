@@ -49,11 +49,18 @@
      "de": "Sofortiger Feuertreffer mit Brand auf sein Ziel"
     },
     {
-     "spellID": 20825,
+     "spellID": 9613,
      "spell": "Shadow Bolt",
      "type": "interrupt",
      "en": "Casts **Shadow Bolt**; kick it to cut damage",
      "de": "Wirkt **Schattenblitz**; unterbrechen spart Schaden"
+    },
+    {
+     "spellID": 8814,
+     "spell": "Flame Spike",
+     "type": "avoid",
+     "en": "Fire pillar on an area with a burn; step out of it",
+     "de": "Feuersäule auf einem Bereich mit Brand; aus der Fläche treten"
     }
    ]
   }
@@ -146,6 +153,14 @@
    "level": 33,
    "mechanics": [
     {
+     "spellID": 5137,
+     "spell": "Call of the Grave",
+     "type": "survive",
+     "en": "Delayed shadow hit that lands even after the boss dies; keep healing up",
+     "de": "Verzögerter Schattentreffer, der auch nach dem Tod des Bosses eintrifft; weiter heilen",
+     "unverified": true
+    },
+    {
      "spellID": 7399,
      "spell": "Terrify",
      "type": "survive",
@@ -172,6 +187,14 @@
      "type": "positioning",
      "en": "Cleaves the tank and a neighbor; only tank in front",
      "de": "Spaltet den Tank und Spieler daneben; nur der Tank steht vorne"
+    },
+    {
+     "spellID": 7366,
+     "spell": "Berserker Stance",
+     "type": "tank",
+     "en": "He turns aggressive and builds rage; tank holds him and keeps him turned away",
+     "de": "Er wird aggressiv und baut Wut auf; Tank hält ihn und dreht ihn weg",
+     "unverified": true
     }
    ]
   },
@@ -179,7 +202,24 @@
    "name": "Ironspine",
    "npcID": 6489,
    "level": 31,
-   "mechanics": []
+   "mechanics": [
+    {
+     "spellID": 21007,
+     "spell": "Curse of Weakness",
+     "type": "dispel",
+     "en": "Curse that lowers nearby enemies' damage; decurse the tank",
+     "de": "Fluch senkt den Schaden der Gegner in der Nähe; Tank entfluchen",
+     "unverified": true
+    },
+    {
+     "spellID": 3815,
+     "spell": "Poison Cloud",
+     "type": "avoid",
+     "en": "Nature cloud that ticks on everyone close; step out and heal up",
+     "de": "Naturwolke, die alle in der Nähe trifft; rausgehen und heilen",
+     "unverified": true
+    }
+   ]
   }
  ],
  "sources": [

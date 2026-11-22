@@ -24,6 +24,21 @@ check._scripts.OnClick(check)
 expect("Zonen-Hinweis aus", LevelTimerDB.dungeonQuestZoneHint, false)
 expect("Annahme-Hinweis aus", LevelTimerDB.dungeonQuestAcceptHint, false)
 
+-- LT-406: Dungeon Guide (mit Vorschau-Knopf) und Recap
+local joined = table.concat(labels, ",")
+expectTrue("Guide-Schalter", joined:find("SETUP_DUNGEON_GUIDE_TOGGLE", 1, true) ~= nil)
+expectTrue("Recap-Schalter", joined:find("DUNGEON_RECAP_AUTO_OPEN_TOGGLE", 1, true) ~= nil)
+for _, toggle in ipairs(Wizard.State().toggles) do
+  if toggle.def.label == "SETUP_DUNGEON_GUIDE_TOGGLE" then
+    expect("Guide an", toggle:GetChecked() == true, true)
+    toggle:SetChecked(false)
+    toggle._scripts.OnClick(toggle)
+    expect("Guide aus", LevelTimerDB.dungeonGuideAuto, false)
+    toggle.previewButton._scripts.OnClick(toggle.previewButton)
+    expectTrue("Vorschau öffnet den Guide", addon.DungeonGuideWindow.IsShown())
+    addon.DungeonGuideWindow.Hide()
+  end
+end
 expectTrue("Gruppensuche-Tooltip da", table.concat(labels, ","):find("LFG_TOOLTIP_TOGGLE", 1, true) ~= nil)
 for _, toggle in ipairs(Wizard.State().toggles) do
   expectTrue("Tooltip " .. toggle.def.label, L[toggle.def.label .. "_TIP"] ~= toggle.def.label .. "_TIP")

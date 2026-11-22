@@ -106,11 +106,11 @@ end
 
 -- Eigene Addon-Nachrichten kommen zurück: Absender "Name" oder "Name-Realm" mit normalisiertem Realm
 -- (ohne Leerzeichen und Bindestriche, z.B. "AzjolNerub"). GetNormalizedRealmName fehlt evtl. in manchen Clients
--- und liefert früh beim Login nil; dann aus GetRealmName nachbilden.
+-- und liefert früh beim Login nil; dann aus Database.RealmName nachbilden (Client oder gespeicherter Realm).
 local function ownRealm()
   local realm = GetNormalizedRealmName and GetNormalizedRealmName()
   if type(realm) == "string" and realm ~= "" then return realm end
-  return (GetRealmName and GetRealmName() or ""):gsub("[%s%-]", "")
+  return (ns.Database.RealmName():gsub("[%s%-]", ""))
 end
 
 function GroupChat.IsOwnSender(sender)

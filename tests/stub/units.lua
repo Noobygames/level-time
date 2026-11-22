@@ -153,6 +153,7 @@ function GetInventoryItemDurability(slot)
 end
 function UnitIsAFK() return state.afk end
 function IsResting() return state.resting end
+function GetBindLocation() return state.bindLocation or "Orgrimmar" end
 C_Spell = {
   GetSpellName = function(spellID) return state.spellNames[spellID] end,
   GetSpellTexture = function(spellID) return "Interface\\Icons\\Spell_" .. spellID end,

@@ -9,7 +9,8 @@
         {"spellID": 1303264, "spell": "Unholy Frenzy", "type": "dispel", "en": "**Unholy Frenzy**: +75% attack speed for 20 sec, purge it", "de": "**Unheilige Raserei**: +75 % Angriffstempo 20 Sek. lang, reinigen", "version": "forever"},
         {"spellID": 1303266, "spell": "Raise Dead", "type": "adds", "en": "Skeletons keep rising: kill them as they come", "de": "Skelette erheben sich laufend: sofort töten", "version": "forever"},
         {"spellID": 3391, "spell": "Thrash", "type": "tank", "en": "Extra swings: heavy hits on the tank", "de": "Extraschläge: schwere Treffer auf dem Tank", "version": "forever"},
-        {"spellID": 6713, "spell": "Disarm", "type": "tank", "en": "Disarms the tank: expect less threat for a few seconds", "de": "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "version": "forever"}
+        {"spellID": 6713, "spell": "Disarm", "type": "tank", "en": "Disarms the tank: expect less threat for a few seconds", "de": "Entwaffnet den Tank: kurz weniger Bedrohung einplanen", "version": "forever"},
+        {"spellID": 12057, "spell": "Strike", "type": "tank", "en": "Plain weapon strikes: keep the shield up", "de": "Einfache Waffenschläge: Schild bereithalten", "version": "forever"}
       ]
     },
     {
@@ -35,7 +36,9 @@
       "npcID": 246017,
       "mechanics": [
         {"spellID": 1241329, "spell": "Malfunction", "type": "avoid", "en": "**Malfunction**: after a 2 sec cast, arcane pulses within 25 yd; get out", "de": "**Fehlfunktion**: nach 2 Sek. Zauberzeit Arkanpulse im 25-m-Umkreis; rausgehen", "version": "forever"},
-        {"spellID": 0, "spell": "Angry Tomes", "type": "adds", "en": "Angry Tomes on the way: kill them before the pull", "de": "Wütende Folianten auf dem Weg: vor dem Pull töten", "version": "forever"}
+        {"spellID": 0, "spell": "Angry Tomes", "type": "adds", "en": "Angry Tomes on the way: kill them before the pull", "de": "Wütende Folianten auf dem Weg: vor dem Pull töten", "version": "forever"},
+        {"spellID": 16169, "spell": "Arcing Smash", "type": "avoid", "en": "**Arcing Smash** hits a cone in front of him: face him away from the group", "de": "**Bogenschlag** trifft einen Kegel vor ihm: von der Gruppe wegdrehen", "version": "forever"},
+        {"spellID": 1241325, "spell": "Arcane Explosion", "type": "avoid", "en": "**Arcane Explosion** pulses around him: stay out of range", "de": "**Arkanexplosion** pulsiert um ihn: Abstand halten", "version": "forever"}
       ]
     },
     {
@@ -65,7 +68,8 @@
         {"spellID": 1303598, "spell": "Mass Polymorph", "type": "survive", "en": "Out of mana: polymorphs the group for 8 sec, then refills", "de": "Ohne Mana: verwandelt die Gruppe 8 Sek. lang, dann füllt er auf", "version": "forever"},
         {"spellID": 1303599, "spell": "Evocation", "type": "interrupt", "en": "**Evocation** refills his mana: interrupt or burst him down", "de": "**Hervorrufung** füllt sein Mana: unterbrechen oder schnell Schaden machen", "version": "forever"},
         {"spellID": 15230, "spell": "Arcane Bolt", "type": "interrupt", "en": "**Arcane bolt** on a player: interrupt it", "de": "**Arkanblitz** auf einen Spieler: unterbrechen", "version": "forever"},
-        {"spellID": 28450, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst around him: ranged keep their distance", "de": "**Arkanexplosion** um ihn: Fernkämpfer halten Abstand", "version": "forever"}
+        {"spellID": 28450, "spell": "Arcane Explosion", "type": "avoid", "en": "Arcane burst around him: ranged keep their distance", "de": "**Arkanexplosion** um ihn: Fernkämpfer halten Abstand", "version": "forever"},
+        {"spellID": 1303350, "spell": "Slow", "type": "survive", "en": "**Slow** cuts attack, move and cast speed for 3 sec: expect it", "de": "**Verlangsamen** senkt Angriffs-, Lauf- und Zaubertempo 3 Sek. lang: einplanen", "version": "forever"}
       ]
     },
     {
@@ -74,7 +78,7 @@
       "mechanics": [
         {"spellID": 1304473, "spell": "Curse of Thorns", "type": "dispel", "en": "**Curse of Thorns**: remove the curse", "de": "**Dornenfluch**: Fluch entfernen", "version": "forever"},
         {"spellID": 17228, "spell": "Shadow Bolt Volley", "type": "survive", "en": "**Shadow Bolt Volley** hits everyone within 30 yd", "de": "**Schattenblitzsalve** trifft alle im 30-m-Umkreis", "version": "forever"},
-        {"spellID": 0, "spell": "Skeletons", "type": "adds", "en": "Skeletons fight beside her: kill them", "de": "Skelette kämpfen mit: töten", "version": "forever"}
+        {"spellID": 1303266, "spell": "Raise Dead", "type": "adds", "en": "**Raise Dead** summons two skeletons: kill them", "de": "**Tote erwecken** ruft zwei Skelette: töten", "version": "forever"}
       ]
     }
   ],

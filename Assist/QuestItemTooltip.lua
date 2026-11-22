@@ -1,8 +1,8 @@
 -- Quest-Gegenstand im Tooltip (Roadmap 349, Einstellung questItemTooltip, aus): der Item-Tooltip nennt die offene
 -- Quest, zu der ein Gegenstand gehört, mit Stand ("Für Quest: Wölfe jagen (3/8)"); gehört er nur zu erledigten
 -- Quests, steht dort "Quest erledigt – verkaufbar".
--- Zuordnung: gelernte Daten (QuestMobs.ForItem / QuestsOfItem), sonst der Name im Text eines offenen Sammelziels
--- (QuestLog.Objectives, nicht bei Tötungszielen). Erledigt = C_QuestLog.IsQuestFlaggedCompleted (alle Clients laut
+-- Zuordnung: gelernte Daten (QuestMobs.ForItem / QuestsOfItem), sonst der Name als ganzes Wort im Text eines offenen
+-- Sammelziels (QuestLog.Objectives, nicht bei Tötungszielen). Erledigt = C_QuestLog.IsQuestFlaggedCompleted (alle Clients laut
 -- Doku, sonst globales IsQuestFlaggedCompleted) oder in dieser Session abgegeben (QUEST_TURNED_IN; das Flag kommt
 -- verzögert).
 -- Anschluss wie Tooltip.lua: TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item) mit dem Tooltip-
@@ -51,14 +51,30 @@ local function readObjectives()
   end
 end
 
--- Offenes Ziel, in dessen Text der Gegenstandsname steht
+-- Buchstabe, Ziffer oder Byte eines UTF-8-Mehrbytezeichens (ä, ü, é ...); fehlendes Zeichen = Wortgrenze
+local function isWordByte(byte)
+  return byte ~= nil and (byte >= 128 or string.char(byte):match("%w") ~= nil)
+end
+
+-- Steht name als ganzes Wort in text? ("salz" nicht in "salziger meeresfrüchteeintopf")
+local function containsWord(text, name)
+  local start = 1
+  while true do
+    local first, last = text:find(name, start, true)
+    if not first then return false end
+    if not isWordByte(text:byte(first - 1)) and not isWordByte(text:byte(last + 1)) then return true end
+    start = first + 1
+  end
+end
+
+-- Offenes Ziel, in dessen Text der Gegenstandsname als ganzes Wort steht
 local function objectiveFor(itemName)
   if type(itemName) ~= "string" then return nil end
   local name = QuestLog.NormalizeObjective(itemName)
   if #name < MIN_NAME_LENGTH then return nil end
   if not objectiveTexts then readObjectives() end
   for _, entry in ipairs(objectiveTexts) do
-    if entry.name:find(name, 1, true) then return entry end
+    if containsWord(entry.name, name) then return entry end
   end
 end
 

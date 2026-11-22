@@ -90,7 +90,7 @@ end)
 
 local refresh
 
--- Knopf "Recap": öffnet den Dungeon-Recap des gewählten Laufs (nur bei abgeschlossenen Läufen; UI/DungeonRecapWindow.lua)
+-- Knopf "Recap": öffnet den Dungeon-Recap des gewählten Laufs (abgeschlossen oder der laufende; UI/DungeonRecapWindow.lua)
 local RECAP_BUTTON_HEIGHT = 22
 local RECAP_BUTTON_PADDING = 24
 local recapButton = Widgets.CreateButton(windowHeader.actions, 60, RECAP_BUTTON_HEIGHT, function()
@@ -541,7 +541,8 @@ refresh = function()
   recapButton:SetText(L.DUNGEON_RECAP_BUTTON)
   recapButton:SetWidth(recapButton:GetTextWidth() + RECAP_BUTTON_PADDING)
   windowHeader.actions:SetWidth(recapButton:GetWidth())
-  recapButton:SetEnabled(selectedIndex ~= nil and InstanceRuns.IsCompleted(records[selectedIndex]))
+  local selectedRecord = selectedIndex and records[selectedIndex]
+  recapButton:SetEnabled(selectedRecord ~= nil and (selectedRecord.isCurrent or InstanceRuns.IsCompleted(selectedRecord)))
   renderList(records, indices, selectedIndex)
   renderDetail(records, selectedIndex)
 end

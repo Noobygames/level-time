@@ -19,7 +19,6 @@ local FOREVER_ITEM_MIN_ID = 250000  -- Forever-eigene Items (Classic Era kennt s
 -- GetInstanceInfo im pcall-Paket { ok, Name, Typ, Schwierigkeit, ..., Instanz-ID }
 local INSTANCE_TYPE_INDEX, DIFFICULTY_INDEX, INSTANCE_ID_INDEX = 3, 4, 9
 local QUEST_CHECK_DELAY = 2         -- Sekunden nach dem Betreten, bis der Lauf steht
-local LOOT_ICON_SIZE = 14
 
 ---------------------------------------------------------------------------
 -- Helfer
@@ -78,12 +77,6 @@ local function lootSummary(drops)
   return { count = #drops, lines = math.min(#drops, ns.BossLoot.MAX_LINES),
     more = math.max(0, #drops - ns.BossLoot.MAX_LINES), unverified = unverified, foreverItems = forever,
     unknownToClient = unknown }
-end
-
-local function countMatches(text, pattern)
-  local count = 0
-  for _ in text:gmatch(pattern) do count = count + 1 end
-  return count
 end
 
 -- Textfelder einer Karte (Lib/Card.lua: frame.title/.body/.time)
@@ -256,59 +249,6 @@ check("LT200.instance.master", function()
       info = last.mapID and InstanceInfo.Get(last.mapID, last.difficultyID) } or false }
 end)
 
--- LT-318: Flügel vor dem ersten Boss: Hinweis des Laufs, Flügel aus Boss-Kills, gemerkter Gruppensuche-Eintrag (bleibt
--- er nach der Gruppenbildung bestehen?), gelernte Gegner je Karte
-check("LT318.wings.state", function()
-  local run = ns.Instances.GetCurrentRun()
-  return { available = ns.InstanceWings ~= nil, run = run and { name = run.name, mapID = run.mapID, hint = run.wing or false,
-    bossWing = ns.InstanceBosses.BossWing(run) or false, progress = ns.InstanceBosses.ProgressText(run) } or false,
-    activeEntry = C_LFGList and C_LFGList.HasActiveEntryInfo and C_LFGList.HasActiveEntryInfo() or false,
-    state = ns.InstanceWings and ns.InstanceWings.State() or false }
-end)
-
--- LT-334 (nach einem Dungeon mit Endboss prüfen): Dungeon-Recap. api = Schadensmesser und seine Sitzungen (heißen die
--- Boss-Sitzungen wie der Boss? bossDamage hängt daran), state = gespeicherte Zahlen des letzten Laufs und Fenster,
--- deaths = Quellen im Messwert Deaths gegen die gezählten Tode des Laufs (eine Quelle je Tod oder je Spieler?)
-check("LT334.recap.api", function()
-  local sessions = {}
-  local list = type(C_DamageMeter) == "table" and C_DamageMeter.GetAvailableCombatSessions
-    and C_DamageMeter.GetAvailableCombatSessions() or {}
-  for _, session in ipairs(type(list) == "table" and not ns.IsSecret(list) and list or {}) do
-    sessions[#sessions + 1] = { id = plain(session.sessionID), name = plain(session.name) }
-  end
-  return { available = ns.RunMeter.IsAvailable(), total = #sessions, sessions = chunked(first(sessions, 20)),
-    bosses = (function()
-      local names = {}
-      local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
-      for id in string.gmatch(run and run.bosses or "", "%d+") do names[#names + 1] = ns.InstanceBosses.Name(tonumber(id)) or "?" end
-      return names
-    end)() }
-end)
-
-check("LT334.recap.state", function()
-  local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
-  local window = ns.DungeonRecapWindow
-  return { autoOpen = ns.db.dungeonRecapAutoOpen, windowShown = window.IsShown(),
-    run = run and { name = run.name, players = run.recapPlayers or false, mobs = run.recapMobs or false,
-      parsed = #ns.InstanceRecap.Players(run), mobsParsed = #ns.InstanceRecap.Mobs(run) } or false }
-end)
-
-check("LT334.recap.deaths", function()
-  if not ns.RunMeter.IsAvailable() then return { available = false } end
-  local run = ns.Instances.GetCurrentRun() or recentEntries("instanceLog", 1)[1]
-  local sources, entries = 0, {}
-  local list = C_DamageMeter.GetAvailableCombatSessions()
-  for _, session in ipairs(type(list) == "table" and not ns.IsSecret(list) and list or {}) do
-    local data = C_DamageMeter.GetCombatSessionFromID(readable(session.sessionID), Enum.DamageMeterType.Deaths)
-    for _, source in ipairs(type(data) == "table" and not ns.IsSecret(data) and data.combatSources or {}) do
-      sources = sources + 1
-      entries[#entries + 1] = { name = plain(source.name), amount = plain(source.totalAmount), recap = plain(source.deathRecapID) }
-    end
-  end
-  local _, _, deaths = ns.Instances.Summarize(run or { counters = {} })
-  return { sources = sources, ownRunDeaths = deaths or false, entries = chunked(first(entries, 20)) }
-end)
-
 -- LT-226: Live-Tracker (Karte), neuester Lauf mit Zeit, Splits, XP je Boss, Beute; die Chatzeile "neue Bestzeit!"
 -- steht als Bereich "print" im laufenden Log
 check("LT226.runs.live", function()
@@ -359,21 +299,6 @@ check("LT227.questCheck", function()
   return questState(mapID)
 end)
 
--- LT-243: Dungeonquests aus einer Quelle: Stichproben (Halle der Thanen 96403, 2974, 3039, Paladinquest 1806) mit
--- Instanzen, CanTake, Geberort und Tag, dazu die Quests der aktuellen Instanz
-local QUEST_SAMPLES = { 96403, 2974, 3039, 1806 }
-check("LT243.dungeonQuests.source", function()
-  local quests = {}
-  for index, questID in ipairs(QUEST_SAMPLES) do
-    quests[index] = { id = questID, title = ns.DungeonQuests.Title(questID), instances = ns.DungeonQuests.Instances(questID),
-      canTake = ns.DungeonQuests.CanTake(questID), giver = ns.DungeonQuests.GiverPlace(questID),
-      tag = ns.DungeonQuestTags.Tag(questID), line = ns.DungeonQuestTags.TooltipLine(questID) }
-  end
-  local mapID = currentInstance()
-  return { faction = (call("UnitFactionGroup", "player")), class = (call("UnitClass", "player")), quests = quests,
-    current = mapID and questState(mapID) or false }
-end)
-
 ---------------------------------------------------------------------------
 -- Boss-Beute und Mechaniken
 ---------------------------------------------------------------------------
@@ -388,109 +313,6 @@ check("LT230.bossLoot.tooltip", function()
       items = dropList(ns.BossLoot.Items(npcID)) } or false,
     instance = mapID and { mapID = mapID, summary = lootSummary(ns.BossLoot.ForInstance(mapID)),
       items = dropList(ns.BossLoot.ForInstance(mapID)) } or false }
-end)
-
--- LT-242: Beute-Symbole: Zahl je Boss der Instanz (höchstens MAX_LINES), dem Client unbekannte Items, nächster
--- lebender Boss und Text der Live-Karte
-check("LT242.bossLoot.icons", function()
-  local mapID, _, run = currentInstance()
-  if not mapID then return { instance = false } end
-  local killed = run and ns.InstanceBosses.Killed(run) or {}
-  local bosses, nextBoss = {}, nil
-  for _, encounterID in ipairs(ns.InstanceBosses.List(mapID, run and run.difficultyID) or {}) do
-    local npcID = ns.InstanceBosses.NpcID(encounterID)
-    local drops = npcID and ns.BossLoot.Items(npcID) or {}
-    local links = ns.BossLoot.IconLinks(drops, LOOT_ICON_SIZE)
-    bosses[#bosses + 1] = { encounterID, ns.InstanceBosses.Name(encounterID), npcID, #drops,
-      links and countMatches(links, "|Hitem") or 0, lootSummary(drops).unknownToClient, killed[encounterID] and "dead" or "alive" }
-    if not nextBoss and not killed[encounterID] then nextBoss = encounterID end
-  end
-  local card = ns.InstanceRunTracker.Card()
-  return { mapID = mapID, setting = ns.db.bossLoot, bosses = chunked(bosses), nextBoss = nextBoss,
-    card = card and cardText(card.frame) }
-end)
-
--- LT-244: Beute-Abdeckung: Stichproben-NPCs (Sapphiron, Majordomus, Zul'Gurub-Bosse, Anacondra), Forever-eigene Drops
--- mit Qualität, Geber 2861 (Horde/Allianz), Tag und Tooltipzeile der Paladinquest 1806
-local COVERAGE_NPCS = { Sapphiron = 15989, Majordomus = 12018, Grilek = 15082, Hazzarah = 15083, Renataki = 15084,
-  Wushoolay = 15085, Gahzranka = 15114, Anacondra = 3671 }
-
-local function foreverDrops()
-  local list, qualities = {}, {}
-  for npcID, drops in pairs(ns.DungeonDB and ns.DungeonDB.loot or {}) do
-    for _, drop in ipairs(drops) do
-      if drop[1] >= FOREVER_ITEM_MIN_ID then
-        list[#list + 1] = { npcID, drop[1], drop[2], ns.Items.GetName(drop[1]) }
-        qualities[tostring(drop[2])] = (qualities[tostring(drop[2])] or 0) + 1
-      end
-    end
-  end
-  table.sort(list, function(a, b) return a[2] < b[2] end)
-  return { count = #list, byQuality = qualities, sample = first(list) }
-end
-
-check("LT244.bossLoot.coverage", function()
-  local npcs = {}
-  for name, npcID in pairs(COVERAGE_NPCS) do npcs[name] = dropList(ns.BossLoot.Items(npcID)) end
-  return { npcs = npcs, forever = foreverDrops(), faction = (call("UnitFactionGroup", "player")),
-    giver2861 = ns.DungeonQuests.GiverPlace(2861), tag1806 = ns.DungeonQuestTags.Tag(1806),
-    line1806 = ns.DungeonQuestTags.TooltipLine(1806), instances1806 = ns.DungeonQuests.Instances(1806) }
-end)
-
--- LT-245: Fähigkeiten der Beispiel-NPCs (Atrexis, Rhahk'Zor, Defias-Schwarzwache, Arkane Aberration) und des Ziels:
--- { Zauber-ID, Typ, Zauber bekannt, Kennung } (Kennung "unverified" = nur aus Classic übernommen)
-local MECHANIC_NPCS = { Atrexis = 247126, RhahkZor = 644, DefiasBlackguard = 636, ArcaneAberration = 11480 }
-local SPELL_ID, KIND, TAG = 1, 2, 5
-
-local function spellKnown(spellID)
-  if spellID <= 0 then return false end
-  local info = (C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(spellID)) or (GetSpellInfo and GetSpellInfo(spellID))
-  return info ~= nil and info ~= false
-end
-
-local function mechanicsOf(npcID)
-  local mechanics = ns.MechanicTips.ForNpc(npcID)
-  if not mechanics then return false end
-  local list = {}
-  for index, mechanic in ipairs(mechanics) do
-    list[index] = { mechanic[SPELL_ID], mechanic[KIND], spellKnown(mechanic[SPELL_ID]), mechanic[TAG] or "unverified" }
-  end
-  return list
-end
-
-check("LT245.mechanics.forever", function()
-  local npcs = {}
-  for name, npcID in pairs(MECHANIC_NPCS) do npcs[name] = mechanicsOf(npcID) end
-  local target = targetNpc()
-  return { forever = ns.Client.IsForever(), available = ns.MechanicTips.IsAvailable(), npcs = npcs,
-    target = target and { npcID = target, mechanics = mechanicsOf(target) } or false }
-end)
-
--- LT-246: Forever-Beute: Instanzen mit Forever-eigenen Items (Krol'dok, Shaper's Terrace, Drowned City) mit Zahl der
--- unbestätigten Drops, Qualität von 5187 und 872 (Datenbank gegen Client), Sternchen-Zeichen
-local QUALITY_SAMPLES = { 5187, 872 }
-local RHAHKZOR_NPC = 644
-
-check("LT246.bossLoot.forever", function()
-  local maps = {}
-  for mapID in pairs(ns.DungeonDB and ns.DungeonDB.npcs or {}) do
-    local summary = lootSummary(ns.BossLoot.ForInstance(mapID))
-    if summary.foreverItems > 0 then
-      maps[#maps + 1] = { mapID, ns.InstanceInfo.MapName(mapID), summary.count, summary.unverified, summary.foreverItems }
-    end
-  end
-  table.sort(maps, function(a, b) return a[1] < b[1] end)
-  local samples = {}
-  for _, itemID in ipairs(QUALITY_SAMPLES) do
-    local entry = { id = itemID, client = ns.Items.GetQuality(itemID), db = false }
-    for _, drop in ipairs(ns.BossLoot.Items(RHAHKZOR_NPC)) do
-      if drop[1] == itemID then entry = dropInfo(drop) end
-    end
-    samples[#samples + 1] = entry
-  end
-  local mapID = currentInstance()
-  return { forever = ns.Client.IsForever(), foreverMaps = chunked(maps), samples = samples,
-    mark = ns.UnverifiedHint.Mark(), current = mapID and lootSummary(ns.BossLoot.ForInstance(mapID)) or false }
 end)
 
 ---------------------------------------------------------------------------
@@ -529,4 +351,10 @@ ns.RegisterEvent("PLAYER_ENTERING_WORLD", function()
     local mapID = currentInstance()
     if mapID then write({ area = "event", event = "instance.questCheck", extra = safe(questState, mapID) }) end
   end)
+end)
+
+-- LT-401: Live-Tracker-Aufbau: Bossanzahl, ausgeklappt (bis COLLAPSE_ABOVE_BOSSES Bosse), Reihenabstand, Porträtrahmen
+check("LT401.tracker.layout", function()
+  ns.InstanceRunTracker.Refresh()
+  return ns.InstanceRunTracker.Layout()
 end)

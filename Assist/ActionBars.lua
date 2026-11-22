@@ -45,6 +45,54 @@ function ActionBars.Buttons()
 end
 
 ---------------------------------------------------------------------------
+-- Hervorhebung eines Aktionsplatzes (LT-409: welcher Platz beim Rang-Upgrade getauscht wird)
+---------------------------------------------------------------------------
+-- Eigener Rahmen über dem sichtbaren Knopf mit button.action == slot (Blizzards ActionButton setzt self.action);
+-- der Knopf selbst bleibt unberührt (kein Taint). Leisten anderer Addons kennen wir nicht: dort bleibt nichts markiert.
+local HIGHLIGHT_TEXTURE = "Interface\\Buttons\\UI-ActionButton-Border"
+local HIGHLIGHT_SCALE = 1.9  -- die Rand-Textur hat innen Luft: größer als der Knopf, damit der Rahmen ihn umschließt
+local highlight
+
+function ActionBars.ButtonForSlot(slot)
+  if not slot then return nil end
+  for _, button in ipairs(ActionBars.Buttons()) do
+    if button.action == slot and button:IsVisible() then return button end
+  end
+end
+
+function ActionBars.HighlightSlot(slot)
+  local button = ActionBars.ButtonForSlot(slot)
+  if not button then return ActionBars.ClearHighlight() end
+  if not highlight then
+    highlight = CreateFrame("Frame", nil, UIParent)
+    highlight:SetFrameStrata("HIGH")
+    highlight.texture = highlight:CreateTexture(nil, "OVERLAY")
+    highlight.texture:SetAllPoints()
+    highlight.texture:SetTexture(HIGHLIGHT_TEXTURE)
+    highlight.texture:SetBlendMode("ADD")
+  end
+  local size = (button:GetWidth() or 0) * HIGHLIGHT_SCALE
+  highlight:ClearAllPoints()
+  highlight:SetPoint("CENTER", button, "CENTER")
+  highlight:SetSize(size, size)
+  highlight.texture:SetVertexColor(ns.Theme.RGB("good"))
+  highlight.slot = slot
+  highlight:Show()
+end
+
+function ActionBars.ClearHighlight()
+  if highlight then
+    highlight.slot = nil
+    highlight:Hide()
+  end
+end
+
+-- Test-Zugriff: hervorgehobener Platz oder nil
+function ActionBars.HighlightedSlot()
+  return highlight and highlight:IsShown() and highlight.slot or nil
+end
+
+---------------------------------------------------------------------------
 -- Reichweite
 ---------------------------------------------------------------------------
 local outOfRange = {}  -- Knopf -> true, solange rot gefärbt

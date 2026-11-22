@@ -61,9 +61,17 @@ expectTrue("keine Zeilen mehr: Fenster zu", not addon.Hints.IsShown())
 OldSpellRanks.ClearIgnored()
 expect("wieder da", #OldSpellRanks.Find(), 1)
 
--- Neuer Rang ersetzt: nichts mehr alt
-wow.state.actions[1] = { "spell", FROSTBOLT_2 }
-wow.state.actions[5] = nil
+-- LT-409: je Klick ein Platz mit dem alten Rang (Makro und Gegenstand bleiben)
+local frost = OldSpellRanks.Find()[1]
+expect("Upgrade-Ziel höchster Rang", frost.upgradeID, FROSTBOLT_2)
+expect("beide Plätze", table.concat(frost.slots, ","), "1,5")
+expect("erster Klick: noch ein Platz übrig", OldSpellRanks.UpgradeNext(frost), false)
+expect("Platz 1 neu", wow.state.actions[1][2], FROSTBOLT_2)
+expect("Platz 5 noch alt", wow.state.actions[5][2], FROSTBOLT_1)
+expect("nächster Platz", OldSpellRanks.NextSlot(frost), 5)
+expect("zweiter Klick: fertig", OldSpellRanks.UpgradeNext(frost), true)
+expect("Platz 5 neu", wow.state.actions[5][2], FROSTBOLT_2)
+expect("Gegenstand unberührt", wow.state.actions[4][1], "item")
 expect("ersetzt: nichts", #OldSpellRanks.Find(), 0)
 
 -- Retail kennt keine Ränge

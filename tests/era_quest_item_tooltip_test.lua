@@ -4,9 +4,11 @@ local L = addon.L
 local QuestItemTooltip = addon.QuestItemTooltip
 
 local pelts = { text = "Wolfspelz: 3/8", finished = false, type = "item" }
+local stew = { text = "Salziger Meeresfrüchteeintopf: 0/1", finished = false, type = "item" }
 wow.state.questLog = {
   { title = "Wald", isHeader = true },
   { questID = 50, title = "Pelze", objectives = { pelts, { text = "Wolf getötet: 1/5", finished = false, type = "monster" } } },
+  { questID = 60, title = "Eintopf", objectives = { stew } },
 }
 C_QuestLog.IsQuestFlaggedCompleted = function(questID) return questID == 40 end
 
@@ -20,6 +22,10 @@ wow.fire("QUEST_LOG_UPDATE")
 
 expect("gelernt: offene Quest mit Stand", QuestItemTooltip.Line(7100, "Pelzstück"), string.format(L.QUEST_ITEM_FOR_QUEST, "Pelze (3/8)"))
 expect("aus dem Zieltext", QuestItemTooltip.Line(7200, "Wolfspelz"), string.format(L.QUEST_ITEM_FOR_QUEST, "Pelze (3/8)"))
+expect("nur ganze Wörter: Salz", QuestItemTooltip.Line(7400, "Salz"), nil)
+expect("nur ganze Wörter: Pelz", QuestItemTooltip.Line(7500, "Pelz"), nil)
+expect("ganzer Name mit Umlaut", QuestItemTooltip.Line(7600, "Salziger Meeresfrüchteeintopf"),
+  string.format(L.QUEST_ITEM_FOR_QUEST, "Eintopf (0/1)"))
 expect("Tötungsziel zählt nicht", QuestItemTooltip.Line(7300, "Wolf getötet"), nil)
 expect("abgegeben: verkaufbar", QuestItemTooltip.Line(6000, "Altes Zahnrad"), L.QUEST_ITEM_DONE)
 expect("fremder Gegenstand", QuestItemTooltip.Line(9999, "Leinenstoff"), nil)

@@ -1,10 +1,10 @@
--- Prüfungen und Ereignis-Proben für die offenen Punkte in ManualToCheck.md: was dort sonst ein Mensch im Spiel
+-- Prüfungen und Ereignis-Proben für offene Vikunja-Tickets (Label „Im Spiel prüfen“): was sonst ein Mensch im Spiel
 -- ablesen müsste (Werte, Zustände, Einstellungen, Entscheidungen der Module), steht nach /lt debug check bzw. mit
 -- laufendem /lt debug log im Debug-Log. Die Entscheidungen selbst schreiben die Module mit ns.Debug, Chatzeilen
 -- (ns.Print) stehen als Bereich "print" darin. Lädt nach allen Modulen; die Prüfungen lesen nur, ändern nichts und
 -- rufen keine geschützten Funktionen.
--- Namen: "<Roadmap>.<Bereich>.<Was>" (Nummer = Roadmap-Punkt), allgemeine ohne Nummer. ManualToCheck.md nennt je
--- Punkt die Namen, die ihn beantworten.
+-- Namen: "<Roadmap>.<Bereich>.<Was>" (Nummer = Roadmap-Punkt), allgemeine ohne Nummer. Das Ticket nennt die Namen,
+-- die es beantworten.
 local _, X = ...
 local ns = X.LT  -- Namespace von Level Time (LevelTimerAPI); ohne Level Time gibt es keinen Debug-Teil
 if not ns then return end
@@ -1776,29 +1776,6 @@ check("LT352.lfg.filters", function()
     activeEntry = ns.LFGSearch.ActiveEntry() ~= nil, windowShown = ns.LFGWindow and ns.LFGWindow.IsShown() or false }
 end)
 
--- LT-387: Dungeon-Guide jederzeit. Welche Dungeons stehen in der Auswahl (Namen in der Client-Sprache? unnamed =
--- Karten ohne Namen, noRange = ohne Levelbereich, stehen am Ende), Vorauswahl nach Level und was das Fenster zeigt
-local GUIDE_SAMPLE = 5
-check("LT387.guide.anytime", function()
-  local list, sample, unnamed, noRange = ns.DungeonGuide.Dungeons(), {}, 0, 0
-  for index, dungeon in ipairs(list) do
-    if not dungeon.name or dungeon.name == "" then unnamed = unnamed + 1 end
-    local ranged = dungeon.minLevel ~= math.huge
-    if not ranged then noRange = noRange + 1 end
-    if index <= GUIDE_SAMPLE or index == #list then
-      sample[#sample + 1] = { index = index, mapID = dungeon.mapID, name = dungeon.name,
-        range = ranged and (dungeon.minLevel .. "-" .. dungeon.maxLevel) or "?" }
-    end
-  end
-  local suggested = ns.DungeonGuide.SuggestedMapID()
-  local pageIndex, pages, name, mapID = ns.DungeonGuideWindow.Current()
-  return { available = ns.DungeonGuide.IsAvailable(), level = read("UnitLevel", "player"), count = #list, unnamed = unnamed,
-    noRange = noRange, sample = sample, suggested = suggested,
-    suggestedName = suggested and ns.InstanceInfo.MapName(suggested) or false, auto = ns.db.dungeonGuideAuto,
-    shown = ns.DungeonGuideWindow.IsShown(), page = pageIndex, pages = type(pages) == "table" and #pages or 0,
-    shownName = name, shownMapID = mapID }
-end)
-
 -- LT-393: Liefert das Dungeonkompendium Bilder für die Guide-Dungeons? found/missing = Guide-Dungeons mit/ohne Bild
 -- (missing mit Namen, höchstens SAMPLE), journal = Kompendium-API vorhanden, total = alle gefundenen Instanzbilder
 local ART_SAMPLE = 10
@@ -1812,7 +1789,10 @@ check("LT393.dungeonArt.coverage", function()
       missing[#missing + 1] = dungeon.mapID .. " " .. tostring(dungeon.name)
     end
   end
-  return { journal = journal, total = total, found = found, missing = missing }
+  -- Rohwerte des Kompendiums, falls total 0 ist: Erweiterungen, gewählte, Instanzen je Erweiterung, erste Instanz
+  local raw = { tiers = call("EJ_GetNumTiers"), current = call("EJ_GetCurrentTier"),
+    loaded = call("C_AddOns.IsAddOnLoaded", "Blizzard_EncounterJournal"), first = { call("EJ_GetInstanceByIndex", 1, false) } }
+  return { journal = journal, total = total, found = found, missing = missing, raw = raw }
 end)
 
 -- LT-395: Symbole aus Zauber-IDs (UI/Options/Icons.lua, Mechanik-Typen): kennt der Client jeden Zauber und sein
@@ -1827,6 +1807,72 @@ check("LT395.icons.spells", function()
   end
   table.sort(missing)
   return { spells = count, missing = missing }
+end)
+
+-- LT-404: Zauber-Links im Dungeon Guide verlinken den ersten **Namen** einer Mechanik-Zeile mit deren Zauber-ID. Passt
+-- der Clientname der ID zum Namen im Text (Text in Client-Sprache)? unknown = ID ohne Namen im Client, mismatch =
+-- Beispiele "ID Client | Text" (höchstens SPELL_LINK_SAMPLE), mismatches = Anzahl aller Abweichungen,
+-- unknownIDs = Beispiel-IDs ohne Clientnamen (höchstens UNKNOWN_ID_SAMPLE)
+local SPELL_LINK_SAMPLE = 80
+local UNKNOWN_ID_SAMPLE = 40  -- Beispiele für unknownIDs
+check("LT404.guide.spellLinks", function()
+  if not ns.Mechanics then return { available = false } end
+  local textIndex = GetLocale() == "deDE" and 3 or 4
+  local linked, unknown, mismatch, mismatches, unknownIDs = 0, 0, {}, 0, {}
+  for _, list in pairs(ns.Mechanics) do
+    for _, mechanic in ipairs(list) do
+      local marked = mechanic[1] > 0 and mechanic[textIndex]:match("%*%*(.-)%*%*")
+      if marked then
+        linked = linked + 1
+        local name = C_Spell.GetSpellName(mechanic[1])
+        if not name or ns.IsSecret(name) then
+          unknown = unknown + 1
+          if #unknownIDs < UNKNOWN_ID_SAMPLE then unknownIDs[#unknownIDs + 1] = mechanic[1] end
+        elseif name:lower() ~= marked:lower() then
+          mismatches = mismatches + 1
+          if #mismatch < SPELL_LINK_SAMPLE then mismatch[#mismatch + 1] = mechanic[1] .. " " .. name .. " | " .. marked end
+        end
+      end
+    end
+  end
+  return { available = true, linked = linked, unknown = unknown, unknownIDs = unknownIDs, mismatches = mismatches,
+    mismatch = mismatch }
+end)
+
+-- LT-408: Sprache je Gruppe über den Realm? Stehen Realms in den Leader-Namen der aktuellen Suchergebnisse (nach
+-- einer Suche ausführen), und welche? realms = Realm -> Anzahl Leader (höchstens REALM_SAMPLE), own = eigener Realm
+local REALM_SAMPLE = 15
+check("LT408.lfg.realms", function()
+  local lfg = C_LFGList
+  if not (lfg and lfg.GetFilteredSearchResults and lfg.GetSearchResultInfo) then return { available = false } end
+  local _, ids = lfg.GetFilteredSearchResults()
+  local total, withRealm, realms, distinct = 0, 0, {}, 0
+  for _, resultID in ipairs(ids or {}) do
+    local info = lfg.GetSearchResultInfo(resultID)
+    local leader = type(info) == "table" and info.leaderName
+    if leader and not ns.IsSecret(leader) then
+      total = total + 1
+      local realm = leader:match("%-(.+)$")
+      if realm then
+        withRealm = withRealm + 1
+        if not realms[realm] and distinct < REALM_SAMPLE then realms[realm], distinct = 0, distinct + 1 end
+        if realms[realm] then realms[realm] = realms[realm] + 1 end
+      end
+    end
+  end
+  return { available = true, leaders = total, withRealm = withRealm, realms = realms,
+    own = GetNormalizedRealmName and GetNormalizedRealmName() or GetRealmName() }
+end)
+
+-- LT-413: Forever (Build 71037) liefert einen leeren Realmnamen. Welche Quelle kennt den Realm noch? used = Realm,
+-- den Level Time nutzt (Client oder gespeicherter Eintrag mit derselben GUID)
+check("LT413.realm.sources", function()
+  local fullName = api("UnitFullName")
+  local ok, _, fullRealm = false, nil, nil
+  if type(fullName) == "function" then ok, _, fullRealm = pcall(fullName, "player") end
+  return { realmName = read("GetRealmName"), normalized = read("GetNormalizedRealmName"),
+    fullRealm = ok and readable(fullRealm) or nil, realmID = read("GetRealmID"), guid = read("UnitGUID", "player"),
+    used = ns.Database.RealmName(), key = ns.characterKey }
 end)
 
 -- LT-335..338: Gruppen-Sync nur mit Gruppe/Gilde/Freunden. Gibt es die Gruppen-APIs (sonst bleiben Abgänger in der
@@ -1847,8 +1893,143 @@ check("LT338.sync.groupApi", function()
 end)
 
 -- Helfer für die Prüfungen nach Bereich (ChecksUI.lua, ChecksQuests.lua, ChecksRuns.lua, laden danach)
+-- LT-321 (/lt debug check nach einem Forever-Dungeon): welche Quelle hat welchen Boss gezählt (id:Quelle), und kamen
+-- ENCOUNTER_START/ENCOUNTER_END/BOSS_KILL überhaupt an (Zähler dieser Sitzung)?
+check("LT321.bossKills.sources", function()
+  local sources = ns.InstanceBosses.Sources()
+  return { counted = table.concat(sources.counted, ","), encounterStart = sources.encounterStart,
+    encounterEnd = sources.encounterEnd, bossKill = sources.bossKill, deathSource = ns.InstanceBosses.DeathSource() }
+end)
+
 DebugLog.Helpers = {
   plain = plain, chunked = chunked, method = method, frameName = frameName, pointOf = pointOf, frameState = frameState,
   framesByName = framesByName, recentEntries = recentEntries, readable = readable, read = read, readXY = readXY,
   fieldsOf = fieldsOf,
 }
+
+-- LT-405/406: Recap während des Laufs. Gibt es einen offenen Lauf (isCurrent), baut der Recap daraus Spieler und Gegner?
+-- Einstellungen der Setup-Assistent-Schalter für Guide und Recap
+check("LT405.recap.run", function()
+  if not (ns.DungeonRecapWindow and ns.InstanceRecap) then return { available = false } end
+  local log = ns.History.GetInstanceLog(ns.characterKey)
+  local record = log[1]
+  local result = { available = true, runs = #log, current = record and record.isCurrent or false,
+    windowShown = ns.DungeonRecapWindow.IsShown(),
+    settings = { recapAutoOpen = ns.db.dungeonRecapAutoOpen, guideAuto = ns.db.dungeonGuideAuto,
+      runTracker = ns.db.showRunTracker } }
+  if record then
+    result.players, result.mobs = #ns.InstanceRecap.Players(record), #ns.InstanceRecap.Mobs(record)
+    result.completed = ns.InstanceRuns.IsCompleted(record)
+  end
+  return result
+end)
+
+-- LT-407: Gruppensuche-Dungeons nach Level aufsteigend (Mindestlevel, dann Höchstlevel; ohne Mindestlevel am Ende)?
+-- unsorted = Beispiele "Name min-max" an Stellen, wo die Reihenfolge bricht; levels = erste Einträge
+check("LT407.lfg.levelOrder", function()
+  if not (ns.LFGSearch and ns.LFGSearch.IsAvailable()) then return { available = false } end
+  local result = { available = true, categories = {} }
+  for _, category in ipairs(ns.LFGSearch.Categories()) do
+    local list = ns.LFGSearch.Activities(category.id)
+    local unsorted, levels, noMin = {}, {}, 0
+    for index, activity in ipairs(list) do
+      if activity.minLevel == 0 then noMin = noMin + 1 end
+      if #levels < 6 then levels[#levels + 1] = activity.name .. " " .. activity.minLevel .. "-" .. activity.maxLevel end
+      local previous = list[index - 1]
+      if previous and previous.minLevel > 0 and activity.minLevel > 0 and activity.minLevel < previous.minLevel
+          and #unsorted < 5 then
+        unsorted[#unsorted + 1] = activity.name .. " " .. activity.minLevel .. "-" .. activity.maxLevel
+      end
+    end
+    result.categories[#result.categories + 1] = { id = category.id, name = category.name, count = #list,
+      noMinLevel = noMin, unsorted = unsorted, levels = levels }
+  end
+  return result
+end)
+
+-- LT-411: Dungeonquests "alle markieren": Zustand des Hinweisfensters (Einträge mit Ort, deren Zonen mit Elternkarte,
+-- gesetzte Kartenpunkte)
+check("LT411.dungeonQuests.markAll", function()
+  local hint = ns.DungeonQuestHint
+  if not hint then return { available = false } end
+  local rows, entries = hint.Rows()
+  local zones, withPlace = {}, 0
+  for _, entry in pairs(entries or {}) do
+    if entry.place then
+      withPlace = withPlace + 1
+      local id = entry.place.uiMapID
+      if id and zones[id] == nil then
+        local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(id)
+        zones[id] = info and { name = info.name, parent = info.parentMapID } or false
+      end
+    end
+  end
+  return { available = true, shown = hint.IsShown(), rows = #(rows or {}), withPlace = withPlace, zones = zones,
+    pins = hint.PinCount(), getMapInfo = type(C_Map and C_Map.GetMapInfo) }
+end)
+
+-- Elite-Einblendung: nur allein und je Gegnerart höchstens alle 5 Minuten. Zustand, auf den der Code prüft
+check("LT416.alerts.eliteGate", function()
+  local inInstance, kind = IsInInstance()
+  return { setting = ns.db.alertEliteKill, inGroup = IsInGroup(), instanceType = inInstance and kind or nil,
+    wouldShow = ns.db.alertEliteKill and not IsInGroup() and not (inInstance and (kind == "party" or kind == "raid")) }
+end)
+
+-- Debug-Log-Aufräumen: Handwerkswaren sind keine Questreste (class 7 darf nicht vorkommen), Dungeonquest-Titel der
+-- aktuellen Instanz in Spielsprache (untitled = Platzhalter "#id")
+check("LT416.cleanup.leftoversTitles", function()
+  local result = { available = true, leftovers = {}, untitled = {} }
+  if ns.QuestLeftovers then
+    for _, entry in ipairs(ns.QuestLeftovers.InBags()) do
+      if #result.leftovers < 8 then
+        result.leftovers[#result.leftovers + 1] = { id = entry.itemID, name = entry.name,
+          class = C_Item and C_Item.GetItemInfoInstant and select(6, C_Item.GetItemInfoInstant(entry.itemID)) }
+      end
+    end
+  end
+  local mapID = select(8, GetInstanceInfo())
+  if mapID and ns.DungeonQuests and ns.DungeonQuests.IsAvailable() then
+    for _, quest in ipairs(ns.DungeonQuests.OwnQuests(mapID)) do
+      if quest.title:match("^#") and #result.untitled < 8 then result.untitled[#result.untitled + 1] = quest.questID end
+    end
+  end
+  return result
+end)
+
+-- LT-349: Wasserschild-Anzeige nur bei eingeklappter Buffleiste; was sieht sie gerade?
+check("LT349.waterShield.display", function()
+  local CollapsedBuffs = ns.CollapsedBuffs
+  local point, relativeTo = CollapsedBuffs.Frame():GetPoint(1)
+  local shield
+  local aurasReadable = ns.Auras.ForEachBuff(function(aura)
+    if not shield and CollapsedBuffs.Matches(aura) then
+      shield = { name = readable(aura.name), applications = readable(aura.applications),
+        countText = readable(CollapsedBuffs.DisplayCount(aura)) }
+    end
+  end)
+  return {
+    barCollapsed = CollapsedBuffs.IsBarCollapsed(), aurasReadable = aurasReadable == true, aura = shield or "none",
+    restricted = ns.Auras.Restricted(), shown = CollapsedBuffs.ShownCount(),
+    anchor = point and { point = point, to = relativeTo and relativeTo.GetName and relativeTo:GetName() or "?" } or "none",
+  }
+end)
+
+-- LT-278 (/lt debug check nach ein paar Kämpfen in einem Dungeon, Forever): Gegner-Zauber aus UNIT_SPELLCAST_* ohne
+-- Kampflog: Ereignisse gesehen (castEvents), Zauber-IDs lesbar oder geheim, NPCs mit Zaubern, Beispiel
+check("LT278.spells.casts", function()
+  local status = X.CombatSpells.Status()
+  local npcs, sample = 0, nil
+  for _, instance in pairs((X.db and X.db.instances) or {}) do
+    for npcID, spells in pairs(instance.spells or {}) do
+      npcs = npcs + 1
+      if not sample then
+        for key, spell in pairs(spells) do
+          if key ~= "count" then sample = { npc = npcID, spell = key, count = spell.count } break end
+        end
+      end
+    end
+  end
+  return { unitCasts = status.unitCasts, castEvents = status.castEvents, spellIDReadable = status.spellIDReadable,
+    spellIDSecret = status.spellIDSecret, secretGuids = status.secretGuids, npcsWithSpells = npcs,
+    sample = sample or "none" }
+end)

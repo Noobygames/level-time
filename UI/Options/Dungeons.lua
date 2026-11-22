@@ -20,6 +20,8 @@ if ns.DungeonQuests.IsAvailable() then
     toggle("DUNGEON_QUEST_HINT_AUTOCLOSE_TOGGLE", "dungeonQuestHintAutoClose"),
     toggle("INSTANCE_QUEST_CHECK_TOGGLE", "instanceQuestCheck", ns.InstanceQuestCheck.IsAvailable),
     toggle("DUNGEON_QUEST_GIVERS_TOGGLE", "dungeonQuestGivers", ns.DungeonQuestGivers.IsAvailable),
+    toggle("DUNGEON_QUEST_TRIVIAL_NEARBY_TOGGLE", "dungeonQuestTrivialNearby", ns.TrivialChainGivers.IsAvailable),
+    toggle("DUNGEON_QUEST_TRIVIAL_TRACKING_TOGGLE", "dungeonQuestTrivialTracking", ns.TrivialChainGivers.CanTrack),
     requires(toggle("DUNGEON_QUEST_MINIMAP_TOGGLE", "dungeonQuestMinimap", ns.DungeonQuestMinimap.IsAvailable),
       "dungeonQuestGivers"),
     advanced(requires(toggle("DUNGEON_QUEST_MINIMAP_EDGE_TOGGLE", "dungeonQuestMinimapEdge",
@@ -113,6 +115,12 @@ if ns.Client.IsForever() then
   end
   addToggles(languageToggles)
   addButton("LFG_LANGUAGES_RESTORE", function() ns.LFGLanguages.Restore() end)
+  addSection("SECTION_LFG_WHISPER")
+  O.builder.AddTextInput({
+    label = "LFG_WHISPER_TEMPLATE", width = 320,
+    get = function(db) return db.lfgWhisperTemplate end,
+    set = function(text) ns.Set("lfgWhisperTemplate", strtrim(text)) end,
+  })
   addSection("SECTION_LFG_WINDOW")
   addToggles({ toggle("LFG_WINDOW_TOGGLE", "lfgMinimapButton", ns.LFGSearch.IsAvailable) })
 end

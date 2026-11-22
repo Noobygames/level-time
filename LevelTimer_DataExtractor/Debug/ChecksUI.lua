@@ -87,32 +87,6 @@ end
 -- Einstellungsfenster
 ---------------------------------------------------------------------------
 
--- LT-350 (auch LT-348 fr/es): Voreinstellungs-, Fußzeilen-, Reiter- und Seitenleisten-Knöpfe, deren Text nicht in
--- den Knopf passt, und Rahmen, die rechts über das Fenster ragen. Je Sprache einmal ausführen (Fenster offen oder zu).
-check("LT350.options.textFit", function()
-  return fitReport(ns.OptionsWindow.panel)
-end)
-
--- LT-350 (Einstellungen nach Themen): alle Reiter und Unterseiten in Fensterreihenfolge (Key, Text, Zahl der Standard-Werte), Klasse
--- (Munition nur Jäger) und wo feste Suchbegriffe stehen (zeigt, auf welcher Seite ein Baustein jetzt liegt)
-local PAGE_PROBES = { "Munition", "Lagerfeuer", "Level-Up", "Beute", "Blizzard", "Minimap", "Instanzbericht" }
-check("LT350.options.pages", function()
-  local builder, pages, hits = ns.OptionsWindow, {}, {}
-  for index, page in ipairs(builder.PageKeys()) do
-    pages[index] = { tab = page.tab, sub = page.sub, text = ns.L[page.sub or page.tab],
-      resets = page.sub and builder.ResetCount(page.sub) or nil }
-  end
-  for _, term in ipairs(PAGE_PROBES) do
-    hits[term] = {}
-    for index, entry in ipairs(builder.Search(term)) do
-      if index > 6 then break end
-      hits[term][index] = builder.WhereOf(entry)
-    end
-  end
-  return { class = select(2, UnitClass("player")), language = ns.db.language, tabsHidden = builder.TabsHidden(),
-    advanced = ns.db.optionsAdvanced, pages = chunked(pages), hits = hits }
-end)
-
 -- LT223: offene Auswahlliste (Lib/Dropdown.lua): Zeilen, gewählter und hervorgehobener Eintrag, Suchtext. Liste offen lassen.
 local MAX_DROPDOWN_ROWS = 12
 check("LT223.dropdown.state", function()
@@ -188,14 +162,6 @@ end
 hooksecurefunc(ns.Alerts, "Raise", function(kind, value, body) alertLine("ui.alert.raise", kind, value, body) end)
 hooksecurefunc(ns.Alerts, "ShowSampleMessage", function(message, _, _, sound) alertLine("ui.alert.sample", message, sound) end)
 
--- LT85: Einrichtungsassistent: sichtbar, Texte gegen die Fensterbreite (fr/es), Schritt und Layout
-check("LT85.welcome.state", function()
-  local SetupWizard = ns.SetupWizard
-  local card = _G[ns.GlobalName("Setup")]
-  local state = SetupWizard.State()
-  return { shown = SetupWizard.IsShown(), report = type(card) == "table" and fitReport(card) or nil,
-    cardWidth = number(method(card, "GetWidth")), step = state.step, steps = #state.steps, layout = ns.db.windowLayout }
-end)
 hooksecurefunc(ns.SetupWizard, "Show", function()
   if DebugLog.IsEnabled() then
     write({ area = "comfort", event = "ui.welcome",
@@ -316,4 +282,42 @@ hooksecurefunc(ns.InfoCard, "Show", function()
   local subject = ns.InfoCard.Subject()
   write({ area = "comfort", event = "ui.infoCard", extra = { subject = subject,
     url = subject and subject.id and ns.InfoCard.Url(subject.kind, subject.id) or nil } })
+end)
+
+-- LT390: Flüstervorlage der Gruppensuche: aktive Vorlage, ausgefüllter Beispieltext für den Spieler, Flüster-API da
+check("LT390.lfg.templates", function()
+  local LFGSearch = ns.LFGSearch
+  local text = LFGSearch.WhisperText({ activityNames = { "Sample Dungeon" }, leaderName = "Leader" })
+  return { template = LFGSearch.WhisperTemplate(), custom = ns.db.lfgWhisperTemplate, sample = text, sampleLength = #text,
+    sendChatMessage = type(C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage), roleApi = type(UnitGroupRolesAssigned),
+    role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or nil }
+end)
+
+-- LT389: Flüster-Verlauf der Gruppensuche: Einträge, letzte Beispiele und ob Flüster-Ereignisse lesbare Namen liefern
+check("LT389.lfg.whisperLog", function()
+  local LFGWhispers = ns.LFGWhispers
+  if not LFGWhispers then return { available = false } end
+  local entries = LFGWhispers.GetEntries()
+  local last = {}
+  for index = 1, math.min(3, #entries) do
+    local entry = entries[index]
+    last[index] = { name = entry.name, outgoing = entry.outgoing, length = #entry.text }
+  end
+  local stats = LFGWhispers.Stats()
+  return { entries = #entries, max = LFGWhispers.MAX_ENTRIES, last = last, eventsSeen = stats.seen,
+    eventsReadable = stats.readable, contacted = stats.contacted }
+end)
+
+-- LT392: Mitspieler der Gruppensuche: Anzahl bewertet/zuletzt/Abbrecher, Beispiele, ob Gruppenlisten-Namen lesbar sind
+check("LT392.lfg.players", function()
+  local LFGPlayers = ns.LFGPlayers
+  if not LFGPlayers then return { available = false } end
+  local stats = LFGPlayers.Stats()
+  local sample = {}
+  for index, entry in ipairs(LFGPlayers.GetList()) do
+    if index > 3 then break end
+    sample[index] = { name = entry.name, rating = entry.rating, leaves = entry.leaves }
+  end
+  return { recent = stats.total, rated = stats.rated, leavers = stats.leavers, sample = sample,
+    rosterNamesRead = stats.rosterReads, rosterNamesSecret = stats.rosterSecret }
 end)

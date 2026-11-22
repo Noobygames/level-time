@@ -41,6 +41,7 @@ local ICON_DEAD = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull"
 local ICON_ALIVE = "Interface\\Icons\\INV_Misc_Head_Dragon_01"
 local localeIndex  -- Spalte der Client-Sprache in ns.BossData.locales (unbekannte Sprache: 1 = Englisch)
 
+local sources = { counted = {}, encounterStart = 0, encounterEnd = 0, bossKill = 0 }  -- LT-321 für die Debug-Prüfung
 local lastEvent  -- letzte Meldung für die Debug-Prüfung: { source, id, name, success, counted }
 
 local function nameColumn()
@@ -296,6 +297,7 @@ local function recordKill(id, source)
     run = ns.Instances.GetCurrentRun()
   end
   if InstanceBosses.Killed(run)[id] then return false end
+  sources.counted[#sources.counted + 1] = id .. ":" .. source
   run.bosses = run.bosses and (run.bosses .. SEPARATOR .. id) or tostring(id)
   local split = tostring(math.floor(ns.Instances.GetRunSeconds(run)))
   run.splits = run.splits and (run.splits .. SEPARATOR .. split) or split
@@ -330,7 +332,22 @@ local function normalizeForRun(encounterID)
   return InstanceBosses.Normalize(run and InstanceBosses.List(run.mapID, run.difficultyID), encounterID)
 end
 
+ns.RegisterEvent("ENCOUNTER_START", function() sources.encounterStart = sources.encounterStart + 1 end)
+
+-- BOSS_KILL(encounterID, encounterName) kommt nur bei einem Sieg (forever EncounterInfoDocumentation.lua), falls
+-- ENCOUNTER_END ausbleibt (LT-321); die Zählung ist über recordKill dedupliziert
+ns.RegisterEvent("BOSS_KILL", function(encounterID, encounterName)
+  sources.bossKill = sources.bossKill + 1
+  if ns.IsSecret(encounterID) or type(encounterID) ~= "number" then return end
+  local counted = recordKill(normalizeForRun(encounterID), "bosskill")
+  if counted then
+    lastEvent = { source = "bosskill", id = encounterID, success = SUCCESS, counted = counted,
+      name = not ns.IsSecret(encounterName) and encounterName or nil }
+  end
+end)
+
 ns.RegisterEvent("ENCOUNTER_END", function(encounterID, encounterName, _, _, success)
+  sources.encounterEnd = sources.encounterEnd + 1
   if ns.IsSecret(encounterID) or ns.IsSecret(success) then return end
   local counted = success == SUCCESS and type(encounterID) == "number"
     and recordKill(normalizeForRun(encounterID), "encounter")
@@ -424,6 +441,45 @@ elseif ns.BossData then
   ns.RegisterEvent("UNIT_DIED", function(guid)
     if npcIDOf(guid) then onEnemyDied(guid, nameOfGuid(guid)) end
   end)
+end
+
+-- LT-321: UNIT_DIED liefert in Forever-Instanzen nur geheime GUIDs. Dann zählt ein Boss, dessen Einheit (boss1..5,
+-- Ziel, Fokus, Mouseover, Namensplaketten) laut UnitIsDead tot ist und dessen lesbarer Name in der Bossliste steht.
+local DEAD_CHECK_UNITS = { "boss1", "boss2", "boss3", "boss4", "boss5", "target", "focus", "mouseover" }
+
+local function bossOfDeadUnit(list, unit)
+  local exists, dead = UnitExists(unit), UnitIsDead(unit)
+  if ns.IsSecret(exists) or ns.IsSecret(dead) or not exists or not dead then return nil end
+  local name = UnitName(unit)
+  if type(name) ~= "string" or ns.IsSecret(name) then return nil end
+  return bossByName(list, name), name
+end
+
+local function checkDeadUnits()
+  local run = ns.Instances.GetCurrentRun()
+  if not run or not ns.Instances.IsRunning() then return end
+  local list = InstanceBosses.List(run.mapID, run.difficultyID)
+  if not list then return end
+  local function check(unit)
+    local id, name = bossOfDeadUnit(list, unit)
+    -- nur ein neuer Kill überschreibt lastEvent (die tote Einheit bleibt sekundenlang sichtbar)
+    local counted = id and recordKill(id, "unit")
+    if counted then
+      lastEvent = { source = "unit", id = id, name = name, counted = counted }
+    end
+  end
+  for _, unit in ipairs(DEAD_CHECK_UNITS) do check(unit) end
+  for unit in pairs(ns.NamePlates.Active()) do check(unit) end
+end
+
+if ns.BossData and not getCombatLogEventInfo then
+  ns.Every(1, checkDeadUnits)
+end
+InstanceBosses.CheckDeadUnits = checkDeadUnits
+
+-- Für den Debug-Check LT321.bossKills.sources: wer hat welchen Boss dieser Sitzung gezählt, kamen die Encounter-Events
+function InstanceBosses.Sources()
+  return sources
 end
 
 -- Für den Debug-Check LT267.combatlog.api: Quelle des Fallbacks über gestorbene Gegner

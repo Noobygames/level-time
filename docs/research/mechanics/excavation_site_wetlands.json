@@ -17,9 +17,11 @@
       "mechanics": [
         {"spellID": 0, "spell": "Raptor wave", "type": "adds", "en": "Kill the raptor wave before he arrives", "de": "Raptorwelle vor seiner Ankunft töten", "version": "forever"},
         {"spellID": 0, "spell": "Fear", "type": "survive", "en": "Fears the tank repeatedly: a Tremor Totem helps", "de": "Versetzt den Tank mehrfach in Furcht: Totem des Erdstoßes hilft", "version": "forever"},
+        {"spellID": 3427, "spell": "Infected Wound", "type": "dispel", "en": "His two Thicket Hunters apply **Infected Wound**, raising physical damage taken: dispel it quickly (unverified)", "de": "Seine zwei Dickichtjäger wirken **Infizierte Wunde**, die erlittenen physischen Schaden erhöht: schnell bannen (ungeprüft)", "version": "forever"},
         {"spellID": 12054, "spell": "Rend", "type": "tank", "en": "**Rend** bleeds the tank: keep healing steady", "de": "**Verwunden** lässt den Tank bluten: gleichmäßig heilen", "version": "forever"},
         {"spellID": 14100, "spell": "Terrifying Roar", "type": "survive", "en": "Roar fears nearby players: use fear protection", "de": "Gebrüll lässt Spieler fliehen: Furchtschutz nutzen", "version": "forever"},
         {"spellID": 18501, "spell": "Enrage", "type": "tank", "en": "Enrages at low health: save cooldowns for the end", "de": "Wütet bei wenig Leben: Abklingzeiten fürs Ende aufheben", "version": "forever"}
+
       ]
     },
     {
@@ -27,7 +29,10 @@
       "npcID": 260326,
       "mechanics": [
         {"spellID": 0, "spell": "Threat reset", "type": "tank", "en": "Drops threat and swaps targets: damage slows down, tank takes him back", "de": "Setzt Bedrohung zurück und wechselt Ziel: Schaden drosseln, Tank holt ihn zurück", "version": "forever"},
-        {"spellID": 15588, "spell": "Thunderclap", "type": "positioning", "en": "**Thunderclap** slows nearby players: ranged keep distance", "de": "**Donnerknall** verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"}
+        {"spellID": 15588, "spell": "Thunderclap", "type": "positioning", "en": "**Thunderclap** slows nearby players: ranged keep distance", "de": "**Donnerknall** verlangsamt Spieler in der Nähe: Fernkämpfer auf Abstand", "version": "forever"},
+        {"spellID": 8374, "spell": "Arcing Smash", "type": "positioning", "en": "**Arcing Smash** hits a cone in front of him: tank stands apart from the group", "de": "**Bogenschlag** trifft einen Kegel vor ihm: Tank steht abseits der Gruppe", "version": "forever"},
+        {"spellID": 10101, "spell": "Knock Away", "type": "tank", "en": "**Knock Away** throws the tank back: expect to lose melee contact", "de": "**Wegschlagen** schleudert den Tank zurück: Nahkontakt geht kurz verloren", "version": "forever"},
+        {"spellID": 11876, "spell": "War Stomp", "type": "survive", "en": "**War Stomp** stuns and knocks back nearby players for 5 seconds: save stun breaks and healing", "de": "**Kriegsdonner** betäubt und stößt Spieler in der Nähe 5 Sekunden zurück: Heilung bereithalten", "version": "forever"}
       ]
     },
     {

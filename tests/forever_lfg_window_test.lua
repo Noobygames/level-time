@@ -6,6 +6,8 @@ local LFGWindow = addon.LFGWindow
 
 wow.login({ level = 22 })
 wow.state.questTitles[167] = "Die Bruderschaft"
+-- minLevelSuggestion = Blizzards (Classic-)Vorschlag; Level-Spannen und Sortierung kommen aus den Forever-Daten
+-- (InstanceInfo): Todesminen 18-23, Schattenfang 22-30, Versunkener Tempel 50-60
 wow.state.lfgActivities = {
   [900] = { mapID = 36, maxNumPlayers = 5, fullName = "Die Todesminen", shortName = "Todesminen", categoryID = 2,
     minLevelSuggestion = 15, maxLevelSuggestion = 24 },
@@ -28,6 +30,15 @@ wow.state.lfgInfo = { [7] = { activityIDs = { 900 }, leaderName = "Brakkus", com
 wow.state.lfgMemberCounts = { [7] = { TANK = 1, HEALER = 0, DAMAGER = 1 } }
 wow.state.lfgWindow = { categories = { [2] = "Dungeons" }, activities = { [2] = { 900, 901, 902 } }, filtered = { 7, 8, 9 } }
 wow.state.lfgLanguages = { filter = { enUS = true, deDE = true }, available = { "enUS", "deDE" }, defaults = { enUS = true } }
+
+-- Dungeonliste nach Level aufsteigend, ohne Levelangabe ganz am Ende (unabhängig von der Reihenfolge der Blizzard-IDs)
+wow.state.lfgActivities[903] = { mapID = 1, fullName = "Ohne Level", shortName = "Ohne Level", categoryID = 2 }
+wow.state.lfgWindow.activities[2] = { 903, 902, 900, 901 }
+local order = {}
+for _, activity in ipairs(addon.LFGSearch.Activities(2)) do table.insert(order, activity.id) end
+expect("Dungeonliste aufsteigend nach Level", table.concat(order, ","), "900,901,902,903")
+wow.state.lfgActivities[903] = nil
+wow.state.lfgWindow.activities[2] = { 900, 901, 902 }
 
 local parts = LFGWindow.Parts()
 local function click(button) button._scripts.OnClick(button, "LeftButton") end
@@ -147,7 +158,7 @@ expect("Alle zuerst", activityEntries[1].key, 0)
 expect("niedrigste Spanne zuerst", activityEntries[2].key, 900)
 expect("dann nach Mindestlevel", activityEntries[3].key, 901)
 expect("höchste zuletzt", activityEntries[4].key, 902)
-expectTrue("Spanne im Text", activityEntries[4].text:find("(40 - 47)", 1, true) ~= nil)
+expectTrue("Spanne im Text", activityEntries[4].text:find("(50 - 60)", 1, true) ~= nil)
 -- LT-326: allein unterwegs zuerst der Abschnitt Gruppen, dann Einzelspieler (je neueste zuerst)
 expect("Kopf Gruppen", parts.rows[1].section, "groups")
 expect("Gruppen-Kopf mit Zahl", parts.rows[1].sectionLabel:GetText(), L.LFG_KIND_GROUPS .. " (1)")
@@ -190,14 +201,15 @@ parts.rows[3]._scripts.OnClick(parts.rows[3], "LeftButton")
 expect("aufgeklappt", parts.rows[4].resultID, 9)
 expect("aufgeklappt: Zeichen", parts.rows[3].collapsed, false)
 
--- "Passend für mich": Level 40 passt nicht zu Level 22; Aktivitäten nach Level-Spanne, Suche nur mit passenden
+-- "Passend für mich": Level 40 passt nicht zu Level 22; Aktivitäten nach Level-Spanne (Todesminen und Schattenfang),
+-- Suche nur mit passenden
 parts.fitCheck:SetChecked(true)
 parts.fitCheck._scripts.OnClick(parts.fitCheck)
-expect("Passend: nur Aktivitäten zum Level", #parts.activityDropdown.entriesFn(), 2)
+expect("Passend: nur Aktivitäten zum Level", #parts.activityDropdown.entriesFn(), 3)
 expect("Passend: Todesminen", parts.activityDropdown.entriesFn()[2].key, 900)
 wow.lfgCalls = {}
 click(parts.searchButton)
-expect("Passend: Suche nur mit passender Aktivität", #wow.lfgCalls[1][8], 1)
+expect("Passend: Suche nur mit passenden Aktivitäten", #wow.lfgCalls[1][8], 2)
 expect("Passend: Aktivität 900", wow.lfgCalls[1][8][1], 900)
 wow.fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 expect("Passend: Level 40 weg", parts.rows[4].resultID, 8)
@@ -286,7 +298,19 @@ expectTrue("Detail: Quest", text:find("Die Bruderschaft", 1, true) ~= nil)
 expect("Detail: Alter als Label-Wert", parts.detailFields.age.value:GetText(), "2m 05s")
 expectTrue("Detail: Level-Spanne", parts.detailFields.level.value:GetText():find("20-23", 1, true) ~= nil)
 click(parts.whisperButton)
-expect("Flüstern an den Leiter", wow.socialActions[#wow.socialActions][2], "Brakkus")
+-- Flüstervorlage (LT-390): Platzhalter, Standardtext, 255-Byte-Grenze, Senden nur auf Klick
+local sent = wow.sentChat[#wow.sentChat]
+expect("Flüstern: Standardvorlage an den Leiter", sent.chatType, "WHISPER")
+expectTrue("Flüstern: Level und Dungeon ersetzt", sent.message:find("22", 1, true) and sent.message:find("Die Todesminen", 1, true))
+expectTrue("Flüstern: keine offenen Platzhalter", not sent.message:find("{", 1, true))
+addon.Set("lfgWhisperTemplate", "{level} {class}  {dungeon} {unbekannt}")
+expectTrue("Vorlage: eigener Text", addon.LFGSearch.WhisperText(addon.LFGSearch.Summary(7)):find("22 .+ Die Todesminen {unbekannt}") ~= nil)
+addon.Set("lfgWhisperTemplate", "Hallo! {class} ({role}), Level {level}.")
+expect("Vorlage: ohne Rolle keine leeren Klammern", addon.LFGSearch.WhisperText(addon.LFGSearch.Summary(7)):find("()", 1, true), nil)
+addon.Set("lfgWhisperTemplate", string.rep("ä", 200))
+local long = addon.LFGSearch.WhisperText()
+expectTrue("Vorlage: höchstens 255 Bytes, kein halbes Zeichen", #long <= 255 and #long % 2 == 0)
+addon.Set("lfgWhisperTemplate", "")
 expect("Gruppe nicht einladbar", parts.inviteButton:IsEnabled(), false)
 parts.rows[5]._scripts.OnClick(parts.rows[5], "LeftButton")
 expect("Einzelspieler einladbar", parts.inviteButton:IsEnabled(), true)
@@ -300,11 +324,12 @@ expect("kein Eintrag", parts.listingStatus:GetText(), L.LFG_LISTING_NONE)
 expect("ohne Aktivität kein Eintragen", parts.postButton:IsEnabled(), false)
 expect("Kategorie vorbelegt", LFGWindow.State().listingCategoryID, 2)
 expect("Liste nur mit passender Aktivität", parts.activityRows[1].activityID, 900)
-expect("Liste: zweite Zeile leer", parts.activityRows[2]:IsShown(), false)
+expect("Liste: Schattenfang passt auch", parts.activityRows[2].activityID, 901)
+expect("Liste: dritte Zeile leer", parts.activityRows[3]:IsShown(), false)
 parts.allLevelsCheck:SetChecked(true)
 parts.allLevelsCheck._scripts.OnClick(parts.allLevelsCheck)
 expect("Alle Stufen: niedrigste Spanne zuerst", parts.activityRows[1].activityID, 900)
-expect("Alle Stufen: Spanne rechts", parts.activityRows[3].level:GetText(), "(40 - 47)")
+expect("Alle Stufen: Spanne rechts", parts.activityRows[3].level:GetText(), "(50 - 60)")
 expect("Alle Stufen: drei Zeilen", parts.activityRows[3].activityID, 902)
 parts.activityRows[1]._scripts.OnClick(parts.activityRows[1], "LeftButton")
 expect("Aktivität gewählt", LFGWindow.State().listingActivities[900], true)
@@ -362,6 +387,65 @@ searchFrame._scripts.OnMouseWheel(searchFrame, -1)
 expect("Mausrad scrollt drei Zeilen", LFGWindow.State().offset, 3)
 searchFrame._scripts.OnMouseWheel(searchFrame, -10)
 expect("Mausrad endet am Listenende", LFGWindow.State().offset, #LFGWindow.State().lines - 5)  -- in Gruppe: 3 Karten, Kopf Gruppen, 1 Karte
+
+-- Flüster-Verlauf (LT-389): nur angeflüsterte Leiter, neueste zuerst, Obergrenze, Klick öffnet den Chat
+local Whispers = addon.LFGWhispers
+wow.fire("CHAT_MSG_WHISPER", "Fremder Text", "Fremder-Realm")
+expect("Verlauf: Fremde nicht", #Whispers.GetEntries(), 0)
+wow.fire("CHAT_MSG_WHISPER_INFORM", sent.message, "Brakkus")
+wow.fire("CHAT_MSG_WHISPER", "Ja, komm mit", "Brakkus-Realm")
+expect("Verlauf: Senden und Antwort", #Whispers.GetEntries(), 2)
+expect("Verlauf: neueste zuerst", Whispers.GetEntries()[1].text, "Ja, komm mit")
+LFGWindow.SetTab(LFGWindow.TAB_WHISPERS)
+expect("Reiter Flüstern zeigt Zeilen", parts.whisperRows[2]:IsShown(), true)
+expect("Reiter: Kopf der Antwort", parts.whisperRows[1].head:GetText():find("Von Brakkus-Realm", 1, true) ~= nil, true)
+click(parts.whisperRows[1])
+expect("Klick öffnet den Chat", wow.socialActions[#wow.socialActions][2], "Brakkus-Realm")
+for i = 1, Whispers.MAX_ENTRIES + 3 do wow.fire("CHAT_MSG_WHISPER", "x" .. i, "Brakkus") end
+expect("Verlauf: Obergrenze", #Whispers.GetEntries(), Whispers.MAX_ENTRIES)
+expect("Prüfung: alle Ereignisse lesbar", Whispers.Stats().readable, Whispers.Stats().seen)
+-- Mitspieler (LT-392): Gruppenliste merkt sich Spieler, Abbrecher nur in einer Instanz, Klick bewertet, Marker in der Suche
+local Players = addon.LFGPlayers
+wow.state.units.party1 = { name = "Brakkus" }
+wow.state.units.party2 = { name = "Lunaria" }
+wow.state.inGroup, wow.state.groupSize = true, 3
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: zwei gemerkt", #Players.GetList(), 2)
+wow.state.units.party2 = nil
+wow.state.groupSize = 2
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: Gehen draußen ist kein Abbruch", Players.Stats().leavers, 0)
+wow.state.units.party2 = { name = "Lunaria" }
+wow.state.groupSize = 3
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.instance = { name = "Die Todesminen", type = "party" }
+wow.state.units.party2 = nil
+wow.state.groupSize = 2
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: Abbrecher in der Instanz", Players.Get("Lunaria").leaves, 1)
+-- Ladebildschirm: Name kurz "Unbekannt" -> niemand wird Abbrecher
+UNKNOWNOBJECT = "Unbekannt"
+wow.state.units.party1 = { name = UNKNOWNOBJECT }
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: unbekannter Name ist kein Abbruch", Players.Get("Brakkus").leaves, nil)
+wow.state.units.party1 = { name = "Brakkus" }
+wow.fire("GROUP_ROSTER_UPDATE")
+wow.state.instance = nil
+LFGWindow.SetTab(LFGWindow.TAB_PLAYERS)
+expect("Reiter Mitspieler zeigt Zeilen", parts.playersRows[2]:IsShown(), true)
+local brakkusRow = parts.playersRows[1].entry.name == "Brakkus" and parts.playersRows[1] or parts.playersRows[2]
+click(brakkusRow)
+expect("Klick: Daumen hoch", Players.Get("Brakkus").rating, Players.UP)
+expect("Marker +", Players.Marker("Brakkus-Realm"):find("+", 1, true) ~= nil, true)
+expect("Marker Abbrecher", Players.Marker("Lunaria"):find("!", 1, true) ~= nil, true)
+click(brakkusRow)
+click(brakkusRow)
+expect("Klick: Bewertung wieder leer", Players.Get("Brakkus").rating, nil)
+Players.CycleRating("Brakkus")
+LFGWindow.SetTab(2)
+LFGWindow.State().selected = nil
+expect("Prüfung: Gruppenlisten-Namen lesbar", Players.Stats().rosterSecret, 0)
+wow.state.inGroup = false
 
 -- Zurück wechselt zur Suche, Seitenfenster gehört zur Suche
 LFGWindow.State().selected = 7
