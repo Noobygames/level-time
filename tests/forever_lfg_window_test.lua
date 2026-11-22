@@ -428,20 +428,29 @@ UNKNOWNOBJECT = "Unbekannt"
 wow.state.units.party1 = { name = UNKNOWNOBJECT }
 wow.fire("GROUP_ROSTER_UPDATE")
 expect("Mitspieler: unbekannter Name ist kein Abbruch", Players.Get("Brakkus").leaves, nil)
-wow.state.units.party1 = { name = "Brakkus" }
+wow.state.units.party1 = { name = "Brakkus", class = "WARRIOR", level = 21, role = "TANK" }
 wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: Klasse gemerkt", Players.Get("Brakkus").class, "WARRIOR")
+expect("Mitspieler: Stufe gemerkt", Players.Get("Brakkus").level, 21)
+expect("Mitspieler: Rolle gemerkt", Players.Get("Brakkus").role, "TANK")
+expect("Mitspieler: gemeinsamer Dungeon", Players.Get("Brakkus").dungeon, "Die Todesminen")
+-- Rolle "NONE" (keine Rollenabfrage) behält die alte
+wow.state.units.party1.role = "NONE"
+wow.fire("GROUP_ROSTER_UPDATE")
+expect("Mitspieler: NONE behält Rolle", Players.Get("Brakkus").role, "TANK")
 wow.state.instance = nil
 LFGWindow.SetTab(LFGWindow.TAB_PLAYERS)
 expect("Reiter Mitspieler zeigt Zeilen", parts.playersRows[2]:IsShown(), true)
 local brakkusRow = parts.playersRows[1].entry.name == "Brakkus" and parts.playersRows[1] or parts.playersRows[2]
-click(brakkusRow)
-expect("Klick: Daumen hoch", Players.Get("Brakkus").rating, Players.UP)
+expect("Zeile: Dungeon in der zweiten Zeile", brakkusRow.detail:GetText():find("Die Todesminen", 1, true) ~= nil, true)
+click(brakkusRow.upButton)
+expect("Knopf +: Daumen hoch", Players.Get("Brakkus").rating, Players.UP)
 expect("Marker +", Players.Marker("Brakkus-Realm"):find("+", 1, true) ~= nil, true)
 expect("Marker Abbrecher", Players.Marker("Lunaria"):find("!", 1, true) ~= nil, true)
-click(brakkusRow)
-click(brakkusRow)
-expect("Klick: Bewertung wieder leer", Players.Get("Brakkus").rating, nil)
-Players.CycleRating("Brakkus")
+click(brakkusRow.downButton)
+expect("Knopf -: Daumen runter", Players.Get("Brakkus").rating, Players.DOWN)
+click(brakkusRow.downButton)
+expect("Knopf - noch einmal: Bewertung wieder leer", Players.Get("Brakkus").rating, nil)
 LFGWindow.SetTab(2)
 LFGWindow.State().selected = nil
 expect("Prüfung: Gruppenlisten-Namen lesbar", Players.Stats().rosterSecret, 0)

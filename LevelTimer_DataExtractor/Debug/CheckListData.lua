@@ -130,4 +130,10 @@ X.CheckListData = {
       "Reagenzientasche ausrüsten (Retail/Forever), Taschen teilweise füllen; Einstellungen > Oberfläche > 'Freie Taschenplätze' an und aus.",
       "Erwartung: an = Rucksack zeigt '(n)' nur für normale Taschen, Reagenzientasche ihre eigene Zahl unten, keine doppelte Zahl; aus = Blizzards Zahl zurück.",
     } },
+  { id = "LT-421", client = "forever", triggers = { "lfg" },
+    title = "Gruppensuche: Reiter Mitspieler neu",
+    steps = {
+      "Nach einem Dungeon mit Gruppe (am besten mit Rollenabfrage) Gruppensuche > Mitspieler öffnen; Knöpfe + und - klicken, Zeile mit der Maus berühren.",
+      "Erwartung: Klassensymbol, Name in Klassenfarbe, Rollensymbol; zweite Zeile 'Dungeon · Zeit'; aktiver Knopf farbig, noch einmal = weg; Tooltip mit Stufe, Klasse, Rolle, Dungeon.",
+    } },
 }

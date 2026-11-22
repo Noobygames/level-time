@@ -8,6 +8,11 @@ ns.CHANGELOG = {
   {
     date = "2026-11-22",
     entries = {
+      { kind = "change",
+        deDE = "Gruppensuche, Reiter Mitspieler: Klassensymbol, Rolle und letzter gemeinsamer Dungeon je Spieler, eigene Knöpfe für + und -.",
+        enUS = "Group finder, Players tab: class icon, role and last shared dungeon per player, separate buttons for + and -.",
+        frFR = "Recherche de groupe, onglet Joueurs : icône de classe, rôle et dernier donjon commun par joueur, boutons séparés pour + et -.",
+        esES = "Buscador de grupo, pestaña Jugadores: icono de clase, rol y última mazmorra compartida por jugador, botones propios para + y -." },
       { kind = "new",
         deDE = "Taschenleiste: Der Rucksack zeigt die freien Plätze ohne Reagenzientasche, die Reagenzientasche ihre eigenen.",
         enUS = "Bag bar: the backpack shows free slots without the reagent bag, the reagent bag shows its own.",

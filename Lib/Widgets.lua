@@ -39,6 +39,20 @@ function Widgets.SetIcon(texture, source, size)
   return ok
 end
 
+-- Klassensymbol (Blizzards Klassen-Textur mit CLASS_ICON_TCOORDS, in allen Clients) auf eine Textur setzen.
+-- Unbekannte Klasse: Textur versteckt, false zurück.
+Widgets.CLASS_ICONS = "Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES"
+function Widgets.SetClassIcon(texture, class, size)
+  local coords = CLASS_ICON_TCOORDS and class and CLASS_ICON_TCOORDS[class]
+  if coords then
+    texture:SetTexture(Widgets.CLASS_ICONS)
+    texture:SetTexCoord(unpack(coords))
+  end
+  if size then texture:SetSize(size, size) end
+  texture:SetShown(coords ~= nil)
+  return coords ~= nil
+end
+
 -- Rangzahl eines Zaubers als Text aus C_Spell.GetSpellSubtext (Era, Retail, Forever laut SpellDocumentation; ältere
 -- Clients GetSpellSubtext), in Classic "Rang 3". Retail-Untertexte ("Volksfähigkeit", "Passiv") haben keine Zahl: nil.
 function Widgets.SpellRank(spellID)

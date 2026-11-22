@@ -213,17 +213,55 @@ button,input,textarea,select{font-family:inherit}
 
       <!-- C5 Reiter Mitspieler (LT-392): letzte Mitspieler bewerten, Abbrecher, Marker in der Suche -->
       <div style="display: flex; flex-direction: column; gap: 6px">
-        <span style="font-size: 12px; color: #9fb3a8">Reiter Mitspieler: neueste zuerst, höchstens 20 Zeilen (gemerkt: 60), Klick wechselt keine / + / -</span>
+        <span style="font-size: 12px; color: #9fb3a8">Reiter Mitspieler: neueste zuerst, Bildlauf (gemerkt: 60). Zeile 32: Klassensymbol, Name in Klassenfarbe, Rollensymbol; darunter Dungeon · Zeit · ! Abbrecher; rechts Knöpfe + / - (noch einmal = zurück)</span>
         <div style="position: relative; width: 480px; height: 600px; box-sizing: border-box; background: #14100c; border: 2px solid #6b5a2a; border-radius: 8px; font-size: 13px">
           <div style="height: 25px; text-align: center; line-height: 25px; color: #ffd100; font-weight: 700">Gruppensuche</div>
           <div style="position: absolute; left: -4px; top: -4px; width: 56px; height: 56px; border-radius: 50%; background: #1b3a1b; border: 3px solid #6b5a2a"></div>
-          <div style="position: absolute; top: 40px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 2px">
-            <div style="height: 22px; line-height: 22px; padding: 0 4px; background: rgba(255,255,255,0.08); color: #ffd100"><span style="color:#40ff40">+</span> Brakkus  21.11. 21:07</div>
-            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100"><span style="color:#ff9a3c">!</span> Lunaria  21.11. 20:58  ging früh: 1 x</div>
-            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100"><span style="color:#ff5050">-</span> Frostbyte  20.11. 19:30</div>
-            <div style="height: 22px; line-height: 22px; padding: 0 4px; color: #ffd100">Jaina  18.11. 18:02</div>
-            <span style="margin-top: 8px; font-size: 11px; color: #8a8a8a">Leer: „Noch keine Mitspieler …“ (muted). Zeichen: + gut, - schlecht (nur vom Spieler gesetzt), ! verließ eine Gruppe in einer Instanz. In der Suche steht das Zeichen vor dem Leiternamen (z. B. „+ Brakkus“). Account-weit gespeichert. Später: Notiz je Spieler.</span>
+          <div style="position: absolute; top: 40px; left: 16px; right: 40px; display: flex; flex-direction: column; gap: 4px">
+            <div style="height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 4px; background: rgba(255,255,255,0.08); ">
+              <span style="width: 20px; height: 20px; line-height: 20px; text-align: center; border: 1px solid #555; font-size: 13px">🛡️</span>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 14px">
+                <span style="display: flex; gap: 4px; align-items: center"><span style="color: #c69b6d">Brakkus</span><span style="width: 16px; height: 16px; line-height: 16px; font-size: 11px; text-align: center; border: 1px solid #555; border-radius: 50%">T</span></span>
+                <span style="font-size: 12px; color: #b8b8b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Die Todesminen  ·  21.11. 21:07</span>
+              </div>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #ffd100; border-radius: 4px; color: #40ff40; font-weight: 700">+</span>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">-</span>
+            </div>
+            <div style="height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 4px; ">
+              <span style="width: 20px; height: 20px; line-height: 20px; text-align: center; border: 1px solid #555; font-size: 13px">🔥</span>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 14px">
+                <span style="display: flex; gap: 4px; align-items: center"><span style="color: #3fc7eb">Lunaria</span><span style="width: 16px; height: 16px; line-height: 16px; font-size: 11px; text-align: center; border: 1px solid #555; border-radius: 50%">D</span></span>
+                <span style="font-size: 12px; color: #b8b8b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Burg Shadowfang  ·  21.11. 20:58  ·  <span style="color:#ff9a3c">! ging früh: 1 x</span></span>
+              </div>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">+</span>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">-</span>
+            </div>
+            <div style="height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 4px; ">
+              <span style="width: 20px; height: 20px; line-height: 20px; text-align: center; border: 1px solid #555; font-size: 13px">💧</span>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 14px">
+                <span style="display: flex; gap: 4px; align-items: center"><span style="color: #0070dd">Frostbyte</span><span style="width: 16px; height: 16px; line-height: 16px; font-size: 11px; text-align: center; border: 1px solid #555; border-radius: 50%">H</span></span>
+                <span style="font-size: 12px; color: #b8b8b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Höhlen des Wehklagens  ·  20.11. 19:30</span>
+              </div>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">+</span>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #ffd100; border-radius: 4px; color: #ff5050; font-weight: 700">-</span>
+            </div>
+            <div style="height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 4px; ">
+              <span style="width: 20px; height: 20px; line-height: 20px; text-align: center; border: 1px solid #555; font-size: 13px">❔</span>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 14px">
+                <span style="display: flex; gap: 4px; align-items: center"><span style="color: #ffd100">Jaina</span></span>
+                <span style="font-size: 12px; color: #b8b8b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">18.11. 18:02</span>
+              </div>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">+</span>
+              <span style="width: 28px; height: 22px; line-height: 20px; text-align: center; box-sizing: border-box; background: #5a1414; border: 1px solid #6b1d1d; border-radius: 4px; color: #8a8a8a; font-weight: 700">-</span>
+            </div>
+            <div style="margin-top: 4px; padding: 8px; width: 260px; background: rgba(8,8,10,0.95); border: 1px solid #555; border-radius: 4px; font-size: 12px; line-height: 16px">
+              <div style="color: #ffd100; font-size: 13px">Brakkus</div>
+              <div>Stufe 21, Krieger</div><div>Rolle: Tank</div><div>Zuletzt zusammen: Die Todesminen</div><div>Zuletzt gesehen: 21.11. 21:07</div>
+              <div>Deine Bewertung steht in der Suche vor dem Namen des Leiters.</div>
+            </div>
+            <span style="margin-top: 8px; font-size: 11px; color: #8a8a8a">Tooltip der Zeile (oben). Leer: „Noch keine Mitspieler …“ (muted). Unbekannte Klasse: Platz frei, Name gold. Rolle nur nach Rollenabfrage (sonst kein Symbol). In der Suche steht + / - / ! vor dem Leiternamen. Account-weit gespeichert.</span>
           </div>
+          <div style="position: absolute; top: 40px; right: 16px; bottom: 16px; width: 16px; background: #1d1d1d; border: 1px solid #333; border-radius: 4px"></div>
           <div style="position: absolute; left: 19px; top: 100%; display: flex; gap: 2px; margin-top: -2px">
             <span style="padding: 4px 12px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Eigene Gruppe</span>
             <span style="padding: 4px 12px; background: #2a2416; border: 1px solid #6b5a2a; border-radius: 0 0 6px 6px; color: #ffd100; font-size: 12px">Suchen</span>

@@ -31,7 +31,7 @@ local KIND_ENTRIES = {
 }
 
 local LABEL_ICON_SIZE = 16
-local CLASS_ICONS = "Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES"
+local CLASS_ICONS = Widgets.CLASS_ICONS
 local CLASS_ICONS_SIZE = 256   -- Pixel der Klassen-Textur (für die Ausschnitt-Koordinaten im |T-Markup)
 
 local function roleName(role) return LFGWindow.Text(role, ROLE_TEXTS[role]) end
@@ -41,9 +41,7 @@ local function withRoleIcon(role, text)
 end
 -- Klassenname mit Klassen-Symbol davor (ohne CLASS_ICON_TCOORDS nur der Name)
 local function className(class)
-  -- Blizzards Klassennamen nur in Client-Sprache, sonst unsere (CLASS_NAME_<KLASSE>)
-  local blizzard = ns.SpeaksClientLanguage() and LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[class]
-  local name = blizzard or L["CLASS_NAME_" .. class]
+  local name = ns.Format.ClassName(class)
   local coords = CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class]
   if not coords then return name end
   local s = CLASS_ICONS_SIZE

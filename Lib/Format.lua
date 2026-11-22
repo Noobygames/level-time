@@ -166,3 +166,9 @@ function Format.PlainText(value)
   text = text:gsub("|H.-|h", ""):gsub("|h", "")
   return text
 end
+
+-- Klassenname: Blizzards (LOCALIZED_CLASS_NAMES_MALE) nur in Client-Sprache, sonst unserer (CLASS_NAME_<KLASSE>)
+function Format.ClassName(class)
+  local blizzard = ns.SpeaksClientLanguage() and LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[class]
+  return blizzard or ns.L["CLASS_NAME_" .. class]
+end
