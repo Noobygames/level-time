@@ -6,7 +6,8 @@
 -- (Encounter- und NPC-Name sind bei Classic-Dungeonbossen gleich; geheime Namen fallen weg); Quelle ist das Kampflog,
 -- in WoW Forever ohne Kampflog-Abruf das Event UNIT_DIED (LT-267).
 -- Bossliste je Karte und Schwierigkeit aus ns.BossData (Assist/BossData/<flavor>.lua, DB2 DungeonEncounter),
--- Reihenfolge = OrderIndex, der letzte gilt als Endboss (Karten mit Flügeln: siehe unten): fällt er, meldet der Chat "Dungeon
+-- Reihenfolge = OrderIndex (oder ns.InstanceGuide.bossOrder, z.B. Zul'Farrak), der letzte gilt als Endboss, außer ein
+-- Boss der Liste steht in ns.InstanceGuide.endBosses (Karten mit Flügeln: siehe unten): fällt er, meldet der Chat "Dungeon
 -- abgeschlossen" (mit
 -- "neue Bestzeit", wenn er schneller fiel als im besten abgeschlossenen Lauf derselben Instanz).
 -- Boss-Level und optionale Rar-Bosse (nur Forever) aus ns.InstanceGuide.bossLevels/rareBosses
@@ -53,15 +54,16 @@ local function nameColumn()
   return localeIndex
 end
 
+local function guideTable(key)
+  return ns.InstanceGuide and ns.InstanceGuide[key]
+end
+
 -- Bosse einer Instanz in Reihenfolge ({ encounterID, ... }) oder nil, wenn der Client keine Daten hat
 function InstanceBosses.List(mapID, difficultyID)
   local byDifficulty = ns.BossData and mapID and ns.BossData.maps[mapID]
   if not byDifficulty then return nil end
-  return byDifficulty[difficultyID or 0] or byDifficulty[0]
-end
-
-local function guideTable(key)
-  return ns.InstanceGuide and ns.InstanceGuide[key]
+  local order = guideTable("bossOrder")
+  return order and order[mapID] or byDifficulty[difficultyID or 0] or byDifficulty[0]
 end
 
 -- Gemeinsame ID der Alias-Gruppe eines Bosses (ohne Alias die ID selbst)
@@ -114,9 +116,13 @@ function InstanceBosses.IsRare(encounterID)
   return rares ~= nil and rares[encounterID] == true
 end
 
--- Endboss einer Bossliste: der letzte, der kein Rar-Boss ist (nil ohne Liste)
+-- Endboss einer Bossliste: ein Boss aus endBosses, sonst der letzte, der kein Rar-Boss ist (nil ohne Liste)
 function InstanceBosses.EndBoss(list)
   if not list then return nil end
+  local endBosses = guideTable("endBosses") or {}
+  for _, encounterID in ipairs(list) do
+    if endBosses[encounterID] then return encounterID end
+  end
   for index = #list, 1, -1 do
     if not InstanceBosses.IsRare(list[index]) then return list[index] end
   end
