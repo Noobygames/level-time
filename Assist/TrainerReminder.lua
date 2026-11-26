@@ -22,7 +22,7 @@ function TrainerReminder.HasNewSpells(level)
 end
 
 local function notifyTrainer(level)
-  ns.Alerts.Notify({ title = L.NOTICE_TRAINER, text = string.format(L.REMIND_TRAINER, level),
+  ns.Alerts.Notify({ key = "trainerReminder", title = L.NOTICE_TRAINER, text = string.format(L.REMIND_TRAINER, level),
     icon = ns.Alerts.ICONS.trainer }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end
 

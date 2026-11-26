@@ -110,6 +110,17 @@ function Stats.Get(scope, counter)
   return countersOf(scope)[counter] or 0
 end
 
+-- Summe aller Ausgaben (Stats.SPENDING) und Gold-Bilanz (Einnahmen minus Ausgaben) im Bereich
+function Stats.Spent(scope)
+  local total = 0
+  for _, counter in ipairs(Stats.SPENDING) do total = total + Stats.Get(scope, counter) end
+  return total
+end
+
+function Stats.MoneyBalance(scope)
+  return Stats.Get(scope, Stats.MONEY_EARNED) - Stats.Spent(scope)
+end
+
 -- Module, die zusätzlich mitzählen (z.B. pro Zone oder pro Tag): listener(counter, amount)
 local incrementListeners = {}
 

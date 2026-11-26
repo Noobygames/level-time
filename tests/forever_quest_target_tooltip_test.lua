@@ -28,4 +28,14 @@ addon.Set("questTargetButton", true)
 wow.update(1)
 expect("offenes Ziel im Tooltip: im Makro", target:GetAttribute("macrotext"), "/cleartarget\n/targetexact Elementarsklave")
 expectTrue("Zielknopf sichtbar", target:IsShown())
+
+-- Ziel erfüllt (5/5), der Tooltip hinkt aber nach und meldet noch 0/4: der Questlog gewinnt, Gegner fällt heraus
+wow.state.questLog[2].objectives = { { text = "Armschienen der Erdbindung: 4/4", finished = true } }
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1)
+expectTrue("erfülltes Ziel laut Questlog: kein Zielknopf", not target:IsShown())
+wow.state.questLog[2].objectives = { { text = "Armschienen der Erdbindung: 3/4", finished = false } }
+wow.fire("QUEST_LOG_UPDATE")
+wow.update(1)
+expect("wieder offen: im Makro", target:GetAttribute("macrotext"), "/cleartarget\n/targetexact Elementarsklave")
 expect("keine Lua-Fehler", #wow.errors, 0)

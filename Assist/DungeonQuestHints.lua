@@ -17,13 +17,15 @@
 -- Ort "Zone (x, y)" über DungeonEntrances.StartText (C_Map.GetMapInfo).
 -- Abgeschaltete Dungeons (LT-394, Haken im Instanz-Hinweis, je Charakter in character.hiddenDungeonQuestHints): keine
 -- Zeilen im Zonen-Hinweis, kein Hinweis nach der Annahme; der Rechtsklick auf den Eingang zeigt sie weiter.
+-- Einzelne Quests ebenso (Rechtsklick-Menü an der Zeile, je Charakter in character.hiddenDungeonQuests, Tabelle erst bei
+-- Bedarf); ClearHidden blendet Quests und Dungeons wieder ein (Knopf in den Optionen).
 local _, ns = ...
 
 ns.RegisterDefaults({
   settings = {
     dungeonQuestZoneHint = true,
     dungeonQuestAcceptHint = true,
-    dungeonQuestHintAutoClose = false,  -- aus: Fenster bleibt, bis es geschlossen wird
+    dungeonQuestHintAutoClose = true,  -- aus: Fenster bleibt, bis es geschlossen wird
   },
 })
 local L = ns.L
@@ -89,13 +91,38 @@ function DungeonQuestHints.SetHidden(mapID, hidden)
   ns.character.hiddenDungeonQuestHints[mapID] = hidden or nil
 end
 
--- Einträge für die Geber auf einer Zonenkarte (ohne abgeschaltete Dungeons)
+function DungeonQuestHints.IsQuestHidden(questID)
+  local hidden = ns.character and ns.character.hiddenDungeonQuests
+  return hidden ~= nil and hidden[questID] == true
+end
+
+function DungeonQuestHints.HideQuest(questID)
+  ns.character.hiddenDungeonQuests = ns.character.hiddenDungeonQuests or {}
+  ns.character.hiddenDungeonQuests[questID] = true
+  ns.Debug("dungeonquests", "quest %s hidden", questID)
+end
+
+-- Ausgeblendete Quests und Dungeons zusammen
+function DungeonQuestHints.HiddenCount()
+  if not ns.character then return 0 end
+  local count = 0
+  for _ in pairs(ns.character.hiddenDungeonQuests or {}) do count = count + 1 end
+  for _ in pairs(ns.character.hiddenDungeonQuestHints) do count = count + 1 end
+  return count
+end
+
+function DungeonQuestHints.ClearHidden()
+  ns.character.hiddenDungeonQuests = nil
+  ns.character.hiddenDungeonQuestHints = {}
+end
+
+-- Einträge für die Geber auf einer Zonenkarte (ohne abgeschaltete Dungeons und ausgeblendete Quests)
 function DungeonQuestHints.ZoneEntries(uiMapID)
   local entries = {}
   for _, point in ipairs(DungeonQuests.OffersOnMap(uiMapID)) do
     local place = { uiMapID = uiMapID, x = point.x, y = point.y }
     for _, offer in ipairs(point.offers) do
-      if not DungeonQuestHints.IsHidden(offer.mapID) then
+      if not DungeonQuestHints.IsHidden(offer.mapID) and not DungeonQuestHints.IsQuestHidden(offer.questID) then
         table.insert(entries, questEntry(offer.questID, function() return offerText(offer) end, place))
       end
     end
@@ -137,11 +164,11 @@ local function instanceQuestText(quest)
   return text
 end
 
--- Einträge der offenen Quests einer Instanz (ohne exceptQuestID), annehmbare zuerst
-local function instanceEntries(mapID, exceptQuestID)
+-- Einträge der offenen Quests einer Instanz (ohne exceptQuestID, mit skipHidden ohne ausgeblendete), annehmbare zuerst
+local function instanceEntries(mapID, exceptQuestID, skipHidden)
   local entries = {}
   for _, quest in ipairs(DungeonQuests.InstanceQuests(mapID)) do
-    if quest.questID ~= exceptQuestID then
+    if quest.questID ~= exceptQuestID and not (skipHidden and DungeonQuestHints.IsQuestHidden(quest.questID)) then
       local place = DungeonQuests.GiverPlace(quest.questID)
       table.insert(entries, questEntry(quest.questID, function() return instanceQuestText(quest) end, place, not quest.available))
     end
@@ -153,7 +180,7 @@ end
 function DungeonQuestHints.AcceptEntries(questID)
   local mapID = DungeonQuests.Instance(questID) or DungeonQuests.Chain(questID)
   if not mapID then return nil end
-  return instanceEntries(mapID, questID), mapID
+  return instanceEntries(mapID, questID, true), mapID
 end
 
 -- Quests einer Instanz zeigen (Rechtsklick auf den Eingang); false ohne offene Quests

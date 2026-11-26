@@ -23,6 +23,7 @@ end
 wow.state.itemIcons[BAG] = BAG_ICON
 wow.state.itemCounts = { [BAG] = 1 }
 wow.login({ level = 20 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 expectTrue("Forever: Einstellung vorhanden", BuffReminder.HasSleepingBagSystem())
 expect("ohne Buff fehlt er", BuffReminder.IsSleepingBagMissing(), true)
 

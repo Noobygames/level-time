@@ -75,6 +75,7 @@ local here                                    -- QuestLog.Here(), bis zum nächs
 local zoneCache = {}                          -- [questID] = { inZone, signals, header, questMap, spots, lastSpot }
 local loggedZone = {}                         -- [questID] = zuletzt geloggtes Ergebnis (Debug nur bei Änderung)
 local headers                                 -- [questID] = Questlog-Überschrift, bis zur nächsten Questlog-Änderung
+local logObjectives                           -- questLogObjectives(), bis zur nächsten Questlog-Änderung
 local candidates                              -- QuestItem.Candidates(), bis zur nächsten Questlog-/Taschenänderung
 local itemDirty, targetDirty = true, true     -- Item bzw. Zielknopf neu bestimmen
 local nextDistanceAt = 0                      -- GetTime(), ab wann der Abstand wieder verglichen wird
@@ -125,7 +126,7 @@ local function forgetZones()
 end
 
 local function forgetQuestLog()
-  headers, candidates = nil, nil
+  headers, candidates, logObjectives = nil, nil, nil
   markAll()
 end
 
@@ -262,10 +263,29 @@ local function clearSet(set)
   for key in pairs(set) do set[key] = nil end
 end
 
--- Nennt der Tooltip der Einheit ein offenes Questziel? (je Name zwischengespeichert, siehe QuestTooltip)
+-- Zieltexte des Questlogs (NormalizeObjective) nach Stand: { open = {}, finished = {} }; neu nach Questlog-Änderung
+local function questLogObjectives()
+  if logObjectives then return logObjectives end
+  logObjectives = { open = {}, finished = {} }
+  for _, entry in ipairs(ns.QuestLog.Entries()) do
+    for _, objective in ipairs(ns.QuestLog.Objectives(entry.questID)) do
+      if objective.name ~= "" then
+        logObjectives[objective.finished == true and "finished" or "open"][objective.name] = true
+      end
+    end
+  end
+  return logObjectives
+end
+
+-- Nennt der Tooltip der Einheit ein offenes Questziel? Der Tooltip hinkt dem Questlog nach (Zwischenspeicher je
+-- Name, frisch geleert und gleich wieder mit "4/5" gefüllt); ein Ziel, das der Questlog erfüllt nennt, zählt nicht
 local function hasOpenTooltipObjective(unit)
+  local log = questLogObjectives()
   for _, entry in ipairs(ns.QuestTooltip.Objectives(unit)) do
-    if not entry.done then return true end
+    if not entry.done then
+      local name = ns.QuestLog.NormalizeObjective(entry.text)
+      if log.open[name] or not log.finished[name] then return true end
+    end
   end
   return false
 end

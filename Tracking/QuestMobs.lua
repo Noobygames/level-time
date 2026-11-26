@@ -9,7 +9,9 @@
 --   Kill            neuer killLog-Eintrag (Journal.OnAdd; nur Kills mit XP) oder das tote Ziel ("target") im Moment
 --                   des Anstiegs (graue Gegner ohne XP)
 --   Beute           Loot.OnSelfLoot (CHAT_MSG_LOOT, eigene Beute); die Quelle eines Gegenstands ist der letzte Kill
---                   davor (höchstens DROP_SOURCE_SECONDS)
+--                   davor (höchstens DROP_SOURCE_SECONDS). Stammt die offene Beute nur aus Objekten (GetLootSourceInfo:
+--                   keine "Creature-"/"Vehicle-"-GUID, z.B. Erdhaufen kurz nach einem Kill), gibt es keine Quelle
+--                   (Debug-Log 2026-11-26: Un'Goro-Erde fälschlich den Blutblüten-Gegnern zugeordnet)
 -- Zuordnung erst RESOLVE_DELAY nach dem Anstieg, weil Kill-Meldung und Questlog-Änderung in beliebiger Reihenfolge
 -- kommen; gezählt wird, was höchstens MATCH_WINDOW Sekunden daneben liegt.
 -- Genutzt von QuestMarks (Ersatz für C_QuestLog.UnitIsRelatedToActiveQuest in Classic), Zielknopf, Tooltips und
@@ -31,6 +33,7 @@ local RESOLVE_DELAY = 1        -- Sekunden nach dem Anstieg, bevor zugeordnet wi
 local MATCH_WINDOW = 1.5       -- Kill/Beute so nah am Anstieg zählt
 local DROP_SOURCE_SECONDS = 30 -- Gegenstand stammt vom letzten Kill in dieser Zeit
 local KEEP_SECONDS = 60        -- so lange bleiben Kills und Beute zum Abgleich gemerkt
+local OBJECT_LOOT_SECONDS = 3  -- so lange nach dem Öffnen von Objekt-Beute zählt eigene Beute als "aus dem Objekt"
 local CHECK_SECONDS = 0.5
 local ITEM_KIND, MONSTER_KIND = "item", "monster"
 
@@ -164,12 +167,35 @@ ns.Journal.OnAdd(function(logName, entry)
   table.insert(recentKills, { name = entry.name, at = GetTime() })
 end)
 
+-- Beutefenster offen: kommt die Beute nur aus Objekten? (ohne GetLootSourceInfo bzw. lesbare GUIDs: unbekannt)
+local objectLootAt
+local function isCreatureGuid(guid)
+  return guid:find("^Creature%-") ~= nil or guid:find("^Vehicle%-") ~= nil
+end
+ns.RegisterEvent("LOOT_OPENED", function()
+  if not ns.db.questLearning or type(GetLootSourceInfo) ~= "function" then return end
+  local sawObject = false
+  for slot = 1, GetNumLootItems() do
+    local guid = GetLootSourceInfo(slot)
+    if type(guid) == "string" and not ns.IsSecret(guid) then
+      if isCreatureGuid(guid) then
+        objectLootAt = nil
+        return
+      end
+      sawObject = true
+    end
+  end
+  objectLootAt = sawObject and GetTime() or nil
+  if sawObject then ns.Debug("quests", "loot from object, no drop source") end
+end)
+
 ns.Loot.OnSelfLoot(function(link)
   if not ns.db.questLearning or type(link) ~= "string" then return end
   local itemID = tonumber((link:match("item:(%d+)")))
   if not itemID then return end
   local now = GetTime()
-  local source = lastKillBefore(now, DROP_SOURCE_SECONDS)
+  local fromObject = objectLootAt ~= nil and now - objectLootAt <= OBJECT_LOOT_SECONDS
+  local source = not fromObject and lastKillBefore(now, DROP_SOURCE_SECONDS) or nil
   table.insert(recentLoot, { itemID = itemID, name = link:match("%[(.-)%]"), at = now, source = source and source.name })
 end)
 

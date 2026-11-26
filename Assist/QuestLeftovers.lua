@@ -235,7 +235,7 @@ ns.RegisterEvent("MERCHANT_SHOW", function()
   updateDeleteButton()
   local text = QuestLeftovers.Text()
   if text then
-    ns.Alerts.Notify({ title = L.QUEST_LEFTOVERS_TITLE, text = string.format(L.QUEST_LEFTOVERS, text),
+    ns.Alerts.Notify({ key = "questLeftovers", title = L.QUEST_LEFTOVERS_TITLE, text = string.format(L.QUEST_LEFTOVERS, text),
       icon = ns.Alerts.ICONS.bags }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
   end
 end)

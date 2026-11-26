@@ -204,6 +204,7 @@ Assist\TransportPaths.lua
 UI\TransportDisplay.lua
 UI\TransportWorldMap.lua
 Assist\GearWarnings.lua
+Assist\BagFreeSlots.lua
 Assist\AggroWarning.lua
 Assist\BreathWarning.lua
 Assist\ManaCallout.lua
@@ -231,6 +232,7 @@ Assist\QuestItemTooltip.lua
 Assist\AutoAccept.lua
 Assist\Looting.lua
 Assist\Mail.lua
+UI\MailAltPanel.lua
 Assist\ScreenText.lua
 Assist\ScreenBorders.lua
 Assist\Camera.lua

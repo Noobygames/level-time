@@ -92,7 +92,7 @@ local function remind(level)
   ns.Debug("classquest", "hint for level %s", level)
   ns.Print(text)
   if not ns.db.levelUpWindow then
-    ns.Alerts.Notify({ title = L.NOTICE_CLASS_QUEST, text = text, icon = ns.Alerts.ICONS.trainer },
+    ns.Alerts.Notify({ key = "classQuest", title = L.NOTICE_CLASS_QUEST, text = text, icon = ns.Alerts.ICONS.trainer },
       ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
   end
 end

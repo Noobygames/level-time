@@ -127,6 +127,12 @@ function Format.Money(copper)
   return Format.PlainMoney(copper)
 end
 
+-- Geld mit Vorzeichen (Bilanz): negativ als "-" vor den Münzen, Blizzards Münztext kennt kein Minus
+function Format.SignedMoney(copper)
+  if copper < 0 then return "-" .. Format.Money(-copper) end
+  return Format.Money(copper)
+end
+
 -- Geld als reiner Text ("2g 30s 5c"), z.B. für Chat-Nachrichten an andere (Münzsymbole sind Texturcodes)
 function Format.PlainMoney(copper)
   copper = math.floor(copper)
@@ -165,4 +171,10 @@ function Format.PlainText(value)
   text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|cnIQ%d+:", ""):gsub("|r", "")
   text = text:gsub("|H.-|h", ""):gsub("|h", "")
   return text
+end
+
+-- Klassenname: Blizzards (LOCALIZED_CLASS_NAMES_MALE) nur in Client-Sprache, sonst unserer (CLASS_NAME_<KLASSE>)
+function Format.ClassName(class)
+  local blizzard = ns.SpeaksClientLanguage() and LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[class]
+  return blizzard or ns.L["CLASS_NAME_" .. class]
 end

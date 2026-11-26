@@ -1111,11 +1111,11 @@ check("450.mail", function()
     setting = ns.db.mailAssist,
     isOpening = ns.Mail and ns.Mail.IsOpening and ns.Mail.IsOpening() or false,
     openAllButtonShown = _G.LevelTimerMailOpenAllButton and _G.LevelTimerMailOpenAllButton:IsShown() or false,
-    altButtonShown = _G.LevelTimerMailAltButton and _G.LevelTimerMailAltButton:IsShown() or false,
+    altPanelShown = ns.MailAltPanel and ns.MailAltPanel.IsShown() or false,
     -- 480: UnitName-Rückgaben und gespeicherter Nachname (WoW Forever: Vor- und Nachname)
     unitName = { UnitName("player") },
     surname = ns.character and ns.character.surname,
-    -- Empfänger, die der Twink-Knopf der Reihe nach einträgt (ohne Sichtprüfung am Briefkasten)
+    -- Twinks, die das Seitenfenster "An Twink senden" listet (ohne Sichtprüfung am Briefkasten)
     altRecipients = (function()
       local names = {}
       for _, alt in ipairs(ns.Mail and ns.Mail.GetKnownAlts() or {}) do names[#names + 1] = alt.name end

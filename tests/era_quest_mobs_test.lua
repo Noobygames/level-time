@@ -81,6 +81,27 @@ expect("Quelle gelernt", data.mobs.Waldwolf, 2)
 expect("Gegenstand offen", QuestMobs.ForItem(7000)[1].questID, 50)
 expect("Gegenstände der Quest", QuestMobs.ItemsOf(50)[7000], "Wolfspelz")
 
+-- Beute aus einem Objekt (Erdhaufen) kurz nach einem Kill: Gegenstand zählt, der Gegner wird nicht zur Quelle
+GetLootSourceInfo = function(slot) return wow.state.lootSources[slot] end
+wow.state.lootSlots, wow.state.lootSources = 1, { "GameObject-0-1-1-1-164778-0000000001" }
+kill("Blutblütenschinder")
+wow.fire("LOOT_OPENED")
+loot(7000, "Wolfspelz")
+pelts.text = "Wolfspelz: 3/4"
+questLogChanged()
+expect("Objekt-Beute: Gegenstand gezählt", data.items[7000], 3)
+expect("Objekt-Beute: Gegner keine Quelle", data.mobs["Blutblütenschinder"], nil)
+-- Leiche: GUID einer Kreatur, die Quelle zählt wieder
+wow.state.lootSources = { "Creature-0-1-1-1-6510-0000000002" }
+wow.advance(5)
+kill("Waldwolf")
+wow.fire("LOOT_OPENED")
+loot(7000, "Wolfspelz")
+pelts.text = "Wolfspelz: 4/4"
+questLogChanged()
+expect("Leichen-Beute: Quelle gezählt", data.mobs.Waldwolf, 3)
+GetLootSourceInfo, wow.state.lootSlots, wow.state.lootSources = nil, nil, nil
+
 -- Markierung ohne Client-Unterstützung: gelernte, lebende Nicht-Spieler
 local plate = CreateFrame("Frame")
 C_NamePlate = { GetNamePlateForUnit = function(unit) return unit == "nameplate1" and plate or nil end }

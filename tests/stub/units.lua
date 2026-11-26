@@ -196,7 +196,11 @@ function UnitThreatSituation(unit, mobUnit)
     return state.threat
   end
 end
-function UnitGroupRolesAssigned() return state.role or "NONE" end
+-- Andere Einheiten: units[unit].role, sonst die Rolle des Spielers
+function UnitGroupRolesAssigned(unit)
+  local other = unit and unit ~= "player" and state.units[unit]
+  return other and other.role or state.role or "NONE"
+end
 -- Gegner: units[unit].hostile (UnitCanAttack), units[unit].tanking (1. Wert von UnitDetailedThreatSituation),
 -- Ziel des Gegners als units[unit .. "target"]
 function UnitCanAttack(_, unit) return state.units[unit] ~= nil and state.units[unit].hostile == true end

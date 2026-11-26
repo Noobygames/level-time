@@ -156,7 +156,7 @@ function RecapWindow.BuildRows(mode)
     table.insert(rows, { L.ROW_NEAR_DEATHS, tostring(Stats.Get(Stats.SESSION, Stats.NEAR_DEATHS)) })
   end
   table.insert(rows, { L.ROW_QUESTS, tostring(Stats.Get(Stats.SESSION, Stats.QUESTS)) })
-  table.insert(rows, { L.ROW_MONEY, Format.Money(Stats.Get(Stats.SESSION, Stats.MONEY_EARNED)) })
+  table.insert(rows, { L.ROW_MONEY, Format.SignedMoney(Stats.MoneyBalance(Stats.SESSION)) })
   table.insert(rows, { L.RECAP_BEST_LOOT, bestLoot() })
   table.insert(rows, { L.RECAP_DANGER, mostDangerous() })
   return rows

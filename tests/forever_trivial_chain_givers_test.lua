@@ -1,13 +1,13 @@
--- LT-412: graue Vorquest-Geber in der Nähe (Horde Stufe 45 bei Häuptling Hawkwind, Quest 752, Maraudon): Hinweis einmal
+-- LT-412: graue Vorquest-Geber in der Nähe (Horde Stufe 45 bei Fizzle Brassbolts, Quest 1104, Uldaman): Hinweis einmal
 -- je Geber und Quest; Filter "Triviale Quests" nur mit Option ein, beim Entfernen zurück, nie gegen den Spieler.
 local TG = addon.TrivialChainGivers
-local NEAR, FAR = { 0.439, 0.767 }, { 0.6, 0.5 }
+local NEAR, FAR = { 0.781, 0.771 }, { 0.1, 0.9 }  -- FAR: weit weg von allen Gebern in Tausend Nadeln
 local player = NEAR
 local function vector(x, y) return { GetXY = function() return x, y end } end
 function CreateVector2D(x, y) return vector(x, y) end
 -- Karte 1000 x 600 Yards (Weltachsen wie im Client vertauscht)
 C_Map = {
-  GetBestMapForUnit = function() return 1412 end,
+  GetBestMapForUnit = function() return 1441 end,
   GetPlayerMapPosition = function() return vector(player[1], player[2]) end,
   GetWorldPosFromMapPos = function(_, position)
     local x, y = position:GetXY()

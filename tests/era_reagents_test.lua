@@ -18,6 +18,7 @@ wow.state.class = "PRIEST"
 wow.state.knownSpells = { [21562] = true }  -- Gebet der Seelenstärke Rang 1
 wow.state.itemCounts = { [HOLY_CANDLE] = 3, [SACRED_CANDLE] = 0 }
 wow.login({ level = 50 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 
 expectTrue("Priester: verfügbar", Reagents.IsAvailable())
 local tracked = Reagents.Tracked()

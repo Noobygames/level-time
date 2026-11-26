@@ -18,7 +18,7 @@ function HearthReminder.Notify()
   local location = GetBindLocation and GetBindLocation()
   if ns.IsSecret(location) or not location or location == "" then return end
   ns.Debug("hearth", "bound at %s", location)
-  ns.Alerts.Notify({ title = L.NOTICE_HEARTH, text = string.format(L.REMIND_HEARTH, location),
+  ns.Alerts.Notify({ key = "hearthReminder", title = L.NOTICE_HEARTH, text = string.format(L.REMIND_HEARTH, location),
     icon = ns.Alerts.ICONS.hearthstone }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end
 

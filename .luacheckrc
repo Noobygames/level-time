@@ -82,7 +82,7 @@ read_globals = {
   "INVSLOT_LAST_EQUIPPED", "INVSLOT_TABARD", "IsAddOnLoaded", "IsAltKeyDown", "IsControlKeyDown", "IsFalling",
   "IsIndoors", "IsInGroup", "IsInGuild", "IsInInstance", "IsInRaid", "IsModifiedClick",
   "IsPlayerAtEffectiveMaxLevel", "IsPlayerMoving", "IsPlayerSpell", "IsQuestCompletable", "IsQuestFlaggedCompleted",
-  "GetBindLocation", "IsResting", "issecretvalue", "IsShiftKeyDown", "IsSpellKnown", "IsSwimming", "IsTradeskillTrainer",
+  "GetBindLocation", "IsResting", "issecretvalue", "IsShiftKeyDown", "IsMouselooking", "OpenAllMail", "GetUIPanel", "UpdateUIPanelPositions", "IsSpellKnown", "IsSwimming", "IsTradeskillTrainer",
   "InRepairMode", "IsXPUserDisabled", "Item", "ITEM_QUALITY_COLORS", "ItemRefTooltip", "LE_PARTY_CATEGORY_INSTANCE",
   "LevelUpDisplay", "GetGeneralPlaystyleString", "LFGBrowseSearchEntry_Update", "LFGBrowseSearchEntryTooltip", "LFGBrowseSearchEntryTooltip_UpdateAndShow", "LFGInvitePopup",
   "LFGListUtil_SetSearchEntryTooltip", "LFGParentFrame", "LFGVanilla_ShowFrame", "LibStub", "PanelTemplates_SetNumTabs", "PanelTemplates_SetTab", "PanelTemplates_TabResize", "LoadAddOn", "LOCALIZED_CLASS_NAMES_MALE", "Logout", "LootSlot",

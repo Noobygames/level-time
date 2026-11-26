@@ -50,7 +50,6 @@ local ROW_ALPHA = 0.25
 local ARROW_SIZE = 14
 local ARROW_UP = "|TInterface\\Buttons\\Arrow-Up-Up:" .. ARROW_SIZE .. "|t"      -- besser als zuvor
 local ARROW_DOWN = "|TInterface\\Buttons\\Arrow-Down-Up:" .. ARROW_SIZE .. "|t"  -- schlechter als zuvor
-local CLASS_ICONS = "Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES"
 local MVP_ICON = "|TInterface\\GroupFrame\\UI-Group-LeaderIcon:14|t"
 local BUTTON_PADDING = 24
 
@@ -431,11 +430,10 @@ local function setPortrait(row, player)
   row.portrait:SetTexCoord(0, 1, 0, 1)
   if unit and SetPortraitTexture then
     SetPortraitTexture(row.portrait, unit)
+    row.portrait:Show()
     return
   end
-  local coords = CLASS_ICON_TCOORDS and player.class and CLASS_ICON_TCOORDS[player.class]
-  row.portrait:SetTexture(CLASS_ICONS)
-  if coords then row.portrait:SetTexCoord(unpack(coords)) end
+  Widgets.SetClassIcon(row.portrait, player.class)
 end
 
 local function fillGroup(record)

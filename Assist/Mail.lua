@@ -3,7 +3,7 @@
 --   - Überspringt Nachnahme (C.O.D.)
 --   - Hält an, wenn Taschen voll sind
 --   - Alt-Klick auf Gegenstände in den Taschen hängt sie an ausgehende Post an
---   - Knopf zum Durchschalten eigener bekannter Twinks auf demselben Realm
+--   - Seitenfenster mit den eigenen Twinks auf demselben Realm (UI/MailAltPanel.lua), Klick trägt den Empfänger ein
 local _, ns = ...
 
 ns.RegisterDefaults({
@@ -14,7 +14,6 @@ ns.RegisterDefaults({
 
 local L = ns.L
 local OPEN_ALL_MIN_WIDTH = 100
-local ALT_MIN_WIDTH = 40
 
 local Mail = {}
 ns.Mail = Mail
@@ -22,9 +21,7 @@ ns.Mail = Mail
 local isOpening = false
 local currentIndex = 0
 local skippedCOD = false
-local currentAltIndex = 0
 local openAllButton
-local altButton
 
 function Mail.IsOpening()
   return isOpening
@@ -98,6 +95,7 @@ function Mail.StepOpenAll()
 end
 
 local function onMailClosed()
+  ns.MailAltPanel.Reset()
   if isOpening then
     Mail.StopOpenAll()
   end
@@ -158,6 +156,7 @@ function Mail.GetKnownAlts()
           name = recipientName(data, name),
           key = key,
           class = data.class,
+          level = data.currentLevel and data.currentLevel.level,
         })
       end
     end
@@ -184,11 +183,14 @@ end
 local function updateButtons()
   if not ns.db or not ns.db.mailAssist then
     if openAllButton then openAllButton:Hide() end
-    if altButton then altButton:Hide() end
+    ns.MailAltPanel.Update()
     return
   end
 
   local inboxParent = InboxFrame or MailFrame
+  -- Forever und Retail: Blizzards OpenAllMail liegt oben rechts, unserer wäre doppelt und läge über der Warnung
+  -- "Postfach voll". Classic Era hat OpenAllMail auch (unten, öffnet Nachnahme mit), dort bleibt unserer
+  if not ns.Client.IsClassicEra() then inboxParent = nil end
   if inboxParent and not openAllButton then
     openAllButton = CreateFrame("Button", "LevelTimerMailOpenAllButton", inboxParent, "UIPanelButtonTemplate")
     openAllButton:SetHeight(22)
@@ -218,41 +220,14 @@ local function updateButtons()
     openAllButton:Show()
   end
 
-  if SendMailNameEditBox and not altButton then
-    local sendParent = SendMailFrame or MailFrame or inboxParent
-    altButton = CreateFrame("Button", "LevelTimerMailAltButton", sendParent, "UIPanelButtonTemplate")
-    altButton:SetHeight(20)
-    altButton:SetPoint("LEFT", SendMailNameEditBox, "RIGHT", 4, 0)
-    altButton:SetScript("OnClick", function()
-      local alts = Mail.GetKnownAlts()
-      if #alts == 0 then return end
-      currentAltIndex = (currentAltIndex % #alts) + 1
-      local alt = alts[currentAltIndex]
-      if alt and alt.name then
-        Mail.FillRecipient(alt.name)
-      end
-    end)
-    altButton:SetScript("OnEnter", function(self)
-      if GameTooltip and L.MAIL_RECIPIENTS_ALTS then
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(L.MAIL_RECIPIENTS_ALTS, 1, 1, 1)
-        GameTooltip:Show()
-      end
-    end)
-    altButton:SetScript("OnLeave", function()
-      if GameTooltip then GameTooltip:Hide() end
-    end)
-  end
-  if altButton then
-    ns.Widgets.SetButtonText(altButton, L.MAIL_RECIPIENTS_ALTS, ALT_MIN_WIDTH)
-    altButton:Show()
-  end
+  ns.MailAltPanel.Hook()
+  ns.MailAltPanel.Update()
 end
 
 function Mail.Apply()
   if not ns.db or not ns.db.mailAssist then
     if openAllButton then openAllButton:Hide() end
-    if altButton then altButton:Hide() end
+    ns.MailAltPanel.Update()
     if isOpening then Mail.StopOpenAll() end
   else
     if (MailFrame and MailFrame:IsShown()) or (InboxFrame and InboxFrame:IsShown()) or (SendMailFrame and SendMailFrame:IsShown()) then

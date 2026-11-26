@@ -1,6 +1,7 @@
 -- Ist das Level-Up-Fenster an, kommt die Level-Up-Einblendung (Karte) nicht zusätzlich.
 -- Blizzards Toast im EventToastManager wird bewusst nicht angefasst (Eingriffe dort ließen die Controller-Leiste verschwinden).
 wow.login({ level = 3 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 local gains = { health = 90, strength = 3 }
 
 addon.Set("alertLevelUp", true)

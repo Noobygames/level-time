@@ -205,10 +205,12 @@ end
 local previousButton = Widgets.CreateButton(panel, ARROW_SIZE, ARROW_SIZE, function() stepCharacter(-1) end)
 previousButton:SetText("<")
 previousButton:SetPoint("TOPLEFT", MARGIN, CHARACTER_ROW_TOP + 4)
+Widgets.AttachTooltip(previousButton, function() return L.HISTORY end, function() return L.HISTORY_PREVIOUS_CHARACTER_TIP end)
 
 local nextButton = Widgets.CreateButton(panel, ARROW_SIZE, ARROW_SIZE, function() stepCharacter(1) end)
 nextButton:SetText(">")
 nextButton:SetPoint("TOPRIGHT", -MARGIN, CHARACTER_ROW_TOP + 4)
+Widgets.AttachTooltip(nextButton, function() return L.HISTORY end, function() return L.HISTORY_NEXT_CHARACTER_TIP end)
 
 -- Liste aller Charaktere (UI/CharacterMenu.lua): Klick auf den Namen
 local menu = ns.CharacterMenu.Create(panel, {
@@ -241,6 +243,7 @@ local deleteButton = Widgets.CreateButton(panel, DELETE_BUTTON_WIDTH, DELETE_BUT
   confirmDelete(History.DisplayName(selectedCharacter), selectedCharacter)
 end)
 deleteButton:SetPoint("TOPRIGHT", -(MARGIN + CLOSE_BUTTON_GAP), HEADER_TOP + 4)
+Widgets.AttachTooltip(deleteButton, function() return L.DELETE_CHARACTER end, function() return L.DELETE_CHARACTER_TIP end)
 
 -- Aufgehobener Doppel-Eintrag "Name-" des gewählten Charakters (Tracking/SplitEntry.lua, LT-414): zusammenführen oder
 -- verwerfen, beides mit Rückfrage; die Knöpfe erscheinen nur, wenn es so einen Eintrag gibt

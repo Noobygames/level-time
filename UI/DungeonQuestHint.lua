@@ -4,7 +4,8 @@
 -- Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt, ziehbar solange nicht gesperrt).
 -- DungeonQuestHint.Show(title, rows, mapID), rows = { { text, detail, muted, place = { uiMapID, x, y } }, ... }; mit
 -- mapID (Hinweis zu einer Instanz) steht über den Knöpfen der Haken "Für diesen Dungeon nicht mehr anzeigen" (LT-394,
--- je Charakter, DungeonQuestHints.SetHidden).
+-- je Charakter, DungeonQuestHints.SetHidden). Rechtsklick auf eine Zeile: Menü "Nicht mehr anzeigen" blendet diese
+-- Quest je Charakter aus (DungeonQuestHints.HideQuest) und nimmt die Zeile samt Kartenpunkt heraus.
 -- Alle Quests stehen in einer Liste mit Mausrad-Bildlauf (Fensterhöhe höchstens MAX_ROWS Zeilen). Klick auf eine Zeile
 -- mit Ort: eigener Kartenpunkt (eine Ebene über Lib/MapPins.lua) ein/aus, mehrere gleichzeitig, Zeile markiert; die
 -- Knöpfe unter der Liste setzen alle / entfernen alle. Wo es ihn gibt, folgt Blizzards Wegpunkt dem zuletzt gesetzten Punkt
@@ -38,6 +39,7 @@ local ACTION_PADDING = 16
 local ACTION_GAP = 6
 
 local panel = Widgets.CreatePanel(ns.GlobalName("DungeonQuestHint"), BACKGROUND_ALPHA)
+table.insert(UISpecialFrames, ns.GlobalName("DungeonQuestHint"))  -- mit ESC schließen
 panel:Hide()
 local header = Widgets.CreateWindowHeader(panel, "", { onClose = function() DungeonQuestHint.Hide() end })
 local title = header.title
@@ -121,6 +123,7 @@ local function pinsChanged()
   pinRevision = pinRevision + 1
   waypointLayer.SetEnabled(#pins > 0)
   updatePinMarks()
+  DungeonQuestHint.UpdateActions()
 end
 
 local function openMap(uiMapID)
@@ -202,6 +205,16 @@ local function createAction(labelKey, onClick, anchor)
 end
 local clearButton = createAction("DUNGEON_QUEST_HINT_CLEAR_ALL", function() DungeonQuestHint.ClearAll() end)
 local markButton = createAction("DUNGEON_QUEST_HINT_MARK_ALL", function() DungeonQuestHint.MarkAll() end, clearButton)
+
+-- Knöpfe nur aktiv, wenn sie etwas bewirken: Entfernen mit gesetzten Punkten, Markieren mit Quests mit Ort
+function DungeonQuestHint.UpdateActions()
+  clearButton:SetEnabled(#pins > 0)
+  local hasPlace = false
+  for _, entry in ipairs(shownEntries) do
+    if entry.place then hasPlace = true end
+  end
+  markButton:SetEnabled(hasPlace)
+end
 local FOOTER_HEIGHT = ACTION_HEIGHT + PADDING  -- Knopfzeile mit Abstand zur Liste
 local HIDE_ROW_HEIGHT = 28  -- Zeile mit dem Haken "nicht mehr anzeigen" über den Knöpfen
 
@@ -234,12 +247,23 @@ local function getRow(index)
   row.pinMark:SetPoint("RIGHT", -ROW_TEXT_INSET, 0)
   ns.MapPins.Paint(row.pinMark, PIN_LOOK)
   row.pinMark:Hide()
-  row:SetScript("OnClick", function(self)
+  row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  row:SetScript("OnClick", function(self, mouseButton)
     local entry = rowEntries[self]
-    if entry and entry.place then DungeonQuestHint.TogglePin(entry) end
+    if not entry then return end
+    if mouseButton == "RightButton" then
+      if editing or not entry.questID then return end  -- Beispielzeile im Edit-Modus hat keine Quest
+      ns.Dropdown.Open(self, { entries = { { key = "hide", text = L.HINT_HIDE_MENU } },
+        onPick = function() DungeonQuestHint.HideEntry(entry) end })
+    elseif entry.place then
+      DungeonQuestHint.TogglePin(entry)
+    end
   end)
-  Widgets.AttachTooltip(row, function() return ns.DISPLAY_NAME end,
-    function() return rowEntries[row] and rowEntries[row].place and L.DUNGEON_QUEST_HINT_CLICK or nil end)
+  Widgets.AttachTooltip(row, function() return ns.DISPLAY_NAME end, function()
+    local entry = rowEntries[row]
+    if not entry then return nil end
+    return entry.place and L.DUNGEON_QUEST_HINT_CLICK .. "\n" .. L.HINT_HIDE_CLICK or L.HINT_HIDE_CLICK
+  end)
   rows[index] = row
   return row
 end
@@ -287,6 +311,7 @@ local function layout(titleText, entries, mapID)
   content:SetSize(width, #entries * ROW_HEIGHT)
   area:SetVerticalScroll(0)
   updatePinMarks()
+  DungeonQuestHint.UpdateActions()
   panel:SetSize(width + 2 * PADDING,
     PADDING + TITLE_HEIGHT + math.min(#entries, DungeonQuestHint.MAX_ROWS) * ROW_HEIGHT + footer)
 end
@@ -299,6 +324,19 @@ function DungeonQuestHint.Show(titleText, entries, mapID)
   panel:SetAlpha(1)
   panel:Show()
   ns.Debug("dungeonquests", "hint shown: %s rows", #entries)
+end
+
+-- Quest der Zeile ausblenden: Zeile und Kartenpunkt weg, ohne weitere Zeilen schließt das Fenster
+function DungeonQuestHint.HideEntry(entry)
+  if not entry.questID then return end
+  ns.DungeonQuestHints.HideQuest(entry.questID)
+  if entry.place then removePin(pinKey(entry)) end
+  local remaining = {}
+  for _, shown in ipairs(shownEntries) do
+    if shown ~= entry then table.insert(remaining, shown) end
+  end
+  if lastShown then lastShown.entries = remaining end
+  if #remaining == 0 then hide() else layout(lastShown and lastShown.title or title:GetText(), remaining, hideMapID) end
 end
 
 -- Zuletzt gezeigten Hinweis erneut öffnen; false, wenn es noch keinen gab
@@ -335,7 +373,8 @@ ns.SetUpdateScript(panel, "DungeonQuestHint", function(self, elapsed)
   if not (ns.db and ns.db.dungeonQuestHintAutoClose) then return end
   local age = GetTime() - shownAt
   local hold = DungeonQuestHint.DISPLAY_SECONDS
-  if self:IsMouseOver() and age > hold then  -- unter der Maus bleibt es stehen
+  -- unter der Maus bleibt es stehen, nicht beim Umsehen mit gedrückter Maustaste (versteckter Zeiger)
+  if self:IsMouseOver() and not (IsMouselooking and IsMouselooking()) and age > hold then
     shownAt = GetTime() - hold
     age = hold
   end

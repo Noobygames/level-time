@@ -1,5 +1,5 @@
--- LT-412: Häuptling Hawkwind (NPC 2981) bietet Stufe 45 den grauen Kettenschritt 1 (752, Maraudon) an: Ausrufezeichen
--- am Zielfenster; im Hinweis steht Schritt 1, nach der Annahme Schritt 2.
+-- LT-412: Fizzle Brassbolts (NPC 4454) bietet Stufe 45 den grauen Kettenschritt 1 (1104, Uldaman) an: Ausrufezeichen
+-- am Zielfenster; im Hinweis steht Schritt 1, nach der Annahme der nächste offene Schritt.
 local DQ = addon.DungeonQuests
 local created = {}
 local realCreate = CreateFrame
@@ -12,12 +12,12 @@ TargetFrame = CreateFrame("Frame")
 
 wow.state.class = "WARRIOR"
 wow.state.faction = "Horde"
-wow.state.units.target = { name = "Häuptling Hawkwind", guid = "Creature-0-4379-1-31-2981-0001" }
+wow.state.units.target = { name = "Fizzle Brassbolts", guid = "Creature-0-4379-1-31-4454-0001" }
 wow.login({ level = 45 })
 wow.fire("PLAYER_TARGET_CHANGED")
 
 local offers = DQ.UnitOffers("target")
-expect("Schritt 1 im Angebot", offers[1] and offers[1].questID, 752)
+expect("Schritt 1 im Angebot", offers[1] and offers[1].questID, 1104)
 expect("Schritt 1 von 7", offers[1].step, 1)
 local mark = created[TargetFrame]
 expectTrue("Zielfenster markiert", mark ~= nil and mark:IsShown())
@@ -25,16 +25,17 @@ expectTrue("Ausrufezeichen", mark.bang:IsShown())
 expectTrue("kein Dungeon-Symbol", not mark.icon:IsShown())
 
 local first
-for _, quest in ipairs(DQ.InstanceQuests(349)) do
+for _, quest in ipairs(DQ.InstanceQuests(70)) do
   if quest.step and not first then first = quest end
 end
 expect("Hinweisliste beginnt mit Schritt 1", first.step, 1)
 
-wow.state.questLog = { { questID = 752, title = "A Humble Task", objectives = {} } }
+wow.state.questLog = { { questID = 1104, title = "Salt Flat Venom", objectives = {} } }
 wow.fire("QUEST_LOG_UPDATE")
 local next1
-for _, quest in ipairs(DQ.InstanceQuests(349)) do
+for _, quest in ipairs(DQ.InstanceQuests(70)) do
   if quest.step and not next1 then next1 = quest end
 end
-expect("nach Annahme Schritt 2", next1.questID, 753)
+-- 1105 ist die zweite Quest auf Stufe 1, erst beide zusammen öffnen Stufe 2 (1106)
+expect("nach Annahme die andere Quest der Stufe 1", next1.questID, 1105)
 expect("keine Lua-Fehler", #wow.errors, 0)

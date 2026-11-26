@@ -5,6 +5,7 @@ local ClassQuests = addon.ClassQuests
 wow.state.class = "DRUID"
 wow.state.spellNames[5487] = "Bärengestalt"
 wow.login({ level = 9 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 addon.Alerts.Clear()
 addon.Hints.Clear()
 local gains = { health = 90 }

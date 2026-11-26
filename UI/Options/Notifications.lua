@@ -160,7 +160,12 @@ addToggles({
   toggle("REMIND_TRAINER_TOGGLE", "remindTrainer", ns.TrainerReminder.IsAvailable),
   toggle("REMIND_HEARTH_TOGGLE", "remindHearth"),
   toggle("WARN_OLD_SPELL_RANKS_TOGGLE", "warnOldSpellRanks", ns.OldSpellRanks.IsAvailable),
+  toggle("HINTS_COLLECT_TOGGLE", "hintsCollect"),
   toggle("HINTS_AUTOCLOSE_TOGGLE", "hintsAutoClose"),
+})
+addButton("HINTS_RESTORE", function() ns.Hints.ClearHidden() end, {
+  text = function() return string.format(L.HINTS_RESTORE, ns.Hints.HiddenCount()) end,
+  enabled = function() return ns.Hints.HiddenCount() > 0 end,
 })
 if ns.OldSpellRanks.IsAvailable() then
   addButton("OLD_RANKS_RESTORE", function() ns.OldSpellRanks.ClearIgnored() end, {

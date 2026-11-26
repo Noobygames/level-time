@@ -11,6 +11,8 @@
 --   encounterAliases = { [encounterID] = encounterID }   weitere IDs desselben Bosses -> eine gemeinsame ID der Gruppe,
 --   bossNames  = { [encounterID] = Name (enUS) }   Namen, die in ns.BossData fehlen,
 --   rareNpcs   = { [Karten-ID] = { [NPC-ID] = Name (enUS, nur Rückfall) } }   Rare ohne Encounter (Erkennung per Kampflog),
+--   bossOrder  = { [Karten-ID] = { encounterID, ... } }   übliche Laufreihenfolge statt OrderIndex der Spieldaten,
+--   endBosses  = { [encounterID] = true }   Endboss, wenn er nicht der letzte der Bossliste ist,
 -- }
 -- wings, encounterAliases, bossNames, rareNpcs und die Rar-Bosse außer 3511 wurden am 2026-11-14 einmalig importiert
 -- (WTFPL-Quelle), siehe sources.md. Dungeonquests stehen in ns.DungeonDB (dungeon_db.lua).
@@ -417,6 +419,15 @@ ns.InstanceGuide = {
   -- Boss ohne Gegenstück in ns.BossData (in keiner Bossliste: zählt als Kill, nicht zum Fortschritt)
   bossNames = {
     [277] = "Solakar Flamewreath",
+  },
+  -- Übliche Laufreihenfolge, wo der OrderIndex der Spieldaten nicht passt (gleiche IDs wie ns.BossData)
+  bossOrder = {
+    -- Zul'Farrak: Antu'sul zuerst, Velratha und Gahz'rilla (mit dem Schlaghammer beschworen) zum Schluss
+    [209] = { 595, 596, 597, 598, 599, 600, 593, 594 },
+  },
+  -- Endbosse, die durch bossOrder nicht mehr am Ende der Liste stehen
+  endBosses = {
+    [600] = true,  -- Häuptling Ukorz Sandskalp (Zul'Farrak)
   },
   -- Rare ohne Encounter-ID: Erkennung über die NPC-ID des gestorbenen Gegners im Kampflog, nie Fortschritt
   rareNpcs = {

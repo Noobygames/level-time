@@ -209,11 +209,12 @@ end
 
 -- Fällig: fehlt und die Pause ist um, oder (remindOnLoss) war bei der letzten Prüfung noch da. Ohne remindOnLoss
 -- wird während der Pause gar nicht erst nachgesehen (das Ergebnis würde nichts ändern).
--- Buff wieder da: sein Hinweis verschwindet aus dem Hinweisfenster, das nächste Fehlen öffnet es wieder
+-- Buff wieder da: sein Hinweis verschwindet aus dem Hinweisfenster bzw. als Karte, das nächste Fehlen zeigt ihn wieder
 local function buffBack(reminder)
   if not reminder.collected then return end
   reminder.collected = nil
   ns.Hints.DismissKey(reminder.setting)
+  ns.Alerts.DismissKey(reminder.setting)  -- als Karte (Hinweise nicht gesammelt): wartende und laufende Karte enden
 end
 
 local function isDue(reminder)

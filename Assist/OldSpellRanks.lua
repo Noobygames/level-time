@@ -201,7 +201,7 @@ function OldSpellRanks.Check()
       onDismiss = function() OldSpellRanks.Ignore(spell.spellID) end,
       action = spell.upgradeID and upgradeAction(spell) })
   end
-  ns.Alerts.Notify({ title = L.NOTICE_OLD_SPELL_RANKS,
+  ns.Alerts.Notify({ key = "oldSpellRanks", title = L.NOTICE_OLD_SPELL_RANKS,
     text = string.format(L.WARN_OLD_SPELL_RANKS, table.concat(names, ", ")),
     icon = ns.Alerts.ICONS.trainer, rows = rows,
     header = { L.OLD_RANKS_COL_SPELL, L.OLD_RANKS_COL_BAR, L.OLD_RANKS_COL_BOOK } },

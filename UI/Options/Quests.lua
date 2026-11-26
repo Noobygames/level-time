@@ -13,7 +13,12 @@ addSubPage("OPTIONS_PAGE_QUEST_AUTOMATION")
 addSection("SECTION_QUEST_AUTOMATION", { collapsible = true })
 addToggles({
   toggle("AUTO_ACCEPT_QUESTS", "autoAcceptQuests"),
-  toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared"),
+  -- "Geteilte Quests ablehnen" (Komfort) gewinnt: dann ausgegraut statt still wirkungslos
+  (function()
+    local definition = toggle("AUTO_ACCEPT_SHARED", "autoAcceptShared")
+    definition.enabled = function(db) return not db.declineSharedQuests end
+    return definition
+  end)(),
   toggle("AUTO_TURN_IN", "autoTurnIn"),
   requires(toggle("AUTO_CHOOSE_REWARD", "autoChooseReward"), "autoTurnIn"),
   toggle("SKIP_GOSSIP", "skipGossip"),

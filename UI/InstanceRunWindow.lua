@@ -79,12 +79,11 @@ windowHeader:SetIcon("Interface\\Icons\\INV_Helmet_08")  -- Dungeon
 local title = windowHeader
 -- Dungeon Guide von Hand öffnen (Assist/DungeonGuide.lua, nur mit Guide-Daten)
 local guideButton = Widgets.CreateButton(windowHeader.actions, 1, 22, function() ns.DungeonGuide.Open() end)
-guideButton:SetPoint("RIGHT")
+local HEADER_BUTTON_GAP = 8
 Widgets.AttachTooltip(guideButton, function() return L.DUNGEON_GUIDE_SHOW end, function() return L.DUNGEON_GUIDE_SHOW_TIP end)
 ns.RegisterApply(function()
   guideButton:SetText(L.DUNGEON_GUIDE_BUTTON)
   guideButton:SetWidth(math.ceil(guideButton.label:GetStringWidth()) + 16)
-  windowHeader.actions:SetWidth(guideButton:GetWidth())
   guideButton:SetShown(ns.DungeonGuide.IsAvailable())
 end)
 
@@ -97,6 +96,8 @@ local recapButton = Widgets.CreateButton(windowHeader.actions, 60, RECAP_BUTTON_
   ns.DungeonRecapWindow.Show(state.characterKey, state.selected)
 end)
 recapButton:SetPoint("RIGHT")
+-- Guide links neben Recap (beide im Kopf rechts; vorher lagen sie übereinander)
+guideButton:SetPoint("RIGHT", recapButton, "LEFT", -HEADER_BUTTON_GAP, 0)
 Widgets.AttachTooltip(recapButton, function() return L.DUNGEON_RECAP_BUTTON end, function() return L.DUNGEON_RECAP_BUTTON_TIP end)
 
 -- Reiterzeile (Filter oder Vergleich): options = { { id, label } }, onPick(id)
@@ -481,7 +482,8 @@ local function renderDetail(records, index)
   local record = records and records[index]
   local hasRecord = record ~= nil
   emptyText:SetShown(not hasRecord)
-  emptyText:SetText(L.DUNGEON_RUNS_EMPTY)
+  -- Läufe da, aber der Filter (Dungeons/Raids) lässt keinen übrig: anderer Text als "noch keine Läufe"
+  emptyText:SetText(records and #records > 0 and L.DUNGEON_RUNS_EMPTY_FILTER or L.DUNGEON_RUNS_EMPTY)
   for _, part in ipairs({ runName, runInfo, tableHeader, lootTitle, lootText, compareLabel, endBossPortrait }) do
     part:SetShown(hasRecord)
   end
@@ -540,7 +542,8 @@ refresh = function()
   selectedIsCurrent = selectedIndex ~= nil and records[selectedIndex].isCurrent == true
   recapButton:SetText(L.DUNGEON_RECAP_BUTTON)
   recapButton:SetWidth(recapButton:GetTextWidth() + RECAP_BUTTON_PADDING)
-  windowHeader.actions:SetWidth(recapButton:GetWidth())
+  local guideWidth = guideButton:IsShown() and guideButton:GetWidth() + HEADER_BUTTON_GAP or 0
+  windowHeader.actions:SetWidth(recapButton:GetWidth() + guideWidth)
   local selectedRecord = selectedIndex and records[selectedIndex]
   recapButton:SetEnabled(selectedRecord ~= nil and (selectedRecord.isCurrent or InstanceRuns.IsCompleted(selectedRecord)))
   renderList(records, indices, selectedIndex)

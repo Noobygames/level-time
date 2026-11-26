@@ -59,6 +59,7 @@ local THEME_COLORS = {
 }
 
 local frame = CreateFrame("Frame", ns.GlobalName("LevelUp"), UIParent)
+table.insert(UISpecialFrames, ns.GlobalName("LevelUp"))  -- mit ESC schließen
 frame:SetFrameStrata("FULLSCREEN_DIALOG")
 frame:SetClampedToScreen(true)
 frame:Hide()

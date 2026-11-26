@@ -151,7 +151,7 @@ local function hint(entry)
   hinted[key] = true
   local npc = ns.NpcNames.Get(entry.npcID) or ("#" .. entry.npcID)
   ns.Debug("trivialgivers", "gray quest %s near %s (%s)", entry.questID, npc, entry.npcID)
-  ns.Alerts.Notify({ title = L.NOTICE_TRIVIAL_CHAIN_GIVER,
+  ns.Alerts.Notify({ hideKey = "trivialChainGiver", title = L.NOTICE_TRIVIAL_CHAIN_GIVER,
     text = string.format(L.TRIVIAL_CHAIN_GIVER_HINT, DungeonQuests.Title(entry.questID),
       ns.InstanceInfo.MapName(entry.mapID), npc), icon = BANG_ICON }, ns.Alerts.REMINDER_COLOR, ns.Alerts.COLLECT)
 end

@@ -78,8 +78,9 @@ _G[addon.GlobalName("NpcNameScanTooltip") .. "TextLeft1"] = nil
 LevelTimerStatsDB.questNpcs = { [167] = { giver = { name = "Wilder Klippenschmied" }, spots = {} } }
 expect("gelernter Name", Hints.GiverName(167), "Wilder Klippenschmied")
 
--- Bleibt stehen, bis es geschlossen wird (Standard)
-expect("Auto-Schließen Standard aus", addon.db.dungeonQuestHintAutoClose, false)
+-- Auto-Schließen Standard an; aus: bleibt stehen, bis es geschlossen wird
+expect("Auto-Schließen Standard an", addon.db.dungeonQuestHintAutoClose, true)
+addon.Set("dungeonQuestHintAutoClose", false)
 wow.advance(Hint.DISPLAY_SECONDS + 5)
 wow.update(0.1)
 expectTrue("bleibt ohne Auto-Schließen", Hint.IsShown())
@@ -102,7 +103,21 @@ Hint.Show("Test", Hints.ZoneEntries(1453))
 wow.advance(Hint.DISPLAY_SECONDS + 1)
 wow.update(0.1)
 expectTrue("schließt von selbst", not Hint.IsShown())
+-- Umsehen mit gedrückter Maustaste: versteckter Zeiger über dem Fenster hält es nicht offen
+local hintPanel = _G[addon.GlobalName("DungeonQuestHint")]
+Hint.Show("Test", Hints.ZoneEntries(1453))
+hintPanel.IsMouseOver = function() return true end
+IsMouselooking = function() return true end
+wow.advance(Hint.DISPLAY_SECONDS + 1)
+wow.update(0.1)
+expectTrue("schließt trotz Zeiger beim Umsehen", not Hint.IsShown())
+IsMouselooking, hintPanel.IsMouseOver = nil, nil
 addon.Set("dungeonQuestHintAutoClose", false)
+-- Knöpfe: Entfernen nur mit gesetzten Punkten
+Hint.Show("Test", Hints.ZoneEntries(1453))
+Hint.ClearAll()
+expect("ohne Punkte nichts zu entfernen", Hint.PinCount(), 0)
+Hint.Hide()
 
 -- Einmal je Zone und Sitzung
 wow.fire("ZONE_CHANGED_NEW_AREA")
@@ -208,3 +223,39 @@ expectTrue("Eingang: trotzdem", Hints.ShowInstance(DEADMINES) and Hint.IsShown()
 Hints.SetHidden(DEADMINES, false)
 expect("wieder an", addon.character.hiddenDungeonQuestHints[DEADMINES], nil)
 expect("Zonen-Hinweis wieder vollständig", #Hints.ZoneEntries(1453), zoneCount)
+
+-- Rechtsklick auf eine Zeile: Menü "nicht mehr anzeigen" blendet diese Quest je Charakter aus (Zone und Annahme),
+-- der Eingang zeigt sie weiter; der Knopf in den Optionen blendet alles wieder ein
+local menu
+local openMenu = addon.Dropdown.Open
+addon.Dropdown.Open = function(anchor, options)
+  menu = options
+  return openMenu(anchor, options)
+end
+Hint.Show("Test", Hints.ZoneEntries(1453))
+local hideRows, hideEntries = Hint.Rows()
+local hiddenQuest = hideEntries[hideRows[1]].questID
+local shownBefore = #Hints.ZoneEntries(1453)
+hideRows[1]:GetScript("OnClick")(hideRows[1], "RightButton")
+expect("Menü mit einem Eintrag", menu and #menu.entries, 1)
+expect("Menütext", menu.entries[1].text, L.HINT_HIDE_MENU)
+menu.onPick("hide")
+addon.Dropdown.Close()
+expectTrue("Quest gemerkt je Charakter", addon.character.hiddenDungeonQuests[hiddenQuest] == true)
+expect("Zonen-Hinweis ohne die Quest", #Hints.ZoneEntries(1453), shownBefore - 1)
+for _, entry in ipairs(select(2, Hint.Rows())) do expectTrue("Zeile entfernt", entry.questID ~= hiddenQuest) end
+expect("zählt mit", Hints.HiddenCount(), 1)
+Hints.ClearHidden()
+expect("wieder eingeblendet", #Hints.ZoneEntries(1453), shownBefore)
+expect("nichts mehr ausgeblendet", Hints.HiddenCount(), 0)
+-- Quest ohne bekannten Ort (Eingangs-Hinweis): ausblenden ohne Fehler
+local errorsBefore = #wow.errors
+Hint.Show("Ohne Ort", { { questID = 99901, text = "Quest ohne Ort" }, { questID = 99902, text = "Zweite" } })
+local noPlaceRows = Hint.Rows()
+Hint.HideEntry(select(2, Hint.Rows())[noPlaceRows[1]])
+expect("ohne Ort: kein Fehler", #wow.errors, errorsBefore)
+local firstRows, firstEntries = Hint.Rows()
+expect("ohne Ort: Zeile entfernt", firstEntries[firstRows[1]] and firstEntries[firstRows[1]].questID, 99902)
+Hints.ClearHidden()
+addon.Dropdown.Open = openMenu
+Hint.Hide()

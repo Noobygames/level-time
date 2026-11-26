@@ -95,3 +95,21 @@ expect("Sprache Englisch", LevelTimerDB.language, "enUS")
 wow.click("English")
 expectTrue("Sprach-Reiter Deutsch", wow.click("Deutsch"))
 expect("Sprache Deutsch", LevelTimerDB.language, "deDE")
+
+-- Gold-Bilanz im Hauptfenster: Einnahmen minus Ausgaben, negativ mit Minus; Tooltip nennt beide Summen
+do
+  local Stats = addon.Stats
+  local before = Stats.MoneyBalance(Stats.SESSION)
+  Stats.Increment(Stats.MONEY_EARNED, 500)
+  Stats.Increment(Stats.SPENT_REPAIR, 800)
+  expect("Bilanz = Einnahmen - Ausgaben", Stats.MoneyBalance(Stats.SESSION), before - 300)
+  expect("Ausgaben summiert", Stats.Spent(Stats.SESSION) >= 800, true)
+  expect("negativ mit Minus", addon.Format.SignedMoney(-300):sub(1, 1), "-")
+  local definition
+  for _, stat in ipairs(addon.STAT_LINES) do
+    for _, row in ipairs(stat.rows) do if row.label == "ROW_MONEY" then definition = row end end
+  end
+  local tip = addon.WindowElements.RowTip({ definition = definition })
+  expectTrue("Tooltip Einnahmen", tip and tip:find(addon.L.MONEY_TIP_INCOME:gsub("%%s", ""), 1, true) ~= nil)
+  expectTrue("Tooltip Ausgaben", tip and tip:find(addon.L.MONEY_TIP_SPENT:gsub("%%s", ""), 1, true) ~= nil)
+end

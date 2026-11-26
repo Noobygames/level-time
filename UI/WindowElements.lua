@@ -46,6 +46,8 @@ function WindowElements.RowTip(data)
   if not data then return nil end
   local parts = {}
   if data.stat then table.insert(parts, L[data.stat.label .. "_TIP"]) end
+  -- Zeilen mit eigenem Zusatz (z.B. Gold-Bilanz: Einnahmen und Ausgaben) für den gewählten Bereich
+  if data.definition and data.definition.tip and ns.db then table.insert(parts, data.definition.tip(ns.db.windowScope)) end
   if data.value == Format.PENDING then
     table.insert(parts, L.ROW_PENDING_TIP)
   elseif data.value == Format.NO_VALUE then

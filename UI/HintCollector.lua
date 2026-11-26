@@ -1,10 +1,12 @@
 -- Sammelfenster für Erinnerungen (Buffs, Lehrer, Taschen, alte Zauberränge, ...): Hinweise, die kurz nacheinander
 -- kommen, stehen als Liste in EINEM Fenster statt als mehrere Banner nacheinander (Alerts.Notify mit
--- options.collect). Je Zeile Symbol und Text, ein X schließt sie, "Alle schließen" im Kopf. Das Fenster bleibt, bis es
+-- options.collect, nur mit hintsCollect; Einträge mit Tabelle kommen immer hierher).
+-- Je Zeile Symbol und Text, ein X schließt sie, das X im Kopf schließt alle. Das Fenster bleibt, bis es
 -- geschlossen wird; mit hintsAutoClose (Standard an) schließt es nach hintsAutoCloseSeconds (Standard 10);
--- unter der Maus hält die Zeit an und beginnt danach von vorn.
+-- unter der Maus hält die Zeit an und beginnt danach von vorn (nicht beim Umsehen mit gedrückter Maustaste: der
+-- versteckte Mauszeiger steht dann oft über dem Fenster).
 -- Dringende Meldungen (Aggro, Atemnot, Rare/Elite, Notfall) bleiben sofortige Banner (UI/Alerts.lua).
--- Hints.Add(entry): entry = { text, title, icon/texture (Alerts.ICONS), key, rows, header }. Gleicher key (Standard:
+-- Hints.Add(entry): entry = { text, title, icon/texture (Alerts.ICONS), key, hideKey, rows, header }. Gleicher key (Standard:
 -- der Text) ersetzt die Zeile statt sie zu verdoppeln. rows = { { spellID, name, columns = { ... } } } hängt eine
 -- Tabelle mit ausgerichteten Spalten unter die Zeile (Zaubersymbol mit Zaubertooltip, Name, Spalten); header =
 -- { Name-Kopf, Spaltenkopf, ... } ist ihre Kopfzeile. Eine Tabellenzeile mit onDismiss hat rechts einen eigenen
@@ -12,6 +14,8 @@
 -- action = { tip, run, onEnter, onLeave } setzt links daneben einen grünen Pfeil-hoch-Knopf (z.B. Zauberrang upgraden,
 -- LT-409): Überfahren ruft onEnter/onLeave (optional), Klick ruft run(); gibt es true zurück, verschwindet die Zeile
 -- (ohne onDismiss).
+-- Rechtsklick auf eine Hinweiszeile: Menü "Nicht mehr anzeigen" blendet hideKey (sonst key) accountweit aus
+-- (ns.db.hiddenHints[key] = true, Tabelle erst bei Bedarf); Alerts.Notify zeigt ihn dann weder hier noch als Karte.
 -- text und title dürfen Funktionen sein: sie werden bei jedem Aufbau des Fensters ausgewertet, so folgt der Text einem
 -- Sprachwechsel (Alerts.Resolve). Position über Lib/Frames.lua (Edit-Modus mit Beispielinhalt).
 local _, ns = ...
@@ -21,6 +25,7 @@ local Theme = ns.Theme
 
 ns.RegisterDefaults({
   settings = {
+    hintsCollect = false,   -- an: Erinnerungen in einem Fenster sammeln statt einzelner Karten (Opt-In)
     hintsAutoClose = true,  -- aus: Fenster bleibt, bis es geschlossen wird
     hintsAutoCloseSeconds = 10,
   },
@@ -47,26 +52,28 @@ local ROW_PADDING = 8    -- Luft über und unter dem Text einer Zeile
 local TEXT_MAX_WIDTH = 360
 local FADE_OUT = 0.7
 local BACKGROUND_ALPHA = 0.92
-local CLOSE_ALL_WIDTH = 110
+local SAMPLE_KEY = "sample"  -- Beispielinhalt im Edit-Modus
 
 local panel = Widgets.CreatePanel(ns.GlobalName("Hints"), BACKGROUND_ALPHA)
+table.insert(UISpecialFrames, ns.GlobalName("Hints"))  -- mit ESC schließen
 panel:Hide()
 local header = Widgets.CreateWindowHeader(panel, "", { onClose = function() Hints.Clear() end })
 header:SetIcon("Interface\\Icons\\INV_Misc_NotePicture1c")  -- Hinweis
-local closeAll = Widgets.CreateButton(header.actions, CLOSE_ALL_WIDTH, 22, function() Hints.Clear() end)
-closeAll:SetPoint("RIGHT")
+-- Das X schließt alle Hinweise (ein eigener "Alle schließen"-Knopf tat dasselbe und entfällt)
 -- Feste Texte erst nach dem Login und bei jedem Sprachwechsel (beim Laden gilt noch die Client-Sprache)
 ns.RegisterApply(function()
   header:SetTitle(L.HINTS_TITLE)
-  closeAll:SetText(L.HINTS_CLOSE_ALL)
-  closeAll:SetWidth(math.max(CLOSE_ALL_WIDTH, closeAll:GetTextWidth() + 16))
-  header.actions:SetWidth(closeAll:GetWidth())
 end)
 
 local entries = {}  -- Hinweise in Reihenfolge des Eintreffens
 local rows = {}     -- Zeilenpool; row.entry = Hinweis, row.detail = Tabellenzeile
 local shownAt
 local editing = false
+-- Esc (UISpecialFrames) versteckt nur: die Hinweise gelten dann als gelesen wie beim X. OnHide kommt auch, wenn
+-- UIParent verschwindet (Alt+Z); dann bleibt das eigene Shown-Flag gesetzt und die Hinweise bleiben
+panel:HookScript("OnHide", function(self)
+  if not editing and not self:IsShown() then entries = {} end
+end)
 
 local function iconOf(entry)
   if entry.texture then return entry.texture end
@@ -83,6 +90,13 @@ local function getRow(index)
   row.text:ClearAllPoints()
   row.text:SetPoint("LEFT", row.icon, "RIGHT", TEXT_GAP, 0)
   row.columns = {}
+  row:RegisterForClicks("RightButtonUp")
+  row:SetScript("OnClick", function(self)
+    local entry = self.entry
+    if type(entry) ~= "table" or type(self.detail) == "table" or entry.key == SAMPLE_KEY then return end  -- nur Hinweiszeile
+    ns.Dropdown.Open(self, { entries = { { key = "hide", text = L.HINT_HIDE_MENU } },
+      onPick = function() Hints.HideKey(entry.hideKey or entry.key) end })
+  end)
   row.dismiss = Widgets.CreateCloseButton(row)
   row.dismiss:ClearAllPoints()
   row.dismiss:SetPoint("RIGHT", -ICON_INSET / 2, 0)
@@ -290,6 +304,28 @@ function Hints.DismissLine(row)
   Hints.RemoveLine(row)
 end
 
+function Hints.IsHidden(key)
+  return ns.db.hiddenHints ~= nil and ns.db.hiddenHints[key] == true
+end
+
+-- Hinweis dauerhaft ausblenden (Rechtsklick-Menü) und aus dem Fenster nehmen
+function Hints.HideKey(key)
+  ns.db.hiddenHints = ns.db.hiddenHints or {}
+  ns.db.hiddenHints[key] = true
+  ns.Debug("hints", "hidden %s", key)
+  Hints.DismissKey(key)
+end
+
+function Hints.HiddenCount()
+  local count = 0
+  for _ in pairs(ns.db.hiddenHints or {}) do count = count + 1 end
+  return count
+end
+
+function Hints.ClearHidden()
+  ns.db.hiddenHints = nil
+end
+
 -- Hinweis aufnehmen (Fenster öffnet sich oder wächst); gleicher key ersetzt den alten Eintrag
 function Hints.Add(entry)
   entry.key = entry.key or ns.Alerts.Resolve(entry.text)
@@ -316,7 +352,7 @@ function Hints.Rows() return rows end
 ns.SetUpdateScript(panel, "Hints", function(self)
   if editing or not shownAt or not (ns.db and ns.db.hintsAutoClose) then return end
   -- Unter der Maus (Lesen, Knöpfe, Tooltips) läuft keine Zeit: nach dem Verlassen beginnt die volle Wartezeit neu
-  if self:IsMouseOver() then
+  if self:IsMouseOver() and not (IsMouselooking and IsMouselooking()) then
     shownAt = GetTime()
     self:SetAlpha(1)
     return
@@ -324,6 +360,7 @@ ns.SetUpdateScript(panel, "Hints", function(self)
   local age = GetTime() - shownAt
   local hold = ns.db.hintsAutoCloseSeconds
   if age >= hold + FADE_OUT then
+    ns.Debug("hints", "auto-closed after %s s, %s in window", hold, #entries)
     Hints.Clear()
   elseif age > hold then
     self:SetAlpha(1 - (age - hold) / FADE_OUT)
@@ -334,7 +371,7 @@ end)
 local function setEditing(enabled)
   if enabled then
     local saved = entries
-    entries = { { text = L.HINTS_SAMPLE, title = L.NOTICE_TRAINER, icon = ns.Alerts.ICONS.trainer, key = "sample" } }
+    entries = { { text = L.HINTS_SAMPLE, title = L.NOTICE_TRAINER, icon = ns.Alerts.ICONS.trainer, key = SAMPLE_KEY } }
     layout()
     entries = saved
     editing = true

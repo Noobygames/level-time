@@ -1,4 +1,4 @@
--- Tests für Assist/Mail.lua (Roadmap 450: Post-Helfer / Postal Light)
+-- Tests für Assist/Mail.lua (Roadmap 450: Post-Helfer / Postal Light), in Classic Era: nur dort gibt es unseren "Alle öffnen"-Knopf
 local L = addon.L
 local Mail = addon.Mail
 
@@ -51,22 +51,29 @@ SendMailFrame:Show()
 wow.fire("MAIL_SHOW")
 
 local openAll = LevelTimerMailOpenAllButton
-local altBtn = LevelTimerMailAltButton
+local Panel = addon.MailAltPanel
 expectTrue("Open All Knopf existiert", openAll ~= nil)
 expectTrue("Open All Knopf ist sichtbar", openAll:IsShown())
-expectTrue("Alt Knopf existiert", altBtn ~= nil)
-expectTrue("Alt Knopf ist sichtbar", altBtn:IsShown())
--- Breite folgt dem Text in der Addon-Sprache (lange Sprachen laufen nicht über den Knopf)
-expect("Alt Knopf Text", altBtn:GetText(), addon.L.MAIL_RECIPIENTS_ALTS)
-expectTrue("Alt Knopf breit genug", altBtn:GetWidth() >= altBtn:GetTextWidth())
+expectTrue("Twink-Fenster sichtbar", Panel.IsShown())
+local altRows = Panel.Rows()
+expect("Zeile je Twink (Alice)", altRows[1].text:GetText(), "Alice")
+expect("Zeile je Twink (Zul)", altRows[2].text:GetText(), "Zul")
 
--- Twink-Durchschalten per Klick auf LevelTimerMailAltButton
-altBtn._scripts.OnClick(altBtn)
-expect("erster Klick wählt ersten Twink (Alice)", SendMailNameEditBox:GetText(), "Alice")
-altBtn._scripts.OnClick(altBtn)
-expect("zweiter Klick wählt zweiten Twink (Zul)", SendMailNameEditBox:GetText(), "Zul")
-altBtn._scripts.OnClick(altBtn)
-expect("dritter Klick fängt wieder bei erstem Twink an (Alice)", SendMailNameEditBox:GetText(), "Alice")
+-- Klick auf eine Zeile trägt den Twink ein und markiert sie
+altRows[2]:GetScript("OnClick")(altRows[2])
+expect("Klick trägt Zul ein", SendMailNameEditBox:GetText(), "Zul")
+expectTrue("Zeile markiert", altRows[2]:IsSelected() and not altRows[1]:IsSelected())
+altRows[1]:GetScript("OnClick")(altRows[1])
+expect("Klick trägt Alice ein", SendMailNameEditBox:GetText(), "Alice")
+
+-- X blendet bis zum Schließen der Post aus, Posteingang zeigt es nie
+addon.MailAltPanel.Reset()
+SendMailFrame:Hide()
+addon.MailAltPanel.Update()
+expectTrue("nicht im Posteingang", not Panel.IsShown())
+SendMailFrame:Show()
+addon.MailAltPanel.Update()
+expectTrue("wieder im Versenden", Panel.IsShown())
 
 ---------------------------------------------------------------------------
 -- 5. Alt-Klick zum Anhängen: Mail.TryAttachBagItem(bag, slot)
@@ -170,6 +177,6 @@ wow.state.shiftDown = false
 ---------------------------------------------------------------------------
 addon.Set("mailAssist", false)
 expect("Open All Knopf versteckt nach Deaktivierung", openAll:IsShown(), false)
-expect("Alt Knopf versteckt nach Deaktivierung", altBtn:IsShown(), false)
+expect("Twink-Fenster versteckt nach Deaktivierung", Panel.IsShown(), false)
 
 expect("keine Lua-Fehler", #wow.errors, 0)

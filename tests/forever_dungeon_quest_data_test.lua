@@ -30,6 +30,9 @@ end
 -- Alcaz-Kette Allianz: Shaw > Sully > Sully > Das geheime Gefängnis, Horde: Eitrigg > Nazeer > Ulka > Ulka
 expect("Allianz-Kette Anfang", DB.questChains[95194][2], 95262)
 expect("Allianz-Kette Gesamt", DB.questChains[95194][4], 4)
+-- Import-Fehler: Ritus der Sicht (771, Mulgore) hing wegen eines Questziels mit Razorlash an Maraudon
+expect("Ritus der Sicht keine Maraudon-Quest", DB.questChains[767], nil)
+expect("Ritus der Kraft keine Vorquest", DB.questChains[757], nil)
 expect("Horde-Kette Anfang", DB.questChains[95283][2], 96332)
 expect("Horde-Kette hinten", DB.questChains[95285][3], 3)
 expect("Vorquest Allianz", DB.questInfo[96381].preAny[1], 95198)

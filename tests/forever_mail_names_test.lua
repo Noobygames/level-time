@@ -23,7 +23,8 @@ addon.Set("mailAssist", true)
 MailFrame:Show()
 SendMailFrame:Show()
 wow.fire("MAIL_SHOW")
-LevelTimerMailAltButton._scripts.OnClick(LevelTimerMailAltButton)
+local firstRow = addon.MailAltPanel.Rows()[1]
+firstRow:GetScript("OnClick")(firstRow)
 expect("Empfängerfeld mit vollem Namen", SendMailNameEditBox:GetText(), "Jaina Prachtmeer")
 expect("keine Lua-Fehler", #wow.errors, 0)
 
@@ -32,3 +33,5 @@ local name, realm = addon.Client.UnitNameAndRealm("player")
 expect("Name ohne Nachname", name, "Arthas")
 expect("kein Realm in Forever", realm, nil)
 expectTrue("Spieler in den Gruppennamen ohne Nachname", addon.LootRolls.GroupNames()[1] == "Arthas")
+-- Forever hat Blizzards eigenen "Alle öffnen"-Knopf (OpenAllMail), unserer entsteht nicht
+expectTrue("kein eigener Alle-öffnen-Knopf in Forever", LevelTimerMailOpenAllButton == nil)

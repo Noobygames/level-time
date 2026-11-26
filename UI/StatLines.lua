@@ -202,7 +202,15 @@ local function money(counterName)
   return function(scope) return Format.Money(Stats.Get(scope, counterName)) end
 end
 
-local income = money(Stats.MONEY_EARNED)
+-- Gold-Bilanz: Einnahmen minus alle Ausgaben; Tooltip nennt beide Summen
+local function moneyBalance(scope)
+  return Format.SignedMoney(Stats.MoneyBalance(scope))
+end
+
+local function moneyBalanceTip(scope)
+  return string.format(ns.L.MONEY_TIP_INCOME, Format.Money(Stats.Get(scope, Stats.MONEY_EARNED))) .. "\n"
+    .. string.format(ns.L.MONEY_TIP_SPENT, Format.Money(Stats.Spent(scope)))
+end
 
 -- Ruf je Stunde im Bereich (Spielzeit wie bei XP/h)
 local function reputationRate(scope)
@@ -393,7 +401,8 @@ ns.STAT_LINES = {
     rows = { globalRow("ROW_INSTANCES_TODAY", instancesToday) } },
   { setting = "showQuests", group = "STAT_GROUP_TIME_MONEY", label = "STAT_QUESTS",
     rows = { { label = "ROW_QUESTS", value = counter(Stats.QUESTS) } } },
-  { setting = "showMoney", group = "STAT_GROUP_TIME_MONEY", label = "STAT_MONEY", rows = { { label = "ROW_MONEY", value = income } } },
+  { setting = "showMoney", group = "STAT_GROUP_TIME_MONEY", label = "STAT_MONEY", rows = {
+    { label = "ROW_MONEY", value = moneyBalance, tip = moneyBalanceTip } } },
   { setting = "showSpending", group = "STAT_GROUP_TIME_MONEY", label = "STAT_SPENDING", rows = {
     { label = "ROW_SPENT_REPAIR", value = money(Stats.SPENT_REPAIR) },
     { label = "ROW_SPENT_MERCHANT", value = money(Stats.SPENT_MERCHANT) },

@@ -12,7 +12,6 @@ addon.Set("language", "enUS")
 addon.Hints.Add({ text = "test" })
 for _, pair in ipairs({
   { "Hinweise", "Hints" },                                                  -- Titel Hinweisfenster
-  { "Alle schließen", "Close all" },                                       -- Knopf Hinweisfenster
   { "Nicht mehr automatisch anzeigen", "Don't show automatically" },       -- Haken Dungeon Guide
 }) do
   expect("kein deutscher Text: " .. pair[1], hasText(pair[1]), false)

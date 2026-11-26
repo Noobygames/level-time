@@ -20,6 +20,7 @@ local function play(seconds)
 end
 
 wow.login({ level = 20 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 play(3700)
 expect("aus: nichts", reminders(), 0)
 

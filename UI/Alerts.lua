@@ -149,6 +149,7 @@ local function display(message, color, sound, spec, sample)
   if spec then
     frame:Hide()
     notice.Set({ color = color, icon = spec.icon, texture = spec.texture, title = spec.title, body = spec.body })
+    notice.frame:EnableMouse(spec.hideKey ~= nil)  -- nur ausblendbare Hinweise fangen Klicks ab
     shown = notice.frame
   else
     notice.frame:Hide()
@@ -192,6 +193,27 @@ end
 
 ns.SetUpdateScript(frame, "Alerts", fade)
 ns.SetUpdateScript(notice.frame, "AlertNotice", fade)
+
+-- Hinweise mit diesem key verwerfen: wartende fallen weg, eine gerade gezeigte Karte endet sofort (z.B. Buff wieder da)
+function Alerts.DismissKey(key)
+  if key == nil then return end
+  for index = #queue, 1, -1 do
+    local spec = queue[index][4]
+    if spec and (spec.key == key or spec.hideKey == key) then table.remove(queue, index) end
+  end
+  local spec = current and current[4]
+  if spec and (spec.key == key or spec.hideKey == key) and notice.frame:IsShown() then shownAt = -math.huge end
+end
+
+-- Rechtsklick auf eine Hinweiskarte: "Diesen Hinweis nicht mehr anzeigen" wie im Hinweisfenster
+notice.frame:HookScript("OnMouseUp", function(self, mouseButton)
+  local spec = current and current[4]
+  if mouseButton ~= "RightButton" or not (spec and spec.hideKey) then return end
+  ns.Dropdown.Open(self, { entries = { { key = "hide", text = ns.L.HINT_HIDE_MENU } }, onPick = function()
+    ns.Hints.HideKey(spec.hideKey)
+    Alerts.DismissKey(spec.hideKey)
+  end })
+end)
 
 -- Einblendung zeigen; läuft schon eine, wartet die neue (höchstens MAX_QUEUE). options = { immediate = ersetzt die
 -- laufende und leert die Warteschlange, sound = Ton, falls eingeschaltet, notice = { icon, title, body } zeigt eine
@@ -277,10 +299,12 @@ end
 -- Karte zu einem Hinweis: mit Titel steht der Text als Zeile darunter, ohne Titel ist der Text der Titel
 function Alerts.NoticeCard(entry)
   local text, title = Alerts.Resolve(entry.text), Alerts.Resolve(entry.title)
-  return { icon = entry.icon, texture = entry.texture, title = title or text, body = title and text or nil }
+  return { icon = entry.icon, texture = entry.texture, title = title or text, body = title and text or nil,
+    key = entry.key }
 end
 
--- Erinnerungen statt dringender Meldungen: Notify(..., Alerts.COLLECT) sammelt sie im Hinweisfenster (UI/HintCollector.lua)
+-- Erinnerungen statt dringender Meldungen: Notify(..., Alerts.COLLECT) sammelt sie im Hinweisfenster (UI/HintCollector.lua),
+-- wenn der Spieler das will (hintsCollect); Einträge mit Tabelle (rows, z.B. alte Zauberränge) passen in keine Karte
 Alerts.COLLECT = { collect = true }
 
 -- Hinweis an den Spieler: jede Nachricht als Chatzeile und als Karte (mehrere warten nacheinander) oder, mit
@@ -291,11 +315,18 @@ function Alerts.Notify(notices, color, options)
   for _, entry in ipairs(notices) do
     if type(entry) == "string" then entry = { text = entry } end
     local text = Alerts.Resolve(entry.text)
-    ns.Print(text)
-    if options and options.collect then
-      ns.Hints.Add(entry)
-    else
-      Alerts.Show(text, color, { notice = Alerts.NoticeCard(entry) })
+    -- Per Rechtsklick ausgeblendete Erinnerungen (Hints.HideKey) erscheinen gar nicht mehr, auch nicht im Chat.
+    -- hideKey: Art des Hinweises, wenn mehrere gleichzeitig eigene keys brauchen (key ersetzt im Fenster)
+    if not (options and options.collect and ns.Hints.IsHidden(entry.hideKey or entry.key or text)) then
+      ns.Print(text)
+      if options and options.collect and (entry.rows or ns.db.hintsCollect) then
+        ns.Hints.Add(entry)
+      else
+        -- Erinnerungen als Karte: per Rechtsklick ausblendbar wie im Hinweisfenster
+        local card = Alerts.NoticeCard(entry)
+        if options and options.collect then card.hideKey = entry.hideKey or entry.key or text end
+        Alerts.Show(text, color, { notice = card })
+      end
     end
   end
 end

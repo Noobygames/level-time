@@ -1,6 +1,7 @@
 -- Optionen, Reiter Dungeons: Dungeonquests, Guide & Karte, Run & Bericht, Gruppensuche, Gruppe & Heiler, Beute würfeln.
 -- Abschnitte mit flavorabhängigen Daten erscheinen nur, wo es die Daten gibt (Classic Era, WoW Forever).
 local _, ns = ...
+local L = ns.L
 local O = ns.OptionsCore
 local addPage, finishPage, finishSubPages = O.addPage, O.finishPage, O.finishSubPages
 local addSection, addSlider, addToggles, addChooser, addButton = O.addSection, O.addSlider, O.addToggles, O.addChooser, O.addButton
@@ -29,6 +30,10 @@ if ns.DungeonQuests.IsAvailable() then
     toggle("DUNGEON_QUEST_TAGS_TOGGLE", "dungeonQuestTags", ns.DungeonQuestTags.IsAvailable),
   })
   addButton("DUNGEON_QUEST_HINT_SHOW", function() ns.DungeonQuestHints.Show() end)
+  addButton("DUNGEON_QUEST_HINT_RESTORE", function() ns.DungeonQuestHints.ClearHidden() end, {
+    text = function() return string.format(L.DUNGEON_QUEST_HINT_RESTORE, ns.DungeonQuestHints.HiddenCount()) end,
+    enabled = function() return ns.DungeonQuestHints.HiddenCount() > 0 end,
+  })
 end
 -- Guide & Karte: Dungeon Guide, Eingänge und Tooltip-Zusätze nur mit den Daten dazu
 if ns.DungeonGuide.IsAvailable() or ns.DungeonEntrances.IsAvailable() or ns.MechanicTips.IsAvailable()
@@ -68,7 +73,7 @@ addButton("DUNGEON_RUNS_OPEN", function() ns.InstanceRunWindow.Show() end)
 addSection("SECTION_INSTANCE_REPORT", { collapsible = true })
 addToggles({
   toggle("INSTANCE_REPORT_TOGGLE", "announceInstanceReport"),
-  toggle("INSTANCE_REPORT_LOOT_TOGGLE", "instanceReportLoot"),
+  requires(toggle("INSTANCE_REPORT_LOOT_TOGGLE", "instanceReportLoot"), "announceInstanceReport"),
   toggle("ANNOUNCE_INSTANCE_RESET", "announceInstanceReset"),
 })
 addChooser(requires({

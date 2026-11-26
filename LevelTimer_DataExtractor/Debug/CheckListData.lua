@@ -16,35 +16,29 @@
 local _, X = ...
 
 X.CheckListData = {
-  { id = "LT-104", client = "all", triggers = { "combat" },
+  { id = "LT-104", client = "all", triggers = { "combat" }, retry = "2026-11-17",
     title = "Kill-Quest-Markierung",
     steps = {
       "Questziele markieren und Namensplaketten an, zu Questgegnern laufen, Größe-Regler verstellen.",
       "Erwartung: gelbes Ausrufezeichen links neben dem Lebensbalken, so hoch wie der Balken, kein Überlappen; mit Plater Fallback über der Plakette.",
     } },
-  { id = "LT-125", client = "forever", triggers = { "anywhere" },
+  { id = "LT-125", client = "forever", triggers = { "anywhere" }, retry = "2026-11-17",
     title = "Schlafsack-Timer",
     steps = {
       "Forever: 'Gemütlichen Schlafsack' benutzen, dann /schlafen (unter 3 und mit 3 Stapeln Gut erholt); zwischendurch aufstehen.",
       "Erwartung: Karte zählt 180 s bzw. 60 s, Hinweise 'Gut erholt xN/3' und 'Fertig ausgeruht!', Aufstehen: 'Ausruhen abgebrochen'.",
     } },
-  { id = "LT-303", client = "all", triggers = { "history" },
+  { id = "LT-303", client = "all", triggers = { "history" }, retry = "2026-11-17",
     title = "Mehr Icons in unseren Fenstern (bevorzugt Client-Icons/Atlas)",
     steps = {
       "Verlauf, Dungeon-Runs, Rückblick, Hinweisfenster und /lt setup öffnen.",
       "Erwartung: jedes Fenster hat ein Symbol vor dem Titel.",
     } },
-  { id = "LT-338", client = "all", triggers = { "anywhere" },
+  { id = "LT-338", client = "all", triggers = { "anywhere" }, retry = "2026-11-22",
     title = "Aufräumen: Quest-Sync, Profil-Import und Release-Workflow absichern",
     steps = {
-      "In einer Gruppe mit einem anderen Level-Time-Spieler (Gruppen-Questabgleich an, auch anderer Realm) Quest-Tooltip ansehen; ein Mitspieler verlässt die Gruppe (Gruppe bleibt); /lte check LT338.sync.groupApi.",
+      "In einer Gruppe mit einem anderen Level-Time-Spieler (Einstellungen > Quests > 'Gruppen-Questabgleich' an, auch anderer Realm) Quest-Tooltip ansehen; ein Mitspieler verlässt die Gruppe (Gruppe bleibt); /lte check LT338.sync.groupApi.",
       "Erwartung: Fortschritt des Gegangenen verschwindet aus dem Tooltip, ein Mitspieler vom anderen Realm bleibt drin, solange er in der Gruppe ist.",
-    } },
-  { id = "LT-349", client = "all", triggers = { "options" },
-    title = "Wasserschild-Ladungen auch bei ausgeklappter Buffleiste",
-    steps = {
-      "Maus auf den Schalter für eingeklappte Buffs; Wasser-/Blitzschlagschild wirken, Buffleiste ein- und ausklappen.",
-      "Erwartung: Tooltip sagt, dass die Buffleiste eingeklappt sein muss; eingeklappt zeigt die Anzeige die Ladungen.",
     } },
   { id = "LT-388", client = "forever", triggers = { "options" }, retry = "2026-11-21",
     title = "Beyond Ultra Grafik: Wetter, Wasserwellen, Sonnenstrahlen, HDR, Pause in Instanzen",
@@ -94,7 +88,7 @@ X.CheckListData = {
       "Einstellungen > Dungeons > Gruppensuche: Flüstertext ansehen/ändern (Platzhalter {role} {class} {level} {dungeon}); im Gruppensuche-Fenster eine Gruppe wählen und Flüstern klicken.",
       "Erwartung: genau eine Nachricht mit ersetzten Platzhaltern geht an den Leiter (im Chat sichtbar), nie ohne Klick; leerer Text = Standardtext; ohne gesetzte Rolle bleibt {role} leer.",
     } },
-  { id = "LT-349", client = "all", triggers = { "combat" },
+  { id = "LT-349", client = "all", triggers = { "combat" }, retry = "2026-11-21",
     title = "Wasserschild-Ladungen bei ein- und ausgeklappter Buffleiste",
     steps = {
       "Schamane mit Wasserschild: Buffleiste ausgeklappt ansehen und Tooltip der Option lesen; Leiste einklappen; dann einen Übungsdummy angreifen.",
@@ -129,5 +123,17 @@ X.CheckListData = {
     steps = {
       "Nach dem Login /lte check LT393.dungeonArt.coverage; dann das Dungeonkompendium einmal öffnen und schließen, /reload, Check erneut.",
       "Erwartung: found > 0 und der Guide zeigt Banner-Bilder; sonst steht unter raw, ob Erweiterungen (tiers) und eine erste Instanz geliefert werden (Antwort ins Ticket).",
+    } },
+  { id = "LT-419", client = "all", triggers = { "anywhere" },
+    title = "Freie Taschenplätze am Rucksack und auf der Reagenzientasche",
+    steps = {
+      "Reagenzientasche ausrüsten (Retail/Forever), Taschen teilweise füllen; Einstellungen > Oberfläche > 'Freie Taschenplätze' an und aus.",
+      "Erwartung: an = Rucksack zeigt '(n)' nur für normale Taschen, Reagenzientasche ihre eigene Zahl unten, keine doppelte Zahl; aus = Blizzards Zahl zurück.",
+    } },
+  { id = "LT-421", client = "forever", triggers = { "lfg" },
+    title = "Gruppensuche: Reiter Mitspieler neu",
+    steps = {
+      "Nach einem Dungeon mit Gruppe (am besten mit Rollenabfrage) Gruppensuche > Mitspieler öffnen; Knöpfe + und - klicken, Zeile mit der Maus berühren.",
+      "Erwartung: Klassensymbol, Name in Klassenfarbe, Rollensymbol; zweite Zeile 'Dungeon · Zeit'; aktiver Knopf farbig, noch einmal = weg; Tooltip mit Stufe, Klasse, Rolle, Dungeon.",
     } },
 }

@@ -14,6 +14,7 @@ local function reminders()
 end
 
 wow.login({ level = 10 })
+addon.Set("hintsCollect", true)  -- Szenario prüft das Sammelfenster (Opt-In)
 expect("ohne Satt fehlt es", BuffReminder.IsFoodMissing(), true)
 BuffReminder.Check()
 expect("aus: kein Hinweis", reminders(), 0)
